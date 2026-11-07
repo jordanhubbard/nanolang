@@ -1,0 +1,37 @@
+test_coverage_bootstrap_and_suite_have_separate_sufficient_jobs (tests.test_ci_workflow.CIWorkflowTests.test_coverage_bootstrap_and_suite_have_separate_sufficient_jobs) ... ok
+test_coverage_dependency_setup_is_pinned_and_separately_bounded (tests.test_ci_workflow.CIWorkflowTests.test_coverage_dependency_setup_is_pinned_and_separately_bounded) ... ok
+test_coverage_report_matches_the_recorded_report_only_policy (tests.test_ci_workflow.CIWorkflowTests.test_coverage_report_matches_the_recorded_report_only_policy) ... ok
+test_darwin_execution_uses_supported_runner_with_stable_required_name (tests.test_ci_workflow.CIWorkflowTests.test_darwin_execution_uses_supported_runner_with_stable_required_name) ... ok
+test_instrumented_bootstrap_and_suite_budgets_fit_jobs (tests.test_ci_workflow.CIWorkflowTests.test_instrumented_bootstrap_and_suite_budgets_fit_jobs) ... ok
+test_required_test_jobs_use_bounded_suite (tests.test_ci_workflow.CIWorkflowTests.test_required_test_jobs_use_bounded_suite) ... ok
+test_sanitizer_continuation_requires_the_successful_exact_checkpoint (tests.test_ci_workflow.CIWorkflowTests.test_sanitizer_continuation_requires_the_successful_exact_checkpoint) ... ok
+test_sanitizers_bootstrap_real_generations_before_tests (tests.test_ci_workflow.CIWorkflowTests.test_sanitizers_bootstrap_real_generations_before_tests) ... ok
+test_sanitizers_have_instrumented_runtime_budget (tests.test_ci_workflow.CIWorkflowTests.test_sanitizers_have_instrumented_runtime_budget) ... ok
+test_service_generations_have_a_budget_after_bootstrap (tests.test_ci_workflow.CIWorkflowTests.test_service_generations_have_a_budget_after_bootstrap) ... ok
+test_sqlite_headers_are_installed_for_test_jobs (tests.test_ci_workflow.CIWorkflowTests.test_sqlite_headers_are_installed_for_test_jobs) ... ok
+test_actual_archive_config_and_platform_binding (tests.test_ci_container.ImmutableImage.test_actual_archive_config_and_platform_binding) ... ok
+test_actual_container_mismatch_refuses_start_and_removes_container (tests.test_ci_container.ImmutableImage.test_actual_container_mismatch_refuses_start_and_removes_container) ... ok
+test_changed_archive_refuses_before_docker_load (tests.test_ci_container.ImmutableImage.test_changed_archive_refuses_before_docker_load) ... ok
+test_checkpoint_requires_execution_receipt_not_environment_claim (tests.test_ci_container.ImmutableImage.test_checkpoint_requires_execution_receipt_not_environment_claim) ... ok
+test_oci_manifest_binds_config_and_refuses_changed_edge (tests.test_ci_container.ImmutableImage.test_oci_manifest_binds_config_and_refuses_changed_edge) ... ok
+test_any_code_or_build_file_is_code (tests.test_ci_changed.CiChanged.test_any_code_or_build_file_is_code) ... ok
+test_command_output (tests.test_ci_changed.CiChanged.test_command_output) ... ok
+test_documentation_only_is_not_code (tests.test_ci_changed.CiChanged.test_documentation_only_is_not_code) ... ok
+test_unknown_or_empty_input_runs_the_long_jobs (tests.test_ci_changed.CiChanged.test_unknown_or_empty_input_runs_the_long_jobs) ... ok
+test_actual_service_targets_reject_original_bare_tool_regression (tests.test_make_prerequisites.MakePrerequisites.test_actual_service_targets_reject_original_bare_tool_regression) ... ok
+test_bare_tool_is_rejected_without_running_recipes (tests.test_make_prerequisites.MakePrerequisites.test_bare_tool_is_rejected_without_running_recipes) ... ok
+test_repository_test_prerequisites_resolve (tests.test_make_prerequisites.MakePrerequisites.test_repository_test_prerequisites_resolve) ... ok
+test_installation_checks_identity_type_and_version_before_replacing_output (tests.test_wasmtime_prerequisite.WasmtimePrerequisite.test_installation_checks_identity_type_and_version_before_replacing_output) ... ok
+test_missing_runtime_has_actionable_diagnostic (tests.test_wasmtime_prerequisite.WasmtimePrerequisite.test_missing_runtime_has_actionable_diagnostic) ... ok
+test_actual_qualified_sdk_path_and_settings (tests.test_ci_capture_selection.CaptureSelection.test_actual_qualified_sdk_path_and_settings) ... skipped 'The qualified CommandLineTools SDK is not installed.'
+test_changed_compiler_or_backend_refuses_before_publication (tests.test_ci_capture_selection.CaptureSelection.test_changed_compiler_or_backend_refuses_before_publication) ... ok
+test_different_existing_sdk_or_version_refuses (tests.test_ci_capture_selection.CaptureSelection.test_different_existing_sdk_or_version_refuses) ... ok
+test_exact_selection_records_tools_and_environment (tests.test_ci_capture_selection.CaptureSelection.test_exact_selection_records_tools_and_environment) ... ok
+test_missing_sdk_or_wrong_report_refuses (tests.test_ci_capture_selection.CaptureSelection.test_missing_sdk_or_wrong_report_refuses) ... ok
+test_workflow_preserves_corpora_and_build_compiler (tests.test_ci_capture_selection.CaptureSelection.test_workflow_preserves_corpora_and_build_compiler) ... ok
+test_wrapper_preserves_arguments_and_exit (tests.test_ci_capture_selection.CaptureSelection.test_wrapper_preserves_arguments_and_exit) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 1.245s
+
+OK (skipped=1)

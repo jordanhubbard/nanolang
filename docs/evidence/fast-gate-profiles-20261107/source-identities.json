@@ -1,0 +1,8 @@
+{
+  "src/nanovm/vm.c": "58544458900f6d8bd8166453333a79322bc2dce8c72bea16171f7f6196183bb3",
+  "src/nanovm/union_field_vm_prepare.inc": "250d56dc09891e81cf069383ee1044c6a9d0d61a1dd2eed9d979cfc90d0bfac2",
+  "tests/nanoisa/test_disasm_roundtrip.c": "458c0292d10d215197ee54748a066e33b7b2c36b0ab992ebe62ef61025d0a547",
+  "scripts/fast_gate.py": "50d87af11e870f205d0098245a1d25d0da7e088fff5bfdc80b6dceb434d185a6",
+  "tests/test_fast_gate.py": "7f7ef4237e0cc96e7b1b57e6c712cf7a895194d73c768a28133994ee6bfd190b",
+  "Makefile.gnu": "0c5f1ee4fbdbaca4a71c4c4dc26d08089097d5f629981db7059aff7b913cda4b"
+}

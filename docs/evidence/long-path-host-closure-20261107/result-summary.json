@@ -1,0 +1,50 @@
+{
+  "source_commit": "89a8f2eac6cafb7b824a08f298b80b69994f30c8",
+  "path_characters": 316,
+  "path_bytes": 316,
+  "passed": false,
+  "retained_execution_admission": false,
+  "failure": "I require the exact seed host closure in every generation.",
+  "steps": [
+    {
+      "label": "seed",
+      "exit_code": 0,
+      "elapsed_seconds": 63.05975520799984,
+      "log_sha256": "5ee8923f1ed20a19d6f201ad4a2afbbb25351cb20cc3538e2dc872c1e4e60caa"
+    },
+    {
+      "label": "seed-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3030633750022389,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "exit_code": 0,
+      "elapsed_seconds": 905.6834445409768,
+      "log_sha256": "6764e8e0eda4dd4b96e1d81325d5bbc8860d4d9c572186411e892a5caf987732"
+    },
+    {
+      "label": "stage1-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2722182919969782,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "expected_library_count": 6,
+  "actual_library_count": 6,
+  "unchanged_library_paths": 5,
+  "old_generation": ".nano-gen-AWXzD2",
+  "new_generation": ".nano-gen-mDJCnl",
+  "library_bytes_equal": false,
+  "old_library_sha256": "407fbe45205e4067cf99c26b69a046217cf179bf336cfd2d42624f8a79b26eab",
+  "new_library_sha256": "20871c2ae2b75473257490580ec98a6f475a8c202e2f0153b4f94e4c4bdd6747",
+  "unchanged_members": {
+    "assembly_snapshots": 81,
+    "objects": 82,
+    "dependency_files": 81,
+    "include_records": 81
+  },
+  "only_changed_member": "libfile_product.dylib",
+  "retained_evidence": "/Users/jkh/.worktrees/nanolang/qualify-long-path-wbjccc27"
+}

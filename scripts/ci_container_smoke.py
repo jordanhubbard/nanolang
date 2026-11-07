@@ -52,6 +52,23 @@ subprocess.run(['cc','--coverage',str(root/'tiny.c'),'-o',str(root/'coverage')],
 subprocess.run([str(root/'coverage')],check=True)
 assert list(root.glob('*.gcda'))
 subprocess.run(['lcov','--capture','--directory',str(root),'--output-file',str(root/'coverage.info')],check=True)
+# I exercise the actual optional-translator tool closure before a long bootstrap.
+for tool in ('clang','llvm-as','lli','opt','llc','wasm-ld','node','wasmtime'):
+    subprocess.run([tool,'--version'],check=True,capture_output=True)
+source = root/'engine.c'; ir = root/'engine.ll'; obj = root/'engine.o'; wasm = root/'engine.wasm'
+source.write_text('int nano_entry(void) { return 0; }\n')
+subprocess.run(['clang','--target=wasm32-unknown-unknown','-ffreestanding','-fno-builtin',
+                '-O2','-S','-emit-llvm',str(source),'-o',str(ir)],check=True)
+subprocess.run(['opt','-passes=verify','-disable-output',str(ir)],check=True)
+subprocess.run(['llvm-as',str(ir),'-o',str(root/'engine.bc')],check=True)
+subprocess.run(['llc','-filetype=obj',str(ir),'-o',str(obj)],check=True)
+subprocess.run(['wasm-ld','--no-entry','--export=nano_entry',str(obj),'-o',str(wasm)],check=True)
+result = subprocess.run(['wasmtime','run','--invoke','nano_entry',str(wasm)],
+                        check=True,capture_output=True,text=True)
+assert result.stdout == '0\n'
+subprocess.run(['node','-e','const fs=require("fs");const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));'
+                'if(new WebAssembly.Instance(m).exports.nano_entry()!==0)process.exit(1);',str(wasm)],check=True)
+print('I verified LLVM IR, linked Wasm and executed it in both engines inside the verified image.')
 checkpoint.ROOT = root
 receipt = {'tools':['probe'],'hosts':[]}
 identity = checkpoint.environment(receipt)

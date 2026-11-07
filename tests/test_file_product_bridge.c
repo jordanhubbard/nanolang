@@ -22,13 +22,19 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
 }
 static long remaining=-1;
 static void *checked_malloc(size_t size) {
-    if(remaining==0)return NULL;if(remaining>0)--remaining;return malloc(size);
+    if (remaining == 0) return NULL;
+    if (remaining > 0) --remaining;
+    return malloc(size);
 }
 static void *checked_calloc(size_t count,size_t size) {
-    if(remaining==0)return NULL;if(remaining>0)--remaining;return calloc(count,size);
+    if (remaining == 0) return NULL;
+    if (remaining > 0) --remaining;
+    return calloc(count,size);
 }
 static void *checked_realloc(void *p,size_t size) {
-    if(remaining==0)return NULL;if(remaining>0)--remaining;return realloc(p,size);
+    if (remaining == 0) return NULL;
+    if (remaining > 0) --remaining;
+    return realloc(p,size);
 }
 #define malloc checked_malloc
 #define calloc checked_calloc

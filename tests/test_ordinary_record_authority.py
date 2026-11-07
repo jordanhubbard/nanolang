@@ -2,9 +2,11 @@
 import os
 from pathlib import Path
 import shlex
+import struct
 import subprocess
 import tempfile
 import unittest
+import zlib
 ROOT=Path(__file__).resolve().parents[1]
 class OrdinaryAuthority(unittest.TestCase):
     def command(self,args,success=True,expected=None):
@@ -24,7 +26,25 @@ class OrdinaryAuthority(unittest.TestCase):
                 forward=work/(compiler+'-forward.nvm')
                 owned_forward=work/(compiler+'-owned-forward.nvm')
                 owned_prior=work/(compiler+'-owned-prior.nvm')
-                self.assertIn('ordinary authority checks',self.command([exe,module,forward,owned_forward,owned_prior]).stdout)
+                ordinary_forward=work/(compiler+'-ordinary-owned-forward.nvm')
+                ordinary_prior=work/(compiler+'-ordinary-owned-prior.nvm')
+                self.assertIn('ordinary authority checks',self.command([
+                    exe,module,forward,owned_prior,ordinary_forward,ordinary_prior]).stdout)
+                # The real producer refuses a resource-forward declaration before
+                # serialization. I forge only its authority bits, retaining a valid
+                # checksum, to exercise the public consumers' independent refusal.
+                raw=bytearray(ordinary_forward.read_bytes())
+                header,count=struct.unpack_from('<II',raw,20)
+                for index in range(count):
+                    kind,_,offset,_=struct.unpack_from('<IIQQ',raw,header+24*index)
+                    if kind==13:
+                        self.assertEqual(raw[offset+8:offset+10],b'\x01\x01')
+                        raw[offset+8:offset+10]=b'\x03\x03'
+                        break
+                else:
+                    self.fail('I require the emitted ownership section.')
+                struct.pack_into('<I',raw,36,zlib.crc32(raw[header:]))
+                owned_forward.write_bytes(raw)
                 for accepted,expected in ((forward,0),(owned_prior,7)):
                     self.command([ROOT/'bin/nano_vm','--verify-only',accepted])
                     self.command([ROOT/'bin/nano_vm',accepted],expected=expected)
@@ -32,11 +52,16 @@ class OrdinaryAuthority(unittest.TestCase):
                     self.command([ROOT/'bin/nvm2c',accepted,'-o',translated])
                     self.command([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror',translated,'-lm','-o',binary])
                     self.command([binary],expected=expected)
-                self.command([ROOT/'bin/nano_vm','--verify-only',owned_forward],False)
-                self.command([ROOT/'bin/nano_vm',owned_forward],False)
-                output=work/'owned-prior-output';output.write_bytes(b'prior')
-                self.command([ROOT/'bin/nvm2c',owned_forward,'-o',output],False)
-                self.assertEqual(output.read_bytes(),b'prior')
+                for refused in (owned_forward,ordinary_forward,ordinary_prior):
+                    for arguments in (['--verify-only',refused],[refused]):
+                        result=self.command([ROOT/'bin/nano_vm',*arguments],False)
+                        self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                        self.assertNotIn('checksum',result.stderr.lower())
+                    output=work/'owned-prior-output';output.write_bytes(b'prior')
+                    result=self.command([ROOT/'bin/nvm2c',refused,'-o',output],False)
+                    self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                    self.assertNotIn('checksum',result.stderr.lower())
+                    self.assertEqual(output.read_bytes(),b'prior')
                 for tool in ('nvm2llvm','nvm2wasm'):
                     output=work/('forward.ll' if tool=='nvm2llvm' else 'forward.wasm')
                     self.command([ROOT/'bin'/tool,forward,'-o',output])

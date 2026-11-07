@@ -1,0 +1,16 @@
+test_large_shared_closure_records_dependencies_and_reuses_generation (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_large_shared_closure_records_dependencies_and_reuses_generation) ... FAIL
+
+======================================================================
+FAIL: test_large_shared_closure_records_dependencies_and_reuses_generation (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_large_shared_closure_records_dependencies_and_reuses_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_module_builder_self_capture.py", line 61, in test_large_shared_closure_records_dependencies_and_reuses_generation
+    self.assertTrue((first/"source_hashes.json").is_file(), cold.stdout + cold.stderr)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-large-shared-jwvrz8w0/quoted ' dollar$ path xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/.build/.nano-gen-kKgBCp/many_shared.o
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.968s
+
+FAILED (failures=1)

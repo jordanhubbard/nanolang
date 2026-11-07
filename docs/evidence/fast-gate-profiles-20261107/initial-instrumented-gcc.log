@@ -1,0 +1,7 @@
+gcc: I cover 226 test C files through Make/private profiles; 239 need a separate profile audit.
+  PROFILE SCOPE: modules/dispatch/dispatch.c: Darwin blocks require Clang
+  PROFILE SCOPE: src/runtime/callback_runtime.c: Darwin blocks require Clang
+  PROFILE SCOPE: tests/nanovm/test_dispatch_allocation.c: Darwin blocks require Clang
+  PROFILE SCOPE: tests/nanovm/test_dispatch_retained.c: Darwin blocks require Clang
+gcc (/opt/homebrew/bin/gcc-16): 846 compiles, 0 failed, 1337.3s
+fast gate: ok

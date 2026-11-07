@@ -1,0 +1,73 @@
+{
+  "schema": "nanolang/long-path-bootstrap-check@1",
+  "source_commit": "fbdfc32e846a43ad7dce617243e2e4d5d0eca61b",
+  "worktree": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "path_characters": 316,
+  "path_bytes": 316,
+  "steps": [
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "--no-checkout",
+        "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "fbdfc32e846a43ad7dce617243e2e4d5d0eca61b"
+      ],
+      "cwd": "/Users/jkh/Src/nanolang",
+      "started": "2026-11-07T16:37:28.073837+00:00",
+      "log": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/00.log",
+      "returncode": 0,
+      "finished": "2026-11-07T16:37:28.102868+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "sparse-checkout",
+        "set",
+        "--no-cone",
+        "/*",
+        "!/docs/evidence/"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "started": "2026-11-07T16:37:28.103210+00:00",
+      "log": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/01.log",
+      "returncode": 0,
+      "finished": "2026-11-07T16:37:28.132161+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "checkout",
+        "--detach",
+        "fbdfc32e846a43ad7dce617243e2e4d5d0eca61b"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "started": "2026-11-07T16:37:28.132492+00:00",
+      "log": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/02.log",
+      "returncode": 0,
+      "finished": "2026-11-07T16:37:28.883703+00:00"
+    },
+    {
+      "argv": [
+        "make",
+        "-j2",
+        "OBJ_DIR=obj",
+        "BIN_DIR=bin",
+        "NANO_BUILD_CACHE=/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/obj/module_cache",
+        "NANO_SHADOW_TIMEOUT_SECONDS=120",
+        "bootstrap1"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "started": "2026-11-07T16:37:28.884190+00:00",
+      "log": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/03.log",
+      "returncode": 0,
+      "finished": "2026-11-07T16:50:34.255940+00:00"
+    }
+  ],
+  "passed": true,
+  "retained_execution_admission": false,
+  "shadow_timeout_seconds": 120,
+  "bootstrap_manifest": "/Users/jkh/.worktrees/nanolang/qualify-long-path-60pd9bks/source/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/native-bootstrap-path-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/bin/nanoc_bootstrap.json"
+}

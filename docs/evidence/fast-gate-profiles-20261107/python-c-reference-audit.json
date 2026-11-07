@@ -1,0 +1,4337 @@
+{
+  "tests/calculator_test.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/diagnostics/opencl_unload_maps.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/factorial_test.c": {
+    "references": [
+      {
+        "path": "scripts/benchmark.sh",
+        "line": 90,
+        "text": "rm -f .benchmark_factorial_test .benchmark_factorial_test.c"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/file_service_parser_eval.c": {
+    "references": [
+      {
+        "path": "tests/test_file_service_parser.py",
+        "line": 41,
+        "text": "source=ROOT/'tests/file_service_parser_eval.c' if provider=='eval' else ROOT/'src'/(provider+'.c')"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_service_parser.py": [
+        "-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1",
+        "-D_DARWIN_C_SOURCE",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/fixtures/assembler_snapshot_preload.c": {
+    "references": [
+      {
+        "path": "tests/test_assembler_snapshot_trial.py",
+        "line": 31,
+        "text": "*instrumentation, str(ROOT / \"tests/fixtures/assembler_snapshot_preload.c\"), \"-ldl\", \"-o\", str(cls.preload)],"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_assembler_snapshot_trial.py": []
+    }
+  },
+  "tests/forth/test_forth_core_load.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 2402,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2412,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2429,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2446,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2463,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2480,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2498,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2515,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2532,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2549,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2566,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2584,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2601,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 2622,
+        "text": "tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/forth/test_forth_include_gap.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 2390,
+        "text": "tests/forth/test_forth_include_gap.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/forth/test_forth_pty_repl.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 2313,
+        "text": "tests/forth/test_forth_pty_repl.c modules/pty/pty.c"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/fs_walk_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_directory_walk.py",
+        "line": 24,
+        "text": "\"tests/fs_walk_probe.c\", \"src/runtime/dyn_array.c\", \"src/runtime/gc.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_directory_walk.py": [
+        "-DWALK_HEADER",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/fuzzing/fuzz_lexer.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 4318,
+        "text": "tests/fuzzing/simple_fuzz_lexer.c src/lexer.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/fuzzing/fuzz_parser.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 4304,
+        "text": "-o $(BIN_DIR)/fuzz_parser tests/fuzzing/fuzz_parser.c src/lexer.c src/parser.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/fuzzing/simple_fuzz_lexer.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 4318,
+        "text": "tests/fuzzing/simple_fuzz_lexer.c src/lexer.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/hello_test.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/mixed_websocket_values_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_websocket_values.py",
+        "line": 64,
+        "text": "'tests/mixed_websocket_values_probe.c', *sources, *crypto, '-o', str(exe)])"
+      },
+      {
+        "path": "tests/test_mixed_websocket_values.py",
+        "line": 77,
+        "text": "source.write_text((ROOT / 'tests/mixed_websocket_values_probe.c').read_text().replace("
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_websocket_values.py": [
+        "-DMIXED_VALUES_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=mixed_values_calloc",
+        "-Dfclose=mixed_values_fclose",
+        "-Dfree=mixed_values_free",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/binary64_parser_vm.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5147,
+        "text": "$(OBJ_DIR)/binary64_parser_vm: tests/nanoisa/binary64_parser_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/file_cyclic_dispatch_values.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_dispatch.py",
+        "line": 73,
+        "text": "actual = ('tests/nanoisa/file_cyclic_dispatch_values.c'"
+      },
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 83,
+        "text": "actual = 'tests/nanoisa/file_cyclic_dispatch_values.c' if instrument and stem == 'nsi_file_values' else source"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_dispatch.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_cyclic_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_cyclic_public.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_cyclic_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/file_cyclic_runtime_values.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_runtime.py",
+        "line": 68,
+        "text": "*hooks, '-c', ('tests/nanoisa/file_cyclic_runtime_values.c' if instrument and stem == 'nsi_file_values' else source), '-o', str(obj)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_runtime.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/file_host_grant_instrumented.c": {
+    "references": [
+      {
+        "path": "tests/test_file_host_grant.py",
+        "line": 71,
+        "text": "source = (\"tests/nanoisa/file_host_grant_instrumented.c\" if instrumented"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_host_grant.py": [
+        "-DFILE_HOST_INSTRUMENTED",
+        "-Isrc/nanoisa",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanoisa/file_host_grant_peer.c": {
+    "references": [
+      {
+        "path": "tests/test_file_host_grant.py",
+        "line": 61,
+        "text": "run(common + [\"-std=c99\", \"-c\", \"tests/nanoisa/file_host_grant_peer.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_host_grant.py": [
+        "-DFILE_HOST_INSTRUMENTED",
+        "-Isrc/nanoisa",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanoisa/file_indirect_dispatch_values.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_dispatch.py",
+        "line": 73,
+        "text": "actual = ('tests/nanoisa/file_indirect_dispatch_values.c'"
+      },
+      {
+        "path": "tests/test_file_indirect_public.py",
+        "line": 84,
+        "text": "actual = 'tests/nanoisa/file_indirect_dispatch_values.c' if instrument and stem == 'nsi_file_values' else source"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_dispatch.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_indirect_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_indirect_public.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DRUN_VM",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_indirect_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/file_runtime_frame_values.c": {
+    "references": [
+      {
+        "path": "tests/test_file_private_vm.py",
+        "line": 71,
+        "text": "*hooks, '-c', ('tests/nanoisa/file_runtime_frame_values.c' if instrument and stem == 'nsi_file_values' else source), '-o', str(obj)])"
+      },
+      {
+        "path": "tests/test_file_runtime_frames.py",
+        "line": 70,
+        "text": "*hooks, '-c', ('tests/nanoisa/file_runtime_frame_values.c' if instrument and stem == 'nsi_file_values' else source), '-o', str(obj)])"
+      },
+      {
+        "path": "tests/test_file_private_native.py",
+        "line": 105,
+        "text": "('tests/nanoisa/file_runtime_frame_values.c' if instrument and stem == 'nsi_file_values' else source),"
+      },
+      {
+        "path": "tests/test_file_public.py",
+        "line": 139,
+        "text": "('tests/nanoisa/file_runtime_frame_values.c' if instrument and stem == 'nsi_file_values' else source),"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_private_native.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_private_vm.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_public.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm2c_file_private_emit=file_reference_emit",
+        "-Dnvm_file_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_runtime_frames.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/fixture_identifier_lexer.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 6860,
+        "text": "$(OBJ_DIR)/fixture_identifier_lexer: tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c src/nanolang.h src/generated/compiler_schema.h src/string_literal_decode.h | $(OBJ_DIR)"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 6861,
+        "text": "$(CC) $(CFLAGS) -o $@ tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/generic_numeric_bits.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5115,
+        "text": "$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/literal_string_aliases.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5129,
+        "text": "$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/managed_record_reentry.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5106,
+        "text": "$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/managed_string_smoke.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_string_core.py",
+        "line": 15,
+        "text": "SMOKE = ROOT/'tests/nanoisa/managed_string_smoke.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_string_core.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/publication_alloc.c": {
+    "references": [
+      {
+        "path": "tests/test_publication_allocation.py",
+        "line": 119,
+        "text": "'tests/nanoisa/publication_alloc.c',*objects,*common,*ldflags,'-o',executable])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_publication_allocation.py": [
+        "-DPUBLICATION_ALLOC_WRAP",
+        "-Dfree=pa_free",
+        "-Dmain=publisher_cli_main",
+        "-Drealloc=pa_cleanup_realloc",
+        "-Isrc/nanoisa",
+        "-Isrc/nanovirt",
+        "-Itests/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/sail_decode_oracle.c": {
+    "references": [
+      {
+        "path": "scripts/sail_decode_cases.py",
+        "line": 85,
+        "text": "str(ROOT / \"tests/nanoisa/sail_decode_oracle.c\"), str(ROOT / \"src/nanoisa/isa.c\"),"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "scripts/sail_decode_cases.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/scalar_global_lifetime.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5124,
+        "text": "$(CC) $(CFLAGS) -o obj/scalar_global_lifetime tests/nanoisa/scalar_global_lifetime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/test_affine_private_variants.c": {
+    "references": [
+      {
+        "path": "tests/test_affine_private_variants.py",
+        "line": 40,
+        "text": "ROOT / 'tests/nanoisa/test_affine_private_variants.c',"
+      },
+      {
+        "path": "tests/test_affine_private_variants.py",
+        "line": 54,
+        "text": "self.command([*common, 'tests/nanoisa/test_affine_private_variants.c', decoder,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_affine_private_variants.py": [
+        "-Dcalloc=variants_test_calloc",
+        "-Dfree=variants_test_free",
+        "-Dmalloc=variants_test_malloc",
+        "-Isrc/nanoisa",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic.py",
+        "line": 91,
+        "text": "sources = [\"tests/nanoisa/test_file_cyclic.c\", \"src/nanoisa/service_file_nominal.c\", \"src/nsi_file_plan.c\"]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_dispatch.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_dispatch.py",
+        "line": 106,
+        "text": "fixture = 'tests/nanoisa/test_file_cyclic_dispatch.c'"
+      },
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 151,
+        "text": "for label,fixture in (('private','tests/nanoisa/test_file_cyclic_dispatch.c'),"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_dispatch.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_cyclic_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_cyclic_public.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_cyclic_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_hosted.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_hosted.py",
+        "line": 43,
+        "text": "\"tests/nanoisa/test_file_cyclic_hosted.c\", *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_hosted.py": [
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_hosted_integration.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_hosted_integration.py",
+        "line": 36,
+        "text": "\"tests/nanoisa/test_file_cyclic_hosted_integration.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_hosted_integration.py": [
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_native_buffer.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_dispatch.py",
+        "line": 112,
+        "text": "'-DFILE_CYCLIC_CAPTURE', fixture, 'tests/nanoisa/test_file_cyclic_native_buffer.c',"
+      },
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 157,
+        "text": "'-DFILE_CYCLIC_CAPTURE',fixture,'tests/nanoisa/test_file_cyclic_native_buffer.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_dispatch.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_cyclic_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_cyclic_public.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_cyclic_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_public.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 152,
+        "text": "('public','tests/nanoisa/test_file_cyclic_public.c')):"
+      },
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 191,
+        "text": "'tests/nanoisa/test_file_cyclic_public.c',str(registry),*compiled,*objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_public.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_cyclic_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_cyclic_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_runtime.py",
+        "line": 18,
+        "text": "fixture = \"tests/nanoisa/test_file_cyclic_runtime.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_runtime.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_host_grant.c": {
+    "references": [
+      {
+        "path": "tests/test_file_host_grant.py",
+        "line": 76,
+        "text": "run(common + [\"-std=c99\"] + defines + [\"-c\", \"tests/nanoisa/test_file_host_grant.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_host_grant.py": [
+        "-DFILE_HOST_INSTRUMENTED",
+        "-Isrc/nanoisa",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_hosted.c": {
+    "references": [
+      {
+        "path": "tests/test_file_hosted.py",
+        "line": 57,
+        "text": "'tests/nanoisa/test_file_hosted.c', *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_hosted.py": [
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_dispatch.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_dispatch.py",
+        "line": 106,
+        "text": "fixture = 'tests/nanoisa/test_file_indirect_dispatch.c'"
+      },
+      {
+        "path": "tests/test_file_indirect_public.py",
+        "line": 147,
+        "text": "for label,fixture in (('private','tests/nanoisa/test_file_indirect_dispatch.c'),"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_dispatch.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_indirect_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_indirect_public.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DRUN_VM",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_indirect_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_flow.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_flow.py",
+        "line": 91,
+        "text": "sources = [\"tests/nanoisa/test_file_indirect_flow.c\", \"src/nanoisa/service_file_nominal.c\", \"src/nsi_file_plan.c\"]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_flow.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_hosted.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_hosted.py",
+        "line": 45,
+        "text": "\"tests/nanoisa/test_file_indirect_hosted.c\", *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_hosted.py": [
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_native_buffer.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_dispatch.py",
+        "line": 112,
+        "text": "'-DFILE_INDIRECT_CAPTURE', fixture, 'tests/nanoisa/test_file_indirect_native_buffer.c',"
+      },
+      {
+        "path": "tests/test_file_indirect_public.py",
+        "line": 153,
+        "text": "'-DFILE_INDIRECT_CAPTURE',fixture,'tests/nanoisa/test_file_indirect_native_buffer.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_dispatch.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_indirect_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_indirect_public.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DRUN_VM",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_indirect_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_public.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_public.py",
+        "line": 148,
+        "text": "('public','tests/nanoisa/test_file_indirect_public.c')):"
+      },
+      {
+        "path": "tests/test_file_indirect_public.py",
+        "line": 187,
+        "text": "'tests/nanoisa/test_file_indirect_public.c',str(registry),*compiled,*objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_public.py": [
+        "-DFILE_INDIRECT_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_FILE_INDIRECT_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DRUN_VM",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_indirect_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_indirect_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_indirect_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_runtime.py",
+        "line": 8,
+        "text": "fixture = \"tests/nanoisa/test_file_indirect_runtime.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_runtime.py": []
+    }
+  },
+  "tests/nanoisa/test_file_indirect_targets.c": {
+    "references": [
+      {
+        "path": "tests/test_file_indirect_targets.py",
+        "line": 91,
+        "text": "sources = [\"tests/nanoisa/test_file_indirect_targets.c\", \"src/nanoisa/service_file_nominal.c\", \"src/nsi_file_plan.c\"]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_indirect_targets.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_native_buffer.c": {
+    "references": [
+      {
+        "path": "tests/test_file_private_native.py",
+        "line": 145,
+        "text": "'-DFILE_NATIVE_CAPTURE', fixture, 'tests/nanoisa/test_file_native_buffer.c', *objects, *self.objects, *self.ldflags, '-o', str(capture)])"
+      },
+      {
+        "path": "tests/test_file_public.py",
+        "line": 199,
+        "text": "'-DFILE_NATIVE_CAPTURE', fixture, 'tests/nanoisa/test_file_native_buffer.c', *objects, *self.objects, *self.ldflags, '-o', str(capture)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_private_native.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_public.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm2c_file_private_emit=file_reference_emit",
+        "-Dnvm_file_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_nominal_module.c": {
+    "references": [
+      {
+        "path": "tests/test_file_nominal_module.py",
+        "line": 36,
+        "text": "\"tests/nanoisa/test_file_nominal_module.c\", *objects, *self.linkflags, \"-o\", str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_nominal_module.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_opcodes.c": {
+    "references": [
+      {
+        "path": "tests/test_file_opcodes.py",
+        "line": 50,
+        "text": "\"tests/nanoisa/test_file_opcodes.c\", *objects, *self.linkflags, \"-o\", str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_opcodes.py": [
+        "-D_DEFAULT_SOURCE",
+        "-Imodules/nanoisa",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_private_native.c": {
+    "references": [
+      {
+        "path": "tests/test_file_private_native.py",
+        "line": 139,
+        "text": "fixture = 'tests/nanoisa/test_file_private_native.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_private_native.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_native_execute=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_private_vm.c": {
+    "references": [
+      {
+        "path": "tests/test_file_private_vm.py",
+        "line": 76,
+        "text": "'tests/nanoisa/test_file_private_vm.c', *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_private_vm.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_public.c": {
+    "references": [
+      {
+        "path": "tests/test_file_public.py",
+        "line": 193,
+        "text": "fixture = 'tests/nanoisa/test_file_public.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_public.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm2c_file_private_emit=file_reference_emit",
+        "-Dnvm_file_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_public_cli.c": {
+    "references": [
+      {
+        "path": "tests/test_file_cyclic_public.py",
+        "line": 294,
+        "text": "'tests/nanoisa/test_file_public_cli.c','-o',str(binary)])"
+      },
+      {
+        "path": "tests/test_file_public.py",
+        "line": 431,
+        "text": "'tests/nanoisa/test_file_public_cli.c','-o',str(binary)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_cyclic_public.py": [
+        "-DFILE_CYCLIC_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_",
+        "-DNVM_FILE_CYCLIC_NATIVE_PRIVATE",
+        "-DNVM_FILE_CYCLIC_VM_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm_file_cyclic_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=dispatch_begin",
+        "-Dnvm_file_runtime_cyclic_destroy=dispatch_destroy",
+        "-Dnvm_file_runtime_frame_call=dispatch_call",
+        "-Dnvm_file_runtime_frame_return=dispatch_return",
+        "-Dnvm_file_runtime_service=dispatch_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ],
+      "tests/test_file_public.py": [
+        "-DFILE_NATIVE_CAPTURE",
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-DNVM_FILE_NATIVE_PRIVATE",
+        "-DNVM_FILE_PUBLIC_ENGINE",
+        "-DNVM_FILE_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Dnvm2c_file_private_emit=file_reference_emit",
+        "-Dnvm_file_program_case=nf_case_",
+        "-Dnvm_file_runtime_begin=file_native_begin",
+        "-Dnvm_file_runtime_frame_call=file_native_call",
+        "-Dnvm_file_runtime_frame_return=file_native_return",
+        "-Dnvm_file_runtime_service=file_native_service",
+        "-Drealloc=file_test_realloc",
+        "-I",
+        "-I.",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_file_runtime.py",
+        "line": 74,
+        "text": "'tests/nanoisa/test_file_runtime.c', *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_runtime.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_runtime_frames.c": {
+    "references": [
+      {
+        "path": "tests/test_file_runtime_frames.py",
+        "line": 75,
+        "text": "'tests/nanoisa/test_file_runtime_frames.c', *objects, *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_runtime_frames.py": [
+        "-DFILE_RUNTIME_HOST_HOOKS",
+        "-DHOSTED_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=file_test_calloc",
+        "-Dffi_loader_init=file_runtime_loader_init",
+        "-Dffi_loader_open=file_runtime_loader_open",
+        "-Dfork=file_runtime_fork",
+        "-Dfree=file_test_free",
+        "-Dmalloc=file_test_malloc",
+        "-Drealloc=file_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_file_source_plan.c": {
+    "references": [
+      {
+        "path": "tests/test_file_source_plan.py",
+        "line": 135,
+        "text": "'tests/nanoisa/test_file_source_plan.c',*objects,'-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_source_plan.py": [
+        "-DSOURCE_PLAN_INSTRUMENT",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_forth_see.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanoisa/test_managed_array_copy.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_array_copy_runtime.py",
+        "line": 16,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_array_copy.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_array_copy_runtime.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_array_graphs.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_array_graphs.py",
+        "line": 13,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_array_graphs.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_array_graphs.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_array_shapes.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_array_shapes.py",
+        "line": 21,
+        "text": "ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_array_shapes.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_array_shapes.py": [
+        "-DNMA_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_boxed_leaves.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_string_arrays.py",
+        "line": 13,
+        "text": "LEAVES = ROOT / 'tests/nanoisa/test_managed_boxed_leaves.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_string_arrays.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_graph_linkage.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_graph_safepoints.py",
+        "line": 30,
+        "text": "fixture=ROOT/'tests/nanoisa/test_managed_graph_linkage.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_graph_safepoints.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_graph_origins.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_graph_origins.py",
+        "line": 15,
+        "text": "p=subprocess.run([cc,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_graph_origins.c',*shlex.split(os.environ['NMA_LINK_OBJECTS']),'-lm','-lcrypto','-o',exe],capture_output=True,text=True)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_graph_origins.py": [
+        "-DNMA_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_graph_safepoints.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_graph_safepoints.py",
+        "line": 13,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_graph_safepoints.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_graph_safepoints.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_heap_selector.c": {
+    "references": [
+      {
+        "path": "tests/test_llvm_managed_records.py",
+        "line": 160,
+        "text": "ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_heap_selector.c',*objects,'-lm','-lcrypto','-o',probe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_llvm_managed_records.py": [
+        "-DNMA_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_module.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_runtime_package.py",
+        "line": 19,
+        "text": "source = Path(__file__).resolve().parent/'nanoisa/test_managed_module.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_runtime_package.py": []
+    }
+  },
+  "tests/nanoisa/test_managed_mutable_arrays.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_mutable_runtime.py",
+        "line": 16,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_mutable_arrays.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_mutable_runtime.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_packed_scalars.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_packed_scalars.py",
+        "line": 26,
+        "text": "core=ROOT/'src/nanoisa/managed_strings.c';fixture=ROOT/'tests/nanoisa/test_managed_packed_scalars.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_packed_scalars.py": [
+        "-DNMS_TESTING",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_record_adapters.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_record_adapters.py",
+        "line": 10,
+        "text": "FIXTURE=ROOT/'tests/nanoisa/test_managed_record_adapters.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_record_adapters.py": [
+        "-DNMS_RECORD_ADAPTER_LINKED",
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_record_plan.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_record_plan.py",
+        "line": 23,
+        "text": "self.run_command([*common,'tests/nanoisa/test_managed_record_plan.c',*objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_record_plan.py": [
+        "-Dcalloc=nrp_test_calloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_record_shapes.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_record_shapes.py",
+        "line": 61,
+        "text": "ROOT/'tests/nanoisa/test_managed_record_shapes.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_record_shapes.py": [
+        "-DNMA_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_records.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_records.py",
+        "line": 13,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_records.c'"
+      },
+      {
+        "path": "tests/test_managed_records.py",
+        "line": 29,
+        "text": "work=Path(temp);fixture=ROOT/'tests/nanoisa/test_managed_records.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_records.py": [
+        "-DNMS_RECORD_LINKED",
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_string_arrays.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_string_arrays.py",
+        "line": 12,
+        "text": "FIXTURE = ROOT / 'tests/nanoisa/test_managed_string_arrays.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_string_arrays.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_managed_strings.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_string_core.py",
+        "line": 14,
+        "text": "TEST = ROOT/'tests/nanoisa/test_managed_strings.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_string_core.py": [
+        "-DNMS_TESTING"
+      ]
+    }
+  },
+  "tests/nanoisa/test_map_declarations.c": {
+    "references": [
+      {
+        "path": "tests/test_map_declarations.py",
+        "line": 23,
+        "text": "sources=['tests/nanoisa/test_map_declarations.c']"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_map_declarations.py": [
+        "-DOAA_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_counted_query.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_counted_runtime.py",
+        "line": 48,
+        "text": "'tests/nanoisa/test_mixed_counted_query.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_counted_runtime.py": [
+        "-DMC_LINKED",
+        "-DNMS_TESTING",
+        "-DNMS_TEST_ALLOC_HOOKS"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_counted_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_counted_runtime.py",
+        "line": 15,
+        "text": "FIXTURE = ROOT / 'tests/nanoisa/test_mixed_counted_runtime.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_counted_runtime.py": [
+        "-DMC_LINKED",
+        "-DNMS_TESTING",
+        "-DNMS_TEST_ALLOC_HOOKS"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_float_proof.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_float_proof.py",
+        "line": 28,
+        "text": "self.command([*common, 'tests/nanoisa/test_mixed_float_proof.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_float_proof.py": [
+        "-Dcalloc=mfp_test_calloc",
+        "-Dmalloc=mfp_test_malloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_layout_view.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_layout_view.py",
+        "line": 33,
+        "text": "self.command([*common, 'tests/nanoisa/test_mixed_layout_view.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_layout_view.py": [
+        "-Dcalloc=mixed_test_calloc",
+        "-Dmalloc=mixed_test_malloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_samples.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_samples.py",
+        "line": 32,
+        "text": "self.command([*common, 'tests/nanoisa/test_mixed_samples.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_samples.py": [
+        "-Dcalloc=mcs_",
+        "-Dfree=mcs_test_free",
+        "-Dmalloc=mcs_",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_websocket_flow.c": {
+    "references": [
+      {
+        "path": "tests/test_services_flow.py",
+        "line": 32,
+        "text": "'tests/nanoisa/test_mixed_websocket_flow.c' if websocket else 'tests/nanoisa/test_services_flow.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_services_flow.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_mixed_websocket_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_websocket_runtime.py",
+        "line": 54,
+        "text": "'tests/nanoisa/test_mixed_websocket_runtime.c', *(self.allocated_providers if allocated else self.providers), *self.ordinary,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_websocket_runtime.py": [
+        "-DMIXED_RUNTIME_REAL_TRANSPORT",
+        "-Dcalloc=mixed_runtime_calloc",
+        "-Dmalloc=mixed_runtime_malloc",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_multi_nominal.c": {
+    "references": [
+      {
+        "path": "tests/test_multi_nominal.py",
+        "line": 29,
+        "text": "'tests/nanoisa/test_multi_nominal.c', *objects, *self.linkflags, '-o', str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_multi_nominal.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_nvm_v2_code_publication.c": {
+    "references": [
+      {
+        "path": "tests/test_nvm_v2_code_publication.py",
+        "line": 29,
+        "text": "self.command([*common, ROOT/'tests/nanoisa/test_nvm_v2_code_publication.c', *objects, *shlex.split(os.environ['CODE_PUBLICATION_OBJECTS']), *shlex.split(os.environ['CODE_PUBLICATION_LDFLAGS']), '-o', exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nvm_v2_code_publication.py": [
+        "-D_GNU_SOURCE",
+        "-Dcalloc=code_test_calloc",
+        "-Dfree=code_test_free",
+        "-Dmalloc=code_test_malloc",
+        "-Drealloc=code_test_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_ordinary_array_authority.c": {
+    "references": [
+      {
+        "path": "tests/test_ordinary_array_authority.py",
+        "line": 22,
+        "text": "sources=['tests/nanoisa/test_ordinary_array_authority.c']"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ordinary_array_authority.py": [
+        "-DOAA_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_ordinary_record_authority.c": {
+    "references": [
+      {
+        "path": "tests/test_ordinary_record_authority.py",
+        "line": 25,
+        "text": "'tests/nanoisa/test_ordinary_record_authority.c',*shlex.split(os.environ['NOA_LINK_OBJECTS']),'-lm','-lcrypto','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ordinary_record_authority.py": [
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_authority.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_authority.py",
+        "line": 54,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_authority.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_authority.py": [
+        "-Dcalloc=authority_test_calloc",
+        "-Dmalloc=authority_test_malloc",
+        "-Dnvm_retained_layouts_valid=authority_structural_layout_valid",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_bits_boundaries.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_bits_boundaries.py",
+        "line": 43,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_bits_boundaries.c', *objects, *providers, *libraries, '-o', exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_bits_boundaries.py": [
+        "-DNANO_COMPUTED_GOTO",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_OWNER_ARRAY_PUBLIC_TEST",
+        "-D_GNU_SOURCE",
+        "-Dvm_array_get=bits_actual_array_get",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_layouts.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_layouts.py",
+        "line": 53,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_layouts.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_layouts.py": [
+        "-Dcalloc=owned_array_test_calloc",
+        "-Dmalloc=owned_array_test_malloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_mutation_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_mutation_runtime.py",
+        "line": 43,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_mutation_runtime.c', *objects, *providers, *libraries, '-o', exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_mutation_runtime.py": [
+        "-DNANO_COMPUTED_GOTO",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_OWNER_ARRAY_PUBLIC_TEST",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=mutation_heap_calloc",
+        "-Dmalloc=mutation_heap_malloc",
+        "-Drealloc=mutation_vm_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_origins.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_origins.py",
+        "line": 53,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_origins.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_origins.py": [
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_owned_array_overwrite.c": {
+    "references": [
+      {
+        "path": "tests/test_owned_array_overwrite.py",
+        "line": 44,
+        "text": "self.command([*common, 'tests/nanoisa/test_owned_array_overwrite.c', *objects, *providers, *libraries, '-o', exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_owned_array_overwrite.py": [
+        "-DNANO_COMPUTED_GOTO",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_OWNER_ARRAY_PUBLIC_TEST",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=overwrite_calloc",
+        "-Dmalloc=overwrite_malloc",
+        "-Drealloc=overwrite_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_ownership_declaration_projection.c": {
+    "references": [
+      {
+        "path": "tests/test_ownership_declaration_projection.py",
+        "line": 23,
+        "text": "sources=['tests/nanoisa/test_ownership_declaration_projection.c']"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ownership_declaration_projection.py": [
+        "-DOAA_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_ownership_layouts_private.c": {
+    "references": [
+      {
+        "path": "tests/test_ownership_layouts_private.py",
+        "line": 20,
+        "text": "sources=['tests/nanoisa/test_ownership_layouts_private.c','src/nanoisa/nvm_v2_cursor.c']"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ownership_layouts_private.py": [
+        "-DLAYOUT_INSTRUMENT"
+      ]
+    }
+  },
+  "tests/nanoisa/test_portable_host_plan.c": {
+    "references": [
+      {
+        "path": "tests/test_portable_host_plan.py",
+        "line": 115,
+        "text": "+ [ROOT / 'Makefile.gnu', ROOT / 'tests/nanoisa/test_portable_host_plan.c',"
+      },
+      {
+        "path": "tests/test_portable_host_plan.py",
+        "line": 137,
+        "text": "'tests/nanoisa/test_portable_host_plan.c', *objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_portable_host_plan.py": [
+        "-D",
+        "-DREAD_LINKED",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_portable_read_adapters.c": {
+    "references": [
+      {
+        "path": "tests/test_portable_read_adapters.py",
+        "line": 185,
+        "text": "self.command([*common, *fixture_flags, 'tests/nanoisa/test_portable_read_adapters.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_portable_read_adapters.py": [
+        "-DREAD_ALLOC_HOOKS",
+        "-DREAD_IO_HOOKS",
+        "-DREAD_LLVM",
+        "-DREAD_OBSERVED",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_portable_read_execution_faults.c": {
+    "references": [
+      {
+        "path": "tests/test_portable_read_execution.py",
+        "line": 157,
+        "text": "ROOT/'tests/nanoisa/test_portable_read_execution_faults.c', '-o', executable])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_portable_read_execution.py": [
+        "-DTEST_PORTABLE_BYTES",
+        "-Dfree=nano_scratch_free",
+        "-Dmalloc=nano_scratch_malloc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_portable_read_wasm.c": {
+    "references": [
+      {
+        "path": "tests/test_portable_read_wasm.py",
+        "line": 18,
+        "text": "'tests/nanoisa/test_portable_read_wasm.c']"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_portable_read_wasm.py": [
+        "-DNMS_TESTING",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_private_owned_array_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_private_owned_array_runtime.py",
+        "line": 102,
+        "text": "self.command([*common, 'tests/nanoisa/test_private_owned_array_runtime.c', *objects, *providers, *libraries, '-o', binary])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_private_owned_array_runtime.py": [
+        "-DNANO_COMPUTED_GOTO",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_OWNED_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_OWNER_ARRAY_PUBLIC_TEST",
+        "-D_GNU_SOURCE",
+        "-Dcalloc=private_array_calloc",
+        "-Dmalloc=private_array_malloc",
+        "-Drealloc=private_array_realloc",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_publication_allocation.c": {
+    "references": [
+      {
+        "path": "tests/test_publication_allocation.py",
+        "line": 118,
+        "text": "run('link',[*cc,*flags,'tests/nanoisa/test_publication_allocation.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_publication_allocation.py": [
+        "-DPUBLICATION_ALLOC_WRAP",
+        "-Dfree=pa_free",
+        "-Dmain=publisher_cli_main",
+        "-Drealloc=pa_cleanup_realloc",
+        "-Isrc/nanoisa",
+        "-Isrc/nanovirt",
+        "-Itests/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_execution.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_execution.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_array_execution.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_execution.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_global_flow.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_global_flow.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_array_global_flow.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_global_flow.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_nested.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_nested.py",
+        "line": 53,
+        "text": "run('harness-build', [*cc, *flags, '-DRA_NESTED_WHITEBOX', 'tests/nanoisa/test_record_array_nested.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_nested.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNESTED_TEST_DEPTH=",
+        "-DNESTED_TEST_LEAF=",
+        "-DRA_ALLOC_WRAP",
+        "-DRA_NESTED_WHITEBOX",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_nested_string.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_nested_string.py",
+        "line": 50,
+        "text": "run('harness-build', [*cc, *flags, '-DRA_NESTED_WHITEBOX', 'tests/nanoisa/test_record_array_nested_string.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_nested_string.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-DRA_NESTED_WHITEBOX",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_origins.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_origins.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_array_origins.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_origins.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_self_tail.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_self_tail.py",
+        "line": 39,
+        "text": "run('harness-build',[*cc,*flags,'tests/nanoisa/test_record_array_self_tail.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_self_tail.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_self_tail_headroom.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_self_tail.py",
+        "line": 44,
+        "text": "run('headroom-build',[*cc,*flags,'tests/nanoisa/test_record_array_self_tail_headroom.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_self_tail.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_self_tail_proof.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_self_tail.py",
+        "line": 48,
+        "text": "run('proof-build',[*cc,*flags,'-DRA_WHITEBOX','tests/nanoisa/test_record_array_self_tail_proof.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_self_tail.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_array_vm.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_vm.py",
+        "line": 69,
+        "text": "'tests/nanoisa/test_record_array_vm.c', 'tests/nanoisa/record_array_alloc.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_vm.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-DVM_RA_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_borrowed.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_borrowed.py",
+        "line": 6,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_borrowed.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_borrowed.py": []
+    }
+  },
+  "tests/nanoisa/test_record_map_boundary.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_boundary.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_map_boundary.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_boundary.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_delete.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_delete.py",
+        "line": 9,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_delete.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_delete.py": []
+    }
+  },
+  "tests/nanoisa/test_record_map_execution.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_execution.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_map_execution.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_execution.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_image.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_image.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_map_image.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_image.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_import.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_import.py",
+        "line": 6,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_import.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_import.py": []
+    }
+  },
+  "tests/nanoisa/test_record_map_native.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_native.py",
+        "line": 71,
+        "text": "source = 'tests/nanoisa/test_record_map_native_alloc.c' if allocator else 'tests/nanoisa/test_record_map_native.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_native.py": [
+        "-DMAP_NATIVE_WHITEBOX",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DNANO_RECORD_MAP_PRIVATE_NATIVE",
+        "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+        "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_native_alloc.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_native.py",
+        "line": 71,
+        "text": "source = 'tests/nanoisa/test_record_map_native_alloc.c' if allocator else 'tests/nanoisa/test_record_map_native.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_native.py": [
+        "-DMAP_NATIVE_WHITEBOX",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DNANO_RECORD_MAP_PRIVATE_NATIVE",
+        "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+        "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_observation.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_observation.py",
+        "line": 6,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_observation.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_observation.py": []
+    }
+  },
+  "tests/nanoisa/test_record_map_origins.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_origins.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_map_origins.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_origins.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_preparation.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_preparation.py",
+        "line": 46,
+        "text": "'tests/nanoisa/test_record_map_preparation.c', 'tests/nanoisa/record_array_alloc.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_preparation.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+        "-DRA_ALLOC_WRAP",
+        "-DVM_RM_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_public.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_public.py",
+        "line": 78,
+        "text": "source = 'tests/nanoisa/test_record_map_public_alloc.c' if allocator else 'tests/nanoisa/test_record_map_public.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_public.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_public_alloc.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_public.py",
+        "line": 78,
+        "text": "source = 'tests/nanoisa/test_record_map_public_alloc.c' if allocator else 'tests/nanoisa/test_record_map_public.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_public.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_public_prepare.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_public_prepare.py",
+        "line": 6,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_public_prepare.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_public_prepare.py": []
+    }
+  },
+  "tests/nanoisa/test_record_map_publication.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_publication.py",
+        "line": 55,
+        "text": "'tests/nanoisa/test_record_map_publication.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_publication.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_WHITEBOX",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_runtime.py",
+        "line": 14,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_runtime.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_runtime.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+        "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_record_map_string.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_string.py",
+        "line": 14,
+        "text": "harness_source = 'tests/nanoisa/test_record_map_string.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_string.py": []
+    }
+  },
+  "tests/nanoisa/test_service_bindings_module.c": {
+    "references": [
+      {
+        "path": "tests/test_service_bindings_module.py",
+        "line": 51,
+        "text": "\"tests/nanoisa/test_service_bindings_module.c\", *objects, *self.linkflags, \"-o\", str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_service_bindings_module.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc",
+        "-Imodules/nanoisa",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_service_mixed_boundaries.c": {
+    "references": [
+      {
+        "path": "tests/test_service_bindings_module.py",
+        "line": 87,
+        "text": "\"tests/nanoisa/test_service_mixed_boundaries.c\", *self.objects,"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_service_bindings_module.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc",
+        "-Imodules/nanoisa",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_services_dispatch.c": {
+    "references": [
+      {
+        "path": "tests/test_services_dispatch.py",
+        "line": 38,
+        "text": "self.command('fixture-build', [*compiler, *flags, 'tests/nanoisa/test_services_dispatch.c',"
+      },
+      {
+        "path": "tests/test_services_dispatch.py",
+        "line": 51,
+        "text": "self.command('fixture-allocation-build', [*compiler,*flags,'-DSERVICE_ALLOC_TEST','tests/nanoisa/test_services_dispatch.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_services_dispatch.py": [
+        "-DNVM_SERVICES_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_SERVICES_INDIRECT_VM_PRIVATE",
+        "-DSERVICE_ALLOC_TEST",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=service_test_calloc",
+        "-Dtmpfile=services_test_tmpfile",
+        "-I."
+      ]
+    }
+  },
+  "tests/nanoisa/test_services_flow.c": {
+    "references": [
+      {
+        "path": "tests/test_services_flow.py",
+        "line": 32,
+        "text": "'tests/nanoisa/test_mixed_websocket_flow.c' if websocket else 'tests/nanoisa/test_services_flow.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_services_flow.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_services_public.c": {
+    "references": [
+      {
+        "path": "tests/test_services_public.py",
+        "line": 53,
+        "text": "self.command('fixture-build',[*compiler,*flags,'tests/nanoisa/test_services_public.c',"
+      },
+      {
+        "path": "tests/test_services_public.py",
+        "line": 61,
+        "text": "self.command('fixture-allocation-build',[*compiler,*flags,'-DSERVICE_ALLOC_TEST','tests/nanoisa/test_services_public.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_services_public.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=service_test_calloc",
+        "-Dclose=services_public_close",
+        "-Dfclose=services_public_fclose",
+        "-Dsocket=services_public_socket",
+        "-Dtmpfile=services_public_tmpfile",
+        "-I",
+        "-I."
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_body.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_body.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_body.c\", \"src/nanoisa/service_socket_nominal.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_body.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_code.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_code.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_code.c\", \"src/nanoisa/service_socket_nominal.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_code.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_dispatch.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_dispatch.py",
+        "line": 16,
+        "text": "fixture_source = \"tests/nanoisa/test_socket_dispatch.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_dispatch.py": [
+        "-DNVM_SOCKET_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_SOCKET_INDIRECT_VM_PRIVATE",
+        "-D_DEFAULT_SOURCE",
+        "-Dclose=dispatch_close",
+        "-Dsocket=dispatch_socket",
+        "-I."
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_flow.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_flow.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_flow.c\", \"src/nanoisa/service_socket_nominal.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_flow.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_hosted.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_hosted.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_hosted.c\", \"src/nanoisa/service_socket_nominal.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_hosted.py": [
+        "-DFLOW_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_nominal.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_nominal.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_nominal.c\", \"src/nanoisa/service_socket_nominal.c\", \"src/nsi_socket_plan.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_nominal.py": [
+        "-DNOMINAL_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_nominal_module.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_nominal_module.py",
+        "line": 39,
+        "text": "\"tests/nanoisa/test_socket_nominal_module.c\", *objects, *self.linkflags, \"-o\", str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_nominal_module.py": [
+        "-DSERVICE_ALLOC_TEST",
+        "-Dcalloc=service_test_calloc",
+        "-Dmalloc=service_test_malloc",
+        "-Drealloc=service_test_realloc"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_public.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_public.py",
+        "line": 10,
+        "text": "fixture_source = \"tests/nanoisa/test_socket_public.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_public.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/nanoisa/test_socket_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_runtime.py",
+        "line": 24,
+        "text": "sources = [\"tests/nanoisa/test_socket_runtime.c\", \"src/nanoisa/service_socket_nominal.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_runtime.py": [
+        "-DSOCKET_RUNTIME_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=socket_runtime_calloc",
+        "-Dclose=socket_runtime_close",
+        "-Dfree=socket_runtime_free",
+        "-Dmalloc=socket_runtime_malloc",
+        "-Dsocket=socket_runtime_socket"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_declarations.c": {
+    "references": [
+      {
+        "path": "tests/test_union_field_declarations.py",
+        "line": 27,
+        "text": "sources = [\"tests/nanoisa/test_union_field_declarations.c\"]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_union_field_declarations.py": [
+        "-DOAA_INSTRUMENT",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_execution.c": {
+    "references": [
+      {
+        "path": "tests/test_union_field_execution.py",
+        "line": 25,
+        "text": "*([\"-DUFP_ALLOC\"] if observed else []), \"tests/nanoisa/test_union_field_execution.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_union_field_execution.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DUFP_ALLOC"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_image.c": {
+    "references": [
+      {
+        "path": "tests/test_union_field_image.py",
+        "line": 25,
+        "text": "*([\"-DUFP_ALLOC\"] if observed else []), \"tests/nanoisa/test_union_field_image.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_union_field_image.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DUFP_ALLOC"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_native_target.c": {
+    "references": [
+      {
+        "path": "tests/test_union_field_native_target.py",
+        "line": 25,
+        "text": "*([\"-DUFP_ALLOC\"] if observed else []), \"tests/nanoisa/test_union_field_native_target.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_union_field_native_target.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DUFP_ALLOC"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_preparation.c": {
+    "references": [
+      {
+        "path": "scripts/fast_gate.py",
+        "line": 108,
+        "text": "('tests/test_union_field_preparation.py', 'tests/nanoisa/test_union_field_preparation.c',"
+      },
+      {
+        "path": "tests/test_union_field_preparation.py",
+        "line": 55,
+        "text": "\"tests/nanoisa/test_union_field_preparation.c\", \"tests/nanoisa/record_array_alloc.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "scripts/fast_gate.py": [
+        "-D",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+        "-DUNION_EXECUTION_ALLOC",
+        "-DUNION_EXECUTION_WHITEBOX",
+        "-DVM_UF_WHITEBOX",
+        "-D_FORTIFY_SOURCE=2",
+        "-I",
+        "-U"
+      ],
+      "tests/test_union_field_preparation.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+        "-DRA_ALLOC_WRAP",
+        "-DVM_UF_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_proof.c": {
+    "references": [
+      {
+        "path": "tests/test_union_field_proof.py",
+        "line": 25,
+        "text": "*([\"-DUFP_ALLOC\"] if observed else []), \"tests/nanoisa/test_union_field_proof.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_union_field_proof.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DUFP_ALLOC"
+      ]
+    }
+  },
+  "tests/nanoisa/test_union_field_vm.c": {
+    "references": [
+      {
+        "path": "scripts/fast_gate.py",
+        "line": 110,
+        "text": "('tests/test_union_field_vm.py', 'tests/nanoisa/test_union_field_vm.c',"
+      },
+      {
+        "path": "tests/test_union_field_vm.py",
+        "line": 62,
+        "text": "\"tests/nanoisa/test_union_field_vm.c\", \"tests/nanoisa/record_array_alloc.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "scripts/fast_gate.py": [
+        "-D",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+        "-DUNION_EXECUTION_ALLOC",
+        "-DUNION_EXECUTION_WHITEBOX",
+        "-DVM_UF_WHITEBOX",
+        "-D_FORTIFY_SOURCE=2",
+        "-I",
+        "-U"
+      ],
+      "tests/test_union_field_vm.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+        "-DRA_ALLOC_WRAP",
+        "-DUNION_EXECUTION_ALLOC",
+        "-DUNION_EXECUTION_WHITEBOX",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/nanoisa/test_websocket_dispatch.c": {
+    "references": [
+      {
+        "path": "tests/test_websocket_dispatch.py",
+        "line": 20,
+        "text": "fixture_source = \"tests/nanoisa/test_websocket_dispatch.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_websocket_dispatch.py": [
+        "-DNVM_WEBSOCKET_INDIRECT_NATIVE_PRIVATE",
+        "-DNVM_WEBSOCKET_INDIRECT_VM_PRIVATE",
+        "-D_GNU_SOURCE",
+        "-Dclose=websocket_dispatch_close",
+        "-Dsocket=websocket_dispatch_socket",
+        "-I."
+      ]
+    }
+  },
+  "tests/nanoisa/test_websocket_public.c": {
+    "references": [
+      {
+        "path": "tests/test_websocket_public.py",
+        "line": 6,
+        "text": "fixture_source = \"tests/nanoisa/test_websocket_public.c\""
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_websocket_public.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/nanovirt/test_checked_record_identity.c": {
+    "references": [
+      {
+        "path": "tests/test_u8_field_context.py",
+        "line": 110,
+        "text": "self.run_retained('identity-build',[*self.cc,'-std=c11','-Wall','-Wextra','-Werror','-I',harness.ROOT/'src',harness.ROOT/'tests/nanovirt/test_checked_record_identity.c','-o',binary],build=True)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_u8_field_context.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/nanovm/mixer_native_operations.c": {
+    "references": [
+      {
+        "path": "tests/test_mixer_callbacks.py",
+        "line": 63,
+        "text": "\"tests/nanovm/mixer_native_operations.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixer_callbacks.py": []
+    }
+  },
+  "tests/nanovm/packed_scalar_reference.c": {
+    "references": [
+      {
+        "path": "tests/test_managed_packed_scalars.py",
+        "line": 21,
+        "text": "ROOT/'tests/nanovm/packed_scalar_reference.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_managed_packed_scalars.py": [
+        "-DNMS_TESTING",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/nanovm/sail_vm_oracle.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 813,
+        "text": "$(CC) $(CFLAGS) -o \"$(SAIL_VM_ORACLE)\" tests/nanovm/sail_vm_oracle.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanovm/sdl_library_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_mixer_callbacks.py",
+        "line": 47,
+        "text": "*compiler, *extra_flags, \"tests/nanovm/sdl_library_probe.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixer_callbacks.py": []
+    }
+  },
+  "tests/nanovm/test_cast_u8.c": {
+    "references": [
+      {
+        "path": "tests/test_cast_u8.py",
+        "line": 33,
+        "text": "'tests/nanovm/test_cast_u8.c', 'src/nanovm/vm.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_cast_u8.py": [
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-I./src",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanovm/test_cop_lifecycle.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1107,
+        "text": "$(OBJ_DIR)/test_cop_lifecycle: tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 1110,
+        "text": "tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanovm/test_ffi_arrays.c": {
+    "references": [
+      {
+        "path": "tests/test_ffi_array_copyback.py",
+        "line": 18,
+        "text": "\"tests/nanovm/test_ffi_arrays.c\", \"src/nanovm/heap.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ffi_array_copyback.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/nanovm/test_map_declared_tags.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1466,
+        "text": "tests/nanovm/test_map_declared_tags.c src/nanovm/vm.c src/nanovm/heap.c src/nanovm/heap_cycles.c src/nanovm/value.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanovm/test_mixer_callbacks.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 955,
+        "text": "$(CC) $(CFLAGS) $$(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c modules/sdl_mixer/sdl_mixer_operations.c -o $(OBJ_DIR)/test_mixer_callbacks $(LDFLAGS) $$(pkg-config --libs SDL2_mixer)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanovm/test_ordinary_admission.c": {
+    "references": [
+      {
+        "path": "tests/test_vm_ordinary_admission.py",
+        "line": 44,
+        "text": "ROOT / 'tests/nanovm/test_ordinary_admission.c',"
+      },
+      {
+        "path": "tests/test_vm_ordinary_admission.py",
+        "line": 67,
+        "text": "source = 'tests/nanovm/test_ordinary_admission.c'"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_vm_ordinary_admission.py": [
+        "-DNANO_COMPUTED_GOTO",
+        "-DNANO_NO_COMPUTED_GOTO",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa",
+        "-UNDEBUG"
+      ]
+    }
+  },
+  "tests/nanovm/test_record_map_heap.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_heap.py",
+        "line": 38,
+        "text": "self.command('harness-build', [*cc, *flags, 'tests/nanovm/test_record_map_heap.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_heap.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/nanovm/test_record_map_ordinary_heap.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_ordinary_heap.py",
+        "line": 38,
+        "text": "self.command('harness-build', [*cc, *flags, 'tests/nanovm/test_record_map_ordinary_heap.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_ordinary_heap.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/nanovm/test_record_map_string_heap.c": {
+    "references": [
+      {
+        "path": "tests/test_record_map_string_heap.py",
+        "line": 38,
+        "text": "self.command('harness-build', [*cc, *flags, 'tests/nanovm/test_record_map_string_heap.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_map_string_heap.py": [
+        "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+        "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+        "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+        "-DRA_ALLOC_WRAP",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/nanovm/test_vmd_path_config.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1070,
+        "text": "tests/nanovm/test_vmd_path_config.c $(SRC_DIR)/nanovm/vmd_protocol.c $(SRC_DIR)/nanovm/vmd_client.c"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/nanovm/test_vmd_socket_path.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1055,
+        "text": "$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_vmd_socket_path tests/nanovm/test_vmd_socket_path.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/native_record_identity_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_record_array_public.py",
+        "line": 113,
+        "text": "(ROOT/'tests/native_record_identity_probe.c').read_text())"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_record_array_public.py": [
+        "-DRA_ALLOC_WRAP",
+        "-DRA_PUBLIC_ALLOCATIONS",
+        "-D_DEFAULT_SOURCE",
+        "-Isrc",
+        "-Isrc/nanoisa"
+      ]
+    }
+  },
+  "tests/socket_resolver_path_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_socket_resolver_install.py",
+        "line": 22,
+        "text": "command += [str(ROOT / p) for p in (\"tests/socket_resolver_path_probe.c\", \"src/nsi_socket_resolver.c\", \"src/nsi_socket.c\", \"src/nsi_cap.c\")]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_socket_resolver_install.py": [
+        "-D_DARWIN_C_SOURCE",
+        "-D_DEFAULT_SOURCE"
+      ]
+    }
+  },
+  "tests/test_affine_c_frontend.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 3423,
+        "text": "$(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_aggregate_binary64_eval.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1286,
+        "text": "$(CC) $(CFLAGS) -o tests/test_aggregate_binary64_eval tests/test_aggregate_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      },
+      {
+        "path": "tests/test_emitted_array_binary64.py",
+        "line": 26,
+        "text": "'tests/test_emitted_array_binary64.c', 'tests/test_aggregate_binary64_eval.c']"
+      },
+      {
+        "path": "tests/test_emitted_array_binary64.py",
+        "line": 75,
+        "text": "oracle = (ROOT/'tests/test_aggregate_binary64_eval.c').read_text()"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_emitted_array_binary64.py": [
+        "-D_DEFAULT_SOURCE",
+        "-I",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_binary64_arithmetic.c": {
+    "references": [
+      {
+        "path": "tests/test_binary64_arithmetic.py",
+        "line": 30,
+        "text": "fixture=(ROOT/'tests/test_binary64_arithmetic.c').read_text()"
+      },
+      {
+        "path": "tests/test_binary64_arithmetic.py",
+        "line": 32,
+        "text": "for source in (ROOT/'tests/test_binary64_arithmetic.c',standalone):"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_binary64_arithmetic.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/test_binary64_arithmetic_eval.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1293,
+        "text": "$(CC) $(CFLAGS) -o tests/test_binary64_arithmetic_eval tests/test_binary64_arithmetic_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_binary64_bits_eval.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1298,
+        "text": "$(CC) $(CFLAGS) -o tests/test_binary64_bits_eval tests/test_binary64_bits_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_checker_metadata_ownership.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1235,
+        "text": "$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_metadata_ownership tests/test_checker_metadata_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_collection_array_exports.c": {
+    "references": [
+      {
+        "path": "tests/test_collection_array_exports.py",
+        "line": 19,
+        "text": "\"tests/test_collection_array_exports.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_collection_array_exports.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_emitted_array_binary64.c": {
+    "references": [
+      {
+        "path": "tests/test_emitted_array_binary64.py",
+        "line": 26,
+        "text": "'tests/test_emitted_array_binary64.c', 'tests/test_aggregate_binary64_eval.c']"
+      },
+      {
+        "path": "tests/test_emitted_array_binary64.py",
+        "line": 84,
+        "text": "'-Isrc','-I'+str(OUT),'tests/test_emitted_array_binary64.c']+runtime+['-lm','-o',str(OUT/label)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_emitted_array_binary64.py": [
+        "-D_DEFAULT_SOURCE",
+        "-I",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_env_simple.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_file_service_parser.c": {
+    "references": [
+      {
+        "path": "tests/test_file_service_parser.py",
+        "line": 71,
+        "text": "self.command('parser-c-build',[*self.cc,*self.flags,ROOT/'tests/test_file_service_parser.c',*self.selected,*objects,*archives,*self.links,'-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_service_parser.py": [
+        "-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1",
+        "-D_DARWIN_C_SOURCE",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_file_source_snapshot.c": {
+    "references": [
+      {
+        "path": "tests/test_file_source_snapshot.py",
+        "line": 20,
+        "text": "sources = [ROOT / \"tests/test_file_source_snapshot.c\"]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_source_snapshot.py": [
+        "-D_DARWIN_C_SOURCE",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_filesystem_array_exports.c": {
+    "references": [
+      {
+        "path": "tests/test_filesystem_array_exports.py",
+        "line": 36,
+        "text": "\"tests/test_filesystem_array_exports.c\", \"modules/filesystem/filesystem.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_filesystem_array_exports.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_fs_destination_identity.c": {
+    "references": [
+      {
+        "path": "tests/test_selfhost_cli.py",
+        "line": 57,
+        "text": "str(ROOT / \"tests/test_fs_destination_identity.c\"), \"-o\", str(executable)]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_selfhost_cli.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/test_fs_walkdir.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_glew_arrays.c": {
+    "references": [
+      {
+        "path": "tests/test_glew_array_boundary.py",
+        "line": 25,
+        "text": "*shlex.split(flags.stdout), \"tests/test_glew_arrays.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_glew_array_boundary.py": [
+        "-Isrc",
+        "-Isrc/runtime"
+      ]
+    }
+  },
+  "tests/test_glut_init_boundary.c": {
+    "references": [
+      {
+        "path": "tests/test_opengl_glut_init.sh",
+        "line": 84,
+        "text": "tests/test_glut_init_boundary.c modules/glut/glut_init.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_gpu_array_boundary.c": {
+    "references": [
+      {
+        "path": "tests/test_array_adapter_boundaries.py",
+        "line": 32,
+        "text": "self.compile_run(\"tests/test_gpu_array_boundary.c\","
+      },
+      {
+        "path": "tests/test_opencl_identity.py",
+        "line": 21,
+        "text": "yield kind + '-build', common + flags + ['tests/test_gpu_array_boundary.c', '-ldl', '-o', str(out / kind)]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_array_adapter_boundaries.py": [
+        "-DTEST_UNIFIED_GPU",
+        "-I",
+        "-Isrc"
+      ],
+      "tests/test_opencl_identity.py": [
+        "-DTEST_UNIFIED_GPU"
+      ]
+    }
+  },
+  "tests/test_gpu_source_read.c": {
+    "references": [
+      {
+        "path": "tests/test_opencl_identity.py",
+        "line": 25,
+        "text": "yield kind + '-reader-build', common + flags + ['tests/test_gpu_source_read.c', '-ldl', '-o', str(binary)]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_opencl_identity.py": [
+        "-DTEST_UNIFIED_GPU"
+      ]
+    }
+  },
+  "tests/test_module_install_policy.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 2651,
+        "text": "$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_install_policy tests/test_module_install_policy.c $^ $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_native_effect_runtime.c": {
+    "references": [
+      {
+        "path": "tests/test_native_effect_execution.py",
+        "line": 37,
+        "text": "str(ROOT / \"tests/test_native_effect_runtime.c\"),"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_native_effect_execution.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/test_nsi_binding_isolation.c": {
+    "references": [
+      {
+        "path": "tests/test_nsi_socket_binding.py",
+        "line": 11,
+        "text": "'tests/test_nsi_binding_isolation.c','src/nsi_file_binding.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nsi_socket_binding.py": []
+    }
+  },
+  "tests/test_nsi_file_binding.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_nsi_file_publish.c": {
+    "references": [
+      {
+        "path": "tests/test_nsi_file_publish.py",
+        "line": 37,
+        "text": "self.command(mode+'-build',[*self.cc,*self.flags,*options,'tests/test_nsi_file_publish.c',*providers,*self.links,'-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nsi_file_publish.py": [
+        "-DPUBLISH_INSTRUMENT",
+        "-D_DARWIN_C_SOURCE",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_nsi_gpu.c": {
+    "references": [
+      {
+        "path": "tests/test_nsi_gpu.py",
+        "line": 22,
+        "text": "yield 'instrumented-build', common + ['tests/test_nsi_gpu.c', '-ldl', '-o', str(output / 'instrumented')]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nsi_gpu.py": [
+        "-D_DEFAULT_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_nsi_gpu_linked.c": {
+    "references": [
+      {
+        "path": "tests/test_nsi_gpu.py",
+        "line": 23,
+        "text": "yield 'linked-build', common + ['tests/test_nsi_gpu_linked.c', 'src/nsi_gpu.c', 'src/nsi_cap.c', '-ldl', '-o', str(output / 'linked')]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nsi_gpu.py": [
+        "-D_DEFAULT_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_nsi_mixed_websocket_values.c": {
+    "references": [
+      {
+        "path": "tests/test_mixed_websocket_values.py",
+        "line": 54,
+        "text": "'tests/test_nsi_mixed_websocket_values.c', *objects, '-o', str(exe)])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_websocket_values.py": [
+        "-DMIXED_VALUES_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=mixed_values_calloc",
+        "-Dfclose=mixed_values_fclose",
+        "-Dfree=mixed_values_free",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_nsi_services_values.c": {
+    "references": [
+      {
+        "path": "tests/test_services_values.py",
+        "line": 45,
+        "text": "'tests/test_nsi_services_values.c', *objects, *crypto, '-o', exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_services_values.py": [
+        "-DSERVICES_ALLOC_TEST",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=services_test_calloc",
+        "-Dclose=services_test_close",
+        "-Dfclose=services_test_fclose",
+        "-Dfree=services_test_free"
+      ]
+    }
+  },
+  "tests/test_nsi_socket_binding.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_nsi_websocket_binding.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_opencl_identity.c": {
+    "references": [
+      {
+        "path": "tests/test_opencl_identity.py",
+        "line": 17,
+        "text": "yield 'model-build', common + ['tests/test_opencl_identity.c', '-ldl', '-o', str(out / 'model')]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_opencl_identity.py": [
+        "-DTEST_UNIFIED_GPU"
+      ]
+    }
+  },
+  "tests/test_opencl_identity_real.c": {
+    "references": [
+      {
+        "path": "tests/test_opencl_identity.py",
+        "line": 30,
+        "text": "yield 'real-build', common + ['tests/test_opencl_identity_real.c', '-ldl', '-o', str(out / 'real')]"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_opencl_identity.py": [
+        "-DTEST_UNIFIED_GPU"
+      ]
+    }
+  },
+  "tests/test_parser_recovery.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 3400,
+        "text": "-o $(BIN_DIR)/parser_recovery_test tests/test_parser_recovery.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_path_normalize_limits.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 1953,
+        "text": "tests/test_path_normalize_limits.c modules/std/fs.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_path_ops_v2.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_peg_array_exports.c": {
+    "references": [
+      {
+        "path": "tests/test_peg_array_exports.py",
+        "line": 19,
+        "text": "\"tests/test_peg_array_exports.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_peg_array_exports.py": [
+        "-D_GNU_SOURCE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_preferences_save.c": {
+    "references": [
+      {
+        "path": "tests/test_preferences_save.py",
+        "line": 19,
+        "text": "\"tests/test_preferences_save.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_preferences_save.py": []
+    }
+  },
+  "tests/test_process.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_process_pipe_array.c": {
+    "references": [
+      {
+        "path": "tests/test_process_pipe_array.py",
+        "line": 19,
+        "text": "\"tests/test_process_pipe_array.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_process_pipe_array.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_process_run_array.c": {
+    "references": [
+      {
+        "path": "tests/test_process_run_array.py",
+        "line": 19,
+        "text": "\"tests/test_process_run_array.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_process_run_array.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_pt2_audio_playback.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 3454,
+        "text": "tests/test_pt2_audio_playback.c \\"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_public_c_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_binary64.py",
+        "line": 61,
+        "text": "self.command(os.environ.get('CC','cc'),'-std=c99','-D_POSIX_C_SOURCE=200809L','-Wall','-Wextra','-Werror','-O1','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',ROOT/'src',ROOT/'tests/test_public_c_api.c','-o',exe)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_binary64.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_array_profile_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_array_profile.py",
+        "line": 23,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_array_profile_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_array_profile.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_bool_text_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_bool_text.py",
+        "line": 16,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_bool_text_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_bool_text.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_callable_profile_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_callable_profile.py",
+        "line": 16,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_callable_profile_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_callable_profile.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_concat_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_concat.py",
+        "line": 58,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_concat_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_concat.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_expression_values_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_expression_values.py",
+        "line": 33,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_expression_values_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_expression_values.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_for_profile_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_for_profile.py",
+        "line": 16,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_for_profile_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_for_profile.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_format_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_nonfinite_format.py",
+        "line": 72,
+        "text": "'-fno-sanitize-recover=all','-I',ROOT/'src',ROOT/'tests/test_public_c_format_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_nonfinite_format.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_guarded_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_guarded_matches.py",
+        "line": 40,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_guarded_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_guarded_matches.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_int_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_int_conversion.py",
+        "line": 66,
+        "text": "'-fno-sanitize-recover=all','-I',ROOT/'src',ROOT/'tests/test_public_c_int_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_int_conversion.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_length_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_int_conversion.py",
+        "line": 59,
+        "text": "'-fno-sanitize-recover=all','-I',ROOT/'src',ROOT/'tests/test_public_c_length_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_int_conversion.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_literal_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_literal_normalization.py",
+        "line": 49,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_literal_api.c','-o',exe]);self.run_cmd([exe,self.work/'previous.c'])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_literal_normalization.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_match_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_match_payloads.py",
+        "line": 44,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_match_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_match_payloads.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_profile_options_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_profile_options.py",
+        "line": 15,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_profile_options_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_profile_options.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_record_spread_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_record_spread.py",
+        "line": 16,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_record_spread_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_record_spread.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_string_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_string_equality.py",
+        "line": 52,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_string_api.c','-o',exe]);self.run_cmd([exe,self.work/'previous.c'])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_string_equality.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_supported_types_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_supported_types.py",
+        "line": 16,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_supported_types_api.c','-o',api])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_supported_types.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_public_c_union_results_api.c": {
+    "references": [
+      {
+        "path": "tests/test_public_c_union_results.py",
+        "line": 35,
+        "text": "'-I',ROOT/'src',ROOT/'tests/test_public_c_union_results_api.c','-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_public_c_union_results.py": [
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_row_poly.c": {
+    "references": [],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_sdl_array_boundary.c": {
+    "references": [
+      {
+        "path": "tests/test_array_adapter_boundaries.py",
+        "line": 42,
+        "text": "self.compile_run(\"tests/test_sdl_array_boundary.c\", shlex.split(flags.stdout), production[start:end])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_array_adapter_boundaries.py": [
+        "-DTEST_UNIFIED_GPU",
+        "-I",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_sdl_image_arrays.c": {
+    "references": [
+      {
+        "path": "tests/test_sdl_image_array_boundary.py",
+        "line": 26,
+        "text": "\"-Isrc\", *shlex.split(flags.stdout), \"tests/test_sdl_image_arrays.c\","
+      },
+      {
+        "path": "tests/test_sdl_image_array_boundary.py",
+        "line": 52,
+        "text": "\"tests/test_sdl_image_arrays.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_sdl_image_array_boundary.py": [
+        "-DNANO_SDL_VM_FIXTURE",
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_sdl_text_input_events.c": {
+    "references": [
+      {
+        "path": "tests/test_sdl_text_input_events.py",
+        "line": 20,
+        "text": "\"-Isrc\", \"tests/test_sdl_text_input_events.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_sdl_text_input_events.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_service_namespace.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 6282,
+        "text": "$(OBJ_DIR)/test_service_namespace: tests/test_service_namespace.c src/service_namespace.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)"
+      },
+      {
+        "path": "Makefile.gnu",
+        "line": 6289,
+        "text": "$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_namespace_sanitize tests/test_service_namespace.c $(filter-out $(OBJ_DIR)/service_namespace.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_service_source_catalog.c": {
+    "references": [
+      {
+        "path": "tests/test_file_source_inputs.py",
+        "line": 34,
+        "text": "\"tests/test_service_source_catalog.c\",\"src/nanoisa/file_source_catalog.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_file_source_inputs.py": [
+        "-Isrc"
+      ]
+    }
+  },
+  "tests/test_string_list_failure.c": {
+    "references": [
+      {
+        "path": "tests/test_runtime_list_boundaries.py",
+        "line": 18,
+        "text": "str(ROOT / \"tests/test_string_list_failure.c\"), \"-o\", binary],"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_runtime_list_boundaries.py": [
+        "-I"
+      ]
+    }
+  },
+  "tests/test_token_value_bytes.c": {
+    "references": [
+      {
+        "path": "tests/test_token_value_bytes.py",
+        "line": 47,
+        "text": "self.command('counts-c-build',[*self.cc,*self.flags,ROOT/'tests/test_token_value_bytes.c',*self.objects,'-o',exe])"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_token_value_bytes.py": [
+        "-D_DARWIN_C_SOURCE",
+        "-D_GNU_SOURCE",
+        "-I"
+      ]
+    }
+  },
+  "tests/test_ui_array_bounds.c": {
+    "references": [
+      {
+        "path": "tests/test_ui_array_bounds.py",
+        "line": 20,
+        "text": "\"tests/test_ui_array_bounds.c\", \"src/runtime/dyn_array.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_ui_array_bounds.py": []
+    }
+  },
+  "tests/test_union_metadata_ownership.c": {
+    "references": [
+      {
+        "path": "Makefile.gnu",
+        "line": 5836,
+        "text": "$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_union_metadata_ownership tests/test_union_metadata_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {}
+  },
+  "tests/test_websocket_source_snapshot.c": {
+    "references": [
+      {
+        "path": "tests/test_nsi_websocket_binding.py",
+        "line": 15,
+        "text": "self.command('snapshot-build', [*self.cc, *self.flags, 'tests/test_websocket_source_snapshot.c',"
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_nsi_websocket_binding.py": []
+    }
+  },
+  "tests/websocket_client_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_websocket_client.py",
+        "line": 53,
+        "text": "\"tests/websocket_client_probe.c\", \"modules/websocket/websocket_helpers.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_websocket_client.py": [
+        "-D_GNU_SOURCE"
+      ]
+    }
+  },
+  "tests/websocket_transport_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_websocket_transport.py",
+        "line": 28,
+        "text": "sources = [\"tests/websocket_transport_probe.c\", \"src/nsi_websocket_protocol.c\","
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_websocket_transport.py": [
+        "-DNL_WS_INJECT",
+        "-D_GNU_SOURCE"
+      ]
+    }
+  },
+  "tests/websocket_values_probe.c": {
+    "references": [
+      {
+        "path": "tests/test_websocket_values.py",
+        "line": 22,
+        "text": "\"tests/websocket_values_probe.c\", \"src/nsi_websocket_values.c\","
+      },
+      {
+        "path": "tests/test_mixed_websocket_values.py",
+        "line": 64,
+        "text": "'tests/mixed_websocket_values_probe.c', *sources, *crypto, '-o', str(exe)])"
+      },
+      {
+        "path": "tests/test_mixed_websocket_values.py",
+        "line": 77,
+        "text": "source.write_text((ROOT / 'tests/mixed_websocket_values_probe.c').read_text().replace("
+      }
+    ],
+    "candidate_literals_only_not_a_profile": {
+      "tests/test_mixed_websocket_values.py": [
+        "-DMIXED_VALUES_INSTRUMENT",
+        "-D_DEFAULT_SOURCE",
+        "-Dcalloc=mixed_values_calloc",
+        "-Dfclose=mixed_values_fclose",
+        "-Dfree=mixed_values_free",
+        "-I"
+      ],
+      "tests/test_websocket_values.py": [
+        "-D_GNU_SOURCE"
+      ]
+    }
+  }
+}

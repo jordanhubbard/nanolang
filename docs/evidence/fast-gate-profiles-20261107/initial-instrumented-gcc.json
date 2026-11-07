@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python3",
+    "scripts/fast_gate.py",
+    "--test-profiles",
+    "--compilers",
+    "gcc",
+    "--jobs",
+    "2"
+  ],
+  "product_source_commit": "d9d553576",
+  "script_state": "I used the uncommitted scouting implementation before 70c64c5d0; the later two-mode target is not this run.",
+  "compiler": "/opt/homebrew/bin/gcc-16",
+  "default_product_compiles": 223,
+  "additional_instrumented_profiles": 623,
+  "total_compiles": 846,
+  "failed_compiles": 0,
+  "elapsed_seconds": 1337.3,
+  "covered_test_c_files": 226,
+  "uncovered_test_c_files": 239,
+  "hosted_budget_seconds": 1200,
+  "budget_qualified": false,
+  "full_ci_profile_audit_complete": false,
+  "retained_execution_admission": false,
+  "concurrent_other_checks": true
+}

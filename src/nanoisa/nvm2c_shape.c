@@ -200,6 +200,11 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
             x = &g->nodes[left - 1]; y = &g->nodes[right - 1];
         }
         NvmShapeKind kind = x->kind == NVM_SHAPE_UNKNOWN ? y->kind : x->kind;
+        /* I retain exact constraints when roots merge, regardless of rank.
+         * Unifying an unknown alias does not make inferred storage exact. */
+        int conversion_kind = kind != NVM_SHAPE_UNKNOWN &&
+            (x->kind == NVM_SHAPE_UNKNOWN || x->conversion_kind) &&
+            (y->kind == NVM_SHAPE_UNKNOWN || y->conversion_kind);
         for (size_t i = 0; i < x->count; ++i)
             if (!allows_edge(kind, x->edges[i].index)) fail(g, "I found conflicting shape projections");
         for (size_t i = 0; i < y->count; ++i)
@@ -209,6 +214,7 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
          * than recurse. A later conflict poisons this whole graph. */
         y->parent = left;
         x->kind = kind;
+        x->conversion_kind = conversion_kind;
         x->value_tags |= y->value_tags;
         if (x->rank == y->rank) ++x->rank;
         int changed = 0;
@@ -356,7 +362,7 @@ static int propagate_array_writes(NvmShapeGraph *g) {
     return !g->error;
 }
 
-typedef struct { NvmShapeId source, target; int exact, alias_view; } FlowPair;
+typedef struct { NvmShapeId source, target; int exact, alias_view, optional_payload; } FlowPair;
 
 int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
     if (!nvm_shape_root(g, element) || !nvm_shape_root(g, result)) return 0;
@@ -407,7 +413,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -416,7 +422,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         int seen = 0;
         for (size_t i = 0; i + 1 < cursor; ++i)
             if (nvm_shape_root(g, queue[i].source) == source &&
-                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view) seen = 1;
+                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view &&
+                queue[i].optional_payload == pair.optional_payload) seen = 1;
         if (seen) continue;
         uint16_t tags = g->nodes[source - 1].value_tags;
         if (tags & ~g->nodes[target - 1].value_tags) {
@@ -445,7 +452,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, source, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){payload, target, 1, pair.alias_view};
+            queue = next; queue[count++] = (FlowPair){payload, target, 1, pair.alias_view, 0};
             continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
@@ -470,8 +477,19 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1, pair.alias_view};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, pair.alias_view, 0};
             continue;
+        }
+        /* I widen an inferred boxed payload to its producer's finite set.
+         * A nested projection can first acquire INT from a sibling arm;
+         * that is destination storage, not an exact scalar constraint.
+         * Bare scalars, array elements and exact payloads remain exact. */
+        if (pair.optional_payload && g->nodes[target - 1].conversion_kind &&
+            from == NVM_SHAPE_VARIANT_SCALAR &&
+            (to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL || to == NVM_SHAPE_FLOAT ||
+             to == NVM_SHAPE_STRING || to == NVM_SHAPE_U8)) {
+            if (!flow_kind(g, target, from, changed)) break;
+            to = from;
         }
         /* An explicitly declared union destination accepts either exact
          * numeric member without changing the producer or OPTIONAL itself. */
@@ -540,7 +558,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             queue[count++] = (FlowPair){child_source, child_target,
                 pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
                 pair.alias_view || (from == NVM_SHAPE_ARRAY &&
-                    nvm_shape_kind(g, child_source) == NVM_SHAPE_RECORD)};
+                    nvm_shape_kind(g, child_source) == NVM_SHAPE_RECORD),
+                from == NVM_SHAPE_OPTIONAL};
         }
     }
     free(queue);

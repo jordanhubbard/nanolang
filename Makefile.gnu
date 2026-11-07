@@ -2031,6 +2031,10 @@ test-assembler-string-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_assembler_string_alloc tests/nanoisa/test_assembler_string_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_assembler_string_alloc
 
+.PHONY: test-long-path-bootstrap
+test-long-path-bootstrap:
+	python3 scripts/qualify_long_path_bootstrap.py
+
 .PHONY: test-disasm-roundtrip
 test-disasm-roundtrip: test-assembler-string-alloc $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running canonical disassembly round-trip tests..."
@@ -4612,6 +4616,11 @@ release-docs-check:
 # The gates themselves. Kept in test-units so a change that breaks the release
 # check fails now rather than at the next release.
 .PHONY: test-release-version
+.PHONY: test-compiler-version
+test-quick test-units: test-compiler-version
+test-compiler-version: $(COMPILER_C)
+	python3 -m unittest -v tests.test_compiler_version
+
 test-release-version: $(COMPILER_C)
 	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_version tests.test_generate_root_package_json
 	@bash tests/test_release_workflow.sh
@@ -4970,7 +4979,7 @@ test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2was
 
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
-test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
+test-ordinary-record-authority: require-test-wasmtime nvm2wasm nanoisa_dump nano_vm nvm2c
 	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
@@ -5076,7 +5085,7 @@ test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 
 .PHONY: test-managed-record-eligibility
 test-units: test-managed-record-eligibility
-test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+test-managed-record-eligibility: require-test-wasmtime nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
@@ -5496,6 +5505,12 @@ test-nvm2c: test-native-variant-array-carriers test-native-union-padding
 test-canonical-filesystem: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_filesystem
 test-units: test-canonical-filesystem
+.PHONY: test-nested-union-native
+test-nested-union-native: nano_virt nano_vm nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_scalar_union_emission.NestedUnionNative
+
+test-units: test-nested-union-native
+
 .PHONY: test-scalar-union-emission
 test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_union_emission
@@ -6839,12 +6854,50 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_effect_c_source
 
 # I enforce rows 10685 and 10688: native NanoISA products carry no VM and no transpiler source exists.
-# I run my fast pre-push gate: strict GCC and clang compiles of my product tools (about 15 seconds)
-# plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
+# I run strict GCC and Clang product compiles, fixture/prerequisite checks and
+# controls for my private-union and glibc formatting regressions before long jobs.
+.PHONY: test-embedded-nano-identifiers
+$(OBJ_DIR)/fixture_identifier_lexer: tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c src/nanolang.h src/generated/compiler_schema.h src/string_literal_decode.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c
+
+test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
+	NANO_FIXTURE_LEXER="$(abspath $(OBJ_DIR)/fixture_identifier_lexer)" python3 -m unittest -v tests.test_embedded_nano_identifiers
+	python3 scripts/check_embedded_nano_identifiers.py --lexer "$(OBJ_DIR)/fixture_identifier_lexer"
+
 .PHONY: check-fast
-check-fast:
+check-fast: test-embedded-nano-identifiers
+	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
+	python3 -m unittest -v tests.test_fast_gate
 	python3 scripts/fast_gate.py
 	python3 -m unittest tests.test_bootstrap_tools
+
+# I measure broader Make/private profiles separately while auditing the Python-built
+# C inventory under #1046. I do not claim this target covers every CI configuration.
+.PHONY: check-fast-profiles
+check-fast-profiles:
+	python3 scripts/fast_gate.py --test-profiles --report .test_output/fast-gate-profiles.json
+
+.PHONY: test-make-prerequisites
+test-quick test-units: test-make-prerequisites
+test-make-prerequisites:
+	python3 -m unittest -v tests.test_make_prerequisites
+
+# I check my CLI runtime before the gates that execute generated Wasm.
+test-binary64-arithmetic-backends test-binary64-bit-transport test-llvm-enum-scalars \
+ test-llvm-generic-numeric test-llvm-literal-strings test-llvm-managed-records \
+ test-llvm-managed-strings test-llvm-scalar-globals test-managed-array-copy-runtime \
+ test-managed-array-graph-core test-managed-mutable-runtime test-managed-record-adapters \
+ test-managed-record-core test-managed-record-eligibility test-managed-runtime-package \
+ test-managed-string-array-core test-managed-string-core test-mixed-counted-runtime \
+ test-nvm2wasm test-ordinary-record-authority: require-test-wasmtime
+
+.PHONY: require-test-wasmtime install-test-wasmtime
+test-units: require-test-wasmtime
+require-test-wasmtime:
+	python3 .github/containers/instrumented/install_wasmtime.py --check
+install-test-wasmtime:
+	python3 .github/containers/instrumented/install_wasmtime.py --prefix .test_output/test-tools
+	@echo 'I use PATH="$(CURDIR)/.test_output/test-tools/bin:$$PATH" for my retained or direct test command.'
 
 .PHONY: test-selfhost-product-derivation
 test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c

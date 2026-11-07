@@ -7,11 +7,11 @@ from pathlib import Path
 import subprocess
 import sys
 
-DEVELOPER = Path('/Applications/Xcode_27.2.app/Contents/Developer')
-SDK = Path('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk')
-SDK_VERSION = '27.0'  # Exact -target-sdk-version in the retained successful reports.
+DEVELOPER = Path('/Applications/Xcode_27.2.0.app/Contents/Developer')
+SDK = DEVELOPER/'Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk'
+SDK_VERSION = '27.2'  # Exact -target-sdk-version in the retained successful reports.
 PINS = {
-    'clang': 'c596e98dbf1218d8a989f66ba638ac8ed57fac3e3719ccdf1b8605544a5ba4e2',
+    'clang': '04988adaddb282c8c074a1a55f8221452f18f64df3ca0006135f62031710377b',
     'as': '06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc',
 }
 
@@ -63,7 +63,7 @@ def select(output, developer=DEVELOPER, pins=PINS, qualified_sdk=SDK):
     compiler = Path(identities['clang']['path'])
     version = subprocess.check_output([compiler, '--version'], env=environment,
                                      text=True, timeout=30)
-    if version.splitlines()[0] != 'Apple clang version 21.0.0 (clang-2100.3.34.1)':
+    if version.splitlines()[0] != 'Apple clang version 21.0.0 (clang-2100.4.1.1)':
         raise ValueError('I require the qualified capture compiler report.')
     selected = output/'selected-tools'
     selected.mkdir()
