@@ -21,16 +21,18 @@ int main(void) {
     Token *tokens = tokenize(source, &count);
     free(source);
     if (!tokens) return 2;
-    for (int i = 0; i + 1 < count; ++i) {
-        TokenType kind = tokens[i].token_type;
-        if (kind != TOKEN_LET && kind != TOKEN_FN && kind != TOKEN_STRUCT &&
-            kind != TOKEN_ENUM && kind != TOKEN_UNION && kind != TOKEN_SHADOW &&
-            kind != TOKEN_EFFECT) continue;
-        int next = i + 1;
-        if (kind == TOKEN_LET && tokens[next].token_type == TOKEN_MUT) ++next;
-        if (next >= count) continue;
-        const Token *name = &tokens[next];
-        if (name->token_type != TOKEN_IDENTIFIER && name->token_type != TOKEN_STRING && word(name->value))
+    for (int i = 0; i < count; ++i) {
+        const Token *name = &tokens[i];
+        if (name->token_type == TOKEN_IDENTIFIER || name->token_type == TOKEN_STRING || !word(name->value))
+            continue;
+        TokenType prior = i ? tokens[i - 1].token_type : TOKEN_EOF;
+        if (name->token_type == TOKEN_MUT && prior == TOKEN_LET &&
+            (i + 1 == count || tokens[i + 1].token_type != TOKEN_COLON)) continue;
+        bool declaration = prior == TOKEN_LET || prior == TOKEN_FN || prior == TOKEN_STRUCT ||
+            prior == TOKEN_ENUM || prior == TOKEN_UNION || prior == TOKEN_SHADOW || prior == TOKEN_EFFECT ||
+            (prior == TOKEN_MUT && i > 1 && tokens[i - 2].token_type == TOKEN_LET);
+        bool typed_name = i + 1 < count && tokens[i + 1].token_type == TOKEN_COLON;
+        if (declaration || typed_name)
             printf("%d\t%d\t%s\n", name->line, name->column, name->value);
     }
     free_tokens(tokens, count);

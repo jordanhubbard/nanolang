@@ -33,6 +33,17 @@ shadow good { assert (== (good) 7) }
 ''')
         self.assertEqual((findings, checked, refused), ([], 1, 0))
 
+    def test_reserved_parameter_and_constructor_field_names(self):
+        name = 'effect'
+        program = f'fn good({name}: int) -> int {{ return 0 }}'
+        findings, _, refused = self.fixture(program)
+        self.assertEqual([item['name'] for item in findings], [name])
+        self.assertEqual(refused, 0)
+        program = f'fn good() -> int {{ let value: Item = Item {{ {name}: 1 }} return 0 }}'
+        findings, _, refused = self.fixture(program)
+        self.assertEqual([item['name'] for item in findings], [name])
+        self.assertEqual(refused, 0)
+
     def test_real_reported_fixtures_refuse_the_original_regressions(self):
         controls = [
             ('test_nanoisa_shadow_emitter.py', 'let owner: Handle',

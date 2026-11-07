@@ -2,27 +2,28 @@ NANO_FIXTURE_LEXER="/Users/jkh/Src/nanolang/obj/fixture_identifier_lexer" python
 test_docstrings_are_not_fixture_programs_and_literals_are_not_executed (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_docstrings_are_not_fixture_programs_and_literals_are_not_executed) ... ok
 test_exact_negative_annotation_does_not_hide_other_reserved_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_exact_negative_annotation_does_not_hide_other_reserved_names) ... ok
 test_real_reported_fixtures_refuse_the_original_regressions (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_real_reported_fixtures_refuse_the_original_regressions) ... ok
+test_reserved_parameter_and_constructor_field_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_reserved_parameter_and_constructor_field_names) ... ok
 test_strings_comments_and_mutable_names_follow_actual_lexer (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_strings_comments_and_mutable_names_follow_actual_lexer) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 0.949s
+Ran 5 tests in 0.747s
 
 OK
 python3 scripts/check_embedded_nano_identifiers.py --lexer "obj/fixture_identifier_lexer"
-I lexed 3118 static fixture fragments; 0 reserved names; 133 lexer-refused fragments remain with their executable tests.
+I lexed 3120 static fixture fragments; 0 reserved names; 133 lexer-refused fragments remain with their executable tests.
 python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
 .....
 ----------------------------------------------------------------------
-Ran 5 tests in 1.187s
+Ran 5 tests in 0.677s
 
 OK
 python3 scripts/fast_gate.py
-clang (/usr/bin/clang): 223 compiles, 0 failed, 14.5s
-gcc (/opt/homebrew/bin/gcc-16): 223 compiles, 0 failed, 30.5s
+clang (/usr/bin/clang): 223 compiles, 0 failed, 4.9s
+gcc (/opt/homebrew/bin/gcc-16): 223 compiles, 0 failed, 11.2s
 fast gate: ok
 python3 -m unittest tests.test_bootstrap_tools
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.746s
+Ran 1 test in 0.445s
 
 OK

@@ -7,12 +7,12 @@
   {
     "path": "tests/nanoisa/fixture_identifier_lexer.c",
     "algorithm": "sha256",
-    "digest": "705dc09c255c542f2c5b9b1c76823af7ce1efefaf0c920355a02dee6d7bdacce"
+    "digest": "f0c83148ca5d5fd820784a2371ea67de84e8e46aa5fff880f40718632c7db407"
   },
   {
     "path": "tests/test_embedded_nano_identifiers.py",
     "algorithm": "sha256",
-    "digest": "e5f39c5d5f2ba46aad56b2a978d3b4f233db4e9a39621a9903c6c49553fe992f"
+    "digest": "3477414334d4620b52f96a5f5f4ce6a202f3212b9d254b0b4bdf06f9fae1090a"
   },
   {
     "path": "tests/test_selfhost_function_values.py",
@@ -27,6 +27,6 @@
   {
     "path": "skills/reading-nanolang/SKILL.md",
     "algorithm": "sha256",
-    "digest": "9b094ed7102a6877467ae6e6ebc9885ba3a24fcb51cea146e7773abd993fd45e"
+    "digest": "00a963be93dccf4c78373f366864b3e0bb26039d705df378d6b5676b225dc4e4"
   }
 ]

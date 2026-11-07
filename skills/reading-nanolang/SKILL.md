@@ -66,7 +66,8 @@ plain, and precise.
 recognizable Python fixture fragments. `make check-fast` includes this gate and
 its original `handle`/`effect` regression controls. Diagnostics name the Python
 literal's source line and the embedded token's line/column. I check declaration
-names, not complete parsing, typing or runtime behavior. I report lexer-refused
+names and typed parameter/field names before `:`. Complete parsing, typing and
+runtime behavior still belong to executable tests. I report lexer-refused
 fragments separately; their executable tests and dynamically constructed sources
 still require their normal gates.
 
