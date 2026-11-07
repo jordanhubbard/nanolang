@@ -39,3 +39,25 @@ invocations with different outer runner labels, sanitizer and coverage programs,
 provider archive restoration, read-only root refusal, changed identity/flags,
 step output mapping and nonzero exit propagation. These bounded controls do not
 replace the complete hosted amd64 bootstrap, sanitizer and coverage gates.
+
+## My Wasm test prerequisite
+
+I install Wasmtime 50.0.1 from its official release archive, checking the pinned
+platform-specific SHA-256 before reading its executable. I retain the installer
+in this image's build context so sanitizer unit tests have their declared runtime.
+My installer supports Linux and macOS on x86-64 and ARM64 and checks the executable
+version before replacing an existing installation. I do not run a fetched install script.
+
+For a developer or retained test environment I use an explicit local prefix:
+
+```sh
+make install-test-wasmtime
+PATH="$PWD/.test_output/test-tools/bin:$PATH" make test-managed-record-eligibility
+```
+
+I put that same directory on PATH before starting retained execution, so the
+reviewed host-tool inventory observes the actual runtime. Installing it does not
+refresh a retained manifest or receipt; those require their existing review and
+verification. `make require-test-wasmtime` checks the selected version before my
+unit and direct record gates. This prerequisite does not change optional Wasm
+release scope or the separate Python Wasmtime binding used by portable-read tests.
