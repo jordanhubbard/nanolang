@@ -102,7 +102,7 @@ static void forward_authority(const char *path) {
     CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
     nvm_module_free(m);
 }
-static void owned_order(bool forward,const char *path) {
+static void owned_order(bool forward,bool resource,const char *path) {
     unsigned leaf=forward?1:0,parent=forward?0:1;char source[768];
     snprintf(source,sizeof source,".types 2 0 0\n.entry main\n.function main 0 2 0 int 1\nPUSH_I64 7\nOWN_PACK %u\nOWN_PACK %u\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n.end\n",leaf,parent);
     /* I attach the complete contract before invoking normal verification. */
@@ -113,17 +113,28 @@ static void owned_order(bool forward,const char *path) {
     entries[parent]=(NvmV2Layout){0,1,NVM_V2_NO_INDEX,&nested};
     NvmV2Layouts layouts={entries,2};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
     m->ownership_size=44;m->ownership_data=calloc(44,1);CHECK(m->ownership_data);
-    uint8_t *data=m->ownership_data;word(data,1);word(data+4,2);data[8]=data[9]=1;word(data+12,1);
+    uint8_t *data=m->ownership_data;word(data,1);word(data+4,2);
+    data[8]=data[9]=NVM_LAYOUT_COMPLETE|(resource?NVM_LAYOUT_RESOURCE:0);word(data+12,1);
     data[16]=2;data[20]=TAG_INT;word(data+24,NVM_V2_NO_INDEX);
     data[28]=TAG_STRUCT;word(data+32,parent);data[36]=TAG_STRUCT;word(data+40,leaf);
-    bool needs=true;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && !needs);
-    CHECK(nvm_verify_owned_module(m).ok==!forward);CHECK(nvm_verify(m).ok==!forward);
-    save_module(m,path);nvm_module_free(m);
+    bool needs=true;NvmV2Result contract=nvm_ownership_contracts_validate(m,&needs);
+    if(resource && forward)CHECK(contract==NVM_V2_ERR_SECTION_TYPE);
+    else CHECK(contract==NVM_V2_OK && needs==resource);
+    /* Ordinary declarations never grant OWN_PACK authority. Resource tables
+     * retain their prior-index rule; ordinary aggregate forward edges are separate. */
+    bool admitted=resource && !forward;
+    CHECK(nvm_verify_owned_module(m).ok==admitted);CHECK(nvm_verify(m).ok==admitted);
+    if(resource && forward) {
+        NvmV2Module refused;CHECK(nvm_v2_from_nvm_module(m,&refused)==NVM_V2_ERR_SECTION_TYPE);
+    } else save_module(m,path);
+    nvm_module_free(m);
 }
 int main(int argc,char **argv) {
-    forward_authority(argc==5?argv[2]:NULL);
-    owned_order(true,argc==5?argv[3]:NULL);
-    owned_order(false,argc==5?argv[4]:NULL);
+    forward_authority(argc==6?argv[2]:NULL);
+    owned_order(true,true,NULL);
+    owned_order(false,true,argc==6?argv[3]:NULL);
+    owned_order(true,false,argc==6?argv[4]:NULL);
+    owned_order(false,false,argc==6?argv[5]:NULL);
     AsmResult error;
     NvmModule *m=asm_assemble(".types 4 0 0\n.string text \"abc\"\n.entry main\n.function main 0 0 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nAGG_GET 0\nAGG_GET 0\nSTR_LEN\nPUSH_I64 3\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",&error);
     CHECK(m);
