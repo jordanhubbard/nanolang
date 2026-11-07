@@ -5501,6 +5501,12 @@ test-nvm2c: test-native-variant-array-carriers test-native-union-padding
 test-canonical-filesystem: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_filesystem
 test-units: test-canonical-filesystem
+.PHONY: test-nested-union-native
+test-nested-union-native: nano_virt nano_vm nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_scalar_union_emission.NestedUnionNative
+
+test-units: test-nested-union-native
+
 .PHONY: test-scalar-union-emission
 test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_union_emission

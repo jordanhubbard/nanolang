@@ -1,0 +1,32 @@
+union Inner { Empty {}, Num { n: int } }
+union Box { Some { value: Inner } }
+
+fn read(box: Box) -> int {
+    return match box {
+        Some(payload) => (match payload.value {
+            Empty(empty) => 0
+            Num(number) => number.n
+        })
+    }
+}
+shadow read {
+    assert (== (read Box.Some { value: Inner.Num { n: 5 } }) 5)
+    assert (== (read Box.Some { value: Inner.Empty {} }) 0)
+}
+
+fn wrap(value: Inner) -> Box {
+    return Box.Some { value: value }
+}
+shadow wrap {
+    assert (== (read (wrap Inner.Num { n: 7 })) 7)
+    assert (== (read (wrap Inner.Empty {})) 0)
+}
+
+fn main() -> int {
+    let value: Box = Box.Some { value: Inner.Num { n: 9 } }
+    (println (read value))
+    (println (read (wrap Inner.Empty {})))
+    assert (== (read (wrap Inner.Num { n: -3 })) -3)
+    return 0
+}
+shadow main { assert (== (main) 0) }
