@@ -1,0 +1,7 @@
+# Corrected hosted compiler profile audit
+
+I pass [run 42402173529](https://github.com/jordanhubbard/nanolang/actions/runs/42402173529) at exact source `7db768cc675b3487342823351710bff685f5a3b1`. I retain my [summary](summary.json), [hosted job and step records](hosted-run.json), and both compiler directories with exact command/result reports compressed as `profiles.json.gz`, raw report hashes, selected tool binary identities, worker resources and logs.
+
+My GCC audit completes 1,483 compiles with no failures in 730.079 seconds. My Clang audit completes 1,483 compiles with no failures in 562.436 seconds. Both run the actual managed-runtime IR producer and strict ordinary/ASan/UBSan diagnostic profiles; real producer/refusal controls pass before measurement. I keep all original flags, including coverage and Fortify level two. The earlier missing-header and coverage-output failures remain retained under `docs/evidence/profile-preparation-20261107/`.
+
+I qualify this preparation repair and the measured Make/private profile set. I still report 238 test C files without reviewed profiles. The two compiler measurements sum to 1,292.515 seconds, exceeding the default serialized 1,200-second budget even before those missing profiles; separate hosted workers do not establish the default gate's combined budget. I keep #1046 and full release acceptance open. The newer binding profile/behavior run is separate and pending.
