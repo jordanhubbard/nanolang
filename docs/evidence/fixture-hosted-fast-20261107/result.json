@@ -1,0 +1,18 @@
+{
+  "schema": "nanolang/fixture-fast-gate@1",
+  "qualified_head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "workflow_run": 42397278342,
+  "job": 128477253238,
+  "job_url": "https://github.com/jordanhubbard/nanolang/actions/runs/42397278342/job/128477253238",
+  "conclusion": "success",
+  "static_fragments": 3120,
+  "unacknowledged_reserved_names": 0,
+  "separately_reported_lexer_refusals": 133,
+  "source_blobs": {
+    "scripts/check_embedded_nano_identifiers.py": "4fe0b8f14055f2c41fbf72da038381c4c5e2ddd5",
+    "tests/nanoisa/fixture_identifier_lexer.c": "79d3ca89d69642a46b2cc65e1530cfc33b210cc7",
+    "tests/test_embedded_nano_identifiers.py": "5f89d983a3b34d29ce79ce6846015a21a46d6118"
+  },
+  "native_lifecycle_qualified": false,
+  "limits": "I qualify static fixture identifier checks, not full grammar/type parity or dynamic fixture execution."
+}

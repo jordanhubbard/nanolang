@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f406c92658133e1bb09e008961ea7193b37e36bdbf1383c49adf58da50dd6db3 -->
+<!-- literate-ai:authority-reviewed sha256:6307b0c6a123997a58fc83d0592a07f98589fe9efd7c18f53c1e4144029e6ea6 -->
 
 ## My first metadata checkpoint
 
@@ -190,3 +190,55 @@ Both real Git methods, all eight locks and all four delegates pass. Canonical
 validation passes after the supported authority-review update. I keep the
 full profile audit/runtime, exact hosted native gates, GitGuardian findings and
 retained native lifecycle admission visibly open.
+
+
+## My compiler profile and binding checkpoint
+
+I prepare code-only `ea5e28e89af9df817d74d2ba9cf5087227f7ee36` as a separate candidate after integration `435dae34c`. I retain every component ancestor, the complete adoption queue and every earlier custody baseline/report. My reviewed original-source update contains preserved file-valued compiler options, actual private managed-runtime IR inputs, writable coverage outputs and explicit Fortify reset, plus shared binding/neighbor recipes and real corpus preparation. I preserve my existing five content-only metadata exemptions without widening them.
+
+My corrected hosted audit passes 1,483 compiles per compiler at `7db768cc6`, with exact identities and outcomes under `docs/evidence/compiler-profile-hosted-20261107/`. My selected binding slice passes eight native tests and 114 ordinary/ASan/UBSan diagnostic compiles per compiler at `55b552dd2`, under `docs/evidence/binding-compile-profiles-20261107/`. I distinguish native sanitizer execution from sanitizer diagnostic compilation. Other C profiles and the serialized default budget remain open; I retain source authority and no native lifecycle receipt.
+
+My [profile metadata checks](profile-metadata-checks-20261107.json) record the current real Git controls, all eight locks, four delegates, supported authority review and canonical validation for this candidate. This report does not replace PR #1068's still-running exact-head native/qualification gates. GitGuardian #1076, main integration, native adoption and full 5.1 release acceptance remain open. I do not move the live PR head or enable auto-merge from this candidate preparation.
+
+My [committed profile custody report](source-preservation-profiles-20261107.json) at `35b4cad936dca765101ade5fd530a143a520e903` preserves all 90,135 reviewed original entries, with no changed or dirty original paths. My metadata checks pass with installed Literate AI 1.4.0 at `10e872cfae2465e831901108d50e62c2ff9dfb78`, publication unverified. This separate candidate preserves original-source authority and has no native lifecycle or release admission.
+
+
+## My File profiles, policy and qualification-storage checkpoint
+
+I merge reviewed code-only `f0b99facb4b2415761c980f21e69d644326b3825` into my
+separate custody candidate with real ancestry. I preserve the complete adoption
+queue, every prior baseline/report and the existing five content-only metadata
+exemptions. Original source remains release authority.
+
+My source update includes shared actual File hosted/private-VM compile recipes,
+the corrected generated-Wasm execution recorder, the opt-in combined profile
+budget measurement, additive read-only merge-policy controls, complete-PR change
+classification, and isolated qualification temporary storage with verified
+successful archives. I retain the complete module lists and native assertions.
+The File slice passes eight native tests and 130 diagnostic compiles per compiler;
+the Wasm module passes all 14 original tests. My combined 1,517-second budget
+measurement times out before GCC and final bootstrap controls finish. The
+20-minute budget and broader profile inventory remain unmet.
+
+My storage/classification/policy controls pass 26 local tests. The exact-source
+Xcode storage recovery is still pending under #1079. Three Linux qualification
+legs pass on the earlier `435dae34c` content tree, with the actual merge checkout
+and unchanged source/provider evidence retained under
+`docs/evidence/hosted-linux-qualification-20261107/`. Neither those earlier native
+results nor these metadata controls establish a native pass for this candidate.
+I do not update the still-running PR #1068 head, apply the proposed admin ruleset,
+enable auto-merge, manufacture a lifecycle receipt or publish a release.
+
+My [current metadata checks](qualification-metadata-checks-20261107.json) record the real Git,
+eight lock, four delegate, supported authority-review and canonical checks. My
+committed-tree custody report follows after the metadata checkpoint. My current
+check preserves all 90,248 baseline entries, with no changed or dirty original
+paths. All eight locks and four delegates pass with installed Literate AI 1.4.0
+at `10e872cfae2465e831901108d50e62c2ff9dfb78`, publication unverified.
+GitGuardian #1076, exact integration gates and native adoption remain open.
+
+My [committed qualification-code custody report](source-preservation-qualification-20261107.json)
+at `2ecd38eab130f4a307d3e1336f269f78e8e01e38` preserves all 90,248 baseline entries with no changed or dirty
+original paths. I retain the earlier profile baseline and reports unchanged.
+My metadata controls establish source custody, not native lifecycle admission or
+a passing exact-candidate compiler/qualification run.

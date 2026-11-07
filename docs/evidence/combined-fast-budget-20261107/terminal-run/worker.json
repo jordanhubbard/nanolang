@@ -1,0 +1,14 @@
+{
+  "job_id": 128506106999,
+  "started_at": "2026-11-07T19:34:05Z",
+  "source": "6959a9762c4aa18b4d9b12bec06b85d09ae1266a",
+  "cpus": 4,
+  "compiler_workers": 4,
+  "disk_free": 84765556736,
+  "disk_free_fraction": 0.5472481410231933,
+  "memory": {
+    "MemTotal": 16759308288,
+    "MemAvailable": 15436812288
+  },
+  "budget_seconds": 1200
+}

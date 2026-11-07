@@ -1,0 +1,8 @@
+{
+  "compared_source_commit": "06c6d2faf2c3a24f908e2407c7bf316eb8a6b942",
+  "scope": "I compare the same two-mode planner with only its option parser replaced; I stage identical public headers in one private directory.",
+  "before_count": 1246,
+  "after_count": 1246,
+  "added": [],
+  "removed": []
+}

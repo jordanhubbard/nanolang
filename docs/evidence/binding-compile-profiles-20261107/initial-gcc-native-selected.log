@@ -1,0 +1,23 @@
+2026-11-07T18:54:00.1004968Z PASS strict File binding 7866 checks cases=705 allocations=0/0/0/0 bound=7575764 mode=linked
+2026-11-07T18:54:03.0199430Z test_complete_document_lifetime_and_allocation (tests.test_nsi_file_binding.FileBindingPlan.test_complete_document_lifetime_and_allocation) ... ok
+2026-11-07T18:54:03.0200214Z PASS strict File binding 26883819 checks cases=705 allocations=11429916/233388/0/1619126 bound=7575764 mode=instrumented
+2026-11-07T18:54:03.3409276Z nsi 20 passed, 0 failed
+2026-11-07T18:54:03.5587796Z nsi-generator 3 passed, 0 failed
+2026-11-07T18:54:03.8459277Z test_unchanged_legacy_neighbors (tests.test_nsi_file_binding.FileBindingPlan.test_unchanged_legacy_neighbors) ... ok
+2026-11-07T18:54:06.1674779Z test_catalog_isolation (tests.test_nsi_socket_binding.SocketBindingPlan.test_catalog_isolation) ... ok
+2026-11-07T18:54:06.1675744Z PASS simultaneous File/Socket plans, cross-catalog refusal and independent lifetimes
+2026-11-07T18:54:06.4597093Z PASS strict Socket binding 9450 checks cases=849 allocations=0/0/0/0 bound=7575756 mode=linked
+2026-11-07T18:54:11.5971645Z test_complete_document_lifetime_and_allocation (tests.test_nsi_socket_binding.SocketBindingPlan.test_complete_document_lifetime_and_allocation) ... ok
+2026-11-07T18:54:11.5972429Z PASS strict Socket binding 41283367 checks cases=849 allocations=17471429/307693/0/2655805 bound=7575756 mode=instrumented
+2026-11-07T18:54:12.0774722Z nsi 20 passed, 0 failed
+2026-11-07T18:54:12.6471362Z nsi-generator 3 passed, 0 failed
+2026-11-07T18:54:12.8474449Z test_unchanged_legacy_neighbors (tests.test_nsi_socket_binding.SocketBindingPlan.test_unchanged_legacy_neighbors) ... ok
+2026-11-07T18:54:15.0488429Z PASS strict Websocket binding 8885 checks cases=798 allocations=0/0/0/0 bound=7575756 mode=linked
+2026-11-07T18:54:18.6719361Z test_complete_document_lifetime_and_allocation (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_complete_document_lifetime_and_allocation) ... ok
+2026-11-07T18:54:18.6720540Z PASS strict Websocket binding 32205733 checks cases=798 allocations=13828932/224762/0/1889795 bound=7575756 mode=instrumented
+2026-11-07T18:54:19.5023750Z test_immutable_source_snapshots (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_immutable_source_snapshots) ... ok
+2026-11-07T18:54:19.6222240Z nsi 20 passed, 0 failed
+2026-11-07T18:54:19.8401418Z nsi-generator 3 passed, 0 failed
+2026-11-07T18:54:19.9578193Z test_unchanged_legacy_neighbors (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_unchanged_legacy_neighbors) ... ok
+2026-11-07T18:54:19.9580434Z Ran 8 tests in 24.376s
+2026-11-07T18:54:19.9580757Z OK

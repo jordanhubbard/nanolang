@@ -1,0 +1,25 @@
+{
+  "source": "b42ea96e951d06919b30f86a798e1c7630dd720d",
+  "run": 42403291622,
+  "compilers": {
+    "gcc": {
+      "artifact": 13587086215,
+      "compiles": 1579,
+      "failures": 0,
+      "elapsed_seconds": 1236.748687392,
+      "uncovered_test_c_files": 235,
+      "raw_report_sha256": "4b95b8c22949db0e3ec405856cefd94af0cb21fd68d791343ad7edeba0166123"
+    },
+    "clang": {
+      "artifact": 13587095467,
+      "compiles": 1579,
+      "failures": 0,
+      "elapsed_seconds": 872.0764269730001,
+      "uncovered_test_c_files": 235,
+      "raw_report_sha256": "067ff72abe61e68f57f3993138daa39c719caa9cb09eee82e850ebc47ec3ff4a"
+    }
+  },
+  "full_python_profile_inventory_qualified": false,
+  "serialized_budget_qualified": false,
+  "serialized_seconds": 2108.825114365
+}

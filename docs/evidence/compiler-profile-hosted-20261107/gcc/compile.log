@@ -1,0 +1,4 @@
+gcc: I cover 227 test C files through Make/private profiles; 238 need a separate profile audit.
+  PROFILE SCOPE: unicode FFI: pkg-config libutf8proc/utf8proc is absent
+gcc (/usr/bin/gcc-14): 1483 compiles, 0 failed, 730.1s
+fast gate: ok

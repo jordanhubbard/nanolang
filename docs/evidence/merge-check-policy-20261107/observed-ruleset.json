@@ -1,0 +1,103 @@
+{
+  "id": 21250292,
+  "name": "sanity",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "jordanhubbard/nanolang",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": true,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      }
+    },
+    {
+      "type": "copilot_code_review",
+      "parameters": {
+        "review_on_push": true,
+        "review_draft_pull_requests": false
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "Build and Test (ubuntu-latest, x64)"
+          },
+          {
+            "context": "Build and Test (ubuntu-24.04-arm, arm64)"
+          },
+          {
+            "context": "Build and Test (macos-14, arm64)"
+          },
+          {
+            "context": "Code Coverage"
+          },
+          {
+            "context": "Strict examples (x64)"
+          },
+          {
+            "context": "Strict examples (arm64)"
+          },
+          {
+            "context": "Docs (link check)"
+          },
+          {
+            "context": "API Docs (nanodoc)"
+          },
+          {
+            "context": "Code Quality"
+          },
+          {
+            "context": "Concurrency (clang + libdispatch)"
+          },
+          {
+            "context": "Benchmark measurement check"
+          }
+        ]
+      }
+    }
+  ],
+  "node_id": "RRS_lACqUmVwb3NpdG9yec4_ls62zgFEQPQ",
+  "created_at": "2026-08-23T13:10:41.980-07:00",
+  "updated_at": "2026-10-04T01:19:12.085-07:00",
+  "bypass_actors": [],
+  "current_user_can_bypass": "never",
+  "_links": {
+    "self": {
+      "href": "https://api.github.com/repos/jordanhubbard/nanolang/rulesets/21250292"
+    },
+    "html": {
+      "href": "https://github.com/jordanhubbard/nanolang/rules/21250292"
+    }
+  }
+}

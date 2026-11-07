@@ -1,0 +1,16 @@
+{
+  "run": 42397278317,
+  "job": 128477253052,
+  "requested_head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "conclusion": "failure",
+  "failure_class": "runner-enospc-observed",
+  "failed_path": "/Users/runner/actions-runner/cached/_diag/Worker_20261107-175729-utc.log",
+  "last_in_progress_step": "Qualify module-derived reconstruction",
+  "final_source_provider_check_completed": false,
+  "qualification_artifact_found": false,
+  "log_download_http_status": 404,
+  "product_assertion_failure_established": false,
+  "source_of_disk_growth_established": false,
+  "retry_dispatched": false,
+  "native_lifecycle_qualified": false
+}

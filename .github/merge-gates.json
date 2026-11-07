@@ -1,0 +1,47 @@
+{
+  "schema": "nanolang/merge-gate-policy@1",
+  "repository": "jordanhubbard/nanolang",
+  "ruleset_id": 21250292,
+  "required_contexts": [
+    "Build and Test (ubuntu-latest, x64)",
+    "Build and Test (ubuntu-24.04-arm, arm64)",
+    "Build and Test (macos-14, arm64)",
+    "Code Coverage",
+    "Strict examples (x64)",
+    "Strict examples (arm64)",
+    "Docs (link check)",
+    "API Docs (nanodoc)",
+    "Code Quality",
+    "Concurrency (clang + libdispatch)",
+    "Benchmark measurement check",
+    "Fast gate (GCC and clang)",
+    "Immutable instrumented toolchain",
+    "Memory Sanitizers Stage 1",
+    "Memory Sanitizers",
+    "Coverage compiler generations",
+    "Performance Benchmarks",
+    "Qualification (retirement, ubuntu-latest)",
+    "Qualification (retirement, xcode-27)",
+    "Qualification (compiler-contracts, ubuntu-latest)",
+    "Qualification (compiler-contracts, xcode-27)",
+    "Qualification (contract-effects, ubuntu-latest)",
+    "Qualification (contract-effects, xcode-27)",
+    "Qualification (record-maps, ubuntu-latest)",
+    "Qualification (record-maps, xcode-27)"
+  ],
+  "blocking_policy_prerequisites": [
+    {
+      "issue": 1049,
+      "requirement": "I complete current Xcode qualification and restore blocking native legs."
+    },
+    {
+      "issue": 1053,
+      "requirement": "I complete the current sanitizer pipeline and restore its blocking policy."
+    },
+    {
+      "issue": 1051,
+      "requirement": "I obtain owner approval for the exact additive payload and verify the live ruleset after application."
+    }
+  ],
+  "limits": "I declare merge contexts, not a native lifecycle receipt or complete 5.1 release acceptance. Conditional documentation checks do not establish native execution."
+}

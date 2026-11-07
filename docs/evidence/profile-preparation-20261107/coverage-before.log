@@ -1,0 +1,17 @@
+test_coverage_keeps_instrumentation_and_uses_a_private_output (tests.test_fast_gate.FastGatePlanning.test_coverage_keeps_instrumentation_and_uses_a_private_output) ... FAIL
+
+======================================================================
+FAIL: test_coverage_keeps_instrumentation_and_uses_a_private_output (tests.test_fast_gate.FastGatePlanning.test_coverage_keeps_instrumentation_and_uses_a_private_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_fast_gate.py", line 25, in test_coverage_keeps_instrumentation_and_uses_a_private_output
+    self.assertEqual(result[1], 0, result[2])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : error: failed to open coverage notes file for writing: Operation not permitted
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.029s
+
+FAILED (failures=1)

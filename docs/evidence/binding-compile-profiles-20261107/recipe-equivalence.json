@@ -1,0 +1,51 @@
+{
+  "historical_source_commit": "7db768cc675b3487342823351710bff685f5a3b1",
+  "scope": "I compare shared flags/provider selections against the actual prior harness configuration; native behavior remains a separate hosted test.",
+  "flag_modes": [
+    {
+      "sanitizers": false,
+      "argv_equal": true,
+      "flags": [
+        "-DPROFILE_EXTRA=1",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-O1",
+        "-I",
+        "/review/source/src",
+        "-I",
+        "/review/source/tests",
+        "-I",
+        "/review/output"
+      ]
+    },
+    {
+      "sanitizers": true,
+      "argv_equal": true,
+      "flags": [
+        "-DPROFILE_EXTRA=1",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-O1",
+        "-I",
+        "/review/source/src",
+        "-I",
+        "/review/source/tests",
+        "-I",
+        "/review/output",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    }
+  ],
+  "provider_and_hook_modes_equal": true
+}
