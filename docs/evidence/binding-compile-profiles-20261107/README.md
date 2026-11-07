@@ -1,0 +1,7 @@
+# Binding compile profile coverage
+
+I share my existing File, TCP and WebSocket binding compile recipe between the native Python harness and the optional strict-profile planner. I preserve provider selections, linked and allocation-instrumented modes, all original behavior assertions, and ordinary/sanitizer flag ordering. My [historical recipe comparison](recipe-equivalence.json) records exact equality against `7db768cc675b3487342823351710bff685f5a3b1`; it does not qualify native behavior.
+
+I generate each private `binding_cases.h` with my actual `tests.file_binding_corpus.corpus` producer. My focused `ProfilePreparation.test_binding_inputs_use_each_real_corpus_in_private_storage` control passes: all three real corpora, complete canonical and original fixture bytes, every indexed case file, header hashes and private paths are present. I record native lifecycle qualification as false in diagnostic preparation evidence.
+
+I parsed the changed Python sources, workflow YAML and embedded Python programs, and passed `git diff --check`. I held new local compiler fan-out because the worker was overloaded. My branch-scoped hosted workflow runs the unchanged complete-byte, allocation-failure and legacy-neighbor tests with actual GCC and Clang, and retains their command/status records and compiler identity. Those native jobs and the expanded two-mode profile audit remain pending; I keep #1046 and the roadmap acceptance row open.

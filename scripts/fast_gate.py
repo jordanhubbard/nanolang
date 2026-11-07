@@ -137,6 +137,23 @@ def diagnostic_profile(compiler, flags, source, instrumented=False):
             *instrumentation, '-S', source, '-o', os.devnull]
 
 
+def binding_profiles(base, destination):
+    """I use the same linked/instrumented recipes as my three real binding harnesses."""
+    from tests.binding_compile_profile import (KINDS, compile_flags, provider_sources,
+                                              provider_hooks, fixture_hooks)
+    profiles = []
+    for kind in KINDS:
+        flags, _ = compile_profile(compile_flags(ROOT, Path(destination) / ('binding-' + kind), base))
+        for mode in ('linked', 'instrumented'):
+            profiles.extend(([*flags, *provider_hooks(ROOT, mode)], source)
+                            for source in provider_sources(kind))
+            profiles.append(([*flags, *fixture_hooks(mode)], f'tests/test_nsi_{kind}_binding.c'))
+        profiles.extend((flags, source) for source in
+                        ('tests/test_nsi.c', 'tests/test_nsi_gen.c', 'src/nsi_gen.c',
+                         f'tests/test_nsi_{kind}_plan.c'))
+    return profiles
+
+
 def test_profiles(compiler, family, header_root):
     """I cover Make-built units and private union modes; I report the remaining C inventory."""
     text = make_preview(['test-units'], [f'WEBSOCKET_PUBLIC_TEST_PREFIX={header_root}'])
@@ -168,6 +185,7 @@ def test_profiles(compiler, family, header_root):
     if base is None:
         raise ValueError('I found no Make test profiles.')
     commands.extend(private_union_profiles(base))
+    commands.extend(binding_profiles(base, header_root))
     unique = {}
     for flags, source in commands:
         for instrumented in (False, True):
@@ -190,7 +208,7 @@ def stage_public_headers(destination):
         shutil.copyfile(ROOT / 'src' / name, target)
 
 
-def prepare_profile_inputs(commands, destination):
+def prepare_managed_runtime_input(commands, destination):
     """I run the actual Make-owned IR producer in private storage when its consumer is selected."""
     consumer = (ROOT / 'src/nanoisa/nvm2llvm.c').resolve()
     selected = [command for command in commands
@@ -218,6 +236,28 @@ def prepare_profile_inputs(commands, destination):
                 'producer_manifest': json.loads(manifest.read_text()),
                 'native_lifecycle_qualified': False}
     return prepared, [evidence]
+
+
+def prepare_profile_inputs(commands, destination):
+    """I prepare only the real generated inputs consumed by my selected profiles."""
+    prepared, evidence = prepare_managed_runtime_input(commands, destination)
+    from tests.binding_compile_profile import KINDS
+    from tests.file_binding_corpus import corpus
+    for kind in KINDS:
+        consumer = (ROOT / f'tests/test_nsi_{kind}_binding.c').resolve()
+        if not any((ROOT / source_of(command)).resolve() == consumer for command in commands):
+            continue
+        folder = Path(destination) / ('binding-' + kind)
+        folder.mkdir(parents=True, exist_ok=True)
+        cases = corpus(ROOT, folder, kind)
+        header = folder / 'binding_cases.h'
+        evidence.append({'kind': kind, 'producer': 'tests.file_binding_corpus.corpus',
+                         'cases': len(cases), 'header': str(header),
+                         'header_sha256': hashlib.sha256(header.read_bytes()).hexdigest(),
+                         'producer_sha256': hashlib.sha256((ROOT / 'tests/file_binding_corpus.py').read_bytes()).hexdigest(),
+                         'fixture_sha256': hashlib.sha256((ROOT / f'tests/fixtures/nsi_{kind}_plan.json').read_bytes()).hexdigest(),
+                         'native_lifecycle_qualified': False})
+    return prepared, evidence
 
 
 def detect_compilers():

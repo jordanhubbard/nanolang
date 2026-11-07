@@ -12,6 +12,31 @@ from scripts import fast_gate as gate
 
 
 class ProfilePreparation(unittest.TestCase):
+    def test_binding_inputs_use_each_real_corpus_in_private_storage(self):
+        with tempfile.TemporaryDirectory(prefix='nano-binding-profile-input-') as directory:
+            profiles = gate.binding_profiles([], directory)
+            commands = [gate.diagnostic_profile('cc', flags, source)
+                        for flags, source in profiles]
+            self.assertFalse(list(Path(directory).iterdir()))
+            prepared, evidence = gate.prepare_profile_inputs(commands, directory)
+            self.assertEqual(prepared, commands)
+            self.assertEqual({row['kind'] for row in evidence}, {'file', 'socket', 'websocket'})
+            for row in evidence:
+                header = Path(row['header'])
+                self.assertTrue(header.is_relative_to(directory))
+                self.assertEqual(hashlib.sha256(header.read_bytes()).hexdigest(), row['header_sha256'])
+                cases = json.loads((header.parent / 'cases.json').read_text())
+                self.assertEqual(len(cases), row['cases'])
+                self.assertGreater(len(cases), 100)
+                self.assertFalse(row['native_lifecycle_qualified'])
+                fixture = gate.ROOT / f"tests/fixtures/nsi_{row['kind']}_plan.json"
+                expected = json.dumps(json.loads(fixture.read_text()), separators=(',', ':'),
+                                      ensure_ascii=False) + '\n'
+                self.assertEqual((header.parent / 'expected.json').read_bytes(), expected.encode())
+                self.assertEqual((header.parent / 'valid.json').read_bytes(), fixture.read_bytes())
+                for case in cases:
+                    self.assertTrue((header.parent / case['filename']).is_file())
+
     def test_managed_header_uses_the_real_private_producer(self):
         for variable, default in (('NMS_RUNTIME_CLANG', 'clang'), ('NMS_RUNTIME_OPT', 'opt')):
             executable = shlex.split(os.environ.get(variable, default))[0]

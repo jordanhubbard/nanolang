@@ -8,9 +8,10 @@ import tempfile
 import unittest
 from tests import test_file_source_plan as retained_runner
 from tests.file_binding_corpus import corpus
+from tests.binding_compile_profile import (PROVIDERS, compile_flags, provider_sources,
+                                          provider_hooks, fixture_hooks)
 
 ROOT=Path(__file__).resolve().parents[1]
-PROVIDERS=('src/nsi_file_binding.c','src/nsi_file_plan.c','src/nsi.c','src/cJSON.c','src/utf8.c')
 
 class FileBindingPlan(unittest.TestCase):
     kind='file'
@@ -23,20 +24,18 @@ class FileBindingPlan(unittest.TestCase):
         cls.work=Path(tempfile.mkdtemp(prefix=f'nano-{cls.kind}-binding-',dir=os.environ.get('NANO_FILE_BINDING_REPORT_DIR')))
         print(f'I retain strict binding artifacts at {cls.work}',flush=True)
         cls.cc=shlex.split(os.environ.get('NANO_FILE_BINDING_CC','cc'))
-        cls.flags=shlex.split(os.environ.get('NANO_FILE_BINDING_CFLAGS',''))
-        cls.flags+=['-std=c99','-D_GNU_SOURCE','-D_DARWIN_C_SOURCE','-Wall','-Wextra','-Werror','-g','-O1',
-                    '-I',str(ROOT/'src'),'-I',str(ROOT/'tests'),'-I',str(cls.work)]
-        if os.environ.get('NANO_FILE_BINDING_SANITIZERS','0')=='1':
-            cls.flags+=['-fsanitize=address,undefined','-fno-omit-frame-pointer']
+        cls.flags=compile_flags(ROOT,cls.work,
+            shlex.split(os.environ.get('NANO_FILE_BINDING_CFLAGS','')),
+            os.environ.get('NANO_FILE_BINDING_SANITIZERS','0')=='1')
         cls.links=shlex.split(os.environ.get('NANO_FILE_BINDING_LDFLAGS',''))+['-lm']
         cls.cases=corpus(ROOT,cls.work,cls.kind)
-        cls.providers=tuple(p.replace("file",cls.kind) for p in PROVIDERS)
+        cls.providers=provider_sources(cls.kind)
         cls.objects={}
         for mode in ('linked','instrumented'):
             rows=[]
             for source in cls.providers:
                 obj=cls.work/(mode+'-'+Path(source).stem+'.o')
-                hooks=['-include',str(ROOT/'tests/file_binding_hooks.h')] if mode=='instrumented' else []
+                hooks=provider_hooks(ROOT,mode)
                 cls.command(mode+'-provider-'+Path(source).stem,[*cls.cc,*cls.flags,*hooks,'-c',source,'-o',obj])
                 rows.append(str(obj))
             cls.objects[mode]=rows
@@ -51,7 +50,7 @@ class FileBindingPlan(unittest.TestCase):
     def test_complete_document_lifetime_and_allocation(self):
         for mode in ('linked','instrumented'):
             exe=self.work/('binding-'+mode)
-            options=['-DBINDING_INSTRUMENT'] if mode=='instrumented' else []
+            options=fixture_hooks(mode)
             self.command(mode+'-build',[*self.cc,*self.flags,*options,f'tests/test_nsi_{self.kind}_binding.c',*self.objects[mode],*self.links,'-o',exe])
             out,_=self.command(mode+'-run',[exe,self.work,self.work/'expected.json',ROOT/f'tests/fixtures/nsi_{self.kind}_binding_expected.nano.txt'],timeout=900)
             self.assertIn(f'PASS strict {self.kind.title()} binding '.encode(),out)
