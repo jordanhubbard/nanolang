@@ -73,7 +73,9 @@ jobs:
             arch: x64
           - os: ubuntu-24.04-arm
             arch: arm64
+          # I retain the ruleset check identity while selecting a supported ARM image (#1067).
           - os: macos-14
+            runner: macos-15
             arch: arm64
       fail-fast: false
     steps:
@@ -84,7 +86,7 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     needs: fast-gate
     if: needs.fast-gate.outputs.code == 'true'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
     # I budget bootstrap and both service generations separately from the general suite. Hosted run
     # 38394591256 cancelled both Linux jobs at exactly 240 minutes: setup about 18, bootstrap about 70,
@@ -103,7 +105,9 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             allow_failure: true
+          # I retain the ruleset check identity while selecting a supported ARM image (#1067).
           - os: macos-14
+            runner: macos-15
             arch: arm64
       fail-fast: false
 
@@ -323,7 +327,7 @@ jobs:
 
   examples:
     name: Strict examples (${{ matrix.arch }})
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     timeout-minutes: 75
     permissions:
       contents: read
@@ -333,7 +337,9 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x64
+          # I retain the ruleset check identity while selecting a supported ARM image (#1067).
           - os: macos-14
+            runner: macos-15
             arch: arm64
 
     steps:

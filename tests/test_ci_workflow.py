@@ -14,6 +14,23 @@ class CIWorkflowTests(unittest.TestCase):
         cls.workflow = yaml.safe_load(cls.text)
         cls.jobs = cls.workflow["jobs"]
 
+    def test_darwin_execution_uses_supported_runner_with_stable_required_name(self):
+        build = self.jobs["build-and-test"]
+        standin = self.jobs["build-and-test-skipped"]
+        self.assertEqual(build["name"], standin["name"])
+        identities = lambda job: [(row["os"], row["arch"], row.get("runner"))
+                                  for row in job["strategy"]["matrix"]["include"]]
+        self.assertEqual(identities(build), identities(standin))
+        for name in ("build-and-test", "examples"):
+            job = self.jobs[name]
+            self.assertEqual(job["runs-on"], "${{ matrix.runner || matrix.os }}")
+            darwin = [row for row in job["strategy"]["matrix"]["include"]
+                      if row["os"].startswith("macos-")]
+            self.assertEqual(len(darwin), 1)
+            self.assertEqual(darwin[0]["arch"], "arm64")
+            self.assertEqual(darwin[0]["runner"], "macos-15")
+            self.assertEqual(darwin[0]["os"], "macos-14")
+
     def test_required_test_jobs_use_bounded_suite(self):
         for job_name in ("build-and-test", "coverage"):
             commands = "\n".join(
