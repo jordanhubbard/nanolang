@@ -4970,7 +4970,7 @@ test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2was
 
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
-test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
+test-ordinary-record-authority: require-test-wasmtime nvm2wasm nanoisa_dump nano_vm nvm2c
 	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
@@ -5076,7 +5076,7 @@ test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 
 .PHONY: test-managed-record-eligibility
 test-units: test-managed-record-eligibility
-test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+test-managed-record-eligibility: require-test-wasmtime nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
@@ -6843,8 +6843,26 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 # plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
 .PHONY: check-fast
 check-fast:
+	python3 -m unittest tests.test_wasmtime_prerequisite
 	python3 scripts/fast_gate.py
 	python3 -m unittest tests.test_bootstrap_tools
+
+# I check my CLI runtime before the gates that execute generated Wasm.
+test-binary64-arithmetic-backends test-binary64-bit-transport test-llvm-enum-scalars \
+ test-llvm-generic-numeric test-llvm-literal-strings test-llvm-managed-records \
+ test-llvm-managed-strings test-llvm-scalar-globals test-managed-array-copy-runtime \
+ test-managed-array-graph-core test-managed-mutable-runtime test-managed-record-adapters \
+ test-managed-record-core test-managed-record-eligibility test-managed-runtime-package \
+ test-managed-string-array-core test-managed-string-core test-mixed-counted-runtime \
+ test-nvm2wasm test-ordinary-record-authority: require-test-wasmtime
+
+.PHONY: require-test-wasmtime install-test-wasmtime
+test-units: require-test-wasmtime
+require-test-wasmtime:
+	python3 .github/containers/instrumented/install_wasmtime.py --check
+install-test-wasmtime:
+	python3 .github/containers/instrumented/install_wasmtime.py --prefix .test_output/test-tools
+	@echo 'I use PATH="$(CURDIR)/.test_output/test-tools/bin:$$PATH" for my retained or direct test command.'
 
 .PHONY: test-selfhost-product-derivation
 test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c

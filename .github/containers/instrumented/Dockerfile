@@ -28,4 +28,7 @@ RUN apt-get -o Acquire::Retries=2 -o APT::Update::Error-Mode=any update \
     && dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > /etc/nanolang-ci-packages \
     && rm -rf /var/lib/apt/lists/*
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+COPY install_wasmtime.py /tmp/install_wasmtime.py
+RUN python3 /tmp/install_wasmtime.py --prefix /usr/local \
+    && rm /tmp/install_wasmtime.py
 WORKDIR /workspace
