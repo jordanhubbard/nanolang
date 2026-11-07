@@ -1256,15 +1256,30 @@ shadow nisa_line_imm {
     assert (== (nisa_line_imm "PUSH_I64" "40") "  PUSH_I64 40\n")
 }
 
+fn nisa_map_key_type(t: string) -> string {
+    if (or (== t "HashMap<int,int>") (== t "HashMap<int,string>")) { return "int" }
+    if (or (== t "HashMap<string,int>") (== t "HashMap<string,string>")) { return "string" }
+    return ""
+}
+shadow nisa_map_key_type {
+    assert (== (nisa_map_key_type "HashMap<int,int>") "int")
+    assert (== (nisa_map_key_type "HashMap<int,string>") "int")
+    assert (== (nisa_map_key_type "HashMap<string,int>") "string")
+    assert (== (nisa_map_key_type "HashMap<string,string>") "string")
+    assert (== (nisa_map_key_type "HashMap<bool,int>") "")
+    assert (== (nisa_map_key_type "HashMap<int,bool>") "")
+}
+
 fn nisa_map_value_type(t: string) -> string {
-    if (== t "HashMap<string,int>") { return "int" }
-    if (== t "HashMap<string,string>") { return "string" }
+    if (or (== t "HashMap<string,int>") (== t "HashMap<int,int>")) { return "int" }
+    if (or (== t "HashMap<string,string>") (== t "HashMap<int,string>")) { return "string" }
     return ""
 }
 shadow nisa_map_value_type {
     assert (== (nisa_map_value_type "HashMap<string,int>") "int")
     assert (== (nisa_map_value_type "HashMap<string,string>") "string")
-    assert (== (nisa_map_value_type "HashMap<int,string>") "")
+    assert (== (nisa_map_value_type "HashMap<int,string>") "string")
+    assert (== (nisa_map_value_type "HashMap<int,int>") "int")
     assert (== (nisa_map_value_type "HashMap<string,bool>") "")
 }
 
@@ -3087,13 +3102,16 @@ shadow nisa_emit_globals {
     let _3: int = (nisa_reset)
 }
 
-# I preserve the supported string-key map value type through each operation.
+# I preserve each supported scalar key/value pair through my map operations.
 fn nisa_map_opcode(name: string) -> string {
     if (== name "map_new") { return "HM_NEW" }
     if (== name "map_get") { return "HM_GET" }
     if (or (== name "map_put") (== name "map_set")) { return "HM_SET" }
     if (== name "map_has") { return "HM_HAS" }
     if (== name "map_remove") { return "HM_DELETE" }
+    if (== name "map_keys") { return "HM_KEYS" }
+    if (== name "map_values") { return "HM_VALUES" }
+    if (== name "map_clear") { return "HM_CLEAR" }
     if (or (== name "map_size") (== name "map_length")) { return "HM_LEN" }
     return ""
 }
@@ -3101,19 +3119,23 @@ shadow nisa_map_opcode {
     assert (== (nisa_map_opcode "map_put") "HM_SET")
     assert (== (nisa_map_opcode "map_new") "HM_NEW")
     assert (== (nisa_map_opcode "map_remove") "HM_DELETE")
-    assert (== (nisa_map_opcode "map_keys") "")
+    assert (== (nisa_map_opcode "map_keys") "HM_KEYS")
+    assert (== (nisa_map_opcode "map_values") "HM_VALUES")
+    assert (== (nisa_map_opcode "map_clear") "HM_CLEAR")
 }
 
 fn nisa_map_result(name: string) -> string {
     let opcode: string = (nisa_map_opcode name)
-    if (== opcode "HM_NEW") { return "HashMap<string,int>" }
+    if (== opcode "HM_NEW") { return "" }
+    if (== opcode "HM_CLEAR") { return "void" }
     if (or (== opcode "HM_SET") (== opcode "HM_DELETE")) { return "void" }
     if (== opcode "HM_HAS") { return "bool" }
     if (or (== opcode "HM_GET") (== opcode "HM_LEN")) { return "int" }
     return ""
 }
 shadow nisa_map_result {
-    assert (== (nisa_map_result "map_new") "HashMap<string,int>")
+    assert (== (nisa_map_result "map_new") "")
+    assert (== (nisa_map_result "map_clear") "void")
     assert (== (nisa_map_result "map_put") "void")
     assert (== (nisa_map_result "map_remove") "void")
     assert (== (nisa_map_result "map_has") "bool")
@@ -3125,23 +3147,57 @@ fn nisa_emit_map_call(parser: Parser, call: ASTCall, name: string) -> string {
     let opcode: string = (nisa_map_opcode name)
     let mut arity: int = 2
     if (== opcode "HM_NEW") { set arity 0 }
-    if (== opcode "HM_LEN") { set arity 1 }
+    if (or (== opcode "HM_LEN") (or (== opcode "HM_KEYS") (or (== opcode "HM_VALUES") (== opcode "HM_CLEAR")))) { set arity 1 }
     if (== opcode "HM_SET") { set arity 3 }
     if (!= call.arg_count arity) { return (nisa_fail "map call arity mismatch") }
-    if (== opcode "HM_NEW") { return (nisa_line_imm opcode "5 1") }
+    if (== opcode "HM_NEW") { return (nisa_fail "I require a concrete map constructor context") }
     let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let map_type: string = (nisa_expr_type parser receiver.node_id receiver.node_type)
+    let key_type: string = (nisa_map_key_type map_type)
     let value_type: string = (nisa_map_value_type map_type)
-    if (== value_type "") { return (nisa_fail "I require a supported string-keyed map") }
+    if (or (== key_type "") (== value_type "")) { return (nisa_fail "I require a supported int/string map key/value pair") }
     let mut i: int = 0
     while (< i arity) {
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
         let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
         let mut expected: string = map_type
-        if (== i 1) { set expected "string" }
+        if (== i 1) { set expected key_type }
         if (== i 2) { set expected value_type }
         if (!= actual expected) { return (nisa_fail "I require map arguments to match their declared types") }
         set i (+ i 1)
+    }
+    if (== opcode "HM_CLEAR") {
+        # I evaluate the receiver once, then delete through a detached key snapshot.
+        let map_slot: string = (nisa_temp_local map_type)
+        let keys_slot: string = (nisa_temp_local (+ "array<" (+ key_type ">")))
+        let index_slot: string = (nisa_temp_local "int")
+        let top: string = (nisa_fresh)
+        let end: string = (nisa_fresh)
+        let mut text: string = (nisa_emit_expr parser receiver.node_id receiver.node_type)
+        set text (+ text (nisa_line_imm "STORE_LOCAL" map_slot))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" map_slot))
+        set text (+ text (nisa_line "HM_KEYS"))
+        set text (+ text (nisa_line_imm "STORE_LOCAL" keys_slot))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" keys_slot))
+        set text (+ text (nisa_line "ARR_LEN"))
+        set text (+ text (nisa_line_imm "STORE_LOCAL" index_slot))
+        set text (+ text (nisa_label_line top))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+        set text (+ text (nisa_line_imm "PUSH_I64" "0"))
+        set text (+ text (nisa_line "GT"))
+        set text (+ text (nisa_line_imm "JMP_FALSE" end))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+        set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+        set text (+ text (nisa_line "I64_SUB"))
+        set text (+ text (nisa_line_imm "STORE_LOCAL" index_slot))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" map_slot))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" keys_slot))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+        set text (+ text (nisa_line "ARR_GET"))
+        set text (+ text (nisa_line "HM_DELETE"))
+        set text (+ text (nisa_line "POP"))
+        set text (+ text (nisa_line_imm "JMP" top))
+        return (+ text (nisa_label_line end))
     }
     let mut output: string = (+ (nisa_emit_call_args parser call) (nisa_line opcode))
     if (or (== opcode "HM_SET") (== opcode "HM_DELETE")) { set output (+ output (nisa_line "POP")) }
@@ -3153,7 +3209,26 @@ shadow nisa_emit_map_call {
     let source: string = (+ "f" "n main() -> HashMap<string,int> { return (map_new) }")
     let tokens: List<LexerToken> = (tokenize_string source "t.nano" diagnostics)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
-    assert (== (nisa_emit_map_call parser (parser_get_call parser 0) "map_new") "  HM_NEW 5 1\n")
+    assert (== (nisa_emit_map_call parser (parser_get_call parser 0) "map_new") "")
+    let scalars: array<string> = ["int", "string"]
+    for key in scalars {
+        for value in scalars {
+            let spelling: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
+            let text: string = (nanoisa_emit_nasm (+ "fn main()->int{let values:" (+ spelling " = (map_new) let keys = (map_keys values) let items = (map_values values) (map_clear values) return 0}")))
+            assert (> (str_length text) 0)
+            assert (str_contains text "HM_KEYS")
+            assert (str_contains text "HM_VALUES")
+            assert (str_contains text "HM_DELETE")
+            assert (not (str_contains text "HM_CLEAR"))
+        }
+    }
+    let once: string = (nanoisa_emit_nasm "fn fresh()->HashMap<int,string>{return (map_new)} fn main()->int{(map_clear (fresh)) return 0}")
+    assert (str_contains once "CALL fresh")
+    let after_call: string = (str_substring once (+ (str_index_of once "CALL fresh") 10) (- (str_length once) (+ (str_index_of once "CALL fresh") 10)))
+    assert (not (str_contains after_call "CALL fresh"))
+    assert (== (nanoisa_emit_nasm "fn main()->int{(map_clear 3) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let values:HashMap<int,int> = (map_new) (map_get values true) return 0}") "")
+    let reset: int = (nisa_reset)
 }
 
 # I name the std/regex C-backed externs; the Regex handle is an opaque value the VM keeps.
@@ -4419,9 +4494,16 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (and (== target_name "string_to_float") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (nisa_cast_string_name target_name) (< (nisa_call_index parser call) 0)) { return "string" }
-        if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
+        let map_opcode: string = (nisa_map_opcode target_name)
+        if (or (and (== map_opcode "HM_GET") (== call.arg_count 2))
+                (and (or (== map_opcode "HM_KEYS") (== map_opcode "HM_VALUES")) (== call.arg_count 1))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-            return (nisa_map_value_type (nisa_expr_type parser receiver.node_id receiver.node_type))
+            let map_type: string = (nisa_expr_type parser receiver.node_id receiver.node_type)
+            let mut element: string = (nisa_map_value_type map_type)
+            if (== map_opcode "HM_KEYS") { set element (nisa_map_key_type map_type) }
+            if (== element "") { return "" }
+            if (== map_opcode "HM_GET") { return element }
+            return (+ "array<" (+ element ">"))
         }
         let map_result: string = (nisa_map_result target_name)
         if (!= map_result "") { return map_result }
@@ -4468,6 +4550,17 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let map_tokens: List<LexerToken> = (tokenize_string "fn probe()->int{(map_keys values) (map_values values) return (map_get values 1)}" "maps.nano" (diag_list_new))
+    let map_parser: Parser = (parse_program map_tokens (list_LexerToken_length map_tokens) "maps.nano")
+    for key in ["int", "string"] {
+        for value in ["int", "string"] {
+            set nisa_names ["values"]
+            set nisa_types [(+ "HashMap<" (+ key (+ "," (+ value ">"))))]
+            assert (== (nisa_expr_type map_parser 0 ParseNodeType.PNODE_CALL) (+ "array<" (+ key ">")))
+            assert (== (nisa_expr_type map_parser 1 ParseNodeType.PNODE_CALL) (+ "array<" (+ value ">")))
+            assert (== (nisa_expr_type map_parser 2 ParseNodeType.PNODE_CALL) value)
+        }
+    }
     let _: int = (nisa_reset)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "struct Options { label: string, flag: bool } f" "n probe(options: Options) -> string { return (str_concat options.label (int_to_string 42)) }")
@@ -4731,8 +4824,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         }
     }
     if (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser node_id node_type)) {
-        if (== (nisa_map_value_type expected) "string") { return (nisa_line_imm "HM_NEW" "5 5") }
-        return (nisa_line_imm "HM_NEW" "5 1")
+        let mut key_tag: string = "1"
+        let mut value_tag: string = "1"
+        if (== (nisa_map_key_type expected) "string") { set key_tag "5" }
+        if (== (nisa_map_value_type expected) "string") { set value_tag "5" }
+        return (nisa_line_imm "HM_NEW" (+ key_tag (+ " " value_tag)))
     }
     if (and (!= (nisa_map_value_type expected) "")
             (!= (nisa_expr_type parser node_id node_type) expected)) {
@@ -4772,6 +4868,12 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    let map_tokens: List<LexerToken> = (tokenize_string "fn fresh()->HashMap<int,int>{return (map_new)}" "maps.nano" (diag_list_new))
+    let map_parser: Parser = (parse_program map_tokens (list_LexerToken_length map_tokens) "maps.nano")
+    assert (== (nisa_emit_expected_expr map_parser 0 ParseNodeType.PNODE_CALL "HashMap<int,int>") "  HM_NEW 1 1\n")
+    assert (== (nisa_emit_expected_expr map_parser 0 ParseNodeType.PNODE_CALL "HashMap<int,string>") "  HM_NEW 1 5\n")
+    assert (== (nisa_emit_expected_expr map_parser 0 ParseNodeType.PNODE_CALL "HashMap<string,int>") "  HM_NEW 5 1\n")
+    assert (== (nisa_emit_expected_expr map_parser 0 ParseNodeType.PNODE_CALL "HashMap<string,string>") "  HM_NEW 5 5\n")
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> array<string> { return [] }")
     let tokens: List<LexerToken> = (tokenize_string source "array.nano" diagnostics)
@@ -7003,7 +7105,7 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     let name: string = (nisa_call_name parser call)
     if (nisa_is_print_builtin name) { return false }
     if (nisa_is_set_call name) { return false }
-    if (or (== (nisa_map_opcode name) "HM_SET") (== (nisa_map_opcode name) "HM_DELETE")) { return false }
+    if (or (== (nisa_map_opcode name) "HM_CLEAR") (or (== (nisa_map_opcode name) "HM_SET") (== (nisa_map_opcode name) "HM_DELETE"))) { return false }
     let index: int = (nisa_call_index parser call)
     if (and (< index 0) (> (nisa_list_removal name) 0)) { return (!= (nisa_list_removal_result parser call name) "void") }
     if (< index 0) { return (not (or (nisa_is_list_insert name) (nisa_is_list_free name))) }
@@ -7012,6 +7114,9 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
 }
 
 shadow nisa_call_has_result {
+    let clear_tokens: List<LexerToken> = (tokenize_string "fn main()->int{let values:HashMap<int,string> = (map_new) (map_clear values) return 0}" "clear.nano" (diag_list_new))
+    let clear_parser: Parser = (parse_program clear_tokens (list_LexerToken_length clear_tokens) "clear.nano")
+    assert (not (nisa_call_has_result clear_parser (parser_get_call clear_parser 1)))
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n nop() -> void {} fn value() -> int { return 1 } fn main() -> int { (nop) (print \"x\") return (value) }")
     let tokens: List<LexerToken> = (tokenize_string source "t.nano" diags)

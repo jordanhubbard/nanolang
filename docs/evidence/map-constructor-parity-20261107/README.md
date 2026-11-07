@@ -30,3 +30,21 @@ and once-only clear. My C AOT analysis/runtime still needs corresponding
 representation, alias, lifetime and allocation-refusal coverage. I keep #1083
 and both roadmap rows open. This checker foundation does not complete the map
 outcome, ordinary-record publication, native adoption, or release acceptance.
+
+## My producer implementation pending execution
+
+I now carry each of the four supported key/value pairs through my self-hosted
+map type helpers, exact HM_NEW operands, key/value checks and inferred
+keys/values array types. I refuse uncontextualized construction rather than
+silently selecting STRING-to-INT. My map clear lowering saves the receiver once,
+takes a detached key snapshot and deletes each key in reverse snapshot order.
+It emits existing VM operations and leaves no result on the statement stack.
+
+I add mandatory shadows for all constructor operand pairs, typed enumeration,
+clear lowering, missing context and wrong arguments. I add runtime controls for
+all four pairs: snapshots survive replacement/deletion, empty snapshots grow,
+clear preserves aliases and evaluates a returned receiver once, maps can be
+reused, and integer keys retain signed extremes. I retain every original
+constructor assertion and seed-native counterpart. My Python actual-lexer check
+accepts 20 static fragments. These source checks do not establish executed
+producer semantics; the fresh hosted run and the C AOT/runtime work remain open.

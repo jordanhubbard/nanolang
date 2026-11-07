@@ -16,6 +16,22 @@ class MapConstructorContexts(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def vm_and_native(self, path, work, identity, producer):
+        module = work / f"{identity}-{producer}.nvm"
+        c_source = module.with_suffix('.c')
+        native = work / f"{identity}-{producer}-native"
+        self.run_checked([ROOT / "bin" / producer, path, "--emit-nvm", "-o", module])
+        self.run_checked([ROOT / "bin/nano_vm", "--verify-only", module])
+        self.run_checked([ROOT / "bin/nano_vm", module])
+        self.run_checked([ROOT / "bin/nvm2c", module, "-o", c_source])
+        self.run_checked([*shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+            "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror",
+            "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+            c_source, ROOT / "bin/nano_aot_runtime.o", "-lm", *native_link_flags(),
+            *(["-Wl,--export-dynamic", "-ldl"] if os.sys.platform.startswith("linux") else []),
+            "-o", native])
+        self.run_checked([native])
+
     def test_scalar_tag_pairs_and_contexts(self):
         baseline = SOURCE.read_text()
         with tempfile.TemporaryDirectory() as tmp:
@@ -36,22 +52,65 @@ class MapConstructorContexts(unittest.TestCase):
                         path.write_text(source)
                         for producer in ("nano_virt", "nanoc_stage1", "nanoc_stage2"):
                             with self.subTest(producer=producer):
-                                module = work / f"{key}-{value}-{producer}.nvm"
-                                c_source = module.with_suffix('.c')
-                                native = work / f"{key}-{value}-{producer}-native"
-                                self.run_checked([ROOT / "bin" / producer, path, "--emit-nvm", "-o", module])
-                                self.run_checked([ROOT / "bin/nano_vm", "--verify-only", module])
-                                self.run_checked([ROOT / "bin/nano_vm", module])
-                                self.run_checked([ROOT / "bin/nvm2c", module, "-o", c_source])
-                                self.run_checked([*shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
-                                    "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror",
-                                    "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                                    c_source, ROOT / "bin/nano_aot_runtime.o", "-lm", *native_link_flags(),
-                                    *(["-Wl,--export-dynamic", "-ldl"] if os.sys.platform.startswith("linux") else []),
-                                    "-o", native])
-                                self.run_checked([native])
+                                self.vm_and_native(path, work, f"{key}-{value}", producer)
                         self.run_checked([ROOT / "bin/nanoc_c", path, "-o", work / "native"])
                         self.run_checked([work / "native"])
+
+    def test_detached_snapshots_and_clear_receiver_runs_once(self):
+        for key in ("int", "string"):
+            for value in ("int", "string"):
+                with self.subTest(key=key, value=value), tempfile.TemporaryDirectory() as tmp:
+                    work = Path(tmp)
+                    first_key, second_key = ('-9223372036854775808', '9223372036854775807') if key == 'int' else ('"first"', '"second"')
+                    first_value, second_value = ('-7', '19') if value == 'int' else ('"original"', '"changed"')
+                    pair = f"HashMap<{key},{value}>"
+                    path = work / 'snapshots.nano'
+                    path.write_text(f'''let mut calls: int = 0
+let shared: {pair} = (map_new)
+fn receiver() -> {pair} {{ set calls (+ calls 1) return shared }}
+shadow receiver {{
+ set calls 0
+ let alias: {pair} = (receiver)
+ (map_put alias {first_key} {first_value})
+ assert (map_has shared {first_key})
+ assert (== calls 1)
+ (map_clear shared)
+}}
+fn main() -> int {{
+ (map_clear shared)
+ (map_put shared {first_key} {first_value})
+ let keys: array<{key}> = (map_keys shared)
+ let items: array<{value}> = (map_values shared)
+ (map_put shared {first_key} {second_value})
+ (map_put shared {second_key} {second_value})
+ set calls 0
+ (map_clear (receiver))
+ assert (== calls 1)
+ assert (== (map_size shared) 0)
+ assert (== (array_length keys) 1)
+ assert (== (array_length items) 1)
+ assert (== (at keys 0) {first_key})
+ assert (== (at items 0) {first_value})
+ let more_keys: array<{key}> = (array_push keys {second_key})
+ let more_items: array<{value}> = (array_push items {second_value})
+ assert (== (at more_keys 1) {second_key})
+ assert (== (at more_items 1) {second_value})
+ (map_put shared {first_key} {second_value})
+ assert (== (map_get shared {first_key}) {second_value})
+ set calls 0
+ (map_clear shared)
+ (map_clear (receiver))
+ assert (== calls 1)
+ assert (== (map_size shared) 0)
+ return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+                    for producer in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                        with self.subTest(producer=producer):
+                            self.vm_and_native(path, work, f"snapshots-{key}-{value}", producer)
+                    self.run_checked([ROOT / 'bin/nanoc_c', path, '-o', work / 'seed-native'])
+                    self.run_checked([work / 'seed-native'])
 
     def test_scoped_aliases_and_return_evaluation(self):
         source = """union Choice { One {}, Two {} }
