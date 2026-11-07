@@ -1,0 +1,6 @@
+test_nested_payload_flows_in_both_match_orders (tests.test_scalar_union_emission.NestedUnionNative.test_nested_payload_flows_in_both_match_orders) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.660s
+
+OK

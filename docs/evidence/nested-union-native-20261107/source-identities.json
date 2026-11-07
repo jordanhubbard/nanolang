@@ -1,0 +1,9 @@
+{
+  "base_commit": "bb60655cd51cbcd1f2737faba4c8905703e3bb7b",
+  "sources": {
+    "src/nanoisa/nvm2c_shape.c": "3540b8f65f391e00fb36631c549d9337ed9926f51f4458b180ff295f6e1b17b6",
+    "tests/nanoisa/test_nvm2c_shape.c": "ab6d98bdd444080cdbc97e31de24484d1d3f90e028428b243bac55aff01e1d58",
+    "tests/test_scalar_union_emission.py": "247a49391f23aebeb310fe9cfa9c39b89c09f66db388f203f436e8f318199d95",
+    "tests/nanoisa/fixtures/nested_union_native.nano": "9e77ee7b729c25ff22c028359f9aec2fb3328be36e32aee436d65f77231b525b"
+  }
+}
