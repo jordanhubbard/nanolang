@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:a910632d59e8338fa3b77c542d59bda05436568fe63f75f0ddca0d77471aac40 -->
+<!-- literate-ai:authority-reviewed sha256:4186b1a872a14d2348e04b45247f86e75ef3a432c3dc6f0058c8fb1b39846a0f -->
 
 ## My first metadata checkpoint
 
@@ -143,3 +143,14 @@ original paths. Both real Git custody methods, all eight lock checks and all
 four agent delegates pass. Canonical validation and the supported documentation
 authority review pass. These are metadata/custody observations, not native
 lifecycle or full 5.1 release acceptance.
+
+## My nested-union code checkpoint
+
+I integrate native storage repair #1061 from code-only commit `4bf010dcc2cb8034e05391aea46bd2428c6e17a8`.
+My custody baseline advances to that reviewed native-source checkpoint,
+including its local regression evidence in
+`docs/evidence/nested-union-native-20261107/README.md`.
+I preserve the previous combined baseline and reports as history. This is an
+explicit original-source update under my existing authority, not generated
+replacement source or retained lifecycle admission. My metadata merge must
+preserve every original entry from this new checkpoint.
