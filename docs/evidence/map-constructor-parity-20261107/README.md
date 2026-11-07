@@ -79,3 +79,22 @@ test-map-scalar-runtime`: four methods pass in 2.637 seconds with Apple clang
 21.0.0. My [input hashes](runtime-local-inputs.json) identify the actual tested
 fragments and original fixture; this is local runtime evidence, not a fresh
 source compiler product or a verifier-owned native lifecycle receipt.
+
+## My failed checker bootstrap and corrected fixture
+
+Fresh runs [42417505641](https://github.com/jordanhubbard/nanolang/actions/runs/42417505641)
+and [42417814646](https://github.com/jordanhubbard/nanolang/actions/runs/42417814646)
+pass their default fast/report/storage gates, then fail during the seed's
+`check_empty_map_context` shadow. Neither reaches Stage 1, the original map
+matrix or complete JUnit. My [original logs, manifests, jobs and artifact hashes](bootstrap-failures/artifacts.json)
+retain the failure. Both exact seed logs report `parser_get_call` returning void
+at the new nominal-map assertion. I do not classify this as infrastructure.
+
+My new fixture used `struct HashMap<K,V>` although my self-hosted struct parser
+requires an opening brace immediately after the name. It therefore registered
+neither the nominal declaration nor a call. I correct only this new premise to
+a real `struct HashMap`, assert its parsed declaration/call and parser validity,
+and retain the same requirement that I do not refine that nominal name to the
+builtin map family. I also refuse parser-error and out-of-range call inputs
+before list access, with mandatory controls. My original constructor fixture
+and assertions remain unchanged. Fresh execution of this correction is pending.

@@ -2,7 +2,7 @@ name: Complete JUnit producer-route diagnosis
 
 on:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
