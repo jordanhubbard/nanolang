@@ -1,0 +1,10 @@
+{
+  "run_id": 42382072384,
+  "job_id": 128431607984,
+  "source_commit": "8c9584231",
+  "archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/source-capture-diagnostic.tar.gz",
+  "archive_sha256": "6eb712ed2a89793b2d98f431ac8cf9979600e18b334b1eea12ef5a9993815cf9",
+  "integrated_tests": 8,
+  "seconds": 518.363,
+  "full_release_qualified": false
+}
