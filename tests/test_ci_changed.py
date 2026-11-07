@@ -72,7 +72,9 @@ class GitHubEventClassification(unittest.TestCase):
                          {'before': self.code, 'after': self.prose}, self.checkout))
 
     def test_complete_pr_range_keeps_earlier_code_after_a_prose_push(self):
-        event = {'pull_request': {'base': {'sha': self.base}, 'head': {'sha': self.prose}}}
+        event = {'before': self.code, 'after': self.prose,
+                 'pull_request': {'base': {'sha': self.base}, 'head': {'sha': self.prose}}}
+        self.assertFalse(ci_changed.github_event_changes('push', event, self.checkout))
         self.assertTrue(ci_changed.github_event_changes('pull_request', event, self.checkout))
 
     def test_pure_prose_pr_range_is_documentation(self):
@@ -80,11 +82,11 @@ class GitHubEventClassification(unittest.TestCase):
         self.assertFalse(ci_changed.github_event_changes('pull_request', event, self.checkout))
 
     def test_missing_remote_and_unknown_commit_keep_native_jobs(self):
+        self.assertTrue(ci_changed.github_event_changes('push',
+                        {'before': 'f' * 40, 'after': self.prose}, self.checkout))
         self.git(self.checkout, 'remote', 'remove', 'origin')
         self.assertTrue(ci_changed.github_event_changes('push',
                         {'before': self.code, 'after': self.prose}, self.checkout))
-        self.assertTrue(ci_changed.github_event_changes('push',
-                        {'before': 'f' * 40, 'after': self.prose}, self.checkout))
 
     def test_manual_empty_and_unknown_events_keep_native_jobs(self):
         for name, event in [('workflow_dispatch', {}), ('push', {}), ('pull_request', {}),
