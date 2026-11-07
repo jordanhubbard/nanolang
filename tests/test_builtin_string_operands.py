@@ -89,9 +89,29 @@ shadow main { assert (== (main) 0) }
 ''')
 
     def test_real_declaration_keeps_its_parameter_and_result(self):
-        self.run_program('''fn str_trim(value: int) -> bool { return (== value 7) }
+        self.run_program('''let mut calls: int = 0
+fn next() -> int { set calls (+ calls 1) return 7 }
+shadow next { set calls 0 assert (== (next) 7) assert (== calls 1) }
+fn str_trim(value: int) -> bool { return (== value 7) }
 shadow str_trim { assert (str_trim 7) assert (not (str_trim 8)) }
-fn main() -> int { assert (str_trim 7) assert (not (str_trim 8)) return 0 }
+fn main() -> int {
+ set calls 0
+ assert (str_trim (next))
+ assert (== calls 1)
+ assert (not (str_trim 8))
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+        self.run_program('''fn bool_to_string(value: bool) -> string { return "declared" }
+shadow bool_to_string { assert (str_equals (bool_to_string true) "declared") }
+fn relay(value: bool) -> string { return (bool_to_string value) }
+shadow relay { assert (str_equals (relay false) "declared") }
+fn main() -> int {
+ assert (str_equals (relay true) "declared")
+ assert (str_equals (relay false) "declared")
+ return 0
+}
 shadow main { assert (== (main) 0) }
 ''')
 

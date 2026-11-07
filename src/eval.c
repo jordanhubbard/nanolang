@@ -3400,6 +3400,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
     /* Infer anonymous struct literal names from parameter types before evaluating */
     Function *named_func = env_get_function(env, name);
+    /* I keep a real declaration on the ordinary invocation path, with the
+     * same argument evaluation, return boundary and frame cleanup below. */
+    if (call_name != EVAL_CALL_unknown && named_func && named_func->body && is_builtin_function(name))
+        call_name = EVAL_CALL_unknown;
     for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
         ASTNode *arg = node->as.call.args[i];
         if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {

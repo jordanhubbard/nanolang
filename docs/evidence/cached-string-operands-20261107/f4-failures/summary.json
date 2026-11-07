@@ -1,0 +1,26 @@
+[
+  {
+    "family": "gcc",
+    "run": 42420781220,
+    "artifact": 13593432185,
+    "revision": "f4b26117988227a07cc6f8ae45583c1c15f4f772",
+    "archive_bytes": 1959392,
+    "archive_sha256": "f115290b63fe29a55631c6f283c97758860ca87fd54b2725195052a93285ed15",
+    "crc_check": "passed",
+    "full_source_tree_matches_git": true,
+    "source_tree_sha256": "3ee756d2e879d6d4b3d1bfb56f74c40a6a2da37f3a257cba621264756649d7c7",
+    "scope": "I pass all nine original canonical methods and five operand methods; the real declaration method fails only for nanoc_c shadow interpretation."
+  },
+  {
+    "family": "clang",
+    "run": 42420781220,
+    "artifact": 13593182560,
+    "revision": "f4b26117988227a07cc6f8ae45583c1c15f4f772",
+    "archive_bytes": 1959320,
+    "archive_sha256": "766902f823d390c8a5f194edad65c8d39333fc611897fac6363d6f6e68d056f6",
+    "crc_check": "passed",
+    "full_source_tree_matches_git": true,
+    "source_tree_sha256": "3ee756d2e879d6d4b3d1bfb56f74c40a6a2da37f3a257cba621264756649d7c7",
+    "scope": "I pass all nine original canonical methods and five operand methods; the real declaration method fails only for nanoc_c shadow interpretation."
+  }
+]

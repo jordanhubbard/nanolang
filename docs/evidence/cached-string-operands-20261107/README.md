@@ -37,3 +37,28 @@ fresh source/runtime/installed-stage and platform gates remain required. My
 focused diagnostic artifacts now publish before long corpus collection so a
 failed focused step does not hide its results until the corpus finishes.
 I do not remove the original trim refusal or any complete canonical fixture.
+
+## My exact fresh failure and dispatch correction
+
+[Run 42420781220](https://github.com/jordanhubbard/nanolang/actions/runs/42420781220)
+builds fresh GCC and Clang providers. In each family, all nine unchanged
+canonical string methods and the other five operand methods pass. The one
+remaining method fails only for the C-native seed: its shadow interpreter
+intercepts the valid user-defined `str_trim(int)->bool` as the builtin trim.
+NanoVirt and its generated native counterpart pass that same declaration.
+My [full failure logs, exact jobs, source identity and artifact hashes](f4-failures/summary.json)
+retain the original result; I do not call this a green job.
+
+I now keep real cached-language-builtin bodies on the interpreter's existing
+ordinary invocation path. I retain the same argument evaluation, tracing,
+return boundary and frame cleanup. My strengthened declaration control also
+checks once-only arguments and a real `bool_to_string` body; none of the
+original declaration assertions or canonical methods is removed. Strict C99
+syntax, Python AST and the actual lexer (seven fragments) pass locally. Fresh
+source/native, complete bootstrap/stages and platform acceptance remain pending.
+
+While tracing the common call path I also find an unbounded loop over a fixed
+sixteen-value argument buffer. I file #1085 and add its own roadmap work before
+continuing. A valid seventeen-argument source program compiles and executes in
+my existing NanoVirt/VM; this separate defect does not complete from the string
+dispatch repair or from that unqualified local provider observation.
