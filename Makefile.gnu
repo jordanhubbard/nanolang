@@ -2031,6 +2031,10 @@ test-assembler-string-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_assembler_string_alloc tests/nanoisa/test_assembler_string_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_assembler_string_alloc
 
+.PHONY: test-long-path-bootstrap
+test-long-path-bootstrap:
+	python3 scripts/qualify_long_path_bootstrap.py
+
 .PHONY: test-disasm-roundtrip
 test-disasm-roundtrip: test-assembler-string-alloc $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running canonical disassembly round-trip tests..."

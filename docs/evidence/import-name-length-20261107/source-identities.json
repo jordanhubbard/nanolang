@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/assembler.c": "8508bde4ce58ad88f32204cc3f64957f2e99152b5098575afb00f819b2f87be3",
+  "tests/nanoisa/test_assembler_string_alloc.c": "5a28e4405e21cfc0ad0d509ac3cf3cf37aea9ea93173b33edfaa4b34d34ef727",
+  "tests/nanoisa/test_disasm_roundtrip.c": "458c0292d10d215197ee54748a066e33b7b2c36b0ab992ebe62ef61025d0a547",
+  "scripts/qualify_long_path_bootstrap.py": "c8209748c07a55d8392eceeadabb413e8dd53c78bb7d8a002d7eafe9b757a81c"
+}

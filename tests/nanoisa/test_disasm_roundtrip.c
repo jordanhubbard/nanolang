@@ -135,6 +135,58 @@ static void quoted_string_boundaries(void) {
     }
 }
 
+/* I preserve long generated module paths and independently long symbols. */
+static void import_name_boundaries(void) {
+    const size_t lengths[] = {255, 256, 400, 4096};
+    for (size_t i = 0; i < sizeof lengths / sizeof *lengths; ++i) {
+        size_t length = lengths[i];
+        char *name = malloc(length + 1);
+        size_t capacity = 2 * length + 128;
+        char *text = malloc(capacity);
+        CHECK(name && text, "allocate long import fixture");
+        if (!name || !text) { free(name); free(text); continue; }
+        memset(name, 'a', length);
+        name[0] = '/'; name[length] = '\0';
+        for (int which = 0; which < 3; ++which) {
+            const char *module = which == 1 ? "lib" : name;
+            const char *symbol = which == 0 ? "call" : name;
+            int written = snprintf(text, capacity,
+                ".import \"%s\" \"%s\" int int\n.entry 0\n"
+                ".function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n", module, symbol);
+            CHECK(written >= 0 && (size_t)written < capacity, "long import fixture fits");
+            if (written < 0 || (size_t)written >= capacity) continue;
+            AsmResult result;
+            NvmModule *m = asm_assemble(text, &result);
+            CHECK(m != NULL, "long import declaration assembles");
+            if (m) {
+                CHECK(m->import_count == 1, "one long import is retained");
+                if (m->import_count == 1) {
+                    NvmImportEntry *entry = &m->imports[0];
+                    CHECK(m->string_lengths[entry->module_name_idx] == strlen(module) &&
+                        !memcmp(m->strings[entry->module_name_idx], module, strlen(module)),
+                        "full import module name survives");
+                    CHECK(m->string_lengths[entry->function_name_idx] == strlen(symbol) &&
+                        !memcmp(m->strings[entry->function_name_idx], symbol, strlen(symbol)),
+                        "full import symbol name survives");
+                }
+                nvm_module_free(m);
+            }
+            round_trips("long import module and symbol names", text);
+        }
+        free(name); free(text);
+    }
+    const char *bad[] = {
+        ".import \"lib\" \"dangling\\", ".import \"lib\" \"unterminated",
+        ".import \"lib\" \"call\"", ".import \"lib\" \"call\" int unknown"
+    };
+    for (size_t i = 0; i < sizeof bad / sizeof *bad; ++i) {
+        AsmResult result;
+        NvmModule *m = asm_assemble(bad[i], &result);
+        CHECK(!m && result.error == ASM_ERR_SYNTAX, "malformed import still refuses");
+        nvm_module_free(m);
+    }
+}
+
 /* A fixture refusal must not continue with a truncated or absent buffer. */
 static bool fixture_append(char *text, size_t capacity, size_t *used,
                            const char *format, ...) {
@@ -214,6 +266,7 @@ int main(void) {
     printf("\n[disasm_roundtrip] canonical disassembly is lossless...\n\n");
     fixture_bounds();
     quoted_string_boundaries();
+    import_name_boundaries();
     large_symbol_and_branch_tables();
 
     round_trips("simple",

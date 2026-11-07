@@ -1,0 +1,2 @@
+I cannot assemble '/tmp/nanolang-long-import/bad-import.nasm': I expect .import "module" "symbol" return-tag [param-tags...]
+I retain prior output on malformed input after the repair.

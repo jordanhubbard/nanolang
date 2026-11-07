@@ -870,6 +870,63 @@ static bool flow_directive(AsmState *state, const char *directive,
     return true;
 }
 
+/* I retain import names at their full decoded length. A generated host-library
+ * path can exceed 255 bytes even when its worktree root is much shorter.
+ * Both names share storage bounded by the current encoded assembly line. */
+static bool assemble_import(AsmState *state, const char *p, AsmResult *result) {
+    size_t length = strlen(p);
+    if (length >= UINT32_MAX) {
+        result->error = ASM_ERR_BAD_OPERAND;
+        snprintf(result->message, sizeof(result->message),
+                 "I require import names within the u32 string length limit");
+        return false;
+    }
+    size_t capacity = length + 1;
+    char *names = malloc(capacity);
+    if (!names) {
+        result->error = ASM_ERR_MEMORY;
+        snprintf(result->message, sizeof(result->message), "I cannot allocate import names");
+        return false;
+    }
+    uint32_t mlen = 0, slen = 0;
+    uint8_t return_tag;
+    bool parsed = parse_quoted_string(&p, names, capacity, &mlen);
+    char *symbol = parsed ? names + mlen + 1 : names;
+    if (!parsed || !parse_quoted_string(&p, symbol, capacity - (size_t)(symbol - names), &slen) ||
+        !parse_result_tag(&p, &return_tag)) {
+        result->error = ASM_ERR_SYNTAX;
+        snprintf(result->message, sizeof(result->message),
+                 "I expect .import \"module\" \"symbol\" return-tag [param-tags...]");
+        free(names);
+        return false;
+    }
+    uint8_t params[NANO_MAX_FFI_ARGS];
+    uint16_t param_count = 0;
+    for (;;) {
+        skip_whitespace(&p);
+        if (at_line_end(p)) break;
+        if (param_count >= NANO_MAX_FFI_ARGS || !parse_result_tag(&p, &params[param_count])) {
+            result->error = ASM_ERR_SYNTAX;
+            snprintf(result->message, sizeof(result->message),
+                     "I require at most %d valid parameter tags after .import", NANO_MAX_FFI_ARGS);
+            free(names);
+            return false;
+        }
+        param_count++;
+    }
+    uint32_t midx = nvm_add_string(state->mod, names, mlen);
+    uint32_t sidx = midx == UINT32_MAX ? UINT32_MAX : nvm_add_string(state->mod, symbol, slen);
+    free(names);
+    if (midx == UINT32_MAX || sidx == UINT32_MAX ||
+        nvm_add_import(state->mod, midx, sidx, param_count, return_tag,
+                       param_count ? params : NULL) == UINT32_MAX) {
+        result->error = ASM_ERR_MEMORY;
+        snprintf(result->message, sizeof(result->message), "I cannot retain this import declaration");
+        return false;
+    }
+    return require_line_end(p, result);
+}
+
 static bool process_line(AsmState *state, const char *line, AsmResult *result) {
     const char *p = line;
     skip_whitespace(&p);
@@ -1230,52 +1287,8 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return require_line_end(p, result);
         }
 
-        /* .import "module" "symbol" <return-tag> [param-tags...]
-         *
-         * The import table had no textual form, so a module with an import
-         * could be disassembled but not reassembled: CALL_EXTERN referred to
-         * a table the text never declared. Names are string literals rather
-         * than pool indices because nvm_add_string deduplicates, so a name
-         * the pool already holds resolves to the same index it had -- which is
-         * what keeps a disassemble/reassemble cycle byte-identical. */
-        if (strcmp(directive, "import") == 0) {
-            char module_name[256], symbol_name[256];
-            uint32_t mlen = 0, slen = 0;
-            uint8_t return_tag;
-            if (!parse_quoted_string(&p, module_name, sizeof(module_name), &mlen) ||
-                !parse_quoted_string(&p, symbol_name, sizeof(symbol_name), &slen) ||
-                !parse_result_tag(&p, &return_tag)) {
-                result->error = ASM_ERR_SYNTAX;
-                snprintf(result->message, sizeof(result->message),
-                         "Expected: .import \"module\" \"symbol\" return-tag [param-tags...]");
-                return false;
-            }
-            uint8_t params[NANO_MAX_FFI_ARGS];
-            uint16_t param_count = 0;
-            for (;;) {
-                skip_whitespace(&p);
-                if (at_line_end(p)) break;
-                if (param_count >= NANO_MAX_FFI_ARGS) {
-                    result->error = ASM_ERR_SYNTAX;
-                    snprintf(result->message, sizeof(result->message),
-                             ".import takes at most %d parameter tags",
-                             NANO_MAX_FFI_ARGS);
-                    return false;
-                }
-                if (!parse_result_tag(&p, &params[param_count])) {
-                    result->error = ASM_ERR_SYNTAX;
-                    snprintf(result->message, sizeof(result->message),
-                             "Expected a type tag in .import parameter list");
-                    return false;
-                }
-                param_count++;
-            }
-            uint32_t midx = nvm_add_string(state->mod, module_name, mlen);
-            uint32_t sidx = nvm_add_string(state->mod, symbol_name, slen);
-            nvm_add_import(state->mod, midx, sidx, param_count, return_tag,
-                           param_count ? params : NULL);
-            return require_line_end(p, result);
-        }
+        if (strcmp(directive, "import") == 0)
+            return assemble_import(state, p, result);
 
         if (strcmp(directive, "callback") == 0) {
             NvmCallbackContract c = {0};

@@ -1,0 +1,2 @@
+I cannot assemble '/tmp/nanolang-long-import/256.nasm': Expected: .import "module" "symbol" return-tag [param-tags...]
+I retain prior output on the old 256-byte-name refusal.
