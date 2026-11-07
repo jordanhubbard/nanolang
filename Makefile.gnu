@@ -6843,8 +6843,14 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 # plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
 .PHONY: check-fast
 check-fast:
+	python3 -m unittest tests.test_make_prerequisites
 	python3 scripts/fast_gate.py
 	python3 -m unittest tests.test_bootstrap_tools
+
+.PHONY: test-make-prerequisites
+test-quick test-units: test-make-prerequisites
+test-make-prerequisites:
+	python3 -m unittest -v tests.test_make_prerequisites
 
 .PHONY: test-selfhost-product-derivation
 test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c
