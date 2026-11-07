@@ -1,0 +1,90 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O3",
+      "-D_FORTIFY_SOURCE=2",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Itests/nanoisa",
+      "-S",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/tmpl85sab3a/old.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O3",
+      "-D_FORTIFY_SOURCE=2",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Itests/nanoisa",
+      "-Wformat-overflow=2",
+      "-S",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/tmpl85sab3a/old.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O3",
+      "-D_FORTIFY_SOURCE=2",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Itests/nanoisa",
+      "-fsanitize=address,undefined",
+      "-S",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/tmpl85sab3a/old.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O3",
+      "-D_FORTIFY_SOURCE=2",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Itests/nanoisa",
+      "-fsanitize=address,undefined",
+      "-Wformat-overflow=2",
+      "-S",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/tmpl85sab3a/old.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  }
+]

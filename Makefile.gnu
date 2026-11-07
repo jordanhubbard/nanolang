@@ -6854,8 +6854,8 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_effect_c_source
 
 # I enforce rows 10685 and 10688: native NanoISA products carry no VM and no transpiler source exists.
-# I run my fast pre-push gate: strict GCC and clang compiles of my product tools (about 15 seconds)
-# plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
+# I run strict GCC and Clang product compiles, fixture/prerequisite checks and
+# controls for my private-union and glibc formatting regressions before long jobs.
 .PHONY: test-embedded-nano-identifiers
 $(OBJ_DIR)/fixture_identifier_lexer: tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c src/nanolang.h src/generated/compiler_schema.h src/string_literal_decode.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c
@@ -6867,8 +6867,15 @@ test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
 .PHONY: check-fast
 check-fast: test-embedded-nano-identifiers
 	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
+	python3 -m unittest -v tests.test_fast_gate
 	python3 scripts/fast_gate.py
 	python3 -m unittest tests.test_bootstrap_tools
+
+# I measure broader Make/private profiles separately while auditing the Python-built
+# C inventory under #1046. I do not claim this target covers every CI configuration.
+.PHONY: check-fast-profiles
+check-fast-profiles:
+	python3 scripts/fast_gate.py --test-profiles --report .test_output/fast-gate-profiles.json
 
 .PHONY: test-make-prerequisites
 test-quick test-units: test-make-prerequisites
