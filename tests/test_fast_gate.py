@@ -12,6 +12,41 @@ from scripts import fast_gate as gate
 
 
 class FastGatePlanning(unittest.TestCase):
+    def test_object_valued_macro_preserves_the_compiler_refusal(self):
+        compiler = shutil.which('cc')
+        if not compiler:
+            self.skipTest('I require a C compiler for the macro-refusal control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-macro-refusal-') as directory:
+            source = Path(directory) / 'refusal.c'
+            source.write_text('#ifdef OBJECT\n#error I refuse the requested OBJECT macro\n#endif\n'
+                              'int native_profile_control;\n')
+            plain = gate.run([compiler, '-S', str(source), '-o', '/dev/null'])
+            self.assertEqual(plain[1], 0, plain[2])
+            flags, sources = gate.compile_profile(['-DOBJECT=unused.o', str(source)])
+            refused = gate.run([compiler, *flags, '-S', *sources, '-o', '/dev/null'])
+            self.assertNotEqual(refused[1], 0)
+            self.assertIn('I refuse the requested OBJECT macro', refused[2])
+
+    def test_c_valued_options_and_forced_includes_keep_the_actual_source(self):
+        compiler = shutil.which('cc')
+        if not compiler:
+            self.skipTest('I require a C compiler for the option control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-option-control-') as directory:
+            forced = Path(directory) / 'forced.c'
+            forced.write_text('#define NANO_VALID_FORCED_INCLUDE 1\n')
+            definitions = ['-DINPUT=src/utf8.c', '-DOBJECT=unused.o', '-DARCHIVE=unused.a',
+                           '-DSHARED=unused.so', '-DDYLIB=unused.dylib']
+            words = ['-std=c99', '-Wall', '-Wextra', '-Werror', '-Isrc',
+                     *definitions, '-include', str(forced), 'src/utf8.c']
+            command = [compiler, *words, '-O2', '-S', '-o', '/dev/null']
+            accepted = gate.run(command)
+            self.assertEqual(accepted[1], 0, accepted[2])
+            flags, sources = gate.compile_profile(words)
+            for definition in definitions:
+                self.assertIn(definition, flags)
+            self.assertEqual(sources, ['src/utf8.c'])
+            self.assertEqual(gate.source_of(command), 'src/utf8.c')
+
     def test_product_report_retains_uncovered_test_inventory(self):
         compiler = shutil.which('cc')
         if not compiler:

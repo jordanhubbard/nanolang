@@ -24,6 +24,10 @@ from tests.native_process import run_captured
 
 TARGETS = ['nano_virt', 'nano_vm', 'nvm2c', 'nanoisa_dump', 'nvm2c-runtime']
 MARKER = '__NANO_FAST_CC__'
+PAIRED_DROP = {'-o', '-MF', '-MT', '-MQ', '-L', '-l', '-framework', '-Xlinker',
+               '-undefined', '-install_name'}
+PAIRED_KEEP = {'-I', '-isystem', '-iquote', '-include', '-imacros', '-isysroot',
+               '--sysroot', '-x', '-D', '-U', '-Xpreprocessor'}
 
 
 def make_preview(targets, assignments=()):
@@ -69,33 +73,31 @@ def recipe_commands(text):
 
 def compile_profile(words):
     """I preserve preprocessing and diagnostic flags, and discard only link/output operands."""
-    paired_drop = {'-o', '-MF', '-MT', '-MQ', '-L', '-l', '-framework', '-Xlinker',
-                   '-undefined', '-install_name'}
-    paired_keep = {'-I', '-isystem', '-iquote', '-include', '-imacros', '-isysroot',
-                   '--sysroot', '-x', '-D', '-U'}
     flags, sources, i = [], [], 0
     while i < len(words):
         word = words[i]
         i += 1
         if '$' in word or '`' in word:
             raise ValueError('I require an explicit compile profile for shell operand: ' + word)
-        if word in paired_drop | paired_keep:
+        if word in PAIRED_DROP | PAIRED_KEEP:
             if i == len(words):
                 raise ValueError('I require an argument after ' + word)
-            if word in paired_keep:
+            if word in PAIRED_KEEP:
                 flags.extend([word, words[i]])
             i += 1
+        elif word in {'-c', '-S', '-MD', '-MMD', '-MP', '-shared', '-dynamiclib',
+                      '-rdynamic', '-fsyntax-only'} or re.fullmatch(r'-O[0-3sg]?', word):
+            continue
+        elif word.startswith(('-l', '-L', '-Wl,')):
+            continue
+        elif word.startswith('-'):
+            flags.append(word)
         elif word.endswith('.c'):
             if not (ROOT / word).is_file():
                 raise ValueError('I cannot find compile input ' + word)
             sources.append(word)
-        elif word in {'-c', '-S', '-MD', '-MMD', '-MP', '-shared', '-dynamiclib',
-                      '-rdynamic', '-fsyntax-only'} or re.fullmatch(r'-O[0-3sg]?', word):
+        elif word.endswith(('.o', '.a', '.so', '.dylib')):
             continue
-        elif word.startswith(('-l', '-L', '-Wl,')) or word.endswith(('.o', '.a', '.so', '.dylib')):
-            continue
-        elif word.startswith('-'):
-            flags.append(word)
         else:
             raise ValueError('I cannot classify compile operand ' + word)
     return flags, sources
@@ -216,7 +218,15 @@ def run(command):
 
 
 def source_of(command):
-    return next((word for word in command if re.search(r'\.c(pp)?$', word)), '?')
+    skip = False
+    for word in command[1:]:
+        if skip:
+            skip = False
+        elif word in PAIRED_DROP | PAIRED_KEEP:
+            skip = True
+        elif not word.startswith('-') and re.search(r'\.c(pp)?$', word):
+            return word
+    return '?'
 
 
 def main():

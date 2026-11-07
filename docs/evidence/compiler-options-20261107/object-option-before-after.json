@@ -1,0 +1,35 @@
+{
+  "schema": "nanolang/compiler-option-control@1",
+  "old_source_commit": "06c6d2faf2c3a24f908e2407c7bf316eb8a6b942",
+  "results": [
+    {
+      "label": "old",
+      "argv": [
+        "/usr/bin/cc",
+        "-S",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-object-macro-before-qanqdnbp/refusal.c",
+        "-o",
+        "/dev/null"
+      ],
+      "flags": [],
+      "returncode": 0,
+      "diagnostics": ""
+    },
+    {
+      "label": "current",
+      "argv": [
+        "/usr/bin/cc",
+        "-DOBJECT=unused.o",
+        "-S",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-object-macro-before-qanqdnbp/refusal.c",
+        "-o",
+        "/dev/null"
+      ],
+      "flags": [
+        "-DOBJECT=unused.o"
+      ],
+      "returncode": 1,
+      "diagnostics": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-object-macro-before-qanqdnbp/refusal.c:2:2: error: I refuse the requested OBJECT macro\n    2 | #error I refuse the requested OBJECT macro\n      |  ^\n1 error generated.\n"
+    }
+  ]
+}
