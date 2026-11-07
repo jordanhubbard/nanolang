@@ -1,0 +1,7 @@
+# Combined fast-gate budget measurement
+
+I measure the complete Make fast-gate path on one observed four-CPU hosted worker at its existing four-compiler-worker default. My new `FAST_GATE_TEST_PROFILES=1` switch selects the reviewed opt-in profiles inside `make check-fast`, preserving its real-lexer fixture, prerequisite, refusal and bootstrap-tool controls. The switch defaults to zero while full C-profile coverage and job-budget acceptance remain open. My [actual Make previews](make-switch.json) verify both selections without executing compilers; workflow Python and YAML parse and `git diff --check` passes.
+
+I include checkout/setup time by recording the official GitHub job start before provisioning, and I retain final external job duration as a required follow-up observation. My measurement job can retain diagnostics for 25 minutes; its acceptance budget remains the original 1,200 seconds. I do not increase that budget or drop ordinary/ASan/UBSan/debug/Fortify profiles. The measured tool families must be actual GCC and Clang on the same worker, with source, binary identities, resources, exact commands and full outcomes retained.
+
+The prior two-worker-per-compiler audit at `b42ea96e9` passes every selected compile but takes 1,236.749 seconds for GCC and 872.076 for Clang; their sum does not establish this four-worker whole-job budget. This new controlled measurement is pending. Even a passing duration will not close #1046's missing-profile coverage or promote the optional tier by itself. Existing native/qualification handles remain untouched.

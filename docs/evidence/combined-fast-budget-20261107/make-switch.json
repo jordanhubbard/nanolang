@@ -1,0 +1,10 @@
+{
+  "default": {
+    "planned_command": "python3 scripts/fast_gate.py",
+    "compiler_executed": false
+  },
+  "enabled": {
+    "planned_command": "python3 scripts/fast_gate.py --test-profiles --report .test_output/fast-gate-profiles.json",
+    "compiler_executed": false
+  }
+}

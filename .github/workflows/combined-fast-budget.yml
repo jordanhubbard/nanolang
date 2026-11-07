@@ -1,0 +1,120 @@
+name: Combined fast-gate budget measurement
+
+on:
+  push:
+    branches: [measure/5.1-combined-profile-budget]
+    paths:
+      - '.github/workflows/combined-fast-budget.yml'
+      - 'Makefile.gnu'
+      - 'scripts/fast_gate.py'
+      - 'tests/file_runtime_compile_profile.py'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  combined-budget:
+    name: Combined fast gate and profile budget
+    runs-on: ubuntu-latest
+    # I retain an over-budget terminal result rather than lose all diagnostics
+    # at the acceptance boundary. My acceptance budget remains 20 minutes.
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record actual job start, worker resources and source identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, subprocess
+          from pathlib import Path
+          disk = shutil.disk_usage('.')
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          endpoint = f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}/jobs?per_page=100"
+          jobs = json.loads(subprocess.check_output(['gh', 'api', endpoint], text=True))['jobs']
+          selected = [job for job in jobs if job['name'] == 'Combined fast gate and profile budget']
+          if len(selected) != 1:
+              raise SystemExit('I require one exact job start record for this measurement.')
+          report = {'job_id': selected[0]['id'], 'started_at': selected[0]['started_at'],
+                    'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                    'cpus': os.cpu_count(), 'compiler_workers': os.cpu_count(),
+                    'disk_free': disk.free, 'disk_free_fraction': disk.free / disk.total,
+                    'memory': memory, 'budget_seconds': 1200}
+          output = Path('.test_output/combined-fast-budget')
+          output.mkdir(parents=True, exist_ok=True)
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if os.cpu_count() != 4:
+              raise SystemExit('I require the observed four-CPU worker for this controlled measurement.')
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold this measurement because worker disk is critical.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold this measurement because available worker memory is critical.')
+          PY
+      - name: Install the actual gate and real input-producer prerequisites
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang llvm
+      - name: Retain actual compiler identities
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          from scripts.fast_gate import detect_compilers
+          report = {}
+          for name, path in detect_compilers().items():
+              binary = Path(path).resolve()
+              report[name] = {'path': path, 'resolved': str(binary),
+                              'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+                              'version': subprocess.check_output([path, '--version'], text=True),
+                              'target': subprocess.check_output([path, '-dumpmachine'], text=True).strip()}
+          if set(report) != {'gcc', 'clang'}:
+              raise SystemExit('I require both genuine compiler families.')
+          Path('.test_output/combined-fast-budget/tools.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+      - name: Execute the complete Make fast gate with optional profiles enabled
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, time
+          from pathlib import Path
+          output = Path('.test_output/combined-fast-budget')
+          argv = ['make', '-f', 'Makefile.gnu', 'check-fast', 'FAST_GATE_TEST_PROFILES=1']
+          started = time.monotonic()
+          with (output / 'gate.log').open('w') as log:
+              result = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT,
+                                      env=dict(os.environ, NANO_FAST_GATE_JOBS=str(os.cpu_count())))
+          (output / 'gate-status.json').write_text(json.dumps({
+              'argv': argv, 'returncode': result.returncode,
+              'gate_seconds': time.monotonic() - started}, indent=2) + '\n')
+          print((output / 'gate.log').read_text()[-24000:])
+          raise SystemExit(result.returncode)
+          PY
+      - name: Compare observed setup and gate time with the existing job budget
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          import json
+          from pathlib import Path
+          output = Path('.test_output/combined-fast-budget')
+          worker = json.loads((output / 'worker.json').read_text())
+          elapsed = (datetime.now(timezone.utc) - datetime.fromisoformat(worker['started_at'].replace('Z', '+00:00'))).total_seconds()
+          report = {'seconds_before_artifact_upload': elapsed, 'budget_seconds': 1200,
+                    'within_budget_before_upload': elapsed < 1200,
+                    'final_job_duration_still_requires_external_verification': True,
+                    'full_python_profile_inventory_qualified': False}
+          (output / 'budget.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if elapsed >= 1200:
+              raise SystemExit('I exceed my existing complete fast-gate job budget.')
+          PY
+      - name: Retain exact full-gate commands, outcomes, identities and timings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-fast-budget-${{ github.sha }}
+          path: |
+            .test_output/combined-fast-budget
+            .test_output/fast-gate-profiles.json
+          if-no-files-found: error
