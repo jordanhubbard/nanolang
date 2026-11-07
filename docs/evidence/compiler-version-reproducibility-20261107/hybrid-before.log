@@ -1,0 +1,28 @@
+src/main_stage1_5.c: In function 'compile_file':
+src/main_stage1_5.c:92:20: error: too few arguments to function 'transpile_to_c'; expected 3, have 2
+   92 |     char *c_code = transpile_to_c(program, env);
+      |                    ^~~~~~~~~~~~~~
+In file included from src/main_stage1_5.c:6:
+src/nanolang.h:989:7: note: declared here
+  989 | char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file);
+      |       ^~~~~~~~~~~~~~
+In file included from /opt/homebrew/Cellar/gcc/16.2.0/lib/gcc/current/gcc/aarch64-apple-darwin25/16/include-fixed/_stdio.h:526,
+                 from /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/stdio.h:61,
+                 from src/nanolang.h:10:
+src/main_stage1_5.c:136:17: error: format '%s' expects a matching 'char *' argument [-Werror=format=]
+  136 |                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm",
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main_stage1_5.c:136:84: note: format string is defined here
+  136 |                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm",
+      |                                                                                   ~^
+      |                                                                                    |
+      |                                                                                    char *
+src/main_stage1_5.c:140:17: error: format '%s' expects a matching 'char *' argument [-Werror=format=]
+  140 |                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm 2>/dev/null",
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/main_stage1_5.c:140:102: note: format string is defined here
+  140 |                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm 2>/dev/null",
+      |                                                                                                     ~^
+      |                                                                                                      |
+      |                                                                                                      char *
+cc1: all warnings being treated as errors

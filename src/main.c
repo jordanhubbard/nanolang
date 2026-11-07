@@ -1819,7 +1819,6 @@ int main(int argc, char *argv[]) {
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
         printf("nanoc %s\n", NANOLANG_VERSION);
         printf("nanolang compiler\n");
-        printf("Built: %s %s\n", NANOLANG_BUILD_DATE, NANOLANG_BUILD_TIME);
         return 0;
     }
 

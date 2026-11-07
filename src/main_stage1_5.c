@@ -89,7 +89,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Shadow tests passed\n");
 
     /* Phase 5: C Transpilation */
-    char *c_code = transpile_to_c(program, env);
+    char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         fprintf(stderr, "Transpilation failed\n");
         free_ast(program);
@@ -134,11 +134,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd),
                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm",
-                cc, root, output_file, temp_c_file, root, root);
+                cc, root, output_file, temp_c_file, root, root, root);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd),
                 "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm 2>/dev/null",
-                cc, root, output_file, temp_c_file, root, root);
+                cc, root, output_file, temp_c_file, root, root, root);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
@@ -170,7 +170,6 @@ int main(int argc, char *argv[]) {
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
         printf("nanoc-hybrid %s (Stage 1.5)\n", NANOLANG_VERSION);
         printf("nanolang hybrid compiler (nanolang lexer + C compiler)\n");
-        printf("Built: %s %s\n", NANOLANG_BUILD_DATE, NANOLANG_BUILD_TIME);
         return 0;
     }
 
