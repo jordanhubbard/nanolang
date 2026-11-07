@@ -1,0 +1,16 @@
+clang: I cover 227 test C files through Make/private profiles; 238 need a separate profile audit.
+  PROFILE SCOPE: unicode FFI: pkg-config libutf8proc/utf8proc is absent
+clang (/usr/bin/clang): 1483 compiles, 4 failed, 966.8s
+  FAIL src/nanoisa/nvm2llvm.c
+    src/nanoisa/nvm2llvm.c:9:10: fatal error: 'managed_runtime_ir.h' file not found
+    1 error generated.
+  FAIL src/nanoisa/nvm2llvm.c
+    src/nanoisa/nvm2llvm.c:9:10: fatal error: 'managed_runtime_ir.h' file not found
+    1 error generated.
+  FAIL tests/test_transpiler.c
+    error: failed to open coverage notes file for writing: Permission denied
+    1 error generated.
+  FAIL tests/test_transpiler.c
+    error: failed to open coverage notes file for writing: Permission denied
+    1 error generated.
+fast gate: FAILED

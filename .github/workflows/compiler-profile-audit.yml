@@ -1,0 +1,181 @@
+name: Compiler profile audit
+
+on:
+  push:
+    branches: [fix/5.1-compile-profile-audit, fix/5.1-binding-compile-profiles, fix/5.1-binding-neighbor-profiles]
+    paths:
+      - '.github/workflows/compiler-profile-audit.yml'
+      - 'Makefile.gnu'
+      - 'scripts/fast_gate.py'
+      - 'tests/test_fast_gate.py'
+      - 'tests/test_fast_gate_preparation.py'
+      - 'tests/binding_compile_profile.py'
+      - 'tests/test_nsi_file_binding.py'
+      - 'tests/test_nsi_socket_binding.py'
+      - 'tests/test_nsi_websocket_binding.py'
+
+permissions:
+  contents: read
+
+jobs:
+  profile-measurement:
+    name: Compiler profile measurement (${{ matrix.compiler }})
+    if: github.ref_name != 'fix/5.1-binding-neighbor-profiles'
+    runs-on: ubuntu-latest
+    # I measure an opt-in tier; I do not raise the required fast gate's
+    # 20-minute budget or replace native qualification checks.
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record worker resources before installing tools
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          disk = shutil.disk_usage('.')
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disk_total': disk.total,
+                    'disk_free': disk.free, 'disk_free_fraction': disk.free / disk.total,
+                    'memory': memory}
+          print(json.dumps(report, indent=2))
+          output = Path('.test_output/compiler-profile-audit')
+          output.mkdir(parents=True, exist_ok=True)
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold this measurement because the worker disk is critical.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold this measurement because available worker memory is critical.')
+          PY
+      - name: Install the existing fast-gate dependencies
+        timeout-minutes: 25
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang llvm
+      - name: Retain tool versions and source identity
+        run: |
+          mkdir -p .test_output/compiler-profile-audit
+          git rev-parse HEAD > .test_output/compiler-profile-audit/source-commit.txt
+          python3 - <<'PY' > .test_output/compiler-profile-audit/tools.json
+          import hashlib, json, subprocess
+          from pathlib import Path
+          from scripts.fast_gate import detect_compilers
+          result = {}
+          for name, path in detect_compilers().items():
+              resolved = Path(path).resolve()
+              result[name] = {'path': path, 'resolved': str(resolved),
+                              'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest(),
+                              'version': subprocess.check_output([path, '--version'], text=True),
+                              'target': subprocess.check_output([path, '-dumpmachine'], text=True).strip()}
+          result['opt'] = subprocess.check_output(['opt', '--version'], text=True)
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Verify real profile preparation and compiler refusal controls
+        run: python3 -m unittest -v tests.test_fast_gate tests.test_fast_gate_preparation
+      - name: Measure ordinary and instrumented strict profiles
+        env:
+          PROFILE_COMPILER: ${{ matrix.compiler }}
+        run: |
+          python3 scripts/fast_gate.py --test-profiles --jobs 2 --compilers "$PROFILE_COMPILER" \
+            --report .test_output/compiler-profile-audit/profiles.json \
+            > .test_output/compiler-profile-audit/compile.log 2>&1
+      - name: Retain the exact commands and diagnostic outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-profile-audit-${{ matrix.compiler }}-${{ github.sha }}
+          path: .test_output/compiler-profile-audit
+          if-no-files-found: error
+
+  binding-behavior:
+    name: Binding profile behavior (${{ matrix.compiler }})
+    if: startsWith(github.ref_name, 'fix/5.1-binding-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check worker headroom
+        run: |
+          python3 - <<'PY'
+          import shutil
+          disk = shutil.disk_usage('.')
+          print({'disk_free': disk.free, 'disk_fraction': disk.free / disk.total})
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold binding qualification because the worker disk is critical.')
+          PY
+      - name: Install the existing native test prerequisites
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
+      - name: Qualify unchanged bytes, allocation failures and legacy neighbors
+        env:
+          PROFILE_COMPILER: ${{ matrix.compiler }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, sys
+          from pathlib import Path
+          from scripts.fast_gate import detect_compilers
+          output = Path('.test_output/binding-profile-behavior').resolve()
+          output.mkdir(parents=True, exist_ok=True)
+          compiler = detect_compilers()[os.environ['PROFILE_COMPILER']]
+          binary = Path(compiler).resolve()
+          (output / 'identity.json').write_text(json.dumps({
+              'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'compiler': compiler, 'resolved': str(binary),
+              'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+              'version': subprocess.check_output([compiler, '--version'], text=True)}, indent=2) + '\n')
+          env = dict(os.environ, NANO_FILE_BINDING_CC=compiler,
+                     NANO_FILE_BINDING_REPORT_DIR=str(output))
+          subprocess.run([sys.executable, '-m', 'unittest', '-v',
+                          'tests.test_nsi_file_binding', 'tests.test_nsi_socket_binding',
+                          'tests.test_nsi_websocket_binding'], env=env, check=True)
+          PY
+      - name: Qualify every binding diagnostic recipe with its real private inputs
+        env:
+          PROFILE_COMPILER: ${{ matrix.compiler }}
+        run: |
+          python3 - <<'PY'
+          import concurrent.futures, json, os, tempfile, time
+          from pathlib import Path
+          from scripts import fast_gate as gate
+          from tests.binding_compile_profile import KINDS
+          family = os.environ['PROFILE_COMPILER']
+          compiler = gate.detect_compilers()[family]
+          started = time.monotonic()
+          with tempfile.TemporaryDirectory(prefix='nano-binding-diagnostics-') as folder:
+              commands, _ = gate.test_profiles(compiler, family, folder)
+              private = {str(Path(folder) / ('binding-' + kind)) for kind in KINDS}
+              commands = [command for command in commands if private.intersection(command)]
+              if not commands:
+                  raise SystemExit('I require my selected real binding profiles.')
+              commands, preparation = gate.prepare_profile_inputs(commands, folder)
+              with concurrent.futures.ThreadPoolExecutor(2) as workers:
+                  results = list(workers.map(gate.run, commands))
+          failures = sum(status != 0 for _, status, _, _ in results)
+          report = {'compiler': family, 'elapsed_seconds': time.monotonic() - started,
+                    'scope': 'I qualify only my binding recipes; full profile coverage remains separate.',
+                    'input_preparation': preparation, 'failures': failures,
+                    'results': [{'argv': command, 'returncode': status,
+                                 'diagnostics': output, 'seconds': seconds}
+                                for command, status, output, seconds in results]}
+          output = Path('.test_output/binding-profile-behavior/diagnostics.json')
+          output.write_text(json.dumps(report, indent=2) + '\n')
+          print(f'I compiled {len(results)} real binding profiles; {failures} failed.')
+          if failures:
+              for command, status, output, _ in results:
+                  if status:
+                      print(gate.source_of(command), status, output)
+              raise SystemExit(1)
+          PY
+      - name: Retain real binding qualification outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: binding-profile-behavior-${{ matrix.compiler }}-${{ github.sha }}
+          path: .test_output/binding-profile-behavior
+          if-no-files-found: error

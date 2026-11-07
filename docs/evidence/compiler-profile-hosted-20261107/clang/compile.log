@@ -1,0 +1,4 @@
+clang: I cover 227 test C files through Make/private profiles; 238 need a separate profile audit.
+  PROFILE SCOPE: unicode FFI: pkg-config libutf8proc/utf8proc is absent
+clang (/usr/bin/clang): 1483 compiles, 0 failed, 562.4s
+fast gate: ok

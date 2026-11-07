@@ -1,0 +1,8 @@
+gcc: I cover 227 test C files through Make/private profiles; 238 need a separate profile audit.
+  PROFILE SCOPE: unicode FFI: pkg-config libutf8proc/utf8proc is absent
+gcc (/usr/bin/gcc-14): 1483 compiles, 2 failed, 1074.6s
+  FAIL src/nanoisa/nvm2llvm.c
+    src/nanoisa/nvm2llvm.c:9:10: fatal error: managed_runtime_ir.h: No such file or directory
+  FAIL src/nanoisa/nvm2llvm.c
+    src/nanoisa/nvm2llvm.c:9:10: fatal error: managed_runtime_ir.h: No such file or directory
+fast gate: FAILED

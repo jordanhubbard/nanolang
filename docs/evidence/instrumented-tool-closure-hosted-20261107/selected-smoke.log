@@ -1,0 +1,3 @@
+2026-11-07T17:43:40.8517076Z I verified LLVM IR, linked Wasm and executed it in both engines inside the verified image.
+2026-11-07T17:43:40.8517671Z I compiled and executed sanitizer and coverage probes in the verified image.
+2026-11-07T17:43:43.2015106Z I passed real container transport, immutable-root, instrumented-provider and identity controls.

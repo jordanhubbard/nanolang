@@ -1,0 +1,23 @@
+{
+  "socket": {
+    "historical_command": "isolation-build",
+    "historical_sources": [
+      "tests/test_nsi_binding_isolation.c",
+      "src/nsi_file_binding.c",
+      "src/nsi_file_plan.c"
+    ],
+    "new_shared_sources_equal": true
+  },
+  "websocket": {
+    "historical_command": "snapshot-build",
+    "historical_sources": [
+      "tests/test_websocket_source_snapshot.c",
+      "src/nanoisa/file_source_snapshot.c",
+      "src/nsi_file_binding.c",
+      "src/nsi_file_plan.c",
+      "src/nsi_socket_binding.c",
+      "src/nsi_socket_plan.c"
+    ],
+    "new_shared_sources_equal": true
+  }
+}

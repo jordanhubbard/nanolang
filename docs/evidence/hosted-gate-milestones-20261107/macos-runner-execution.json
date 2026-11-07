@@ -1,0 +1,58 @@
+{
+  "id": 128477711646,
+  "head_sha": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "name": "Build and Test (macos-14, arm64)",
+  "status": "in_progress",
+  "conclusion": null,
+  "labels": [
+    "macos-15"
+  ],
+  "started_at": "2026-11-07T17:58:48Z",
+  "completed_steps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Checkout code",
+      "conclusion": "success"
+    },
+    {
+      "name": "Show platform info",
+      "conclusion": "success"
+    },
+    {
+      "name": "Install dependencies (macOS)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Select native sanitizer tools (macOS)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Install Python dependencies",
+      "conclusion": "success"
+    },
+    {
+      "name": "Check dependencies",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build - Stage 1 (C Reference Compiler)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build - Stage 2 (Self-Hosted Components)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build - Stage 3 (Bootstrap Validation)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Check indirect File plans and execution",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "I qualify replacement-runner execution, not complete Darwin or release acceptance."
+}

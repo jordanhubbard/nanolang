@@ -12,6 +12,72 @@ from scripts import fast_gate as gate
 
 
 class FastGatePlanning(unittest.TestCase):
+    def test_instrumented_profile_retains_requested_fortify_level(self):
+        compiler = shutil.which('clang')
+        if not compiler:
+            self.skipTest('I require Clang for the Fortify/ASan option control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-fortify-control-') as directory:
+            source = Path(directory) / 'fortify.c'
+            source.write_text('#if !defined(_FORTIFY_SOURCE) || _FORTIFY_SOURCE != 2\n'
+                              '#error I require the requested Fortify level\n#endif\n'
+                              'int native_fortify_control(void) { return 2; }\n')
+            command = gate.diagnostic_profile(compiler, ['-std=c99', '-Wall', '-Wextra', '-Werror'],
+                                               str(source), instrumented=True)
+            accepted = gate.run(command)
+            self.assertEqual(accepted[1], 0, accepted[2])
+
+    def test_coverage_keeps_instrumentation_and_uses_a_private_output(self):
+        compiler = shutil.which('clang')
+        if not compiler:
+            self.skipTest('I require Clang for the coverage-output control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-coverage-control-') as directory:
+            source = Path(directory) / 'coverage.c'
+            source.write_text('int native_coverage_control(int value) { return value ? 1 : 0; }\n')
+            command = [compiler, '-O3', '-fprofile-arcs', '-ftest-coverage',
+                       '-S', str(source), '-o', '/dev/null']
+            result = gate.run(command)
+            self.assertEqual(result[1], 0, result[2])
+            self.assertIn('-fprofile-arcs', result[0])
+            self.assertIn('-ftest-coverage', result[0])
+            output = Path(result[0][result[0].index('-o') + 1])
+            self.assertNotEqual(output, Path('/dev/null'))
+            self.assertFalse(output.parent.exists())
+
+    def test_object_valued_macro_preserves_the_compiler_refusal(self):
+        compiler = shutil.which('cc')
+        if not compiler:
+            self.skipTest('I require a C compiler for the macro-refusal control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-macro-refusal-') as directory:
+            source = Path(directory) / 'refusal.c'
+            source.write_text('#ifdef OBJECT\n#error I refuse the requested OBJECT macro\n#endif\n'
+                              'int native_profile_control;\n')
+            plain = gate.run([compiler, '-S', str(source), '-o', '/dev/null'])
+            self.assertEqual(plain[1], 0, plain[2])
+            flags, sources = gate.compile_profile(['-DOBJECT=unused.o', str(source)])
+            refused = gate.run([compiler, *flags, '-S', *sources, '-o', '/dev/null'])
+            self.assertNotEqual(refused[1], 0)
+            self.assertIn('I refuse the requested OBJECT macro', refused[2])
+
+    def test_c_valued_options_and_forced_includes_keep_the_actual_source(self):
+        compiler = shutil.which('cc')
+        if not compiler:
+            self.skipTest('I require a C compiler for the option control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-option-control-') as directory:
+            forced = Path(directory) / 'forced.c'
+            forced.write_text('#define NANO_VALID_FORCED_INCLUDE 1\n')
+            definitions = ['-DINPUT=src/utf8.c', '-DOBJECT=unused.o', '-DARCHIVE=unused.a',
+                           '-DSHARED=unused.so', '-DDYLIB=unused.dylib']
+            words = ['-std=c99', '-Wall', '-Wextra', '-Werror', '-Isrc',
+                     *definitions, '-include', str(forced), 'src/utf8.c']
+            command = [compiler, *words, '-O2', '-S', '-o', '/dev/null']
+            accepted = gate.run(command)
+            self.assertEqual(accepted[1], 0, accepted[2])
+            flags, sources = gate.compile_profile(words)
+            for definition in definitions:
+                self.assertIn(definition, flags)
+            self.assertEqual(sources, ['src/utf8.c'])
+            self.assertEqual(gate.source_of(command), 'src/utf8.c')
+
     def test_product_report_retains_uncovered_test_inventory(self):
         compiler = shutil.which('cc')
         if not compiler:

@@ -7,6 +7,8 @@ optimization finds the maybe-uninitialized and unused-but-set errors that cost a
 import argparse
 import ast
 import concurrent.futures
+from contextlib import nullcontext
+import hashlib
 import json
 import os
 import re
@@ -24,6 +26,10 @@ from tests.native_process import run_captured
 
 TARGETS = ['nano_virt', 'nano_vm', 'nvm2c', 'nanoisa_dump', 'nvm2c-runtime']
 MARKER = '__NANO_FAST_CC__'
+PAIRED_DROP = {'-o', '-MF', '-MT', '-MQ', '-L', '-l', '-framework', '-Xlinker',
+               '-undefined', '-install_name'}
+PAIRED_KEEP = {'-I', '-isystem', '-iquote', '-include', '-imacros', '-isysroot',
+               '--sysroot', '-x', '-D', '-U', '-Xpreprocessor'}
 
 
 def make_preview(targets, assignments=()):
@@ -69,33 +75,31 @@ def recipe_commands(text):
 
 def compile_profile(words):
     """I preserve preprocessing and diagnostic flags, and discard only link/output operands."""
-    paired_drop = {'-o', '-MF', '-MT', '-MQ', '-L', '-l', '-framework', '-Xlinker',
-                   '-undefined', '-install_name'}
-    paired_keep = {'-I', '-isystem', '-iquote', '-include', '-imacros', '-isysroot',
-                   '--sysroot', '-x', '-D', '-U'}
     flags, sources, i = [], [], 0
     while i < len(words):
         word = words[i]
         i += 1
         if '$' in word or '`' in word:
             raise ValueError('I require an explicit compile profile for shell operand: ' + word)
-        if word in paired_drop | paired_keep:
+        if word in PAIRED_DROP | PAIRED_KEEP:
             if i == len(words):
                 raise ValueError('I require an argument after ' + word)
-            if word in paired_keep:
+            if word in PAIRED_KEEP:
                 flags.extend([word, words[i]])
             i += 1
+        elif word in {'-c', '-S', '-MD', '-MMD', '-MP', '-shared', '-dynamiclib',
+                      '-rdynamic', '-fsyntax-only'} or re.fullmatch(r'-O[0-3sg]?', word):
+            continue
+        elif word.startswith(('-l', '-L', '-Wl,')):
+            continue
+        elif word.startswith('-'):
+            flags.append(word)
         elif word.endswith('.c'):
             if not (ROOT / word).is_file():
                 raise ValueError('I cannot find compile input ' + word)
             sources.append(word)
-        elif word in {'-c', '-S', '-MD', '-MMD', '-MP', '-shared', '-dynamiclib',
-                      '-rdynamic', '-fsyntax-only'} or re.fullmatch(r'-O[0-3sg]?', word):
+        elif word.endswith(('.o', '.a', '.so', '.dylib')):
             continue
-        elif word.startswith(('-l', '-L', '-Wl,')) or word.endswith(('.o', '.a', '.so', '.dylib')):
-            continue
-        elif word.startswith('-'):
-            flags.append(word)
         else:
             raise ValueError('I cannot classify compile operand ' + word)
     return flags, sources
@@ -123,6 +127,31 @@ def private_union_profiles(base):
         for dispatch in ([], ['-DNANO_NO_COMPUTED_GOTO']):
             profiles.extend(([*flags, *dispatch], unit) for unit in ('src/nanovm/vm.c', source))
             profiles.append(([*flags, *dispatch, *whitebox], source))
+    return profiles
+
+
+def diagnostic_profile(compiler, flags, source, instrumented=False):
+    """I request my diagnostic policy explicitly, including compiler-provided Fortify defaults."""
+    instrumentation = ['-fsanitize=address,undefined', '-fno-omit-frame-pointer'] if instrumented else []
+    return [compiler, *flags, '-O3', '-U_FORTIFY_SOURCE', '-D_FORTIFY_SOURCE=2',
+            *instrumentation, '-S', source, '-o', os.devnull]
+
+
+def binding_profiles(base, destination):
+    """I use the same linked/instrumented recipes as my three real binding harnesses."""
+    from tests.binding_compile_profile import (KINDS, compile_flags, provider_sources,
+                                              provider_hooks, fixture_hooks, neighbor_sources)
+    profiles = []
+    for kind in KINDS:
+        flags, _ = compile_profile(compile_flags(ROOT, Path(destination) / ('binding-' + kind), base))
+        for mode in ('linked', 'instrumented'):
+            profiles.extend(([*flags, *provider_hooks(ROOT, mode)], source)
+                            for source in provider_sources(kind))
+            profiles.append(([*flags, *fixture_hooks(mode)], f'tests/test_nsi_{kind}_binding.c'))
+        profiles.extend((flags, source) for source in
+                        ('tests/test_nsi.c', 'tests/test_nsi_gen.c', 'src/nsi_gen.c',
+                         f'tests/test_nsi_{kind}_plan.c'))
+        profiles.extend((flags, source) for source in neighbor_sources(kind))
     return profiles
 
 
@@ -157,11 +186,12 @@ def test_profiles(compiler, family, header_root):
     if base is None:
         raise ValueError('I found no Make test profiles.')
     commands.extend(private_union_profiles(base))
+    commands.extend(binding_profiles(base, header_root))
     unique = {}
     for flags, source in commands:
-        for instrumentation in ([], ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']):
-            args = [compiler, *flags, '-O3', '-D_FORTIFY_SOURCE=2', *instrumentation, '-S', source]
-            unique[tuple(args)] = args + ['-o', os.devnull]
+        for instrumented in (False, True):
+            args = diagnostic_profile(compiler, flags, source, instrumented)
+            unique[tuple(args)] = args
     return list(unique.values()), skipped
 
 
@@ -177,6 +207,58 @@ def stage_public_headers(destination):
         target = Path(destination) / 'include/nanolang/websocket' / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / 'src' / name, target)
+
+
+def prepare_managed_runtime_input(commands, destination):
+    """I run the actual Make-owned IR producer in private storage when its consumer is selected."""
+    consumer = (ROOT / 'src/nanoisa/nvm2llvm.c').resolve()
+    selected = [command for command in commands
+                if (ROOT / source_of(command)).resolve() == consumer]
+    if not selected:
+        return commands, []
+    objects = Path(destination) / 'generated'
+    recipe = ['make', '--no-print-directory', f'OBJ_DIR={objects}', 'managed-runtime-package']
+    environment = {key: value for key, value in os.environ.items()
+                   if key not in {'MAKEFLAGS', 'MFLAGS', 'MAKEOVERRIDES'}}
+    started = time.monotonic()
+    result = run_captured(recipe, cwd=ROOT, text=True, timeout=180, env=environment)
+    if result.returncode:
+        raise ValueError('I could not prepare the real managed-runtime profile input:\n' +
+                         (result.stdout + result.stderr)[-6000:])
+    header = objects / 'nanoisa/managed_runtime_ir.h'
+    manifest = objects / 'nanoisa/managed_runtime_ir.json'
+    if not header.is_file() or not manifest.is_file():
+        raise ValueError('I require both verified managed-runtime producer outputs.')
+    prepared = [[command[0], '-I', str(header.parent), *command[1:]] if command in selected
+                else command for command in commands]
+    evidence = {'command': recipe, 'returncode': result.returncode,
+                'seconds': time.monotonic() - started, 'header': str(header),
+                'header_sha256': hashlib.sha256(header.read_bytes()).hexdigest(),
+                'producer_manifest': json.loads(manifest.read_text()),
+                'native_lifecycle_qualified': False}
+    return prepared, [evidence]
+
+
+def prepare_profile_inputs(commands, destination):
+    """I prepare only the real generated inputs consumed by my selected profiles."""
+    prepared, evidence = prepare_managed_runtime_input(commands, destination)
+    from tests.binding_compile_profile import KINDS
+    from tests.file_binding_corpus import corpus
+    for kind in KINDS:
+        consumer = (ROOT / f'tests/test_nsi_{kind}_binding.c').resolve()
+        if not any((ROOT / source_of(command)).resolve() == consumer for command in commands):
+            continue
+        folder = Path(destination) / ('binding-' + kind)
+        folder.mkdir(parents=True, exist_ok=True)
+        cases = corpus(ROOT, folder, kind)
+        header = folder / 'binding_cases.h'
+        evidence.append({'kind': kind, 'producer': 'tests.file_binding_corpus.corpus',
+                         'cases': len(cases), 'header': str(header),
+                         'header_sha256': hashlib.sha256(header.read_bytes()).hexdigest(),
+                         'producer_sha256': hashlib.sha256((ROOT / 'tests/file_binding_corpus.py').read_bytes()).hexdigest(),
+                         'fixture_sha256': hashlib.sha256((ROOT / f'tests/fixtures/nsi_{kind}_plan.json').read_bytes()).hexdigest(),
+                         'native_lifecycle_qualified': False})
+    return prepared, evidence
 
 
 def detect_compilers():
@@ -208,15 +290,34 @@ def compile_commands(compiler):
 
 def run(command):
     started = time.monotonic()
-    try:
-        result = run_captured(command, cwd=ROOT, text=True, timeout=180)
-        return command, result.returncode, result.stderr or result.stdout, time.monotonic() - started
-    except subprocess.TimeoutExpired:
-        return command, 124, 'error: I exceeded the 180-second compile deadline.', time.monotonic() - started
+    coverage = any(word == '--coverage' or word.startswith(('-fprofile-', '-ftest-coverage',
+                                                          '-fcoverage-')) for word in command)
+    storage = tempfile.TemporaryDirectory(prefix='nanolang-fast-coverage-') if coverage else nullcontext(None)
+    with storage as directory:
+        actual = list(command)
+        if directory:
+            output = str(Path(directory) / 'diagnostics.s')
+            if '-o' in actual:
+                actual[actual.index('-o') + 1] = output
+            else:
+                actual.extend(['-o', output])
+        try:
+            result = run_captured(actual, cwd=ROOT, text=True, timeout=180)
+            return actual, result.returncode, result.stderr or result.stdout, time.monotonic() - started
+        except subprocess.TimeoutExpired:
+            return actual, 124, 'error: I exceeded the 180-second compile deadline.', time.monotonic() - started
 
 
 def source_of(command):
-    return next((word for word in command if re.search(r'\.c(pp)?$', word)), '?')
+    skip = False
+    for word in command[1:]:
+        if skip:
+            skip = False
+        elif word in PAIRED_DROP | PAIRED_KEEP:
+            skip = True
+        elif not word.startswith('-') and re.search(r'\.c(pp)?$', word):
+            return word
+    return '?'
 
 
 def main():
@@ -255,10 +356,12 @@ def main():
         with tempfile.TemporaryDirectory(prefix='nanolang-fast-headers-') as headers:
             all_tests = {str(path.relative_to(ROOT)) for path in (ROOT / 'tests').rglob('*.c')}
             uncovered, skipped = sorted(all_tests), []
+            preparation = []
             if args.test_profiles:
                 try:
                     stage_public_headers(headers)
                     extra, skipped = test_profiles(available[name], name, headers)
+                    extra, preparation = prepare_profile_inputs(extra, headers)
                 except (ValueError, subprocess.SubprocessError, OSError) as error:
                     print(str(error), file=sys.stderr)
                     return 2
@@ -276,6 +379,7 @@ def main():
         reports.append({'compiler': name, 'path': available[name],
                         'test_profiles_enabled': args.test_profiles,
                         'python_profile_audit_complete': False, 'uncovered_test_sources': uncovered,
+                        'input_preparation': preparation,
                         'profile_scope': skipped, 'elapsed_seconds': time.monotonic() - started,
                         'results': [{'argv': command, 'returncode': status, 'diagnostics': output,
                                      'seconds': seconds} for command, status, output, seconds in results]})
