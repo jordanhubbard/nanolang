@@ -1,0 +1,137 @@
+[
+  {
+    "name": ".test_output/retirement/bootstrap.log",
+    "bytes": 51698,
+    "crc32": 2946661002
+  },
+  {
+    "name": ".test_output/retirement/compiler-managed.log",
+    "bytes": 81610,
+    "crc32": 1237081602
+  },
+  {
+    "name": ".test_output/retirement/compiler.txt",
+    "bytes": 245,
+    "crc32": 2066531743
+  },
+  {
+    "name": ".test_output/retirement/host.txt",
+    "bytes": 128,
+    "crc32": 3189640451
+  },
+  {
+    "name": ".test_output/retirement/providers-after.log",
+    "bytes": 193,
+    "crc32": 804718770
+  },
+  {
+    "name": ".test_output/retirement/providers-before.sha256",
+    "bytes": 751,
+    "crc32": 398854999
+  },
+  {
+    "name": ".test_output/retirement/revision.txt",
+    "bytes": 41,
+    "crc32": 415034849
+  },
+  {
+    "name": ".test_output/retirement/source-tree.txt",
+    "bytes": 14168014,
+    "crc32": 2440342847
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/00-seed.log",
+    "bytes": 65872,
+    "crc32": 872284685
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/01-seed-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/02-stage1.log",
+    "bytes": 72368,
+    "crc32": 3346089017
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/03-stage1-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/04-stage1-translate.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/05-stage1-native.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/06-stage1-hello-compile.log",
+    "bytes": 46,
+    "crc32": 2745050992
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/07-stage1-hello-execute.log",
+    "bytes": 21,
+    "crc32": 1636210681
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/08-stage2.log",
+    "bytes": 72368,
+    "crc32": 68387711
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/09-stage2-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/10-stage2-translate.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/11-stage2-native.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/12-stage2-hello-compile.log",
+    "bytes": 46,
+    "crc32": 2745050992
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/13-stage2-hello-execute.log",
+    "bytes": 21,
+    "crc32": 1636210681
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/14-seed-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/15-stage1-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/16-stage2-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/host-cache-probes.log",
+    "bytes": 48108,
+    "crc32": 2162415273
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-bu3govon/manifest.json",
+    "bytes": 148850,
+    "crc32": 3773491728
+  }
+]

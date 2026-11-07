@@ -214,6 +214,145 @@
           "reported_skips": []
         }
       }
+    },
+    "compiler-contracts": {
+      "artifact": 13589931051,
+      "archive_sha256": "d38f29c00f6347c23d1f48c11be698a83fe1f59df95c5e596fbb645231ea4201",
+      "batches": {
+        "bootstrap.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "compiler-managed.log": {
+          "unittest_batches": [
+            {
+              "methods": 28,
+              "seconds": 44.54
+            },
+            {
+              "methods": 8,
+              "seconds": 13.491
+            },
+            {
+              "methods": 7,
+              "seconds": 6.061
+            },
+            {
+              "methods": 111,
+              "seconds": 4578.582
+            },
+            {
+              "methods": 3,
+              "seconds": 1.28
+            },
+            {
+              "methods": 2,
+              "seconds": 2.518
+            },
+            {
+              "methods": 5,
+              "seconds": 29.888
+            },
+            {
+              "methods": 16,
+              "seconds": 25.198
+            },
+            {
+              "methods": 16,
+              "seconds": 4.964
+            },
+            {
+              "methods": 4,
+              "seconds": 105.98
+            },
+            {
+              "methods": 9,
+              "seconds": 7.521
+            },
+            {
+              "methods": 2,
+              "seconds": 2.538
+            },
+            {
+              "methods": 13,
+              "seconds": 49.145
+            },
+            {
+              "methods": 4,
+              "seconds": 23.845
+            },
+            {
+              "methods": 1,
+              "seconds": 593.091
+            },
+            {
+              "methods": 1,
+              "seconds": 60.147
+            },
+            {
+              "methods": 3,
+              "seconds": 94.912
+            },
+            {
+              "methods": 2,
+              "seconds": 85.084
+            },
+            {
+              "methods": 2,
+              "seconds": 89.761
+            },
+            {
+              "methods": 2,
+              "seconds": 269.54
+            },
+            {
+              "methods": 2,
+              "seconds": 443.454
+            },
+            {
+              "methods": 1,
+              "seconds": 4.557
+            },
+            {
+              "methods": 1,
+              "seconds": 2.993
+            },
+            {
+              "methods": 1,
+              "seconds": 15.917
+            },
+            {
+              "methods": 1,
+              "seconds": 16.688
+            },
+            {
+              "methods": 1,
+              "seconds": 17.047
+            },
+            {
+              "methods": 1,
+              "seconds": 22.268
+            },
+            {
+              "methods": 2,
+              "seconds": 38.225
+            },
+            {
+              "methods": 1,
+              "seconds": 17.429
+            }
+          ],
+          "reported_skips": [
+            "1"
+          ]
+        },
+        "providers-after.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        }
+      },
+      "members": 27,
+      "unchanged_provider_count": 9
     }
   },
   "cross_platform_qualified": false,
