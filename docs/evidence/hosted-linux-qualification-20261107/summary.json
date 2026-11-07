@@ -1,0 +1,221 @@
+{
+  "run": 42397278317,
+  "run_head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "actual_checkout": "a6ba0d210667fcc65d91778fcfcccaa8b2cfb917",
+  "run_head_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "actual_checkout_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "trees_equal": true,
+  "scope": "I verify Git file/mode identity, not equality of commit metadata or a native lifecycle receipt.",
+  "corpora": {
+    "retirement": {
+      "artifact": 13587144165,
+      "archive_sha256": "f487d7fd7803035c559d264cb18982d9c089485eccb27db30bd2f0dd8614cc6e",
+      "members": 377,
+      "unchanged_provider_count": 9,
+      "batches": {
+        "bootstrap.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "affine-identity.log": {
+          "unittest_batches": [
+            {
+              "methods": 33,
+              "seconds": 52.705
+            },
+            {
+              "methods": 25,
+              "seconds": 70.233
+            }
+          ],
+          "reported_skips": []
+        },
+        "array-slice.log": {
+          "unittest_batches": [
+            {
+              "methods": 4,
+              "seconds": 23.041
+            },
+            {
+              "methods": 5,
+              "seconds": 57.939
+            },
+            {
+              "methods": 2,
+              "seconds": 2.028
+            }
+          ],
+          "reported_skips": []
+        },
+        "file-parser.log": {
+          "unittest_batches": [
+            {
+              "methods": 3,
+              "seconds": 0.0
+            },
+            {
+              "methods": 7,
+              "seconds": 6.049
+            },
+            {
+              "methods": 2,
+              "seconds": 1775.577
+            }
+          ],
+          "reported_skips": []
+        },
+        "headers-globals.log": {
+          "unittest_batches": [
+            {
+              "methods": 8,
+              "seconds": 9.151
+            },
+            {
+              "methods": 2,
+              "seconds": 238.205
+            },
+            {
+              "methods": 3,
+              "seconds": 0.561
+            },
+            {
+              "methods": 29,
+              "seconds": 6.711
+            },
+            {
+              "methods": 29,
+              "seconds": 34.048
+            }
+          ],
+          "reported_skips": []
+        },
+        "providers-after.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "source-snapshots.log": {
+          "unittest_batches": [
+            {
+              "methods": 128,
+              "seconds": 787.49
+            }
+          ],
+          "reported_skips": [
+            24
+          ]
+        }
+      }
+    },
+    "record-maps": {
+      "artifact": 13587682373,
+      "archive_sha256": "e3ba7ab209046451d903f76e64ec86c15d1725f51f9ef193ba1d3ffc7622042a",
+      "members": 27,
+      "unchanged_provider_count": 9,
+      "batches": {
+        "bootstrap.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "providers-after.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "record-maps.log": {
+          "unittest_batches": [
+            {
+              "methods": 1,
+              "seconds": 13.855
+            },
+            {
+              "methods": 1,
+              "seconds": 14.218
+            },
+            {
+              "methods": 1,
+              "seconds": 14.508
+            },
+            {
+              "methods": 2,
+              "seconds": 16.993
+            },
+            {
+              "methods": 1,
+              "seconds": 0.878
+            },
+            {
+              "methods": 1,
+              "seconds": 0.876
+            },
+            {
+              "methods": 2,
+              "seconds": 16.537
+            },
+            {
+              "methods": 2,
+              "seconds": 82.572
+            },
+            {
+              "methods": 2,
+              "seconds": 25.039
+            },
+            {
+              "methods": 2,
+              "seconds": 23.571
+            },
+            {
+              "methods": 2,
+              "seconds": 584.569
+            },
+            {
+              "methods": 1,
+              "seconds": 20.567
+            },
+            {
+              "methods": 2,
+              "seconds": 25.288
+            },
+            {
+              "methods": 2,
+              "seconds": 23.309
+            },
+            {
+              "methods": 1,
+              "seconds": 0.926
+            },
+            {
+              "methods": 2,
+              "seconds": 16.799
+            },
+            {
+              "methods": 3,
+              "seconds": 44.472
+            },
+            {
+              "methods": 1,
+              "seconds": 14.323
+            },
+            {
+              "methods": 10,
+              "seconds": 1652.945
+            },
+            {
+              "methods": 1,
+              "seconds": 3.018
+            },
+            {
+              "methods": 31,
+              "seconds": 55.579
+            },
+            {
+              "methods": 13,
+              "seconds": 785.527
+            }
+          ],
+          "reported_skips": []
+        }
+      }
+    }
+  },
+  "cross_platform_qualified": false,
+  "native_lifecycle_qualified": false
+}
