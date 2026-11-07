@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] Under #976 I integrate my completed runner, Xcode, timeout, prerequisite, Wasmtime, ordinary-authority and version repairs with the cleanup record in PR #1068, retaining every component commit. I require combined focused/fast checks and exact-head hosted gates before a merge commit reaches main. I retain separate source-custody and native lifecycle acceptance under #1039; no release obligation is deferred.
+- [ ] Under #1075 I supply LLVM command-line tools, the Wasm linker and Node in my instrumented image, using the existing signed pinned Ubuntu repositories. Image job 128431125271 installs clang-18 and linker plugins but no llvm-18, lld-18 or nodejs, while my actual unit/translation paths invoke those tools. I require version-command probes during image construction and exact hosted consumer evidence; I do not drop optional translator tests from the existing unit gate to hide missing inputs.
+
+- [ ] Under #976 I integrate my completed runner, Xcode, timeout, prerequisite, Wasmtime, ordinary-authority and version repairs with the cleanup record in PR #1068, retaining every component commit. My [combined local gates](evidence/combined-gate-repairs-20261107/README.md) pass 32 controls, the version/release and record suites, and all 446 strict compiler checks. I require combined focused/fast checks and exact-head hosted gates before a merge commit reaches main. I retain separate source-custody and native lifecycle acceptance under #1039; no release obligation is deferred.
 
 - [ ] Under #1067 I replace my retired macOS 14 hosted execution image with supported macOS 15 ARM, preserve my required Build and Test check identity and matching documentation stand-in, and require workflow checks plus actual hosted execution. Check 128430168163 at 635d0e46c refuses the retired image before executing tests; complete Darwin qualification remains required.
 

@@ -61,3 +61,8 @@ refresh a retained manifest or receipt; those require their existing review and
 verification. `make require-test-wasmtime` checks the selected version before my
 unit and direct record gates. This prerequisite does not change optional Wasm
 release scope or the separate Python Wasmtime binding used by portable-read tests.
+
+I install LLVM tools, LLD and Node from the same signed pinned archive as Clang.
+Image construction checks their actual executables. My verified-image smoke
+compiles/verifies LLVM IR, links Wasm and executes it with Node and Wasmtime
+before a long bootstrap; the outer hosted tools cannot satisfy this check.

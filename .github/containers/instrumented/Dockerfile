@@ -23,7 +23,7 @@ RUN rm -f /etc/apt/sources.list \
 # I retain compiler alternatives and process diagnostics previously supplied by
 # the outer hosted image, and the hosted runner's numeric account identity.
 RUN apt-get -o Acquire::Retries=2 -o APT::Update::Error-Mode=any update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 install -y --no-install-recommends clang procps passwd \
+    && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 install -y --no-install-recommends clang llvm lld nodejs procps passwd \
     && useradd --uid 1001 --create-home --shell /bin/bash runner \
     && dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > /etc/nanolang-ci-packages \
     && rm -rf /var/lib/apt/lists/*
@@ -31,4 +31,7 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 COPY install_wasmtime.py /tmp/install_wasmtime.py
 RUN python3 /tmp/install_wasmtime.py --prefix /usr/local \
     && rm /tmp/install_wasmtime.py
+RUN for tool in clang llvm-as lli opt llc wasm-ld node wasmtime; do \
+      "$tool" --version >/dev/null || exit 1; \
+    done
 WORKDIR /workspace

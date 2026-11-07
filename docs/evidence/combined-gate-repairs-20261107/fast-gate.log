@@ -1,0 +1,16 @@
+python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.547s
+
+OK
+python3 scripts/fast_gate.py
+clang (/usr/bin/clang): 223 compiles, 0 failed, 5.0s
+gcc (/opt/homebrew/bin/gcc-16): 223 compiles, 0 failed, 8.8s
+fast gate: ok
+python3 -m unittest tests.test_bootstrap_tools
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.432s
+
+OK
