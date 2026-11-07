@@ -1,0 +1,38 @@
+{
+  "source": "55b552dd23e485542073f9d763232aacc951a316",
+  "run": 42403935430,
+  "compilers": {
+    "gcc": {
+      "artifact": 13585609924,
+      "archive_sha256": "53cd632c2cde1db9f0705700ed5bf46c3496eebaf607c42100056ea2061a5d2b",
+      "diagnostic_compiles": 114,
+      "diagnostic_failures": 0,
+      "diagnostic_seconds": 23.025822035000033,
+      "native_commands": 64,
+      "native_nonzero_statuses": 0,
+      "cases_per_family": {
+        "file": 705,
+        "socket": 849,
+        "websocket": 798
+      },
+      "diagnostic_report_sha256": "e8bcdbc85ac870602109734f19c1225f72ec9331c88ae68cee79e2a42128296d"
+    },
+    "clang": {
+      "artifact": 13586622196,
+      "archive_sha256": "96f5e369802aeba4ce1274870b7c837bcdd3f7dfe7fc274f14cc4522dfbd6537",
+      "diagnostic_compiles": 114,
+      "diagnostic_failures": 0,
+      "diagnostic_seconds": 27.295778869999992,
+      "native_commands": 64,
+      "native_nonzero_statuses": 0,
+      "cases_per_family": {
+        "file": 705,
+        "socket": 849,
+        "websocket": 798
+      },
+      "diagnostic_report_sha256": "13e02c6632efa5db52b2d36905d3b191d9faa6415396fb12e2f06f7bee428efe"
+    }
+  },
+  "main_integration_pending": true,
+  "full_profile_inventory_qualified": false
+}
