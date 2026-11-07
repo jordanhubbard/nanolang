@@ -5,6 +5,26 @@ storage737. Those checkpoints describe shapes and retain runtime children; they
 do not certify an ordinary source definition. This contract is non-admitting.
 I leave aggregate488, managed51da and nominal execution open.
 
+## My executable authority check, 2026-11-07
+
+I keep ordinary declaration authority distinct from resource opcodes. COMPLETE
+alone does not authorize `OWN_PACK`: I refuse that program with either prior or
+forward ordinary layouts. An explicit prior-order RESOURCE tree retains its
+verified VM and native execution. A RESOURCE table with forward edges refuses
+before conversion can publish a module. My ordinary aggregate forward-layout
+program remains a separate accepted VM/C/LLVM/Wasm control.
+
+My declaration validator can retain STRING leaves in complete resource metadata;
+each executable or borrowed profile still checks its own supported subset.
+The earlier checkpoints below record their narrower historical boundaries.
+
+Under #1054 my ordinary-authority regression checks both ordinary opcode refusals,
+the resource-positive result 7, and resource-forward refusal. I forge only the
+resource bits of a valid serialized ordinary module, repairing its checksum, to
+exercise independent consumer refusal after producer refusal. Refusals must exit
+normally with an error and preserve prior native output. A signal or checksum
+error cannot satisfy those checks.
+
 ## My audited gap
 
 The ordinary Cseed code generator registers per-kind record indices and publishes

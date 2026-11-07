@@ -1,0 +1,14 @@
+{
+  "baseline": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+  "exit_code": 0,
+  "seconds": 6.048,
+  "files": {
+    "tests/nanoisa/test_ordinary_record_authority.c": "2bd74b02a72fc12bb42950b65373d23c82a9e7d32fc20dc7942657231e38233c",
+    "tests/test_ordinary_record_authority.py": "1439d115c3755447538f22379b5d7cddfc064587e1dfd805db496718386a9b9d",
+    "bin/nano_vm": "83992368b959e307e2b811ce0d08f16c8ff303ab4d0f5d079883a4f71569b7d7",
+    "bin/nvm2c": "0b6d0be0658aa5adf70a6a0bce502e678939ea3aea3dadec8486deba1961251e",
+    "bin/nvm2llvm": "704e05f1de0a354b799dc522b53ebaea39282ef2e2b820d894b65c934a1d5a81",
+    "bin/nvm2wasm": "4026854eb691858b1f327bc821675682ef8a37dfb34eed71db61032517d8f9b3"
+  },
+  "full_retained_qualification": false
+}
