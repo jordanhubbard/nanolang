@@ -1,0 +1,152 @@
+[
+  {
+    "name": ".test_output/retirement/bootstrap.log",
+    "bytes": 51698,
+    "crc32": 3239881528
+  },
+  {
+    "name": ".test_output/retirement/host.txt",
+    "bytes": 128,
+    "crc32": 3189640451
+  },
+  {
+    "name": ".test_output/retirement/compiler.txt",
+    "bytes": 245,
+    "crc32": 2066531743
+  },
+  {
+    "name": ".test_output/retirement/metadata-effects.log",
+    "bytes": 402304,
+    "crc32": 3350501916
+  },
+  {
+    "name": ".test_output/retirement/product-stage1.log",
+    "bytes": 372,
+    "crc32": 3339298628
+  },
+  {
+    "name": ".test_output/retirement/product-stage2.log",
+    "bytes": 372,
+    "crc32": 617334175
+  },
+  {
+    "name": ".test_output/retirement/providers-after.log",
+    "bytes": 193,
+    "crc32": 804718770
+  },
+  {
+    "name": ".test_output/retirement/providers-before.sha256",
+    "bytes": 751,
+    "crc32": 4270324870
+  },
+  {
+    "name": ".test_output/retirement/reconstruction.log",
+    "bytes": 89026,
+    "crc32": 1030994866
+  },
+  {
+    "name": ".test_output/retirement/revision.txt",
+    "bytes": 41,
+    "crc32": 415034849
+  },
+  {
+    "name": ".test_output/retirement/source-tree.txt",
+    "bytes": 14168014,
+    "crc32": 2440342847
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/00-seed.log",
+    "bytes": 65872,
+    "crc32": 1580736590
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/01-seed-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/02-stage1.log",
+    "bytes": 72368,
+    "crc32": 975363362
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/03-stage1-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/04-stage1-translate.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/05-stage1-native.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/06-stage1-hello-compile.log",
+    "bytes": 46,
+    "crc32": 2745050992
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/07-stage1-hello-execute.log",
+    "bytes": 21,
+    "crc32": 1636210681
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/08-stage2.log",
+    "bytes": 72368,
+    "crc32": 3266961092
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/09-stage2-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/10-stage2-translate.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/11-stage2-native.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/12-stage2-hello-compile.log",
+    "bytes": 46,
+    "crc32": 2745050992
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/13-stage2-hello-execute.log",
+    "bytes": 21,
+    "crc32": 1636210681
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/14-seed-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/15-stage1-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/16-stage2-final-verify.log",
+    "bytes": 0,
+    "crc32": 0
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/host-cache-probes.log",
+    "bytes": 48108,
+    "crc32": 2162415273
+  },
+  {
+    "name": "obj/bootstrap-nanoisa/run-9i19z2jy/manifest.json",
+    "bytes": 148849,
+    "crc32": 2159417047
+  }
+]
