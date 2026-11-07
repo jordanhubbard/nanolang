@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:489532347d1ff0c0c886e9c531529874c0ebbdbc39e5c47de7965e7c04c63950 -->
+<!-- literate-ai:authority-reviewed sha256:a910632d59e8338fa3b77c542d59bda05436568fe63f75f0ddca0d77471aac40 -->
 
 ## My first metadata checkpoint
 
@@ -132,7 +132,14 @@ committed-tree custody report and current authority/lock checks follow below.
 Original source remains release authority; native lifecycle admission is still
 missing under LITAI-001.3 onward.
 
-My first combined custody check correctly [refuses an edit to the existing
-component evidence list](combined-custody-first-refusal.json). I restore that
+[My first combined custody check](combined-custody-first-refusal.json) correctly
+refuses an edit to the existing component evidence list. I restore that
 baseline file byte-for-byte and record [the added metadata component](combined-adoption-component.json)
 in a new artifact. I do not broaden preservation exemptions to obtain acceptance.
+
+My [committed combined custody report](source-preservation-combined-20261107.json)
+at `126471404` preserves all 90,002 baseline entries with no changed or dirty
+original paths. Both real Git custody methods, all eight lock checks and all
+four agent delegates pass. Canonical validation and the supported documentation
+authority review pass. These are metadata/custody observations, not native
+lifecycle or full 5.1 release acceptance.
