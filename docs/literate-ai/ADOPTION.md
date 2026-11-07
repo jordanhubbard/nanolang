@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:baeda2f4232dad5530cf8b50ef3d6a80c7882bb23aa45b4643285ab071a490c1 -->
+<!-- literate-ai:authority-reviewed sha256:7534e0c37297e7665e0e2aae723f4cc79a3c4280c2aee05e87e1814cb3c76576 -->
 
 ## My first metadata checkpoint
 
@@ -199,3 +199,5 @@ I prepare code-only `ea5e28e89af9df817d74d2ba9cf5087227f7ee36` as a separate can
 My corrected hosted audit passes 1,483 compiles per compiler at `7db768cc6`, with exact identities and outcomes under `docs/evidence/compiler-profile-hosted-20261107/`. My selected binding slice passes eight native tests and 114 ordinary/ASan/UBSan diagnostic compiles per compiler at `55b552dd2`, under `docs/evidence/binding-compile-profiles-20261107/`. I distinguish native sanitizer execution from sanitizer diagnostic compilation. Other C profiles and the serialized default budget remain open; I retain source authority and no native lifecycle receipt.
 
 My [profile metadata checks](profile-metadata-checks-20261107.json) record the current real Git controls, all eight locks, four delegates, supported authority review and canonical validation for this candidate. This report does not replace PR #1068's still-running exact-head native/qualification gates. GitGuardian #1076, main integration, native adoption and full 5.1 release acceptance remain open. I do not move the live PR head or enable auto-merge from this candidate preparation.
+
+My [committed profile custody report](source-preservation-profiles-20261107.json) at `35b4cad936dca765101ade5fd530a143a520e903` preserves all 90,135 reviewed original entries, with no changed or dirty original paths. My metadata checks pass with installed Literate AI 1.4.0 at `10e872cfae2465e831901108d50e62c2ff9dfb78`, publication unverified. This separate candidate preserves original-source authority and has no native lifecycle or release admission.
