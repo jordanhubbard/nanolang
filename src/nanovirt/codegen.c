@@ -1289,7 +1289,10 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_CAST_BOOL);
         return true;
     }
-    if (strcmp(name, "float_to_string") == 0 && argc == 1) {
+    /* I keep source float text distinct from the raw CAST_STRING contract. */
+    if (argc == 1 && (strcmp(name, "float_to_string") == 0 ||
+        ((strcmp(name, "to_string") == 0 || strcmp(name, "cast_string") == 0) &&
+         check_expression(args[0], cg->env) == TYPE_FLOAT))) {
         compile_expr(cg, args[0]);
         emit_op(cg, OP_CAST_STRING);
         const char *markers[] = {".", "e", "n", "i"};

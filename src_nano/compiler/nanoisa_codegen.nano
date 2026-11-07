@@ -6084,6 +6084,37 @@ shadow nisa_emit_module_fact {
     let _: int = (nisa_reset)
 }
 
+# I preserve source float text while keeping raw CAST_STRING formatting unchanged.
+fn nisa_emit_float_text(parser: Parser, argument: ASTStmtRef) -> string {
+    let done: string = (nisa_fresh)
+    let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+    let markers: array<string> = [".", "e", "n", "i"]
+    let mut index: int = 0
+    while (< index 4) {
+        set output (+ output (nisa_line "DUP"))
+        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at markers index))))
+        set output (+ output (nisa_line "STR_CONTAINS"))
+        set output (+ output (nisa_line_imm "JMP_TRUE" done))
+        set index (+ index 1)
+    }
+    set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
+    set output (+ output (nisa_line "STR_CONCAT"))
+    return (+ output (nisa_label_line done))
+}
+shadow nisa_emit_float_text {
+    let text: string = (nanoisa_emit_nasm "fn source()->float{return 2.0} shadow source{assert (== (source) 2.0)} fn render()->string{return (float_to_string (source))} shadow render{assert (str_equals (render) \"2.0\")} fn main()->int{return 0} shadow main{assert true}")
+    assert nisa_ok
+    assert (str_contains text "CAST_STRING")
+    assert (str_contains text "STR_CONTAINS")
+    assert (str_contains text "STR_CONCAT")
+    let call: string = "CALL source\n"
+    let first: int = (str_index_of text call)
+    assert (>= first 0)
+    let start: int = (+ first (str_length call))
+    let suffix: string = (str_substring text start (- (str_length text) start))
+    assert (== (str_index_of suffix call) -1)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (nisa_indirect_call parser call) { return (nisa_emit_indirect_call parser call) }
     let function_name: string = (nisa_call_name parser call)
@@ -6168,6 +6199,11 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     }
     if (and (nisa_cast_string_name function_name) (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail (+ "I require one argument for " function_name)) }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (and (or (== function_name "to_string") (== function_name "cast_string"))
+                (== (nisa_expr_type parser argument.node_id argument.node_type) "float")) {
+            return (nisa_emit_float_text parser argument)
+        }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
     }
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
@@ -6230,20 +6266,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= (nisa_expr_type parser argument.node_id argument.node_type) "float") {
             return (nisa_fail "I require a float to format")
         }
-        let done: string = (nisa_fresh)
-        let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
-        let markers: array<string> = [".", "e", "n", "i"]
-        let mut index: int = 0
-        while (< index 4) {
-            set output (+ output (nisa_line "DUP"))
-            set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at markers index))))
-            set output (+ output (nisa_line "STR_CONTAINS"))
-            set output (+ output (nisa_line_imm "JMP_TRUE" done))
-            set index (+ index 1)
-        }
-        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
-        set output (+ output (nisa_line "STR_CONCAT"))
-        return (+ output (nisa_label_line done))
+        return (nisa_emit_float_text parser argument)
     }
     let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }

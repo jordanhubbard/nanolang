@@ -1,6 +1,7 @@
 """I retain exact string results and native trim boundaries."""
 import os
 from pathlib import Path
+import struct
 import subprocess
 import sys
 import tempfile
@@ -17,8 +18,12 @@ class CanonicalStringBuiltins(unittest.TestCase):
         return result
 
     def both(self, source, directory):
-        module, c_source, native = (directory / name for name in ('main.nvm', 'main.c', 'native'))
+        module = directory / 'main.nvm'
         self.command([COMPILER, source, '--emit-nvm', '-o', module])
+        self.execute_module(module, directory)
+
+    def execute_module(self, module, directory):
+        c_source, native = (directory / name for name in ('main.c', 'native'))
         self.command([ROOT / 'bin/nano_vm', '--verify-only', module])
         vm = self.command([ROOT / 'bin/nano_vm', module])
         self.command([ROOT / 'bin/nvm2c', module, '-o', c_source])
@@ -130,6 +135,66 @@ shadow main {{ assert (== (main) 0) }}
                         output.write_bytes(b'prior')
                         self.command([COMPILER, source, '--emit-nvm', '-o', output], 1)
                         self.assertEqual(output.read_bytes(), b'prior')
+
+    def test_original_complete_fstring_fixture(self):
+        with tempfile.TemporaryDirectory(prefix='canonical-fstring-original-') as tmp:
+            self.both(ROOT / 'tests/unit/test_fstring_comprehensive.nano', Path(tmp))
+
+    @staticmethod
+    def float_text_cases():
+        values = [(0.0, '0.0', '0'), (-0.0, '-0.0', '-0'),
+                  (2.0, '2.0', '2'), (-2.0, '-2.0', '-2'),
+                  (3.25, '3.25', '3.25'), (1e20, '1e+20', '1e+20')]
+        cases = [(struct.unpack('<Q', struct.pack('<d', value))[0], source, raw)
+                 for value, source, raw in values]
+        cases += [(0x7ff0000000000000, 'inf', 'inf'), (0xfff0000000000000, '-inf', '-inf'),
+                  (0x7ff8000000000001, 'nan', 'nan'), (0xfff8000000000001, '-nan', '-nan')]
+        return cases
+
+    def test_source_float_text_and_once_only_arguments(self):
+        with tempfile.TemporaryDirectory(prefix='canonical-source-float-text-') as tmp:
+            directory = Path(tmp)
+            source = directory / 'main.nano'
+            program = '''let mut calls: int = 0
+fn operand() -> float { set calls (+ calls 1) return 2.0 }
+shadow operand { set calls 0 assert (== (operand) 2.0) assert (== calls 1) }
+fn render(value: float) -> string { return (to_string value) }
+shadow render { assert (str_equals (render 2.0) "2.0") }
+fn cast(value: float) -> string { return (cast_string value) }
+shadow cast { assert (str_equals (cast 2.0) "2.0") }
+fn interpolation(value: float) -> string { return f"{value}" }
+shadow interpolation { assert (str_equals (interpolation 2.0) "2.0") }
+fn once() -> string { return (to_string (operand)) }
+shadow once { set calls 0 assert (str_equals (once) "2.0") assert (== calls 1) }
+fn main() -> int {
+'''
+            for bits, expected, _ in self.float_text_cases():
+                signed = bits if bits < 1 << 63 else bits - (1 << 64)
+                for name in ('render', 'cast', 'interpolation'):
+                    program += f' assert (str_equals ({name} (float_from_bits {signed})) "{expected}")\n'
+            program += ''' set calls 0
+ assert (str_equals (once) "2.0")
+ assert (== calls 1)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+            source.write_text(program)
+            self.both(source, directory)
+
+    def test_raw_cast_string_retains_its_reference_format(self):
+        with tempfile.TemporaryDirectory(prefix='canonical-raw-float-text-') as tmp:
+            directory = Path(tmp)
+            assembly, module = directory / 'main.nasm', directory / 'main.nvm'
+            strings, body = '', ''
+            for index, (bits, _, expected) in enumerate(self.float_text_cases()):
+                strings += f'.string expected{index} "{expected}"\n'
+                body += (f'PUSH_F64 bits:{bits:016x}\nCAST_STRING\n'
+                         f'PUSH_STR expected{index}\nEQ\nASSERT\n')
+            assembly.write_text(strings + '.entry main\n.function main 0 0 0 int 1\n' +
+                                body + 'PUSH_I64 0\nRET\n.end\n')
+            self.command([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+            self.execute_module(module, directory)
 
 
 if __name__ == '__main__':

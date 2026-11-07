@@ -2,13 +2,14 @@ name: Complete JUnit producer-route diagnosis
 
 on:
   push:
-    branches: [fix/5.1-tail-string-casts]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
       - 'tests/test_junit_route_audit.py'
       - 'tests/test_canonical_string_builtins.py'
       - 'src_nano/compiler/nanoisa_codegen.nano'
+      - 'src/nanovirt/codegen.c'
 
 permissions:
   contents: read
@@ -56,8 +57,10 @@ jobs:
             libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
             libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev \
             libglew-dev freeglut3-dev libutf8proc-dev gforth
-      - name: Check report integrity controls
-        run: python3 -m unittest -v tests.test_junit_route_audit tests.test_ci_qualification_storage
+      - name: Run the actual default fast gate and report integrity controls
+        run: |
+          make -f Makefile.gnu check-fast
+          python3 -m unittest -v tests.test_junit_route_audit tests.test_ci_qualification_storage
       - name: Build and verify fresh compiler generations
         id: bootstrap
         timeout-minutes: 150
