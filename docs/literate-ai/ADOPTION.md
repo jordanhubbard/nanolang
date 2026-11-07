@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:4186b1a872a14d2348e04b45247f86e75ef3a432c3dc6f0058c8fb1b39846a0f -->
+<!-- literate-ai:authority-reviewed sha256:cca5f55f401a83ec45fd5067a8699627ff9d87428a5d3efbc017609e4da7e47d -->
 
 ## My first metadata checkpoint
 
@@ -154,3 +154,9 @@ I preserve the previous combined baseline and reports as history. This is an
 explicit original-source update under my existing authority, not generated
 replacement source or retained lifecycle admission. My metadata merge must
 preserve every original entry from this new checkpoint.
+
+My [committed nested-union custody report](source-preservation-nested-union-20261107.json)
+at `9b0bb858b` preserves all 90,011 baseline entries, with no changed or dirty
+original paths. Both real Git custody methods, all eight Component locks, all
+four delegates and canonical validation pass. Native retained execution and
+fresh hosted compiler qualification remain separate open requirements.
