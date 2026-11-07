@@ -2,7 +2,7 @@ name: Exact scalar map runtime
 
 on:
   push:
-    branches: [fix/5.1-map-runtime-pairs]
+    branches: [fix/5.1-map-runtime-pairs, fix/5.1-map-aot-allocation]
     paths:
       - '.github/workflows/map-scalar-runtime.yml'
       - 'src/nanoisa/nvm2c_map_runtime.inc'

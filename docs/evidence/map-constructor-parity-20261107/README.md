@@ -143,3 +143,30 @@ with an actual invalid source parse and assert the resulting parser-error flag.
 I preserve both valid nominal-declaration and invalid-node/error refusal
 requirements. I do not widen parser exports or remove any assertion. Fresh
 execution of this concrete correction remains required.
+
+My [complete hosted runtime and AOT checkpoints](hosted/README.md) retain the
+three-platform/family standalone runtime run and both 36-method fresh Linux
+VM/C AOT runs, including full logs, exact source/input identity, unchanged
+providers and zero-skip reports. Generated snapshot allocation refusal and
+complete source/fresh-stage/Darwin/integration acceptance remain open.
+
+## My generated snapshot denial controls pending execution
+
+I add exhaustive allocation-denial controls around actual fresh translator output
+for all four scalar pairs. I retain each original assembly/module/generated C
+program, force my existing collection safepoint, and compile native probes at
+O0 and O2 under ASan/UBSan. An independent allocation oracle requires zero live
+pointers/bytes after a successful complete lifecycle. I measure each actual
+allocation count, deny every position in transient and persistent modes,
+require the production native-invariant SIGABRT and exact diagnostic, reject
+sanitizer failures, and require a clean fresh-process retry with the same count.
+
+My probes include empty snapshot growth, populated key/value snapshots and
+snapshot reads after map deletion. They retain every command, status, stdout,
+stderr and generated input under unique `.test_output/scalar-map-aot-prefixes/`
+roots; hosted artifacts include those roots even on failure. Python AST and
+workflow YAML checks pass locally. The changed translator/source pipeline and
+these allocation sweeps require fresh hosted execution; their presence is not
+acceptance. The same checkpoint also repeats the latest standalone runtime on
+Linux GCC/Clang and macOS, since the checked key-kind helper postdates the first
+passing Darwin runtime revision.

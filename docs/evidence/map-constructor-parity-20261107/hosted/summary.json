@@ -1,0 +1,94 @@
+[
+  {
+    "name": "aot-gcc",
+    "run": 42419312675,
+    "artifact": 13592573584,
+    "revision": "7d07751b49fa023ff9c11bec345830d7f1d29355",
+    "archive_bytes": 1957754,
+    "archive_sha256": "0bfe42e2ad4f32f4e84b8c1bd2f4106876a111103ec9ffc64eb0ed7c2d9ab0d9",
+    "crc_check": "passed",
+    "unittest_batches": [
+      {
+        "methods": 36,
+        "seconds": 33.035
+      }
+    ],
+    "reported_skips": [],
+    "full_source_tree_matches_git": true,
+    "source_tree_sha256": "3d533672260836719f8d29c5c84a05515ffbb4c37b1892e112641304f45b3b49",
+    "unchanged_providers": 3
+  },
+  {
+    "name": "aot-clang",
+    "run": 42419312675,
+    "artifact": 13592598442,
+    "revision": "7d07751b49fa023ff9c11bec345830d7f1d29355",
+    "archive_bytes": 1957670,
+    "archive_sha256": "856bcb51560f235c24eda02d47d6563239575c23545ac7bfe3bada5cf2477102",
+    "crc_check": "passed",
+    "unittest_batches": [
+      {
+        "methods": 36,
+        "seconds": 32.787
+      }
+    ],
+    "reported_skips": [],
+    "full_source_tree_matches_git": true,
+    "source_tree_sha256": "3d533672260836719f8d29c5c84a05515ffbb4c37b1892e112641304f45b3b49",
+    "unchanged_providers": 3
+  },
+  {
+    "name": "runtime-gcc",
+    "run": 42418393564,
+    "artifact": 13592850861,
+    "revision": "a3c3f76b406ad3c4ec052010b6042f73f4ac3709",
+    "archive_bytes": 1678,
+    "archive_sha256": "765326f5735ce924b31fe0716490d0e2b2109be9b16d07443decdf24ddc93c6b",
+    "crc_check": "passed",
+    "unittest_batches": [
+      {
+        "methods": 4,
+        "seconds": 3.353
+      }
+    ],
+    "reported_skips": [],
+    "all_input_hashes_match_git": true,
+    "input_count": 4
+  },
+  {
+    "name": "runtime-clang",
+    "run": 42418393564,
+    "artifact": 13592830945,
+    "revision": "a3c3f76b406ad3c4ec052010b6042f73f4ac3709",
+    "archive_bytes": 1588,
+    "archive_sha256": "0ae98b75fd3baeaa04a8f5ac76c34d68ceb9a1c833bb978264340c08814267ae",
+    "crc_check": "passed",
+    "unittest_batches": [
+      {
+        "methods": 4,
+        "seconds": 3.801
+      }
+    ],
+    "reported_skips": [],
+    "all_input_hashes_match_git": true,
+    "input_count": 4
+  },
+  {
+    "name": "runtime-darwin",
+    "run": 42418393564,
+    "artifact": 13592708064,
+    "revision": "a3c3f76b406ad3c4ec052010b6042f73f4ac3709",
+    "archive_bytes": 1681,
+    "archive_sha256": "9ad0627447f9ea0f44ec0dd824d1619072382155f1694e5653d5f5fe93a219f0",
+    "crc_check": "passed",
+    "unittest_batches": [
+      {
+        "methods": 4,
+        "seconds": 9.001
+      }
+    ],
+    "reported_skips": [],
+    "all_input_hashes_match_git": true,
+    "input_count": 4
+  }
+]

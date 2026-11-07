@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1083 I retain my [exact hosted scalar runtime and C AOT checkpoints](evidence/map-constructor-parity-20261107/hosted/README.md): four standalone runtime methods on Linux GCC/Clang and macOS at `a3c3f76b4`, plus 36 fresh VM/C AOT and unchanged storage/lifetime/debt methods per Linux compiler family at `7d07751b4`, with zero skips, exact input/tree identity and unchanged AOT providers. Full generated allocation sweeps, source/fresh-stage and latest Darwin/integration acceptance remain open.
+
 - [x] Under #1075 I supply LLVM command-line tools, the Wasm linker and Node in my instrumented image, using the existing signed pinned Ubuntu repositories. Image job 128431125271 installs clang-18 and linker plugins but no llvm-18, lld-18 or nodejs, while my actual unit/translation paths invoke those tools. I require version-command probes during image construction and exact hosted consumer evidence; I do not drop optional translator tests from the existing unit gate to hide missing inputs. My [exact combined-head hosted image and two-engine consumer controls](evidence/instrumented-tool-closure-hosted-20261107/README.md) pass in job 128477711608 at `435dae34c`; full unit/bootstrap acceptance remains separate.
 
 - [x] Under #976 I retain the completed four Linux qualification legs of run 42397278317 for requested head `435dae34c`, including fresh compiler generations, all selected corpus phases and unchanged source/provider checks. My [actual merge-checkout tree equality, full logs and skip boundaries](evidence/hosted-linux-qualification-20261107/README.md) verify the source tree; remaining Xcode/full integration and native lifecycle gates stay open.
@@ -16,6 +18,8 @@
 - [ ] Under #1083 I qualify my self-hosted scalar map producer for all four key/value pairs, exact constructor tags, typed keys/values snapshots, and once-only clear over detached keys. I preserve missing-context and wrong-argument refusals, execute detached snapshot/extreme integer/alias controls and the complete original constructor matrix through fresh stages, then require matching C AOT/runtime acceptance before closing the complete map row.
 - [ ] Under #1083 I qualify my C map runtime's exact int/string key/value storage for all four pairs while preserving my existing string-key API, copied text ownership, aliases, byte accounting and fail-closed allocation/type boundaries. Standalone runtime harnesses precede AOT analysis/emission and do not complete native source parity.
 - [ ] Under #1083 I integrate exact scalar map pairs into C AOT shape analysis and checked emission, preserve strict unused-helper diagnostics, add independently owned typed keys/values snapshot arrays, preserve optional key producer storage and the existing private STRING-key proof boundary, and require raw VM/C AOT plus unchanged lifetime/storage and complete source matrix controls.
+- [ ] Under #1083 I measure actual generated snapshot lifecycle allocations for every scalar pair under forced collection at O0/O2, exhaust transient and persistent denial prefixes, retain original generated programs and per-command evidence, require zero successful-teardown pointers/bytes and a clean fresh-process retry, and preserve strict native invariant/sanitizer diagnostics.
+
 
 
 
