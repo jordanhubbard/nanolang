@@ -17,7 +17,7 @@ class CaptureSelection(unittest.TestCase):
         for name in ('clang', 'as'):
             (tools/name).write_text(name)
         sdk = root/'SDK'; sdk.mkdir()
-        (sdk/'SDKSettings.json').write_text(json.dumps({'Version': '27.0'}))
+        (sdk/'SDKSettings.json').write_text(json.dumps({'Version': selection.SDK_VERSION}))
         pins = {name: selection.digest(tools/name) for name in ('clang', 'as')}
         return developer, tools, sdk, pins
 
@@ -26,7 +26,7 @@ class CaptureSelection(unittest.TestCase):
             root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
             with patch.dict(os.environ, GITHUB_ENV=str(root/'env'), GITHUB_PATH=str(root/'path')):
                 with patch.object(selection.subprocess, 'check_output', side_effect=[str(sdk)+'\n',
-                        'Apple clang version 21.0.0 (clang-2100.3.34.1)\n']) as query:
+                        'Apple clang version 21.0.0 (clang-2100.4.1.1)\n']) as query:
                     record = selection.select(root/'out', developer, pins, sdk)
             self.assertEqual(query.call_count, 2)
             self.assertEqual(query.call_args_list[0].args[0],
@@ -60,7 +60,7 @@ class CaptureSelection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
             other = root/'other-sdk'; other.mkdir()
-            for responses, version in (([str(other)], '27.0'), ([str(sdk)], '28.0')):
+            for responses, version in (([str(other)], selection.SDK_VERSION), ([str(sdk)], '28.0')):
                 (sdk/'SDKSettings.json').write_text(json.dumps({'Version': version}))
                 with patch.object(selection.subprocess, 'check_output', side_effect=responses):
                     with self.assertRaises(ValueError):selection.select(root/'out', developer, pins, sdk)
