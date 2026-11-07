@@ -6856,8 +6856,16 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 # I enforce rows 10685 and 10688: native NanoISA products carry no VM and no transpiler source exists.
 # I run my fast pre-push gate: strict GCC and clang compiles of my product tools (about 15 seconds)
 # plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
+.PHONY: test-embedded-nano-identifiers
+$(OBJ_DIR)/fixture_identifier_lexer: tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c src/nanolang.h src/generated/compiler_schema.h src/string_literal_decode.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nanoisa/fixture_identifier_lexer.c src/lexer.c src/utf8.c
+
+test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
+	NANO_FIXTURE_LEXER="$(abspath $(OBJ_DIR)/fixture_identifier_lexer)" python3 -m unittest -v tests.test_embedded_nano_identifiers
+	python3 scripts/check_embedded_nano_identifiers.py --lexer "$(OBJ_DIR)/fixture_identifier_lexer"
+
 .PHONY: check-fast
-check-fast:
+check-fast: test-embedded-nano-identifiers
 	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
 	python3 scripts/fast_gate.py
 	python3 -m unittest tests.test_bootstrap_tools

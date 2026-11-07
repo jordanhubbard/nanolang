@@ -1,0 +1,32 @@
+[
+  {
+    "path": "scripts/check_embedded_nano_identifiers.py",
+    "algorithm": "sha256",
+    "digest": "9b5f282e9415aa3827472aa8068c86fbe57a93898dd1ef9ffbc8d04679b5b8ba"
+  },
+  {
+    "path": "tests/nanoisa/fixture_identifier_lexer.c",
+    "algorithm": "sha256",
+    "digest": "705dc09c255c542f2c5b9b1c76823af7ce1efefaf0c920355a02dee6d7bdacce"
+  },
+  {
+    "path": "tests/test_embedded_nano_identifiers.py",
+    "algorithm": "sha256",
+    "digest": "e5f39c5d5f2ba46aad56b2a978d3b4f233db4e9a39621a9903c6c49553fe992f"
+  },
+  {
+    "path": "tests/test_selfhost_function_values.py",
+    "algorithm": "sha256",
+    "digest": "e3b57d0f2752886666946e37df9fbcc6bbc20f6d0b9e8bf6bf313e4bd86113b1"
+  },
+  {
+    "path": "tests/test_source_owned_float_arrays.py",
+    "algorithm": "sha256",
+    "digest": "842dd271ce04cd6a8036cbc9a893c48452c134bac55c4865567cb403db950d1d"
+  },
+  {
+    "path": "skills/reading-nanolang/SKILL.md",
+    "algorithm": "sha256",
+    "digest": "9b094ed7102a6877467ae6e6ebc9885ba3a24fcb51cea146e7773abd993fd45e"
+  }
+]

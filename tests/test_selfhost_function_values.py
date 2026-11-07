@@ -73,14 +73,14 @@ shadow main { assert (== (main) 0) }
     def test_contextual_bytes_arrays_and_record_arguments(self):
         self.execute_source('''
 struct Point { x:int }
-fn byte(n:u8)->int { return (cast_int n) }
-shadow byte { assert (== (byte 7) 7) }
+fn read_byte(n:u8)->int { return (cast_int n) }
+shadow read_byte { assert (== (read_byte 7) 7) }
 fn length(values:array<string>)->int { return (array_length values) }
 shadow length { assert (== (length []) 0) }
 fn increment(point:Point)->Point { return Point { x: (+ point.x 1) } }
 shadow increment { assert (== (increment (Point { x: 3 })).x 4) }
 fn main()->int {
-    let b:fn(u8)->int = byte
+    let b:fn(u8)->int = read_byte
     let l:fn(array<string>)->int = length
     let r:fn(Point)->Point = increment
     assert (== (b 255) 255)
