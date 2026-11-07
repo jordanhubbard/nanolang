@@ -1,0 +1,24 @@
+python3 -m unittest -v tests.test_compiler_version
+test_real_driver_rebuilds_have_identical_version_output (tests.test_compiler_version.CompilerVersion.test_real_driver_rebuilds_have_identical_version_output) ... FAIL
+
+======================================================================
+FAIL: test_real_driver_rebuilds_have_identical_version_output (tests.test_compiler_version.CompilerVersion.test_real_driver_rebuilds_have_identical_version_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_compiler_version.py", line 57, in test_real_driver_rebuilds_have_identical_version_output
+    self.assertEqual(reports[0], reports[1])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'nanoc 5.1.0\nnanolang compiler\nBuilt: Jan  1 2000 00:00:00\n' != 'nanoc 5.1.0\nnanolang compiler\nBuilt: Jan  1 2001 00:00:00\n'
+  nanoc 5.1.0
+  nanolang compiler
+- Built: Jan  1 2000 00:00:00
+?                  ^
++ Built: Jan  1 2001 00:00:00
+?                  ^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.423s
+
+FAILED (failures=1)
+make: *** [test-compiler-version] Error 1

@@ -1,0 +1,13 @@
+python3 -m unittest -v tests.test_compiler_version
+test_real_driver_rebuilds_have_identical_version_output (tests.test_compiler_version.CompilerVersion.test_real_driver_rebuilds_have_identical_version_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.264s
+
+OK
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.368s
+
+OK
+release workflow checks passed

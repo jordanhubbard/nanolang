@@ -1,0 +1,7 @@
+{
+  "src/main.c": "d7d98b1b4076bbeafb407ef8d07abb26b59a940f9c6ed578ab0a3ead378a6805",
+  "src/main_stage1_5.c": "a3dae2389914e45d39b8d190ae46540f4aa79919afecdb2fbf98c161136c5afe",
+  "src/version.h": "7647678277957c4f8c839a2e746e61daeadacee036be06ef96f8cfc7ceebd71b",
+  "scripts/generate_root_package_json.py": "5df3547567d2f3103edbaf23a55234e18725c61e739563cf76739f838c043893",
+  "tests/test_compiler_version.py": "71318128e065668453f7d083896bf06161abcf3c04afce7bb8bcfc345830e3a2"
+}
