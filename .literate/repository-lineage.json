@@ -1,0 +1,10 @@
+{
+  "schema": "urn:literate-ai:schema:v1:repository-lineage",
+  "selection": {
+    "schema": "urn:literate-ai:schema:v1:repository-parent-selection",
+    "mode": "root",
+    "parents": []
+  },
+  "nodes": [],
+  "selected_parents": []
+}

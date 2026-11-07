@@ -41,3 +41,5 @@ not fall back to MAC or claim that tracking succeeded.
 5. **Clean up** — clear stashes, prune remote branches
 6. **Verify** — all changes committed AND pushed
 7. **Hand off** — context for the next session
+
+For my Literate AI authority and source retention, follow [SKILL.md](SKILL.md).
