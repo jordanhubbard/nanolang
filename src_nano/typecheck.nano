@@ -4603,7 +4603,8 @@ shadow check_empty_map_context {
     assert (== (check_empty_map_context nominal 0 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
     assert (== (check_empty_map_context parser -1 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
     assert (== (check_empty_map_context parser 1 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
-    let invalid: Parser = (parser_with_error parser true)
+    let invalid: Parser = (resource_test_parser "struct")
+    assert (parser_has_error invalid)
     assert (== (check_empty_map_context invalid 0 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
 }
 

@@ -134,3 +134,12 @@ The [corrected runtime check](aot-preparation-corrected.log) passes four methods
 in 3.112 seconds, now including eleven invalid runtime boundaries. I retain
 both attempts. This does not establish that the changed AOT translator executes
 correctly; its new raw-module and unchanged regression gates remain pending.
+
+My corrected-fixture run [42418705413](https://github.com/jordanhubbard/nanolang/actions/runs/42418705413)
+then refuses a new shadow's call to private `parser_with_error` during C-seed
+source checking, before shadow execution. I retain its full logs, manifest and
+exact job under `bootstrap-failures/`. I replace that test-only private call
+with an actual invalid source parse and assert the resulting parser-error flag.
+I preserve both valid nominal-declaration and invalid-node/error refusal
+requirements. I do not widen parser exports or remove any assertion. Fresh
+execution of this concrete correction remains required.

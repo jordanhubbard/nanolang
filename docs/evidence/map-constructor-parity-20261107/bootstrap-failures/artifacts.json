@@ -58,5 +58,36 @@
         "sha256": "cda82456805b243b1a98cdb68e81cf62cf9c5ce058b257965c9de873affe42ca"
       }
     ]
+  },
+  {
+    "label": "shadow-parser",
+    "run": 42418705413,
+    "job": 128542279292,
+    "artifact": 13592357563,
+    "archive_bytes": 63287,
+    "archive_sha256": "6fc2de51273b0325986ac2132186b5a06f1c62c0e3f98f95110a09a35adf10d2",
+    "crc_check": "passed",
+    "members": [
+      {
+        "path": ".test_output/junit-route-audit/bootstrap.log",
+        "bytes": 48645,
+        "sha256": "126721d2646ba21e7879f7f8a141501dfa7f5de677ce12967eae6fdfb1123752"
+      },
+      {
+        "path": "obj/bootstrap-nanoisa/run-00amut0b/00-seed.log",
+        "bytes": 1151,
+        "sha256": "e703df43d9f057fae5c2932aee5c1b721e401a19c6c80b406967361c4fb501af"
+      },
+      {
+        "path": ".test_output/junit-route-audit/worker.json",
+        "bytes": 564,
+        "sha256": "6170dd8c9c38266b1453296c8a5cbcbaaaba3c228bff740a25ae3d14fce4ca83"
+      },
+      {
+        "path": "obj/bootstrap-nanoisa/run-00amut0b/manifest.json",
+        "bytes": 138002,
+        "sha256": "eac48569c142691757d645e74c668f894c185266ae9c7d98e49e7b5582e13144"
+      }
+    ]
   }
 ]
