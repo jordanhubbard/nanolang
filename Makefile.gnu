@@ -4812,6 +4812,12 @@ test-units: test-selfhost-generic-contexts
 test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
+.PHONY: test-map-scalar-runtime
+test-map-scalar-runtime:
+	python3 -m unittest -v tests.test_map_scalar_runtime
+
+test-units: test-map-scalar-runtime
+
 .PHONY: test-map-constructor-contexts
 test-map-constructor-contexts: bootstrap nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest tests.test_map_constructor_contexts

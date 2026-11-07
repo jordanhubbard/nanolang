@@ -48,3 +48,34 @@ reused, and integer keys retain signed extremes. I retain every original
 constructor assertion and seed-native counterpart. My Python actual-lexer check
 accepts 20 static fragments. These source checks do not establish executed
 producer semantics; the fresh hosted run and the C AOT/runtime work remain open.
+
+## My exact scalar runtime storage
+
+My standalone C runtime now stores INT keys as full signed integers and STRING
+keys as copied text in a tagged map family. A key union retains the prior
+entry storage width on this 64-bit host. I preserve the original string-key
+API as checked wrappers. My typed operations retain exact key/value tags,
+replacement/deletion aliases, copied result ownership and byte accounting.
+
+My actual runtime fragment passes four standalone ASan/UBSan methods locally:
+the complete unchanged original string-map runtime fixture (4,096 entries and
+32 forced hash collisions); all four pairs with 1,024-entry growth, signed extrema, copied inputs/results and
+zero live allocations after successful teardown; nine invalid tag/null/overflow
+boundaries; and every allocation-failure prefix in a smaller complete lifecycle
+(15 INT/INT, 41 INT/STRING, 27 STRING/INT and 53 STRING/STRING). My independent
+allocation probe counts actual live pointers/bytes. For refusal controls only,
+my test invariant hook exits 70 immediately instead of the production abort;
+I require its exact diagnostic and reject sanitizer diagnostics. I make no
+failure-recovery or failure-path cleanup guarantee from a terminal refusal.
+
+My small dedicated workflow repeats these actual fragment controls with GCC and
+Clang on Linux and the native compiler on macOS 15, retaining compiler/input
+identity and logs. My ordinary unit target includes them. AOT analysis/emission,
+keys/values snapshot storage and source-native end-to-end acceptance remain open;
+this runtime storage checkpoint does not admit the complete map outcome.
+
+My [local runtime log](runtime-local.log) records `make -f Makefile.gnu
+test-map-scalar-runtime`: four methods pass in 2.637 seconds with Apple clang
+21.0.0. My [input hashes](runtime-local-inputs.json) identify the actual tested
+fragments and original fixture; this is local runtime evidence, not a fresh
+source compiler product or a verifier-owned native lifecycle receipt.
