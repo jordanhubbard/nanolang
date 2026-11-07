@@ -71,7 +71,7 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu -j2 CC=clang nvm2wasm nanoisa_dump nano_vm nvm2c bin/nanoisa \
             2>&1 | tee .test_output/wasmtime-execution/build.log
-          sha256sum bin/nvm2wasm bin/nvm2llvm bin/nanoisa_dump bin/nano_vm bin/nvm2c bin/nanoisa \
+          sha256sum bin/nvm2wasm bin/nvm2llvm bin/nano_vm bin/nvm2c bin/nanoisa \
             > .test_output/wasmtime-execution/providers.sha256
       - name: Run every original scalar-Wasm execution and refusal case
         run: |

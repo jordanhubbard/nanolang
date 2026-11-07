@@ -1,0 +1,60 @@
+{
+  "source": "8264642567952468b949c2dfc5c73751573fd497",
+  "tools": {
+    "clang": {
+      "path": "/usr/bin/clang",
+      "resolved": "/usr/lib/llvm-18/bin/clang",
+      "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+      "version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n"
+    },
+    "cc": {
+      "path": "/usr/bin/cc",
+      "resolved": "/usr/bin/x86_64-linux-gnu-gcc-13",
+      "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+      "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+    },
+    "llvm-as": {
+      "path": "/usr/bin/llvm-as",
+      "resolved": "/usr/lib/llvm-18/bin/llvm-as",
+      "sha256": "8e7460eff4ba4e22d8ae881404bb24c5fc346996264e883ba26d41da4188215d",
+      "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n"
+    },
+    "lli": {
+      "path": "/usr/bin/lli",
+      "resolved": "/usr/lib/llvm-18/bin/lli",
+      "sha256": "f787c770f5281ab909eac3d28ed984d8f0759caf87def4794f432fd008ef4f8c",
+      "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n"
+    },
+    "opt": {
+      "path": "/usr/bin/opt",
+      "resolved": "/usr/lib/llvm-18/bin/opt",
+      "sha256": "67ebe8635087b5ebe22d8f085d5e5857e431f86be9ed76576e59b86b9743c0fb",
+      "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n  Default target: x86_64-pc-linux-gnu\n  Host CPU: znver4\n"
+    },
+    "llc": {
+      "path": "/usr/bin/llc",
+      "resolved": "/usr/lib/llvm-18/bin/llc",
+      "sha256": "1efd161c597a2c4255987800505303e298eba00dbee1e93468271c1f7f738181",
+      "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n  Default target: x86_64-pc-linux-gnu\n  Host CPU: znver4\n\n  Registered Targets:\n    aarch64     - AArch64 (little endian)\n    aarch64_32  - AArch64 (little endian ILP32)\n    aarch64_be  - AArch64 (big endian)\n    amdgcn      - AMD GCN GPUs\n    arm         - ARM\n    arm64       - ARM64 (little endian)\n    arm64_32    - ARM64 (little endian ILP32)\n    armeb       - ARM (big endian)\n    avr         - Atmel AVR Microcontroller\n    bpf         - BPF (host endian)\n    bpfeb       - BPF (big endian)\n    bpfel       - BPF (little endian)\n    hexagon     - Hexagon\n    lanai       - Lanai\n    loongarch32 - 32-bit LoongArch\n    loongarch64 - 64-bit LoongArch\n    m68k        - Motorola 68000 family\n    mips        - MIPS (32-bit big endian)\n    mips64      - MIPS (64-bit big endian)\n    mips64el    - MIPS (64-bit little endian)\n    mipsel      - MIPS (32-bit little endian)\n    msp430      - MSP430 [experimental]\n    nvptx       - NVIDIA PTX 32-bit\n    nvptx64     - NVIDIA PTX 64-bit\n    ppc32       - PowerPC 32\n    ppc32le     - PowerPC 32 LE\n    ppc64       - PowerPC 64\n    ppc64le     - PowerPC 64 LE\n    r600        - AMD GPUs HD2XXX-HD6XXX\n    riscv32     - 32-bit RISC-V\n    riscv64     - 64-bit RISC-V\n    sparc       - Sparc\n    sparcel     - Sparc LE\n    sparcv9     - Sparc V9\n    systemz     - SystemZ\n    thumb       - Thumb\n    thumbeb     - Thumb (big endian)\n    ve          - VE\n    wasm32      - WebAssembly 32-bit\n    wasm64      - WebAssembly 64-bit\n    x86         - 32-bit X86: Pentium-Pro and above\n    x86-64      - 64-bit X86: EM64T and AMD64\n    xcore       - XCore\n    xtensa      - Xtensa 32\n"
+    },
+    "wasm-ld": {
+      "path": "/usr/bin/wasm-ld",
+      "resolved": "/usr/lib/llvm-18/bin/lld",
+      "sha256": "7ad9a0e8fe6d0e79b71172d731e33872c0274e49fceb7b516d774876d5a58ade",
+      "version": "Ubuntu LLD 18.1.3\n"
+    },
+    "wasmtime": {
+      "path": "/home/runner/work/_temp/nanolang-test-tools/bin/wasmtime",
+      "resolved": "/home/runner/work/_temp/nanolang-test-tools/bin/wasmtime",
+      "sha256": "983e57573a320cf44c93ccaa571a25640cf38b15e8e14160aa7bb919336caae8",
+      "version": "wasmtime 50.0.1 (c307ec81d 2026-10-29)\n"
+    },
+    "node": {
+      "path": "/usr/local/bin/node",
+      "resolved": "/usr/local/bin/node",
+      "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+      "version": "v22.23.4\n"
+    }
+  },
+  "native_lifecycle_qualified": false
+}
