@@ -49,8 +49,6 @@ def generate(version: str, source: Path = DEFAULT_SOURCE, output: Path = DEFAULT
 #define NANOLANG_VERSION_SUFFIX "{separator}{suffix}"
 
 #define NANOLANG_VERSION "{version}"
-#define NANOLANG_BUILD_DATE __DATE__
-#define NANOLANG_BUILD_TIME __TIME__
 
 #endif /* NANOLANG_VERSION_H */
 '''

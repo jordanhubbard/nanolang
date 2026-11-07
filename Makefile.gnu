@@ -4612,6 +4612,11 @@ release-docs-check:
 # The gates themselves. Kept in test-units so a change that breaks the release
 # check fails now rather than at the next release.
 .PHONY: test-release-version
+.PHONY: test-compiler-version
+test-quick test-units: test-compiler-version
+test-compiler-version: $(COMPILER_C)
+	python3 -m unittest -v tests.test_compiler_version
+
 test-release-version: $(COMPILER_C)
 	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_version tests.test_generate_root_package_json
 	@bash tests/test_release_workflow.sh
