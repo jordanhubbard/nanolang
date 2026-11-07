@@ -1,0 +1,44 @@
+[
+  {
+    "revision": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "path": "src/nanovirt/ordinary_authority.inc",
+    "sha256": "2fba256534f3b3f826a789a7d22959249ac6c45c375c522caec98c04dfe5bcff",
+    "start_line": 88,
+    "source": "static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modules) {\n    NvmModule *module=cg->module;\n    if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||\n       module->layout_size || module->ownership_size)return;\n    ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;\n    if(!ordinary_declarations(cg,program,modules,records))return;\n    /* I bound new map staging before allocating, without changing old allocations. */\n    bool has_map=false,bad_fields=false;uint64_t total_fields=0;\n    for(unsigned i=0;i<count;i++) {\n        int fields=records[i]->as.struct_def.field_count;\n        if(fields<0 || fields>UINT16_MAX){bad_fields=true;continue;}\n        total_fields+=(unsigned)fields;\n        for(int j=0;j<fields;j++) {"
+  },
+  {
+    "revision": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
+    "path": "src_nano/compiler/nanoisa_codegen.nano",
+    "sha256": "dc812b0fc3c0320a8422e70de4655c0593f2bd25583e20eccec8dc12f779cb05",
+    "start_line": 540,
+    "source": "fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {\n    let count: int = (parser_get_struct_def_count parser)\n    if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return \"\" }\n    let mut token_index: int = 0\n    while (< token_index parser.token_count) {\n        if (== (list_LexerToken_get parser.tokens token_index).token_type LexerTokenType.TOKEN_EXTERN) { return \"\" }\n        set token_index (+ token_index 1)\n    }\n    if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return \"\" } }\n    if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return \"\" }\n    if (not (nisa_ordinary_graph parser)) { return \"\" }\n    # I bound new map staging before hex construction; raw local declarations\n    # are parsed representations, not a semantic-checker receipt."
+  },
+  {
+    "revision": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+    "path": "src/nanovirt/ordinary_authority.inc",
+    "sha256": "2fba256534f3b3f826a789a7d22959249ac6c45c375c522caec98c04dfe5bcff",
+    "start_line": 88,
+    "source": "static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modules) {\n    NvmModule *module=cg->module;\n    if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||\n       module->layout_size || module->ownership_size)return;\n    ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;\n    if(!ordinary_declarations(cg,program,modules,records))return;\n    /* I bound new map staging before allocating, without changing old allocations. */\n    bool has_map=false,bad_fields=false;uint64_t total_fields=0;\n    for(unsigned i=0;i<count;i++) {\n        int fields=records[i]->as.struct_def.field_count;\n        if(fields<0 || fields>UINT16_MAX){bad_fields=true;continue;}\n        total_fields+=(unsigned)fields;\n        for(int j=0;j<fields;j++) {"
+  },
+  {
+    "revision": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+    "path": "src_nano/compiler/nanoisa_codegen.nano",
+    "sha256": "dc812b0fc3c0320a8422e70de4655c0593f2bd25583e20eccec8dc12f779cb05",
+    "start_line": 540,
+    "source": "fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {\n    let count: int = (parser_get_struct_def_count parser)\n    if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return \"\" }\n    let mut token_index: int = 0\n    while (< token_index parser.token_count) {\n        if (== (list_LexerToken_get parser.tokens token_index).token_type LexerTokenType.TOKEN_EXTERN) { return \"\" }\n        set token_index (+ token_index 1)\n    }\n    if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return \"\" } }\n    if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return \"\" }\n    if (not (nisa_ordinary_graph parser)) { return \"\" }\n    # I bound new map staging before hex construction; raw local declarations\n    # are parsed representations, not a semantic-checker receipt."
+  },
+  {
+    "revision": "ebaefe24bca13fb4a94ba6018b098ea5182bcae6",
+    "path": "src/nanovirt/ordinary_authority.inc",
+    "sha256": "2fba256534f3b3f826a789a7d22959249ac6c45c375c522caec98c04dfe5bcff",
+    "start_line": 88,
+    "source": "static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modules) {\n    NvmModule *module=cg->module;\n    if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||\n       module->layout_size || module->ownership_size)return;\n    ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;\n    if(!ordinary_declarations(cg,program,modules,records))return;\n    /* I bound new map staging before allocating, without changing old allocations. */\n    bool has_map=false,bad_fields=false;uint64_t total_fields=0;\n    for(unsigned i=0;i<count;i++) {\n        int fields=records[i]->as.struct_def.field_count;\n        if(fields<0 || fields>UINT16_MAX){bad_fields=true;continue;}\n        total_fields+=(unsigned)fields;\n        for(int j=0;j<fields;j++) {"
+  },
+  {
+    "revision": "ebaefe24bca13fb4a94ba6018b098ea5182bcae6",
+    "path": "src_nano/compiler/nanoisa_codegen.nano",
+    "sha256": "51ce4ec01fb5435b199262390871ae4abdcdccc58ec894de4dbed460a2124ee8",
+    "start_line": 540,
+    "source": "fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {\n    let count: int = (parser_get_struct_def_count parser)\n    if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return \"\" }\n    let mut token_index: int = 0\n    while (< token_index parser.token_count) {\n        if (== (list_LexerToken_get parser.tokens token_index).token_type LexerTokenType.TOKEN_EXTERN) { return \"\" }\n        set token_index (+ token_index 1)\n    }\n    if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return \"\" } }\n    if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return \"\" }\n    if (not (nisa_ordinary_graph parser)) { return \"\" }\n    # I bound new map staging before hex construction; raw local declarations\n    # are parsed representations, not a semantic-checker receipt."
+  }
+]
