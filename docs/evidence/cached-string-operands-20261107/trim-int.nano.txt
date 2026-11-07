@@ -1,0 +1,2 @@
+fn main()->int{let value:string = (str_trim 1) return 0}
+shadow main{assert true}

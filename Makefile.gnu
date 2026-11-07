@@ -4812,6 +4812,12 @@ test-units: test-selfhost-generic-contexts
 test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
+.PHONY: test-builtin-string-operands
+test-builtin-string-operands: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_builtin_string_operands
+
+test-units: test-builtin-string-operands
+
 .PHONY: test-scalar-map-aot
 test-scalar-map-aot: nano_vm nvm2c nanoisa_dump $(BIN_DIR)/nanoisa
 	python3 -m unittest -v tests.test_scalar_map_aot

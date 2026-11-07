@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "bin/nano_virt",
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-builtin-probe/trim-int.nano",
+    "--emit-nvm",
+    "-o",
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-builtin-probe/trim-int.nvm"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "Warning at line 1, column 16: Unused variable 'value'\n",
+  "provider_sha256": "38883afcb4bc8482758f548fbebec5df40cd25032b0a44c2ea1e828dfb1eb400",
+  "source_sha256": "a58878887380f81b4ed2250199700def44d1a4ed13516dc7cdd2d7bc43f7acdd",
+  "current_source_sha256": {
+    "src/env.c": "dee2636253fbf58d10fbd04eafb8148e7594ac756befa851702f5dd9af746866",
+    "src/typechecker.c": "d11e3e58314133e96ffaef9990fb4f2e14eba65da69ba0cb9cbbc15ff1bc9b7e",
+    "src/builtins_registry.c": "bc14b5350ef68ba2263a3942b5d37e18391beb673ac5012086ed573de15f02d8"
+  },
+  "boundary": "I use an existing local provider; this is not fresh compiler qualification."
+}

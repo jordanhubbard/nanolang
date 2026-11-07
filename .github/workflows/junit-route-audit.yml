@@ -2,7 +2,7 @@ name: Complete JUnit producer-route diagnosis
 
 on:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
@@ -14,6 +14,8 @@ on:
       - 'src_nano/compiler/nanoisa_codegen.nano'
       - 'src/nanovirt/codegen.c'
       - 'src_nano/typecheck.nano'
+      - 'src/env.c'
+      - 'tests/test_builtin_string_operands.py'
 
 permissions:
   contents: read
@@ -95,6 +97,21 @@ jobs:
               (output / 'focused-results.json').write_text(json.dumps(results, indent=2) + '\n')
           raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
           PY
+      - name: Retain focused results before complete corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: focused-source-results-${{ github.sha }}
+          path: .test_output/junit-route-audit/
+          if-no-files-found: error
+      - name: Exercise cached string operands and real function identity
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_builtin_string_operands \
+            2>&1 | tee .test_output/junit-route-audit/string-operands.log
+
       - name: Exercise the unchanged complete four-pair map constructor contract
         if: always() && steps.bootstrap.outcome == 'success'
         timeout-minutes: 45
