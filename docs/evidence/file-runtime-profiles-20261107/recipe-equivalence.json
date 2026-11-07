@@ -1,0 +1,75 @@
+{
+  "baseline": "ea5e28e89af9df817d74d2ba9cf5087227f7ee36",
+  "scope": "I compare recipe configuration only; I execute no compiler, native test or lifecycle action.",
+  "native_qualified": false,
+  "families": {
+    "hosted": {
+      "provider_lists_equal": true,
+      "native_test_methods_and_assertion_runner_unchanged": true,
+      "recipes": [
+        {
+          "sanitizers": false,
+          "allocation_hooks": false,
+          "commands": 15,
+          "all_vectors_equal": true,
+          "vectors_sha256": "3c368515c664ab5c9444bb932c3f39d8399e0fd8f58d4dc09a38e73e1c476947"
+        },
+        {
+          "sanitizers": false,
+          "allocation_hooks": true,
+          "commands": 15,
+          "all_vectors_equal": true,
+          "vectors_sha256": "50aa217941ac3dfff353e59eaa94963c012a713d36d8b27d38606d44311fc2c0"
+        },
+        {
+          "sanitizers": true,
+          "allocation_hooks": false,
+          "commands": 15,
+          "all_vectors_equal": true,
+          "vectors_sha256": "1db566253cd177d336870ca874656827107cf8e9dc4afffc426b807d6ee2e9f8"
+        },
+        {
+          "sanitizers": true,
+          "allocation_hooks": true,
+          "commands": 15,
+          "all_vectors_equal": true,
+          "vectors_sha256": "ffa0c7e8e7fc94031d1f719e2b4c119434cdfbea9a7ac5e9b9cf8e272448360b"
+        }
+      ]
+    },
+    "vm": {
+      "provider_lists_equal": true,
+      "native_test_methods_and_assertion_runner_unchanged": true,
+      "recipes": [
+        {
+          "sanitizers": false,
+          "allocation_hooks": false,
+          "commands": 21,
+          "all_vectors_equal": true,
+          "vectors_sha256": "48e4aa147e4bb4357020d692a91f466f56763723e3208f39b273e350da3863de"
+        },
+        {
+          "sanitizers": false,
+          "allocation_hooks": true,
+          "commands": 19,
+          "all_vectors_equal": true,
+          "vectors_sha256": "1ee64c90e5a15b69cca9e6a4b6f22fb303e44cdeea77a0d0621b52af4eb01fd2"
+        },
+        {
+          "sanitizers": true,
+          "allocation_hooks": false,
+          "commands": 21,
+          "all_vectors_equal": true,
+          "vectors_sha256": "6d81eb7013068c003c6bc121ca4481c5b60a1dbc9a95260d31355bc77d306de7"
+        },
+        {
+          "sanitizers": true,
+          "allocation_hooks": true,
+          "commands": 19,
+          "all_vectors_equal": true,
+          "vectors_sha256": "32f5df522adb379238c418cf1caec9206618b6b08975debde8dd232436bd67e9"
+        }
+      ]
+    }
+  }
+}

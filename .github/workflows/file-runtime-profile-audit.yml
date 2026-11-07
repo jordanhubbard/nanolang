@@ -1,0 +1,115 @@
+name: File runtime profile audit
+
+on:
+  push:
+    branches: [fix/5.1-file-runtime-profiles]
+    paths:
+      - '.github/workflows/file-runtime-profile-audit.yml'
+      - 'scripts/fast_gate.py'
+      - 'tests/file_runtime_compile_profile.py'
+      - 'tests/test_file_hosted.py'
+      - 'tests/test_file_private_vm.py'
+
+permissions:
+  contents: read
+
+jobs:
+  file-runtime:
+    name: File plan and private VM profiles (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    env:
+      PROFILE_COMPILER: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check actual worker resources before installing or building
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          disk = shutil.disk_usage('.')
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disk_free': disk.free,
+                    'disk_free_fraction': disk.free / disk.total, 'memory': memory}
+          output = Path('.test_output/file-runtime-profiles')
+          output.mkdir(parents=True, exist_ok=True)
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold this native check because worker disk is critical.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold this native check because available worker memory is critical.')
+          PY
+      - name: Install the existing native prerequisites
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang llvm
+      - name: Run my unchanged hosted-plan and private-VM suites in both modes
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          from scripts.fast_gate import detect_compilers
+          compiler = detect_compilers()[os.environ['PROFILE_COMPILER']]
+          binary = Path(compiler).resolve()
+          output = Path('.test_output/file-runtime-profiles').resolve()
+          native = output / 'native'
+          native.mkdir()
+          identity = {'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                      'compiler': compiler, 'resolved': str(binary),
+                      'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+                      'version': subprocess.check_output([compiler, '--version'], text=True)}
+          (output / 'identity.json').write_text(json.dumps(identity, indent=2) + '\n')
+          env = dict(os.environ, NANO_FILE_HOSTED_CC=compiler, NANO_FILE_RUNTIME_CC=compiler,
+                     NANO_FILE_RUNTIME_REPORT_DIR=str(native))
+          argv = ['make', '-f', 'Makefile.gnu', '-j2', 'CC=' + compiler,
+                  'test-file-hosted', 'test-file-private-vm',
+                  'test-file-hosted-sanitizers', 'test-file-private-vm-sanitizers']
+          (output / 'native-command.json').write_text(json.dumps(argv, indent=2) + '\n')
+          with (output / 'native.log').open('w') as log:
+              result = subprocess.run(argv, env=env, stdout=log, stderr=subprocess.STDOUT)
+          (output / 'native-status.json').write_text(json.dumps({'returncode': result.returncode}) + '\n')
+          print((output / 'native.log').read_text()[-16000:])
+          raise SystemExit(result.returncode)
+          PY
+      - name: Compile every selected ordinary and sanitizer diagnostic recipe
+        run: |
+          python3 - <<'PY'
+          import concurrent.futures, json, os, time
+          from pathlib import Path
+          from scripts import fast_gate as gate
+          family = os.environ['PROFILE_COMPILER']
+          compiler = gate.detect_compilers()[family]
+          started = time.monotonic()
+          words = next(gate.recipe_commands(gate.make_preview(['test-units'])))
+          base, _ = gate.compile_profile(words)
+          commands = {tuple(gate.diagnostic_profile(compiler, flags, source, instrumented))
+                      for flags, source in gate.file_runtime_profiles(base)
+                      for instrumented in (False, True)}
+          with concurrent.futures.ThreadPoolExecutor(2) as workers:
+              results = list(workers.map(gate.run, sorted(commands)))
+          failures = sum(status != 0 for _, status, _, _ in results)
+          report = {'compiler': family, 'elapsed_seconds': time.monotonic() - started,
+                    'scope': 'I qualify selected File plan/private-VM recipes; full inventory remains open.',
+                    'failures': failures,
+                    'results': [{'argv': command, 'returncode': status,
+                                 'diagnostics': output, 'seconds': seconds}
+                                for command, status, output, seconds in results]}
+          Path('.test_output/file-runtime-profiles/diagnostics.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(f'I compiled {len(results)} File plan/private-VM profiles; {failures} failed.')
+          for command, status, output, _ in results:
+              if status:
+                  print(gate.source_of(command), status, output)
+          raise SystemExit(bool(failures))
+          PY
+      - name: Retain exact native commands, outputs and diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-runtime-profiles-${{ matrix.compiler }}-${{ github.sha }}
+          path: .test_output/file-runtime-profiles
+          if-no-files-found: error
