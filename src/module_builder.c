@@ -949,9 +949,16 @@ static void module_trace_evidence(const char *phase, uint64_t expected,
 
 static uint64_t module_source_hash(const char *directory, const char *source) {
     char path[4096];
-    int n = source[0] == '/' ? snprintf(path, sizeof(path), "%s", source)
-                            : snprintf(path, sizeof(path), "%s/%s", directory, source);
-    return n >= 0 && (size_t)n < sizeof(path) ? hash_file_fnv1a(path) : 0;
+    size_t source_length = strlen(source);
+    if (source_length >= sizeof(path)) return 0;
+    if (source[0] == '/') return hash_file_fnv1a(source);
+    size_t directory_length = strlen(directory);
+    if (directory_length >= sizeof(path) ||
+        source_length >= sizeof(path) - directory_length - 1) return 0;
+    memcpy(path, directory, directory_length);
+    path[directory_length] = '/';
+    memcpy(path + directory_length + 1, source, source_length + 1);
+    return hash_file_fnv1a(path);
 }
 
 /* Update the on-disk hash cache after a successful build */

@@ -32,6 +32,23 @@ int main(void) {
 
     char small[4] = {0};
     assert(!module_append_path_flag(small, sizeof(small), "", "too long"));
+    assert(small[0] == '\0');
+    char occupied[32] = "occupied";
+    assert(!module_append_path_flag(occupied, 4, "", "x"));
+    assert(!strcmp(occupied, "occupied"));
+    assert(!module_append_path_flag(occupied, 0, "", "x"));
+    assert(!strcmp(occupied, "occupied"));
+    char unterminated[4] = {'a', 'b', 'c', 'd'};
+    assert(!module_append_path_flag(unterminated, sizeof(unterminated), "", "x"));
+    assert(!memcmp(unterminated, "abcd", sizeof(unterminated)));
+    char exact[6] = "x";
+    assert(module_append_path_flag(exact, sizeof(exact), "", "x"));
+    assert(!strcmp(exact, "x 'x'"));
+    assert(!module_append_path_flag(exact, sizeof(exact), "", "x"));
+    assert(!strcmp(exact, "x 'x'"));
+    char include[7] = "";
+    assert(module_append_path_flag(include, sizeof(include), "-I", "x"));
+    assert(!strcmp(include, " -I'x'"));
     assert(chdir(previous) == 0);
     free(previous);
     assert(rmdir(directory) == 0);

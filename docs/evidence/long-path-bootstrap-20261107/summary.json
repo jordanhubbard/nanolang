@@ -1,0 +1,49 @@
+{
+  "source_commit": "fbdfc32e846a43ad7dce617243e2e4d5d0eca61b",
+  "path_bytes": 316,
+  "passed": true,
+  "retained_execution_admission": false,
+  "manifest_sha256": "d877cdfd641bfb782ff47d299fbea54834bced5fc820c527e9e921bdeb10d53e",
+  "steps": [
+    {
+      "label": "seed",
+      "exit_code": 0,
+      "elapsed_seconds": 54.52399700001115
+    },
+    {
+      "label": "seed-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3981815830047708
+    },
+    {
+      "label": "stage1",
+      "exit_code": 0,
+      "elapsed_seconds": 648.5830504999903
+    },
+    {
+      "label": "stage1-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.13322158297523856
+    },
+    {
+      "label": "stage1-translate",
+      "exit_code": 0,
+      "elapsed_seconds": 28.319127582974033
+    },
+    {
+      "label": "stage1-native",
+      "exit_code": 0,
+      "elapsed_seconds": 31.479397417017026
+    },
+    {
+      "label": "stage1-hello-compile",
+      "exit_code": 0,
+      "elapsed_seconds": 0.514673166006105
+    },
+    {
+      "label": "stage1-hello-execute",
+      "exit_code": 0,
+      "elapsed_seconds": 0.30680887500056997
+    }
+  ]
+}

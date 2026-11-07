@@ -11,7 +11,8 @@ static NvmModule *union_module(const char *body,unsigned helper) {
     char assembly[8192];snprintf(assembly,sizeof assembly,
         ".types 2 0 2\n.entry 0\n.function main 0 10 0 int 1\n%s.end\n%s",body,callee);
     AsmResult result;NvmModule *m=asm_assemble_unverified(assembly,&result);
-    if(!m)fprintf(stderr,"%s\n",result.message);CHECK(m);
+    if (!m) { fprintf(stderr, "%s\n", result.message); }
+    CHECK(m);
     uint32_t handle=nvm_add_string(m,"Handle",6),choice=nvm_add_string(m,"Choice",6);
     uint32_t outer=nvm_add_string(m,"Outer",5),some=nvm_add_string(m,"Some",4);
     uint32_t empty=nvm_add_string(m,"Empty",5),pair=nvm_add_string(m,"Pair",4);

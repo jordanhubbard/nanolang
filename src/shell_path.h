@@ -29,12 +29,24 @@ static inline char *module_quote_path(const char *path) {
 }
 
 static inline bool module_append_path_flag(char *buffer, size_t capacity, const char *prefix, const char *path) {
+    size_t used = 0;
+    while (used < capacity && buffer[used]) ++used;
+    if (used == capacity) return false;
     char *quoted = module_quote_path(path);
     if (!quoted) return false;
-    size_t used = strlen(buffer);
-    int written = snprintf(buffer + used, capacity - used, " %s%s", prefix, quoted);
+    size_t prefix_length = strlen(prefix), quoted_length = strlen(quoted);
+    size_t available = capacity - used - 1; /* I reserve the terminator first. */
+    if (!available || prefix_length > available - 1 ||
+        quoted_length > available - 1 - prefix_length) {
+        free(quoted);
+        return false;
+    }
+    char *out = buffer + used;
+    *out++ = ' ';
+    memcpy(out, prefix, prefix_length);
+    memcpy(out + prefix_length, quoted, quoted_length + 1);
     free(quoted);
-    return written >= 0 && (size_t)written < capacity - used;
+    return true;
 }
 
 static inline bool module_append_include(char *buffer, size_t capacity, const char *path) {
