@@ -225,7 +225,7 @@ shadow main {assert (== (main) 90)}
                 self.assertEqual(wire,Path(str(generated)+'.nvm').read_bytes())
                 native=path.with_suffix('.native')
                 self.command([*self.compiler,'-std=c99','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
-                    '-I'+str(self.work),'-Isrc',generated,wrapper,ROOT/'lib/libnano_services_runtime.a','-o',native,'-lm'], build=True)
+                    '-I'+str(self.work),'-Isrc',generated,wrapper,ROOT/'lib/libnano_services_runtime.a','-o',native,'-lm','-lcrypto'], build=True)
                 expected=0 if selection=='shadow' else 90
                 self.assertIn(f'EXEC 0 VALUE {expected}',report)
                 self.assertIn(f'EXEC 0 VALUE {expected}',self.command([native]))

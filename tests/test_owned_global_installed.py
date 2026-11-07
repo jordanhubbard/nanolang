@@ -11,7 +11,9 @@ class _InstalledGlobals(_GlobalSources):
             'test_same_shape_wrong_union_assignment_refused':
                 'Assignment to selected: I expected a value of type `First`, but found `Second`',
             'test_same_shape_wrong_union_initializer_refused':
-                'I require the exact union constructor declaration',
+                'Variable selected: I expected a value of type `First`, but found `Second`',
+            'test_wrong_generic_union_global_alias_refused':
+                'Variable alias: I expected a value of type `Box<bool>`, but found `Box<int>`',
         }.get(self._testMethodName)
         if expected:
             diagnostics = {'nanoc_c': expected}

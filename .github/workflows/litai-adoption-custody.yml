@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch my exact original source checkpoint
-        run: git fetch --no-tags --depth=1 origin 37dfd59df4b30ce331f6111a56258e151301d108
+        run: git fetch --no-tags --depth=1 origin 82c0f4f8097bfe41f4fc64f8f887865a43d85fa4
       - name: Exercise real Git custody controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'

@@ -69,7 +69,8 @@ shadow main { assert (== (main) 0) }
             'wrong_declaration': 'let value: Box<int> = Other.Some { value: 1 }',
             'missing_arguments': 'let value: Box = Box.Some { value: 1 }',
             'extra_arguments': 'let value: Box<int,string> = Box.Some { value: 1 }',
-            'unsupported_arguments': 'let value: Box<array<string>> = Box.Some { value: ["bad"] }',
+            # I accept array arguments now; the element type must still match.
+            'unsupported_arguments': 'let value: Box<array<string>> = Box.Some { value: [1] }',
             'missing_field': 'let value: Box<int> = Box.Some {}',
             'duplicate_field': 'let value: Box<int> = Box.Some { value: 1, value: 2 }',
         }

@@ -73,8 +73,9 @@ int main(void) {
     }
     NvmModule *m=fixture(TAG_STRUCT,2,2);query(m,TAG_STRUCT,2,true);roundtrip(m,TAG_STRUCT,2);nvm_module_free(m);
     m=fixture(TAG_FLOAT,NVM_V2_NO_INDEX,2);query(m,TAG_FLOAT,NVM_V2_NO_INDEX,false);nvm_module_free(m);
+    /* I accept a complete ordinary (non-resource) record result since af2b25da6. */
     m=fixture(TAG_STRUCT,0,2);m->ownership_data[8]=NVM_LAYOUT_COMPLETE;
-    query(m,TAG_STRUCT,0,false);nvm_module_free(m);
+    query(m,TAG_STRUCT,0,true);nvm_module_free(m);
     m=fixture(TAG_VOID,NVM_V2_NO_INDEX,2);m->functions[1].result_tag=TAG_INT;
     query(m,TAG_VOID,NVM_V2_NO_INDEX,false);nvm_module_free(m);
     NvmAffineType type={TAG_BOOL,17};uint16_t fields=19;

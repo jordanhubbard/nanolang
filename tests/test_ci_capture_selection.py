@@ -92,7 +92,7 @@ class CaptureSelection(unittest.TestCase):
     def test_workflow_preserves_corpora_and_build_compiler(self):
         text = (Path(__file__).resolve().parents[1]/'.github/workflows/retirement-qualification.yml').read_text()
         self.assertIn('os: [ubuntu-latest, xcode-27]', text)
-        self.assertIn('corpus: [retirement, compiler-contracts, record-maps]', text)
+        self.assertIn('corpus: [retirement, compiler-contracts, contract-effects, record-maps]', text)
         self.assertIn('run: python3 scripts/ci_select_capture_clang.py', text)
         self.assertIn('test_source_snapshots', text)
         self.assertIn('timeout-minutes: 360', text)

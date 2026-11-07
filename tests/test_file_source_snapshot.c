@@ -51,7 +51,7 @@ int main(int argc,char **argv){
  assert(nl_source_inputs_catalog(bridge,-1)==0 && nl_source_inputs_catalog(bridge,1)==0);
  assert(nl_source_inputs_catalog(NULL,0)==0);
  size_t before_alloc=alloc_calls,before_close=closes;
- int64_t invalid_catalogs[]={INT64_MIN,-1,0,3,INT64_MAX};
+ int64_t invalid_catalogs[]={INT64_MIN,-1,0,NL_SOURCE_CATALOG_WEBSOCKET+1,INT64_MAX};
  for(size_t j=0;j<sizeof invalid_catalogs/sizeof invalid_catalogs[0];j++) {
   assert(nl_source_inputs_open_catalog(bridge,invalid_catalogs[j],origin,strlen(origin),"interface.json",14)==-NL_FILE_BINDING_INVALID);
  }

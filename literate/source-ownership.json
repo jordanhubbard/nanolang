@@ -1,6 +1,6 @@
 {
   "schema": "nanolang/source-preservation-policy@1",
-  "baseline_commit": "37dfd59df4b30ce331f6111a56258e151301d108",
+  "baseline_commit": "82c0f4f8097bfe41f4fc64f8f887865a43d85fa4",
   "purpose": "Original Git path/mode/blob preservation ownership; not native producer or SBOM admission",
   "owners": {
     "isa": [
@@ -50,5 +50,6 @@
   "file_prefixes": [
     "src/nanoisa/nvm2c",
     "src/c_backend"
-  ]
+  ],
+  "historical_baseline_commit": "37dfd59df4b30ce331f6111a56258e151301d108"
 }

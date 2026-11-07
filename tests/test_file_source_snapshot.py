@@ -19,7 +19,7 @@ class FileSourceSnapshot(unittest.TestCase):
                 flags += ["-fsanitize=address,undefined", "-fno-sanitize-recover=all"]
             sources = [ROOT / "tests/test_file_source_snapshot.c"]
             sources += [ROOT / "src" / (name + ".c") for name in
-                        ("nsi_file_binding", "nsi_file_plan", "nsi_socket_binding", "nsi_socket_plan", "nsi", "cJSON", "utf8")]
+                        ("nsi_file_binding", "nsi_file_plan", "nsi_socket_binding", "nsi_socket_plan", "nsi_websocket_binding", "nsi_websocket_plan", "nsi", "cJSON", "utf8")]
             build = subprocess.run([*compiler, *flags, "-I", str(ROOT / "src"), *sources, "-o", executable],
                                    cwd=ROOT, capture_output=True, timeout=120)
             self.assertEqual(build.returncode, 0, build.stdout + build.stderr)

@@ -104,3 +104,13 @@ file/executable mode must remain intact. New dirty and committed deletion, symli
 while reviewed content edits pass. My unchanged 89,977-entry source check passes with the corrected guard.
 The review also corrected the documented native command to `make test-quick`; I changed no native entry point.
 All 67 original scope bullet rows remain byte-identical.
+
+## My integration checkpoint, 2026-11-07
+
+I reconcile my three original metadata-adoption commits with current main `82c0f4f8097bfe41f4fc64f8f887865a43d85fa4`.
+PR #995 was squash-merged, so inherited pre-merge ancestry conflicts with later compiler repairs.
+I retain current main's entire compiler/runtime/test/build/workflow content and apply only the original
+adoption metadata delta. My refreshed custody baseline is the explicit main commit above; my original
+37dfd59df baseline report and framework adoption binding remain historical evidence, unchanged.
+This refresh does not assert byte identity between the old and new baselines or admit native execution.
+I require a new committed-tree custody report and real Git refusal controls at this integration.

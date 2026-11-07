@@ -71,7 +71,7 @@ shadow main { assert true }
         with tempfile.TemporaryDirectory(prefix="nano-imported-effects-") as tmp:
             directory = Path(tmp)
             (directory / "operations.nano").write_text('''
-effect Ask { ask : int -> int }
+pub effect Ask { ask : int -> int }
 pub fn send(value: int) -> int { return perform Ask.ask(value) }
 shadow send { assert true }
 ''')

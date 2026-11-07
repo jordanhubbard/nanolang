@@ -4068,7 +4068,14 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
             FunctionSignature *fn_sig = NULL;
             TypeInfo *type_info = NULL;
             Type element_type = TYPE_UNKNOWN;
+            int type_start = p->pos;
             Type param_type = parse_type_with_element(p, &element_type, &type_name_str, &fn_sig, &type_info);
+            /* A refused type consumes nothing; looping on it grows params without bound. */
+            if (param_type == TYPE_UNKNOWN && p->pos == type_start) {
+                for (int q = 0; q < param_count; q++) free(params[q].struct_type_name);
+                free(params);
+                goto effect_error;
+            }
             if (param_type == TYPE_FUNCTION && fn_sig && !type_info) {
                 type_info = calloc(1, sizeof(*type_info));
                 if (!type_info) {

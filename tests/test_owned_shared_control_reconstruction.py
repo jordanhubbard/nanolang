@@ -175,7 +175,7 @@ shadow main {{ assert true }}
                 output=module.with_suffix('.'+language);output.write_text('prior checked source')
                 result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None)
                 self.assertNotEqual(result.returncode,0)
-                self.assertIn('one exact three-path reference call per owned pretest',result.stderr)
+                self.assertIn('at most two exact three-path reference calls per owned pretest',result.stderr)
                 self.assertEqual(output.read_text(),'prior checked source')
 
     def test_old_two_shared_path_outputs_remain_byte_identical(self):
