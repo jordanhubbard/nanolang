@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #976 I integrate my completed runner, Xcode, timeout, prerequisite, Wasmtime, ordinary-authority and version repairs with the cleanup record in PR #1068, retaining every component commit. I require combined focused/fast checks and exact-head hosted gates before a merge commit reaches main. I retain separate source-custody and native lifecycle acceptance under #1039; no release obligation is deferred.
+
 - [ ] Under #1067 I replace my retired macOS 14 hosted execution image with supported macOS 15 ARM, preserve my required Build and Test check identity and matching documentation stand-in, and require workflow checks plus actual hosted execution. Check 128430168163 at 635d0e46c refuses the retired image before executing tests; complete Darwin qualification remains required.
 
 - [ ] Under #976 I repair the private map preparation harness link ordering from hosted39693111839/job119543866810: I retain GCC strict syntax success and object/archive symbol dependencies, keep every selected input/flag while placing COMMON archives after ordinary users, qualify an actual single-pass link control and the preparation harness, then require exact hosted confirmation. [My local preparation and GNU single-pass controls](evidence/map-harness-link-order-20261021/README.md) pass; hosted confirmation remains pending. I own `fix/5.1-map-harness-link-order` from5188d6214; no frontend rebuild or runtime admission changes.
