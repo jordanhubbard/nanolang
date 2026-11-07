@@ -20,7 +20,8 @@ static bool text_ok(const char *s,bool empty) {
 }
 static char *copy_text(const char *s) {
     size_t size=strlen(s)+1;char *copy=malloc(size);
-    if(copy)memcpy(copy,s,size);return copy;
+    if (copy) memcpy(copy,s,size);
+    return copy;
 }
 NlFileProduct *nl_file_product_new(const char *output,const char *root,int64_t flags) {
     if(!text_ok(output,false) || !text_ok(root,false) || flags<0 || flags>7)return NULL;

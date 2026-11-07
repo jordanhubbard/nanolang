@@ -136,6 +136,7 @@ shadow main { assert (== (main) 0) }
             'optional-add': base.replace('(== (at samples 0) 1.5)', '(== (+ (at samples 0) 1.0) 2.5)'),
             'optional-negate': base.replace('(== (at samples 0) 1.5)', '(== (- (at samples 0)) -1.5)'),
             'bound-at': base.replace('    assert (== (at samples 0)', '    let at: int = 7 assert (== (at samples 0)'),
+            # nano-fixture: expected-reserved-name=not
             'bound-not': base.replace('    return 0', '    let not: int = 7 assert (not false) return 0'),
             'wrong-element': base.replace('[1.5, 2.5]', '[1, 2]'),
             'untyped-empty': base.replace('    return 0', '    let unknown = [] return 0'),

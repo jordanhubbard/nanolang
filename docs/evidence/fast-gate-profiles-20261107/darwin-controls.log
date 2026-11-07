@@ -1,0 +1,10 @@
+test_actual_glibc_disassembler_profiles_reject_old_source (tests.test_fast_gate.FastGateGccControls.test_actual_glibc_disassembler_profiles_reject_old_source) ... skipped 'I require the original glibc sprintf wrapper; Darwin does not reproduce this diagnostic.'
+test_actual_private_union_profile_rejects_old_source (tests.test_fast_gate.FastGateGccControls.test_actual_private_union_profile_rejects_old_source) ... ok
+test_make_failure_is_not_an_empty_success (tests.test_fast_gate.FastGatePlanning.test_make_failure_is_not_an_empty_success) ... ok
+test_preview_does_not_execute_recursive_or_plus_recipes (tests.test_fast_gate.FastGatePlanning.test_preview_does_not_execute_recursive_or_plus_recipes) ... ok
+test_real_shell_quoting_keeps_macro_operands_and_each_translation_unit (tests.test_fast_gate.FastGatePlanning.test_real_shell_quoting_keeps_macro_operands_and_each_translation_unit) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 19.474s
+
+OK (skipped=1)

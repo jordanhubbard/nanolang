@@ -5,7 +5,7 @@
 #include "../../src/nanoisa/nvm_format.h"
 
 static void *owned[16];
-static int outstanding, reject_allocation, reject_growth, reject_pool, reject_function;
+static int outstanding, reject_allocation, reject_growth, reject_pool, reject_function, reject_import;
 static void remember(void *pointer) {
     if (!pointer) return;
     assert(outstanding < 16);
@@ -54,6 +54,12 @@ static uint32_t literal_add_function(NvmModule *module, const NvmFunctionEntry *
     if (reject_function) return UINT32_MAX;
     return nvm_add_function(module, entry);
 }
+static uint32_t literal_add_import(NvmModule *module, uint32_t module_name,
+        uint32_t symbol, uint16_t count, uint8_t result, const uint8_t *parameters) {
+    if (reject_import) return UINT32_MAX;
+    return nvm_add_import(module, module_name, symbol, count, result, parameters);
+}
+#define nvm_add_import literal_add_import
 #define nvm_add_function literal_add_function
 #define malloc literal_malloc
 #define calloc literal_calloc
@@ -61,6 +67,7 @@ static uint32_t literal_add_function(NvmModule *module, const NvmFunctionEntry *
 #define free literal_free
 #define nvm_add_string literal_add_string
 #include "../../src/nanoisa/assembler.c"
+#undef nvm_add_import
 #undef nvm_add_function
 #undef malloc
 #undef calloc
@@ -95,6 +102,34 @@ static void literal_failures(void) {
     assert(!outstanding);
     nvm_module_free(state.mod);
 }
+static void import_failures(void) {
+    for (int failure = 0; failure < 3; ++failure) {
+        AsmState state = {0};
+        state.mod = nvm_module_new();
+        assert(state.mod);
+        AsmResult result = {0};
+        reject_allocation = failure == 0;
+        reject_pool = failure == 1;
+        reject_import = failure == 2;
+        assert(!process_line(&state, ".import \"lib\" \"call\" int int", &result));
+        assert(result.error == ASM_ERR_MEMORY && result.message[0]);
+        assert(!outstanding && !state.mod->import_count);
+        reject_allocation = reject_pool = reject_import = 0;
+        result = (AsmResult){0};
+        assert(!process_line(&state, ".import \"lib\" \"unterminated", &result));
+        assert(result.error == ASM_ERR_SYNTAX && !outstanding && !state.mod->import_count);
+        result = (AsmResult){0};
+        assert(!process_line(&state, ".import \"lib\" \"call\" int invalid", &result));
+        assert(result.error == ASM_ERR_SYNTAX && !outstanding && !state.mod->import_count);
+        result = (AsmResult){0};
+        assert(process_line(&state, ".import \"lib\" \"call\" int int", &result));
+        assert(state.mod->import_count == 1 && !outstanding);
+        asm_state_cleanup(&state);
+        nvm_module_free(state.mod);
+        assert(!outstanding);
+    }
+}
+
 static void table_failures(void) {
     AsmState state = {0};
     AsmResult result = {0};
@@ -222,6 +257,7 @@ int main(void) {
     function_failures();
     passive_allocation_failures();
     literal_failures();
+    import_failures();
     table_failures();
     puts("I passed literal failures, table growth, duplicate distinctions and allocation recovery.");
     return 0;

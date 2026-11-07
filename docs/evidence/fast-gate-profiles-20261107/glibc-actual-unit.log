@@ -1,0 +1,21 @@
+Get:1 http://deb.debian.org/debian trixie/main amd64 cpp-14-x86-64-linux-gnu amd64 14.2.0-19 [11.0 MB]
+Get:2 http://deb.debian.org/debian trixie/main amd64 gcc-14-x86-64-linux-gnu amd64 14.2.0-19 [21.4 MB]
+Get:3 http://deb.debian.org/debian trixie/main amd64 libgcc-14-dev amd64 14.2.0-19 [2672 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 libc6-dev amd64 2.41-12+deb13u4 [1995 kB]
+Get:5 http://deb.debian.org/debian trixie/main amd64 libgmp10 amd64 2:6.3.0+dfsg-3 [560 kB]
+Get:6 http://deb.debian.org/debian trixie/main amd64 libisl23 amd64 0.27-1 [659 kB]
+Get:7 http://deb.debian.org/debian trixie/main amd64 libcrypt-dev amd64 1:4.4.38-1 [119 kB]
+Get:8 http://deb.debian.org/debian trixie/main amd64 libzstd1 amd64 1.5.7+dfsg-1 [304 kB]
+Get:9 http://deb.debian.org/debian trixie/main amd64 make amd64 4.4.1-2 [463 kB]
+Get:10 http://deb.debian.org/debian trixie/main amd64 libmpc3 amd64 1.3.1-1+b3 [52.2 kB]
+Get:11 http://deb.debian.org/debian trixie/main amd64 libmpfr6 amd64 4.2.2-1 [729 kB]
+Get:12 http://deb.debian.org/debian-security trixie-security/main amd64 linux-libc-dev all 6.12.115-2 [3050 kB]
+Get:13 http://deb.debian.org/debian-security trixie-security/main amd64 zlib1g amd64 1:1.3.dfsg+really1.3.1-1+deb13u1 [88.7 kB]
+W:Fetched 43.1 MB in 14s (3078 kB/s)
+ Download is performed unsandboxed as root as file '/tmp/packages/cpp-14-x86-64-linux-gnu_14.2.0-19_amd64.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+test_actual_glibc_disassembler_profiles_reject_old_source (tests.test_fast_gate.FastGateGccControls.test_actual_glibc_disassembler_profiles_reject_old_source) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 95.617s
+
+OK

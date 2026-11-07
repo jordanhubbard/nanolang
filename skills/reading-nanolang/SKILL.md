@@ -59,3 +59,20 @@ syntax enforced by the compiler from repository policy. Read
 All documentation, examples, diagnostics, and user-facing comments speak in my
 first person: "I compile to C," not "NanoLang compiles to C." My tone is direct,
 plain, and precise.
+
+## My Embedded Fixture Check
+
+`make test-embedded-nano-identifiers` uses my actual C lexer on statically
+recognizable Python fixture fragments. `make check-fast` includes this gate and
+its original `handle`/`effect` regression controls. Diagnostics name the Python
+literal's source line and the embedded token's line/column. I check declaration
+names and typed parameter/field names before `:`. Complete parsing, typing and
+runtime behavior still belong to executable tests. I report lexer-refused
+fragments separately; their executable tests and dynamically constructed sources
+still require their normal gates.
+
+For a deliberate reserved-name refusal, put
+`# nano-fixture: expected-reserved-name=not` immediately before the Python line
+containing that literal. I require an actual `not` declaration refusal in that
+literal. Other reserved names still fail, and an annotation without its stated
+refusal fails. I never annotate a positive fixture to hide an invalid name.

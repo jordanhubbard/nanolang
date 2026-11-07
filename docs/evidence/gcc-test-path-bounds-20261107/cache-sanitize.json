@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "cc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+    "-I/opt/homebrew/Cellar/openssl@4/4.1.0/include",
+    "-O1",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "tests/test_module_builder_cache.c",
+    "src/cJSON.c",
+    "src/utf8.c",
+    "src/runtime/module_build_dir.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/Cellar/openssl@4/4.1.0/lib",
+    "-o",
+    "/tmp/nanolang-1078-cache-sanitize"
+  ],
+  "returncode": 0,
+  "stdout": "I passed absolute, relative, changed, missing and oversized source checks.\n",
+  "stderr": ""
+}

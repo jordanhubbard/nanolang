@@ -1,0 +1,12 @@
+[
+  {
+    "path": "src/module_builder.c",
+    "algorithm": "sha256",
+    "digest": "05276343dfd27a17fbc30934b814a811c38636c94e93622e65480ab260199ce1"
+  },
+  {
+    "path": "tests/test_module_builder_self_capture.py",
+    "algorithm": "sha256",
+    "digest": "73bfc8586e7be9daa9afecae3b7b9267c005a4cbfce30549a711cfb402cf4308"
+  }
+]

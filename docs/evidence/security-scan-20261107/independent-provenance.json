@@ -1,0 +1,3662 @@
+{
+  "scanner": "Gitleaks 8.30.1",
+  "scope": "origin/main..d77105c5bbe020f8b25300f6936bfb1bcf4552c6",
+  "commits_scanned": 394,
+  "findings": [
+    {
+      "file": "docs/evidence/map-harness-link-order-20261021/retained-inputs.json",
+      "line": 111,
+      "commit": "fffd8f07eea487625e9b110567e4062da2ad3f20",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-harness-link-order-20261021/retained-inputs.json",
+      "line": 140,
+      "commit": "fffd8f07eea487625e9b110567e4062da2ad3f20",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-harness-link-order-20261021/retained-inputs.json",
+      "line": 144,
+      "commit": "fffd8f07eea487625e9b110567e4062da2ad3f20",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-harness-link-order-20261021/retained-inputs.json",
+      "line": 148,
+      "commit": "fffd8f07eea487625e9b110567e4062da2ad3f20",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-before.json",
+      "line": 123,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-before.json",
+      "line": 152,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-before.json",
+      "line": 156,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-before.json",
+      "line": 160,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-after.json",
+      "line": 123,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-after.json",
+      "line": 152,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-after.json",
+      "line": 156,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-native-target-20261022/retained/pins-after.json",
+      "line": 160,
+      "commit": "d4ffdd517af416c873a0deadc6f8afdf06b75af5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-after.json",
+      "line": 109,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-after.json",
+      "line": 138,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-after.json",
+      "line": 142,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-after.json",
+      "line": 146,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-before.json",
+      "line": 109,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-before.json",
+      "line": 138,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-before.json",
+      "line": 142,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-before.json",
+      "line": 146,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-before.json",
+      "line": 109,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-before.json",
+      "line": 138,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-before.json",
+      "line": 142,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc-globals/pins-before.json",
+      "line": 146,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/goto-lifecycle/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-after.json",
+      "line": 109,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-after.json",
+      "line": 138,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-after.json",
+      "line": 142,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/alloc/pins-after.json",
+      "line": 146,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/dormant/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/final-fixtures/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/lifecycle/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-retry/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-retry/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-retry/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-retry/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/qualified-provider-pins.json",
+      "line": 89,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/qualified-provider-pins.json",
+      "line": 118,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/qualified-provider-pins.json",
+      "line": 122,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/qualified-provider-pins.json",
+      "line": 126,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/tail/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-after.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-after.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-after.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-after.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-before.json",
+      "line": 109,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-before.json",
+      "line": 138,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-before.json",
+      "line": 142,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-before.json",
+      "line": 146,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/first-pins.json",
+      "line": 107,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/first-pins.json",
+      "line": 136,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/first-pins.json",
+      "line": 140,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/first-pins.json",
+      "line": 144,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/paused-frame-retry/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-before.json",
+      "line": 108,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-before.json",
+      "line": 137,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-before.json",
+      "line": 141,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-execution-20261022/pins-before.json",
+      "line": 145,
+      "commit": "bf6d2dae2efbafc05bd2d5ee199a8384558df267",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/final-provider-module-pins.json",
+      "line": 107,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/final-provider-module-pins.json",
+      "line": 136,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/final-provider-module-pins.json",
+      "line": 140,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/final-provider-module-pins.json",
+      "line": 144,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-after.json",
+      "line": 109,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-after.json",
+      "line": 138,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-after.json",
+      "line": 142,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-ordinary-halt-baseline-20261022/pins-after.json",
+      "line": 146,
+      "commit": "763eedddc1bebd0b45721b96d35c9ecd00fc679f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/retry/first-pins.json",
+      "line": 107,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/retry/first-pins.json",
+      "line": 136,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/retry/first-pins.json",
+      "line": 140,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/union-field-vm-preparation-20261022/retry/first-pins.json",
+      "line": 144,
+      "commit": "5b899da28d4b8abd245203f700a448bea78f5cb2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/final-pins.json",
+      "line": 120,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/final-pins.json",
+      "line": 121,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/final-pins.json",
+      "line": 148,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/final-pins.json",
+      "line": 158,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused-switch-build.stderr",
+      "line": 2,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "C reference-count expression"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused-switch-build.stderr",
+      "line": 5,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "C reference-count expression"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.log",
+      "line": 8,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "C reference-count expression"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.log",
+      "line": 8,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "C reference-count expression"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/raw-pins-after.json",
+      "line": 56,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/canonical-input-pins.json",
+      "line": 56,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/raw-input-pins.json",
+      "line": 56,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/seed-provider-pins.json",
+      "line": 111,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/seed-provider-pins.json",
+      "line": 112,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/seed-provider-pins.json",
+      "line": 139,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/seed-provider-pins.json",
+      "line": 149,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-publication-20261022/canonical-pins-after.json",
+      "line": 56,
+      "commit": "23fb20084ccbc10e607e61bb40d6fc9a13cf4d44",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/native-harness-first-failure-focused.json",
+      "line": 311,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/native-harness-first-failure-focused.json",
+      "line": 340,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/native-harness-first-failure-focused.json",
+      "line": 344,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/native-harness-first-failure-focused.json",
+      "line": 348,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.json",
+      "line": 311,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.json",
+      "line": 340,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.json",
+      "line": 344,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/saturation-compile-failure-focused.json",
+      "line": 348,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/seed-provider-pins.json",
+      "line": 110,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/seed-provider-pins.json",
+      "line": 111,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/seed-provider-pins.json",
+      "line": 138,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/seed-provider-pins.json",
+      "line": 148,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-raw-program-publication-20261021/source-provider-pins.json",
+      "line": 51,
+      "commit": "f83927078e3cebcd1c67e3b67d2bfa4258ae3749",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/canonical-pins-after.json",
+      "line": 55,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/canonical-input-pins.json",
+      "line": 55,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/raw-pins-after.json",
+      "line": 56,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-publication-20261022/raw-input-pins.json",
+      "line": 56,
+      "commit": "1ea583ed9810183621226f73fe3e9b72546a2de6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/focused.json",
+      "line": 311,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/focused.json",
+      "line": 340,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/focused.json",
+      "line": 344,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/focused.json",
+      "line": 348,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 118,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 147,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 151,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 155,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 1386,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 1415,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 1419,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-string-consumer-20261022/first.json",
+      "line": 1423,
+      "commit": "0de7b2181dfb554c6e5ef6f45e841d1f735775d0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/build-source-pins.json",
+      "line": 48,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/corrected-failure.json",
+      "line": 118,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/corrected-failure.json",
+      "line": 147,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/corrected-failure.json",
+      "line": 151,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/corrected-failure.json",
+      "line": 155,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first-failure.json",
+      "line": 118,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first-failure.json",
+      "line": 147,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first-failure.json",
+      "line": 151,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first-failure.json",
+      "line": 155,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/pins-after-first.json",
+      "line": 110,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/pins-after-first.json",
+      "line": 111,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/pins-after-first.json",
+      "line": 138,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/pins-after-first.json",
+      "line": 148,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/consumer-link-pins.json",
+      "line": 149,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/consumer-link-pins.json",
+      "line": 150,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/consumer-link-pins.json",
+      "line": 177,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-paired-publication-20261022/consumer-link-pins.json",
+      "line": 187,
+      "commit": "b622e9065dcccd92ecd43d7fdbc18610ee087aaf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 118,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 147,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 151,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 155,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 1359,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 1388,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 1392,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-delete-consumer-20261022/first.json",
+      "line": 1396,
+      "commit": "879db48ac1f5f507e78780acb60eb626b5417a34",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 201,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 907,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1034,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1035,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1092,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1093,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1101,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1102,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1126,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1127,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-checkpoint-884-20261021/manifest.json",
+      "line": 1204,
+      "commit": "d5bc83d23546fef6f581ee48ac248457e488d754",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-native-concat-20261022/annotated-provider-pins.json",
+      "line": 107,
+      "commit": "0cb02ca2d11047a391072b6bb5460832247fa011",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-native-concat-20261022/annotated-provider-pins.json",
+      "line": 108,
+      "commit": "0cb02ca2d11047a391072b6bb5460832247fa011",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-native-concat-20261022/annotated-provider-pins.json",
+      "line": 135,
+      "commit": "0cb02ca2d11047a391072b6bb5460832247fa011",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-native-concat-20261022/annotated-provider-pins.json",
+      "line": 145,
+      "commit": "0cb02ca2d11047a391072b6bb5460832247fa011",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/budget-link-pins.json",
+      "line": 106,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/budget-link-pins.json",
+      "line": 135,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/budget-link-pins.json",
+      "line": 139,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/budget-link-pins.json",
+      "line": 143,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/final-pins.json",
+      "line": 119,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/final-pins.json",
+      "line": 148,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/final-pins.json",
+      "line": 152,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-borrowed-invocation-20261022/final-pins.json",
+      "line": 156,
+      "commit": "717a608858f40011779d3b43bf8eb2181ffaf6da",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "src/nanovm/record_map_heap.inc",
+      "line": 94,
+      "commit": "a454075e9f745548d2700099eb266605f7ef5e22",
+      "rule": "generic-api-key",
+      "reviewed_context": "C GC-colour expression"
+    },
+    {
+      "file": "docs/evidence/map-public-preparation-20261022/provider-pins.json",
+      "line": 107,
+      "commit": "84768a3ba81fd4d669115bd72eb347bc831c4e57",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-preparation-20261022/provider-pins.json",
+      "line": 136,
+      "commit": "84768a3ba81fd4d669115bd72eb347bc831c4e57",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-preparation-20261022/provider-pins.json",
+      "line": 140,
+      "commit": "84768a3ba81fd4d669115bd72eb347bc831c4e57",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-preparation-20261022/provider-pins.json",
+      "line": 144,
+      "commit": "84768a3ba81fd4d669115bd72eb347bc831c4e57",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/NANOISA_MAP_IMPORT_VALIDATOR_DESIGN.md",
+      "line": 226,
+      "commit": "7643a1032b0f67ce6714297bbd7e0953740ff586",
+      "rule": "generic-api-key",
+      "reviewed_context": "prose about counted-NUL keys"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/provider-pins.json",
+      "line": 107,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/provider-pins.json",
+      "line": 136,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/provider-pins.json",
+      "line": 140,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-import-validator-20261021/provider-pins.json",
+      "line": 144,
+      "commit": "07ae3c2b32acdee952d8903e7e2fd1ec4a0b02c1",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-invocation-baseline-20261021/pins.json",
+      "line": 108,
+      "commit": "f2778bb52cdf960c83a1bddee0af99391d355fe0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-invocation-baseline-20261021/pins.json",
+      "line": 137,
+      "commit": "f2778bb52cdf960c83a1bddee0af99391d355fe0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-invocation-baseline-20261021/pins.json",
+      "line": 141,
+      "commit": "f2778bb52cdf960c83a1bddee0af99391d355fe0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-public-invocation-baseline-20261021/pins.json",
+      "line": 145,
+      "commit": "f2778bb52cdf960c83a1bddee0af99391d355fe0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/pins.json",
+      "line": 108,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/pins.json",
+      "line": 137,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/pins.json",
+      "line": 141,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-boundary-summary-20261021/pins.json",
+      "line": 145,
+      "commit": "0d8232c1ff90edf34f182d15165e2e53e7f05062",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 201,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 907,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1034,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1035,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1092,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1093,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1101,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1102,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1126,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1127,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-kh7hcanu-manifest.json",
+      "line": 1204,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/provider-pins.json",
+      "line": 107,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/provider-pins.json",
+      "line": 136,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/provider-pins.json",
+      "line": 140,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-native-20261021/provider-pins.json",
+      "line": 144,
+      "commit": "379199a75ef412a8fc79ab1e4cc50a2c3bba7b7c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/provider-pins.json",
+      "line": 108,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/provider-pins.json",
+      "line": 137,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/provider-pins.json",
+      "line": 141,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/provider-pins.json",
+      "line": 145,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-observation-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "f4fbe9c5540963c0303284c24c2bcfed206d54b2",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 201,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 907,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1034,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1035,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1092,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1093,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1101,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1102,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1126,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1127,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-884-20261021/run-eehhv_vf-manifest.json",
+      "line": 1204,
+      "commit": "bc18a6a37bce707b3a3b4e5ce55c5b22619cca99",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/source-provider-pins.json",
+      "line": 90,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/source-provider-pins.json",
+      "line": 119,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/source-provider-pins.json",
+      "line": 123,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/source-provider-pins.json",
+      "line": 127,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-invocation-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "3ec90edcb61393d15957735b186d77ee04778619",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-heap-adapters-20261021/provider-pins.json",
+      "line": 109,
+      "commit": "f8c2f127fbdeb5209fc0dcf61058d053e35e7f05",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-heap-adapters-20261021/provider-pins.json",
+      "line": 138,
+      "commit": "f8c2f127fbdeb5209fc0dcf61058d053e35e7f05",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-heap-adapters-20261021/provider-pins.json",
+      "line": 142,
+      "commit": "f8c2f127fbdeb5209fc0dcf61058d053e35e7f05",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-heap-adapters-20261021/provider-pins.json",
+      "line": 146,
+      "commit": "f8c2f127fbdeb5209fc0dcf61058d053e35e7f05",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/provider-pins.json",
+      "line": 90,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/provider-pins.json",
+      "line": 119,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/provider-pins.json",
+      "line": 123,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-private-preparation-20261021/provider-pins.json",
+      "line": 127,
+      "commit": "e810b3034ad4b85ba5a9622131abfbb7702ff3cf",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/generic-record-field-context-20261021/build-source-pins.json",
+      "line": 48,
+      "commit": "6f3d44135a0122b1208528f4b80511b4b522f902",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-runtime-accounting-20261021/provider-pins.json",
+      "line": 107,
+      "commit": "042cd098ad0990e073bfe6ca775ab4c18572fa46",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-runtime-accounting-20261021/provider-pins.json",
+      "line": 136,
+      "commit": "042cd098ad0990e073bfe6ca775ab4c18572fa46",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-runtime-accounting-20261021/provider-pins.json",
+      "line": 140,
+      "commit": "042cd098ad0990e073bfe6ca775ab4c18572fa46",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-runtime-accounting-20261021/provider-pins.json",
+      "line": 144,
+      "commit": "042cd098ad0990e073bfe6ca775ab4c18572fa46",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-copied-image-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "75bf0ef55d7cf097ea747ba7d61225673ca634a6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-copied-image-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "75bf0ef55d7cf097ea747ba7d61225673ca634a6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-copied-image-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "75bf0ef55d7cf097ea747ba7d61225673ca634a6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-copied-image-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "75bf0ef55d7cf097ea747ba7d61225673ca634a6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-execution-recipes-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "6940bd144482dba55ca6b67e5b7896a1caf769ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-execution-recipes-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "6940bd144482dba55ca6b67e5b7896a1caf769ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-execution-recipes-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "6940bd144482dba55ca6b67e5b7896a1caf769ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-execution-recipes-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "6940bd144482dba55ca6b67e5b7896a1caf769ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-key-domain-20261021/receipt.json",
+      "line": 150,
+      "commit": "05caaa0f58c8382723156144e19f1bda69bb822f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-origin-proof-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "5f9a3580bd232112c6fd3dfd1a81bdabbf47747c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-origin-proof-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "5f9a3580bd232112c6fd3dfd1a81bdabbf47747c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-origin-proof-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "5f9a3580bd232112c6fd3dfd1a81bdabbf47747c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-origin-proof-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "5f9a3580bd232112c6fd3dfd1a81bdabbf47747c",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-declarations-20261021/budget-link-pins.json",
+      "line": 106,
+      "commit": "2810567e674de9babc67c0a8f4ee12acd16db2af",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-declarations-20261021/budget-link-pins.json",
+      "line": 135,
+      "commit": "2810567e674de9babc67c0a8f4ee12acd16db2af",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-declarations-20261021/budget-link-pins.json",
+      "line": 139,
+      "commit": "2810567e674de9babc67c0a8f4ee12acd16db2af",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/map-declarations-20261021/budget-link-pins.json",
+      "line": 143,
+      "commit": "2810567e674de9babc67c0a8f4ee12acd16db2af",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/nested-primitive-authority-20261021/canonical-build/inputs.json",
+      "line": 48,
+      "commit": "d98eb849c47ac242b4ffadbe2a132a17277e09a3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/nested-primitive-authority-20261021/provider-build/retained-inputs.json",
+      "line": 105,
+      "commit": "d98eb849c47ac242b4ffadbe2a132a17277e09a3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/nested-primitive-authority-20261021/provider-build/retained-inputs.json",
+      "line": 106,
+      "commit": "d98eb849c47ac242b4ffadbe2a132a17277e09a3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/nested-primitive-authority-20261021/provider-build/retained-inputs.json",
+      "line": 133,
+      "commit": "d98eb849c47ac242b4ffadbe2a132a17277e09a3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/nested-primitive-authority-20261021/provider-build/retained-inputs.json",
+      "line": 143,
+      "commit": "d98eb849c47ac242b4ffadbe2a132a17277e09a3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 201,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 907,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1034,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1035,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1092,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1093,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1101,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1102,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1126,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1127,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-float-reconstruction-aggregate-20261019/bootstrap-manifest.json",
+      "line": 1204,
+      "commit": "a1cef240f0c944757807786b63f7376fffa761b5",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/owned-string-reconstruction-baseline-20261019/import-source-pins.json",
+      "line": 48,
+      "commit": "198970161040e806b2706ab113a9af817015da55",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 201,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 905,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1032,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1033,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1090,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1091,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1099,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1100,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1124,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1125,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-raw-budget-20261019/failed-manifest.json",
+      "line": 1202,
+      "commit": "114deda71cc4f269de5e0e4e3e8284a226ce3c9f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 201,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 907,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1034,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1035,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1092,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1093,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1101,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1102,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1126,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1127,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-write-bootstrap-20261019/manifest.json",
+      "line": 1204,
+      "commit": "cdb25066ebb38fc9d9bede7309c3f1de59af08d4",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 201,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 906,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1033,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1034,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1091,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1092,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1100,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1101,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1125,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1126,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-field-read-bootstrap-20261019/manifest.json",
+      "line": 1203,
+      "commit": "ea5a1a49fc6febe4cfe70a9500ae126a020cbdea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 201,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 905,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1032,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1033,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1090,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1091,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1099,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1100,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1124,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1125,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/coverage-checkpoint-manifest-20261019/hosted-bootstrap-manifest.json",
+      "line": 1202,
+      "commit": "75484053642d52c18ffdd73004805abdf185bd89",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 201,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 905,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1032,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1033,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1090,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1091,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1099,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1100,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1124,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1125,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-borrow-bootstrap-20261019/manifest.json",
+      "line": 1202,
+      "commit": "c56b6ef67c317dfbbacc88dde275478c365e9690",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 201,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 901,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1028,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1029,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1086,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1087,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1095,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1096,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1120,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1121,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/sanitizer-stage-timeout-20261019/manifest.json",
+      "line": 1197,
+      "commit": "47c72018d25b0e6e738e19f131eb73b556bbc233",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/imported-affine-facts-20261019/build-inputs.json",
+      "line": 109,
+      "commit": "05f91fd9bcb895cc9efbdaa115c6a7a5ae08f7ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/imported-affine-facts-20261019/build-inputs.json",
+      "line": 110,
+      "commit": "05f91fd9bcb895cc9efbdaa115c6a7a5ae08f7ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/imported-affine-facts-20261019/build-inputs.json",
+      "line": 137,
+      "commit": "05f91fd9bcb895cc9efbdaa115c6a7a5ae08f7ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/imported-affine-facts-20261019/build-inputs.json",
+      "line": 147,
+      "commit": "05f91fd9bcb895cc9efbdaa115c6a7a5ae08f7ea",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 201,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 901,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1028,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1029,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1086,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1087,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1095,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1096,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1120,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1121,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/checked-effects-bootstrap-74a565150-20261019/manifest.json",
+      "line": 1197,
+      "commit": "856d8800afbfa1eecfa84e10ed2abd2312daa644",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/token_value_bytes-expected-selection.json",
+      "line": 82,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/token_value_bytes-expected-selection.json",
+      "line": 89,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 104,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 133,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 137,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 141,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 104,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 133,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 137,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 141,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-paired-16eb3b1f9-20261019/parser-expected-selection.json",
+      "line": 1010,
+      "commit": "eb9b394357ae15e8bc33ea15c32b3a84354dc601",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 104,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 133,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 137,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-after.json",
+      "line": 141,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 104,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 133,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 137,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/parser-sanitizers-16eb3b1f9-20261019/ordinary-providers-before.json",
+      "line": 141,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 201,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 901,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1028,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1029,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1086,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1087,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1095,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1096,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1120,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1121,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-16eb3b1f9-20261019/manifest.json",
+      "line": 1197,
+      "commit": "0359c329ed2605be47ae9b3880d78abd1d9cd86d",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/decoded-instruction-view-20261019/token-source-inventory.json",
+      "line": 48,
+      "commit": "c36563cc17e485afe8316347390768367fe26bc6",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 201,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 901,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1028,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1029,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1086,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1087,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1095,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1096,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1120,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1121,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-5bb06c298-20261019/manifest.json",
+      "line": 1197,
+      "commit": "ab4507778c0d5f6a5af6e24d604dfaaac6e55853",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 201,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 900,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1027,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1028,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1085,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1086,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1094,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1095,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1119,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1120,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-4cfad-20261019/manifest.json",
+      "line": 1196,
+      "commit": "97d00c1b0eda27f8a3cd1786dadc6850703eeae0",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 201,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 900,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1027,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1028,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1085,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1086,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1094,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1095,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1119,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1120,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/combined-bootstrap-7c7f3-20261019/manifest.json",
+      "line": 1196,
+      "commit": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/tested-inputs.json",
+      "line": 4,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/token_value_bytes-expected-selection.json",
+      "line": 82,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/token_value_bytes-expected-selection.json",
+      "line": 89,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-before.json",
+      "line": 104,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-before.json",
+      "line": 133,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-before.json",
+      "line": 137,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-before.json",
+      "line": 141,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-after.json",
+      "line": 104,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-after.json",
+      "line": 133,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-after.json",
+      "line": 137,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/ordinary-providers-after.json",
+      "line": 141,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/file-parser-qualification-20261018/parser-expected-selection.json",
+      "line": 991,
+      "commit": "90c59f4dfee92397d8b3cb521c5b228669598e3f",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 201,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 900,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1027,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1028,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1085,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1086,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1094,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1095,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1119,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1120,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-source-owned-67159/bootstrap-manifest.json",
+      "line": 1196,
+      "commit": "38bd90b49c343442202b788f09d77cf82b4fb33a",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 201,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 899,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1026,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1027,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1084,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1085,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1093,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1094,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1118,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1119,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-affine-arrays-28e50/bootstrap-manifest.json",
+      "line": 1195,
+      "commit": "16b5acc647027d2c683f796642ca01a83f4f3fa3",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 201,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 896,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1023,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1024,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1081,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1082,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1090,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1091,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1115,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1116,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    },
+    {
+      "file": "docs/evidence/aggregate-match-94c9f07b7/bootstrap-manifest.json",
+      "line": 1192,
+      "commit": "cbfa8c872cbc40a1886f75c6485bc658dcf8cca9",
+      "rule": "generic-api-key",
+      "reviewed_context": "64-hex-character artifact manifest value"
+    }
+  ],
+  "gitguardian_findings_identified": false
+}

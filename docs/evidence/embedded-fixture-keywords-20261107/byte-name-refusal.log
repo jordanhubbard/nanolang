@@ -1,0 +1,22 @@
+Error at line 3, column 1: Expected function name
+Error at line 3, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 10: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 11: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 14: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 39: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 40: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 3, column 42: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 1: Expected function name after 'shadow'
+Error at line 4, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 15: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 23: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Parsing error
