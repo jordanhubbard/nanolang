@@ -1,0 +1,90 @@
+name: Exact scalar map AOT diagnosis
+
+on:
+  push:
+    branches: [fix/5.1-map-aot-parity]
+    paths:
+      - '.github/workflows/scalar-map-aot.yml'
+      - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/nvm2c_map_runtime.inc'
+      - 'tests/test_scalar_map_aot.py'
+      - 'tests/test_map_scalar_runtime.py'
+      - 'tests/nanoisa/test_nvm2c.c'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scalar-map-aot:
+    name: Scalar map VM and C AOT (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    timeout-minutes: 90
+    env:
+      CC: ${{ matrix.compiler }}
+      NANO_NATIVE_TEST_CC: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require worker headroom before provisioning or building
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/scalar-map-aot')
+          output.mkdir(parents=True)
+          disks = []
+          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP'], '/var/cache/apt']:
+              usage = shutil.disk_usage(location)
+              disks.append({'path': location, 'free': usage.free, 'total': usage.total})
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disks': disks, 'memory': memory}
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in disks):
+              raise SystemExit('I hold native compilation for insufficient disk headroom.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= .10:
+              raise SystemExit('I hold native compilation for memory pressure.')
+          PY
+      - name: Install my existing native compiler prerequisites
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
+      - name: Build actual fresh VM and C AOT providers
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" nanoisa_dump nano_vm nvm2c bin/nanoisa \
+            2>&1 | tee .test_output/scalar-map-aot/build.log
+          git rev-parse HEAD > .test_output/scalar-map-aot/revision.txt
+          git ls-tree -r HEAD > .test_output/scalar-map-aot/source-tree.txt
+          sha256sum bin/nanoisa bin/nano_vm bin/nvm2c > .test_output/scalar-map-aot/providers.sha256
+          "$CC" --version > .test_output/scalar-map-aot/compiler.txt
+      - name: Execute all scalar pairs and the unchanged storage and lifetime controls
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_scalar_map_aot tests.test_map_scalar_runtime \
+            tests.test_native_map_key_storage tests.test_native_map_lifetimes \
+            tests.test_native_map_byte_debt tests.test_native_collection_debt \
+            tests.test_native_optional_array_reads \
+            2>&1 | tee .test_output/scalar-map-aot/tests.log
+      - name: Verify unchanged sources and providers
+        if: always()
+        run: |
+          git diff --exit-code
+          if test -f .test_output/scalar-map-aot/providers.sha256; then
+            sha256sum --check .test_output/scalar-map-aot/providers.sha256 \
+              > .test_output/scalar-map-aot/providers-after.log
+          fi
+      - name: Retain original build and diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scalar-map-aot-${{ matrix.compiler }}-${{ github.sha }}
+          path: .test_output/scalar-map-aot/
+          if-no-files-found: error

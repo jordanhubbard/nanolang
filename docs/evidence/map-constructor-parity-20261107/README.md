@@ -98,3 +98,39 @@ and retain the same requirement that I do not refine that nominal name to the
 builtin map family. I also refuse parser-error and out-of-range call inputs
 before list access, with mandatory controls. My original constructor fixture
 and assertions remain unchanged. Fresh execution of this correction is pending.
+
+## My C AOT integration pending fresh execution
+
+I now construct exact INT/STRING key shapes, check optional key/value uses
+without rewriting their producer storage, and emit typed runtime operations.
+My STRING-key primitive paths retain their existing API. Optional keys retain
+explicit checked string/integer extraction, and my private copied-proof profile
+continues to require its original STRING-key shape; this change does not widen
+that admission boundary.
+
+I derive keys/values array storage from solved element shapes and refuse
+unresolved snapshot types. Each snapshot owns a new array; STRING elements are
+copied into my existing owned string-array registry. I check element counts and
+retain my existing array allocation accounting, tracing and cleanup. New raw
+VM/C AOT controls exercise all four pairs, empty-array growth, optional writes,
+replacement/deletion, signed extreme keys, detached snapshots across collection,
+forward map parameters/results and prior-output refusal. I retain the complete
+original source matrix and existing map lifetime/storage controls. I update the
+old C unit's unsupported-constructor premise from newly supported INT/INT to
+BOOL/INT, with explicit new all-four-pair positive controls.
+
+My local strict C99 syntax check passes without writing an object. This is
+syntax evidence only, not full compiler/native/profile acceptance. My dedicated
+fresh hosted GCC/Clang diagnosis builds the actual VM, assembler and translator,
+then executes the new cases plus unchanged storage/lifetime/debt/optional-array
+modules. Snapshot allocation-refusal controls and complete source/fresh-stage,
+Darwin, integrated CI and native lifecycle acceptance still require completion.
+
+My [AOT preparation controls](aot-preparation-inputs.json) retain the strict syntax
+command and exact hashes. My [first standalone check](aot-preparation.log) catches
+an unused new helper in the original strict runtime fixture; I route the
+existing key validation through that helper and preserve the warning policy.
+The [corrected runtime check](aot-preparation-corrected.log) passes four methods
+in 3.112 seconds, now including eleven invalid runtime boundaries. I retain
+both attempts. This does not establish that the changed AOT translator executes
+correctly; its new raw-module and unchanged regression gates remain pending.

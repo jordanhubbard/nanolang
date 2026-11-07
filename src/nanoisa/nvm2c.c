@@ -2199,18 +2199,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         }
         case OP_HM_NEW: {
             uint8_t key = ins.operands[0].u8, value = ins.operands[1].u8;
-            if (key != TAG_STRING || (value != TAG_INT && value != TAG_STRING)) {
-                nvm2c_fail(b, "I support string-keyed maps with integer or string values");
+            if ((key != TAG_INT && key != TAG_STRING) || (value != TAG_INT && value != TAG_STRING)) {
+                nvm2c_fail(b, "I support exact integer/string map key/value pairs");
                 return 0;
             }
             Nvm2cSimSlot map = {0};
             map.kind = NVM2C_VK_MAP; map.origin = -1;
             map.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
             if (!map.rec_k) return 0;
-            map.rec_k[0] = NVM2C_VK_STR;
+            map.rec_k[0] = key == TAG_INT ? NVM2C_VK_INT : NVM2C_VK_STR;
             map.rec_k[1] = value == TAG_INT ? NVM2C_VK_INT : NVM2C_VK_STR;
             if (!sim_push_slot(b, idx, stk, &sp, map)) return 0;
-            if (!shape_type(b, shape_child(b, stk[sp - 1].shape, 0), NVM_SHAPE_STRING) ||
+            if (!shape_kind(b, shape_child(b, stk[sp - 1].shape, 0), map.rec_k[0]) ||
                 !shape_kind(b, shape_child(b, stk[sp - 1].shape, 1), map.rec_k[1])) return 0;
             break;
         }
@@ -2234,33 +2234,40 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
             if (ins.opcode != OP_HM_LEN) {
-                if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
-                    nvm2c_fail(b, "I require a string hashmap key"); return 0;
+                if (key.kind != NVM2C_VK_INT && key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
+                    nvm2c_fail(b, "I require an integer or string hashmap key"); return 0;
                 }
-                if (!mark_string_operand(b, local_kind, nloc, key)) return 0;
+                if (key.kind == NVM2C_VK_STR && !mark_string_operand(b, local_kind, nloc, key)) return 0;
+                if (key.kind == NVM2C_VK_INT) mark_origin(local_kind, nloc, key.origin, NVM2C_VK_INT);
                 NvmShapeId key_shape = key.shape;
                 if (key.kind == NVM2C_VK_VALUE) {
-                    /* Checked extraction constrains this use, not the optional
-                     * producer. Emission retains nvalue_require_string. */
+                    /* I constrain this checked use without rewriting optional
+                     * producer storage. Emission extracts the exact runtime tag. */
                     NvmShapeId checked = 0;
                     key_shape = shape_variable(b, &checked);
-                    if (!shape_type(b, key_shape, NVM_SHAPE_STRING)) return 0;
                     if (b->track_shapes &&
                         (!nvm_shape_convert(&b->shapes, shape_child(b, key.shape, 0), key_shape) ||
                          !shape_ok(b))) return 0;
                 }
-                if (!shape_type(b, key_shape, NVM_SHAPE_STRING) ||
-                    !shape_equal(b, shape_child(b, map.shape, 0), key_shape)) return 0;
+                if (!shape_equal(b, shape_child(b, map.shape, 0), key_shape)) return 0;
             }
             if (ins.opcode == OP_HM_SET) {
-                if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_UNK) {
+                if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_VALUE && value.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "I require an integer or string hashmap value"); return 0;
                 }
                 if (map.kind == NVM2C_VK_MAP && map.rec_k[1] != NVM2C_VK_UNK &&
-                    value.kind != NVM2C_VK_UNK && map.rec_k[1] != value.kind) {
+                    value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_VALUE && map.rec_k[1] != value.kind) {
                     nvm2c_fail(b, "I found conflicting hashmap value representations"); return 0;
                 }
-                if (!shape_equal(b, shape_child(b, map.shape, 1), value.shape)) return 0;
+                NvmShapeId value_shape = value.shape;
+                if (value.kind == NVM2C_VK_VALUE) {
+                    NvmShapeId checked = 0;
+                    value_shape = shape_variable(b, &checked);
+                    if (b->track_shapes &&
+                        (!nvm_shape_convert(&b->shapes, shape_child(b, value.shape, 0), value_shape) ||
+                         !shape_ok(b))) return 0;
+                }
+                if (!shape_equal(b, shape_child(b, map.shape, 1), value_shape)) return 0;
             }
             if (ins.opcode == OP_HM_GET) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1) ||
@@ -2272,6 +2279,26 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 map.kind = NVM2C_VK_MAP; map.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, map)) return 0;
             }
+            break;
+        }
+        case OP_HM_KEYS:
+        case OP_HM_VALUES: {
+            Nvm2cSimSlot map, array = {0};
+            if (!sim_pop(b, idx, stk, &sp, &map)) return 0;
+            if (map.kind != NVM2C_VK_MAP && map.kind != NVM2C_VK_VALUE && map.kind != NVM2C_VK_UNK) {
+                nvm2c_fail(b, "I require a map for a hashmap snapshot"); return 0;
+            }
+            if (map.kind == NVM2C_VK_VALUE) {
+                NvmShapeId checked = 0; map.shape = shape_variable(b, &checked);
+            } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
+            if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
+            array.origin = -1; array.shape = shape_variable(b, b->shape_current);
+            if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY) ||
+                !shape_equal(b, shape_child(b, array.shape, 0),
+                             shape_child(b, map.shape, ins.opcode == OP_HM_KEYS ? 0 : 1))) return 0;
+            /* I defer unresolved element storage rather than choosing INT. */
+            array.kind = resolved_shape_kind(b, array.shape);
+            if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
             break;
         }
         case OP_ARR_LITERAL: {
@@ -5227,7 +5254,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_HM_NEW: {
             char expression[48];
-            snprintf(expression, sizeof expression, "nmap_owned_new(%u)", (unsigned)ins.operands[1].u8);
+            if (ins.operands[0].u8 == TAG_STRING)
+                snprintf(expression, sizeof expression, "nmap_owned_new(%u)", (unsigned)ins.operands[1].u8);
+            else snprintf(expression, sizeof expression, "nmap_owned_new_pair(%u, %u)",
+                          (unsigned)ins.operands[0].u8, (unsigned)ins.operands[1].u8);
             stack_push_map(b, &st, expression);
             break;
         }
@@ -5250,35 +5280,72 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, expression);
             break;
         }
+        case OP_HM_KEYS:
+        case OP_HM_VALUES: {
+            int map = stack_pop_expect(b, &st, NVM2C_VK_MAP, "hashmap snapshot");
+            if (b->failed) goto done;
+            uint8_t kind = resolved_shape_kind(b, b->shape_outputs[idx][start]);
+            char expression[80];
+            if (kind != NVM2C_VK_ARR && kind != NVM2C_VK_SARR) {
+                nvm2c_fail(b, "I require an exact integer/string hashmap snapshot element type"); goto done;
+            }
+            snprintf(expression, sizeof expression, "nmap_snapshot_%s(m[%d], %d)",
+                     kind == NVM2C_VK_SARR ? "strings" : "integers", map, ins.opcode == OP_HM_VALUES);
+            if (kind == NVM2C_VK_SARR) stack_push_sarr(b, &st, expression);
+            else stack_push_iarray(b, &st, expression, NVM2C_VK_ARR);
+            break;
+        }
         case OP_HM_SET:
         case OP_HM_GET:
         case OP_HM_HAS:
         case OP_HM_DELETE:
         case OP_HM_LEN: {
-            uint8_t value_kind = NVM2C_VK_UNK;
+            uint8_t value_kind = NVM2C_VK_UNK, key_kind = NVM2C_VK_UNK;
             int value = -1, key = -1;
             if (ins.opcode == OP_HM_SET) value = stack_pop_kind(b, &st, &value_kind);
-            if (ins.opcode != OP_HM_LEN) key = stack_pop_expect(b, &st, NVM2C_VK_STR, "hashmap key");
+            if (ins.opcode != OP_HM_LEN) key = stack_pop_kind(b, &st, &key_kind);
             int map = stack_pop_expect(b, &st, NVM2C_VK_MAP, "hashmap operation");
             if (b->failed) goto done;
-            char expression[192];
+            char expression[640], key_expression[256] = "", value_expression[96] = "";
+            if (ins.opcode != OP_HM_LEN) {
+                if (key_kind == NVM2C_VK_STR)
+                    snprintf(key_expression, sizeof key_expression, "(nmap_value){5, 0, (char *)s[%d]}", key);
+                else if (key_kind == NVM2C_VK_INT)
+                    snprintf(key_expression, sizeof key_expression, "(nmap_value){1, t[%d], NULL}", key);
+                else if (key_kind == NVM2C_VK_VALUE)
+                    snprintf(key_expression, sizeof key_expression,
+                        "(nmap_key_kind(m[%d]) == 5 ? (nmap_value){5, 0, (char *)nvalue_require_string(v[%d])} : (nmap_value){1, nvalue_require_int(v[%d]), NULL})",
+                        map, key, key);
+                else { nvm2c_fail(b, "I cannot emit an unresolved or unsupported hashmap key"); goto done; }
+            }
             if (ins.opcode == OP_HM_GET) {
-                snprintf(expression, sizeof expression, "nmap_owned_get(m[%d], s[%d])", map, key);
+                if (key_kind == NVM2C_VK_STR)
+                    snprintf(expression, sizeof expression, "nmap_owned_get(m[%d], s[%d])", map, key);
+                else snprintf(expression, sizeof expression, "nmap_owned_get_key(m[%d], %s)", map, key_expression);
                 stack_push_value(b, &st, expression);
             } else if (ins.opcode == OP_HM_SET) {
                 if (value_kind == NVM2C_VK_INT)
-                    snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], (nmap_value){1, t[%d], NULL})", map, key, value);
+                    snprintf(value_expression, sizeof value_expression, "(nmap_value){1, t[%d], NULL}", value);
                 else if (value_kind == NVM2C_VK_STR)
-                    snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], (nmap_value){5, 0, (char *)s[%d]})", map, key, value);
+                    snprintf(value_expression, sizeof value_expression, "(nmap_value){5, 0, (char *)s[%d]}", value);
+                else if (value_kind == NVM2C_VK_VALUE)
+                    snprintf(value_expression, sizeof value_expression, "v[%d]", value);
                 else { nvm2c_fail(b, "I cannot emit an unresolved or unsupported hashmap value"); goto done; }
+                if (key_kind == NVM2C_VK_STR)
+                    snprintf(expression, sizeof expression, "nmap_set(m[%d], s[%d], %s)", map, key, value_expression);
+                else snprintf(expression, sizeof expression, "nmap_set_key(m[%d], %s, %s)", map, key_expression, value_expression);
                 stack_push_map(b, &st, expression);
             } else if (ins.opcode == OP_HM_DELETE) {
-                snprintf(expression, sizeof expression, "nmap_delete(m[%d], s[%d])", map, key);
+                if (key_kind == NVM2C_VK_STR)
+                    snprintf(expression, sizeof expression, "nmap_delete(m[%d], s[%d])", map, key);
+                else snprintf(expression, sizeof expression, "nmap_delete_key(m[%d], %s)", map, key_expression);
                 stack_push_map(b, &st, expression);
             } else {
-                if (ins.opcode == OP_HM_HAS)
-                    snprintf(expression, sizeof expression, "nmap_has(m[%d], s[%d])", map, key);
-                else snprintf(expression, sizeof expression, "(int64_t)nmap_len(m[%d])", map);
+                if (ins.opcode == OP_HM_HAS) {
+                    if (key_kind == NVM2C_VK_STR)
+                        snprintf(expression, sizeof expression, "nmap_has(m[%d], s[%d])", map, key);
+                    else snprintf(expression, sizeof expression, "nmap_has_key(m[%d], %s)", map, key_expression);
+                } else snprintf(expression, sizeof expression, "(int64_t)nmap_len(m[%d])", map);
                 stack_push_temp(b, &st, expression);
             }
             break;
@@ -6873,6 +6940,32 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+/* I allocate detached typed snapshots; copied strings join the existing roots. */
+static void emit_map_snapshots(Nvm2cBuf *b, int integer_arrays, int string_arrays) {
+    if (integer_arrays) nvm2c_puts(b,
+        "static inline narr_t nmap_snapshot_integers(nmap_t map, int values) {\n"
+        "    if (!map || (values ? map->value_kind : map->key_kind) != 1) NVM2C_ABORT();\n"
+        "    narr_t result = narr_new(); narr_reserve(result, map->count);\n"
+        "    for (size_t bucket = 0; bucket < map->capacity; ++bucket)\n"
+        "        for (nmap_entry *entry = map->buckets[bucket]; entry; entry = entry->next) {\n"
+        "            if (result->len >= map->count) NVM2C_ABORT();\n"
+        "            result->data[result->len++] = values ? entry->value.integer : entry->key.integer;\n"
+        "        }\n"
+        "    if (result->len != map->count) NVM2C_ABORT();\n"
+        "    return result;\n}\n");
+    if (string_arrays) nvm2c_puts(b,
+        "static inline nsarr_t nmap_snapshot_strings(nmap_t map, int values) {\n"
+        "    if (!map || (values ? map->value_kind : map->key_kind) != 5) NVM2C_ABORT();\n"
+        "    nsarr_t result = nsarr_new(); nsarr_reserve(result, map->count);\n"
+        "    for (size_t bucket = 0; bucket < map->capacity; ++bucket)\n"
+        "        for (nmap_entry *entry = map->buckets[bucket]; entry; entry = entry->next) {\n"
+        "            if (result->len >= map->count) NVM2C_ABORT();\n"
+        "            result->data[result->len++] = nsarr_copy_string(values ? entry->value.text : entry->key.text);\n"
+        "        }\n"
+        "    if (result->len != map->count) NVM2C_ABORT();\n"
+        "    return result;\n}\n");
+}
+
 static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push,
                                      int int_get, int string_get, int printing, int record_get) {
     if (b->has_integer_arrays) nvm2c_puts(b,
@@ -7795,7 +7888,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             if (ins.opcode == OP_AGG_PACK && ins.operands[3].u16 > b.record_width)
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
-                ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
+                ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET ||
+                ins.opcode == OP_HM_KEYS || ins.opcode == OP_HM_VALUES) b.has_maps = 1;
             if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_PUSH_U8 ||
                 ins.opcode == OP_CAST_U8 || ins.opcode == OP_ENUM_VAL) b.has_maps = 1; /* Tagged scalar storage. */
             if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
@@ -8517,6 +8611,17 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
                 "    nmap_bytes_add(sizeof *owner);\n"
                 "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
                 "    return map;\n}\n"
+                "static inline nmap_t nmap_owned_new_pair(uint8_t key, uint8_t value) {\n"
+                "    if (key != 1 && key != 5) NVM2C_ABORT();\n"
+                "    nmap_t map = nmap_owned_new(value); map->key_kind = key; return map;\n}\n"
+                "static inline nmap_value nmap_owned_get_key(nmap_t map, nmap_value key) {\n"
+                "    nmap_value value = nmap_get_key(map, key);\n"
+                "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
+                "        if (!owner) { nmap_release_value(value); NVM2C_ABORT(); }\n"
+                "        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;\n"
+                "        nmap_bytes_add(sizeof *owner);\n"
+                "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
+                "    return value;\n}\n"
                 "static void nmap_release_owned(void) {\n"
                 "    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;\n"
                 "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }\n"
@@ -8633,6 +8738,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
+        if (module_has_opcode(mod, OP_HM_KEYS) || module_has_opcode(mod, OP_HM_VALUES))
+            emit_map_snapshots(&b, need_iarr, need_sarr);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
                                                 need_iarr_get, need_sarr_get, need_print, need_arr_get);
         if (need_arr_slice) emit_array_slices(&b, need_iarr, need_sarr, need_rarr);
@@ -8730,8 +8837,13 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             fn_c_name(mod, i, name, sizeof name);
             nvm2c_printf(&b, "    (void)%s;\n", name);
         }
+        if (module_has_opcode(mod, OP_HM_KEYS) || module_has_opcode(mod, OP_HM_VALUES)) {
+            if (b.has_integer_arrays) nvm2c_puts(&b, "    (void)nmap_snapshot_integers;\n");
+            if (b.has_string_arrays) nvm2c_puts(&b, "    (void)nmap_snapshot_strings;\n");
+        }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
+            "    (void)nmap_owned_new_pair; (void)nmap_owned_get_key;\n"
             "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_function; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal; (void)nvalue_require_byte; (void)nvalue_require_opaque;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"

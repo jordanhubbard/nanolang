@@ -1,0 +1,35 @@
+{
+  "runtime_command": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-map-scalar-runtime"
+  ],
+  "runtime_exit_code": 0,
+  "runtime_methods": 4,
+  "runtime_seconds": 3.112,
+  "invalid_runtime_boundaries": 11,
+  "allocation_prefixes": 136,
+  "c_syntax_command": [
+    "cc",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-D_GNU_SOURCE",
+    "-Isrc",
+    "-Isrc/nanoisa",
+    "-fsyntax-only",
+    "src/nanoisa/nvm2c.c"
+  ],
+  "c_syntax_exit_code": 0,
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "9f71d382c88e7ce0ea888999d5e9d2bab14bc2343c13057fe6e46f23ccf1e9f7",
+    "src/nanoisa/nvm2c_map_runtime.inc": "4fbcfc8fd40d821ef104baeff0129a565f8e8dda3ee43ee1a2411d3cb214a744",
+    "tests/test_map_scalar_runtime.py": "8e687222d0e4edbafe1f0bb0d56bd586bcac276c646d4810adc8e0b8e09eb782",
+    "tests/test_scalar_map_aot.py": "64627418bc969f768447f5fe3a6f0edcef3a57c51353ad55d8955eed1eb6e46f",
+    "tests/nanoisa/test_nvm2c.c": "3c8cafa935e2fdf5efb870a717e5cb30a93beff6485ef7efe4339fe4b8ef3191"
+  },
+  "boundary": "I have not executed the changed AOT translator or new raw-module tests locally; fresh hosted execution remains required."
+}

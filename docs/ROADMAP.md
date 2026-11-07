@@ -15,6 +15,8 @@
 - [ ] Under #1083 I qualify my [contextual empty-map checker foundation](evidence/map-constructor-parity-20261107/README.md) with mandatory positive/refusal shadows and the unchanged original generic-union fixture. I leave all producer/backend parity and end-to-end acceptance open until their complete runtime tests pass.
 - [ ] Under #1083 I qualify my self-hosted scalar map producer for all four key/value pairs, exact constructor tags, typed keys/values snapshots, and once-only clear over detached keys. I preserve missing-context and wrong-argument refusals, execute detached snapshot/extreme integer/alias controls and the complete original constructor matrix through fresh stages, then require matching C AOT/runtime acceptance before closing the complete map row.
 - [ ] Under #1083 I qualify my C map runtime's exact int/string key/value storage for all four pairs while preserving my existing string-key API, copied text ownership, aliases, byte accounting and fail-closed allocation/type boundaries. Standalone runtime harnesses precede AOT analysis/emission and do not complete native source parity.
+- [ ] Under #1083 I integrate exact scalar map pairs into C AOT shape analysis and checked emission, preserve strict unused-helper diagnostics, add independently owned typed keys/values snapshot arrays, preserve optional key producer storage and the existing private STRING-key proof boundary, and require raw VM/C AOT plus unchanged lifetime/storage and complete source matrix controls.
+
 
 
 

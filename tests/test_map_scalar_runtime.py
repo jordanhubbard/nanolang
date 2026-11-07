@@ -36,6 +36,7 @@ static void check_value(nmap_value actual, uint8_t kind, int64_t number) {
 static void exercise(uint8_t key_kind, uint8_t value_kind, int extensive) {
     char kb[96], vb[96];
     nmap_t map = nmap_new_pair(key_kind, value_kind), alias = map;
+    assert(nmap_key_kind(map) == key_kind);
     nmap_value missing = key(key_kind, -91827, kb, sizeof kb);
     assert(nmap_get_key(map, missing).kind == 0 && !nmap_has_key(map, missing));
     assert(nmap_delete_key(map, missing) == alias && nmap_len(map) == 0);
@@ -83,6 +84,8 @@ int main(int argc, char **argv) {
         else if (mode == 6) (void)nmap_has_key(NULL, (nmap_value){1, 7, NULL});
         else if (mode == 7) (void)nmap_get(nmap_new_pair(1, 1), "wrong");
         else if (mode == 8) { nmap_s map = {0}; map.capacity = SIZE_MAX; nmap_grow(&map); }
+        else if (mode == 9) (void)nmap_key_kind(NULL);
+        else if (mode == 10) { nmap_s map = {0}; map.key_kind = 3; (void)nmap_key_kind(&map); }
         return 1;
     }
     for (uint8_t k = 1; k <= 5; k += 4)
@@ -161,7 +164,7 @@ class MapScalarRuntime(unittest.TestCase):
         print(self.run_harness().stdout, end='')
 
     def test_wrong_tags_null_inputs_and_growth_overflow_refuse(self):
-        for mode in range(9):
+        for mode in range(11):
             with self.subTest(mode=mode):
                 self.run_harness(mode, expected=70)
 

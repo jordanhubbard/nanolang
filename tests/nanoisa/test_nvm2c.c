@@ -4138,7 +4138,7 @@ static void test_emitted_map_flow(void) {
         }
         nvm_module_free(m);
     }
-    const char *invalid[] = {"HM_NEW 1 1\nPOP\n", "HM_NEW 5 3\nPOP\n",
+    const char *invalid[] = {"HM_NEW 4 1\nPOP\n", "HM_NEW 5 3\nPOP\n",
         "HM_NEW 5 1\nPUSH_STR key\nPUSH_STR key\nHM_SET\nPOP\n",
         "HM_NEW 5 1\nPUSH_I64 1\nHM_HAS\nPOP\n"};
     for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {

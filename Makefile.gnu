@@ -4812,6 +4812,12 @@ test-units: test-selfhost-generic-contexts
 test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
+.PHONY: test-scalar-map-aot
+test-scalar-map-aot: nano_vm nvm2c nanoisa_dump $(BIN_DIR)/nanoisa
+	python3 -m unittest -v tests.test_scalar_map_aot
+
+test-units: test-scalar-map-aot
+
 .PHONY: test-map-scalar-runtime
 test-map-scalar-runtime:
 	python3 -m unittest -v tests.test_map_scalar_runtime
