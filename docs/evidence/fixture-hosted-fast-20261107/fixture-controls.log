@@ -1,0 +1,7 @@
+2026-11-07T17:38:55.5669323Z NANO_FIXTURE_LEXER="/home/runner/work/nanolang/nanolang/obj/fixture_identifier_lexer" python3 -m unittest -v tests.test_embedded_nano_identifiers
+2026-11-07T17:38:55.6142406Z test_docstrings_are_not_fixture_programs_and_literals_are_not_executed (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_docstrings_are_not_fixture_programs_and_literals_are_not_executed) ... ok
+2026-11-07T17:38:55.6177618Z test_exact_negative_annotation_does_not_hide_other_reserved_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_exact_negative_annotation_does_not_hide_other_reserved_names) ... ok
+2026-11-07T17:38:55.8305433Z test_real_reported_fixtures_refuse_the_original_regressions (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_real_reported_fixtures_refuse_the_original_regressions) ... ok
+2026-11-07T17:38:55.8326918Z test_reserved_parameter_and_constructor_field_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_reserved_parameter_and_constructor_field_names) ... ok
+2026-11-07T17:38:55.8337389Z test_strings_comments_and_mutable_names_follow_actual_lexer (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_strings_comments_and_mutable_names_follow_actual_lexer) ... ok
+2026-11-07T17:38:57.9231430Z I lexed 3120 static fixture fragments; 0 reserved names; 133 lexer-refused fragments remain with their executable tests.

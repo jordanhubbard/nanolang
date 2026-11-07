@@ -1,0 +1,67 @@
+name: Compiler profile audit
+
+on:
+  push:
+    branches: [fix/5.1-compile-profile-audit]
+    paths:
+      - '.github/workflows/compiler-profile-audit.yml'
+      - 'Makefile.gnu'
+      - 'scripts/fast_gate.py'
+      - 'tests/test_fast_gate.py'
+
+permissions:
+  contents: read
+
+jobs:
+  profile-measurement:
+    name: Compiler profile measurement (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    # I measure an opt-in tier; I do not raise the required fast gate's
+    # 20-minute budget or replace native qualification checks.
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record worker resources before installing tools
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          disk = shutil.disk_usage('.')
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disk_total': disk.total,
+                    'disk_free': disk.free, 'disk_free_fraction': disk.free / disk.total,
+                    'memory': memory}
+          print(json.dumps(report, indent=2))
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold this measurement because the worker disk is critical.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold this measurement because available worker memory is critical.')
+          PY
+      - name: Install the existing fast-gate dependencies
+        timeout-minutes: 25
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
+      - name: Retain tool versions and source identity
+        run: |
+          mkdir -p .test_output/compiler-profile-audit
+          git rev-parse HEAD > .test_output/compiler-profile-audit/source-commit.txt
+          { uname -sm; gcc --version; clang --version; } > .test_output/compiler-profile-audit/tools.txt
+      - name: Measure ordinary and instrumented strict profiles
+        env:
+          PROFILE_COMPILER: ${{ matrix.compiler }}
+        run: |
+          python3 scripts/fast_gate.py --test-profiles --jobs 2 --compilers "$PROFILE_COMPILER" \
+            --report .test_output/compiler-profile-audit/profiles.json \
+            > .test_output/compiler-profile-audit/compile.log 2>&1
+      - name: Retain the exact commands and diagnostic outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-profile-audit-${{ matrix.compiler }}-${{ github.sha }}
+          path: .test_output/compiler-profile-audit
+          if-no-files-found: error
