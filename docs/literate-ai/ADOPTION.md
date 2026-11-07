@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:cca5f55f401a83ec45fd5067a8699627ff9d87428a5d3efbc017609e4da7e47d -->
+<!-- literate-ai:authority-reviewed sha256:c68fabcbba99820ff7b0995cb078f6b0411f47167972b3b19227569c4fbc8f4b -->
 
 ## My first metadata checkpoint
 
@@ -160,3 +160,24 @@ at `9b0bb858b` preserves all 90,011 baseline entries, with no changed or dirty
 original paths. Both real Git custody methods, all eight Component locks, all
 four delegates and canonical validation pass. Native retained execution and
 fresh hosted compiler qualification remain separate open requirements.
+
+
+## My long-path and compiler-gate code checkpoint
+
+I integrate reviewed code-only checkpoint `1293dce61adb2661903339e84a0272a227dcb812`
+with a real merge that retains my component-review ancestry. It includes
+line-bounded assembler import names, literal fixture identifier checks,
+long Darwin dependency-record capture, logical shell-path/source-hash bounds
+and actual private-union/glibc compiler regression controls. I retain local
+native and sanitizer checks, the complete fresh 316-byte-path Stage 1 bootstrap
+and measured compiler-profile limits under `docs/evidence/` as original source.
+
+My custody baseline advances only to this reviewed original-source checkpoint.
+I keep the nested-union baseline and every earlier report as history. I do not
+change preservation exemptions or treat original-source updates as generated
+source, a retained native receipt or full 5.1 acceptance. My broader Python/C
+profile audit and runtime, exact hosted native gates and GitGuardian #1076
+remain open. Auto-merge remains disabled while those release requirements are
+unresolved. My committed-tree custody report follows after current checks.
+
+My [repair metadata checks](repair-metadata-checks-20261107.json) record both real Git custody methods, all eight current Component locks, all four delegates and canonical validation after supported authority review. These checks preserve 90,073 reviewed baseline entries and do not qualify native lifecycle execution.
