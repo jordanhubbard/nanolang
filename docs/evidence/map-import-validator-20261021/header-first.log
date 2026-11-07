@@ -1,0 +1,4 @@
+tests/nanoisa/test_record_map_import.c:2:35: error: unknown type name 'NvmModule'
+    2 | static void import_original(const NvmModule *);
+      |                                   ^
+1 error generated.

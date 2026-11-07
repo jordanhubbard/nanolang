@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-map-delete-consumer-20261022/query_neighbors.py", line 16, in <module>
+    r=subprocess.run(args,capture_output=True,timeout=180);(p/(name+'.stdout')).write_bytes(r.stdout);(p/(name+'.stderr')).write_bytes(r.stderr);rows.append({'name':name,'argv':args,'status':r.returncode});(p/'query-neighbors.json').write_text(json.dumps(rows,indent=2));assert r.returncode==0 and not r.stderr,(name,r.returncode,r.stderr);print(r.stdout.decode(),end='')
+                                                                                                                                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('neighbor-map-origins-run', 1, b'I failed line 159: !ra_live&&!ra_bytes\n')

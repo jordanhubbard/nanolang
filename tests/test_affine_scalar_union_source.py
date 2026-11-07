@@ -278,9 +278,11 @@ class AffineScalarUnionSource(unittest.TestCase):
         cases = {
             'cross_instance': (cross_instance, IMPORTED_PROVIDER, None,
                                ('concrete union value', 'declared qualified argument type',
-                                'expected a value of type')),
+                                'expected a value of type',
+                                'complete declared union instance')),
             'wrong_payload': (wrong_payload, IMPORTED_PROVIDER, None,
-                              ('concrete union field type', 'TYPE MISMATCH')),
+                              ('concrete union field type', 'TYPE MISMATCH',
+                               'declared union variant with each payload field')),
             'cross_declaration': (cross_declaration, IMPORTED_PROVIDER,
                                   OTHER_PROVIDER,
                                   ('already defined', 'declared qualified argument type',

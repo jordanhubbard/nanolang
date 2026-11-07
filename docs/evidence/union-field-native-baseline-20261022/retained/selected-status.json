@@ -1,0 +1,188 @@
+[
+  {
+    "name": "seed-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/seed.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.3063558330759406
+  },
+  {
+    "name": "seed-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.004912041942588985
+  },
+  {
+    "name": "seed-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.0041900830110535026
+  },
+  {
+    "name": "c-shadow-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.05707904091104865
+  },
+  {
+    "name": "c-shadow-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.004699541023001075
+  },
+  {
+    "name": "c-shadow-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.004145708051510155
+  },
+  {
+    "name": "canonical-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.05822745803743601
+  },
+  {
+    "name": "canonical-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.005171832977794111
+  },
+  {
+    "name": "canonical-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.004582292051054537
+  },
+  {
+    "name": "canonical-shadow-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.061731541994959116
+  },
+  {
+    "name": "canonical-shadow-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.004856833023950458
+  },
+  {
+    "name": "canonical-shadow-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.004262082977220416
+  },
+  {
+    "name": "raw-program-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.05878104199655354
+  },
+  {
+    "name": "raw-program-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.004880666034296155
+  },
+  {
+    "name": "raw-program-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.004005374968983233
+  },
+  {
+    "name": "raw-shadow-annotate",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/annotate",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-selected.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.059916040976531804
+  },
+  {
+    "name": "raw-shadow-selected-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-selected.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.004898833925835788
+  },
+  {
+    "name": "raw-shadow-selected-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-refused.c"
+    ],
+    "code": 1,
+    "seconds": 0.004057792015373707
+  }
+]

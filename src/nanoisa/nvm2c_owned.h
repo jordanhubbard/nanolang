@@ -176,7 +176,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         for(uint32_t f=0;f<mod->function_count;f++)
             nvm2c_printf(&b,"static int nown_function_%u(nown_value *,uint64_t *,uint64_t,nown_value *,nown_effects *,const nown_handler *);\n",f);
         nvm2c_puts(&b,"static int nown_effect_call(nown_handler *handler,nown_value *argument,uint64_t *sequence,nown_value *result,nown_effects *effects){\n"
-            " if(*sequence==UINT64_MAX)return 3; uint64_t generation=++*sequence;\n switch(handler->owner->function){\n");
+            " if(*sequence==UINT64_MAX)return 3;\n uint64_t generation=++*sequence;\n switch(handler->owner->function){\n");
         for(uint32_t f=0;f<mod->function_count;f++)
             nvm2c_printf(&b," case %u:return nown_function_%u(argument,sequence,generation,result,effects,handler);\n",f,f);
         nvm2c_puts(&b," default:return 3;\n }\n}\n");

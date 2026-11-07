@@ -1,0 +1,58 @@
+[
+  {
+    "family": "owned-helper-locals",
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/nano_virt.nvm",
+    "language": "c",
+    "sha256": "4ae218a396ecb4dbbca92f6bf5706ae97bbea8c4ff4230dd10072be1ab1050b6",
+    "equal": true
+  },
+  {
+    "family": "owned-helper-locals",
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/nano_virt.nvm",
+    "language": "nano",
+    "sha256": "d57f05070a8ffe7e22f4b5dcc52c3093c0d82f3a98d345a0adabbfc41668596c",
+    "equal": true
+  },
+  {
+    "family": "owned-helper-locals",
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/original-shadows.nvm",
+    "language": "c",
+    "sha256": "b22681e040fa3149d9850ea63faea9e104c71938f3e7d15de78b436ed16bdc0f",
+    "equal": true
+  },
+  {
+    "family": "owned-helper-locals",
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/original-shadows.nvm",
+    "language": "nano",
+    "sha256": "259f2c8b32586d2de68b17046f350ab79803d10c385bd92964a8a5879c059eb1",
+    "equal": true
+  },
+  {
+    "family": "single-exclusive-helper",
+    "input": "/private/tmp/single-exclusive-helper-baseline-20261019/nano_virt.nvm",
+    "language": "c",
+    "sha256": "08e053cdb12573ab690d9d970562c94119804032308d372c6edef35d69257e2e",
+    "equal": true
+  },
+  {
+    "family": "single-exclusive-helper",
+    "input": "/private/tmp/single-exclusive-helper-baseline-20261019/nano_virt.nvm",
+    "language": "nano",
+    "sha256": "ec52b3a4da2f88b6e6b08575ad8bf3ed0d65f60eda32d5702ec8ad1d9de0732e",
+    "equal": true
+  },
+  {
+    "family": "single-exclusive-helper",
+    "input": "/private/tmp/single-exclusive-helper-baseline-20261019/original-shadows.nvm",
+    "language": "c",
+    "sha256": "b883bd0cb4afbe82fd2257e6c7278aa206e7895b3f7bde3e25228f1ba79050b0",
+    "equal": true
+  },
+  {
+    "family": "single-exclusive-helper",
+    "input": "/private/tmp/single-exclusive-helper-baseline-20261019/original-shadows.nvm",
+    "language": "nano",
+    "sha256": "9deaed8d67b01b3325cb6c416e3f1f2f1cab273c7b02a487911b78030901fae8",
+    "equal": true
+  }
+]

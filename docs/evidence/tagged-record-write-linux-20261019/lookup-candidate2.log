@@ -1,0 +1,3 @@
+TRACE recordwrite fn=436 pc=174 shape=463562
+TRACE payload carrier=463562 kind=3 payload=463545 kind=4 resolved=4
+I cannot translate '/private/tmp/nanolang-linux-native-repro/lookup.nvm': I require an exact record-array payload at a tagged record write

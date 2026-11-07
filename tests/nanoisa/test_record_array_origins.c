@@ -87,6 +87,153 @@ static NvmRecordArrayOrigins *query(Input *c,NvmArrayEligibilityStatus expected)
 static void positive(Input *c){NvmRecordArrayOrigins *p=query(c,NVM_ARRAY_ELIGIBLE);nvm_record_array_origins_free(p);}
 static void basic(Input *c,uint8_t tag,bool un){init(c,tag,un);array(c,tag);scalar(c,tag);op(c,OP_ARR_PUSH);record(c,0);op(c,OP_POP);finish(c);}
 #define UNCHANGED(Type,call) do{Type out,old;memset(&out,0xa5,sizeof out);memcpy(&old,&out,sizeof out);CHECK(!(call));CHECK(!memcmp(&out,&old,sizeof out));}while(0)
+/* I retain exact ARRAY -> INT rows, not a wildcard ARRAY element tag. */
+static void nested_authority(Input *c) {
+    authority(c);
+    size_t extension=c->o-48,types=extension+8,at;
+    memmove(c->ownership+types+20,c->ownership+types+12,c->o-types-12);
+    c->o+=8;at=extension+4;b32(c->ownership,&at,48);
+    at=types;b32(c->ownership,&at,2);
+    b8(c->ownership,&at,TAG_ARRAY);b8(c->ownership,&at,0);b16(c->ownership,&at,0);b32(c->ownership,&at,1);
+    b8(c->ownership,&at,TAG_INT);b8(c->ownership,&at,0);b16(c->ownership,&at,0);b32(c->ownership,&at,NO);
+    c->m.ownership_size=(uint32_t)c->o;
+}
+static void depth_three_authority(Input *c,uint8_t leaf) {
+    authority(c);c->o-=48;
+    b16(c->ownership,&c->o,2);b16(c->ownership,&c->o,1);b32(c->ownership,&c->o,56);
+    b32(c->ownership,&c->o,3);
+    for(unsigned i=0;i<3;i++) {
+        b8(c->ownership,&c->o,i==2?leaf:TAG_ARRAY);b8(c->ownership,&c->o,0);
+        b16(c->ownership,&c->o,0);b32(c->ownership,&c->o,i==2?NO:i+1);
+    }
+    b32(c->ownership,&c->o,2);
+    for(unsigned i=0;i<2;i++) {
+        b32(c->ownership,&c->o,i);b16(c->ownership,&c->o,0);
+        b16(c->ownership,&c->o,0);b32(c->ownership,&c->o,0);
+    }
+    c->m.ownership_size=(uint32_t)c->o;
+}
+static void depth_three_origins(void) {
+    for(uint8_t leaf=TAG_INT;leaf<=TAG_STRING;leaf++)for(unsigned reverse=0;reverse<2;reverse++)
+    for(unsigned variant=0;variant<8;variant++) {
+        Input c;init(&c,leaf,false);
+        for(unsigned n=0;n<3;n++) {
+            unsigned slot=reverse?2-n:n;
+            uint8_t tag=slot==2?(variant==3?(leaf==TAG_INT?TAG_BOOL:TAG_INT):leaf):TAG_ARRAY;
+            array(&c,tag);arg16(&c,OP_STORE_LOCAL,(uint16_t)slot);
+        }
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(variant!=1) {
+            arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,variant==6?2:1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(variant!=2) {
+                arg16(&c,OP_LOAD_LOCAL,1);arg16(&c,OP_LOAD_LOCAL,variant==5?0:2);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            }
+        }
+        if(variant==4) {
+            arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
+            arg16(&c,OP_LOAD_LOCAL,2);scalar(&c,leaf==TAG_BOOL?TAG_INT:TAG_BOOL);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+        }
+        if(variant==7){arg16(&c,OP_LOAD_LOCAL,1);record(&c,1);op(&c,OP_POP);}
+        finish(&c);depth_three_authority(&c,leaf);
+        if(variant>=3)query(&c,NVM_ARRAY_UNRESOLVED);
+        else {
+            NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t required=0;
+            uint32_t outer=reverse?2:0,middle=1,inner=reverse?0:2;
+            CHECK(nvm_record_array_required_elements(p,outer,&required)&&required==nvm_record_array_requirement(3,leaf));
+            if(variant!=1)CHECK(nvm_record_array_required_elements(p,middle,&required)&&required==nvm_record_array_requirement(2,leaf));
+            if(variant==0)CHECK(nvm_record_array_required_elements(p,inner,&required)&&required==MASK(leaf));
+            nvm_record_array_origins_free(p);
+        }
+    }
+    /* Even an otherwise empty array cannot be its own depth-decreasing child. */
+    Input c;init(&c,TAG_BOOL,false);array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+    arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);
+    finish(&c);depth_three_authority(&c,TAG_BOOL);query(&c,NVM_ARRAY_UNRESOLVED);
+    /* An empty fourth layer and a shared empty node with conflicting depths
+     * both refuse from original bytecode origins, before runtime preparation. */
+    for(unsigned conflict=0;conflict<2;conflict++) {
+        init(&c,TAG_BOOL,false);c.fn[0].local_count=4;
+        for(unsigned i=0;i<4;i++){array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,(uint16_t)i);}
+        for(unsigned i=0;i<3;i++) {
+            arg16(&c,OP_LOAD_LOCAL,(uint16_t)i);arg16(&c,OP_LOAD_LOCAL,(uint16_t)(i+1));op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(conflict)break;
+        }
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(conflict){arg16(&c,OP_LOAD_LOCAL,1);record(&c,1);op(&c,OP_POP);}
+        finish(&c);depth_three_authority(&c,TAG_BOOL);query(&c,NVM_ARRAY_UNRESOLVED);
+    }
+}
+
+static void nested_origins(void) {
+    for(unsigned leaf=TAG_INT;leaf<=TAG_STRING;leaf++)
+    for(unsigned variant=0;variant<5;variant++) {
+        Input c;init(&c,(uint8_t)leaf,false);
+        array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+        array(&c,variant==2?(leaf==TAG_INT?TAG_STRING:TAG_INT):(uint8_t)leaf);arg16(&c,OP_STORE_LOCAL,1);
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(variant) {
+            arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(variant>=3) {
+                arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
+                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?(leaf==TAG_U8?TAG_BOOL:TAG_U8):(uint8_t)leaf);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            }
+        }
+        finish(&c);nested_authority(&c);c.ownership[c.o-36]=(uint8_t)leaf;
+        if(variant==2 || variant==4)query(&c,NVM_ARRAY_UNRESOLVED);
+        else {
+            NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t requirement;
+            const uint16_t expected[]={0,NVM_RECORD_ARRAY_OF_INT,NVM_RECORD_ARRAY_OF_U8,
+                NVM_RECORD_ARRAY_OF_FLOAT,NVM_RECORD_ARRAY_OF_BOOL,NVM_RECORD_ARRAY_OF_STRING};
+            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==expected[leaf]);
+            if(variant)CHECK(nvm_record_array_required_elements(p,1,&requirement)&&requirement==MASK(leaf));
+            nvm_record_array_origins_free(p);
+        }
+    }
+}
+static void nested_packed_conversions(void) {
+    const uint8_t leaves[]={TAG_U8};
+    for(unsigned i=0;i<sizeof leaves;i++) {
+        Input c;uint8_t leaf=leaves[i];init(&c,leaf,false);
+        array(&c,TAG_ARRAY);array(&c,leaf);scalar(&c,TAG_INT);op(&c,OP_ARR_PUSH);
+        op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);finish(&c);
+        nested_authority(&c);c.ownership[c.o-36]=leaf;positive(&c);
+        /* The old flat field contract does not acquire this new permission. */
+        init(&c,leaf,false);array(&c,leaf);scalar(&c,TAG_INT);op(&c,OP_ARR_PUSH);
+        record(&c,0);op(&c,OP_POP);finish(&c);query(&c,NVM_ARRAY_UNRESOLVED);
+    }
+}
+/* Distinct exact leaves may coexist, but never share an outer or inner origin. */
+static void mixed_nested_origins(void) {
+    for(uint8_t left=TAG_INT;left<=TAG_STRING;left++)
+    for(uint8_t right=TAG_INT;right<=TAG_STRING;right++)
+    for(unsigned alias=0;alias<3;alias++) {
+        Input c;init(&c,left,false);
+        array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+        array(&c,left);arg16(&c,OP_STORE_LOCAL,1);
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);
+        if(alias==1)arg16(&c,OP_LOAD_LOCAL,0);
+        else {
+            array(&c,TAG_ARRAY);
+            if(alias==2)arg16(&c,OP_LOAD_LOCAL,1);else array(&c,right);
+            op(&c,OP_ARR_PUSH);
+        }
+        record(&c,1);op(&c,OP_POP);finish(&c);
+        c.o-=48; /* Replace only the existing array extension. */
+        b16(c.ownership,&c.o,2);b16(c.ownership,&c.o,1);b32(c.ownership,&c.o,64);
+        b32(c.ownership,&c.o,4);
+        for(unsigned i=0;i<4;i++) {
+            uint8_t tag=i%2?(i==1?left:right):TAG_ARRAY;
+            b8(c.ownership,&c.o,tag);b8(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);
+            b32(c.ownership,&c.o,i%2?NO:i+1);
+        }
+        b32(c.ownership,&c.o,2);
+        for(unsigned i=0;i<2;i++) {
+            b32(c.ownership,&c.o,i);b16(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,2*i);
+        }
+        c.m.ownership_size=(uint32_t)c.o;
+        if(alias && left!=right)query(&c,NVM_ARRAY_UNRESOLVED);else positive(&c);
+    }
+}
 static void copied_facts(void){
     for(uint8_t t=TAG_INT;t<=TAG_STRING;t++){
         Input *c=malloc(sizeof *c);CHECK(c);basic(c,t,true);NvmRecordArrayOrigins *p=query(c,NVM_ARRAY_ELIGIBLE);
@@ -201,6 +348,24 @@ static void boundaries(void){
         if(count==64){NvmRecordArrayOriginCounts n;CHECK(nvm_record_array_origins_counts(p,&n)&&n.origins==64);nvm_record_array_origins_free(p);}
     }
 #ifdef RA_WHITEBOX
+    /* I preserve the flat charge and independently bound the nested scan. */
+    for(unsigned nested=0;nested<2;nested++)for(unsigned over=0;over<2;over++) {
+        Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;a.nested_arrays=nested!=0;
+        uint64_t required=ORIGINS*16u+(nested?ORIGINS*ORIGINS*4u:0);
+        a.budget.work=NVM_RA_STEPS-required+over;
+        int ok=ra_check_constraints(&a);
+        CHECK(over?(!ok&&a.budget.limited):(ok&&a.budget.work==NVM_RA_STEPS));
+    }
+    /* The new domain vector is charged only on the depth-three route. */
+    for(unsigned byte_limit=0;byte_limit<2;byte_limit++)for(unsigned over=0;over<2;over++) {
+        Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;a.nested_arrays=NESTED_DEPTH3;
+        if(byte_limit)a.budget.bytes=NVM_RA_BYTES-ORIGINS*sizeof(uint16_t)+over;
+        else a.budget.work=NVM_RA_STEPS-ORIGINS*17u+over;
+        int ok=ra_check_constraints(&a);
+        CHECK(over?(!ok&&a.budget.limited):ok);
+        if(!over)CHECK(byte_limit?a.budget.peak==NVM_RA_BYTES:a.budget.work==NVM_RA_STEPS);
+        CHECK(!ra_live&&!ra_bytes);
+    }
     /* I drive actual allocation and transfer callers at exact remaining caps. */
     for(unsigned over=0;over<2;over++){
         Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;
@@ -233,4 +398,4 @@ static void boundaries(void){
     printf("I measured %zu allocation positions and %zu peak payload bytes; every refusal recovered\n",measured,actual_peak);
 #endif
 }
-int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
+int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();depth_three_origins();nested_origins();nested_packed_conversions();mixed_nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}

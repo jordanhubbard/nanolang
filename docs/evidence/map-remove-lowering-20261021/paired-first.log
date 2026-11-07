@@ -1,0 +1,7 @@
+test_paired_map_remove_preserves_void_and_aliases (tests.test_map_field_operations.MapFieldOperations.test_paired_map_remove_preserves_void_and_aliases) ... ok
+test_paired_map_remove_refusals_preserve_output (tests.test_map_field_operations.MapFieldOperations.test_paired_map_remove_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.442s
+
+OK

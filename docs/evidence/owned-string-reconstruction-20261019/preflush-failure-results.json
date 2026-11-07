@@ -1,0 +1,20 @@
+[
+  {
+    "route": "original-vm",
+    "returncode": 1,
+    "stdout_hex": "6265666f7265",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "route": "original-native",
+    "returncode": 1,
+    "stdout_hex": "6265666f7265",
+    "stderr": ""
+  },
+  {
+    "route": "reconstructed-native",
+    "returncode": -6,
+    "stdout_hex": "6265666f7265",
+    "stderr": "Assertion failed\n"
+  }
+]

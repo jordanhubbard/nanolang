@@ -1,0 +1,1 @@
+Error: Bytecode verification failed for '/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm': I refuse reference lifetime and ownership instruction dataflow in function[0] at 14: I require a connected affine instruction contract

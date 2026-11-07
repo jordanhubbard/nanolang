@@ -1,0 +1,17 @@
+F
+======================================================================
+FAIL: test_real_vm_admission_lifetime (tests.test_vm_ordinary_admission.OrdinaryAdmission.test_real_vm_admission_lifetime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_vm_ordinary_admission.py", line 74, in test_real_vm_admission_lifetime
+    self.assertIn('ordinary admission checks passed', self.command([exe]))
+                                                      ~~~~~~~~~~~~^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_portable_read_adapters.py", line 101, in command
+    self.assertEqual(status['returncode'], 0, (status, log.read_text(errors='replace')))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ({'argv': ['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-admission-bycf04qi/products/switch'], 'cwd': '/Users/jkh/Src/nanolang-affine-borrowed-roots', 'returncode': -6, 'timeout': False, 'leader_reaped': True, 'group_disappeared': True, 'signals': [], 'errors': []}, 'AddressSanitizer:DEADLYSIGNAL\n=================================================================\n==17836==ERROR: AddressSanitizer: stack-overflow on address 0x00016eb9a4e0 (pc 0x000100a1e534 bp 0x00016f404a80 sp 0x00016eb9a380 T0)\n    #0 0x000100a1e534 in main test_ordinary_admission.c:375\n    #1 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)\n\nSUMMARY: AddressSanitizer: stack-overflow test_ordinary_admission.c:375 in main\n==17836==ABORTING\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 3.548s
+
+FAILED (failures=1)

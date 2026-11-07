@@ -1,0 +1,548 @@
+{
+  "providers": {
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e"
+  },
+  "runs": [
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-0.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-1.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/terminal-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-0.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-1.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "diamond",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/diamond-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-0.nvm"
+      ],
+      "returncode": 17
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-1.nvm"
+      ],
+      "returncode": 17
+    },
+    {
+      "case": "keep-live",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/keep-live-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-0.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-1.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "branch-local",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/branch-local-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-0.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-1.nvm"
+      ],
+      "returncode": 15
+    },
+    {
+      "case": "early-return",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/early-return-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-0.nvm"
+      ],
+      "returncode": 14
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-0.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "produce",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "verify",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-1.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "execute",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-1.nvm"
+      ],
+      "returncode": 14
+    },
+    {
+      "case": "owner-terminal",
+      "provider": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoc_u8_context",
+      "step": "dump",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-owned-branches-20261019/owner-terminal-1.nvm"
+      ],
+      "returncode": 0
+    }
+  ]
+}

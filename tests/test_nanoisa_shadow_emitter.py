@@ -165,7 +165,7 @@ shadow second { assert true }
 
     def test_trace_reaches_owned_shadow_bodies(self):
         source = '''resource struct Handle { fd: int }
-fn main() -> int { let handle: Handle = Handle { fd: 7 } let Handle { fd } = handle return fd }
+fn main() -> int { let owner: Handle = Handle { fd: 7 } let Handle { fd } = owner return fd }
 shadow main { assert (== (main) 7) }
 shadow main { assert false }
 shadow main { assert true }

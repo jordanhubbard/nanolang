@@ -1,0 +1,38 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-ic3w3mr0
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm instructions=40 functions=1 reserved=67194647 work=16868329
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm instructions=48 functions=3 reserved=67196047 work=16870638
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm instructions=35 functions=1 reserved=67193730 work=16866891
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm instructions=44 functions=3 reserved=67195360 work=16869580
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+PASS 2032 union image checks; no execution admission
+union image owner=32 source=14854 destination=14854 live=29740 peak=89711 reserved=67203895 work=16861275 prefixes=55
+PASS 6384 union image checks; no execution admission
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-c0rg68fy
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm instructions=40 functions=1 reserved=67194647 work=16868329
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm instructions=48 functions=3 reserved=67196047 work=16870638
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm instructions=35 functions=1 reserved=67193730 work=16866891
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm instructions=44 functions=3 reserved=67195360 work=16869580
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+PASS 842 union recipe checks; public execution remains refused
+union atomic proof/sites prefixes=38 both denial modes
+union recipes owner=32 site=72 carrier=13384 origin_scratch=2592 retained=14854 peak=74825 bytes=67189009 work=16859481 prefixes=54
+union retained oracle case=0 bytes=14854 peak=74825 cost_work=276
+union retained oracle case=1 bytes=14862 peak=74833 cost_work=276
+union retained oracle case=2 bytes=14863 peak=74834 cost_work=276
+union retained oracle case=3 bytes=14876 peak=74847 cost_work=288
+union retained oracle case=4 bytes=14884 peak=74855 cost_work=288
+union retained oracle case=5 bytes=14896 peak=74867 cost_work=288
+PASS 3504 union recipe allocation checks
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-3v4e0hgg
+PASS 59 union declaration checks; no execution authority
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm origins=2 functions=1 reserved=16963686 work=1447026
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm origins=2 functions=3 reserved=16974232 work=1545592
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm origins=2 functions=1 reserved=16963011 work=1443878
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705579
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm origins=2 functions=1 reserved=16963011 work=1443817
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705518
+PASS 338 union proof checks; public execution remains refused
+sizes analysis=39840 value=16 wrapper=16 context=1096 owner=72 row=40 retained=282 peak=60685 reserved=16943517 work=1183046 prefixes=37
+PASS 393 union proof allocation checks

@@ -1,0 +1,8 @@
+GNU ld (GNU Binutils for Debian) 2.44
+Copyright (C) 2025 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License version 3 or (at your option) a later version.
+This program has absolutely no warranty.
+ld: user.c.o: in function `user':
+user.c:(.text+0x8): undefined reference to `provided'
+GNU_LINK_CONTROL_PASS

@@ -1,0 +1,13 @@
+resource struct Empty {}
+resource struct Box { child: Empty, marker: int }
+fn relay(owned: Empty) -> Empty { return owned }
+shadow relay { assert true }
+fn main() -> int {
+ let empty: Empty = (relay Empty {})
+ let box: Box = Box { child: empty, marker: 7 }
+ let Box { child, marker } = box
+ assert (== marker 7)
+ let Empty {} = child
+ return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,9 @@
+test_called_resource_routes (tests.test_function_affine_metadata.FunctionAffineMetadata.test_called_resource_routes) ... ok
+test_no_resource_pass_is_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_no_resource_pass_is_unknown) ... ok
+test_checked_generic_instances_stay_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_checked_generic_instances_stay_unknown) ... ok
+test_resource_refusals_preserve_output (tests.test_function_affine_metadata.FunctionAffineMetadata.test_resource_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.632s
+
+OK

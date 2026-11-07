@@ -1,0 +1,13 @@
+# My map harness link-order correction
+
+I retain hosted run39693111839/job119543866810's preparation harness build failure under #976. Its test artifact omitted the ephemeral compiler stderr; I do not claim that I recovered that missing diagnostic.
+
+I established a concrete ordering defect: Make sorts the selected COMMON closure, placing libnano_compiler_inputs.a before its ordinary object users. None of the freshly selected instrumented providers references the archive's 261 exported names, while later env.o requires nl_file_source_snapshots_free and service_namespace.o requires nl_service_source_plan_build and catalog/snapshot APIs. My exact whitebox TU passes GCC16 strict syntax checking. I keep source, instrumentation and trailing system linker flags unchanged, and stably move only archives within the seven shared selected object/archive closures after ordinary users. I preserve duplicates and archive order, including each caller's prior explicit duplicate filtering.
+
+My real GNU ld2.44 control in the already-present ARM64 image a2fda0831ae6 refuses archive-first linking with undefined provided, then links and executes the corrected freestanding AArch64 program successfully. I neither pulled nor built an image. The retained commands describe the complete tiny control; this is not a full Linux NanoLang harness execution.
+
+My corrected local preparation gate passes both methods in13.742s: 500 origin checks, 687 recipe checks and873 allocation-prefix positions in both failure modes. I reused absolute retained aggregate providers from5188d6214, recorded every selected input hash/flag, and verified those hashes unchanged afterward. I rebuilt only the explicitly instrumented test providers, not a frontend. My helper and process-control suite passes five methods, including a real compiler/archive/link/run control and unchanged timeout cleanup controls. GNU-linker negative expectations are conditional on the actual linker, so Linux LLD's archive rescan policy is not falsely classified as a failure.
+
+I briefly applied the array-harness two-line edit in the aggregate checkout because of an incorrect working directory, immediately restored its exact bytes, and applied it in this isolated branch. No build ran during that transient edit. I leave the resulting file mtime alone; aggregate source diff is clean.
+
+I retain exact hosted Linux preparation qualification as pending. The historical build failure has a demonstrated compatible cause, not recovered historical stderr. This change does not alter runtime admission, compiler behavior, guest limits or ownership assertions.

@@ -1,0 +1,32 @@
+resource struct Counter { value: int, active: bool }
+fn update(view: &mut Counter) -> int {
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ set view.value (+ view.value 1)
+ return view.value
+}
+shadow update {
+ let mut owner: Counter = Counter { value: 0, active: false }
+ assert (== (update &mut owner) 15)
+ let Counter { value, active } = owner
+ assert (== value 15) assert (not active)
+}
+fn main() -> int {
+ let mut owner: Counter = Counter { value: 0, active: false }
+ assert (== (update &mut owner) 15)
+ let Counter { value, active } = owner
+ assert (== value 15) assert (not active) return 0
+}
+shadow main { assert true }

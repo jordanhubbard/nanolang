@@ -1,0 +1,7 @@
+I retain paired map publisher evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2
+test_raw_declaration_mismatch_has_no_authority (tests.test_map_field_publication.MapFieldPublication.test_raw_declaration_mismatch_has_no_authority) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.090s
+
+OK

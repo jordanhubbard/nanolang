@@ -1,0 +1,16 @@
+resource struct Box { value: int, flag: bool }
+fn pick(owner: Box, count: int) -> int {
+ let mut i: int = 0
+ while (and owner.flag (and (< i count) (< i owner.value))) { set i (+ i 1) }
+ let Box { value, flag } = owner
+ return (+ value i)
+}
+shadow pick { assert (== (main) 16) }
+fn main() -> int {
+ let zero: int = (pick Box { value: 3, flag: true } 0)
+ let one: int = (pick Box { value: 3, flag: true } 1)
+ let many: int = (pick Box { value: 3, flag: true } 5)
+ let disabled: int = (pick Box { value: 3, flag: false } 5)
+ return (+ (+ zero one) (+ many disabled))
+}
+shadow main { assert (== (main) 16) }

@@ -25,7 +25,8 @@ class ScalarUnionEmission(unittest.TestCase):
         cls.raw = [ROOT/'bin/nanoisa_emit', cls.work/'stage2-emit']
         # I build a compiler here; canonical qualification measured 440.639s.
         # Ordinary program checks retain their separate 180-second deadline.
-        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1], timeout=900)
+        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1],
+                    timeout=int(os.environ.get('CMD_TIMEOUT', '900')))
         shadow_source = cls.work/'shadows.nano'
         shadow_source.write_text((ROOT/'tests/nanoisa/fixtures/shadow_module_driver.nano.txt').read_text())
         cls.shadows = cls.work/'shadows'
@@ -145,7 +146,6 @@ shadow main { assert true }
     def test_unsupported_payloads_and_failed_shadows_refuse(self):
         cases = {
             'resource': 'resource struct Item { value: int } union Box { Some { value: Item } } fn main() -> int { let x: Box = Box.Some { value: Item { value: 1 } } return 0 } shadow main { assert true }',
-            'nested': 'union Inner { Empty {} } union Box { Some { value: Inner } } fn main() -> int { let x: Box = Box.Some { value: Inner.Empty {} } return 0 } shadow main { assert true }',
             'failed_shadow': 'union Choice { Empty {} } fn main() -> int { let x: Choice = Choice.Empty {} return 0 } shadow main { assert false }',
             'wrong_return': 'union One { Empty {} } union Two { Empty {} } fn wrong() -> One { return Two.Empty {} } shadow wrong { assert true } fn main() -> int { let x: One = (wrong) return 0 } shadow main { assert true }',
         }
@@ -159,6 +159,26 @@ shadow main { assert true }
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                     self.assertEqual(output.read_text(), 'retained')
+
+    def test_nested_union_payload_runs_in_vm_and_native_refusal_is_explicit(self):
+        # I accept a union-typed payload in the self-hosted compilers and execute
+        # it in NanoVM; native translation refuses it explicitly (#1061).
+        source = self.work/'nested.nano'
+        source.write_text('''union Inner { Empty {}, Num { n: int } }
+union Box { Some { value: Inner } }
+fn read(b: Box) -> int { return match b { Some(p) => (match p.value { Empty(q) => 0 Num(q) => q.n }) } }
+shadow read { assert (== (read Box.Some { value: Inner.Num { n: 5 } }) 5) assert (== (read Box.Some { value: Inner.Empty {} }) 0) }
+fn main() -> int { let x: Box = Box.Some { value: Inner.Num { n: 9 } } return (- (read x) 9) }
+shadow main { assert true }
+''')
+        for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+            module = self.work/f'nested-{compiler}.nvm'
+            self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+            self.command(ROOT/'bin/nano_vm', '--verify-only', module)
+            self.command(ROOT/'bin/nano_vm', module)
+            refused = subprocess.run([NVM2C, module, '-o', self.work/'nested.c'], cwd=ROOT,
+                                     capture_output=True, text=True, timeout=120)
+            self.assertNotEqual(refused.returncode, 0)
 
     def test_c_seed_resource_payload_constructor_remains_checked(self):
         source = self.work/'resource.nano'

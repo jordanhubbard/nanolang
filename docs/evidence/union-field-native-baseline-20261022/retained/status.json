@@ -1,0 +1,516 @@
+[
+  {
+    "name": "seed-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/seed.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.02663066692184657
+  },
+  {
+    "name": "seed-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/seed.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.00761249999050051
+  },
+  {
+    "name": "seed-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/seed.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed.c"
+    ],
+    "code": 0,
+    "seconds": 0.023316083010286093
+  },
+  {
+    "name": "seed-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-O0"
+    ],
+    "code": 0,
+    "seconds": 0.6938024170231074
+  },
+  {
+    "name": "seed-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-O0"
+    ],
+    "code": 0,
+    "seconds": 0.3761053750058636
+  },
+  {
+    "name": "seed-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-O2"
+    ],
+    "code": 0,
+    "seconds": 0.3458080419804901
+  },
+  {
+    "name": "seed-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-O2"
+    ],
+    "code": 0,
+    "seconds": 0.3554395829560235
+  },
+  {
+    "name": "c-shadow-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.009201916982419789
+  },
+  {
+    "name": "c-shadow-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.010576792061328888
+  },
+  {
+    "name": "c-shadow-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow.c"
+    ],
+    "code": 0,
+    "seconds": 0.00834733305964619
+  },
+  {
+    "name": "c-shadow-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.24260237498674542
+  },
+  {
+    "name": "c-shadow-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.358160916948691
+  },
+  {
+    "name": "c-shadow-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.33116000005975366
+  },
+  {
+    "name": "c-shadow-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.495095832971856
+  },
+  {
+    "name": "canonical-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.010415958939120173
+  },
+  {
+    "name": "canonical-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.008970916969701648
+  },
+  {
+    "name": "canonical-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical.c"
+    ],
+    "code": 0,
+    "seconds": 0.012044334085658193
+  },
+  {
+    "name": "canonical-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-O0"
+    ],
+    "code": 0,
+    "seconds": 0.25846366700716317
+  },
+  {
+    "name": "canonical-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-O0"
+    ],
+    "code": 0,
+    "seconds": 0.36577704094816
+  },
+  {
+    "name": "canonical-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-O2"
+    ],
+    "code": 0,
+    "seconds": 0.21128245792351663
+  },
+  {
+    "name": "canonical-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-O2"
+    ],
+    "code": 0,
+    "seconds": 0.22735424991697073
+  },
+  {
+    "name": "canonical-shadow-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.007720459019765258
+  },
+  {
+    "name": "canonical-shadow-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.009902624995447695
+  },
+  {
+    "name": "canonical-shadow-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow.c"
+    ],
+    "code": 0,
+    "seconds": 0.00816262501757592
+  },
+  {
+    "name": "canonical-shadow-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.29223008395638317
+  },
+  {
+    "name": "canonical-shadow-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.2289553750306368
+  },
+  {
+    "name": "canonical-shadow-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.2411739999661222
+  },
+  {
+    "name": "canonical-shadow-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.23318887501955032
+  },
+  {
+    "name": "raw-program-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.005188458948396146
+  },
+  {
+    "name": "raw-program-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.004842165973968804
+  },
+  {
+    "name": "raw-program-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program.c"
+    ],
+    "code": 0,
+    "seconds": 0.004570874967612326
+  },
+  {
+    "name": "raw-program-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-O0"
+    ],
+    "code": 0,
+    "seconds": 0.18787866702768952
+  },
+  {
+    "name": "raw-program-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-O0"
+    ],
+    "code": 0,
+    "seconds": 0.23328820790629834
+  },
+  {
+    "name": "raw-program-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-O2"
+    ],
+    "code": 0,
+    "seconds": 0.31819687504321337
+  },
+  {
+    "name": "raw-program-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-O2"
+    ],
+    "code": 0,
+    "seconds": 0.22393462504260242
+  },
+  {
+    "name": "raw-shadow-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.007986249984242022
+  },
+  {
+    "name": "raw-shadow-ordinary",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.007116875029169023
+  },
+  {
+    "name": "raw-shadow-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow.c"
+    ],
+    "code": 0,
+    "seconds": 0.008649541065096855
+  },
+  {
+    "name": "raw-shadow-build0",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.23545191599987447
+  },
+  {
+    "name": "raw-shadow-run0",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-O0"
+    ],
+    "code": 0,
+    "seconds": 0.36309100000653416
+  },
+  {
+    "name": "raw-shadow-build2",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.24305349995847791
+  },
+  {
+    "name": "raw-shadow-run2",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-O2"
+    ],
+    "code": 0,
+    "seconds": 0.22160212497692555
+  },
+  {
+    "name": "return-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-halt-baseline-20261022/return.nvm"
+    ],
+    "code": 1,
+    "seconds": 0.005451667006127536
+  }
+]

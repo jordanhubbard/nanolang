@@ -1,0 +1,23 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+test_public_tail_consumers (tests.test_record_array_tail.RecordArrayTail.test_public_tail_consumers) ... I retain tail qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-tail-q2dfrbmh
+FAIL
+
+======================================================================
+FAIL: test_public_tail_consumers (tests.test_record_array_tail.RecordArrayTail.test_public_tail_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_tail.py", line 42, in test_public_tail_consumers
+    run('public-tail', [str(exe), str(artifacts)])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_tail.py", line 21, in run
+    self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I failed tail VM: I could not preserve my ordinary array-owner retain headroom: opcode 18 status 5.
+I failed line 116: status==VM_OK && vm.frame_count==0
+
+
+----------------------------------------------------------------------
+Ran 1 test in 10.062s
+
+FAILED (failures=1)
+make: *** [test-record-array-tail] Error 1

@@ -1,0 +1,434 @@
+[
+  {
+    "name": "native-0-False-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21937991701997817
+  },
+  {
+    "name": "native-0-False-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.20689658302580938
+  },
+  {
+    "name": "native-0-False-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.3153280830010772
+  },
+  {
+    "name": "native-0-False-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.20185962499817833
+  },
+  {
+    "name": "native-0-True-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-0-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.2118589589954354
+  },
+  {
+    "name": "native-0-True-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.2759245000197552
+  },
+  {
+    "name": "native-0-True-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-0-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.31276187498588115
+  },
+  {
+    "name": "native-0-True-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-0-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.1948951660306193
+  },
+  {
+    "name": "native-1-False-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21622483298415318
+  },
+  {
+    "name": "native-1-False-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.209457624994684
+  },
+  {
+    "name": "native-1-False-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.3078988330089487
+  },
+  {
+    "name": "native-1-False-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.2012718339683488
+  },
+  {
+    "name": "native-1-True-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-1-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21262437500990927
+  },
+  {
+    "name": "native-1-True-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.20309699996141717
+  },
+  {
+    "name": "native-1-True-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-1-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.31084254098823294
+  },
+  {
+    "name": "native-1-True-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-1-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.2058128749486059
+  },
+  {
+    "name": "native-2-False-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21562820801045746
+  },
+  {
+    "name": "native-2-False-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.20625808299519122
+  },
+  {
+    "name": "native-2-False-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.309443874983117
+  },
+  {
+    "name": "native-2-False-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.19970866694347933
+  },
+  {
+    "name": "native-2-True-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-2-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21483887499198318
+  },
+  {
+    "name": "native-2-True-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.22093345900066197
+  },
+  {
+    "name": "native-2-True-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-2-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.3063932910445146
+  },
+  {
+    "name": "native-2-True-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-2-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.21201708301668987
+  },
+  {
+    "name": "native-3-False-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-3.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21522000001277775
+  },
+  {
+    "name": "native-3-False-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-False-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21738787495996803
+  },
+  {
+    "name": "native-3-False-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-3.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.3142995840171352
+  },
+  {
+    "name": "native-3-False-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-False-O2"
+    ],
+    "status": 0,
+    "seconds": 0.21393475000513718
+  },
+  {
+    "name": "native-3-True-O0",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-3-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.21812195796519518
+  },
+  {
+    "name": "native-3-True-O0",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-True-O0"
+    ],
+    "status": 0,
+    "seconds": 0.2177962499554269
+  },
+  {
+    "name": "native-3-True-O2",
+    "stage": "build",
+    "cmd": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-public-activation-20261022/original-3-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.3071327920188196
+  },
+  {
+    "name": "native-3-True-O2",
+    "stage": "run",
+    "cmd": [
+      "/private/tmp/nanolang-map-public-activation-20261022/native-3-True-O2"
+    ],
+    "status": 0,
+    "seconds": 0.20778162498027086
+  }
+]

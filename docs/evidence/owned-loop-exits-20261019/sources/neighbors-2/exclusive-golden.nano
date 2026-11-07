@@ -1,0 +1,56 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Other { value: int, enabled: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+resource struct Tree { branch: Pair, other: Other, count: int }
+fn change(first: &mut Leaf, second: &mut Leaf, amount: &Other) -> int {
+ set first.value (+ first.value amount.value)
+ set second.value (- second.value amount.value)
+ assert amount.enabled
+ return (- first.value second.value)
+}
+shadow change {
+ let left: Leaf = Leaf { value: 10, enabled: true }
+ let right: Leaf = Leaf { value: 30, enabled: false }
+ let amount: Other = Other { value: 3, enabled: true }
+ let pair: Pair = Pair { right: right, left: left }
+ let mut root: Tree = Tree { other: amount, count: 7, branch: pair }
+ assert (== (change &mut root.branch.left &mut root.branch.right &root.other) -14)
+ assert (== root.branch.left.value 13)
+ assert (== root.branch.right.value 27)
+ assert (== (change &mut root.branch.right &mut root.branch.left &root.other) 20)
+ assert (== root.branch.left.value 10)
+ assert (== root.branch.right.value 30)
+ let Tree { count, other, branch } = root
+ assert (== count 7)
+ let Pair { right, left } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 10) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 30) assert (not enabled)
+ let Other { value, enabled } = other
+ assert (== value 3) assert enabled
+}
+fn main() -> int {
+ let left: Leaf = Leaf { value: 10, enabled: true }
+ let right: Leaf = Leaf { value: 30, enabled: false }
+ let amount: Other = Other { value: 3, enabled: true }
+ let pair: Pair = Pair { right: right, left: left }
+ let mut root: Tree = Tree { other: amount, count: 7, branch: pair }
+ assert (== (change &mut root.branch.left &mut root.branch.right &root.other) -14)
+ assert (== root.branch.left.value 13)
+ assert (== root.branch.right.value 27)
+ assert (== (change &mut root.branch.right &mut root.branch.left &root.other) 20)
+ assert (== root.branch.left.value 10)
+ assert (== root.branch.right.value 30)
+ let Tree { count, other, branch } = root
+ assert (== count 7)
+ let Pair { right, left } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 10) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 30) assert (not enabled)
+ let Other { value, enabled } = other
+ assert (== value 3) assert enabled
+ return 0
+}
+shadow main { assert true }

@@ -1,0 +1,74 @@
+[
+  {
+    "case": "scalar",
+    "producer": "seed",
+    "sha256": "28eec0da4b890f059abb8fd3d887a323e4acd230c918caea86cd20a09ca86942",
+    "bytes": 800,
+    "old_provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "old_provider_sha256": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "new_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068"
+  },
+  {
+    "case": "scalar",
+    "producer": "nano",
+    "sha256": "a0ffad7b8ee13a5763bdd8ef23c27a5cf1d28c9649ea92b8aaf3b4864a7d5226",
+    "bytes": 624,
+    "old_provider": "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+    "old_provider_sha256": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "new_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487"
+  },
+  {
+    "case": "flat",
+    "producer": "seed",
+    "sha256": "e7ef3aac12d81ae4b79ce7a8c9fd93bbf89366bbf95333bbd3bf54166504efdc",
+    "bytes": 852,
+    "old_provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "old_provider_sha256": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "new_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068"
+  },
+  {
+    "case": "flat",
+    "producer": "nano",
+    "sha256": "fc202440f55a5e113078e1154625c2311ea25c84ae1cac346a56a340523768da",
+    "bytes": 676,
+    "old_provider": "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+    "old_provider_sha256": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "new_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487"
+  },
+  {
+    "case": "depth2",
+    "producer": "seed",
+    "sha256": "4d664cc35aaaaa29bfd82663a894f774ad23370eec812f9c96d7a3c81dfb4d2b",
+    "bytes": 864,
+    "old_provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "old_provider_sha256": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "new_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068"
+  },
+  {
+    "case": "depth2",
+    "producer": "nano",
+    "sha256": "7e8b35784aad4bad3c6fa6876fe6c584214d8c74b6f9dd1b5d7fc82ceab14182",
+    "bytes": 688,
+    "old_provider": "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+    "old_provider_sha256": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "new_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487"
+  },
+  {
+    "case": "depth3",
+    "producer": "seed",
+    "sha256": "0a98152a101b3e7b071b311ea2d7f70fc575f2ae92b1694aa792f64afacf4462",
+    "bytes": 872,
+    "old_provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "old_provider_sha256": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "new_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068"
+  },
+  {
+    "case": "depth3",
+    "producer": "nano",
+    "sha256": "e6e5024ee329f528520b80cee6b8c3a65de31440420cceefc14939ea50dae964",
+    "bytes": 696,
+    "old_provider": "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+    "old_provider_sha256": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "new_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487"
+  }
+]

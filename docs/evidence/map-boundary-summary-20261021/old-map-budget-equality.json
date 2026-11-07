@@ -1,0 +1,20 @@
+[
+  {
+    "prior": [
+      "I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work."
+    ],
+    "current": [
+      "I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work."
+    ],
+    "equal": true
+  },
+  {
+    "prior": [
+      "I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work."
+    ],
+    "current": [
+      "I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work."
+    ],
+    "equal": true
+  }
+]

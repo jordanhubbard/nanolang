@@ -1,0 +1,42 @@
+[
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm",
+    "sha256": "d41aa8fc2c81c971b92953bd5c8d45a6c85a9c004e69a48dd987bfa2a4c3dc95",
+    "bytes": 50943
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm",
+    "sha256": "bf6b75c5e61561ab1675770c5c8f5167f51ad51eb1875f7e987955418e017aed",
+    "bytes": 50943
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm",
+    "sha256": "bf6b75c5e61561ab1675770c5c8f5167f51ad51eb1875f7e987955418e017aed",
+    "bytes": 50943
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm",
+    "sha256": "bf6b75c5e61561ab1675770c5c8f5167f51ad51eb1875f7e987955418e017aed",
+    "bytes": 50943
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm",
+    "sha256": "45b4bdc5be82de2832bed0b3ae0f9b6417ad39de003d89934f54c205e8962aab",
+    "bytes": 53811
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm",
+    "sha256": "fa0154bde80d6f8c1d0040239f680c7b8bad98e3d26d44e9082d6ac79e1603b1",
+    "bytes": 53811
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm",
+    "sha256": "fa0154bde80d6f8c1d0040239f680c7b8bad98e3d26d44e9082d6ac79e1603b1",
+    "bytes": 53811
+  },
+  {
+    "module": "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm",
+    "sha256": "fa0154bde80d6f8c1d0040239f680c7b8bad98e3d26d44e9082d6ac79e1603b1",
+    "bytes": 53811
+  }
+]

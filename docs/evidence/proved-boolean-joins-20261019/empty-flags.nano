@@ -1,0 +1,13 @@
+struct Flag { enabled: bool }
+fn choose(items: array<Flag>, rhs: bool) -> bool {
+    if (== (array_length items) 0) { return false }
+    let item: Flag = (at items 0)
+    return (or item.enabled (not rhs))
+}
+shadow choose { assert true }
+fn main() -> int {
+    let items: array<Flag> = []
+    assert (not (choose items true))
+    return 0
+}
+shadow main { assert true }

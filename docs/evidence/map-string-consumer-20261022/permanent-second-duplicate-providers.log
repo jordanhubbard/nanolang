@@ -1,0 +1,55 @@
+test_original_goto (tests.test_record_map_string.RecordMapString.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-xruhygk3
+FAIL
+test_original_switch (tests.test_record_map_string.RecordMapString.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-qydcu6yr
+FAIL
+
+======================================================================
+FAIL: test_original_goto (tests.test_record_map_string.RecordMapString.test_original_goto)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 20, in test_original_goto
+    self.runtime(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_string.py", line 25, in runtime
+    super().runtime(computed_goto)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 54, in runtime
+    self.command('harness-build', [*cc, *flags, self.harness_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/record_array_alloc.c', *products, *objects, *ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_string.py", line 21, in command
+    return super().command(name, args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+======================================================================
+FAIL: test_original_switch (tests.test_record_map_string.RecordMapString.test_original_switch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 17, in test_original_switch
+    self.runtime(False)
+    ~~~~~~~~~~~~^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_string.py", line 25, in runtime
+    super().runtime(computed_goto)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 54, in runtime
+    self.command('harness-build', [*cc, *flags, self.harness_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/record_array_alloc.c', *products, *objects, *ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_string.py", line 21, in command
+    return super().command(name, args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 2 tests in 15.904s
+
+FAILED (failures=2)

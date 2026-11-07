@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+    "/Users/jkh/Src/nanolang-51-harness/tests/nanoisa/fixtures/owned_depth_three/borrowed-depth-three.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/borrowed-depth-three-nanoc_stage2.nvm"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
+}

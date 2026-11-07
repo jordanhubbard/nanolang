@@ -1,0 +1,18 @@
+test_original_goto (tests.test_record_map_string.RecordMapString.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-h2j6tv_8
+I checked 10 private STRING-value run allocation positions in both denial modes.
+I checked 79 complete public STRING-value invocation allocation positions in both denial modes.
+I checked 2785 selected STRING-value consumer assertions.
+
+ok
+test_original_switch (tests.test_record_map_string.RecordMapString.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30
+I checked 10 private STRING-value run allocation positions in both denial modes.
+I checked 79 complete public STRING-value invocation allocation positions in both denial modes.
+I checked 2785 selected STRING-value consumer assertions.
+
+I checked all generated STRING-value allocation positions in both modes: {'string-allocation-O0': 42, 'string-allocation-O2': 42}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 30.658s
+
+OK

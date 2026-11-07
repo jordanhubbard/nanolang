@@ -1,0 +1,15 @@
+test_ordinary_heap (tests.test_record_map_ordinary_heap.RecordMapOrdinaryHeap.test_ordinary_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-ordinary-heap-gycajj2t
+I checked 4445 ordinary heap assertions; no VM dispatch or admission.
+
+ok
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-5qab432z
+I checked 32 partial record/map construction prefixes with independent retry.
+I measured corrected legacy growth allocated=7126; freed=7126, objects=0.
+I checked 10318 private heap assertions; no VM dispatch or admission. Heap size 6312.
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.774s
+
+OK

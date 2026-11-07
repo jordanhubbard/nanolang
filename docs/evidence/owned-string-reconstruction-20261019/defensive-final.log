@@ -1,0 +1,7 @@
+I retain owned STRING evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-mm3bimiq
+test_defensive_string_table_and_parameter_refusals (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_defensive_string_table_and_parameter_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.238s
+
+OK

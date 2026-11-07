@@ -1,0 +1,22 @@
+{
+  "qualification": "Extracted from incomplete download prefix; diagnostic only, not archive integrity evidence",
+  "version": 2,
+  "entries": 87319,
+  "directory_entries": 0,
+  "selected": {
+    "obj/build_bootstrap/schema.stamp": {
+      "kind": "file",
+      "mode": 420,
+      "mtime_ns": 1792424069414242101,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "src/generated/compiler_schema.h": {
+      "kind": "file",
+      "mode": 420,
+      "mtime_ns": 1792424023607142569,
+      "sha256": "27263b7a47f0203e82292c950f2dcd3e29ca49285f0890f556dc322e0883eaa2",
+      "size": 25988
+    }
+  }
+}

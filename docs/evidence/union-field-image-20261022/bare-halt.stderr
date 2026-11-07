@@ -1,0 +1,2 @@
+union recipes status=1 fn=0 pc=0: I require exact ordinary result tags.
+I failed line17: r.status==NVM_ARRAY_ELIGIBLE&&p

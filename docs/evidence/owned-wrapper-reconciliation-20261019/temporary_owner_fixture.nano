@@ -1,0 +1,22 @@
+resource struct Leaf { value: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make(value: int, text: string) -> Leaf { (print text) return Leaf { value: value } }
+shadow make { assert true }
+fn forward(owner: Leaf) -> Leaf { return owner }
+shadow forward { assert true }
+fn take(first: Leaf, second: Leaf, last: int) -> int {
+    let Leaf { value } = first
+    let left: int = value
+    let Leaf { value } = second
+    assert (== last 3)
+    return (+ left value)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 3) {
+        assert (== (take Leaf { value: (scalar 1 "A") } (forward (make 2 "B")) (scalar 3 "C")) 3)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

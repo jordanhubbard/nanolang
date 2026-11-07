@@ -1,0 +1,1740 @@
+{
+  "profile": "owned-local-v1",
+  "entry": 0,
+  "ownership_version": 2,
+  "layouts": [
+    {
+      "identity": 0,
+      "resource": true,
+      "fields": [
+        1,
+        4
+      ],
+      "field_types": [
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ]
+      ]
+    },
+    {
+      "identity": 1,
+      "resource": true,
+      "fields": [
+        1,
+        4
+      ],
+      "field_types": [
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ]
+      ]
+    },
+    {
+      "identity": 2,
+      "resource": true,
+      "fields": [
+        8,
+        8
+      ],
+      "field_types": [
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ]
+    },
+    {
+      "identity": 3,
+      "resource": true,
+      "fields": [
+        8,
+        8,
+        1
+      ],
+      "field_types": [
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          1,
+          4294967295
+        ]
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "owned_0",
+      "locals": 37,
+      "result_type": [
+        1,
+        4294967295
+      ],
+      "result": 1,
+      "result_count": 1,
+      "params": [],
+      "param_modes": [],
+      "names": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "local_types": [
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          1,
+          4294967295
+        ],
+        [
+          4,
+          4294967295
+        ]
+      ],
+      "size": 484,
+      "code": [
+        {
+          "pc": 0,
+          "op": "PUSH_I64",
+          "arg": 10,
+          "args": [
+            10
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 9,
+          "op": "STORE_LOCAL",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 12,
+          "op": "PUSH_BOOL",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 14,
+          "op": "STORE_LOCAL",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 17,
+          "op": "LOAD_LOCAL",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 20,
+          "op": "LOAD_LOCAL",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 23,
+          "op": "OWN_PACK",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 28,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 2,
+          "args": [
+            2
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 31,
+          "op": "PUSH_I64",
+          "arg": 30,
+          "args": [
+            30
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 40,
+          "op": "STORE_LOCAL",
+          "arg": 3,
+          "args": [
+            3
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 43,
+          "op": "PUSH_BOOL",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 45,
+          "op": "STORE_LOCAL",
+          "arg": 4,
+          "args": [
+            4
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 48,
+          "op": "LOAD_LOCAL",
+          "arg": 3,
+          "args": [
+            3
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 51,
+          "op": "LOAD_LOCAL",
+          "arg": 4,
+          "args": [
+            4
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 54,
+          "op": "OWN_PACK",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 59,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 5,
+          "args": [
+            5
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 62,
+          "op": "PUSH_I64",
+          "arg": 3,
+          "args": [
+            3
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 71,
+          "op": "STORE_LOCAL",
+          "arg": 6,
+          "args": [
+            6
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 74,
+          "op": "PUSH_BOOL",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 76,
+          "op": "STORE_LOCAL",
+          "arg": 7,
+          "args": [
+            7
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 79,
+          "op": "LOAD_LOCAL",
+          "arg": 6,
+          "args": [
+            6
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 82,
+          "op": "LOAD_LOCAL",
+          "arg": 7,
+          "args": [
+            7
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 85,
+          "op": "OWN_PACK",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 90,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 8,
+          "args": [
+            8
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 93,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 5,
+          "args": [
+            5
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 96,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 9,
+          "args": [
+            9
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 99,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 2,
+          "args": [
+            2
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 102,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 10,
+          "args": [
+            10
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 105,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 10,
+          "args": [
+            10
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 108,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 9,
+          "args": [
+            9
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 111,
+          "op": "OWN_PACK",
+          "arg": 2,
+          "args": [
+            2
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 116,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 11,
+          "args": [
+            11
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 119,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 8,
+          "args": [
+            8
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 122,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 12,
+          "args": [
+            12
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 125,
+          "op": "PUSH_I64",
+          "arg": 7,
+          "args": [
+            7
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 134,
+          "op": "STORE_LOCAL",
+          "arg": 13,
+          "args": [
+            13
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 137,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 11,
+          "args": [
+            11
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 140,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 14,
+          "args": [
+            14
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 143,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 14,
+          "args": [
+            14
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 146,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 12,
+          "args": [
+            12
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 149,
+          "op": "LOAD_LOCAL",
+          "arg": 13,
+          "args": [
+            13
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 152,
+          "op": "OWN_PACK",
+          "arg": 3,
+          "args": [
+            3
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 157,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 15,
+          "args": [
+            15
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 160,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 161,
+          "op": "BORROW_PATH_EXCLUSIVE",
+          "arg": 0,
+          "args": [
+            0,
+            15,
+            0
+          ],
+          "target": 4294967295,
+          "path_fields": [
+            0,
+            1
+          ]
+        },
+        {
+          "pc": 170,
+          "op": "BORROW_PATH_EXCLUSIVE",
+          "arg": 1,
+          "args": [
+            1,
+            15,
+            1
+          ],
+          "target": 4294967295,
+          "path_fields": [
+            0,
+            0
+          ]
+        },
+        {
+          "pc": 179,
+          "op": "BORROW_PATH_SHARED",
+          "arg": 2,
+          "args": [
+            2,
+            15,
+            2
+          ],
+          "target": 4294967295,
+          "path_fields": [
+            1
+          ]
+        },
+        {
+          "pc": 188,
+          "op": "CALL_REF",
+          "arg": 1,
+          "args": [
+            1,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 195,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 196,
+          "op": "PUSH_I64",
+          "arg": 20,
+          "args": [
+            20
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 205,
+          "op": "LT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 206,
+          "op": "JMP_FALSE",
+          "arg": 13,
+          "args": [
+            13
+          ],
+          "target": 219
+        },
+        {
+          "pc": 211,
+          "op": "PUSH_BOOL",
+          "arg": 1,
+          "args": [
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 213,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 214,
+          "op": "JMP",
+          "arg": -54,
+          "args": [
+            -54
+          ],
+          "target": 160
+        },
+        {
+          "pc": 219,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 15,
+          "args": [
+            15
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 222,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 16,
+          "args": [
+            16
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 225,
+          "op": "OWN_UNPACK_LOCAL",
+          "arg": 16,
+          "args": [
+            16
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 228,
+          "op": "STORE_LOCAL",
+          "arg": 19,
+          "args": [
+            19
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 231,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 18,
+          "args": [
+            18
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 234,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 17,
+          "args": [
+            17
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 237,
+          "op": "LOAD_LOCAL",
+          "arg": 19,
+          "args": [
+            19
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 240,
+          "op": "STORE_LOCAL",
+          "arg": 20,
+          "args": [
+            20
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 243,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 18,
+          "args": [
+            18
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 246,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 21,
+          "args": [
+            21
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 249,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 17,
+          "args": [
+            17
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 252,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 22,
+          "args": [
+            22
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 255,
+          "op": "LOAD_LOCAL",
+          "arg": 20,
+          "args": [
+            20
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 258,
+          "op": "PUSH_I64",
+          "arg": 7,
+          "args": [
+            7
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 267,
+          "op": "EQ",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 268,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 269,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 22,
+          "args": [
+            22
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 272,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 23,
+          "args": [
+            23
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 275,
+          "op": "OWN_UNPACK_LOCAL",
+          "arg": 23,
+          "args": [
+            23
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 278,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 25,
+          "args": [
+            25
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 281,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 24,
+          "args": [
+            24
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 284,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 25,
+          "args": [
+            25
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 287,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 26,
+          "args": [
+            26
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 290,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 24,
+          "args": [
+            24
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 293,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 27,
+          "args": [
+            27
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 296,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 27,
+          "args": [
+            27
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 299,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 28,
+          "args": [
+            28
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 302,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 303,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            28
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 308,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 313,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 314,
+          "op": "STORE_LOCAL",
+          "arg": 29,
+          "args": [
+            29
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 317,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 318,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            28
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 323,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 328,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 329,
+          "op": "STORE_LOCAL",
+          "arg": 30,
+          "args": [
+            30
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 332,
+          "op": "LOAD_LOCAL",
+          "arg": 29,
+          "args": [
+            29
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 335,
+          "op": "PUSH_I64",
+          "arg": 7,
+          "args": [
+            7
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 344,
+          "op": "EQ",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 345,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 346,
+          "op": "LOAD_LOCAL",
+          "arg": 30,
+          "args": [
+            30
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 349,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 350,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 26,
+          "args": [
+            26
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 353,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 31,
+          "args": [
+            31
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 356,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 357,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            31
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 362,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 367,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 368,
+          "op": "STORE_LOCAL",
+          "arg": 32,
+          "args": [
+            32
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 371,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 372,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            31
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 377,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 382,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 383,
+          "op": "STORE_LOCAL",
+          "arg": 33,
+          "args": [
+            33
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 386,
+          "op": "LOAD_LOCAL",
+          "arg": 32,
+          "args": [
+            32
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 389,
+          "op": "PUSH_I64",
+          "arg": 33,
+          "args": [
+            33
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 398,
+          "op": "EQ",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 399,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 400,
+          "op": "LOAD_LOCAL",
+          "arg": 33,
+          "args": [
+            33
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 403,
+          "op": "NOT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 404,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 405,
+          "op": "OWN_MOVE_LOCAL",
+          "arg": 21,
+          "args": [
+            21
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 408,
+          "op": "OWN_STORE_LOCAL",
+          "arg": 34,
+          "args": [
+            34
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 411,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 412,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            34
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 417,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 422,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 423,
+          "op": "STORE_LOCAL",
+          "arg": 35,
+          "args": [
+            35
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 426,
+          "op": "REGION_BEGIN",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 427,
+          "op": "BORROW_LOCAL_SHARED",
+          "arg": 0,
+          "args": [
+            0,
+            34
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 432,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 437,
+          "op": "REGION_END",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 438,
+          "op": "STORE_LOCAL",
+          "arg": 36,
+          "args": [
+            36
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 441,
+          "op": "LOAD_LOCAL",
+          "arg": 35,
+          "args": [
+            35
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 444,
+          "op": "PUSH_I64",
+          "arg": 3,
+          "args": [
+            3
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 453,
+          "op": "EQ",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 454,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 455,
+          "op": "LOAD_LOCAL",
+          "arg": 36,
+          "args": [
+            36
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 458,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 459,
+          "op": "PUSH_I64",
+          "arg": 0,
+          "args": [
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 468,
+          "op": "OWN_UNPACK_LOCAL",
+          "arg": 28,
+          "args": [
+            28
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 471,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 472,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 473,
+          "op": "OWN_UNPACK_LOCAL",
+          "arg": 31,
+          "args": [
+            31
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 476,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 477,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 478,
+          "op": "OWN_UNPACK_LOCAL",
+          "arg": 34,
+          "args": [
+            34
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 481,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 482,
+          "op": "POP",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 483,
+          "op": "RET",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        }
+      ]
+    },
+    {
+      "name": "owned_1",
+      "locals": 3,
+      "result_type": [
+        1,
+        4294967295
+      ],
+      "result": 1,
+      "result_count": 1,
+      "params": [
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ]
+      ],
+      "param_modes": [
+        2,
+        2,
+        1
+      ],
+      "names": [
+        "",
+        "",
+        ""
+      ],
+      "local_types": [
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          1
+        ]
+      ],
+      "size": 50,
+      "code": [
+        {
+          "pc": 0,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 5,
+          "op": "REF_GET",
+          "arg": 2,
+          "args": [
+            2,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 10,
+          "op": "ADD",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 11,
+          "op": "REF_SET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 16,
+          "op": "REF_GET",
+          "arg": 1,
+          "args": [
+            1,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 21,
+          "op": "REF_GET",
+          "arg": 2,
+          "args": [
+            2,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 26,
+          "op": "SUB",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 27,
+          "op": "REF_SET",
+          "arg": 1,
+          "args": [
+            1,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 32,
+          "op": "REF_GET",
+          "arg": 2,
+          "args": [
+            2,
+            1
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 37,
+          "op": "ASSERT",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 38,
+          "op": "REF_GET",
+          "arg": 0,
+          "args": [
+            0,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 43,
+          "op": "REF_GET",
+          "arg": 1,
+          "args": [
+            1,
+            0
+          ],
+          "target": 4294967295
+        },
+        {
+          "pc": 48,
+          "op": "SUB",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        },
+        {
+          "pc": 49,
+          "op": "RET",
+          "arg": 0,
+          "args": [],
+          "target": 4294967295
+        }
+      ]
+    }
+  ]
+}

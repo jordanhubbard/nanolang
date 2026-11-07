@@ -1,0 +1,9 @@
+test_private_nested_consumers (tests.test_record_array_nested.RecordArrayNested.test_private_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-ccc2vbb5
+ok
+test_public_nested_consumers (tests.test_record_array_nested.RecordArrayNested.test_public_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-_pv2n2p7
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 30.289s
+
+OK

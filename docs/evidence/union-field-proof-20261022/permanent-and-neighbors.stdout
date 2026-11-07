@@ -1,0 +1,31 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-e5xdi3ym
+PASS 59 union declaration checks; no execution authority
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm origins=2 functions=1 reserved=16963686 work=1447026
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm origins=2 functions=3 reserved=16974232 work=1545592
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm origins=2 functions=1 reserved=16963011 work=1443878
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705579
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm origins=2 functions=1 reserved=16963011 work=1443817
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705518
+PASS 317 union proof checks; public execution remains refused
+sizes analysis=39840 value=16 wrapper=16 context=1096 owner=72 row=40 retained=282 peak=60685 reserved=16943517 work=1183046 prefixes=37
+PASS 393 union proof allocation checks
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-2bbdti9b
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 4522 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 5050 record-array origin checks; no runtime admission
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-origins-lbngvm1d
+PASS 500 map origin checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+PASS 1095 map origin checks; public boundaries checked

@@ -42,6 +42,23 @@ class ImportedGlobals(unittest.TestCase):
     def test_selective_aliases_and_lexical_shadowing(self):
         self.check('from "a.nano" import answer as one\nfrom "b.nano" import answer as two\nfn main()->int{assert (== one 41) assert (== two "second") let one: string = "local" assert (== one "local") return 0}\nshadow main {assert (== (main) 0)}\n')
 
+    def test_initializers_keep_owner_and_locals_keep_lexical_priority(self):
+        files = {
+            'a.nano': ('pub let answer: int = 40\npub let derived: int = (+ answer 1)\n'
+                       'pub fn read_answer(answer: int)->int{return (+ answer derived)}\n'
+                       'shadow read_answer {assert (== (read_answer 1) 42)}\n'),
+            'b.nano': ('pub let answer: string = "second"\npub let derived: string = (+ answer "-value")\n'
+                       'pub fn read_answer()->string{let answer:string="local" return (+ answer derived)}\n'
+                       'shadow read_answer {assert (== (read_answer) "localsecond-value")}\n'),
+        }
+        for imports in ('module "a.nano" as first\nmodule "b.nano" as second',
+                        'module "b.nano" as second\nmodule "a.nano" as first'):
+            with self.subTest(imports=imports):
+                self.check(imports+'\nfn main()->int{assert (== first.derived 41) '
+                    'assert (== second.derived "second-value") assert (== (first.read_answer 1) 42) '
+                    'assert (== (second.read_answer) "localsecond-value") return 0}\n'
+                    'shadow main {assert (== (main) 0)}\n', files=files)
+
     def test_mutable_aliases_share_storage(self):
         self.check('from "a.nano" import count as first\nfrom "a.nano" import count as second\nfn main()->int{set first 7 assert (== second 7) set second 0 assert (== first 0) return 0}\nshadow main {assert (== (main) 0)}\n')
 

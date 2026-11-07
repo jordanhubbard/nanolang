@@ -1,3 +1,4 @@
+#include "record_map_structure_private.h"
 /* I prepare original-module structure only. No public route calls this entry. */
 void nvm_record_array_structure_free(NvmRecordArrayStructure *p) {
     if(!p)return;
@@ -9,8 +10,8 @@ static NvmArrayEligibilityResult ra_result(NvmArrayEligibilityStatus status,uint
     NvmArrayEligibilityResult r={.status=status,.function=fn};
     snprintf(r.message,sizeof r.message,"%s",message);return r;
 }
-NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
-        NvmRecordArrayBudget *b,NvmRecordArrayStructure **out) {
+static NvmArrayEligibilityResult record_structure_prepare(const NvmModule *m,
+        NvmRecordArrayBudget *b,NvmRecordArrayStructure **out,NvmMapDeclarationPlan **map_out) {
     if(!m || !b || !out)return ra_result(NVM_ARRAY_INVALID,0,"I require private preparation inputs.");
     /* A fresh budget is construction state, not a reusable verification token. */
     if(b->bytes || b->work || b->peak || b->limited || b->memory)
@@ -69,7 +70,7 @@ NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
             if(!width)return ra_result(NVM_ARRAY_INVALID,fi,"I require decodable original instructions.");
             if(++total>65536)return ra_result(NVM_ARRAY_LIMIT,fi,"I reached my instruction bound.");
             counts[fi]++;
-            if(!nvm_record_array_opcode_supported(in.opcode) ||
+            if((!nvm_record_array_opcode_supported(in.opcode) && !(map_out && nvm_record_map_opcode(in.opcode))) ||
                (in.opcode==OP_AGG_PACK && (in.operands[0].u8!=AGG_RECORD || in.operands[2].u16)))
                 return ra_result(NVM_ARRAY_UNRESOLVED,fi,"I have no ordinary record-array transfer for this opcode.");
             if((in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) && in.operands[0].u32>=256)
@@ -98,9 +99,21 @@ NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
         return ra_result(NVM_ARRAY_LIMIT,0,"I reached my declaration reservation bound.");
     NvmRecordArrayStructure *p=nvm_ra_alloc(b,1,sizeof *p);
     if(!p)return ra_result(b->limited?NVM_ARRAY_LIMIT:NVM_ARRAY_MEMORY,0,"I could not allocate private structure.");
-    NvmDeclarationResult declarations=nvm_prepare_ownership_declarations(m,&p->declarations);
+    NvmMapDeclarationPlan *maps=NULL;
+    NvmDeclarationResult declarations;
+    if(map_out) {
+        /* Reserve simultaneous base+sidecar peaks before either constructor. */
+        if(!nvm_ra_bytes(b,UINT64_C(2)*1024*1024) || !nvm_ra_steps(b,UINT64_C(4)*1024*1024)) {
+            nvm_record_array_structure_free(p);
+            return ra_result(NVM_ARRAY_LIMIT,0,"I reached my map declaration overlap bound.");
+        }
+        NvmMapDeclarationResult r=nvm_prepare_map_declarations_split(m,&maps,&p->declarations);
+        declarations=(NvmDeclarationResult){r.status==NVM_MAP_DESCRIBED?NVM_DECL_PREPARED:
+            r.status==NVM_MAP_MEMORY?NVM_DECL_MEMORY:r.status==NVM_MAP_LIMIT?NVM_DECL_LIMIT:
+            r.status==NVM_MAP_ABSENT?NVM_DECL_UNKNOWN:NVM_DECL_INVALID,r.message};
+    } else declarations=nvm_prepare_ownership_declarations(m,&p->declarations);
     if(declarations.status!=NVM_DECL_PREPARED) {
-        nvm_record_array_structure_free(p);
+        nvm_map_declarations_free(maps);nvm_record_array_structure_free(p);
         return ra_result(declarations.status==NVM_DECL_MEMORY?NVM_ARRAY_MEMORY:
             declarations.status==NVM_DECL_LIMIT?NVM_ARRAY_LIMIT:
             declarations.status==NVM_DECL_UNKNOWN?NVM_ARRAY_UNRESOLVED:NVM_ARRAY_INVALID,0,declarations.message);
@@ -113,14 +126,25 @@ NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
         uint64_t decoded=(uint64_t)(m->functions[fi].code_length+1)*5u+
             (counts[fi]?capacity*3u*sizeof(VmDecodedInstruction):0);
         if(!nvm_ra_bytes(b,decoded) || !nvm_ra_steps(b,(uint64_t)m->functions[fi].code_length+counts[fi]*16u)) {
-            nvm_record_array_structure_free(p);return ra_result(NVM_ARRAY_LIMIT,fi,"I reached my decoded storage bound.");
+            nvm_map_declarations_free(maps);nvm_record_array_structure_free(p);return ra_result(NVM_ARRAY_LIMIT,fi,"I reached my decoded storage bound.");
         }
         r=verify_function_body(m,fi,NULL,0,&p->stacks[fi],b,&p->decoded[fi]);
         if(!r.ok) {
-            nvm_record_array_structure_free(p);
+            nvm_map_declarations_free(maps);nvm_record_array_structure_free(p);
             return ra_result(b->limited?NVM_ARRAY_LIMIT:b->memory || strstr(r.error_msg,"allocat")?
                 NVM_ARRAY_MEMORY:NVM_ARRAY_INVALID,fi,r.error_msg);
         }
     }
+    if(map_out)*map_out=maps;
     *out=p;return ra_result(NVM_ARRAY_ELIGIBLE,0,"I copied bounded structure, not executable authority.");
+}
+
+NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
+        NvmRecordArrayBudget *b,NvmRecordArrayStructure **out) {
+    return record_structure_prepare(m,b,out,NULL);
+}
+NvmArrayEligibilityResult nvm_record_map_structure_prepare(const NvmModule *m,
+        NvmRecordArrayBudget *b,NvmRecordArrayStructure **out,NvmMapDeclarationPlan **maps) {
+    if(!maps)return ra_result(NVM_ARRAY_INVALID,0,"I require a map declaration output.");
+    return record_structure_prepare(m,b,out,maps);
 }

@@ -1,0 +1,11 @@
+{
+  "src/nanovm/heap.c": "d42b8274dcddefe9ed6ebcec5311d801106fac0e7fff3b4b9fe6ab49fcb0489b",
+  "src/nanovm/record_map_heap.inc": "1c32b72ddf6b5328082a3b3cb5011e895fd3031486338fa1c55c02e59bcbe2a6",
+  "src/nanovm/record_map_heap_private.h": "cf00617052f49552ef155623079185bf54cc226c5335b13ccb21356dc66c5a0a",
+  "tests/nanovm/test_record_map_ordinary_heap.c": "5daaba130dce210f848c487850a951551cb0ef50062a0b36bfbb7a9a9fa5b18a",
+  "tests/test_record_map_ordinary_heap.py": "6df0e28363d5c796272971b6e231030583ab49812a344e4a251d9f0a4b8facac",
+  "tests/test_record_map_heap.py": "ab8964dfaaaba9e9003d7db4aa3851e6421eecc762febde3efe7f4e040de2f00",
+  "src/nanovm/heap_cycles.c": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+  "src/nanovm/value.c": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+  "src/nanoisa/isa.c": "267e1fd0e56d72bb45450b4138a268cf78178cc5f2e5bddafa4e6d801cd6fdc7"
+}

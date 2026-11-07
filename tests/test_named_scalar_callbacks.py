@@ -48,11 +48,6 @@ class NamedScalarCallbacks(unittest.TestCase):
         if not direct:
             self.assertIn('FUNCREF', dump)
             self.assertIn('CALL_INDIRECT', dump)
-            output.write_text('previous')
-            refused = self.command(ROOT/'bin/nvm2c', module, '-o', output, ok=False)
-            self.assertIn('unsupported opcode', refused.stderr)
-            self.assertEqual(output.read_text(), 'previous')
-            return
         self.command(ROOT/'bin/nvm2c', module, '-o', output)
         executable = module.with_suffix('.native')
         self.command(os.environ.get('CC', 'cc'), '-std=c11', '-O2', '-Wall', '-Wextra',
@@ -93,10 +88,8 @@ shadow reduce{assert (== (reduce 3) 7)}
 fn main()->int{assert (== (map 1) 3) assert (== (reduce 1) 5) return 0}
 shadow main{assert (== (main) 0)}
 ''')
-        prior = self.work/'reserved-name.nvm'; prior.write_bytes(b'previous')
-        refused = self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', prior, ok=False)
-        self.assertIn('Cannot redefine built-in function', refused.stderr)
-        self.assertEqual(prior.read_bytes(), b'previous')
+        # Declared names keep their identity: both routes bind user map and reduce.
+        self.execute(self.seed(source))
         for i, emitter in enumerate(self.emitters):
             assembly = self.work/f'reserved-{i}.nasm'; module = assembly.with_suffix('.nvm')
             self.command(emitter, source, '-o', assembly)

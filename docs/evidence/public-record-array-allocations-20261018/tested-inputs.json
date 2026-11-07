@@ -1,0 +1,8 @@
+{
+  "base": "072b2775d",
+  "artifact_directory": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-public-6m6vlf3i",
+  "sources": {
+    "tests/nanoisa/test_record_array_public.c": "a78001e4d6af241f0e5b7523f9d0d77b5b35127679ef59f1ce3bc07a83a533a0",
+    "tests/test_record_array_public.py": "5580a19d28d151f220b1ae81b2d73c3a5f75a3cedd07d86efa617e976a13dfa6"
+  }
+}

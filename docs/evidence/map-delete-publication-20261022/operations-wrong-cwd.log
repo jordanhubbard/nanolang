@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-map-delete-publication-20261022/operations.py", line 3, in <module>
+    root=Path.cwd();sys.path.insert(0,str(root));from tests import test_map_field_operations as tests
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'test_map_field_operations' from 'tests' (unknown location)

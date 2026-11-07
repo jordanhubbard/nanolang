@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/private/tmp/platform-qualification-20261020/external-local-trace/cc",
+    "-fPIC",
+    "-g",
+    "-fno-integrated-as",
+    "-x",
+    "assembler",
+    "/private/tmp/platform-qualification-20261020/external-local-trace/foreign/payload.s",
+    "-c",
+    "-o",
+    "/private/tmp/platform-qualification-20261020/external-local-trace/test.o",
+    "-###"
+  ],
+  "stderr": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\ncc: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]\n \"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as\" \"-Q\" \"-g\" \"-arch\" \"arm64\" \"-o\" \"/private/tmp/platform-qualification-20261020/external-local-trace/test.o\" \"/private/tmp/platform-qualification-20261020/external-local-trace/foreign/payload.s\"\n",
+  "exit": 0
+}

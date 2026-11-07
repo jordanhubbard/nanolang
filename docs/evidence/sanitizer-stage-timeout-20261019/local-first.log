@@ -1,0 +1,24 @@
+test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse) ... ok
+test_existing_parent_escape_refuses_all_restore_writes (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_existing_parent_escape_refuses_all_restore_writes) ... ok
+test_member_beneath_archived_link_refuses (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_member_beneath_archived_link_refuses) ... ok
+test_real_archive_preserves_bytes_modes_links_and_nanosecond_times (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_real_archive_preserves_bytes_modes_links_and_nanosecond_times) ... ERROR
+test_traversal_and_escaping_links_refuse_before_write (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_traversal_and_escaping_links_refuse_before_write) ... ok
+
+======================================================================
+ERROR: test_real_archive_preserves_bytes_modes_links_and_nanosecond_times (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_real_archive_preserves_bytes_modes_links_and_nanosecond_times)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_ci_bootstrap_checkpoint.py", line 47, in test_real_archive_preserves_bytes_modes_links_and_nanosecond_times
+    checkpoint.restore_files(self.archive, self.root, verified)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/scripts/ci_bootstrap_checkpoint.py", line 130, in restore_files
+    require(parent.resolve().is_relative_to(root), 'checkout-confined existing parents')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/scripts/ci_bootstrap_checkpoint.py", line 27, in require
+    raise ValueError('I require ' + message)
+ValueError: I require checkout-confined existing parents
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.010s
+
+FAILED (errors=1)

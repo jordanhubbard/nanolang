@@ -1,0 +1,10 @@
+test_preparation_and_allocation_controls (tests.test_union_field_preparation.UnionFieldPreparation.test_preparation_and_allocation_controls) ... ok
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... ok
+test_original_goto (tests.test_record_map_runtime.RecordMapRuntime.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_runtime.RecordMapRuntime.test_original_switch) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 101.083s
+
+OK

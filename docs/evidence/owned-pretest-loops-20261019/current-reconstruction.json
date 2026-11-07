@@ -1,0 +1,182 @@
+[
+  {
+    "case": "preserve",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/preserve-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/preserve-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "borrow-body",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-body-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-body-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "borrow-condition",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-condition-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-condition-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "fresh-body",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/fresh-body-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/fresh-body-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "early-return",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/early-return-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/early-return-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "body-return",
+    "producer": "nano_virt",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/body-return-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/body-return-nano_virt.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "preserve",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/preserve-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/preserve-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "borrow-body",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-body-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-body-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "borrow-condition",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-condition-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/borrow-condition-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "fresh-body",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/fresh-body-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/fresh-body-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "early-return",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/early-return-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/early-return-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require forward branches outside ephemeral read interiors\nI did not publish reconstructed source\n"
+  },
+  {
+    "case": "body-return",
+    "producer": "nanoc_u8_context",
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/body-return-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/body-return-nanoc_u8_context.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

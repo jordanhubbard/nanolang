@@ -1,0 +1,396 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-origins-bwezjwqe
+test_complete_origin_and_allocation_controls (tests.test_record_map_origins.RecordMapOrigins.test_complete_origin_and_allocation_controls) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 564 map origin checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 1159 map origin checks; public boundaries checked
+ok
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-execution-0bbmioy4
+test_complete_origin_and_allocation_controls (tests.test_record_map_execution.RecordMapExecution.test_complete_origin_and_allocation_controls) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 1784 map origin checks; public boundaries checked
+PASS 1971 copied map recipe checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 2379 map origin checks; public boundaries checked
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 4096 copied map recipe checks; public boundaries checked
+ok
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-image-h42si_21
+test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 2502 map origin checks; public boundaries checked
+PASS 2689 copied map recipe checks; public boundaries checked
+PASS 2783 retained map image cost checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 3117 map origin checks; public boundaries checked
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 4834 copied map recipe checks; public boundaries checked
+I matched retained payload and exact logical work without allocations.
+I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work.
+PASS 10719 retained map image cost checks; public boundaries checked
+ok
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-boundary-sam0p58n
+test_complete_origin_and_allocation_controls (tests.test_record_map_boundary.RecordMapBoundary.test_complete_origin_and_allocation_controls) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 744 copied global boundary checks; public boundaries checked
+I measured boundary owner 40, row 16, retained 25536, prefixes 62.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 1675 copied global boundary checks; public boundaries checked
+ok
+I retain preparation artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-preparation-ki4lp93n
+test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation) ... I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237269/9263403 overlap=76468274/26139527.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260436 overlap=76467531/26136106.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260330 overlap=76467531/26136000.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260330 overlap=76467531/26136000.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 2592 map origin checks; public boundaries checked
+PASS 2779 copied map recipe checks; public boundaries checked
+I checked 873 preparation allocation prefixes in both modes, including intern growth, retained 9269153 bytes.
+I checked private map preparation and independence; execution remains refused.
+
+ok
+test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation) ... I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237269/9263403 overlap=76468274/26139527.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260436 overlap=76467531/26136106.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260330 overlap=76467531/26136000.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I prepared 4 functions/64 rows/3 fields: owner=812256 field=20 layout=16 runtime=9237128/9260330 overlap=76467531/26136000.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 2592 map origin checks; public boundaries checked
+PASS 2779 copied map recipe checks; public boundaries checked
+I checked private map preparation and independence; execution remains refused.
+
+ok
+test_original_goto (tests.test_record_map_runtime.RecordMapRuntime.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-8568je6m
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2702 actual private map runtime checks; public boundaries checked.
+
+ok
+test_original_switch (tests.test_record_map_runtime.RecordMapRuntime.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-s_tlyq6b
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2702 actual private map runtime checks; public boundaries checked.
+
+ok
+test_original_goto (tests.test_record_map_observation.RecordMapObservation.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-bsjae4ac
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 19196 private copied map observation checks; public boundaries checked.
+
+ok
+test_original_switch (tests.test_record_map_observation.RecordMapObservation.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-v6ahhfaz
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 19196 private copied map observation checks; public boundaries checked.
+
+ok
+test_original_goto (tests.test_record_map_import.RecordMapImport.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-mbc_cx5q
+I reserve import state4200/table row16/report40 without changing VmState803992 or VmHeap6312.
+I measured independent query peak81729 bytes excluding caller heap125812.
+I denied all 67 import allocations transiently and persistently, including identity growth.
+I measured import reservation 67193773 bytes/16864804 work and exact-cap/+1 recovery.
+I checked actual63-frame tree with64 static/runtime origins.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 12872 ordinary import query checks; public boundaries checked
+
+ok
+test_original_switch (tests.test_record_map_import.RecordMapImport.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-ckq4kk50
+I reserve import state4200/table row16/report40 without changing VmState803992 or VmHeap6312.
+I measured independent query peak81729 bytes excluding caller heap125812.
+I denied all 67 import allocations transiently and persistently, including identity growth.
+I measured import reservation 67193773 bytes/16864804 work and exact-cap/+1 recovery.
+I checked actual63-frame tree with64 static/runtime origins.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 12872 ordinary import query checks; public boundaries checked
+
+ok
+test_original_goto (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-rvldw7tm
+I prepared 23 instructions at 84057329 bytes / 16956480 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956756 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956776 work without executing.
+I prepared 23 instructions at 84057329 bytes / 16956504 work without executing.
+I prepared 23 instructions at 67214577 bytes / 16890904 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 83988289 bytes / 16883996 work without executing.
+I measured preparation live peak 85653 bytes beyond caller/prior 169453 against reservation 84065265.
+I denied 69 preparation allocations transiently/persistently and recovered, exact caps from 84065265/16965750.
+I prepared 64 instructions at 84068462 bytes / 16980536 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980822 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980852 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980180 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980208 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I passed 12290 borrowed-state preparation checks; execution remains refused.
+
+ok
+test_original_switch (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-42er7r1u
+I prepared 23 instructions at 84057329 bytes / 16956480 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956756 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956776 work without executing.
+I prepared 23 instructions at 84057329 bytes / 16956504 work without executing.
+I prepared 23 instructions at 67214577 bytes / 16890904 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 83988289 bytes / 16883996 work without executing.
+I measured preparation live peak 85653 bytes beyond caller/prior 169453 against reservation 84065265.
+I denied 69 preparation allocations transiently/persistently and recovered, exact caps from 84065265/16965750.
+I prepared 64 instructions at 84068462 bytes / 16980536 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980822 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980852 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980180 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980208 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I passed 12290 borrowed-state preparation checks; execution remains refused.
+
+ok
+test_original_goto (tests.test_record_map_borrowed.RecordMapBorrowed.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-qzufnorc
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84068462 bytes / 16980536 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225966 bytes / 16915222 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I checked 1800 borrowed map execution assertions; public boundaries checked.
+
+ok
+test_original_switch (tests.test_record_map_borrowed.RecordMapBorrowed.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-6gsrp07d
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84068462 bytes / 16980536 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225966 bytes / 16915222 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+I checked 1800 borrowed map execution assertions; public boundaries checked.
+
+ok
+test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-svkwi060
+I reached 195 compiler allocation positions, retained 1 objects/65536 bytes.
+PASS 1961 compiler allocation checks; 195 positions transient/persistent plus retry.
+
+ok
+test_native_semantics_and_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_native_semantics_and_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-xun810ft
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public boundaries checked.
+PASS 539 private native publication checks; public boundaries checked.
+
+I covered every measured native allocation prefix in both modes: {'oom-original-0-O0': 26, 'oom-original-0-O2': 26, 'oom-original-1-O0': 26, 'oom-original-1-O2': 26, 'oom-original-2-O0': 26, 'oom-original-2-O2': 26, 'oom-original-3-O0': 26, 'oom-original-3-O2': 26, 'oom-alias-replacement-O0': 13, 'oom-alias-replacement-O2': 13, 'oom-growth-O0': 47, 'oom-growth-O2': 47}
+ok
+I retain private VM artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-vm-jixx2xwc
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 244.165s
+
+OK

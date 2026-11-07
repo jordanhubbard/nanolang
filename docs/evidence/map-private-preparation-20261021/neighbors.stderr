@@ -1,0 +1,10 @@
+test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_record_map_execution.RecordMapExecution.test_complete_origin_and_allocation_controls) ... ok
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... ok
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 52.509s
+
+OK

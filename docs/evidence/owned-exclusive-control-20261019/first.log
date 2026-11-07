@@ -1,0 +1,36 @@
+test_every_continuing_backedge_is_checked (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_every_continuing_backedge_is_checked) ... ok
+test_guarded_add_work_covers_full_emitted_syntax (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_guarded_add_work_covers_full_emitted_syntax) ... ok
+test_only_continuing_arm_update_counts_join (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_only_continuing_arm_update_counts_join) ... ok
+test_rank_loop_work_and_unchanged_ir (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_rank_loop_work_and_unchanged_ir) ... ok
+test_return_only_loop_counts_pretest_and_preserves_false_path_facts (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_return_only_loop_counts_pretest_and_preserves_false_path_facts) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pjpkkswp
+test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) ... I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original": [23, 3], "generated": [132, 22], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+
+  test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) (fixture='source_borrow_control_flow.nano', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original": [23, 3], "generated": [132, 22], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+  test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) (fixture='source_borrow_control_flow.nano', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+
+======================================================================
+FAIL: test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) (fixture='source_borrow_control_flow.nano', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_control_reconstruction.py", line 132, in test_unchanged_anchors_and_generated_shadow_measurement
+    self.fail('I retain the unchanged anchor as an ordinary 128-local output refusal')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I retain the unchanged anchor as an ordinary 128-local output refusal
+
+======================================================================
+FAIL: test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) (fixture='source_borrow_control_flow.nano', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_control_reconstruction.py", line 132, in test_unchanged_anchors_and_generated_shadow_measurement
+    self.fail('I retain the unchanged anchor as an ordinary 128-local output refusal')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I retain the unchanged anchor as an ordinary 128-local output refusal
+
+----------------------------------------------------------------------
+Ran 6 tests in 16.203s
+
+FAILED (failures=2)

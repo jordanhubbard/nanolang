@@ -1,0 +1,23 @@
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-onwttnt9
+test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates) ... ok
+test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) ... ok
+test_float_signature_field_and_uninitialized_refusals (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_float_signature_field_and_uninitialized_refusals) ... ok
+test_nonfinite_actual_module_refuses_atomically_only_for_nano (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_actual_module_refuses_atomically_only_for_nano) ... ok
+test_nonfinite_and_malformed_literal_target_boundaries (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_and_malformed_literal_target_boundaries) ... ok
+test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow) ... ok
+I retain owned STRING evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-he4j1cgo
+test_assert_failure_prefix_and_no_later_print (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_assert_failure_prefix_and_no_later_print) ... ok
+test_canonical_roundtrip_and_stripped_advisory_metadata (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_canonical_roundtrip_and_stripped_advisory_metadata) ... ok
+test_defensive_string_table_and_parameter_refusals (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_defensive_string_table_and_parameter_refusals) ... ok
+test_exact_bytes_forwarding_and_positional_owners (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_exact_bytes_forwarding_and_positional_owners) ... ok
+test_independent_original_shadow_executable (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_independent_original_shadow_executable) ... ok
+test_invalid_utf8_is_target_specific (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_invalid_utf8_is_target_specific) ... ok
+test_literal_payload_bound_and_atomic_overlimit (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_literal_payload_bound_and_atomic_overlimit) ... ok
+test_name_independence_preserves_shared_literal_indexes (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_name_independence_preserves_shared_literal_indexes) ... ok
+test_original_verifier_rejects_wrong_print_argument_and_constant (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_original_verifier_rejects_wrong_print_argument_and_constant) ... ok
+test_unchanged_ordinary_example (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_unchanged_ordinary_example) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 78.034s
+
+OK

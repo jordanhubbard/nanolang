@@ -1,0 +1,43 @@
+{
+  "nano_virt": {
+    "functions": [
+      ".function main 0 2 0 int 1",
+      ".function close 1 3 0 int 1"
+    ],
+    "types": [
+      ".types 2 0 0"
+    ],
+    "facts_status": "I require a verified bounded resource module with exact fields.\n"
+  },
+  "nanoc_stage1": {
+    "functions": [
+      ".function main 0 2 0 int 1",
+      ".function close 1 3 0 int 1"
+    ],
+    "types": [
+      ".types 2 0 0"
+    ],
+    "facts_status": "I require a verified bounded resource module with exact fields.\n"
+  },
+  "nanoc_stage2": {
+    "functions": [
+      ".function main 0 2 0 int 1",
+      ".function close 1 3 0 int 1"
+    ],
+    "types": [
+      ".types 2 0 0"
+    ],
+    "facts_status": "I require a verified bounded resource module with exact fields.\n"
+  },
+  "original-shadows": {
+    "functions": [
+      ".function __nanoisa_shadow_entry 0 1 0 int 1",
+      ".function close 1 3 0 int 1",
+      ".function main 0 2 0 int 1"
+    ],
+    "types": [
+      ".types 2 0 0"
+    ],
+    "facts_status": "I require a verified bounded resource module with exact fields.\n"
+  }
+}

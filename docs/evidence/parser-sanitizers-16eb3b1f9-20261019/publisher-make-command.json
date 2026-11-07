@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=cc",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /Users/jkh/Src/nanolang-51-harness/src -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib",
+    "OBJ_DIR=/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-qyvnxclk/publisher-obj",
+    "BIN_DIR=/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-qyvnxclk/publisher-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 300
+}

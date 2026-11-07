@@ -1,0 +1,19 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": "6a21378866268894022eb496ba2331d9a30dd637bcb53a788f63d371727f9b05",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "6f6a695a43fa84d613c48deab987a5466b2878f601da55c187ffaa108422ae77",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_control.py": "7247f5d98256e22b04ed950e7f1317e1d7b5391b61c0c0ba9df5b0f8a4f6024d",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_rendering.py": "857d1bac232cc6f0c299a84a2d1ff20a1b3250e12b9209e79f0645965aa4ffd7",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_origins.py": "4de04f2e6122aa6d467c25bb3470a8373c62fbc7775cd0b09432c916e6083f85",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_reconstruction.py": "99e2b793739372392a35ea34d4c8058d5e8f7e3d5459137b450dcb3a09a777bd",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_helper_locals.py": "0942e7e802c33052d1850f8ba0ef2e71e9cd60fc7da6def78d71fb88d56a4afa",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_strings.py": "eea45169b4439e55bbe098096fa541aeadc311fa5d6ad47fa2f5c3d52eec1e5c",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_exits.py": "6b53ad674b1f60fc7c6bce4d0b212d7ec972a9500911dba3129f9021bf00f7f9",
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_eight_shared.py": "5296990f6d0ac7b2e4eb5b0718dd5050b85ffe6b1c0a791e5550f6c4331d5b74"
+}

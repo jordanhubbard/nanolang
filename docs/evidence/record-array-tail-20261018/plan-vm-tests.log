@@ -1,0 +1,134 @@
+test_public_tail_consumers (tests.test_record_array_tail.RecordArrayTail.test_public_tail_consumers) ... I retain tail qualification at <RETAINED_TEMP>/nano-record-array-tail-p64i5479
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 23.124s
+
+OK
+I retain query artifacts at <RETAINED_TEMP>/nano-record-array-execution-i_088ul5
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 788 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 2823 record-array execution-plan checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65018 peak payload bytes; every refusal recovered
+PASS 1302 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+I begin complete opcode recipes
+I checked 94 explicit opcode recipes and every numeric opcode
+I begin precise private layout allocation facts
+I begin plan allocation/work boundaries
+I measured 96 plan allocation positions and 83190 peak payload bytes; each one-shot/persistent refusal recovered
+PASS 6481 record-array execution-plan checks; no runtime admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.298s
+
+OK
+I retain private VM artifacts at <RETAINED_TEMP>/nano-record-array-vm-2ho206i6
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 16.762s
+
+OK

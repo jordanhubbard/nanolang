@@ -1,0 +1,4 @@
+{
+  "/opt/homebrew/opt/llvm/bin/clang": "Homebrew clang version 23.1.2\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.2/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.2/etc/clang/arm64-apple-darwin27.cfg\n",
+  "/opt/homebrew/bin/gcc-16": "gcc-16 (Homebrew GCC 16.2.0) 16.2.0\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+}

@@ -1,0 +1,43 @@
+# I retain nested arrays across inference, globals, results, fields and fills.
+struct FloatRows { flags: array<array<float>> }
+struct IntRows { nested: array<array<int>> }
+let values: array<array<float>> = [[1.5]]
+
+fn floating_rows() -> array<array<float>> { return [[1.5]] }
+shadow floating_rows { assert (== (at (at (floating_rows) 0) 0) 1.5) }
+
+fn integer_rows() -> array<array<int>> { return [[1]] }
+shadow integer_rows { assert (== (at (at (integer_rows) 0) 0) 1) }
+
+fn float_box() -> FloatRows { return FloatRows { flags: [[1.5]] } }
+shadow float_box {
+    let box: FloatRows = (float_box)
+    assert (== (at (at box.flags 0) 0) 1.5)
+}
+
+fn int_box() -> IntRows { return IntRows { nested: [[1]] } }
+shadow int_box {
+    let box: IntRows = (int_box)
+    assert (== (at (at box.nested 0) 0) 1)
+}
+
+fn main() -> int {
+    let inferred = [[1.5]]
+    assert (== (at (at inferred 0) 0) 1.5)
+    assert (== (at (at values 0) 0) 1.5)
+    assert (== (array_length [[1]]) 1)
+    assert (== (at (at (floating_rows) 0) 0) 1.5)
+    assert (== (at (at (integer_rows) 0) 0) 1)
+    let floats: array<array<float>> = (array_new 2 [1.5])
+    let integers: array<array<int>> = (array_new 2 [1])
+    assert (== (array_length floats) 2)
+    assert (== (at (at floats 1) 0) 1.5)
+    assert (== (array_length integers) 2)
+    assert (== (at (at integers 1) 0) 1)
+    let floating: FloatRows = (float_box)
+    let integer: IntRows = (int_box)
+    assert (== (at (at floating.flags 0) 0) 1.5)
+    assert (== (at (at integer.nested 0) 0) 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }

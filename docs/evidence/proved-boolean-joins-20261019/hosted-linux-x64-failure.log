@@ -1,0 +1,83 @@
+2026-10-19T10:44:22.3251001Z     ❌ nanoisa_emitter compilation failed
+2026-10-19T10:44:22.3266928Z I am testing shadow __nano_module__29_nisa_functional_name
+2026-10-19T10:44:22.3268093Z I am testing shadow __nano_module__29_nisa_functional_signature
+2026-10-19T10:44:22.3268928Z I am testing shadow __nano_module__29_nisa_functional_result
+2026-10-19T10:44:22.3269707Z I am testing shadow __nano_module__29_nisa_emit_abs
+2026-10-19T10:44:22.3270254Z I am testing shadow __nano_module__29_nisa_emit_functional_array
+2026-10-19T10:44:22.3270776Z I am testing shadow __nano_module__29_nisa_emit_indirect_call
+2026-10-19T10:44:22.3271266Z I am testing shadow __nano_module__29_nisa_callable_publication
+2026-10-19T10:44:22.3271774Z I am testing shadow __nano_module__29_nisa_emit_list_free
+2026-10-19T10:44:22.3272209Z I am testing shadow __nano_module__29_nisa_module_names
+2026-10-19T10:44:22.3272616Z I am testing shadow __nano_module__29_nisa_module_value
+2026-10-19T10:44:22.3273046Z I am testing shadow __nano_module__29_nisa_emit_module_function
+2026-10-19T10:44:22.3273501Z I am testing shadow __nano_module__29_nisa_emit_module_fact
+2026-10-19T10:44:22.3274113Z I am testing shadow __nano_module__29_nisa_emit_call
+2026-10-19T10:44:22.3274836Z I am testing shadow __nano_module__29_nisa_float_mnemonic
+2026-10-19T10:44:22.3275614Z I am testing shadow __nano_module__29_nisa_emit_float_binary
+2026-10-19T10:44:22.3276813Z I am testing shadow __nano_module__29_nisa_emit_logical_binary
+2026-10-19T10:44:22.3277439Z I am testing shadow __nano_module__29_nisa_emit_expr
+2026-10-19T10:44:22.3278007Z I am testing shadow __nano_module__29_nisa_statements_fall_through
+2026-10-19T10:44:22.3278409Z I am testing shadow __nano_module__29_nisa_block_falls_through
+2026-10-19T10:44:22.3278778Z I am testing shadow __nano_module__29_nisa_stmt_terminates
+2026-10-19T10:44:22.3279178Z I am testing shadow __nano_module__29_nisa_emit_if
+2026-10-19T10:44:22.3279509Z I am testing shadow __nano_module__29_nisa_emit_while
+2026-10-19T10:44:22.3279831Z I am testing shadow __nano_module__29_nisa_emit_for
+2026-10-19T10:44:22.3280158Z I am testing shadow __nano_module__29_nisa_emit_assert
+2026-10-19T10:44:22.3280500Z I am testing shadow __nano_module__29_nisa_call_has_result
+2026-10-19T10:44:22.3280848Z I am testing shadow __nano_module__29_nisa_par_scalar
+2026-10-19T10:44:22.3281202Z I am testing shadow __nano_module__29_nisa_passive_expression
+2026-10-19T10:44:22.3281590Z I am testing shadow __nano_module__29_nisa_par_expression
+2026-10-19T10:44:22.3282173Z I am testing shadow __nano_module__29_nisa_par_reads
+2026-10-19T10:44:22.3282531Z I am testing shadow __nano_module__29_nisa_local_name_begin
+2026-10-19T10:44:22.3282916Z I am testing shadow __nano_module__29_nisa_selected_pattern_type
+2026-10-19T10:44:22.3283300Z I am testing shadow __nano_module__29_nisa_emit_typed_let
+2026-10-19T10:44:22.3283636Z I am testing shadow __nano_module__29_nisa_emit_flow
+2026-10-19T10:44:22.3283962Z I am testing shadow __nano_module__29_nisa_emit_par
+2026-10-19T10:44:22.3284288Z I am testing shadow __nano_module__29_nisa_emit_stmt
+2026-10-19T10:44:22.3284623Z I am testing shadow __nano_module__29_nisa_emit_statements
+2026-10-19T10:44:22.3284962Z I am testing shadow __nano_module__29_nisa_emit_block
+2026-10-19T10:44:22.3285284Z I am testing shadow __nano_module__29_nisa_result_tag
+2026-10-19T10:44:22.3285619Z I am testing shadow __nano_module__29_nisa_emit_function
+2026-10-19T10:44:22.3286007Z I am testing shadow __nano_module__29_nanoisa_emit_bound_program_nasm
+2026-10-19T10:44:22.3286676Z I am testing shadow __nano_module__29_nisa_shadow_name
+2026-10-19T10:44:22.3287062Z I am testing shadow __nano_module__29_nanoisa_emit_bound_shadows_nasm
+2026-10-19T10:44:22.3287465Z I am testing shadow __nano_module__29_nanoisa_emit_shadows_nasm
+2026-10-19T10:44:22.3287828Z I am testing shadow __nano_module__29_nanoisa_emit_nasm
+2026-10-19T10:44:22.3288176Z I am testing shadow __nano_module__29_nanoisa_emit_parser_nasm
+2026-10-19T10:44:22.3288546Z I am testing shadow __nano_module__29_nanoisa_emit_parser_nasm
+2026-10-19T10:44:22.3288906Z I am testing shadow __nano_module__29_nisa_emit_module_nasm
+2026-10-19T10:44:22.3289273Z I am testing shadow __nano_module__29_nanoisa_emit_program_nasm
+2026-10-19T10:44:22.3289624Z I am testing shadow __nano_module__29_nanoisa_emit_nasm
+2026-10-19T10:44:22.3289959Z I am testing shadow __nano_module__29_nisa_effect_scope_end
+2026-10-19T10:44:22.3290322Z I am testing shadow __nano_module__29_nisa_effect_value_type
+2026-10-19T10:44:22.3290665Z I am testing shadow __nano_module__29_nisa_effect_value
+2026-10-19T10:44:22.3291004Z I am testing shadow __nano_module__29_nisa_effect_perform
+2026-10-19T10:44:22.3291341Z I am testing shadow __nano_module__29_nisa_effect_handle
+2026-10-19T10:44:22.3291637Z I am testing shadow main
+2026-10-19T10:44:22.3291889Z I cannot define an enum twice in one module: Shade
+2026-10-19T10:44:22.3292216Z I cannot define a record twice in one module: Handle
+2026-10-19T10:44:22.3292538Z I require a visible declared effect for perform: E
+2026-10-19T10:44:22.3292911Z -- TYPE MISMATCH ------------------------------------------- test.nano
+2026-10-19T10:44:22.3293175Z 
+2026-10-19T10:44:22.3293180Z 
+2026-10-19T10:44:22.3293184Z 
+2026-10-19T10:44:22.3293265Z 1| let x: int = "hello"
+2026-10-19T10:44:22.3293469Z  | ^
+2026-10-19T10:44:22.3293569Z 
+2026-10-19T10:44:22.3293572Z 
+2026-10-19T10:44:22.3293923Z TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+2026-10-19T10:44:22.3294316Z === NSType Checking (Count-based) ===
+2026-10-19T10:44:22.3294575Z Validating 5 functions
+2026-10-19T10:44:22.3294791Z NSType checking complete!
+2026-10-19T10:44:22.3295024Z === NSType Checking (Count-based) ===
+2026-10-19T10:44:22.3295272Z Validating 0 functions
+2026-10-19T10:44:22.3295479Z Error: No functions found
+2026-10-19T10:44:22.3295703Z === NSType Checking (Count-based) ===
+2026-10-19T10:44:22.3295950Z Validating 1 functions
+2026-10-19T10:44:22.3296172Z NSType checking complete!
+2026-10-19T10:44:22.3296784Z I passed my NanoISA emitter entry assertions.
+2026-10-19T10:44:22.3297631Z I cannot translate '/tmp/nano_bytecode_product_G5LNT5/program.nvm': function 589: join at 213 has a value-kind mismatch
+2026-10-19T10:44:22.3298187Z I could not translate the verified module to C
+2026-10-19T10:44:22.3298491Z I could not publish the requested product: 
+2026-10-19T10:44:22.3298815Z make: *** [Makefile.gnu:3821: .stage2.built] Error 1
+2026-10-19T10:44:22.3354707Z ##[error]Process completed with exit code 2.

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+    "/private/tmp/borrowed-float-local-baseline-20261019/original.nano",
+    "0",
+    "raw"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

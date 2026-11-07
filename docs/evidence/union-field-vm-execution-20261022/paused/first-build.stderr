@@ -1,0 +1,16 @@
+tests/nanoisa/test_union_field_vm.c:169:35: error: member reference base type 'void' is not a structure or union
+  169 |         uint32_t refs=child.as.obj->ref_count;
+      |                       ~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_union_field_vm.c:172:32: error: member reference base type 'void' is not a structure or union
+  172 |         if(mode==0)child.as.obj->ref_count=UINT32_MAX;
+      |                    ~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_union_field_vm.c:177:38: error: member reference base type 'void' is not a structure or union
+  177 |         if(mode==0)CHECK(child.as.obj->ref_count==UINT32_MAX);
+      |                          ~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_union_field_declarations.c:8:36: note: expanded from macro 'CHECK'
+    8 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line%u: %s\n",__LINE__,#x);exit(1);}}while(0)
+      |                                    ^
+tests/nanoisa/test_union_field_vm.c:178:21: error: member reference base type 'void' is not a structure or union
+  178 |         child.as.obj->ref_count=refs;p->instructions[index]=saved;view.active=true;
+      |         ~~~~~~~~~~~~^ ~~~~~~~~~
+4 errors generated.

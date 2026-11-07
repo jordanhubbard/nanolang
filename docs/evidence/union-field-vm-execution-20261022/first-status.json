@@ -1,0 +1,26 @@
+{
+  "strict-clang-default": {
+    "code": 0,
+    "seconds": 0.3349561670329422
+  },
+  "strict-clang-private": {
+    "code": 0,
+    "seconds": 0.11769241699948907
+  },
+  "strict-gcc-default": {
+    "code": 0,
+    "seconds": 0.17029050004202873
+  },
+  "strict-gcc-private": {
+    "code": 0,
+    "seconds": 0.07623383402824402
+  },
+  "first-build": {
+    "code": 0,
+    "seconds": 2.7076728329993784
+  },
+  "first-six": {
+    "code": 0,
+    "seconds": 0.33482824999373406
+  }
+}

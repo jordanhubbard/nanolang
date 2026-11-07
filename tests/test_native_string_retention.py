@@ -4,6 +4,9 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
+
+from tests.native_process import run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = '.string text "retained"\n.string empty ""\n.string unit "x"\n.entry main\n'
@@ -18,9 +21,8 @@ HELPERS = '.function value 0 0 0 string 1\n' + VALUE + 'RET\n.end\n' + CHURN
 
 
 class NativeStringRetention(unittest.TestCase):
-    def run_checked(self, args, **kwargs):
-        result = subprocess.run([str(x) for x in args], capture_output=True,
-                                text=True, timeout=90, **kwargs)
+    def run_checked(self, args, *, build=False, **kwargs):
+        result = run_captured(args, text=True, timeout=90, build=build, **kwargs)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
@@ -43,7 +45,7 @@ class NativeStringRetention(unittest.TestCase):
             source.write_text('#include <stdio.h>\n' + generated)
             self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                              source, '-o', binary])
+                              source, '-o', binary], build=True)
             result = self.run_checked([binary], env={**os.environ})
             print(result.stdout, end='')
 
@@ -97,6 +99,29 @@ class NativeStringRetention(unittest.TestCase):
         calls = ('CALL value\n' + CHECK) * 3500
         self.check_program(HEADER + '.function main 0 0 0 int 1\n' + calls +
                            'PUSH_I64 0\nRET\n.end\n' + HELPERS)
+
+
+class NativeStringHarnessControls(unittest.TestCase):
+    def test_only_sanitized_compilation_selects_build_budget(self):
+        calls = []
+        def capture(args, **kwargs):
+            args = list(map(str, args))
+            calls.append((args, kwargs))
+            if args[0].endswith('nvm2c'):
+                Path(args[-1]).write_text('    nstr_release_owned();\n')
+            return subprocess.CompletedProcess(args, 0, '', '')
+        case = NativeStringRetention()
+        with patch.dict(os.environ, {}, clear=True), patch(
+                'tests.test_native_string_retention.run_captured', side_effect=capture):
+            case.check_program(HEADER)
+        self.assertEqual(len(calls), 5)
+        self.assertEqual([kwargs['build'] for _, kwargs in calls],
+                         [False, False, False, True, False])
+        self.assertTrue(all(kwargs['timeout'] == 90 for _, kwargs in calls))
+        compile_args = calls[3][0]
+        self.assertIn('-fsanitize=address,undefined', compile_args)
+        self.assertIn('-fno-sanitize-recover=all', compile_args)
+        self.assertIn('-Werror', compile_args)
 
 
 if __name__ == '__main__':

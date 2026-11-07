@@ -1,0 +1,18 @@
+I retain producer build evidence at <RETAINED_TEMP>/nano-flat-source-producers-uig_vqoz
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... ok
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... ok
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... ok
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... ok
+test_generic_direct_tail_calls_publish_proved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_direct_tail_calls_publish_proved_array_profile) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_arrays_remain_unpublished (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_arrays_remain_unpublished) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_recursive_tail_calls_keep_optional_array_authority_absent (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_recursive_tail_calls_keep_optional_array_authority_absent) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 12.960s
+
+OK

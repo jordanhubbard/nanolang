@@ -1,0 +1,94 @@
+[
+  {
+    "choice": "true",
+    "provider": "nano_virt",
+    "facts_returncode": 0,
+    "source_sha256": "b28819ea5dd9e70839b2a1da19b2eb1a705246136afb85c48069d7bee7c474f0",
+    "module_sha256": "46d4ce5a1a7d09ef9bdd246f567a66e2f2d1ad534b8b985b70ba1a1fbac572b7",
+    "locals": [
+      66,
+      1
+    ],
+    "targets": [
+      {
+        "target": "c",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      },
+      {
+        "target": "nano",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      }
+    ]
+  },
+  {
+    "choice": "true",
+    "provider": "nanoc_u8_context",
+    "facts_returncode": 0,
+    "source_sha256": "b28819ea5dd9e70839b2a1da19b2eb1a705246136afb85c48069d7bee7c474f0",
+    "module_sha256": "f7d8c791a099428d5daa15d757eea810d62c590262e96b34bee889878275ea29",
+    "locals": [
+      66,
+      1
+    ],
+    "targets": [
+      {
+        "target": "c",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      },
+      {
+        "target": "nano",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      }
+    ]
+  },
+  {
+    "choice": "false",
+    "provider": "nano_virt",
+    "facts_returncode": 0,
+    "source_sha256": "3209f65274a253c461d9f2ffe96bd721f9cae943a4a37b4f0f18f2a5736b67b8",
+    "module_sha256": "f59abfdf4537b3b2f4643674ca88e46d663ec6ed6b374190db6fdfa3143ea6ea",
+    "locals": [
+      66,
+      1
+    ],
+    "targets": [
+      {
+        "target": "c",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      },
+      {
+        "target": "nano",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      }
+    ]
+  },
+  {
+    "choice": "false",
+    "provider": "nanoc_u8_context",
+    "facts_returncode": 0,
+    "source_sha256": "3209f65274a253c461d9f2ffe96bd721f9cae943a4a37b4f0f18f2a5736b67b8",
+    "module_sha256": "28b83077782d9dd67ffcbc9a191c52602f2041e2f9ec50389d1e36e2e2e499c7",
+    "locals": [
+      66,
+      1
+    ],
+    "targets": [
+      {
+        "target": "c",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      },
+      {
+        "target": "nano",
+        "exception": "Refusal",
+        "message": "I require a fresh declared owner destination"
+      }
+    ]
+  }
+]

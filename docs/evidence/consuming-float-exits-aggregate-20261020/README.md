@@ -1,0 +1,3 @@
+# I qualify the integrated consuming FLOAT exits
+
+At c572bfd62 I pass all seven final-source methods in28.551 seconds through the current seed and both stages. Eight execution-provider hashes remain unchanged from the component run. The test log and exact command/status/output bundle retain unchanged ordinary and independent original-shadow execution, strict native O0/O2 NDEBUG sanitizer paths, exact original/regenerated VM/native assertion causality, immutable consuming parameter/call origins, side-entry/zero-trip exclusions and actual128/estimated129 atomic boundary. No frontend/runtime/facts rebuild or fresh bootstrap is claimed. Exact hosted Linux/Darwin and full release scope remain open.

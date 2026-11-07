@@ -1,0 +1,135 @@
+{
+  "root": "/Users/jkh/Src/nanolang-51-harness",
+  "before": {
+    "obj/nanovm/value.o": {
+      "sha256": "691cd1e75f2428a9d5da8b013d0e1fc74cd18a9045b1de58bb90c31cb4f77ad3",
+      "mtime_ns": 1792425317542872784,
+      "size": 20880
+    },
+    "obj/nanovm/value.d": {
+      "sha256": "c1a6c28ffe38c3ecb101d872bbf73852841fcf7407e63976ad2b28fd7c9b3a6c",
+      "mtime_ns": 1792425317542998825,
+      "size": 561
+    },
+    "bin/nano_virt": {
+      "sha256": "7b62e3e22c2370fcad480ee426ba3631421d4a4e7a4de3a94e017e11ce43dda5",
+      "mtime_ns": 1792569219417682905,
+      "size": 12447848
+    },
+    "bin/nano_vm": {
+      "sha256": "3b0faa1dcb8e02a4eef18a8504922134c1f060fb524979bea77016f7ba0ddadb",
+      "mtime_ns": 1792569219488400615,
+      "size": 12096440
+    },
+    "bin/nanoisa": {
+      "sha256": "802a6db9e401a07a227cbffafdc384a4fe4ac48cbe198a24b24412f4a95b4d99",
+      "mtime_ns": 1792569219550507600,
+      "size": 1110136
+    },
+    "bin/nvm2c": {
+      "sha256": "373ff4ec968ba2c57e39c8db3916879cbf406b661f84fdcd4da7bafbec67ba71",
+      "mtime_ns": 1792569219610504966,
+      "size": 1530680
+    },
+    "bin/nanoc_stage1": {
+      "sha256": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+      "mtime_ns": 1792436935151288932,
+      "size": 15863704
+    },
+    "bin/nanoc_stage2": {
+      "sha256": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+      "mtime_ns": 1792437658736118218,
+      "size": 15863704
+    },
+    ".bootstrap0.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792436152923671000,
+      "size": 0
+    },
+    ".bootstrap1.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792436936202965290,
+      "size": 0
+    },
+    ".bootstrap2.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792437662458091947,
+      "size": 0
+    },
+    ".bootstrap3.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792437667042413423,
+      "size": 0
+    }
+  },
+  "after": {
+    "obj/nanovm/value.o": {
+      "sha256": "691cd1e75f2428a9d5da8b013d0e1fc74cd18a9045b1de58bb90c31cb4f77ad3",
+      "mtime_ns": 1792425317542872784,
+      "size": 20880
+    },
+    "obj/nanovm/value.d": {
+      "sha256": "c1a6c28ffe38c3ecb101d872bbf73852841fcf7407e63976ad2b28fd7c9b3a6c",
+      "mtime_ns": 1792425317542998825,
+      "size": 561
+    },
+    "bin/nano_virt": {
+      "sha256": "7b62e3e22c2370fcad480ee426ba3631421d4a4e7a4de3a94e017e11ce43dda5",
+      "mtime_ns": 1792569219417682905,
+      "size": 12447848
+    },
+    "bin/nano_vm": {
+      "sha256": "3b0faa1dcb8e02a4eef18a8504922134c1f060fb524979bea77016f7ba0ddadb",
+      "mtime_ns": 1792569219488400615,
+      "size": 12096440
+    },
+    "bin/nanoisa": {
+      "sha256": "802a6db9e401a07a227cbffafdc384a4fe4ac48cbe198a24b24412f4a95b4d99",
+      "mtime_ns": 1792569219550507600,
+      "size": 1110136
+    },
+    "bin/nvm2c": {
+      "sha256": "373ff4ec968ba2c57e39c8db3916879cbf406b661f84fdcd4da7bafbec67ba71",
+      "mtime_ns": 1792569219610504966,
+      "size": 1530680
+    },
+    "bin/nanoc_stage1": {
+      "sha256": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+      "mtime_ns": 1792436935151288932,
+      "size": 15863704
+    },
+    "bin/nanoc_stage2": {
+      "sha256": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+      "mtime_ns": 1792437658736118218,
+      "size": 15863704
+    },
+    ".bootstrap0.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792436152923671000,
+      "size": 0
+    },
+    ".bootstrap1.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792436936202965290,
+      "size": 0
+    },
+    ".bootstrap2.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792437662458091947,
+      "size": 0
+    },
+    ".bootstrap3.built": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime_ns": 1792437667042413423,
+      "size": 0
+    }
+  },
+  "equal": true,
+  "returncode": 0,
+  "elapsed": 1.5829404999967664,
+  "command": [
+    "bash",
+    "/private/tmp/nanolang-header-isolated-runner.sh"
+  ],
+  "runner": "#!/usr/bin/env bash\nset -euo pipefail\n\nrepo_root=/Users/jkh/Src/nanolang-51-harness\ncd \"$repo_root\"\n\nmake_bin=${MAKE_BIN:-make}\n# I exercise the real recipe without invalidating restored bootstrap providers.\nworkspace=$(mktemp -d \"${TMPDIR:-/tmp}/nanolang-header-dependency.XXXXXX\")\ntrap 'rm -rf \"$workspace\"' EXIT\nisolated_obj=\"$workspace/obj\"\nobject=\"$isolated_obj/nanovm/value.o\"\ndependency_file=\"$isolated_obj/nanovm/value.d\"\nindirect_header=src/nanovm/../nanoisa/isa.h\ntrigger=\"$workspace/header.h\"\ntouch \"$trigger\"\n\"$make_bin\" --no-print-directory \"OBJ_DIR=$isolated_obj\" \"$object\" >/dev/null\n\nif [[ ! -s \"$dependency_file\" ]]; then\n    echo \"I did not generate $dependency_file\" >&2\n    exit 1\nfi\n\nif ! grep -Fq \"$indirect_header\" \"$dependency_file\"; then\n    echo \"I did not record the indirect header $indirect_header\" >&2\n    exit 1\nfi\n\n# Add a newer synthetic header to the generated dependency file. This proves\n# that Makefile.gnu reads .d files, without changing a source header's mtime or\n# racing another test that may be reading it.\nprintf '%s: %s\\n' \"$object\" \"$trigger\" >>\"$dependency_file\"\n# The system make on older macOS compares mtimes at one-second resolution.\nsleep 1\ntouch \"$trigger\"\nif \"$make_bin\" --no-print-directory \"OBJ_DIR=$isolated_obj\" -q \"$object\"; then\n    echo \"I trusted $object after one of its recorded headers changed\" >&2\n    exit 1\nelse\n    status=$?\n    if [[ $status -ne 1 ]]; then\n        echo \"I could not query $object after its dependency changed (status $status)\" >&2\n        exit \"$status\"\n    fi\nfi\n\n\"$make_bin\" --no-print-directory \"OBJ_DIR=$isolated_obj\" \"$object\" >/dev/null\nif ! \"$make_bin\" --no-print-directory \"OBJ_DIR=$isolated_obj\" -q \"$object\"; then\n    echo \"I still consider $object stale after rebuilding it\" >&2\n    exit 1\nfi\n\necho \"I rebuild C objects when their recorded headers change.\"\n"
+}

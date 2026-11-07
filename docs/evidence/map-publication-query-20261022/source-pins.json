@@ -1,0 +1,12 @@
+{
+  "Makefile.gnu": "5417318c36b56a69c7da8ccfd1a2f944887400504ec21ff8843a97589ee51faa",
+  "src/nanoisa/managed_array_shapes.c": "90a3cc66917eff9dd882f9bd0d1530d73ef92beb8ffa48cf750b06d9ac572075",
+  "src/nanoisa/nvm2c_map_private.inc": "dddea78e40fb1c9c865754711464938b443a7e0a855b9559d703368de6ef87da",
+  "src/nanoisa/record_map_native_target.inc": "9e2c317fa9cccf3e60c3291e08e4ab131a22108a9b5dd85a0c33585a1b45037c",
+  "src/nanoisa/record_map_native_target_internal.h": "aa46a6a1f730b121ee2f4ffcc25a17937f1bdf71bdf14f02907a27a66c9d42cb",
+  "src/nanoisa/record_map_publication.h": "8ee6ab38feae7bdc4ea966c094b7540b90bc5f03d7a3a573b09ec7604e8a8bfc",
+  "src/nanoisa/record_map_publication.inc": "36fc01af1112abbae9fadd6dcab7426ebc22ac55c5c52efa4e9d90d553365857",
+  "tests/nanoisa/test_record_map_publication.c": "15ddf05d832924ea99ccb38c546d430a775a4416f19d0692dacd73712c8a6e73",
+  "tests/test_record_map_publication.py": "7adfa11c45f0baefd2764a70175c855cb5ba8dace0392ad98b800edfc0b9c777",
+  "modules/nanoisa/module.json": "cd1ae32318dcb5006ea46aa1053480fa67eb1ef763896b02d7b26b13ce0887f7"
+}

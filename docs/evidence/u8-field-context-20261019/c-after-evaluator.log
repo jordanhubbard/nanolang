@@ -1,0 +1,21 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-d4hswhd0
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... FAIL
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+
+======================================================================
+FAIL: test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_u8_field_context.py", line 107, in test_native_c_profiles
+    self.assertEqual(emitted.returncode,0,emitted.stdout+emitted.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [c_backend] I require a retained exact declaration or signature for this C call.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.711s
+
+FAILED (failures=1)

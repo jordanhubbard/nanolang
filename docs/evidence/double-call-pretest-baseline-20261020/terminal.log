@@ -1,0 +1,1 @@
+[{'producer': 'nano_virt', 'locals': [37, 3], 'calls': [3, 0]}, {'producer': 'nanoc_stage1', 'locals': [37, 3], 'calls': [3, 0]}, {'producer': 'nanoc_stage2', 'locals': [37, 3], 'calls': [3, 0]}]

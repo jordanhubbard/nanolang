@@ -1,0 +1,47 @@
+{
+  "unchanged_headers": [
+    "src/nanovm/vm.h",
+    "src/nanovm/heap.h",
+    "src/nanovm/value.h",
+    "src/nanovm/vm_decode.h",
+    "src/nanovm/vm_dispatch.h"
+  ],
+  "rows": [
+    {
+      "mode": "default",
+      "dispatch": "switch",
+      "sizes": "797776 96",
+      "private_exports": false
+    },
+    {
+      "mode": "default",
+      "dispatch": "goto",
+      "sizes": "797776 96",
+      "private_exports": false
+    },
+    {
+      "mode": "array",
+      "dispatch": "switch",
+      "sizes": "803992 6312",
+      "private_exports": false
+    },
+    {
+      "mode": "array",
+      "dispatch": "goto",
+      "sizes": "803992 6312",
+      "private_exports": false
+    },
+    {
+      "mode": "combined",
+      "dispatch": "switch",
+      "sizes": "803992 6312",
+      "private_exports": true
+    },
+    {
+      "mode": "combined",
+      "dispatch": "goto",
+      "sizes": "803992 6312",
+      "private_exports": true
+    }
+  ]
+}

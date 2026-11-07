@@ -1,0 +1,7 @@
+prior-build 0
+prior-link 1
+/private/tmp/nanolang-map-native-final-checks/golden.c:2:10: fatal error: 'nvm_v2_module.h' file not found
+    2 | #include "nvm_v2_module.h"
+      |          ^~~~~~~~~~~~~~~~~
+1 error generated.
+

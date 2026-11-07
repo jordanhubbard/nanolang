@@ -1,0 +1,44 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3201, column 9: Unused variable 'rejected'
+Warning at line 3510, column 9: Unused variable 'rejected'
+Warning at line 3514, column 9: Unused variable 'rejected'
+Warning at line 3518, column 9: Unused variable 'rejected'
+Warning at line 3522, column 9: Unused variable 'rejected'
+Warning at line 3529, column 13: Unused variable 'rejected'
+Warning at line 3678, column 9: Unused variable 'rejected'
+Warning at line 3682, column 9: Unused variable 'rejected'
+Warning at line 3689, column 13: Unused variable 'rejected'
+Warning at line 8223, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3201, column 9: Unused variable 'rejected'
+Warning at line 3510, column 9: Unused variable 'rejected'
+Warning at line 3514, column 9: Unused variable 'rejected'
+Warning at line 3518, column 9: Unused variable 'rejected'
+Warning at line 3522, column 9: Unused variable 'rejected'
+Warning at line 3529, column 13: Unused variable 'rejected'
+Warning at line 3678, column 9: Unused variable 'rejected'
+Warning at line 3682, column 9: Unused variable 'rejected'
+Warning at line 3689, column 13: Unused variable 'rejected'
+Warning at line 8223, column 17: Unused variable 'imported'
+Error: Failed to compile module '/Users/jkh/Src/nanolang-51-checked-effects/src_nano/compiler/nanoisa_codegen.nano' to object file
+Compilation errors:
+/Users/jkh/Src/nanolang-51-checked-effects/src_nano/compiler/nanoisa_codegen.nano:7939:271: error: call to undeclared function 'checked_borrow_facts__borrow_fact_lookup'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+ 7939 |             index = ({ __auto_type __nl_arg_9432_0 = parser; __auto_type __nl_arg_9432_1 = context; __auto_type __nl_arg_9432_2 = function; __auto_type __nl_arg_9432_3 = site.call; __auto_type __nl_arg_9432_4 = site.argument; __auto_type __nl_arg_9432_5 = site.ordinal; checked_borrow_facts__borrow_fact_lookup(__nl_arg_9432_0, __nl_arg_9432_1, __nl_arg_9432_2, __nl_arg_9432_3, __nl_arg_9432_4, __nl_arg_9432_5); });
+      |                                                                                                                                                                                                                                                                               ^
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-LErkPD/source.c
+Error: Failed to compile module '/Users/jkh/Src/nanolang-51-checked-effects/src_nano/compiler/nanoisa_codegen.nano'
+Error: Failed to compile modules

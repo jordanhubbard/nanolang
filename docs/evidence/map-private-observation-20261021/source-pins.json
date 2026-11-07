@@ -1,0 +1,12 @@
+{
+  "/Users/jkh/Src/nanolang-51-platform-qualification/Makefile.gnu": "1d8560a4e644c95cb9b28370fc91bbc5189dc1f12f0f32d98568ad0717f7a7a6",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanovm/record_map_heap.inc": "596d4b9fc3a04fa6fffbc579db6ed1add7db1e77d25ee87cca53fc93eb0856ed",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanovm/record_map_heap_private.h": "0eeb13eef772b84cf01410e5c51f66dabc6816ba9358efcfc4a54f7c42df5bae",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanovm/record_map_runtime_private.h": "17489abd0fb19c3333be96add7c8eb53ec55c17392d8c506176c1540cb5d72d6",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanovm/vm.c": "13b0c60ad66c9976883d4674ce60209b0b81dbe67d24a5084fa010cfef138ee7",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_map_runtime.c": "c8e87cd814a8a96aa8856271c9af103096dfa6bc2fb78e80bcdcf355419e3ce1",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py": "5b07f8b8091ef1431baca84b900c908db3c4bc04d7bf6a79e465237515d602de",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanovm/record_map_vm_observe.inc": "b0d06250049be35a426bb1db1403d8a77af4040e94526f4058ff4dd0f2149a23",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_map_observation.c": "d87ef29b42cec795c7c297d7e43971179ba933c9445e6c0a56cd49513c97da85",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_observation.py": "d8fdcfec1f694ce826d7779187969526c9725a48f62ce6b8ba8d4be1946decf0"
+}

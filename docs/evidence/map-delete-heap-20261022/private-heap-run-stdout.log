@@ -1,0 +1,3 @@
+I checked 32 partial record/map construction prefixes with independent retry.
+I measured corrected legacy growth allocated=7126; freed=7126, objects=0.
+I checked 10318 private heap assertions; no VM dispatch or admission. Heap size 6312.

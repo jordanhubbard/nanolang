@@ -1,0 +1,25 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-r6wx8inz
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 4522 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 5050 record-array origin checks; no runtime admission
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm instructions=40 functions=1 reserved=67194647 work=16868329
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm instructions=48 functions=3 reserved=67196047 work=16870638
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm instructions=35 functions=1 reserved=67193730 work=16866891
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm instructions=44 functions=3 reserved=67195360 work=16869580
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+PASS 818 union recipe checks; public execution remains refused
+union recipes owner=32 site=72 carrier=13384 origin_scratch=2592 retained=14854 peak=74825 bytes=67189009 work=16859481 prefixes=54
+PASS 2795 union recipe allocation checks

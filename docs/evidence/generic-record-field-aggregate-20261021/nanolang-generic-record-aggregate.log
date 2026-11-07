@@ -1,0 +1,483 @@
+EEEEEEEEEEEEEEEEEEE
+======================================================================
+ERROR: test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_field_only_instance_is_defined (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_field_only_instance_is_defined) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_global_resource_collection_remains_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_global_resource_collection_remains_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_global_resource_field_remains_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_global_resource_field_remains_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_affine_generic_identity.py", line 24, in check
+    result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified'
+
+======================================================================
+ERROR: test_wrong_concrete_field_argument_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_concrete_field_argument_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_generic_record_fields.py", line 22, in reject_type
+    result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified')
+
+======================================================================
+ERROR: test_wrong_record_constructor_context_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_record_constructor_context_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified', constructor='Box.Some { value: "bad" }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_generic_record_fields.py", line 22, in reject_type
+    result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified')
+
+======================================================================
+ERROR: test_wrong_record_constructor_context_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_record_constructor_context_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified', constructor='Other.Some { value: 42 }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_generic_record_fields.py", line 22, in reject_type
+    result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified')
+
+======================================================================
+ERROR: test_wrong_record_constructor_context_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_record_constructor_context_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified', constructor='Box<string>.None {}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_generic_record_fields.py", line 22, in reject_type
+    result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified')
+
+======================================================================
+ERROR: test_wrong_union_field_declaration_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_union_field_declaration_rejected) (compiler='nanoc_c:nanoc_generic_record_qualified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_generic_record_fields.py", line 22, in reject_type
+    result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c:nanoc_generic_record_qualified')
+
+======================================================================
+ERROR: test_generic_affine_identity (unittest.loader._FailedTest.test_generic_affine_identity)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_generic_affine_identity
+Traceback (most recent call last):
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_generic_affine_identity'
+
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.039s
+
+FAILED (errors=19)

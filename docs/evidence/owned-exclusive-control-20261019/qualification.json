@@ -1,0 +1,31 @@
+{
+  "cwd": "/Users/jkh/Src/nanolang-owned-nested-depth2",
+  "ancestor": "f2729ab1bfbd8c794de65707c0cf42eef75d19ed",
+  "design": "3e3f195bf771e6ea44b1e21860cad0c95b3b4524",
+  "environment": {
+    "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_owned_exclusive_control_reconstruction"
+  ],
+  "note": "All12 methods qualified across seven-method folded and five-method focused terminal runs; aggregate full-module invocation is the handoff target, not a claimed component full-module run.",
+  "targets": [
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_rank_loop_work_and_unchanged_ir",
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_guarded_add_work_covers_full_emitted_syntax",
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_adjacent_add_snapshot_folding_keeps_effect_boundaries",
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_every_continuing_backedge_is_checked",
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_only_continuing_arm_update_counts_join",
+    "tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_return_only_loop_counts_pretest_and_preserves_false_path_facts",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_rank_zero_one_three_and_returning_arm_sources",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_return_caller_variants_preserve_complete_owner_consumption",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_actual_unproved_rank_and_work_limit_refuse_atomically",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_generated_local_cap_remains_atomic_after_folding",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_original_reference_verifier_and_defensive_control_refusals",
+    "tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement"
+  ]
+}

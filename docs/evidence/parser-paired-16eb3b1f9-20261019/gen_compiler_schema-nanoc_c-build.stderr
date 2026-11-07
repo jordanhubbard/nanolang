@@ -1,0 +1,198 @@
+[ffi_loader] Initialized
+[ffi_loader] Loaded 'std' from /Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-70cd48fe7cf3880bf367681119d6151acdfc19633801def8b5b36e2d69853293/.nano-gen-uHKEU7/libstd.dylib
+[ffi_loader] Loaded 'std_json' from /Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-990a7069891fadc45103d95d9c9b0547246afd8239e9b9959edce48fa82991e2/.nano-gen-43mJsW/libstd_json.dylib
+{"event":"shadow-start","name":"walkdir","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":35,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"walkdir","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":35,"elapsed_seconds":0.000564,"failures":0}
+{"event":"shadow-start","name":"canonical","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":60,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"canonical","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":60,"elapsed_seconds":0.000372,"failures":0}
+{"event":"shadow-start","name":"normalize","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":73,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"normalize","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":73,"elapsed_seconds":0.000194,"failures":0}
+{"event":"shadow-start","name":"join","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":85,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"join","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":85,"elapsed_seconds":0.000175,"failures":0}
+{"event":"shadow-start","name":"basename","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":97,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"basename","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":97,"elapsed_seconds":0.000159,"failures":0}
+{"event":"shadow-start","name":"dirname","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":108,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"dirname","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":108,"elapsed_seconds":0.000149,"failures":0}
+{"event":"shadow-start","name":"relpath","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":120,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"relpath","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":120,"elapsed_seconds":0.000419,"failures":0}
+{"event":"shadow-start","name":"cwd","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":135,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"cwd","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":135,"elapsed_seconds":0.000143,"failures":0}
+{"event":"shadow-start","name":"glob_match_impl","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":190,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"glob_match_impl","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":190,"elapsed_seconds":0.000191,"failures":0}
+{"event":"shadow-start","name":"glob_match","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":200,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"glob_match","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":200,"elapsed_seconds":0.000304,"failures":0}
+{"event":"shadow-start","name":"glob","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":225,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"glob","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":225,"elapsed_seconds":0.000595,"failures":0}
+{"event":"shadow-start","name":"read","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":251,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"read","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":251,"elapsed_seconds":0.000368,"failures":0}
+{"event":"shadow-start","name":"write","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":269,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"write","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":269,"elapsed_seconds":0.000317,"failures":0}
+{"event":"shadow-start","name":"append","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":287,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"append","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":287,"elapsed_seconds":0.000320,"failures":0}
+{"event":"shadow-start","name":"exists","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":306,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"exists","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":306,"elapsed_seconds":0.000311,"failures":0}
+{"event":"shadow-start","name":"delete","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":326,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"delete","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":326,"elapsed_seconds":0.000286,"failures":0}
+{"event":"shadow-start","name":"mkdir_p","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":346,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"mkdir_p","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":346,"elapsed_seconds":0.000381,"failures":0}
+{"event":"shadow-start","name":"copy_file","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":366,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"copy_file","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":366,"elapsed_seconds":0.000474,"failures":0}
+{"event":"shadow-start","name":"copy_dir","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":387,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"copy_dir","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/fs.nano","line":387,"elapsed_seconds":0.000640,"failures":0}
+{"event":"shadow-start","name":"parse","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":46,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"parse","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":46,"elapsed_seconds":0.000204,"failures":0}
+{"event":"shadow-start","name":"free","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":58,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"free","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":58,"elapsed_seconds":0.000130,"failures":0}
+{"event":"shadow-start","name":"stringify","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":68,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"stringify","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":68,"elapsed_seconds":0.000157,"failures":0}
+{"event":"shadow-start","name":"is_null","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":77,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_null","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":77,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"is_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":85,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":85,"elapsed_seconds":0.000145,"failures":0}
+{"event":"shadow-start","name":"is_number","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":93,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_number","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":93,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"is_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":101,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":101,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"is_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":109,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":109,"elapsed_seconds":0.000140,"failures":0}
+{"event":"shadow-start","name":"is_object","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":117,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"is_object","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":117,"elapsed_seconds":0.000146,"failures":0}
+{"event":"shadow-start","name":"as_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":125,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"as_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":125,"elapsed_seconds":0.000139,"failures":0}
+{"event":"shadow-start","name":"as_float","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":133,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"as_float","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":133,"elapsed_seconds":0.000140,"failures":0}
+{"event":"shadow-start","name":"as_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":142,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"as_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":142,"elapsed_seconds":0.000140,"failures":0}
+{"event":"shadow-start","name":"as_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":150,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"as_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":150,"elapsed_seconds":0.000151,"failures":0}
+{"event":"shadow-start","name":"get_float","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":168,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_float","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":168,"elapsed_seconds":0.000191,"failures":0}
+{"event":"shadow-start","name":"get_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":186,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":186,"elapsed_seconds":0.000181,"failures":0}
+{"event":"shadow-start","name":"decode_int_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":207,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"decode_int_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":207,"elapsed_seconds":0.000254,"failures":0}
+{"event":"shadow-start","name":"decode_string_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":230,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"decode_string_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":230,"elapsed_seconds":0.000236,"failures":0}
+{"event":"shadow-start","name":"object_has","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":240,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"object_has","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":240,"elapsed_seconds":0.000166,"failures":0}
+{"event":"shadow-start","name":"get","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":249,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":249,"elapsed_seconds":0.000151,"failures":0}
+{"event":"shadow-start","name":"keys","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":259,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"keys","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":259,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"array_size","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":268,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"array_size","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":268,"elapsed_seconds":0.000190,"failures":0}
+{"event":"shadow-start","name":"get_index","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":280,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_index","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":280,"elapsed_seconds":0.000189,"failures":0}
+{"event":"shadow-start","name":"new_object","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":293,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_object","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":293,"elapsed_seconds":0.000143,"failures":0}
+{"event":"shadow-start","name":"new_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":301,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_array","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":301,"elapsed_seconds":0.000140,"failures":0}
+{"event":"shadow-start","name":"new_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":309,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":309,"elapsed_seconds":0.000145,"failures":0}
+{"event":"shadow-start","name":"new_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":317,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":317,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"new_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":330,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_bool","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":330,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"new_null","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":338,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"new_null","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":338,"elapsed_seconds":0.000138,"failures":0}
+{"event":"shadow-start","name":"object_set","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":348,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"object_set","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":348,"elapsed_seconds":0.000166,"failures":0}
+{"event":"shadow-start","name":"json_array_push","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":360,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"json_array_push","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":360,"elapsed_seconds":0.000190,"failures":0}
+{"event":"shadow-start","name":"get_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":379,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_string","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":379,"elapsed_seconds":0.000206,"failures":0}
+{"event":"shadow-start","name":"get_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":396,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_int","source":"/Users/jkh/Src/nanolang-51-harness/modules/std/json/json.nano","line":396,"elapsed_seconds":0.000177,"failures":0}
+{"event":"shadow-start","name":"write_if_changed","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":19,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"write_if_changed","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":19,"elapsed_seconds":0.000536,"failures":0}
+{"event":"shadow-start","name":"get_token_count","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":34,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_token_count","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":34,"elapsed_seconds":0.000184,"failures":0}
+{"event":"shadow-start","name":"schema_index_string","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":49,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"schema_index_string","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":49,"elapsed_seconds":0.000199,"failures":0}
+{"event":"shadow-start","name":"gen_nano_schema","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":107,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"gen_nano_schema","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":107,"elapsed_seconds":0.000473,"failures":0}
+{"event":"shadow-start","name":"gen_nano_ast","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":233,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"gen_nano_ast","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":233,"elapsed_seconds":0.000192,"failures":0}
+{"event":"shadow-start","name":"gen_contracts","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":341,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"gen_contracts","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":341,"elapsed_seconds":0.000193,"failures":0}
+{"event":"shadow-start","name":"schema_prefix_matches","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":353,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"schema_prefix_matches","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":353,"elapsed_seconds":0.000155,"failures":0}
+{"event":"shadow-start","name":"extract_between","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":371,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"extract_between","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":371,"elapsed_seconds":0.000172,"failures":0}
+{"event":"shadow-start","name":"map_type_to_c","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":410,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"map_type_to_c","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":410,"elapsed_seconds":0.000232,"failures":0}
+{"event":"shadow-start","name":"schema_name_before","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":433,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"schema_name_before","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":433,"elapsed_seconds":0.000175,"failures":0}
+{"event":"shadow-start","name":"schema_insert_name","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":454,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"schema_insert_name","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":454,"elapsed_seconds":0.000200,"failures":0}
+{"event":"shadow-start","name":"gen_c","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":663,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"gen_c","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":663,"elapsed_seconds":0.001277,"failures":0}
+{"event":"shadow-start","name":"main","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":754,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano","line":754,"elapsed_seconds":0.000118,"failures":0}
+Running shadow tests...
+Testing walkdir... PASSED
+Testing canonical... PASSED
+Testing normalize... PASSED
+Testing join... PASSED
+Testing basename... PASSED
+Testing dirname... PASSED
+Testing relpath... PASSED
+Testing cwd... PASSED
+Testing glob_match_impl... PASSED
+Testing glob_match... PASSED
+Testing glob... PASSED
+Testing read... PASSED
+Testing write... PASSED
+Testing append... PASSED
+Testing exists... PASSED
+Testing delete... PASSED
+Testing mkdir_p... PASSED
+Testing copy_file... PASSED
+Testing copy_dir... PASSED
+Testing parse... PASSED
+Testing free... PASSED
+Testing stringify... PASSED
+Testing is_null... PASSED
+Testing is_bool... PASSED
+Testing is_number... PASSED
+Testing is_string... PASSED
+Testing is_array... PASSED
+Testing is_object... PASSED
+Testing as_int... PASSED
+Testing as_float... PASSED
+Testing as_bool... PASSED
+Testing as_string... PASSED
+Testing get_float... PASSED
+Testing get_bool... PASSED
+Testing decode_int_array... PASSED
+Testing decode_string_array... PASSED
+Testing object_has... PASSED
+Testing get... PASSED
+Testing keys... PASSED
+Testing array_size... PASSED
+Testing get_index... PASSED
+Testing new_object... PASSED
+Testing new_array... PASSED
+Testing new_string... PASSED
+Testing new_int... PASSED
+Testing new_bool... PASSED
+Testing new_null... PASSED
+Testing object_set... PASSED
+Testing json_array_push... PASSED
+Testing get_string... PASSED
+Testing get_int... PASSED
+Testing write_if_changed... PASSED
+Testing get_token_count... PASSED
+Testing schema_index_string... PASSED
+Testing gen_nano_schema... PASSED
+Testing gen_nano_ast... PASSED
+Testing gen_contracts... PASSED
+Testing schema_prefix_matches... PASSED
+Testing extract_between... PASSED
+Testing map_type_to_c... PASSED
+Testing schema_name_before... PASSED
+Testing schema_insert_name... PASSED
+Testing gen_c... PASSED
+Testing main... PASSED
+All shadow tests passed! (64 tests)
+[ffi_loader] Shut down

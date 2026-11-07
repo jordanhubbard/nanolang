@@ -1,0 +1,41 @@
+resource struct Handle { fd: int }
+fn close(owned: Handle) -> int { let Handle { fd } = owned return fd }
+shadow close { assert (== (close Handle { fd: 7 }) 7) }
+fn worker(owned: Handle, stop: bool) -> int {
+    let mut value: float = 1.5
+    let copy: float = value
+    while false { unsafe { set value 99.0 } }
+    let mut index: int = 0
+    while (< index 3) {
+        unsafe {
+            set index (+ index 1)
+            if stop { break }
+            set value (+ value 1.0)
+            continue
+        }
+    }
+    assert (== copy 1.5)
+    if stop { assert (== value 1.5) } else { assert (== value 4.5) }
+    unsafe {
+        let value: float = (- 2.5)
+        assert (< value 0.0)
+        let mut inf: float = 10000000000.0
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        let nan: float = (- inf inf)
+        assert (!= nan nan)
+        assert (not (<= nan 1.0))
+        assert (not (>= nan 1.0))
+        return (close owned)
+    }
+}
+shadow worker { assert (== (worker Handle { fd: 7 } true) 7) }
+fn main() -> int {
+    assert (== (worker Handle { fd: 8 } false) 8)
+    assert (== (worker Handle { fd: 9 } true) 9)
+    return 0
+}
+shadow main { assert (== (main) 0) }

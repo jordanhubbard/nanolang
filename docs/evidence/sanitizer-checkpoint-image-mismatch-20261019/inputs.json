@@ -1,0 +1,14 @@
+[
+  {
+    "name": "stage1",
+    "path": "/private/tmp/nanolang-sanitizer-stage1-118149401411.log",
+    "sha256": "158256b0de51830b2a9daef514a98f26dc9fbb895852ba6f0ad95ad9b13a2e92",
+    "bytes": 204021
+  },
+  {
+    "name": "continuation",
+    "path": "/private/tmp/nanolang-sanitizer-restore-118203797120.log",
+    "sha256": "1b6374d5871430b6018fd4ed626f7bf6ced87b68f639bfccd9d4860f99f2b130",
+    "bytes": 115333
+  }
+]

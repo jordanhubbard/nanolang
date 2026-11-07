@@ -1,5 +1,6 @@
 """I run the same checked mixed program through VM and independent generated C."""
 import os
+import re
 from pathlib import Path
 import shlex
 import socket
@@ -102,11 +103,11 @@ int main(int argc,char **argv){
                         self.command('file-host-probe-build', [*compiler,*flags,'-Dtmpfile=services_test_tmpfile',
                             '-c','src/nsi_file.c','-o',str(probe)])
                         probe_providers=[str(probe) if Path(p).name=='nsi_file.o' else p for p in providers]
-                        changes=[('wrong-instance',text.replace('runtime_service(c,0,reference,src,dst)',
-                            'runtime_service(c,10,reference,src,dst)',1),6,3),
-                            ('wrong-map',text.replace('ordinal!=0)return false;','ordinal!=999)return false;',1),2,0)]
+                        changes=[('wrong-instance',text.replace('runtime_service_args(c,0,reference,inputs,0,dst)',
+                            'runtime_service_args(c,10,reference,inputs,0,dst)',1),6,3),
+                            ('wrong-map',re.sub(r'ordinal!=\d+\)return false;','ordinal!=999)return false;',text,count=1),2,0)]
                         for name,changed,status,count in changes:
-                            self.assertNotEqual(changed,text)
+                            self.assertNotEqual(changed,text,name)
                             bad=self.artifacts/(name+'.c');bad.write_text(changed)
                             bad_driver=self.artifacts/(name+'-driver.c')
                             bad_driver.write_text(driver.read_text().replace('r.runtime.cleanup.count!=3',f'r.runtime.cleanup.count!={count}')

@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_baseline_nanoc_stage1",
+    "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_helper_owners.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/owned-helper-locals-baseline-20261019/nanoc_stage1.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-owned-nested-depth2",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

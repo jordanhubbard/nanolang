@@ -1910,7 +1910,7 @@ static void test_agg_set_is_refused(void) {
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL, "AGG_SET stays outside the closed subset");
-    CHECK(strstr(err, "AGG_SET") != NULL, "error names AGG_SET");
+    CHECK(strstr(err, "canonical record field mutation") != NULL, "error names unadmitted record field mutation");
     free(c);
     nvm_module_free(m);
 }

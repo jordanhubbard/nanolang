@@ -1,0 +1,292 @@
+[
+  {
+    "name": "clang-ordinary",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.3064559170161374
+  },
+  {
+    "name": "clang-array",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.09484658297151327
+  },
+  {
+    "name": "clang-preparation",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.1002007499919273
+  },
+  {
+    "name": "clang-runtime",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.10088895901571959
+  },
+  {
+    "name": "clang-harness",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_runtime.c"
+    ],
+    "exit": 0,
+    "seconds": 0.11120379198109731
+  },
+  {
+    "name": "clang-observation",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_observation.c"
+    ],
+    "exit": 0,
+    "seconds": 0.11412395798834041
+  },
+  {
+    "name": "clang-heap",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "exit": 0,
+    "seconds": 0.04639570799190551
+  },
+  {
+    "name": "gcc-16-ordinary",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.17436658299993724
+  },
+  {
+    "name": "gcc-16-array",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.0681464170338586
+  },
+  {
+    "name": "gcc-16-preparation",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.06794816697947681
+  },
+  {
+    "name": "gcc-16-runtime",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "seconds": 0.0687348329811357
+  },
+  {
+    "name": "gcc-16-harness",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_runtime.c"
+    ],
+    "exit": 0,
+    "seconds": 0.07997470896225423
+  },
+  {
+    "name": "gcc-16-observation",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_observation.c"
+    ],
+    "exit": 0,
+    "seconds": 0.08134420798160136
+  },
+  {
+    "name": "gcc-16-heap",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-D_GNU_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "exit": 0,
+    "seconds": 0.04216287500457838
+  }
+]

@@ -1,0 +1,8 @@
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... ok
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 69.449s
+
+OK

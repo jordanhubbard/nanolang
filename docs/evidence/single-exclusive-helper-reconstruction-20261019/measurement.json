@@ -1,0 +1,33 @@
+{
+  "c": {
+    "cost": [
+      228,
+      29
+    ],
+    "work": {
+      "work": 288,
+      "loops": [],
+      "add_work": 256,
+      "limit": 4096
+    },
+    "returncode": 0,
+    "stderr": "",
+    "sentinel_preserved": false
+  },
+  "nano": {
+    "cost": [
+      127,
+      29
+    ],
+    "work": {
+      "work": 288,
+      "loops": [],
+      "add_work": 256,
+      "limit": 4096
+    },
+    "shadow_cost": 60,
+    "returncode": 0,
+    "stderr": "",
+    "sentinel_preserved": false
+  }
+}

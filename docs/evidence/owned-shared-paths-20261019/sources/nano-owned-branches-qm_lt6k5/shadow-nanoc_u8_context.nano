@@ -1,0 +1,172 @@
+resource struct NlrOwned0 { f0: int, f1: bool }
+resource struct NlrOwned1 { f0: NlrOwned0, f1: NlrOwned0 }
+resource struct NlrOwned2 { f0: NlrOwned1 }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let nlr_tshadow_1: NlrOwned0 = NlrOwned0 { f0: 2, f1: true }
+    let nlr_tshadow_2: NlrOwned0 = NlrOwned0 { f0: 7, f1: true }
+    let nlr_tshadow_3: NlrOwned1 = NlrOwned1 { f0: nlr_tshadow_1, f1: nlr_tshadow_2 }
+    let nlr_tshadow_4: NlrOwned2 = NlrOwned2 { f0: nlr_tshadow_3 }
+    let nlr_l0: NlrOwned2 = nlr_tshadow_4
+    let nlr_tshadow_5: int = (nlr_f1_owned_1 &nlr_l0.f0.f0 &nlr_l0.f0.f0)
+    let NlrOwned2 { f0 } = nlr_l0
+    let nlr_tshadow_6: NlrOwned1 = f0
+    let nlr_l1: NlrOwned1 = nlr_tshadow_6
+    let NlrOwned1 { f0, f1 } = nlr_l1
+    let nlr_tshadow_7: NlrOwned0 = f0
+    let nlr_tshadow_8: NlrOwned0 = f1
+    let nlr_l2: NlrOwned0 = nlr_tshadow_7
+    let NlrOwned0 { f0, f1 } = nlr_l2
+    let nlr_tshadow_9: int = f0
+    let nlr_tshadow_10: bool = f1
+    let nlr_l3: NlrOwned0 = nlr_tshadow_8
+    let NlrOwned0 { f0, f1 } = nlr_l3
+    let nlr_tshadow_11: int = f0
+    let nlr_tshadow_12: bool = f1
+    let nlr_tshadow_13: NlrOwned0 = NlrOwned0 { f0: 2, f1: true }
+    let nlr_tshadow_14: NlrOwned0 = NlrOwned0 { f0: 7, f1: true }
+    let nlr_tshadow_15: NlrOwned1 = NlrOwned1 { f0: nlr_tshadow_13, f1: nlr_tshadow_14 }
+    let nlr_tshadow_16: NlrOwned2 = NlrOwned2 { f0: nlr_tshadow_15 }
+    let nlr_l4: NlrOwned2 = nlr_tshadow_16
+    let nlr_tshadow_17: int = (nlr_f1_owned_1 &nlr_l4.f0.f0 &nlr_l4.f0.f0)
+    let NlrOwned2 { f0 } = nlr_l4
+    let nlr_tshadow_18: NlrOwned1 = f0
+    let nlr_l5: NlrOwned1 = nlr_tshadow_18
+    let NlrOwned1 { f0, f1 } = nlr_l5
+    let nlr_tshadow_19: NlrOwned0 = f0
+    let nlr_tshadow_20: NlrOwned0 = f1
+    let nlr_l6: NlrOwned0 = nlr_tshadow_19
+    let NlrOwned0 { f0, f1 } = nlr_l6
+    let nlr_tshadow_21: int = f0
+    let nlr_tshadow_22: bool = f1
+    let nlr_l7: NlrOwned0 = nlr_tshadow_20
+    let NlrOwned0 { f0, f1 } = nlr_l7
+    let nlr_tshadow_23: int = f0
+    let nlr_tshadow_24: bool = f1
+    assert (== nlr_tshadow_5 nlr_tshadow_17)
+    assert (== nlr_tshadow_9 nlr_tshadow_21)
+    assert (== nlr_tshadow_10 nlr_tshadow_22)
+    assert (== nlr_tshadow_11 nlr_tshadow_23)
+    assert (== nlr_tshadow_12 nlr_tshadow_24)
+
+ return 0
+}
+fn nlr_f1_owned_1(nlr_a0: &NlrOwned0, nlr_a1: &NlrOwned0) -> int {
+    let nlr_t0: bool = nlr_a1.f1
+    assert nlr_t0
+    let nlr_t6: int = nlr_a0.f0
+    let nlr_t20_mul_a: int = nlr_t6
+    let nlr_t20_mul_b: int = 10
+    let mut nlr_t20_mul_factor: int = nlr_t20_mul_a
+    let mut nlr_t20_mul_remaining: int = nlr_t20_mul_b
+    let mut nlr_t20: int = 0
+    while (!= nlr_t20_mul_remaining 0) {
+        let nlr_t20_mul_digit: int = (% nlr_t20_mul_remaining 2)
+        if (> nlr_t20_mul_digit 0) {
+            let nlr_t20_mul_add_a: int = nlr_t20
+            let nlr_t20_mul_add_b: int = nlr_t20_mul_factor
+            let nlr_t20_mul_add_low: int = (- -9223372036854775807 1)
+            let nlr_t20_mul_add_high: int = 9223372036854775807
+            let mut nlr_t20_mul_add: int = 0
+            if (> nlr_t20_mul_add_b 0) {
+                let nlr_t20_mul_add_boundary: int = (- nlr_t20_mul_add_high nlr_t20_mul_add_b)
+                if (> nlr_t20_mul_add_a nlr_t20_mul_add_boundary) { set nlr_t20_mul_add (+ nlr_t20_mul_add_low (- (- nlr_t20_mul_add_a nlr_t20_mul_add_boundary) 1)) } else { set nlr_t20_mul_add (+ nlr_t20_mul_add_a nlr_t20_mul_add_b) }
+            } else { if (< nlr_t20_mul_add_b 0) {
+                let nlr_t20_mul_add_boundary: int = (- nlr_t20_mul_add_low nlr_t20_mul_add_b)
+                if (< nlr_t20_mul_add_a nlr_t20_mul_add_boundary) { set nlr_t20_mul_add (+ nlr_t20_mul_add_high (+ (- nlr_t20_mul_add_a nlr_t20_mul_add_boundary) 1)) } else { set nlr_t20_mul_add (+ nlr_t20_mul_add_a nlr_t20_mul_add_b) }
+            } else { set nlr_t20_mul_add (+ nlr_t20_mul_add_a nlr_t20_mul_add_b) } }
+            set nlr_t20 nlr_t20_mul_add
+        }
+        if (< nlr_t20_mul_digit 0) {
+            let nlr_t20_mul_sub_a: int = nlr_t20
+            let nlr_t20_mul_sub_b: int = nlr_t20_mul_factor
+            let nlr_t20_mul_sub_low: int = (- -9223372036854775807 1)
+            let nlr_t20_mul_sub_high: int = 9223372036854775807
+            let mut nlr_t20_mul_sub: int = 0
+            if (> nlr_t20_mul_sub_b 0) {
+                let nlr_t20_mul_sub_boundary: int = (+ nlr_t20_mul_sub_low nlr_t20_mul_sub_b)
+                if (< nlr_t20_mul_sub_a nlr_t20_mul_sub_boundary) { set nlr_t20_mul_sub (+ nlr_t20_mul_sub_high (+ (- nlr_t20_mul_sub_a nlr_t20_mul_sub_boundary) 1)) } else { set nlr_t20_mul_sub (- nlr_t20_mul_sub_a nlr_t20_mul_sub_b) }
+            } else { if (< nlr_t20_mul_sub_b 0) {
+                let nlr_t20_mul_sub_boundary: int = (+ nlr_t20_mul_sub_high nlr_t20_mul_sub_b)
+                if (> nlr_t20_mul_sub_a nlr_t20_mul_sub_boundary) { set nlr_t20_mul_sub (+ nlr_t20_mul_sub_low (- nlr_t20_mul_sub_a (+ nlr_t20_mul_sub_boundary 1))) } else { set nlr_t20_mul_sub (- nlr_t20_mul_sub_a nlr_t20_mul_sub_b) }
+            } else { set nlr_t20_mul_sub (- nlr_t20_mul_sub_a nlr_t20_mul_sub_b) } }
+            set nlr_t20 nlr_t20_mul_sub
+        }
+        set nlr_t20_mul_remaining (/ nlr_t20_mul_remaining 2)
+        let nlr_t20_mul_double_a: int = nlr_t20_mul_factor
+        let nlr_t20_mul_double_b: int = nlr_t20_mul_factor
+        let nlr_t20_mul_double_low: int = (- -9223372036854775807 1)
+        let nlr_t20_mul_double_high: int = 9223372036854775807
+        let mut nlr_t20_mul_double: int = 0
+        if (> nlr_t20_mul_double_b 0) {
+            let nlr_t20_mul_double_boundary: int = (- nlr_t20_mul_double_high nlr_t20_mul_double_b)
+            if (> nlr_t20_mul_double_a nlr_t20_mul_double_boundary) { set nlr_t20_mul_double (+ nlr_t20_mul_double_low (- (- nlr_t20_mul_double_a nlr_t20_mul_double_boundary) 1)) } else { set nlr_t20_mul_double (+ nlr_t20_mul_double_a nlr_t20_mul_double_b) }
+        } else { if (< nlr_t20_mul_double_b 0) {
+            let nlr_t20_mul_double_boundary: int = (- nlr_t20_mul_double_low nlr_t20_mul_double_b)
+            if (< nlr_t20_mul_double_a nlr_t20_mul_double_boundary) { set nlr_t20_mul_double (+ nlr_t20_mul_double_high (+ (- nlr_t20_mul_double_a nlr_t20_mul_double_boundary) 1)) } else { set nlr_t20_mul_double (+ nlr_t20_mul_double_a nlr_t20_mul_double_b) }
+        } else { set nlr_t20_mul_double (+ nlr_t20_mul_double_a nlr_t20_mul_double_b) } }
+        set nlr_t20_mul_factor nlr_t20_mul_double
+    }
+    let nlr_t21: int = nlr_a1.f0
+    let nlr_t26_a: int = nlr_t20
+    let nlr_t26_b: int = nlr_t21
+    let nlr_t26_low: int = (- -9223372036854775807 1)
+    let nlr_t26_high: int = 9223372036854775807
+    let mut nlr_t26: int = 0
+    if (> nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (- nlr_t26_high nlr_t26_b)
+        if (> nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_low (- (- nlr_t26_a nlr_t26_boundary) 1)) } else { set nlr_t26 (+ nlr_t26_a nlr_t26_b) }
+    } else { if (< nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (- nlr_t26_low nlr_t26_b)
+        if (< nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_high (+ (- nlr_t26_a nlr_t26_boundary) 1)) } else { set nlr_t26 (+ nlr_t26_a nlr_t26_b) }
+    } else { set nlr_t26 (+ nlr_t26_a nlr_t26_b) } }
+    return nlr_t26
+}
+
+shadow nlr_f1_owned_1 {
+    let nlr_tshadow_1: NlrOwned0 = NlrOwned0 { f0: 2, f1: true }
+    let nlr_tshadow_2: NlrOwned0 = NlrOwned0 { f0: 7, f1: true }
+    let nlr_tshadow_3: NlrOwned1 = NlrOwned1 { f0: nlr_tshadow_1, f1: nlr_tshadow_2 }
+    let nlr_tshadow_4: NlrOwned2 = NlrOwned2 { f0: nlr_tshadow_3 }
+    let nlr_l0: NlrOwned2 = nlr_tshadow_4
+    let nlr_tshadow_5: int = (nlr_f1_owned_1 &nlr_l0.f0.f0 &nlr_l0.f0.f0)
+    let NlrOwned2 { f0 } = nlr_l0
+    let nlr_tshadow_6: NlrOwned1 = f0
+    let nlr_l1: NlrOwned1 = nlr_tshadow_6
+    let NlrOwned1 { f0, f1 } = nlr_l1
+    let nlr_tshadow_7: NlrOwned0 = f0
+    let nlr_tshadow_8: NlrOwned0 = f1
+    let nlr_l2: NlrOwned0 = nlr_tshadow_7
+    let NlrOwned0 { f0, f1 } = nlr_l2
+    let nlr_tshadow_9: int = f0
+    let nlr_tshadow_10: bool = f1
+    let nlr_l3: NlrOwned0 = nlr_tshadow_8
+    let NlrOwned0 { f0, f1 } = nlr_l3
+    let nlr_tshadow_11: int = f0
+    let nlr_tshadow_12: bool = f1
+    let nlr_tshadow_13: NlrOwned0 = NlrOwned0 { f0: 2, f1: true }
+    let nlr_tshadow_14: NlrOwned0 = NlrOwned0 { f0: 7, f1: true }
+    let nlr_tshadow_15: NlrOwned1 = NlrOwned1 { f0: nlr_tshadow_13, f1: nlr_tshadow_14 }
+    let nlr_tshadow_16: NlrOwned2 = NlrOwned2 { f0: nlr_tshadow_15 }
+    let nlr_l4: NlrOwned2 = nlr_tshadow_16
+    let nlr_tshadow_17: int = (nlr_f1_owned_1 &nlr_l4.f0.f0 &nlr_l4.f0.f0)
+    let NlrOwned2 { f0 } = nlr_l4
+    let nlr_tshadow_18: NlrOwned1 = f0
+    let nlr_l5: NlrOwned1 = nlr_tshadow_18
+    let NlrOwned1 { f0, f1 } = nlr_l5
+    let nlr_tshadow_19: NlrOwned0 = f0
+    let nlr_tshadow_20: NlrOwned0 = f1
+    let nlr_l6: NlrOwned0 = nlr_tshadow_19
+    let NlrOwned0 { f0, f1 } = nlr_l6
+    let nlr_tshadow_21: int = f0
+    let nlr_tshadow_22: bool = f1
+    let nlr_l7: NlrOwned0 = nlr_tshadow_20
+    let NlrOwned0 { f0, f1 } = nlr_l7
+    let nlr_tshadow_23: int = f0
+    let nlr_tshadow_24: bool = f1
+    assert (== nlr_tshadow_5 nlr_tshadow_17)
+    assert (== nlr_tshadow_9 nlr_tshadow_21)
+    assert (== nlr_tshadow_10 nlr_tshadow_22)
+    assert (== nlr_tshadow_11 nlr_tshadow_23)
+    assert (== nlr_tshadow_12 nlr_tshadow_24)
+}

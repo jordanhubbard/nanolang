@@ -202,6 +202,29 @@ fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut tota
                     self.assertNotEqual(built.returncode, 0, built.stdout+built.stderr)
                     self.assertEqual(output.read_bytes(), b'previous artifact')
 
+    def test_duplicate_row_field_in_effect_payload_is_refused_in_bounded_memory(self):
+        # The C parser once looped on a refused payload row type and grew its parameter
+        # buffer until the process held gigabytes (#1057), killing hosted runners.
+        body = 'effect Ask{ask:{a:int,a:string}->int}\nfn main()->int{return 0}\nshadow main{assert true}\n'
+        probe = ('import resource, subprocess, sys\n'
+                 'run = subprocess.run(sys.argv[1:], capture_output=True, text=True, timeout=60)\n'
+                 'peak = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss\n'
+                 'print(run.returncode, peak)\n')
+        for driver in DRIVERS:
+            with self.subTest(driver=driver), tempfile.TemporaryDirectory() as directory:
+                work = Path(directory)
+                source, output = work/'source.nano', work/'source.nvm'
+                source.write_text(body)
+                measured = subprocess.run([sys.executable, '-c', probe, driver, str(source), '--emit-nvm', '-o', str(output)],
+                                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertEqual(measured.returncode, 0, measured.stdout+measured.stderr)
+                status, peak = (int(value) for value in measured.stdout.split())
+                self.assertNotEqual(status, 0)
+                # ru_maxrss is bytes on Darwin and kilobytes elsewhere; 512 MiB is far above
+                # what a one-line refusal needs and far below the 7 GiB it once took.
+                limit = 512 * 1024 * 1024 if sys.platform == 'darwin' else 512 * 1024
+                self.assertLess(peak, limit, 'peak resident size %d' % peak)
+
 
 if __name__ == '__main__':
     unittest.main()

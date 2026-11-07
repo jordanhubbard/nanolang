@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <assert.h>
 
@@ -275,6 +276,9 @@ struct ASTNode {
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
+    ASTNode *affine_use_owner; /* Borrowed exact checked source function. */
+    uint64_t affine_use_epoch;
+    unsigned char checked_affine_use; /* 0 unknown, 1 observe, 2 consume. */
     char *contextual_func_name; /* Owned native specialization selected for this function value. */
     union {
         long long number;
@@ -376,6 +380,9 @@ struct ASTNode {
             bool is_anonymous; /* I instantiate this declaration at its expression. */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            unsigned char checked_affine; /* 0 unknown, 1 resource checker completed. */
+            uint64_t affine_check_epoch;
+            uint64_t affine_completed_epoch;
             bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
             char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
             int   effect_count;
@@ -469,6 +476,7 @@ struct ASTNode {
             char *union_type_name;  /* Filled during typechecking */
             Type checked_scrutinee_type; /* Exact int/union domain accepted by typechecking. */
             bool scrutinee_type_checked;
+            unsigned char checked_coverage; /* 0 unknown, 1 total int, 2 total union. */
             Type result_type;       /* Checked arm value, independent of function return */
             bool result_type_checked;
         } match_expr;
@@ -919,6 +927,7 @@ typedef struct {
     int service_import_depth;
     size_t service_snapshot_indices[16];
     bool service_snapshot_bound[16];
+    struct CheckedBorrowLedger *checked_borrow_facts; /* Owned only during checked emission. */
 } Environment;
 
 /* Function declarations */
@@ -962,6 +971,7 @@ bool type_check_root_shadows(ASTNode *program, Environment *env);
 /* I borrow checked callback metadata for map result allocation during lowering. */
 Type map_transform_result_type(ASTNode *callback, Environment *env);
 Type filter_predicate_element_type(ASTNode *callback, Environment *env);
+unsigned typecheck_advisory_effects(Environment *env, ASTNode *body);
 void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 

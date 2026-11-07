@@ -48,10 +48,10 @@ class WideMultiply(unittest.TestCase):
             raise
         if self.check_once and Path(args[0]).name == 'nvm2hl':
             source = Path(args[-1]).read_text()
-            calls = re.findall(r'nlr_f1_identity\(nlr_t\d+\)|\(nlr_f1_identity nlr_t\d+\)', source)
+            calls = re.findall(r'=\s*nlr_f1_identity\(|\(nlr_f1_identity\s+', source)
             self.assertEqual(len(calls), 1)
             self.assertRegex(source, r'nlr_t\d+_low')
-            self.assertRegex(source, r'nlr_t\d+_high')
+            self.assertRegex(source, r'=\s*nlr_i64_mul_high_u\(|\(nlr_i64_mul_high_u\s+')
         return result
 
     def assemble(self, directory, text):

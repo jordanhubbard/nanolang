@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-0k2buzfk
+test_existing_exclusive_fixture (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_existing_exclusive_fixture) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.984s
+
+OK

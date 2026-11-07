@@ -1,0 +1,65 @@
+original-0-O0-build 0
+original-0-O0-run 0
+original-0-O2-build 0
+original-0-O2-run 0
+forced-original-0-O0-build 0
+forced-original-0-O0-run 0
+forced-original-0-O2-build 0
+forced-original-0-O2-run 0
+original-1-O0-build 0
+original-1-O0-run 0
+original-1-O2-build 0
+original-1-O2-run 0
+forced-original-1-O0-build 0
+forced-original-1-O0-run 0
+forced-original-1-O2-build 0
+forced-original-1-O2-run 0
+original-2-O0-build 0
+original-2-O0-run 0
+original-2-O2-build 0
+original-2-O2-run 0
+forced-original-2-O0-build 0
+forced-original-2-O0-run 0
+forced-original-2-O2-build 0
+forced-original-2-O2-run 0
+original-3-O0-build 0
+original-3-O0-run 0
+original-3-O2-build 0
+original-3-O2-run 0
+forced-original-3-O0-build 0
+forced-original-3-O0-run 0
+forced-original-3-O2-build 0
+forced-original-3-O2-run 0
+alias-replacement-O0-build 0
+alias-replacement-O0-run 0
+alias-replacement-O2-build 0
+alias-replacement-O2-run 0
+forced-alias-replacement-O0-build 0
+forced-alias-replacement-O0-run 0
+forced-alias-replacement-O2-build 0
+forced-alias-replacement-O2-run 0
+missing-void-O0-build 0
+missing-void-O0-run 0
+missing-void-O2-build 0
+missing-void-O2-run 0
+forced-missing-void-O0-build 0
+forced-missing-void-O0-run 0
+forced-missing-void-O2-build 0
+forced-missing-void-O2-run 0
+missing-assert-O0-build 0
+missing-assert-O0-run -6
+missing-assert-O2-build 0
+missing-assert-O2-run -6
+forced-missing-assert-O0-build 0
+forced-missing-assert-O0-run -6
+forced-missing-assert-O2-build 0
+forced-missing-assert-O2-run -6
+unused-declaration-O0-build 1
+ /private/tmp/nanolang-map-native-matrix-20261021/unused-declaration.c:690:5: error: call to undeclared function 'nagg_add'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  690 |     nagg_add(sizeof *node); node->next=nrec_owned_head; nrec_owned_head=node;
+      |     ^
+/private/tmp/nanolang-map-native-matrix-20261021/unused-declaration.c:699:37: error: call to undeclared function 'nagg_drop'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  699 |         nrec_owned_head=node->next; nagg_drop(sizeof *node); free(node); }
+      |                                     ^
+2 errors generated.
+

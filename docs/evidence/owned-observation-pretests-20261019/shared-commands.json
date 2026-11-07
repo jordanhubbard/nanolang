@@ -1,0 +1,1999 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 31, column 5: Unused variable 'nlr_t120_0'\nWarning at line 32, column 5: Unused variable 'nlr_t120_1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":25,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295]],\"size\":292,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":26,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":29,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":43,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":46,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":124,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":128,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":131,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":132,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":135,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":138,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":141,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":144,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":145,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":150,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":155,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":156,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":159,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":162,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":165,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":166,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":171,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":176,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":180,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":183,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":186,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":189,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":192,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":195,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":204,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":205,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":208,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":211,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":212,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":215,\"op\":\"STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":218,\"op\":\"LOAD_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":221,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":222,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":225,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":232,\"op\":\"OWN_STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":235,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":236,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":241,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":246,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":247,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":250,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":251,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":256,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":261,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":265,\"op\":\"LOAD_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":268,\"op\":\"STORE_LOCAL\",\"arg\":23,\"args\":[23],\"target\":4294967295},{\"pc\":271,\"op\":\"LOAD_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":274,\"op\":\"STORE_LOCAL\",\"arg\":24,\"args\":[24],\"target\":4294967295},{\"pc\":277,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":286,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":289,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":290,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":291,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[1,4294967295]],\"size\":12,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":25,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295]],\"size\":292,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":26,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":29,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":43,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":46,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":124,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":128,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":131,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":132,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":135,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":138,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":141,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":144,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":145,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":150,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":155,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":156,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":159,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":162,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":165,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":166,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":171,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":176,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":180,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":183,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":186,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":189,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":192,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":195,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":204,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":205,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":208,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":211,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":212,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":215,\"op\":\"STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":218,\"op\":\"LOAD_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":221,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":222,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":225,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":232,\"op\":\"OWN_STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":235,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":236,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":241,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":246,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":247,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":250,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":251,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":256,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":261,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":265,\"op\":\"LOAD_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":268,\"op\":\"STORE_LOCAL\",\"arg\":23,\"args\":[23],\"target\":4294967295},{\"pc\":271,\"op\":\"LOAD_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":274,\"op\":\"STORE_LOCAL\",\"arg\":24,\"args\":[24],\"target\":4294967295},{\"pc\":277,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":286,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":289,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":290,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":291,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[1,4294967295]],\"size\":12,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 31, column 5: Unused variable 'nlr_t120_0'\nWarning at line 32, column 5: Unused variable 'nlr_t120_1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":25,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295]],\"size\":292,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":26,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":29,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":43,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":46,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":124,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":128,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":131,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":132,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":135,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":138,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":141,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":144,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":145,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":150,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":155,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":156,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":159,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":162,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":165,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":166,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":171,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":176,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":180,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":183,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":186,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":189,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":192,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":195,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":204,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":205,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":208,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":211,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":212,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":215,\"op\":\"STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":218,\"op\":\"LOAD_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":221,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":222,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":225,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":232,\"op\":\"OWN_STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":235,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":236,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":241,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":246,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":247,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":250,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":251,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":256,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":261,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":265,\"op\":\"LOAD_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":268,\"op\":\"STORE_LOCAL\",\"arg\":23,\"args\":[23],\"target\":4294967295},{\"pc\":271,\"op\":\"LOAD_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":274,\"op\":\"STORE_LOCAL\",\"arg\":24,\"args\":[24],\"target\":4294967295},{\"pc\":277,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":286,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":289,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":290,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":291,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[1,4294967295]],\"size\":12,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":25,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[8,0],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295]],\"size\":292,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":26,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":29,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":43,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":46,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":124,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":128,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":131,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":132,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":135,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":138,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":141,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":144,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":145,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":150,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":155,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":156,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":159,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":162,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":165,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":166,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":171,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":176,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":180,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":183,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":186,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":189,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":192,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":195,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":204,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":205,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":208,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":211,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":212,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":215,\"op\":\"STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":218,\"op\":\"LOAD_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":221,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":222,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":225,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":232,\"op\":\"OWN_STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":235,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":236,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":241,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":246,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":247,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":250,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":251,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,20],\"target\":4294967295},{\"pc\":256,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":261,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":265,\"op\":\"LOAD_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":268,\"op\":\"STORE_LOCAL\",\"arg\":23,\"args\":[23],\"target\":4294967295},{\"pc\":271,\"op\":\"LOAD_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":274,\"op\":\"STORE_LOCAL\",\"arg\":24,\"args\":[24],\"target\":4294967295},{\"pc\":277,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":286,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":289,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":290,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":291,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[1,4294967295]],\"size\":12,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/shared-bool.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295]],\"size\":110,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":46,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":47,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":52,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":59,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":60,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":61,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":64,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":67,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":68,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":73,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":78,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":79,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":82,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":83,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":88,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":93,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":94,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":97,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":100,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":104,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":107,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":108,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[4,4294967295]],\"size\":14,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":12,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":13,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 28, column 5: Unused variable 'nlr_t104_0'\nWarning at line 29, column 5: Unused variable 'nlr_t104_1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":23,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[4,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295]],\"size\":264,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":39,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":117,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":122,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":129,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":130,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":133,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":136,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":137,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":140,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":143,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":146,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":149,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":150,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":155,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":160,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":161,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":164,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":167,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":170,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":171,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":176,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":181,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":182,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":185,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":188,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":191,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":194,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":197,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":200,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":201,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":204,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":207,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":210,\"op\":\"OWN_STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":213,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":214,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":219,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":224,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":225,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":234,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":239,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":240,\"op\":\"STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":243,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":246,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":252,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":255,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":258,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":261,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":6,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295]],\"size\":43,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":5,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":10,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":13,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":16,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":22,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":25,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":28,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":29,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":32,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":35,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":39,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":42,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":23,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[4,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295]],\"size\":264,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":39,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":117,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":122,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":129,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":130,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":133,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":136,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":137,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":140,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":143,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":146,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":149,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":150,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":155,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":160,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":161,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":164,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":167,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":170,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":171,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":176,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":181,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":182,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":185,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":188,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":191,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":194,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":197,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":200,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":201,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":204,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":207,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":210,\"op\":\"OWN_STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":213,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":214,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":219,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":224,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":225,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":234,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":239,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":240,\"op\":\"STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":243,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":246,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":252,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":255,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":258,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":261,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":6,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295]],\"size\":43,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":5,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":10,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":13,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":16,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":22,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":25,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":28,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":29,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":32,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":35,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":39,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":42,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/shared-bool.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295]],\"size\":110,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":46,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":47,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":52,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":59,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":60,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":61,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":64,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":67,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":68,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":73,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":78,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":79,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":82,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":83,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":88,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":93,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":94,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":97,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":100,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":104,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":107,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":108,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":2,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\"],\"local_types\":[[8,0],[4,4294967295]],\"size\":14,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":8,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":11,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":12,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":13,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 28, column 5: Unused variable 'nlr_t104_0'\nWarning at line 29, column 5: Unused variable 'nlr_t104_1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":23,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[4,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295]],\"size\":264,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":39,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":117,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":122,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":129,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":130,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":133,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":136,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":137,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":140,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":143,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":146,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":149,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":150,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":155,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":160,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":161,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":164,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":167,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":170,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":171,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":176,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":181,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":182,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":185,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":188,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":191,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":194,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":197,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":200,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":201,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":204,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":207,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":210,\"op\":\"OWN_STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":213,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":214,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":219,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":224,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":225,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":234,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":239,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":240,\"op\":\"STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":243,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":246,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":252,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":255,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":258,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":261,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":6,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295]],\"size\":43,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":5,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":10,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":13,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":16,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":22,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":25,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":28,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":29,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":32,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":35,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":39,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":42,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[4,1],\"field_types\":[[4,4294967295],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":23,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[8,0],[4,4294967295],[4,4294967295],[8,0],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295],[8,0],[4,4294967295],[1,4294967295],[4,4294967295],[1,4294967295]],\"size\":264,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":31,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":34,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":39,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":48,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":51,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":54,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":63,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":66,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":69,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":72,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":75,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":78,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":81,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":86,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":89,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":92,\"op\":\"OWN_STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":101,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":108,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":109,\"op\":\"STORE_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":112,\"op\":\"LOAD_LOCAL\",\"arg\":10,\"args\":[10],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":117,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,9],\"target\":4294967295},{\"pc\":122,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":129,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":130,\"op\":\"STORE_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":133,\"op\":\"LOAD_LOCAL\",\"arg\":11,\"args\":[11],\"target\":4294967295},{\"pc\":136,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":137,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":140,\"op\":\"OWN_STORE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":143,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":146,\"op\":\"OWN_STORE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":149,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":150,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":155,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":160,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":161,\"op\":\"STORE_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":164,\"op\":\"LOAD_LOCAL\",\"arg\":14,\"args\":[14],\"target\":4294967295},{\"pc\":167,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":170,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":171,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,13],\"target\":4294967295},{\"pc\":176,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":181,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":182,\"op\":\"STORE_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":185,\"op\":\"LOAD_LOCAL\",\"arg\":15,\"args\":[15],\"target\":4294967295},{\"pc\":188,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":191,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":194,\"op\":\"STORE_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":197,\"op\":\"LOAD_LOCAL\",\"arg\":16,\"args\":[16],\"target\":4294967295},{\"pc\":200,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":201,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":204,\"op\":\"STORE_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":207,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":13,\"args\":[13],\"target\":4294967295},{\"pc\":210,\"op\":\"OWN_STORE_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":213,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":214,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":219,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":224,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":225,\"op\":\"STORE_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":228,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":229,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,18],\"target\":4294967295},{\"pc\":234,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":239,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":240,\"op\":\"STORE_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":243,\"op\":\"LOAD_LOCAL\",\"arg\":19,\"args\":[19],\"target\":4294967295},{\"pc\":246,\"op\":\"STORE_LOCAL\",\"arg\":21,\"args\":[21],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":20,\"args\":[20],\"target\":4294967295},{\"pc\":252,\"op\":\"STORE_LOCAL\",\"arg\":22,\"args\":[22],\"target\":4294967295},{\"pc\":255,\"op\":\"LOAD_LOCAL\",\"arg\":17,\"args\":[17],\"target\":4294967295},{\"pc\":258,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":18,\"args\":[18],\"target\":4294967295},{\"pc\":261,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":262,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":6,\"result_type\":[4,4294967295],\"result\":4,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295],[4,4294967295]],\"size\":43,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":5,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":10,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":13,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":16,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":22,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":25,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":28,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":29,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":32,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":35,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":36,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":39,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":42,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/bool-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_exclusive.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/exclusive.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"Other\"\n.string \"main\"\n.string \"read\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x1f\\x00\\x00\\x00~\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00M\\x00\\x00\\x00~\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\\\\\x00\\x00\\x00~\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x0e\\x00\\x00\\x00\\x14\\x00\\x00\\x00\\x01\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x05\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x0f\\x00\\x00\\x00\\\"\\x00\\x00\\x00\\x02\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x05\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoowner\"\n.string \"\\x01\\x00\\x00\\x00\\x03\\x00\\x00\\x00)\\x00\\x00\\x00\\x01\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x04\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoview\"\n\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n.metadata 14 16\n.metadata 14 17\n\n.types 2 0 0\n\n.layouts \"02000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000000002000300000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000200000003030000020000000600000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"\n.ownership \"ffffffff04000000ffffffff0100010001000000ffffffff0801000000000000\"\n\n.entry 0\n\n.function main 0 6 0 int 1\n  PUSH_I64 12\n  STORE_LOCAL 0\n  PUSH_BOOL 0\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  OWN_STORE_LOCAL 2\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 12\n  EQ\n  ASSERT\n  OWN_MOVE_LOCAL 2\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  PUSH_I64 12\n  EQ\n  ASSERT\n  LOAD_LOCAL 5\n  NOT\n  ASSERT\n  PUSH_I64 0\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.function read 1 1 0 int 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":136,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":18,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":24,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":30,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":33,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":38,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":41,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":42,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":47,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":54,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":64,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":65,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":66,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":69,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":72,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":73,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":78,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":83,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":84,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":87,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":88,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":93,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":98,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":99,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":102,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":105,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":114,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":119,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":120,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":121,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":130,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":133,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":134,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/extra-helper.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require the existing two-function borrowed Nano profile\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-exclusive.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-exclusive.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-nominal.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-nominal.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-nominal.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/parameter-nominal.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-load.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-load.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-load.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-load.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-move.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-move.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-move.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-move.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-write.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-write.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-write.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/borrowed-write.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-reference.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-reference.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-target.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-target.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-target.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/call-target.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/absent-owner.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/absent-owner.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/absent-owner.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/absent-owner.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-end.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-end.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-end.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-end.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-reference.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-reference.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-field.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-field.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-field.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/helper-field.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-authority.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-authority.nvm': Invalid NVM v2 module: unknown-section-type\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-authority.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: Invalid NVM v2 module: unknown-section-type\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/missing-authority.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: Invalid NVM v2 module: unknown-section-type\nI did not publish reconstructed source\n"
+  }
+]

@@ -1,0 +1,24 @@
+struct CollectResult { visited: array<string>, visited_set: HashMap<string,int>, ok: bool }
+fn collect() -> CollectResult {
+    let values: HashMap<string,int> = (map_new)
+    (map_put values "first" 1)
+    return CollectResult { visited: ["first"], visited_set: values, ok: true }
+}
+shadow collect { let result: CollectResult = (collect) assert result.ok }
+fn forward(result: CollectResult) -> CollectResult { return result }
+shadow forward { let result: CollectResult = (forward (collect)) let values: HashMap<string,int> = result.visited_set assert (== (map_get values "first") 1) }
+fn remember(result: CollectResult, key: string, value: int) -> void { let values: HashMap<string,int> = result.visited_set (map_put values key value) }
+shadow remember { let result: CollectResult = (collect) (remember result "second" 2) let values: HashMap<string,int> = result.visited_set assert (== (map_get values "second") 2) }
+fn main() -> int {
+    let original: CollectResult = (collect)
+    let alias: CollectResult = (forward original)
+    (remember alias "second" 2)
+    assert original.ok
+    assert (== (at original.visited 0) "first")
+    let values: HashMap<string,int> = original.visited_set
+    assert (map_has values "second")
+    assert (== (map_get values "second") 2)
+    assert (== (map_length alias.visited_set) 2)
+    return 0
+}
+shadow main { assert (== (main) 0) }

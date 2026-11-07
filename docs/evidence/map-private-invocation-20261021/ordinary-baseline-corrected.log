@@ -1,0 +1,8 @@
+baseline-O1 build 0
+baseline-O1 run -6 erflow on address 0x00016a9302c0 (pc 0x000104c896f4 bp 0x00016b19a860 sp 0x00016a9301c0 T0)
+    #0 0x000104c896f4 in main baseline-admission.c:375
+    #1 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: stack-overflow baseline-admission.c:375 in main
+==4790==ABORTING
+

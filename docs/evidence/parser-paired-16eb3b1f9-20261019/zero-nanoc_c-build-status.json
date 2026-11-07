@@ -1,0 +1,12 @@
+{
+  "returncode": 0,
+  "timeout": false,
+  "cleanup_errors": [],
+  "group_absent": true,
+  "timeout_seconds": 900,
+  "elapsed_seconds": 1.1135450839647092,
+  "pid": 85225,
+  "first_terminal": "exit",
+  "remaining_group_killed": false,
+  "child_returncode": 0
+}

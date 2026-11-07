@@ -1,0 +1,16 @@
+[
+  [
+    "/private/tmp/nanolang-borrow-c-final/nano_virt",
+    "/private/tmp/nanolang-field-read-no-read/source.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-field-read-no-read/before.nvm"
+  ],
+  [
+    "/private/tmp/nanolang-field-read-c/nano_virt",
+    "/private/tmp/nanolang-field-read-no-read/source.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-field-read-no-read/after.nvm"
+  ]
+]

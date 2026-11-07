@@ -1,0 +1,8 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Error at line 71, column 70: I require the declared nominal record type for this array.
+Hint: Match the array element declaration, including its module identity.
+Error: Type checking failed for module '/Users/jkh/Src/nanolang-51-harness/src_nano/compiler/resource_effects.nano'
+Error at line 1, column 1: Failed to load module '/Users/jkh/Src/nanolang-51-harness/src_nano/compiler/resource_effects.nano'
+Error: Failed to process imports for module '/Users/jkh/Src/nanolang-51-harness/src_nano/typecheck.nano'
+Error at line 19, column 1: Failed to load module '/Users/jkh/Src/nanolang-51-harness/src_nano/typecheck.nano'
+error: module loading failed

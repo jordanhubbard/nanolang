@@ -1,0 +1,8 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-tt4vfnoe
+test_planner_preserves_float_order_and_prior_helper (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_planner_preserves_float_order_and_prior_helper) ... ok
+test_forbidden_float_operations_and_helper_locals (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_forbidden_float_operations_and_helper_locals) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.158s
+
+OK

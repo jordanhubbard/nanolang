@@ -1,0 +1,290 @@
+[
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-1.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-10.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-11.log",
+    "text": "['/opt/homebrew/bin/gcc-16', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-12.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-13.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-14.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-15.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-16.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-17.log",
+    "text": "['/opt/homebrew/bin/gcc-16', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-18.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/retained.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-2.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-3.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-4.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-5.log",
+    "text": "['/opt/homebrew/bin/gcc-16', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-6.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/record-child.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-7.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-8.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/command-9.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-8a0xfqyr/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-1.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-10.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-11.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-12.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-13.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-14.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-15.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-16.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-17.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-18.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/retained.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-2.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-3.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-4.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-5.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-6.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/record-child.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-7.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-8.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/command-9.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-deiz7qnk/cycle.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-1.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-10.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-11.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-12.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-13.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-14.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-15.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-16.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-17.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-18.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/transport.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-19.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-2.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-20.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-21.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-22.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-23.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-24.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/literal.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-25.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-26.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-27.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-28.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-29.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-3.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-30.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/integer-pop.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-31.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-32.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-33.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-34.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-35.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-36.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/record-pop.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-4.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.nvm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.c']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-5.log",
+    "text": "['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.c', '-lm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-6.log",
+    "text": "['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/slice.native']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-7.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa', 'asm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.nasm', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-8.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '--verify-only', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.nvm']\n"
+  },
+  {
+    "file": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/command-9.log",
+    "text": "['/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-byte-arrays-egijzoft/collected-bytes.nvm']\n"
+  }
+]

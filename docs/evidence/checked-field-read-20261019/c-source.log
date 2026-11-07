@@ -1,0 +1,6 @@
+test_checked_field_reads_keep_projection_and_root_category (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_checked_field_reads_keep_projection_and_root_category) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.297s
+
+OK

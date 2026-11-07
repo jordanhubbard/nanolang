@@ -1,0 +1,6 @@
+test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.511s
+
+OK

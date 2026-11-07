@@ -1,0 +1,10 @@
+{
+  "src/nanovm/vm.c": "58544458900f6d8bd8166453333a79322bc2dce8c72bea16171f7f6196183bb3",
+  "src/nanovm/union_field_runtime_private.h": "c8dca66960cae1f6c6c693575d4d016f770ff7aaa6a22f71225d6318ade31343",
+  "src/nanovm/union_field_vm_prepare.inc": "1a94bc7ed47f9220e08940be742325f7fca61c59ca0c8e195ac805ce931c97b2",
+  "src/nanovm/union_field_vm_context.inc": "8f46ae7787a201490178475126657222c360c9d14ef0f0ef3a968b20820155dd",
+  "src/nanovm/union_field_vm_run.inc": "16d57f7edff5feee55d806c94761705756631268cb5db00bc85250aba618895c",
+  "tests/nanoisa/test_union_field_vm.c": "911836597b589364740d0486ff2e0de661387a6b8969fa35ff61f11554b3d17e",
+  "tests/test_union_field_vm.py": "713968fac7905fe6ad111bbc38dca513c40d764fd1a898683c6ed872d777688d",
+  "Makefile.gnu": "dfb9e76cfee842ef812aaae57826f08ad9d30da3285cdc298cac16f6a8bf1444"
+}

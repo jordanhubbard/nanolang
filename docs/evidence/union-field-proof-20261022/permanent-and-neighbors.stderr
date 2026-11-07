@@ -1,0 +1,8 @@
+test_complete_origin_and_allocation_controls (tests.test_union_field_proof.UnionFieldProof.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_record_map_origins.RecordMapOrigins.test_complete_origin_and_allocation_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 22.958s
+
+OK

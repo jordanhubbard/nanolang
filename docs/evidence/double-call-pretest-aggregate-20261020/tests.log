@@ -1,0 +1,13 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-wtva_80_
+test_actual_local_limit (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_actual_local_limit) ... ok
+test_independently_selected_consistency_shadow (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_independently_selected_consistency_shadow) ... ok
+test_isolated_second_call_assertion_failure (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_isolated_second_call_assertion_failure) ... ok
+test_order_and_first_result_snapshot (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_order_and_first_result_snapshot) ... ok
+test_pretest_ir_and_unchanged_one_call_route (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_pretest_ir_and_unchanged_one_call_route) ... ok
+test_third_call_and_split_region_refuse (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_third_call_and_split_region_refuse) ... ok
+test_zero_entered_and_final_false_effects (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_zero_entered_and_final_false_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 123.219s
+
+OK

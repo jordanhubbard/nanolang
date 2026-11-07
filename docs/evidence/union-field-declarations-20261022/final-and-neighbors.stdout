@@ -1,0 +1,26 @@
+I retain union declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-union-declarations-38svkztd
+PASS 57 union declaration checks; no execution authority
+owner=56 layout=16 field=12 reserved=112 work=1152 allocations=4
+PASS 491 union declaration checks; no execution authority
+I retain mixed declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-declaration-h_p6tfje
+PASS 468 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+PASS 1820 complete mixed declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2402 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+I covered 13 mixed allocation positions in both failure modes; two query TUs instrumented
+PASS 10970 complete mixed declaration checks; no execution authority
+I retain ordinary array authority artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ordinary-array-authority-1hh83fwa
+PASS 467 ordinary array declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2401 ordinary array declaration checks; no execution authority
+I retain map declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-declaration-pknj8ehb
+PASS 468 ordinary array declaration checks; no execution authority
+I passed 131830 exact map declaration checks; linked public boundary and isolated declaration allocation controls.
+I covered 8 allocation positions in both failure modes
+PASS 2402 ordinary array declaration checks; no execution authority
+I retained map maximum bytes787873 work3607975 scratch128.
+I retained exact map byte/work boundaries 1258/252 and one-below refusal.
+I retained 12 map allocation positions and independent retries.
+I passed 135285 exact map declaration checks; linked public boundary and isolated declaration allocation controls.

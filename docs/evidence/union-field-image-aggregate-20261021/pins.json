@@ -1,0 +1,17 @@
+{
+  "src/nanoisa/managed_array_shapes.c": "bcf946505e790f0463f96db14c8e17febd606add23197651f4839f30d6f50607",
+  "src/nanoisa/managed_union_field_execution.inc": "761700d59a8bbda547cece308232214ed95a138ecfdf2e40b2c13e5b23667d2b",
+  "src/nanoisa/union_field_cost.inc": "5c4772e89777e6d6a01491b050ea96edd151209729eb3de5fe112f2719b99787",
+  "src/nanoisa/union_field_snapshot.inc": "ff5ea53314bce6a8c72df6a463410b6e056d5c00eeb047f2ec2bd624d1222ceb",
+  "src/nanoisa/ownership_union_fields_private.inc": "34378f6b2480e893d1c3b88f2643d786e4faa703b9188b2f3a860b5ad916990d",
+  "tests/nanoisa/test_union_field_image.c": "1ca82787d40d11ca99b7d60e0f40d557d1ea4eee3178f53377fb485eddc3fe39",
+  "tests/test_union_field_image.py": "10cca3760a90f6b270497bbe22bdc9140a96d5d98230733c9732825d1c7e06df",
+  "obj/nanoisa/managed_array_shapes.o": "2ac2726ffe29b1b7747a463178caf38f57646f25d61b2f0c1824f94d75b74647",
+  "obj/nanoisa/ownership_contracts.o": "a83aabeea85994f1a9ffdb7bef551031a23c4e3d5bdd6fc5d4f5f3f9dc49aa22",
+  "/private/tmp/nanolang-union-field-baseline-20261022/seed.nvm": "04520087c90a82ca747792c0297d95f693fa795e8e1b311f5353e2c6d3ef145e",
+  "/private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm": "2eeb157a6521ef4b74a4d61a8ba250bbc1c2d6239e1d51e22a0841789cd8faa2",
+  "/private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm": "3e737814af333b5617fa0adbd434402e41b750bd64bb5a8f3ccca0047873abe1",
+  "/private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm": "ea0f49145579d967292c84fa712a2e01fc564338c72acf5e01960ce08c8434dc",
+  "/private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm": "1cc10d74812db57421559a72591629bd065f54ff43d4abe9deffa726885b60f2",
+  "/private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm": "8bd8f485f8a3c1ed91c3943bc35e17c992424cac0d8f1a2670f2bccbc9c867c9"
+}

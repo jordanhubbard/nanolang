@@ -1,0 +1,23 @@
+[
+  {
+    "input": "nano_virt",
+    "costs": [
+      12,
+      10,
+      61
+    ],
+    "c": "published",
+    "nano": "published"
+  },
+  {
+    "input": "original-shadows",
+    "costs": [
+      14,
+      10,
+      61,
+      12
+    ],
+    "c": "published",
+    "nano": "published"
+  }
+]

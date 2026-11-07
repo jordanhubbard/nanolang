@@ -1,0 +1,11 @@
+from "owner.nano" import Counter, update
+fn main() -> int {
+ let mut owner: Counter = Counter { value: 12, active: false }
+ assert (== (update &mut owner) 15)
+ assert owner.active
+ let Counter { value, active } = owner
+ assert (== value 15)
+ assert active
+ return 0
+}
+shadow main { assert true }

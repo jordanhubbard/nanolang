@@ -1,0 +1,50 @@
+FF
+======================================================================
+FAIL: test_compile_shadows_and_execute (__main__.EmptyRecordArrayFields.test_compile_shadows_and_execute) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_empty_record_array_fields.py", line 20, in test_compile_shadows_and_execute
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- tests/unit/test_empty_record_array_fields.nano
+I require the declared nominal record type for this array.
+
+67|     let items: array<Item> = (array_push [] record)
+                                 ^
+Hint: Match the array element declaration, including its module identity.
+-- E001 TYPE MISMATCH --- tests/unit/test_empty_record_array_fields.nano
+I require the declared nominal record type for this array.
+
+67|     let items: array<Item> = (array_push [] record)
+                                 ^
+Hint: Match the array element declaration, including its module identity.
+Type checking failed
+
+
+======================================================================
+FAIL: test_compile_shadows_and_execute (__main__.EmptyRecordArrayFields.test_compile_shadows_and_execute) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_empty_record_array_fields.py", line 20, in test_compile_shadows_and_execute
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- tests/unit/test_empty_record_array_fields.nano
+I require the declared nominal record type for this array.
+
+67|     let items: array<Item> = (array_push [] record)
+                                 ^
+Hint: Match the array element declaration, including its module identity.
+-- E001 TYPE MISMATCH --- tests/unit/test_empty_record_array_fields.nano
+I require the declared nominal record type for this array.
+
+67|     let items: array<Item> = (array_push [] record)
+                                 ^
+Hint: Match the array element declaration, including its module identity.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.494s
+
+FAILED (failures=2)
+make: *** [test-empty-record-array-fields] Error 1

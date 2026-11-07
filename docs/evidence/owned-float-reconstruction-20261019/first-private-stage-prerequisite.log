@@ -1,0 +1,662 @@
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-ov3nshr4
+test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates) ... FAIL
+test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) ... 
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x0', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x0', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x1', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x1', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xfffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xfffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x800fffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x800fffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x10000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x10000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8010000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8010000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x7fefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x7fefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xffefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xffefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x3ff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x3ff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xbff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1') ... FAIL
+  test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xbff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2') ... FAIL
+test_float_signature_field_and_uninitialized_refusals (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_float_signature_field_and_uninitialized_refusals) ... ok
+test_nonfinite_actual_module_refuses_atomically_only_for_nano (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_actual_module_refuses_atomically_only_for_nano) ... ok
+test_nonfinite_and_malformed_literal_target_boundaries (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_and_malformed_literal_target_boundaries) ... ok
+test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow) ... FAIL
+
+======================================================================
+FAIL: test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-18', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.07593345799250528, 'pid': 87833, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 184, in test_dynamic_nan_copy_and_typed_predicates
+    for compiler in self.compilers:self.qualify(self.module(text,compiler))
+                                                ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.07593345799250528, 'pid': 87833, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x0', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-27', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.037175417004618794, 'pid': 87938, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.037175417004618794, 'pid': 87938, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x0', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-28', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.037480375031009316, 'pid': 87951, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.037480375031009316, 'pid': 87951, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-33', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04121316596865654, 'pid': 88003, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04121316596865654, 'pid': 88003, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-34', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043985624972265214, 'pid': 88017, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043985624972265214, 'pid': 88017, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x1', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-39', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.03859216702403501, 'pid': 88066, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.03859216702403501, 'pid': 88066, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x1', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-40', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04217550001339987, 'pid': 88077, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04217550001339987, 'pid': 88077, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-45', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0417994589661248, 'pid': 88136, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0417994589661248, 'pid': 88136, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8000000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-46', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0428089170018211, 'pid': 88149, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0428089170018211, 'pid': 88149, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xfffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-51', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.038465249992441386, 'pid': 88209, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.038465249992441386, 'pid': 88209, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xfffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-52', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0438592919963412, 'pid': 88226, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0438592919963412, 'pid': 88226, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x800fffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-57', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04299270798219368, 'pid': 88286, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04299270798219368, 'pid': 88286, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x800fffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-58', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043602375022601336, 'pid': 88300, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043602375022601336, 'pid': 88300, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x10000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-63', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.042816042026970536, 'pid': 88360, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.042816042026970536, 'pid': 88360, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x10000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-64', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.03972879203502089, 'pid': 88374, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.03972879203502089, 'pid': 88374, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8010000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-69', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04639291699277237, 'pid': 88424, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04639291699277237, 'pid': 88424, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x8010000000000000', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-70', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043919249961618334, 'pid': 88440, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043919249961618334, 'pid': 88440, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x7fefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-75', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04275812499690801, 'pid': 88492, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04275812499690801, 'pid': 88492, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x7fefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-76', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04067495802883059, 'pid': 88505, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04067495802883059, 'pid': 88505, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xffefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-81', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04125795798609033, 'pid': 88559, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04125795798609033, 'pid': 88559, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xffefffffffffffff', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-82', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043505791982170194, 'pid': 88573, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.043505791982170194, 'pid': 88573, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x3ff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-87', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04521129198838025, 'pid': 88628, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04521129198838025, 'pid': 88628, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0x3ff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-88', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.042006666015367955, 'pid': 88643, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.042006666015367955, 'pid': 88643, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xbff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-93', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04342216602526605, 'pid': 88695, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04342216602526605, 'pid': 88695, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) (bits='0xbff0000000000001', compiler='/private/tmp/owned-float-private-stages-20261019/stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-94', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.039471875003073364, 'pid': 88708, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 106, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.039471875003073364, 'pid': 88708, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+======================================================================
+FAIL: test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-136', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04731416597496718, 'pid': 89495, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I will not publish bytecode after failed shadows\n', b'sh: /Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm: No such file or directory\n')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 83, in test_unchanged_ordinary_and_independent_original_shadow
+    for compiler in self.compilers:self.qualify(self.module(self.source(), compiler))
+                                                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 59, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 41, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.04731416597496718, 'pid': 89495, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.405s
+
+FAILED (failures=26)

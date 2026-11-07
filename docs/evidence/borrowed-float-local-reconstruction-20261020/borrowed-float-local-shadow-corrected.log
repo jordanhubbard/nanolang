@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mav9vrk3
+test_generated_consistency_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_generated_consistency_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.424s
+
+OK

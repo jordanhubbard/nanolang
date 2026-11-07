@@ -1,0 +1,2 @@
+buckets=16->128 count=64 allocated=2646 freed-before=0 objects=65
+allocated=2646 freed-after=7126 objects=0 expected-growth=4480

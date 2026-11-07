@@ -1,0 +1,26 @@
+[
+  {
+    "case": "one-call",
+    "language": "c",
+    "sha256": "f0d0e750ba763849d4429bbdd7d720c24756b4b9f84ff559742055199f202245",
+    "equal": true
+  },
+  {
+    "case": "one-call",
+    "language": "nano",
+    "sha256": "59c65927f251c2b7c126e0e6cdc8c85ab8ccc89b0ad70f2c59589b9f9f4a2fda",
+    "equal": true
+  },
+  {
+    "case": "double-call",
+    "language": "c",
+    "sha256": "5f9262d29db7469faf597b22fe983ef02775e266ace6e53b27745780b6add713",
+    "equal": true
+  },
+  {
+    "case": "double-call",
+    "language": "nano",
+    "sha256": "a7dd48ac5c4d98b9bcc94e25252edbea78622bfdc40ac8ecb4b88f0514cdbbc3",
+    "equal": true
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "Makefile.gnu": "eba8012d8bc527f4ead372ce68554cc46f12e393ebfc63ea919ada5b7323c9c8",
+  "docs/ROADMAP.md": "c276a623e44ac9d989c7ae051afaa637cfe9c621cdd4e0b89133dc14d6f0ab0b",
+  "src/nanoisa/managed_record_map_boundary.inc": "0cfd5078001bbc3bcd2d660c19629e26a7495e948172c2726de41d0582045a56",
+  "src/nanoisa/record_map_boundary_private.h": "be6ba6d06dbd563a4d631f188dce3face7aeb3ba6387d34fb5c5a3f6766e40e6",
+  "src/nanovm/record_map_public_prepare.inc": "9e2273888f8674be44a6331835d67a00295df06f1fcc6a65617a8b77533cc4a9",
+  "src/nanovm/record_map_public_prepare_private.h": "7b803e0b38bbddb1c6f8f4fe060a3c1c157b04ba5fc05c62754751a1e347b106",
+  "src/nanovm/vm.c": "b327b9a95bdfb3a6654d7f662d4ed0adf469e221de456b4a21eaddf0014d7f9d",
+  "tests/nanoisa/test_record_map_public_prepare.c": "b0360550251ecc6ccf9dd0c3610a5332d6bd5161eeb0cbd017090f8f95602fca",
+  "tests/test_record_map_public_prepare.py": "170d59f189c82e2cbbd460a196db90ada4a67c45ca2cc395b595fd7261748cb7"
+}

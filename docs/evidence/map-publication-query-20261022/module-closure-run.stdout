@@ -1,0 +1,6 @@
+I refused 40 executable references to one 1048576-byte literal at the publication scan limit.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public boundaries checked.
+PASS 257 complete-module publication query checks; publishers unchanged

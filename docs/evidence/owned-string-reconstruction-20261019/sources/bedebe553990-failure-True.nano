@@ -1,0 +1,11 @@
+resource struct Leaf { value: int }
+fn consume(text: string, owner: Leaf) -> void {
+ assert false
+ (print text)
+ let Leaf { value } = owner
+ assert (== value 7)
+ (println "after")
+}
+shadow consume { assert true }
+fn main() -> int { (consume "before" Leaf { value: 8 }) return 0 }
+shadow main { assert true }

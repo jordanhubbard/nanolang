@@ -1,0 +1,70 @@
+{
+  "commands.json": {
+    "bytes": 41240,
+    "sha256": "3c89289ab45d952b517fc61367db01da9ab47fc779a30cba61a8b72542b7fcf2"
+  },
+  "identity.json": {
+    "bytes": 909,
+    "sha256": "9bf932704b35c4009e486fb8e008d7d77948c1f8b904c38d2979b38808204dba"
+  },
+  "0/answer.s": {
+    "bytes": 388,
+    "sha256": "b1657ce33b8304b1e731ce32ed5707f8a460988718825f0670ff699eb65424fe"
+  },
+  "0/integrated.dylib": {
+    "bytes": 16816,
+    "sha256": "f27dd04326ee8bf127994b2acb3eb1c95798bd91e04af55d23075a2cf763a04e"
+  },
+  "0/compiler.json": {
+    "bytes": 141,
+    "sha256": "425ba5d4628af7c06c179a6ce2ab459f822badda6d30e6c484dc392f1e5042f4"
+  },
+  "0/answer.c": {
+    "bytes": 49,
+    "sha256": "92c82e600b2819f2fcb179a143aba3a34b7bdc12b9f8d59b1654a14724388324"
+  },
+  "0/integrated.o": {
+    "bytes": 520,
+    "sha256": "303475f14da66e533b2ef7b1e46b5a5d8373bcf2ae729297f555c811812b9ad7"
+  },
+  "1/answer.s": {
+    "bytes": 388,
+    "sha256": "b1657ce33b8304b1e731ce32ed5707f8a460988718825f0670ff699eb65424fe"
+  },
+  "1/integrated.dylib": {
+    "bytes": 16816,
+    "sha256": "77c2a40c5863822bcf0df704b6bba7e4689780ea5966e7fbaacf8ab348dddce6"
+  },
+  "1/compiler.json": {
+    "bytes": 147,
+    "sha256": "201383146adfd36f1185804689856ab4a3439e7602cc11424fb223dab2521156"
+  },
+  "1/answer.c": {
+    "bytes": 49,
+    "sha256": "92c82e600b2819f2fcb179a143aba3a34b7bdc12b9f8d59b1654a14724388324"
+  },
+  "1/integrated.o": {
+    "bytes": 520,
+    "sha256": "303475f14da66e533b2ef7b1e46b5a5d8373bcf2ae729297f555c811812b9ad7"
+  },
+  "2/answer.s": {
+    "bytes": 420,
+    "sha256": "55b3f9205ded640f9c668966ba10b4c4a48bdc6a125a91b467d577c8f2cdd68a"
+  },
+  "2/integrated.dylib": {
+    "bytes": 16816,
+    "sha256": "d35d60234a4293d7a873e96f020ba460adecd82be83cd81368e42ac3155bc896"
+  },
+  "2/compiler.json": {
+    "bytes": 196,
+    "sha256": "310d33d2cf5efe9d3a6ac0de62ced236edeccc32057821814e4c096214224915"
+  },
+  "2/answer.c": {
+    "bytes": 49,
+    "sha256": "92c82e600b2819f2fcb179a143aba3a34b7bdc12b9f8d59b1654a14724388324"
+  },
+  "2/integrated.o": {
+    "bytes": 520,
+    "sha256": "303475f14da66e533b2ef7b1e46b5a5d8373bcf2ae729297f555c811812b9ad7"
+  }
+}

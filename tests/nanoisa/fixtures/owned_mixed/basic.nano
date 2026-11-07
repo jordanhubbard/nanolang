@@ -1,0 +1,11 @@
+resource struct Leaf { value: int }
+resource struct Box { leaf: Leaf, active: bool }
+fn main() -> int {
+ let leaf: Leaf = Leaf { value: 7 }
+ let box: Box = Box { active: true, leaf: leaf }
+ let Box { leaf, active } = box
+ assert active
+ let Leaf { value } = leaf
+ return value
+}
+shadow main { assert true }

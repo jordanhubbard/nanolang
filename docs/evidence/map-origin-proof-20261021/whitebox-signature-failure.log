@@ -1,0 +1,31 @@
+tests/nanoisa/test_record_array_global_flow.c:163:58: error: too few arguments to function call, expected 7, have 6
+  163 |     CHECK(global_refine(&a,f,state,predicate,1,&reachable)&&reachable&&state[4].tags==MASK(TAG_ARRAY)&&state[4].origins==1&&a.budget.work==NVM_RA_STEPS);
+      |           ~~~~~~~~~~~~~                                  ^
+tests/nanoisa/../../src/nanoisa/managed_array_shapes.c:268:12: note: 'global_refine' declared here
+  268 | static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable,NvmRecordMapAnalysisContext *maps) {
+      |            ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_global_flow.c:165:59: error: too few arguments to function call, expected 7, have 6
+  165 |     CHECK(!global_refine(&a,f,state,predicate,1,&reachable)&&a.budget.limited&&!memcmp(saved,state,sizeof saved));
+      |            ~~~~~~~~~~~~~                                  ^
+tests/nanoisa/../../src/nanoisa/managed_array_shapes.c:268:12: note: 'global_refine' declared here
+  268 | static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable,NvmRecordMapAnalysisContext *maps) {
+      |            ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_global_flow.c:167:58: error: too few arguments to function call, expected 7, have 6
+  167 |     CHECK(global_refine(&a,f,state,predicate,1,&reachable)&&reachable&&!memcmp(saved,state,sizeof saved));
+      |           ~~~~~~~~~~~~~                                  ^
+tests/nanoisa/../../src/nanoisa/managed_array_shapes.c:268:12: note: 'global_refine' declared here
+  268 | static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable,NvmRecordMapAnalysisContext *maps) {
+      |            ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_global_flow.c:169:58: error: too few arguments to function call, expected 7, have 6
+  169 |     CHECK(global_refine(&a,f,state,predicate,1,&reachable)&&!reachable);
+      |           ~~~~~~~~~~~~~                                  ^
+tests/nanoisa/../../src/nanoisa/managed_array_shapes.c:268:12: note: 'global_refine' declared here
+  268 | static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable,NvmRecordMapAnalysisContext *maps) {
+      |            ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_global_flow.c:170:58: error: too few arguments to function call, expected 7, have 6
+  170 |     CHECK(global_refine(&a,f,state,predicate,0,&reachable)&&reachable);
+      |           ~~~~~~~~~~~~~                                  ^
+tests/nanoisa/../../src/nanoisa/managed_array_shapes.c:268:12: note: 'global_refine' declared here
+  268 | static int global_refine(Analysis *a,Function *f,Value *state,Value condition,int truth,int *reachable,NvmRecordMapAnalysisContext *maps) {
+      |            ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5 errors generated.

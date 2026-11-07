@@ -1,0 +1,42 @@
+[
+  {
+    "name": "observed-build",
+    "status": 0,
+    "seconds": 2.437582915998064
+  },
+  {
+    "name": "observed-run0",
+    "status": 0,
+    "seconds": 0.36794320796616375,
+    "argv": [
+      "/private/tmp/nanolang-union-native-target-20261022/observed"
+    ]
+  },
+  {
+    "name": "linked-build",
+    "status": 0,
+    "seconds": 0.6074491249164566
+  },
+  {
+    "name": "linked-run0",
+    "status": 0,
+    "seconds": 0.2639708330389112,
+    "argv": [
+      "/private/tmp/nanolang-union-native-target-20261022/target"
+    ]
+  },
+  {
+    "name": "linked-run1",
+    "status": 0,
+    "seconds": 0.0760769589105621,
+    "argv": [
+      "/private/tmp/nanolang-union-native-target-20261022/target",
+      "/private/tmp/nanolang-union-native-baseline-20261022/seed-selected.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/c-shadow-selected.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-selected.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-program-selected.nvm",
+      "/private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-selected.nvm"
+    ]
+  }
+]

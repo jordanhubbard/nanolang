@@ -1,0 +1,2 @@
+union proof expected=0 actual=1 function=0 pc=61: I refuse an empty variant at payload access.
+I failed line31: r.status==expected

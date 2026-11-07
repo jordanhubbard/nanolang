@@ -1,0 +1,13 @@
+mkdir -p obj/build_bootstrap
+mkdir -p obj
+mkdir -p bin
+mkdir -p obj/runtime
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+mkdir -p obj/eval
+cc  -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lcrypto -lffi -rdynamic -ldl
+cc -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+cc -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE  -MMD -MP -c src/utf8.c -o obj/utf8.o
+cc -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+cc -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+cc -Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE  -o obj/test_module_generation_probe tests/test_module_generation_probe.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o obj/runtime/ffi_loader.o -lm -lcrypto -lcrypto -lffi  -rdynamic -pthread -ldl

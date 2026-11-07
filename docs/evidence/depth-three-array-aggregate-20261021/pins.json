@@ -1,0 +1,14 @@
+{
+  "candidate": "523e79d06c7364714b83f5b5fa6c69db26cc91d0",
+  "source_pins_match_component": true,
+  "tools": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "b5bfa17b60788463e79d95bb83f98a5206126be77f867abbbc3ffbce0956b482",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "0092addfecb674ac6e04863b9c9775194a89293bc577a6be0b734d27cfa9fe01",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "341139c6bb1abfb7559a59162d2306a862aed59ba1151b364a7527094f0f7174",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "03f1674436a620f9565ce0a0a5e28d49646325d40e8d6a77432cdb3955a92cfb",
+    "/Users/jkh/Src/nanolang-51-harness/bin/libnanoisa_query.so": "60ac64cd96547ca9b94cbf4659c31aae2775d9a61494c6ea71467239b096de66",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/private/tmp/nanolang-depth-three-canonical": "09652c04f4c1ea630c9cabf855a4ddc96ada0a345fc8f773ab6a4e92558ccf29"
+  }
+}

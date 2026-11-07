@@ -1,0 +1,204 @@
+resource struct NlrOwned0 { f0: int, f1: bool }
+resource struct NlrOwned1 { f0: int, f1: bool, f2: int, f3: int, f4: int, f5: int, f6: int, f7: int, f8: int, f9: int, f10: int, f11: int, f12: int, f13: int, f14: int, f15: int }
+resource struct NlrOwned2 { f0: int }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let mut owner_first_0: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let owner_first_1: NlrOwned1 = NlrOwned1 { f0: 0, f1: true, f2: 41, f3: 0, f4: 1, f5: 2, f6: 3, f7: 4, f8: 5, f9: 6, f10: 7, f11: 8, f12: 9, f13: 10, f14: 11, f15: 12 }
+    let mut owner_first_2: NlrOwned2 = NlrOwned2 { f0: 0 }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first_0 &owner_first_1 &mut owner_first_2)
+    let NlrOwned0 { f0, f1 } = owner_first_0
+    let field_first_0_0: int = f0
+    let field_first_0_1: bool = f1
+    let NlrOwned1 { f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15 } = owner_first_1
+    let field_first_1_0: int = f0
+    let field_first_1_1: bool = f1
+    let field_first_1_2: int = f2
+    let field_first_1_3: int = f3
+    let field_first_1_4: int = f4
+    let field_first_1_5: int = f5
+    let field_first_1_6: int = f6
+    let field_first_1_7: int = f7
+    let field_first_1_8: int = f8
+    let field_first_1_9: int = f9
+    let field_first_1_10: int = f10
+    let field_first_1_11: int = f11
+    let field_first_1_12: int = f12
+    let field_first_1_13: int = f13
+    let field_first_1_14: int = f14
+    let field_first_1_15: int = f15
+    let NlrOwned2 { f0 } = owner_first_2
+    let field_first_2_0: int = f0
+    let mut owner_second_0: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let owner_second_1: NlrOwned1 = NlrOwned1 { f0: 0, f1: true, f2: 41, f3: 0, f4: 1, f5: 2, f6: 3, f7: 4, f8: 5, f9: 6, f10: 7, f11: 8, f12: 9, f13: 10, f14: 11, f15: 12 }
+    let mut owner_second_2: NlrOwned2 = NlrOwned2 { f0: 0 }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second_0 &owner_second_1 &mut owner_second_2)
+    let NlrOwned0 { f0, f1 } = owner_second_0
+    let field_second_0_0: int = f0
+    let field_second_0_1: bool = f1
+    let NlrOwned1 { f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15 } = owner_second_1
+    let field_second_1_0: int = f0
+    let field_second_1_1: bool = f1
+    let field_second_1_2: int = f2
+    let field_second_1_3: int = f3
+    let field_second_1_4: int = f4
+    let field_second_1_5: int = f5
+    let field_second_1_6: int = f6
+    let field_second_1_7: int = f7
+    let field_second_1_8: int = f8
+    let field_second_1_9: int = f9
+    let field_second_1_10: int = f10
+    let field_second_1_11: int = f11
+    let field_second_1_12: int = f12
+    let field_second_1_13: int = f13
+    let field_second_1_14: int = f14
+    let field_second_1_15: int = f15
+    let NlrOwned2 { f0 } = owner_second_2
+    let field_second_2_0: int = f0
+    assert (== result_first result_second)
+    assert (== field_first_0_0 field_second_0_0)
+    assert (== field_first_0_1 field_second_0_1)
+    assert (== field_first_1_0 field_second_1_0)
+    assert (== field_first_1_1 field_second_1_1)
+    assert (== field_first_1_2 field_second_1_2)
+    assert (== field_first_1_3 field_second_1_3)
+    assert (== field_first_1_4 field_second_1_4)
+    assert (== field_first_1_5 field_second_1_5)
+    assert (== field_first_1_6 field_second_1_6)
+    assert (== field_first_1_7 field_second_1_7)
+    assert (== field_first_1_8 field_second_1_8)
+    assert (== field_first_1_9 field_second_1_9)
+    assert (== field_first_1_10 field_second_1_10)
+    assert (== field_first_1_11 field_second_1_11)
+    assert (== field_first_1_12 field_second_1_12)
+    assert (== field_first_1_13 field_second_1_13)
+    assert (== field_first_1_14 field_second_1_14)
+    assert (== field_first_1_15 field_second_1_15)
+    assert (== field_first_2_0 field_second_2_0)
+
+ return 0
+}
+fn nlr_f1_owned_1(nlr_a0: &mut NlrOwned0, nlr_a1: &NlrOwned1, nlr_a2: &mut NlrOwned2) -> int {
+    let nlr_t0: int = nlr_a0.f0
+    let nlr_t5: int = nlr_a1.f0
+    let nlr_t10_a: int = nlr_t0
+    let nlr_t10_b: int = nlr_t5
+    let nlr_t10_low: int = (- -9223372036854775807 1)
+    let nlr_t10_high: int = 9223372036854775807
+    let mut nlr_t10: int = 0
+    if (> nlr_t10_b 0) {
+        let nlr_t10_boundary: int = (- nlr_t10_high nlr_t10_b)
+        if (> nlr_t10_a nlr_t10_boundary) { set nlr_t10 (+ nlr_t10_low (- (- nlr_t10_a nlr_t10_boundary) 1)) } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) }
+    } else { if (< nlr_t10_b 0) {
+        let nlr_t10_boundary: int = (- nlr_t10_low nlr_t10_b)
+        if (< nlr_t10_a nlr_t10_boundary) { set nlr_t10 (+ nlr_t10_high (+ (- nlr_t10_a nlr_t10_boundary) 1)) } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) }
+    } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) } }
+    set nlr_a0.f0 nlr_t10
+    let nlr_t16: int = nlr_a2.f0
+    let nlr_t21: int = nlr_a1.f0
+    let nlr_t26_a: int = nlr_t16
+    let nlr_t26_b: int = nlr_t21
+    let nlr_t26_low: int = (- -9223372036854775807 1)
+    let nlr_t26_high: int = 9223372036854775807
+    let mut nlr_t26: int = 0
+    if (> nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (+ nlr_t26_low nlr_t26_b)
+        if (< nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_high (+ (- nlr_t26_a nlr_t26_boundary) 1)) } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) }
+    } else { if (< nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (+ nlr_t26_high nlr_t26_b)
+        if (> nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_low (- nlr_t26_a (+ nlr_t26_boundary 1))) } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) }
+    } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) } }
+    set nlr_a2.f0 nlr_t26
+    let nlr_t32: bool = nlr_a1.f1
+    assert nlr_t32
+    let nlr_t38: int = nlr_a0.f0
+    let nlr_t43: int = nlr_a2.f0
+    let nlr_t48_a: int = nlr_t38
+    let nlr_t48_b: int = nlr_t43
+    let nlr_t48_low: int = (- -9223372036854775807 1)
+    let nlr_t48_high: int = 9223372036854775807
+    let mut nlr_t48: int = 0
+    if (> nlr_t48_b 0) {
+        let nlr_t48_boundary: int = (- nlr_t48_high nlr_t48_b)
+        if (> nlr_t48_a nlr_t48_boundary) { set nlr_t48 (+ nlr_t48_low (- (- nlr_t48_a nlr_t48_boundary) 1)) } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) }
+    } else { if (< nlr_t48_b 0) {
+        let nlr_t48_boundary: int = (- nlr_t48_low nlr_t48_b)
+        if (< nlr_t48_a nlr_t48_boundary) { set nlr_t48 (+ nlr_t48_high (+ (- nlr_t48_a nlr_t48_boundary) 1)) } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) }
+    } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) } }
+    return nlr_t48
+}
+
+shadow nlr_f1_owned_1 {
+    let mut owner_first_0: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let owner_first_1: NlrOwned1 = NlrOwned1 { f0: 0, f1: true, f2: 41, f3: 0, f4: 1, f5: 2, f6: 3, f7: 4, f8: 5, f9: 6, f10: 7, f11: 8, f12: 9, f13: 10, f14: 11, f15: 12 }
+    let mut owner_first_2: NlrOwned2 = NlrOwned2 { f0: 0 }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first_0 &owner_first_1 &mut owner_first_2)
+    let NlrOwned0 { f0, f1 } = owner_first_0
+    let field_first_0_0: int = f0
+    let field_first_0_1: bool = f1
+    let NlrOwned1 { f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15 } = owner_first_1
+    let field_first_1_0: int = f0
+    let field_first_1_1: bool = f1
+    let field_first_1_2: int = f2
+    let field_first_1_3: int = f3
+    let field_first_1_4: int = f4
+    let field_first_1_5: int = f5
+    let field_first_1_6: int = f6
+    let field_first_1_7: int = f7
+    let field_first_1_8: int = f8
+    let field_first_1_9: int = f9
+    let field_first_1_10: int = f10
+    let field_first_1_11: int = f11
+    let field_first_1_12: int = f12
+    let field_first_1_13: int = f13
+    let field_first_1_14: int = f14
+    let field_first_1_15: int = f15
+    let NlrOwned2 { f0 } = owner_first_2
+    let field_first_2_0: int = f0
+    let mut owner_second_0: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let owner_second_1: NlrOwned1 = NlrOwned1 { f0: 0, f1: true, f2: 41, f3: 0, f4: 1, f5: 2, f6: 3, f7: 4, f8: 5, f9: 6, f10: 7, f11: 8, f12: 9, f13: 10, f14: 11, f15: 12 }
+    let mut owner_second_2: NlrOwned2 = NlrOwned2 { f0: 0 }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second_0 &owner_second_1 &mut owner_second_2)
+    let NlrOwned0 { f0, f1 } = owner_second_0
+    let field_second_0_0: int = f0
+    let field_second_0_1: bool = f1
+    let NlrOwned1 { f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15 } = owner_second_1
+    let field_second_1_0: int = f0
+    let field_second_1_1: bool = f1
+    let field_second_1_2: int = f2
+    let field_second_1_3: int = f3
+    let field_second_1_4: int = f4
+    let field_second_1_5: int = f5
+    let field_second_1_6: int = f6
+    let field_second_1_7: int = f7
+    let field_second_1_8: int = f8
+    let field_second_1_9: int = f9
+    let field_second_1_10: int = f10
+    let field_second_1_11: int = f11
+    let field_second_1_12: int = f12
+    let field_second_1_13: int = f13
+    let field_second_1_14: int = f14
+    let field_second_1_15: int = f15
+    let NlrOwned2 { f0 } = owner_second_2
+    let field_second_2_0: int = f0
+    assert (== result_first result_second)
+    assert (== field_first_0_0 field_second_0_0)
+    assert (== field_first_0_1 field_second_0_1)
+    assert (== field_first_1_0 field_second_1_0)
+    assert (== field_first_1_1 field_second_1_1)
+    assert (== field_first_1_2 field_second_1_2)
+    assert (== field_first_1_3 field_second_1_3)
+    assert (== field_first_1_4 field_second_1_4)
+    assert (== field_first_1_5 field_second_1_5)
+    assert (== field_first_1_6 field_second_1_6)
+    assert (== field_first_1_7 field_second_1_7)
+    assert (== field_first_1_8 field_second_1_8)
+    assert (== field_first_1_9 field_second_1_9)
+    assert (== field_first_1_10 field_second_1_10)
+    assert (== field_first_1_11 field_second_1_11)
+    assert (== field_first_1_12 field_second_1_12)
+    assert (== field_first_1_13 field_second_1_13)
+    assert (== field_first_1_14 field_second_1_14)
+    assert (== field_first_1_15 field_second_1_15)
+    assert (== field_first_2_0 field_second_2_0)
+}

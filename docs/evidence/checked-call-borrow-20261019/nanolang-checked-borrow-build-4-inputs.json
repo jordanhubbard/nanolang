@@ -1,0 +1,8 @@
+{
+  "bin/nanoc_c": "dac6fda45ab6c414dd647ef277ae8f7f4e4b94655bf93b974e2eb7be491ecce4",
+  "src_nano/nanoc_v06.nano": "e7f1d042c0ed174b4aa0ab3e87a1df897f30b384b45f398f33b1b850d0266e61",
+  "src_nano/typecheck.nano": "1e723e435a46e1569cddcffe4648da5b29aade998c54f45824ca43e4e54ef2d8",
+  "src_nano/compiler/checked_borrow_facts.nano": "59cb252cad012ba88854935d608c7100fb3b3b4acf4211b7ed5cc82a9d72bd34",
+  "src_nano/compiler/nanoisa_borrows.nano": "1f480463c3bab300013ec4e2ff036a355864b63890f41d6d409208efbaf5386e",
+  "src_nano/compiler/nanoisa_codegen.nano": "4c6756790893c7093d984c9dfdfb1f2cfa8fd72ca6f2b37a1dcc4f1e7c2fbe53"
+}

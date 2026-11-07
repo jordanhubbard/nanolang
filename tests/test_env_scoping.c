@@ -172,7 +172,9 @@ static void test_import_alias_owners(void) {
     record.name = strdup("Record");
     enumeration.name = strdup("Enumeration");
     choice.name = strdup("Choice");
-    record.module_name = enumeration.module_name = "LeftValue";
+    /* The environment owns a struct's module name, as the checker's strdup does. */
+    record.module_name = strdup("LeftValue");
+    enumeration.module_name = "LeftValue";
     choice.module_name = strdup("LeftValue");
     env_define_struct(env, record);
     env_define_enum(env, enumeration);

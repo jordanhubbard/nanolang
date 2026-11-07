@@ -1,0 +1,16 @@
+{
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/lexer.o": "cf0c18a0ab9bfcdd0f7210b724bcf9a453e32224ff930eb72df83214f276e494",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/utf8.o": "776b82cc711d3e80534404b7b90c21848ecc3a5f517ff2f18823e5822388964f",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/env.o": "35c4ee9a88297ca7db53015b110fa60c5f5e937aad93cdb909c5d7a7e770c665",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/nominal_types.o": "d3097b216fd371a818c508d76d056934ffa7df95f290c49ab5cbfccf35b5f8b3",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/eval.o": "5c931b9e97ea58059642fb0d649abefad3c2062e578afbce38065f28bc255988",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/transpiler.o": "a4112a56dbfd7d964455d17ff06b6e30ef34340581b3ea362f9b836403080242",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-bin/nsi-file-binding": "9e345dbf596dcc48c50e615f363954604b7282838e2ccc8f2b546ea2014c9c5c",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/cJSON.o": "a266ff5d3154a069f38a0f340d3996d6ae723422e1eefd8bdea0001cc9622102",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/nsi.o": "95669a2e357c2b4ace4581fd45c1814665db587ea4fdcdfa0ffcf3c1005685e0",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/nsi_file_binding.o": "48f9f37a59173f6647bca8aa99c8f9f9de50886fcc8fd01af28fab116182485f",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "dbdf8a528d50886c6a01ddf8b956d9bfdf20f5515d122e75601b9eaa3ef7f819",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/nsi_file_plan.o": "fca1c1d3205af08b83a384dd251c23649d198d81537349e568341a0e75e06e89",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/nsi_file_publish.o": "476c8d835b1d87713b877949fde74d165cbd4f2467ecc7d5d0c889073a856e02",
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/publisher-obj/file-binding-publisher/utf8.o": "4a65bfbe1af26aeb7a0ec22b9c29ebda13dc395199f4a4bfdc3acc3dd0887b71"
+}

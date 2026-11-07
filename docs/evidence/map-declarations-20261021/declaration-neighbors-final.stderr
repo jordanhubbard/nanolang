@@ -1,0 +1,7 @@
+test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures) ... ok
+test_structural_profiles_and_failures (tests.test_ownership_layouts_private.OwnershipLayoutsPrivate.test_structural_profiles_and_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.495s
+
+OK

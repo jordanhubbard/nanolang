@@ -1,0 +1,5 @@
+struct Entries { values: array<array<u8>> }
+fn main() -> int { let entries: Entries = Entries { values: [[300], []] }
+ assert (== (at (at entries.values 0) 0) 44)
+ assert (== (array_length (at entries.values 1)) 0) return 0 }
+shadow main { assert (== (main) 0) }

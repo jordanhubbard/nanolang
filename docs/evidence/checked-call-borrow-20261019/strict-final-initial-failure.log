@@ -1,0 +1,15 @@
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/nanovirt/codegen.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/nanoisa/nvm_format.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/nanoisa/assembler.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/env.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/resource_flow.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/nanovirt/main.c
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -fsyntax-only src/checked_borrow_facts.c
+src/checked_borrow_facts.c: In function 'same_place':
+src/checked_borrow_facts.c:159:9: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+  159 |         if(count==32)return false;fields[count++]=place;place=place->as.field_access.object;
+      |         ^~
+src/checked_borrow_facts.c:159:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  159 |         if(count==32)return false;fields[count++]=place;place=place->as.field_access.object;
+      |                                   ^~~~~~
+cc1: all warnings being treated as errors

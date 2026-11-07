@@ -1,0 +1,242 @@
+.string "first"
+.string "second"
+.string "__nanoisa_shadow_0"
+.string "nano.purity.v1"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00"
+.string "nano.affine.v1"
+.string "nano.effects.v1"
+.string "\x00\x00\x00\x00\x08\x00\x00\x00"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x0f\x00\x00\x00result"
+.string "__nanoisa_shadow_1"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00"
+.string "\x01\x00\x00\x00\x08\x00\x00\x00"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\r\x00\x00\x00*\x00\x00\x00result"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00\x16\x00\x00\x00*\x00\x00\x00values"
+.string "__nanoisa_shadow_2"
+.string "\x02\x00\x00\x00\x00\x00\x00\x00"
+.string "\x02\x00\x00\x00\x08\x00\x00\x00"
+.string "\x02\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00;\x00\x00\x00result"
+.string "\x02\x00\x00\x00\x01\x00\x00\x00'\x00\x00\x00;\x00\x00\x00values"
+.string "__nanoisa_shadow_3"
+.string "\x03\x00\x00\x00\x00\x00\x00\x00"
+.string "\x03\x00\x00\x00\x08\x00\x00\x00"
+.string "__nanoisa_shadow_entry"
+.string "nanolang.shadow.offset.136"
+.string "collect"
+.string "nanolang.shadow.offset.142"
+.string "forward"
+.string "nanolang.shadow.offset.148"
+.string "remember"
+.string "nanolang.shadow.offset.154"
+.string "main"
+.string "\x05\x00\x00\x00\x00\x00\x00\x00"
+.string "\x05\x00\x00\x00\x08\x00\x00\x00"
+.string "\x05\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x002\x00\x00\x00values"
+.string "\x06\x00\x00\x00\x00\x00\x00\x00"
+.string "\x06\x00\x00\x00\x02\x00\x00\x00"
+.string "\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00result"
+.string "\x07\x00\x00\x00\x00\x00\x00\x00"
+.string "\x07\x00\x00\x00\n\x00\x00\x00"
+.string "\x07\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x15\x00\x00\x00result"
+.string "\x07\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x15\x00\x00\x00key"
+.string "\x07\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x15\x00\x00\x00value"
+.string "\x07\x00\x00\x00\x03\x00\x00\x00\t\x00\x00\x00\x14\x00\x00\x00values"
+.string "\x08\x00\x00\x00\x00\x00\x00\x00"
+.string "\x08\x00\x00\x00\n\x00\x00\x00"
+.string "\x08\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x8a\x00\x00\x00original"
+.string "\x08\x00\x00\x00\x01\x00\x00\x00\x13\x00\x00\x00\x8a\x00\x00\x00alias"
+.string "\x08\x00\x00\x00\x02\x00\x00\x00P\x00\x00\x00\x8a\x00\x00\x00values"
+
+.metadata 3 4
+.metadata 5 4
+.metadata 6 7
+.metadata 8 9
+.metadata 3 11
+.metadata 5 11
+.metadata 6 12
+.metadata 8 13
+.metadata 8 14
+.metadata 3 16
+.metadata 5 16
+.metadata 6 17
+.metadata 8 18
+.metadata 8 19
+.metadata 3 21
+.metadata 5 21
+.metadata 6 22
+.metadata 24 25
+.metadata 26 27
+.metadata 28 29
+.metadata 30 31
+.metadata 3 32
+.metadata 5 32
+.metadata 6 33
+.metadata 8 34
+.metadata 3 35
+.metadata 5 35
+.metadata 6 36
+.metadata 8 37
+.metadata 3 38
+.metadata 5 38
+.metadata 6 39
+.metadata 8 40
+.metadata 8 41
+.metadata 8 42
+.metadata 8 43
+.metadata 3 44
+.metadata 5 44
+.metadata 6 45
+.metadata 8 46
+.metadata 8 47
+.metadata 8 48
+
+.types 1 0 0
+
+.entry 4
+
+.function __nanoisa_shadow_0 0 1 0 void 0
+  CALL 5
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  AGG_GET 2
+  ASSERT
+  RET
+.end
+
+.function __nanoisa_shadow_1 0 2 0 void 0
+  CALL 5
+  CALL 6
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  AGG_GET 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  PUSH_STR 0
+  HM_GET
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  RET
+.end
+
+.function __nanoisa_shadow_2 0 2 0 void 0
+  CALL 5
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_STR 1
+  PUSH_I64 2
+  CALL 7
+  LOAD_LOCAL 0
+  AGG_GET 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  PUSH_STR 1
+  HM_GET
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  RET
+.end
+
+.function __nanoisa_shadow_3 0 0 0 void 0
+  CALL 8
+  PUSH_I64 0
+  I64_EQ
+  ASSERT
+  RET
+.end
+
+.function __nanoisa_shadow_entry 0 0 0 int 1
+  NOP
+  CALL 0
+  NOP
+  CALL 1
+  NOP
+  CALL 2
+  NOP
+  CALL 3
+  PUSH_I64 0
+  RET
+.end
+
+.function collect 0 1 0 struct 1
+  HM_NEW 5 1
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_STR 0
+  PUSH_I64 1
+  HM_SET
+  POP
+  PUSH_STR 0
+  ARR_LITERAL 5 1
+  LOAD_LOCAL 0
+  PUSH_BOOL 1
+  AGG_PACK 0 0 0 3
+  RET
+.end
+
+.function forward 1 1 0 struct 1
+  LOAD_LOCAL 0
+  RET
+.end
+
+.parameters 6 void
+
+.function remember 3 4 0 void 0
+  LOAD_LOCAL 0
+  AGG_GET 1
+  STORE_LOCAL 3
+  LOAD_LOCAL 3
+  LOAD_LOCAL 1
+  LOAD_LOCAL 2
+  HM_SET
+  POP
+  RET
+.end
+
+.parameters 7 void void void
+
+.function main 0 3 0 int 1
+  CALL 5
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  CALL 6
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  PUSH_STR 1
+  PUSH_I64 2
+  CALL 7
+  LOAD_LOCAL 0
+  AGG_GET 2
+  ASSERT
+  LOAD_LOCAL 0
+  AGG_GET 0
+  PUSH_I64 0
+  ARR_GET
+  PUSH_STR 0
+  EQ
+  ASSERT
+  LOAD_LOCAL 0
+  AGG_GET 1
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  PUSH_STR 1
+  HM_HAS
+  ASSERT
+  LOAD_LOCAL 2
+  PUSH_STR 1
+  HM_GET
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  AGG_GET 1
+  HM_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+

@@ -1,0 +1,13 @@
+tests/nanoisa/test_record_map_origins.c:126:5: error: called object type 'size_t' (aka 'unsigned long') is not a function or function pointer
+  126 |     CHECK(nvm_record_map_field_value(p,0,&field)&&field.origins==3&&field.tags==MASK(TAG_HASHMAP));nvm_record_map_frozen_free(p);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_origins.c:23:97: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                                                                             ~~~~^
+tests/nanoisa/test_record_map_origins.c:130:5: error: called object type 'size_t' (aka 'unsigned long') is not a function or function pointer
+  130 |     CHECK(nvm_verify(&original).ok);map_query(&c,NVM_ARRAY_UNRESOLVED);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/nanoisa/test_record_array_origins.c:23:97: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                                                                             ~~~~^
+2 errors generated.

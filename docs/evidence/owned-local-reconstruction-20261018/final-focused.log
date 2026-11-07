@@ -1,0 +1,9 @@
+test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) ... ok
+test_corrupt_ownership_and_regions_preserve_prior_output (tests.test_owned_reconstruction.OwnedReconstruction.test_corrupt_ownership_and_regions_preserve_prior_output) ... ok
+test_initializer_named_entry_refuses_atomically (tests.test_owned_reconstruction.OwnedReconstruction.test_initializer_named_entry_refuses_atomically) ... ok
+test_verified_control_path_outside_slice_refuses (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_control_path_outside_slice_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.292s
+
+OK

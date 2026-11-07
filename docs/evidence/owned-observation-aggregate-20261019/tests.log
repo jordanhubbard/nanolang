@@ -1,0 +1,21 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-6vtihk6i
+test_actual_multiple_nested_and_terminal_conditions (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_actual_multiple_nested_and_terminal_conditions) ... ok
+test_defensive_condition_effects_refuse (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_defensive_condition_effects_refuse) ... ok
+test_original_verified_inverted_exit (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_original_verified_inverted_exit) ... ok
+test_raw_reference_and_interior_edges_refuse_atomically (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_raw_reference_and_interior_edges_refuse_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-yrloz6la
+test_actual_arithmetic_pretests_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_arithmetic_pretests_refuse_atomically) ... ok
+test_actual_loop_lifetimes_and_both_outputs (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_loop_lifetimes_and_both_outputs) ... ok
+test_crc_valid_loop_edges_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_crc_valid_loop_edges_refuse_atomically) ... ok
+test_loop_state_refusals_from_actual_facts (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_loop_state_refusals_from_actual_facts) ... ok
+test_verified_inverted_pretest_and_unreachable_backedge (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_verified_inverted_pretest_and_unreachable_backedge) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-aqc6mw6j
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 107.648s
+
+OK

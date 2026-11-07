@@ -1,0 +1,13 @@
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm; public transport and consumers qualified.
+Expected selected native refusal: I have not qualified this native map string producer or STRUCT transport.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public transport and consumers qualified.
+Expected selected native refusal: I have not qualified this native map string producer or STRUCT transport.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public transport and consumers qualified.
+Expected selected native refusal: I have not qualified this native map string producer or STRUCT transport.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public transport and consumers qualified.
+Expected selected native refusal: I have not qualified this native map string producer or STRUCT transport.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public transport and consumers qualified.
+PASS 837 annotated baseline checks

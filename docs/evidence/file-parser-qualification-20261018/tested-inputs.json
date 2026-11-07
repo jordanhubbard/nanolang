@@ -1,0 +1,10 @@
+{
+  "Makefile.gnu": "50c58a6efd5d76eeb00567d5352451bb0bd5a4a1a85b87ffb970791894e7f07c",
+  "tests/test_file_service_parser.py": "ff304f72a9d32679314dbb896936ff05f7ad9d6c676fcd030010367476363987",
+  "tests/test_token_value_bytes.py": "ea34a42d3627c7a42ded5d597ff8d4e255265fdff454a61820bf569a33fd4b44",
+  "tests/test_shadow_trace_names.py": "04bc85492ab0ac9de31c877d61d2360e6b07ab046c64b8a97000e73714205539",
+  "bin/nanoc_c": "2ed9347c68e12898ed36c469381d55215b084aa009c63088beea6008d2c891f1",
+  "bin/nanoc_stage1": "d4e37642ce2de470bb5b3bad9718b5050787f520cc99138446686c95b9ff066f",
+  "bin/nanoc_stage2": "8bdfd9bdd5e657a8be1b27f0c3d9e76942775b601db8935d3baed88924f3348e",
+  "bin/nano_virt": "d669f9f7d05117fb4f422d442c558917459a99d9cc9ce5fca34be05648705af2"
+}

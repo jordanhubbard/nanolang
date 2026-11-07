@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/composed-nanoc_stage1.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/composed-nanoc_stage1.nano_virt.nvm"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "Warning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning at line 195, column 5: Unused variable 'nlr_t151_0'\nWarning at line 197, column 5: Unused variable 'nlr_t155_0'\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+}

@@ -1,0 +1,28 @@
+{
+  "old_providers_unchanged": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "b5bfa17b60788463e79d95bb83f98a5206126be77f867abbbc3ffbce0956b482",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "0092addfecb674ac6e04863b9c9775194a89293bc577a6be0b734d27cfa9fe01",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "341139c6bb1abfb7559a59162d2306a862aed59ba1151b364a7527094f0f7174",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "03f1674436a620f9565ce0a0a5e28d49646325d40e8d6a77432cdb3955a92cfb",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "component_sources_and_products": {
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_array_self_tail_headroom.c": "316d3a76c9a524301d7351bc66e79c011aa7da4bc45c2a5bbfa1857fa09b5346",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_array_self_tail.c": "938605c01e2ee984a96854572e9a2a10895f2b147b5a22f349d71e44044d60ea",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_array_self_tail_proof.c": "6ece6c5823e999112df524d045e8995c05aa61e217630d48bddbecd8fc119ab1",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_array_self_tail.py": "c236cc6327bbb56c273a9c29baeb02bc8e7a92f25bb904ed9673a6a3aed29ce1",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_array_shapes.c": "fb95f8c37e9ba6f07ea363b5b33cdd4de0f7f8ec325af2748af0c47d3eb1a1ae",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_array_tail.c": "3d858c5dbeed184eadf34a9b51f891fe36c472176ad6f598f75e18a6fdb50b7e",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_flat_array_source_publication.py": "442246f22690ebc09eceffef4033ac3d8d8d28add32df4f5ecbee54a587487df",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/Makefile.gnu": "c081ea0733df72e7e7a164cf00e899b3abd139d65f48712a832da8095e5c2a50",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_virt_self_tail": "ae1323e6ed95139903b5495d565f422f2ab738fd546df72d6afa5e0371054ea3",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nano_vm_self_tail": "856794d2604c67df17a969347fdcf2f6e83cff15f79b8931ae47c3114ba499bf",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoisa_self_tail": "a9b4f05ec73f26ad4a51f31825f0608865088d14c245a4b41fec2fa62e3699d5",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nvm2c_self_tail": "091aa9043fc7711adb5f6d5763caae3581185c965c383a35732bfabd98196e62",
+    "/private/tmp/nanolang-self-tail-proof-20261021/emitter": "fe1c4db2e9155ec8c12178879284053f50a4d96e1588d8a545e4555760dcba6f",
+    "/private/tmp/nanolang-self-tail-proof-20261021/libnanoisa_self_tail.so": "05b22fe366722a5353f1239c28cbc28e3431131aecdd3e498f1dd7ad4d778ddc"
+  }
+}

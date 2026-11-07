@@ -1,0 +1,4 @@
+struct Entries { values: array<array<array<bool>>> }
+fn main() -> int { let entries: Entries = Entries { values: [[[false, true]]] }
+ assert (at (at (at entries.values 0) 0) 1) return 0 }
+shadow main { assert (== (main) 0) }

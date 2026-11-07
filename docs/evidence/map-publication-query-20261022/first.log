@@ -1,0 +1,21 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-publication-2mwqh2j2
+test_complete_origin_and_allocation_controls (tests.test_record_map_publication.RecordMapPublication.test_complete_origin_and_allocation_controls) ... FAIL
+
+======================================================================
+FAIL: test_complete_origin_and_allocation_controls (tests.test_record_map_publication.RecordMapPublication.test_complete_origin_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_publication.py", line 49, in test_complete_origin_and_allocation_controls
+    self.command(f'{mode}-{Path(source).stem}-build',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 [*self.cc, *self.flags, *flags, '-c', source, '-o', str(obj)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.346s
+
+FAILED (failures=1)

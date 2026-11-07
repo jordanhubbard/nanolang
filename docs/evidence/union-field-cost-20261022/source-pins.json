@@ -1,0 +1,8 @@
+{
+  "src/nanoisa/union_field_cost.inc": "5c4772e89777e6d6a01491b050ea96edd151209729eb3de5fe112f2719b99787",
+  "src/nanoisa/union_field_cost_private.h": "387a1ec7e29ffe7aa63e5302639b6f5aab937a1838d59c97ae499f36203599a8",
+  "src/nanoisa/ownership_union_fields_private.inc": "34378f6b2480e893d1c3b88f2643d786e4faa703b9188b2f3a860b5ad916990d",
+  "src/nanoisa/managed_union_field_execution.inc": "b8eb872a943221396d81cd52c67de51e537a5f837277c22c190b4edfd753fc32",
+  "tests/nanoisa/test_union_field_execution.c": "bb8cef9557875285df56b522511f1987fd99b29cddc7d3d5bfd8ce04ec0da1dd",
+  "Makefile.gnu": "f0192a8b48219576b6dfc0dc1590cb7dac0ed5fb25cd8922a69749e634a76584"
+}
