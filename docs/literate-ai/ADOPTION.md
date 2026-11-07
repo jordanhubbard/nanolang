@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:c68fabcbba99820ff7b0995cb078f6b0411f47167972b3b19227569c4fbc8f4b -->
+<!-- literate-ai:authority-reviewed sha256:f406c92658133e1bb09e008961ea7193b37e36bdbf1383c49adf58da50dd6db3 -->
 
 ## My first metadata checkpoint
 
@@ -181,3 +181,12 @@ remain open. Auto-merge remains disabled while those release requirements are
 unresolved. My committed-tree custody report follows after current checks.
 
 My [repair metadata checks](repair-metadata-checks-20261107.json) record both real Git custody methods, all eight current Component locks, all four delegates and canonical validation after supported authority review. These checks preserve 90,073 reviewed baseline entries and do not qualify native lifecycle execution.
+
+My [committed repair custody report](source-preservation-repairs-20261107.json)
+at `3556ed251` preserves all 90,073 reviewed original entries, with no changed
+or dirty original paths. I check this metadata with installed Literate AI 1.4.0
+at `10e872cfae2465e831901108d50e62c2ff9dfb78`, publication unverified.
+Both real Git methods, all eight locks and all four delegates pass. Canonical
+validation passes after the supported authority-review update. I keep the
+full profile audit/runtime, exact hosted native gates, GitGuardian findings and
+retained native lifecycle admission visibly open.
