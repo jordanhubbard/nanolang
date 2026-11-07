@@ -1,0 +1,21 @@
+test_any_code_or_build_file_is_code (tests.test_ci_changed.CiChanged.test_any_code_or_build_file_is_code) ... ok
+test_command_output (tests.test_ci_changed.CiChanged.test_command_output) ... ok
+test_documentation_only_is_not_code (tests.test_ci_changed.CiChanged.test_documentation_only_is_not_code) ... ok
+test_unknown_or_empty_input_runs_the_long_jobs (tests.test_ci_changed.CiChanged.test_unknown_or_empty_input_runs_the_long_jobs) ... ok
+test_actual_push_prose_range_is_documentation (tests.test_ci_changed.GitHubEventClassification.test_actual_push_prose_range_is_documentation) ... ok
+test_complete_pr_range_keeps_earlier_code_after_a_prose_push (tests.test_ci_changed.GitHubEventClassification.test_complete_pr_range_keeps_earlier_code_after_a_prose_push) ... ok
+test_manual_empty_and_unknown_events_keep_native_jobs (tests.test_ci_changed.GitHubEventClassification.test_manual_empty_and_unknown_events_keep_native_jobs) ... ok
+test_missing_remote_and_unknown_commit_keep_native_jobs (tests.test_ci_changed.GitHubEventClassification.test_missing_remote_and_unknown_commit_keep_native_jobs) ... ok
+test_pure_prose_pr_range_is_documentation (tests.test_ci_changed.GitHubEventClassification.test_pure_prose_pr_range_is_documentation) ... ok
+test_real_cli_reads_the_event_and_fails_closed_for_bad_json (tests.test_ci_changed.GitHubEventClassification.test_real_cli_reads_the_event_and_fails_closed_for_bad_json) ... ok
+test_additional_owner_checks_are_preserved (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_additional_owner_checks_are_preserved) ... ok
+test_cli_exports_locally_and_reports_live_policy_drift (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_cli_exports_locally_and_reports_live_policy_drift) ... ok
+test_export_changes_only_additional_status_contexts (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_export_changes_only_additional_status_contexts) ... ok
+test_missing_checks_and_latest_non_success_never_become_admission (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_missing_checks_and_latest_non_success_never_become_admission) ... ok
+test_qualification_contexts_exist_for_both_native_and_prose_paths (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_qualification_contexts_exist_for_both_native_and_prose_paths) ... ok
+test_wrong_repository_or_duplicate_policy_refuses (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_wrong_repository_or_duplicate_policy_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.637s
+
+OK

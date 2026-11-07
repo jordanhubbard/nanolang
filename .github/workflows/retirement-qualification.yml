@@ -3,40 +3,51 @@ name: Release qualification
 on:
   pull_request:
     branches: [main, develop]
-    paths:
-      - '.github/workflows/retirement-qualification.yml'
-      - 'Makefile.gnu'
-      - 'src/**'
-      - 'src_nano/**'
-      - 'modules/**'
-      - 'spec/**'
-      - 'schema/**'
-      - 'std/**'
-      - 'stdlib/**'
-      - 'tests/**'
-      - 'scripts/**'
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/retirement-qualification.yml'
-      - 'Makefile.gnu'
-      - 'src/**'
-      - 'src_nano/**'
-      - 'modules/**'
-      - 'spec/**'
-      - 'schema/**'
-      - 'std/**'
-      - 'stdlib/**'
-      - 'tests/**'
-      - 'scripts/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  qualification-changes:
+    name: Qualification change classification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.changed.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Classify my complete PR or push range
+        id: changed
+        run: |
+          code=true
+          if result=$(python3 scripts/ci_changed.py --github-event); then
+            if [ "$result" = 'code=false' ]; then code=false; fi
+          fi
+          echo "I will execute native qualification: $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+  qualification-documentation:
+    # I emit the exact contexts for pure prose changes. Manual dispatch and
+    # every code/unknown range use my real native matrix below.
+    name: Qualification (${{ matrix.corpus }}, ${{ matrix.os }})
+    needs: qualification-changes
+    if: needs.qualification-changes.outputs.code != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        os: [ubuntu-latest, xcode-27]
+        corpus: [retirement, compiler-contracts, contract-effects, record-maps]
+    steps:
+      - run: echo 'I classified a documentation-only range; this check records conditional nonexecution, not native qualification.'
+
   retirement:
     name: Qualification (${{ matrix.corpus }}, ${{ matrix.os }})
+    needs: qualification-changes
+    if: needs.qualification-changes.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     # I do not block on xcode-27: hosted run 40168478499 found no
     # /Applications/Xcode_27.2_beta_2.app on that runner image. The pin now names

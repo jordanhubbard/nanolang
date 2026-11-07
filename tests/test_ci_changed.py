@@ -1,6 +1,9 @@
 """I check that the CI change classifier skips only pure documentation pushes."""
 import subprocess
+import os
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -34,6 +37,73 @@ class CiChanged(unittest.TestCase):
                 result = subprocess.run([sys.executable, str(ROOT / 'scripts/ci_changed.py')], input=text,
                                         capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.stdout.strip(), expected)
+
+
+class GitHubEventClassification(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix='nano-ci-event-')
+        self.addCleanup(self.temporary.cleanup)
+        self.source = Path(self.temporary.name) / 'source'
+        self.source.mkdir()
+        self.git(self.source, 'init', '--quiet')
+        self.git(self.source, 'config', 'user.name', 'NanoLang fixture')
+        self.git(self.source, 'config', 'user.email', 'fixture@example.invalid')
+        self.base = self.commit('README.md', 'I retain my baseline.\n')
+        self.code = self.commit('src/feature.c', 'int feature(void) { return 1; }\n')
+        self.prose = self.commit('docs/progress.md', 'I record progress.\n')
+        self.checkout = Path(self.temporary.name) / 'checkout'
+        self.git(Path(self.temporary.name), 'clone', '--quiet', str(self.source), str(self.checkout))
+
+    def git(self, cwd, *args):
+        return subprocess.check_output(['git', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null',
+                                        *args], cwd=cwd, text=True, stderr=subprocess.DEVNULL,
+                                       timeout=30).strip()
+
+    def commit(self, name, text):
+        path = self.source / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+        self.git(self.source, 'add', name)
+        self.git(self.source, 'commit', '--quiet', '-m', 'I record a fixture input.')
+        return self.git(self.source, 'rev-parse', 'HEAD')
+
+    def test_actual_push_prose_range_is_documentation(self):
+        self.assertFalse(ci_changed.github_event_changes('push',
+                         {'before': self.code, 'after': self.prose}, self.checkout))
+
+    def test_complete_pr_range_keeps_earlier_code_after_a_prose_push(self):
+        event = {'pull_request': {'base': {'sha': self.base}, 'head': {'sha': self.prose}}}
+        self.assertTrue(ci_changed.github_event_changes('pull_request', event, self.checkout))
+
+    def test_pure_prose_pr_range_is_documentation(self):
+        event = {'pull_request': {'base': {'sha': self.code}, 'head': {'sha': self.prose}}}
+        self.assertFalse(ci_changed.github_event_changes('pull_request', event, self.checkout))
+
+    def test_missing_remote_and_unknown_commit_keep_native_jobs(self):
+        self.git(self.checkout, 'remote', 'remove', 'origin')
+        self.assertTrue(ci_changed.github_event_changes('push',
+                        {'before': self.code, 'after': self.prose}, self.checkout))
+        self.assertTrue(ci_changed.github_event_changes('push',
+                        {'before': 'f' * 40, 'after': self.prose}, self.checkout))
+
+    def test_manual_empty_and_unknown_events_keep_native_jobs(self):
+        for name, event in [('workflow_dispatch', {}), ('push', {}), ('pull_request', {}),
+                            ('push', {'before': '0' * 40, 'after': self.prose}),
+                            ('push', {'before': self.prose, 'after': self.prose})]:
+            with self.subTest(name=name, event=event):
+                self.assertTrue(ci_changed.github_event_changes(name, event, self.checkout))
+
+    def test_real_cli_reads_the_event_and_fails_closed_for_bad_json(self):
+        event = Path(self.temporary.name) / 'event.json'
+        event.write_text(json.dumps({'pull_request': {'base': {'sha': self.base},
+                                                      'head': {'sha': self.prose}}}))
+        env = dict(os.environ, GITHUB_EVENT_PATH=str(event), GITHUB_EVENT_NAME='pull_request')
+        for content, expected in [(event.read_text(), 'code=true\n'), ('not json', 'code=true\n')]:
+            event.write_text(content)
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/ci_changed.py'), '--github-event'],
+                                    cwd=self.checkout, env=env, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, expected)
 
 
 if __name__ == '__main__':

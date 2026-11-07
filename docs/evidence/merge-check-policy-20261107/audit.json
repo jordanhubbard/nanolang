@@ -1,0 +1,103 @@
+{
+  "schema": "nanolang/merge-gate-policy-audit@1",
+  "ruleset_id": 21250292,
+  "repository": "jordanhubbard/nanolang",
+  "declared_context_count": 25,
+  "observed_context_count": 11,
+  "missing_required_contexts": [
+    "Coverage compiler generations",
+    "Fast gate (GCC and clang)",
+    "Immutable instrumented toolchain",
+    "Memory Sanitizers",
+    "Memory Sanitizers Stage 1",
+    "Performance Benchmarks",
+    "Qualification (compiler-contracts, ubuntu-latest)",
+    "Qualification (compiler-contracts, xcode-27)",
+    "Qualification (contract-effects, ubuntu-latest)",
+    "Qualification (contract-effects, xcode-27)",
+    "Qualification (record-maps, ubuntu-latest)",
+    "Qualification (record-maps, xcode-27)",
+    "Qualification (retirement, ubuntu-latest)",
+    "Qualification (retirement, xcode-27)"
+  ],
+  "additional_observed_contexts": [],
+  "ruleset_matches_declared_minimum": false,
+  "owner_approval_required_for_application": true,
+  "blocking_policy_prerequisites": [
+    {
+      "issue": 1049,
+      "requirement": "I complete current Xcode qualification and restore blocking native legs."
+    },
+    {
+      "issue": 1053,
+      "requirement": "I complete the current sanitizer pipeline and restore its blocking policy."
+    },
+    {
+      "issue": 1051,
+      "requirement": "I obtain owner approval for the exact additive payload and verify the live ruleset after application."
+    }
+  ],
+  "native_lifecycle_qualified": false,
+  "head_observation_complete": true,
+  "head_missing_contexts": [
+    "Memory Sanitizers"
+  ],
+  "head_contexts_without_completed_success": [
+    {
+      "name": "Build and Test (macos-14, arm64)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Build and Test (ubuntu-24.04-arm, arm64)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Build and Test (ubuntu-latest, x64)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Code Coverage",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Memory Sanitizers Stage 1",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Qualification (compiler-contracts, ubuntu-latest)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Qualification (compiler-contracts, xcode-27)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Qualification (contract-effects, ubuntu-latest)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Qualification (contract-effects, xcode-27)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Qualification (record-maps, xcode-27)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Qualification (retirement, xcode-27)",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "all_declared_head_checks_succeeded": false
+}

@@ -36,16 +36,10 @@ jobs:
       # non-documentation path. Documentation-only pushes still run this gate and the docs link check.
       - name: Classify the pushed changes
         id: changed
-        env:
-          EVENT: ${{ github.event_name }}
-          BEFORE: ${{ github.event.before }}
-          AFTER: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           code=true
-          if [ "$EVENT" != "workflow_dispatch" ] && [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
-            if git fetch --no-tags --depth=1 origin "$BEFORE" "$AFTER" 2>/dev/null; then
-              result=$(git diff --name-only "$BEFORE" "$AFTER" | python3 scripts/ci_changed.py) && code="${result#code=}"
-            fi
+          if result=$(python3 scripts/ci_changed.py --github-event); then
+            if [ "$result" = 'code=false' ]; then code=false; fi
           fi
           echo "I will run the long jobs: $code"
           echo "code=$code" >> "$GITHUB_OUTPUT"
