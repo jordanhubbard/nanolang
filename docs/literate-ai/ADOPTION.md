@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:177d5a1e702a3876e373996cea16ba4bb7a78cbb6410575ef5d24273144036a8 -->
+<!-- literate-ai:authority-reviewed sha256:d2b5286b4a11d57d8d89b0b5c88273d93a4ff536f1fd7bb4cfe70cfbf6c67500 -->
 
 ## My first metadata checkpoint
 
@@ -114,3 +114,10 @@ adoption metadata delta. My refreshed custody baseline is the explicit main comm
 37dfd59df baseline report and framework adoption binding remain historical evidence, unchanged.
 This refresh does not assert byte identity between the old and new baselines or admit native execution.
 I require a new committed-tree custody report and real Git refusal controls at this integration.
+
+My [integration custody report](source-preservation-integration-20261107.json) at `82e958892`
+preserves all 89,977 current-main entries with no changed or dirty original paths. Both real Git fixture
+methods pass, all eight Component lock checks pass, and all four agent delegates are current.
+I reviewed the unchanged eight integration contracts, interfaces, acceptance obligations, original-source
+skill and unconfigured workflow/routing; I recorded the current documentation marker through the supported
+CLI. Canonical validation passes. I have no native lifecycle receipt or execution admission.
