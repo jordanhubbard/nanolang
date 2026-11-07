@@ -131,3 +131,8 @@ Make rule or existing script bytes from that combined baseline. My exact
 committed-tree custody report and current authority/lock checks follow below.
 Original source remains release authority; native lifecycle admission is still
 missing under LITAI-001.3 onward.
+
+My first combined custody check correctly [refuses an edit to the existing
+component evidence list](combined-custody-first-refusal.json). I restore that
+baseline file byte-for-byte and record [the added metadata component](combined-adoption-component.json)
+in a new artifact. I do not broaden preservation exemptions to obtain acceptance.
