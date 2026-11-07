@@ -3,6 +3,19 @@ from pathlib import Path
 
 PROVIDERS = ('src/nsi_file_binding.c', 'src/nsi_file_plan.c', 'src/nsi.c', 'src/cJSON.c', 'src/utf8.c')
 KINDS = ('file', 'socket', 'websocket')
+NEIGHBORS = {
+    'file': (),
+    'socket': ('tests/test_nsi_binding_isolation.c', 'src/nsi_file_binding.c', 'src/nsi_file_plan.c'),
+    'websocket': ('tests/test_websocket_source_snapshot.c', 'src/nanoisa/file_source_snapshot.c',
+                  'src/nsi_file_binding.c', 'src/nsi_file_plan.c',
+                  'src/nsi_socket_binding.c', 'src/nsi_socket_plan.c'),
+}
+
+
+def neighbor_sources(kind):
+    if kind not in KINDS:
+        raise ValueError('I require a declared binding catalog kind.')
+    return NEIGHBORS[kind]
 
 
 def provider_sources(kind):

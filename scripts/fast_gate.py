@@ -140,7 +140,7 @@ def diagnostic_profile(compiler, flags, source, instrumented=False):
 def binding_profiles(base, destination):
     """I use the same linked/instrumented recipes as my three real binding harnesses."""
     from tests.binding_compile_profile import (KINDS, compile_flags, provider_sources,
-                                              provider_hooks, fixture_hooks)
+                                              provider_hooks, fixture_hooks, neighbor_sources)
     profiles = []
     for kind in KINDS:
         flags, _ = compile_profile(compile_flags(ROOT, Path(destination) / ('binding-' + kind), base))
@@ -151,6 +151,7 @@ def binding_profiles(base, destination):
         profiles.extend((flags, source) for source in
                         ('tests/test_nsi.c', 'tests/test_nsi_gen.c', 'src/nsi_gen.c',
                          f'tests/test_nsi_{kind}_plan.c'))
+        profiles.extend((flags, source) for source in neighbor_sources(kind))
     return profiles
 
 

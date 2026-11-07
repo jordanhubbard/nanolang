@@ -2,7 +2,7 @@ name: Compiler profile audit
 
 on:
   push:
-    branches: [fix/5.1-compile-profile-audit, fix/5.1-binding-compile-profiles]
+    branches: [fix/5.1-compile-profile-audit, fix/5.1-binding-compile-profiles, fix/5.1-binding-neighbor-profiles]
     paths:
       - '.github/workflows/compiler-profile-audit.yml'
       - 'Makefile.gnu'
@@ -11,6 +11,8 @@ on:
       - 'tests/test_fast_gate_preparation.py'
       - 'tests/binding_compile_profile.py'
       - 'tests/test_nsi_file_binding.py'
+      - 'tests/test_nsi_socket_binding.py'
+      - 'tests/test_nsi_websocket_binding.py'
 
 permissions:
   contents: read
@@ -18,6 +20,7 @@ permissions:
 jobs:
   profile-measurement:
     name: Compiler profile measurement (${{ matrix.compiler }})
+    if: github.ref_name != 'fix/5.1-binding-neighbor-profiles'
     runs-on: ubuntu-latest
     # I measure an opt-in tier; I do not raise the required fast gate's
     # 20-minute budget or replace native qualification checks.
@@ -89,7 +92,7 @@ jobs:
 
   binding-behavior:
     name: Binding profile behavior (${{ matrix.compiler }})
-    if: github.ref_name == 'fix/5.1-binding-compile-profiles'
+    if: startsWith(github.ref_name, 'fix/5.1-binding-')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -131,6 +134,43 @@ jobs:
           subprocess.run([sys.executable, '-m', 'unittest', '-v',
                           'tests.test_nsi_file_binding', 'tests.test_nsi_socket_binding',
                           'tests.test_nsi_websocket_binding'], env=env, check=True)
+          PY
+      - name: Qualify every binding diagnostic recipe with its real private inputs
+        env:
+          PROFILE_COMPILER: ${{ matrix.compiler }}
+        run: |
+          python3 - <<'PY'
+          import concurrent.futures, json, os, tempfile, time
+          from pathlib import Path
+          from scripts import fast_gate as gate
+          from tests.binding_compile_profile import KINDS
+          family = os.environ['PROFILE_COMPILER']
+          compiler = gate.detect_compilers()[family]
+          started = time.monotonic()
+          with tempfile.TemporaryDirectory(prefix='nano-binding-diagnostics-') as folder:
+              commands, _ = gate.test_profiles(compiler, family, folder)
+              private = {str(Path(folder) / ('binding-' + kind)) for kind in KINDS}
+              commands = [command for command in commands if private.intersection(command)]
+              if not commands:
+                  raise SystemExit('I require my selected real binding profiles.')
+              commands, preparation = gate.prepare_profile_inputs(commands, folder)
+              with concurrent.futures.ThreadPoolExecutor(2) as workers:
+                  results = list(workers.map(gate.run, commands))
+          failures = sum(status != 0 for _, status, _, _ in results)
+          report = {'compiler': family, 'elapsed_seconds': time.monotonic() - started,
+                    'scope': 'I qualify only my binding recipes; full profile coverage remains separate.',
+                    'input_preparation': preparation, 'failures': failures,
+                    'results': [{'argv': command, 'returncode': status,
+                                 'diagnostics': output, 'seconds': seconds}
+                                for command, status, output, seconds in results]}
+          output = Path('.test_output/binding-profile-behavior/diagnostics.json')
+          output.write_text(json.dumps(report, indent=2) + '\n')
+          print(f'I compiled {len(results)} real binding profiles; {failures} failed.')
+          if failures:
+              for command, status, output, _ in results:
+                  if status:
+                      print(gate.source_of(command), status, output)
+              raise SystemExit(1)
           PY
       - name: Retain real binding qualification outputs
         if: always()

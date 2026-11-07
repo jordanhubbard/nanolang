@@ -1,5 +1,6 @@
 """I qualify owned WebSocket documents through the strict binding corpus."""
 from tests import test_nsi_file_binding
+from tests.binding_compile_profile import neighbor_sources
 
 class WebSocketBindingPlan(test_nsi_file_binding.FileBindingPlan):
     kind = 'websocket'
@@ -12,8 +13,7 @@ class WebSocketBindingPlan(test_nsi_file_binding.FileBindingPlan):
         for name, kind in [('websocket', 'websocket'), ('file', 'file'), ('socket', 'socket')]:
             shutil.copyfile(ROOT / f'tests/fixtures/nsi_{kind}_plan.json', folder / (name + '.json'))
         executable = self.work / 'snapshot-test'
-        self.command('snapshot-build', [*self.cc, *self.flags, 'tests/test_websocket_source_snapshot.c',
-            'src/nanoisa/file_source_snapshot.c', 'src/nsi_file_binding.c', 'src/nsi_file_plan.c',
-            'src/nsi_socket_binding.c', 'src/nsi_socket_plan.c', *self.objects['linked'], *self.links, '-o', executable])
+        self.command('snapshot-build', [*self.cc, *self.flags, *neighbor_sources(self.kind),
+            *self.objects['linked'], *self.links, '-o', executable])
         output, _ = self.command('snapshot-run', [executable, folder / 'binding.nano'])
         self.assertIn(b'PASS immutable WebSocket source snapshots', output)
