@@ -1,5 +1,16 @@
 # My 5.1 requirement inventory — 2026-10-11
 
+## Additional required 5.1 scope, 2026-10-28
+
+**Required (LITAI-001):** I adopt Literate AI under [#1039](https://github.com/jordanhubbard/nanolang/issues/1039)
+and the ordered [roadmap](ROADMAP.md#litai-001-my-51-literate-ai-adoption).
+My scope is now the 67 original entries plus this additional requirement (68 headline entries).
+I preserve every original status, identifier and explicit deferral. I require real native unit authority,
+locks, lifecycle parity and current independent receipts; wrapper or original-source metadata alone is incomplete.
+Compiler-contract, sanitizer, retirement and exact Linux/Darwin gates stay required as previously scoped.
+My [adoption record](literate-ai/ADOPTION.md) distinguishes completed metadata from unqualified execution.
+
+
 I inspect implementation at `bfab9d50a`, the release branch tip before this
 reconciliation. I preserve all requirements in RELEASE_5.1_SCOPE.md and the
 detailed Phase 20 roadmap. I count contractual entries, not estimated days,

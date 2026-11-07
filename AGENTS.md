@@ -84,3 +84,8 @@ not fall back to MAC or claim that tracking succeeded.
 - NEVER stop before pushing — that leaves work stranded locally
 - NEVER say "ready to push when you are" — YOU must push
 - If push fails, resolve and retry until it succeeds
+
+## My Literate AI authority
+
+For project authority, source retention and adoption evidence, follow [SKILL.md](SKILL.md).
+I preserve all existing instructions above and in skills/.
