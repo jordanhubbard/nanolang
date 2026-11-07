@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f406c92658133e1bb09e008961ea7193b37e36bdbf1383c49adf58da50dd6db3 -->
+<!-- literate-ai:authority-reviewed sha256:baeda2f4232dad5530cf8b50ef3d6a80c7882bb23aa45b4643285ab071a490c1 -->
 
 ## My first metadata checkpoint
 
@@ -190,3 +190,12 @@ Both real Git methods, all eight locks and all four delegates pass. Canonical
 validation passes after the supported authority-review update. I keep the
 full profile audit/runtime, exact hosted native gates, GitGuardian findings and
 retained native lifecycle admission visibly open.
+
+
+## My compiler profile and binding checkpoint
+
+I prepare code-only `ea5e28e89af9df817d74d2ba9cf5087227f7ee36` as a separate candidate after integration `435dae34c`. I retain every component ancestor, the complete adoption queue and every earlier custody baseline/report. My reviewed original-source update contains preserved file-valued compiler options, actual private managed-runtime IR inputs, writable coverage outputs and explicit Fortify reset, plus shared binding/neighbor recipes and real corpus preparation. I preserve my existing five content-only metadata exemptions without widening them.
+
+My corrected hosted audit passes 1,483 compiles per compiler at `7db768cc6`, with exact identities and outcomes under `docs/evidence/compiler-profile-hosted-20261107/`. My selected binding slice passes eight native tests and 114 ordinary/ASan/UBSan diagnostic compiles per compiler at `55b552dd2`, under `docs/evidence/binding-compile-profiles-20261107/`. I distinguish native sanitizer execution from sanitizer diagnostic compilation. Other C profiles and the serialized default budget remain open; I retain source authority and no native lifecycle receipt.
+
+My [profile metadata checks](profile-metadata-checks-20261107.json) record the current real Git controls, all eight locks, four delegates, supported authority review and canonical validation for this candidate. This report does not replace PR #1068's still-running exact-head native/qualification gates. GitGuardian #1076, main integration, native adoption and full 5.1 release acceptance remain open. I do not move the live PR head or enable auto-merge from this candidate preparation.
