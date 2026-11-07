@@ -68,6 +68,69 @@ shadow main { assert (== (main) 0) }
                     self.command([COMPILER, source, '--emit-nvm', '-o', output], 1)
                     self.assertEqual(output.read_bytes(), b'prior')
 
+    def test_direct_cast_returns_and_single_interpolation_execute_once(self):
+        with tempfile.TemporaryDirectory(prefix='canonical-string-tail-') as tmp:
+            directory = Path(tmp)
+            source = directory / 'main.nano'
+            source.write_text('''let mut calls: int = 0
+fn next() -> int { set calls (+ calls 1) return 7 }
+shadow next { set calls 0 assert (== (next) 7) assert (== calls 1) }
+fn integer(value: int) -> string { return (to_string value) }
+shadow integer { assert (str_equals (integer 7) "7") }
+fn text(value: string) -> string { return (cast_string value) }
+shadow text { assert (str_equals (text "kept") "kept") }
+fn flag(value: bool) -> string { return (bool_to_string value) }
+shadow flag { assert (str_equals (flag true) "true") assert (str_equals (flag false) "false") }
+fn fraction(value: float) -> string { return (to_string value) }
+shadow fraction { assert (str_equals (fraction 3.5) "3.5") }
+fn interpolation(value: int) -> string { return f"{value}" }
+shadow interpolation { assert (str_equals (interpolation -7) "-7") }
+fn once() -> string { return (to_string (next)) }
+shadow once { set calls 0 assert (str_equals (once) "7") assert (== calls 1) }
+fn main() -> int {
+ assert (str_equals (integer 7) "7")
+ assert (str_equals (text "kept") "kept")
+ assert (str_equals (flag true) "true")
+ assert (str_equals (flag false) "false")
+ assert (str_equals (fraction 3.5) "3.5")
+ assert (str_equals (interpolation -7) "-7")
+ set calls 0
+ assert (str_equals (once) "7")
+ assert (== calls 1)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            self.both(source, directory)
+
+    def test_declared_cast_names_keep_their_function_results(self):
+        cases = [('bool_to_string', 'bool', 'true')]
+        for name, kind, argument in cases:
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix='canonical-cast-override-') as tmp:
+                directory = Path(tmp)
+                source = directory / 'main.nano'
+                source.write_text(f'''fn {name}(value: {kind}) -> string {{ return "declared" }}
+shadow {name} {{ assert (str_equals ({name} {argument}) "declared") }}
+fn relay(value: {kind}) -> string {{ return ({name} value) }}
+shadow relay {{ assert (str_equals (relay {argument}) "declared") }}
+fn main() -> int {{ assert (str_equals (relay {argument}) "declared") return 0 }}
+shadow main {{ assert (== (main) 0) }}
+''')
+                self.both(source, directory)
+
+    def test_wrong_cast_arities_preserve_output(self):
+        with tempfile.TemporaryDirectory(prefix='canonical-cast-refusal-') as tmp:
+            directory = Path(tmp)
+            source, output = directory / 'main.nano', directory / 'prior.nvm'
+            for name in ('to_string', 'cast_string', 'bool_to_string'):
+                for arguments in ('', 'true false'):
+                    with self.subTest(name=name, arguments=arguments):
+                        source.write_text(f'fn main() -> int {{ ({name} {arguments}) return 0 }}\n'
+                                          'shadow main { assert true }\n')
+                        output.write_bytes(b'prior')
+                        self.command([COMPILER, source, '--emit-nvm', '-o', output], 1)
+                        self.assertEqual(output.read_bytes(), b'prior')
+
 
 if __name__ == '__main__':
     unittest.main()

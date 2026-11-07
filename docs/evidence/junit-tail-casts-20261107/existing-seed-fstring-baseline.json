@@ -1,0 +1,23 @@
+{
+  "scope": "I probe existing local C-seed/VM binaries, not a fresh source-qualified toolchain.",
+  "work": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-junit-fstring-baseline-_8bm_7xk",
+  "source_sha256": "51c07641607a3a80964843fe299010da72a92f20c50f45236846078148288ac8",
+  "tools": {
+    "/Users/jkh/Src/nanolang/bin/nano_virt": "38883afcb4bc8482758f548fbebec5df40cd25032b0a44c2ea1e828dfb1eb400",
+    "/Users/jkh/Src/nanolang/bin/nano_vm": "ba32991138b260b4a02289e2047a0b148b06c8b29f6100babab1031d144f8425"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nano_virt",
+        "/Users/jkh/Src/nanolang/tests/unit/test_fstring_comprehensive.nano",
+        "--emit-nvm",
+        "-o",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-junit-fstring-baseline-_8bm_7xk/fstrings.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "\nRuntime error: Assertion failed\nStack trace (most recent call first):\n  #0   $shadow_2_fstr_float  /Users/jkh/Src/nanolang/tests/unit/test_fstring_comprehensive.nano:33:5\n  #1   $shadow_entry  /Users/jkh/Src/nanolang/tests/unit/test_fstring_comprehensive.nano:?\nI failed a shadow: Assertion failed\nStack trace (most recent call first):\n  #0   $shadow_2_fstr_float  /Users/jkh/Src/nanolang/tests/unit/test_fstring_comprehensive.nano:33:5\n  #1   $shadow_entry  /Users/jkh/Src/nanolang/tests/unit/test_fstring_comprehensive.nano:?\nI will not publish output after failed shadow execution\n"
+    }
+  ]
+}

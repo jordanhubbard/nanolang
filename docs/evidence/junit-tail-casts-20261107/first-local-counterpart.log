@@ -1,0 +1,141 @@
+test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) ... 
+  test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='to_string') ... FAIL
+  test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='cast_string') ... FAIL
+  test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='bool_to_string') ... FAIL
+test_direct_cast_returns_and_single_interpolation_execute_once (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_direct_cast_returns_and_single_interpolation_execute_once) ... FAIL
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... FAIL
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... FAIL
+test_wrong_cast_arities_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_cast_arities_preserve_output) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... 
+  test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) (expression='(str_trim 1)') ... FAIL
+
+======================================================================
+FAIL: test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='to_string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 120, in test_declared_cast_names_keep_their_function_results
+    self.both(source, directory)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 21, in both
+    self.command([COMPILER, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"Error at line 1, column 1: Cannot redefine built-in function 'to_string'\n  Built-in functions cannot be shadowed\n  Choose a different function name\nWarning at line 1, column 1: Unused variable 'value'\nerror: type check failed\n"
+
+======================================================================
+FAIL: test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='cast_string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 120, in test_declared_cast_names_keep_their_function_results
+    self.both(source, directory)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 21, in both
+    self.command([COMPILER, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"Error at line 1, column 1: Cannot redefine built-in function 'cast_string'\n  Built-in functions cannot be shadowed\n  Choose a different function name\nWarning at line 1, column 1: Unused variable 'value'\nerror: type check failed\n"
+
+======================================================================
+FAIL: test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) (name='bool_to_string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 120, in test_declared_cast_names_keep_their_function_results
+    self.both(source, directory)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 25, in both
+    self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', native])
+                  ^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"clang: error: no such file or directory: '/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o'\n"
+
+======================================================================
+FAIL: test_direct_cast_returns_and_single_interpolation_execute_once (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_direct_cast_returns_and_single_interpolation_execute_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 104, in test_direct_cast_returns_and_single_interpolation_execute_once
+    self.both(source, directory)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 25, in both
+    self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', native])
+                  ^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"clang: error: no such file or directory: '/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o'\n"
+
+======================================================================
+FAIL: test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 33, in test_existing_string_edges
+    self.both(ROOT / 'tests/nl_functions_string_edges.nano', Path(tmp))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 25, in both
+    self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', native])
+                  ^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"clang: error: no such file or directory: '/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o'\n"
+
+======================================================================
+FAIL: test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 58, in test_nested_string_and_boolean_results
+    self.both(source, directory)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 25, in both
+    self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-o', native])
+                  ^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"clang: error: no such file or directory: '/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o'\n"
+
+======================================================================
+FAIL: test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) (expression='(str_trim 1)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 68, in test_wrong_trim_operands_preserve_output
+    self.command([COMPILER, source, '--emit-nvm', '-o', output], 1)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_canonical_string_builtins.py", line 16, in command
+    self.assertEqual(result.returncode, expected, (result.stdout + result.stderr)[-5000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : b''
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.597s
+
+FAILED (failures=7)

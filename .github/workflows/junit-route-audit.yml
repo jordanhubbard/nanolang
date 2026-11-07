@@ -1,0 +1,121 @@
+name: Complete JUnit producer-route diagnosis
+
+on:
+  push:
+    branches: [fix/5.1-tail-string-casts]
+    paths:
+      - '.github/workflows/junit-route-audit.yml'
+      - 'scripts/junit_route_audit.py'
+      - 'tests/test_junit_route_audit.py'
+      - 'tests/test_canonical_string_builtins.py'
+      - 'src_nano/compiler/nanoisa_codegen.nano'
+
+permissions:
+  contents: read
+
+jobs:
+  original-corpus:
+    name: Fresh scalar string returns and complete original JUnit routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      CMD_TIMEOUT: '1800'
+      BOOTSTRAP_NANOISA_TIMEOUT: '5400'
+      NANO_SHADOW_TIMEOUT_SECONDS: '120'
+      NANO_SHADOW_TRACE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require worker headroom before installation or bootstrap
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/junit-route-audit')
+          output.mkdir(parents=True)
+          resources = {}
+          for name, path in {'workspace': '.', 'temporary': tempfile.gettempdir(),
+                             'runner_temporary': os.environ['RUNNER_TEMP'],
+                             'package_cache': '/var/cache/apt'}.items():
+              disk = shutil.disk_usage(path)
+              resources[name] = {'path': path, 'free': disk.free, 'total': disk.total}
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'volumes': resources, 'memory': memory, 'cpus': os.cpu_count()}
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in resources.values()):
+              raise SystemExit('I hold this native diagnostic worker for insufficient disk headroom.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= .10:
+              raise SystemExit('I hold this native diagnostic worker for memory pressure.')
+          PY
+      - name: Install the same Linux providers as my platform CI
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh build-essential valgrind pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+            libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev \
+            libglew-dev freeglut3-dev libutf8proc-dev gforth
+      - name: Check report integrity controls
+        run: python3 -m unittest -v tests.test_junit_route_audit tests.test_ci_qualification_storage
+      - name: Build and verify fresh compiler generations
+        id: bootstrap
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime \
+            2>&1 | tee .test_output/junit-route-audit/bootstrap.log
+          git rev-parse HEAD > .test_output/junit-route-audit/revision.txt
+          git ls-tree -r HEAD > .test_output/junit-route-audit/source-tree.txt
+          sha256sum bin/nanoc_c bin/nano_virt bin/nano_vm bin/nanoisa bin/nvm2c bin/nanoc_stage1 \
+            bin/nanoc_stage2 bin/nanoc_stage1.nvm bin/nanoc_stage2.nvm bin/nano_aot_runtime.o \
+            > .test_output/junit-route-audit/providers-before.sha256
+          cc --version > .test_output/junit-route-audit/compiler.txt
+      - name: Execute every canonical string method through all three producers
+        timeout-minutes: 45
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          output = Path('.test_output/junit-route-audit')
+          results = []
+          for compiler in ['nano_virt', 'nanoc_stage1', 'nanoc_stage2']:
+              argv = [sys.executable, '-m', 'unittest', '-v', 'tests.test_canonical_string_builtins']
+              with (output / (compiler + '-focused.log')).open('w') as log:
+                  status = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT,
+                      env=dict(os.environ, NANOLANG_SELFHOST_COMPILER=str(Path('bin', compiler).resolve()))).returncode
+              results.append({'compiler': compiler, 'argv': argv, 'returncode': status})
+              (output / 'focused-results.json').write_text(json.dumps(results, indent=2) + '\n')
+          raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
+          PY
+      - name: Retain the complete original corpus across seed native, VM and both stages
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 180
+        run: python3 scripts/junit_route_audit.py
+      - name: Verify unchanged source and fresh compiler providers
+        if: always() && steps.bootstrap.outcome == 'success'
+        run: |
+          git diff --exit-code HEAD
+          sha256sum --check .test_output/junit-route-audit/providers-before.sha256 \
+            > .test_output/junit-route-audit/providers-after.log
+      - name: Preserve every route result and diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-route-audit-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/
+            obj/bootstrap-nanoisa/**/manifest.json
+            obj/bootstrap-nanoisa/**/*.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve original failed temporary roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-route-temporary-failures-${{ github.sha }}
+          path: ${{ runner.temp }}/nano-qualification-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
