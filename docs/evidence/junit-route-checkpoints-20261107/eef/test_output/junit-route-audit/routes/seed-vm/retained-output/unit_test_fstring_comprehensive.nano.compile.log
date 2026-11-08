@@ -1,0 +1,13 @@
+I am testing shadow $shadow_0_fstr_basic
+I am testing shadow $shadow_1_fstr_int
+I am testing shadow $shadow_2_fstr_float
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_2_fstr_float  tests/unit/test_fstring_comprehensive.nano:33:5
+  #1   $shadow_entry  tests/unit/test_fstring_comprehensive.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_2_fstr_float  tests/unit/test_fstring_comprehensive.nano:33:5
+  #1   $shadow_entry  tests/unit/test_fstring_comprehensive.nano:?
+I will not publish output after failed shadow execution

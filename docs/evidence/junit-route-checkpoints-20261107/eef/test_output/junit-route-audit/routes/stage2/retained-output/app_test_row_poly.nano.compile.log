@@ -1,0 +1,7 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)
+  [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)
+  [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16)
+  [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Employee (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:85:16)
+  [E0010] Argument 1 to 'get_age': expected {name:string,age:int|r}, got Employee (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:90:16)

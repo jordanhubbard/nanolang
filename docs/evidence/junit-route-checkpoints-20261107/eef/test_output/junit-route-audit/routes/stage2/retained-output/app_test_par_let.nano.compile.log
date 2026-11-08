@@ -1,0 +1,1 @@
+I could not verify the shadow module: Assembled module failed verification: function[8] stack underflow at offset 48 (POP needs 1, has 0)

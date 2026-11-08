@@ -1,0 +1,12 @@
+I am testing shadow $shadow_0_read
+I am testing shadow $shadow_1_make
+I am testing shadow $shadow_2_main
+
+Runtime error: Index out of bounds
+  AGG_GET field 0 is unavailable
+Stack trace (most recent call first):
+  #0   main  tests/unit/test_native_generic_contexts.nano:20:141
+  #1   $shadow_2_main  tests/unit/test_native_generic_contexts.nano:23:15
+  #2   $shadow_entry  tests/unit/test_native_generic_contexts.nano:?
+I failed a shadow: AGG_GET field 0 is unavailable
+I will not publish output after failed shadow execution

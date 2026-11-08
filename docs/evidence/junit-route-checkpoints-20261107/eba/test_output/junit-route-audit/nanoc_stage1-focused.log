@@ -1,0 +1,14 @@
+test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) ... ok
+test_direct_cast_returns_and_single_interpolation_execute_once (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_direct_cast_returns_and_single_interpolation_execute_once) ... ok
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... ok
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... ok
+test_original_complete_fstring_fixture (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_original_complete_fstring_fixture) ... ok
+test_raw_cast_string_retains_its_reference_format (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_raw_cast_string_retains_its_reference_format) ... ok
+test_source_float_text_and_once_only_arguments (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_source_float_text_and_once_only_arguments) ... ok
+test_wrong_cast_arities_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_cast_arities_preserve_output) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.204s
+
+OK

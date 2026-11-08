@@ -1,0 +1,35 @@
+[
+  {
+    "compiler": "nano_virt",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_canonical_string_builtins"
+    ],
+    "returncode": 1
+  },
+  {
+    "compiler": "nanoc_stage1",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_canonical_string_builtins"
+    ],
+    "returncode": 0
+  },
+  {
+    "compiler": "nanoc_stage2",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_canonical_string_builtins"
+    ],
+    "returncode": 0
+  }
+]

@@ -1,0 +1,7 @@
+I am testing shadow fstr_basic
+I am testing shadow fstr_int
+I am testing shadow fstr_float
+I could not execute the module: Assertion failed
+  Assertion failed
+I rejected failed shadow execution
+I will not publish bytecode after failed shadows

@@ -1,0 +1,15 @@
+I am testing shadow add
+I am testing shadow multiply
+I am testing shadow helper
+I am testing shadow distance_squared
+I am testing shadow main
+I could not execute the module: Assertion failed
+  Assertion failed
+=== Module Introspection Test ===
+Module is unsafe: false
+Module has FFI: false
+Exported functions count: 0
+Expected: 3 functions (add, multiply, distance_squared)
+ERROR: Function count mismatch!
+I rejected failed shadow execution
+I will not publish bytecode after failed shadows

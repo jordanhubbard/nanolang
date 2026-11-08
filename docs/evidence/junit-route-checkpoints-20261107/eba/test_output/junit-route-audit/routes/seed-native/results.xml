@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="nanolang" tests="237" failures="1" skipped="0" time="416.51" timestamp="2026-11-07T22:10:13Z">
+  <testsuite name="nanolang" tests="237" failures="1" skipped="0" time="416.51" hostname="runnervm7aw5e">
+    <testcase classname="nanolang.nl.nl_syntax_literals" name="nl_syntax_literals" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_syntax_operators" name="nl_syntax_operators" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_bool_list" name="nl_types_bool_list" time="1.52">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_enum" name="nl_types_enum" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_struct" name="nl_types_struct" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_tuple" name="nl_types_tuple" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_array_elements" name="nl_control_array_elements" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_flow" name="nl_control_flow" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_match" name="nl_control_match" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_while" name="nl_control_while" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_array_param" name="nl_functions_array_param" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_audio_examples_default_args" name="nl_functions_audio_examples_default_args" time="2.34">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_filter" name="nl_functions_filter" time="1.55">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_map_reduce" name="nl_functions_map_reduce" time="1.63">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_module_introspection_flags" name="nl_functions_module_introspection_flags" time="1.72">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_module_metadata" name="nl_functions_module_metadata" time="1.67">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_nanoamp_default_args" name="nl_functions_nanoamp_default_args" time="2.12">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_relative_import" name="nl_functions_relative_import" time="1.71">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_string_edges" name="nl_functions_string_edges" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_advanced" name="tuple_advanced" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_basic" name="tuple_basic" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_params" name="tuple_params" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_typeinfo_test" name="tuple_typeinfo_test" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.nested_structs" name="nested_structs" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_3d" name="test_nested_3d" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_array_shadows" name="test_nested_array_shadows" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_complex" name="test_nested_complex" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_debug_root" name="test_nested_debug_root" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_gc" name="test_nested_gc" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_string_concat" name="test_nested_string_concat" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_affine_integration" name="test_affine_integration" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_algebraic_effects" name="test_algebraic_effects" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.app.test_all_imports" name="test_all_imports" time="2.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_anonymous_struct_function_args" name="test_anonymous_struct_function_args" time="1.57">
+    </testcase>
+    <testcase classname="nanolang.app.test_anonymous_struct_literal" name="test_anonymous_struct_literal" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_lit" name="test_array_lit" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_operators" name="test_array_operators" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_search_reverse" name="test_array_search_reverse" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_slice" name="test_array_slice" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_struct_comprehensive" name="test_array_struct_comprehensive" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_async" name="test_async" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_boolean_precedence" name="test_boolean_precedence" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_break_continue" name="test_break_continue" time="1.53">
+    </testcase>
+    <testcase classname="nanolang.app.test_bstring" name="test_bstring" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.test_builtins" name="test_builtins" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_builtins_phase1" name="test_builtins_phase1" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_bytes_conversion" name="test_bytes_conversion" time="1.77">
+    </testcase>
+    <testcase classname="nanolang.app.test_casting" name="test_casting" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_complex" name="test_complex" time="1.66">
+    </testcase>
+    <testcase classname="nanolang.app.test_concat" name="test_concat" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_cond" name="test_cond" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_constant_folding" name="test_constant_folding" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_debug_stacktrace" name="test_debug_stacktrace" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_driver_hello" name="test_driver_hello" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_driver_integration" name="test_driver_integration" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_dynamic_arrays" name="test_dynamic_arrays" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_effects" name="test_effects" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_effects_pub" name="test_effects_pub" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_ensures" name="test_ensures" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_env" name="test_env" time="1.82">
+    </testcase>
+    <testcase classname="nanolang.app.test_error_messages" name="test_error_messages" time="6.96">
+    </testcase>
+    <testcase classname="nanolang.app.test_fn_call_assign" name="test_fn_call_assign" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_continue" name="test_for_continue" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_in_loops" name="test_for_in_loops" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_in_range_scope_bug" name="test_for_in_range_scope_bug" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_format" name="test_format" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_fs_walkdir" name="test_fs_walkdir" time="1.80">
+    </testcase>
+    <testcase classname="nanolang.app.test_gc_string_leak" name="test_gc_string_leak" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_list_struct" name="test_generic_list_struct" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_result" name="test_generic_result" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union" name="test_generic_union" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union_match" name="test_generic_union_match" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union_non_generic" name="test_generic_union_non_generic" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_graphx" name="test_graphx" time="1.70">
+    </testcase>
+    <testcase classname="nanolang.app.test_hashmap_generic_core" name="test_hashmap_generic_core" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.app.test_hashmap_set_advanced" name="test_hashmap_set_advanced" time="2.07">
+    </testcase>
+    <testcase classname="nanolang.app.test_hello" name="test_hello" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_higher_order" name="test_higher_order" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_hm_inference" name="test_hm_inference" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_import_aliasing" name="test_import_aliasing" time="1.82">
+    </testcase>
+    <testcase classname="nanolang.app.test_infix_operators" name="test_infix_operators" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_match_completeness" name="test_match_completeness" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_match_guards" name="test_match_guards" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_mathx" name="test_mathx" time="1.64">
+    </testcase>
+    <testcase classname="nanolang.app.test_matrix4" name="test_matrix4" time="2.10">
+    </testcase>
+    <testcase classname="nanolang.app.test_minimal" name="test_minimal" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection" name="test_module_introspection" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection_exports" name="test_module_introspection_exports" time="1.63">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection_import" name="test_module_introspection_import" time="1.66">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_qualified_comprehensive" name="test_module_qualified_comprehensive" time="1.63">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_qualified_struct" name="test_module_qualified_struct" time="1.64">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_struct_qualification" name="test_module_struct_qualification" time="1.64">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_system" name="test_module_system" time="1.86">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_visibility" name="test_module_visibility" time="1.65">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_basic" name="test_namespace_basic" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_syntax" name="test_namespace_syntax" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_transpiler" name="test_namespace_transpiler" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested" name="test_nested" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_opaque_basic" name="test_opaque_basic" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.test_opl_cases_runner" name="test_opl_cases_runner" time="4.02">
+    </testcase>
+    <testcase classname="nanolang.app.test_opl_compile_golden" name="test_opl_compile_golden" time="3.57">
+    </testcase>
+    <testcase classname="nanolang.app.test_par_blocks" name="test_par_blocks" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_par_let" name="test_par_let" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_path_ops_v2" name="test_path_ops_v2" time="1.79">
+    </testcase>
+    <testcase classname="nanolang.app.test_pretty_printer" name="test_pretty_printer" time="1.69">
+    </testcase>
+    <testcase classname="nanolang.app.test_process" name="test_process" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.test_profile" name="test_profile" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_proptest" name="test_proptest" time="1.92">
+    </testcase>
+    <testcase classname="nanolang.app.test_pub_extern_fn" name="test_pub_extern_fn" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_full" name="test_pybridge_full" time="2.90">
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_matplotlib_smoke" name="test_pybridge_matplotlib_smoke" time="1.99">
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_smoke" name="test_pybridge_smoke" time="2.63">
+    </testcase>
+    <testcase classname="nanolang.app.test_qualified_names" name="test_qualified_names" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_quaternion" name="test_quaternion" time="1.92">
+    </testcase>
+    <testcase classname="nanolang.app.test_repl_history" name="test_repl_history" time="2.76">
+    </testcase>
+    <testcase classname="nanolang.app.test_requires" name="test_requires" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_effect_checker" name="test_resource_effect_checker" time="26.95">
+      <failure message="runtime failure: " type="TestFailure">runtime failure: </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_syntax" name="test_resource_syntax" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_tracking" name="test_resource_tracking" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_valid_use" name="test_resource_valid_use" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_result_let" name="test_result_let" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_result_syntax" name="test_result_syntax" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_row_poly" name="test_row_poly" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_setenv_shadow" name="test_setenv_shadow" time="1.74">
+    </testcase>
+    <testcase classname="nanolang.app.test_shadow_scope_redefinition" name="test_shadow_scope_redefinition" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_simple_constant" name="test_simple_constant" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_simple_math_introspection" name="test_simple_math_introspection" time="1.61">
+    </testcase>
+    <testcase classname="nanolang.app.test_split2" name="test_split2" time="1.63">
+    </testcase>
+    <testcase classname="nanolang.app.test_standalone_if_comprehensive" name="test_standalone_if_comprehensive" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_collections" name="test_std_collections" time="2.17">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_fs" name="test_std_fs" time="1.79">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_json" name="test_std_json" time="1.84">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_lib_collections" name="test_std_lib_collections" time="2.51">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_math_extended" name="test_std_math_extended" time="1.64">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_math_extended_full" name="test_std_math_extended_full" time="1.65">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_modules_env_process_fs_binary" name="test_std_modules_env_process_fs_binary" time="2.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_modules_simple" name="test_std_modules_simple" time="1.75">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_peg" name="test_std_peg" time="1.82">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_regex_groups_uaf" name="test_std_regex_groups_uaf" time="1.64">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_arrays" name="test_stdlib_arrays" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_namespaces" name="test_stdlib_namespaces" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_result" name="test_stdlib_result" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_strings" name="test_stdlib_strings" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_string_plus" name="test_string_plus" time="1.51">
+    </testcase>
+    <testcase classname="nanolang.app.test_string_plus_nested" name="test_string_plus_nested" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_struct_string_corruption" name="test_struct_string_corruption" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_symbol_scoping" name="test_symbol_scoping" time="1.62">
+    </testcase>
+    <testcase classname="nanolang.app.test_tmp_files" name="test_tmp_files" time="1.76">
+    </testcase>
+    <testcase classname="nanolang.app.test_top_level_constants" name="test_top_level_constants" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_types_comprehensive" name="test_types_comprehensive" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.test_u8_basic" name="test_u8_basic" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.test_unary_operators" name="test_unary_operators" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.app.test_unsafe_basic" name="test_unsafe_basic" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_unsafe_syntax" name="test_unsafe_syntax" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.test_vector2d" name="test_vector2d" time="1.85">
+    </testcase>
+    <testcase classname="nanolang.app.test_vector3d" name="test_vector3d" time="1.65">
+    </testcase>
+    <testcase classname="nanolang.app.test_vector4d" name="test_vector4d" time="1.86">
+    </testcase>
+    <testcase classname="nanolang.app.test_vm_value_contracts" name="test_vm_value_contracts" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.test_walkdir" name="test_walkdir" time="1.74">
+    </testcase>
+    <testcase classname="nanolang.app.refresh_getting_started_hello" name="refresh_getting_started_hello" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.refresh_language_bindings" name="refresh_language_bindings" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_arrays" name="ug_canonical_arrays" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_cond" name="ug_canonical_cond" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_enum" name="ug_canonical_enum" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_fn" name="ug_canonical_fn" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_for" name="ug_canonical_for" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_if" name="ug_canonical_if" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_prefix" name="ug_canonical_prefix" time="1.41">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_strings" name="ug_canonical_strings" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_struct" name="ug_canonical_struct" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_while" name="ug_canonical_while" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_cond" name="ug_control_flow_cond" time="1.65">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_for" name="ug_control_flow_for" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_if" name="ug_control_flow_if" time="1.43">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_loops" name="ug_control_flow_loops" time="1.42">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_contracts_combined" name="ug_fn_contracts_combined" time="1.55">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_ensures_basic" name="ug_fn_ensures_basic" time="1.59">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_requires_basic" name="ug_fn_requires_basic" time="1.63">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_arg" name="ug_fstring_arg" time="1.73">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_basic" name="ug_fstring_basic" time="1.60">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_exprs" name="ug_fstring_exprs" time="1.60">
+    </testcase>
+    <testcase classname="nanolang.app.ug_getting_started_arithmetic" name="ug_getting_started_arithmetic" time="1.58">
+    </testcase>
+    <testcase classname="nanolang.app.ug_getting_started_hello" name="ug_getting_started_hello" time="1.60">
+    </testcase>
+    <testcase classname="nanolang.app.ug_modules_std_json" name="ug_modules_std_json" time="2.09">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_builtin_map_reduce" name="ug_patterns_builtin_map_reduce" time="1.62">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_first_class" name="ug_patterns_first_class" time="1.59">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_fold" name="ug_patterns_fold" time="1.53">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_logging_trace_coverage" name="ug_patterns_logging_trace_coverage" time="1.97">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_match_union" name="ug_patterns_match_union" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_unsafe_extern" name="ug_patterns_unsafe_extern" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_arrays" name="ug_types_arrays" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_bools" name="ug_types_bools" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_enums" name="ug_types_enums" time="1.53">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_generics" name="ug_types_generics" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_hashmap" name="ug_types_hashmap" time="1.52">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_strings" name="ug_types_strings" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_structs" name="ug_types_structs" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_tuples" name="ug_types_tuples" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.test_generics_comprehensive" name="test_generics_comprehensive" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_record_array_projection" name="test_record_array_projection" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.test_enums_comprehensive" name="test_enums_comprehensive" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.unit.test_cseed_nested_array_literals" name="test_cseed_nested_array_literals" time="1.45">
+    </testcase>
+    <testcase classname="nanolang.unit.test_match_wildcard" name="test_match_wildcard" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_pipe_operator" name="test_pipe_operator" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_c_backend" name="test_c_backend" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_unions_match_comprehensive" name="test_unions_match_comprehensive" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_type_inference" name="test_type_inference" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_string_interpolation" name="test_string_interpolation" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.unit.test_operators_comprehensive" name="test_operators_comprehensive" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_dwarf_debug" name="test_dwarf_debug" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.unit.test_fstring_comprehensive" name="test_fstring_comprehensive" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.test_mac_exec_once_vm" name="test_mac_exec_once_vm" time="2.96">
+    </testcase>
+    <testcase classname="nanolang.unit.test_empty_record_array_fields" name="test_empty_record_array_fields" time="1.79">
+    </testcase>
+    <testcase classname="nanolang.unit.test_control_flow" name="test_control_flow" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_native_generic_contexts" name="test_native_generic_contexts" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.test_wasm_simd" name="test_wasm_simd" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_map_constructor_contexts" name="test_map_constructor_contexts" time="1.52">
+    </testcase>
+    <testcase classname="nanolang.unit.test_launcher_capture" name="test_launcher_capture" time="5.79">
+    </testcase>
+    <testcase classname="nanolang.unit.test_native_nested_generics" name="test_native_nested_generics" time="1.46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_match_orpatterns" name="test_match_orpatterns" time="1.55">
+    </testcase>
+    <testcase classname="nanolang.unit.test_profile_runtime" name="test_profile_runtime" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_firstclass_functions" name="test_firstclass_functions" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.unit.test_selfhost_generic_contexts" name="test_selfhost_generic_contexts" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_mac_exec_once" name="test_mac_exec_once" time="3.19">
+    </testcase>
+    <testcase classname="nanolang.unit.test_lambdas" name="test_lambdas" time="1.53">
+    </testcase>
+    <testcase classname="nanolang.unit.03_union_multiple_fields" name="03_union_multiple_fields" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.04_union_mixed_types" name="04_union_mixed_types" time="1.47">
+    </testcase>
+    <testcase classname="nanolang.unit.02_union_with_fields" name="02_union_with_fields" time="1.57">
+    </testcase>
+    <testcase classname="nanolang.unit.01_simple_union_def" name="01_simple_union_def" time="1.55">
+    </testcase>
+    <testcase classname="nanolang.unit.test_for_list" name="test_for_list" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.unit.test_generics" name="test_generics" time="1.44">
+    </testcase>
+    <testcase classname="nanolang.unit.test_firstclass_simple" name="test_firstclass_simple" time="1.55">
+    </testcase>
+    <testcase classname="nanolang.unit.test_cseed_record_array_literals" name="test_cseed_record_array_literals" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.unit.test_tuple_destructuring" name="test_tuple_destructuring" time="1.52">
+    </testcase>
+    <testcase classname="nanolang.unit.test_legacy_binary64_parse" name="test_legacy_binary64_parse" time="1.49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_map_field_operations" name="test_map_field_operations" time="1.50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_stdlib_comprehensive" name="test_stdlib_comprehensive" time="1.57">
+    </testcase>
+  </testsuite>
+</testsuites>

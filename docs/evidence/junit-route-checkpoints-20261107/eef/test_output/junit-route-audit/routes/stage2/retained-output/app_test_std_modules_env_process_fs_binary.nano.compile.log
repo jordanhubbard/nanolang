@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17)

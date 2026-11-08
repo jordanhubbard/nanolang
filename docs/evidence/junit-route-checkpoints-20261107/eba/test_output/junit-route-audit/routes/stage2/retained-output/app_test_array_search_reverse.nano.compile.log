@@ -1,0 +1,6 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable reversed_words: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:50:5)
+  [E0001] Variable floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:54:5)
+  [E0001] Variable flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:56:5)
+  [E0001] Variable reversed_empty: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:60:5)
