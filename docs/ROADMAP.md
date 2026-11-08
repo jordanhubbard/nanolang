@@ -10,7 +10,7 @@
 
 - [x] Under #1088 I exercise my phase observer against a test-owned real preprocessor waiting on stdin, stop only that process group and require its actual PID, incomplete record and absent invented exit status. All 21 local trace/CLI/JUnit controls pass; actual self-hosted phase timing remains pending.
 
-- [ ] Under #1088 I retain C-seed checker and focused-source metadata immediately after those attempts, before the independent translator gate finishes, preserving failed attempts and final binary custody without changing test selection or deadlines.
+- [ ] Under #1088 I retain C parser/typechecker prerequisite, C-seed checker and focused-source metadata immediately after those attempts, before the independent translator gate finishes, preserving failed attempts and final binary custody without changing test selection or deadlines.
 
 - [ ] Under #1101 I repair the discovered C checker gap that rejects duplicate record fields only for byte-bearing records. I retain byte diagnostics and require distinct field names for other records, with positive reordered fields and invalid anonymous/named controls; original assertions and full gates remain selected.
 

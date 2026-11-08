@@ -4649,6 +4649,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     continue;
                 }
 
+                /* Plain nominal fields can have a name without a complete TypeInfo tree. */
+                if (sdef->field_types[field_index] == TYPE_STRUCT && sdef->field_type_names)
+                    retain_anonymous_record_context(env, sdef->field_type_names[field_index],
+                        expr->as.struct_literal.field_values[i]);
                 /* I apply the complete field annotation before checking its constructor. */
                 if (sdef->field_type_info)
                     check_concrete_union_arrays(env, sdef->field_type_info[field_index],
