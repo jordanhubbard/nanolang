@@ -5270,22 +5270,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
 /* I discard only record/string storage cloned by create_struct. Arrays and
  * other referenced fields remain borrowed, as in that constructor. */
-static void discard_literal_record(StructValue *record) {
-    if (!record) return;
-    for (int i = 0; i < record->field_count; i++) {
-        Value field = record->field_values[i];
-        if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);
-        else if (field.type == VAL_STRING) {
-            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
-            else free(field.as.string_val);
-        }
-        free(record->field_names[i]);
-    }
-    free(record->field_names);
-    free(record->field_values);
-    free(record->struct_name);
-    free(record);
-}
+#include "eval/record_carrier_cleanup.inc"
 
 static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {

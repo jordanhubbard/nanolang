@@ -11,6 +11,7 @@ on:
       - 'tests/test_gc_struct.c'
       - 'src/eval.c'
       - 'src/eval/bstring_intrinsics.inc'
+      - 'src/eval/record_carrier_cleanup.inc'
       - 'tests/test_eval_bstring.c'
       - 'src/eval/eval_io.c'
       - 'src/nanolang.h'

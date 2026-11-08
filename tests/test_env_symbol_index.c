@@ -29,6 +29,7 @@ static int compare_name(const char *a, const char *b) {
 #undef calloc
 #undef realloc
 #undef safe_strcmp
+#include "../src/eval/record_carrier_cleanup.inc"
 
 int g_argc;
 char **g_argv;
@@ -273,6 +274,39 @@ static void check_record_carriers(void) {
     assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
 }
 
+/* I reclaim owned nested literals while preserving their borrowed arrays. */
+static void check_record_literal_cleanup(void) {
+    GCStats before = gc_get_stats();
+    Value shared = create_array(VAL_INT, 1, 1);
+    ((long long *)shared.as.array_val->data)[0] = 42;
+    Value original = create_string("held");
+    char *inner_names[] = {"text", "shared"};
+    Value inner_values[] = {original, shared};
+    Value inner = create_struct("Inner", inner_names, inner_values, 2);
+    char *outer_names[] = {"nested"};
+    Value outer = create_struct("Outer", outer_names, &inner, 1);
+    discard_literal_record(inner.as.struct_val);
+    assert(!strcmp(outer.as.struct_val->field_values[0].as.struct_val->field_values[0].as.string_val, "held"));
+    discard_literal_record(outer.as.struct_val);
+    assert(!strcmp(original.as.string_val, "held"));
+    assert(shared.as.array_val->length == 1);
+    assert(((long long *)shared.as.array_val->data)[0] == 42);
+    gc_release(original.as.string_val);
+    free(shared.as.array_val->data); free(shared.as.array_val);
+    StructValue *legacy = calloc(1, sizeof *legacy);
+    legacy->struct_name = strdup("Legacy"); legacy->field_count = 1;
+    legacy->field_names = malloc(sizeof(char *)); legacy->field_names[0] = strdup("plain");
+    legacy->field_values = malloc(sizeof(Value));
+    legacy->field_values[0] = create_void();
+    legacy->field_values[0].type = VAL_STRING;
+    legacy->field_values[0].as.string_val = strdup("unmanaged");
+    discard_literal_record(legacy);
+    Value empty = create_struct("", NULL, NULL, 0);
+    discard_literal_record(empty.as.struct_val);
+    GCStats after = gc_get_stats();
+    assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
+}
+
 static void check_fresh_string_copy(void) {
     Environment *env = create_environment();
     Value caller = create_string("caller storage");
@@ -342,6 +376,7 @@ int main(void) {
     gc_init();
     check_function_index();
     check_record_carriers();
+    check_record_literal_cleanup();
     check_builtin_registry_selection();
     check_string_self_assignment();
     check_fresh_string_copy();
