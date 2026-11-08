@@ -3287,6 +3287,27 @@ shadow check_list_function_call {
 /* Check if a function name is a built-in function
  * Returns true if the function is a built-in (e.g., array_push, at, str_concat)
  */
+fn is_float_math_builtin(name: string) -> bool {
+    if (== name "sqrt") { return true }
+    if (== name "pow") { return true }
+    if (== name "floor") { return true }
+    if (== name "ceil") { return true }
+    if (== name "round") { return true }
+    if (== name "sin") { return true }
+    if (== name "cos") { return true }
+    if (== name "tan") { return true }
+    if (== name "atan2") { return true }
+    return false
+}
+shadow is_float_math_builtin {
+    for name in ["sqrt", "pow", "floor", "ceil", "round", "sin", "cos", "tan", "atan2"] {
+        assert (is_float_math_builtin name)
+    }
+    assert (not (is_float_math_builtin "atan"))
+    assert (not (is_float_math_builtin "abs"))
+    assert (not (is_float_math_builtin "arbitrary"))
+}
+
 fn is_builtin_function(fn_name: string) -> bool {
     /* Core */
     if (== fn_name "range") { return true } else { (print "") }
@@ -5621,6 +5642,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_builtin_function fn_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (is_float_math_builtin fn_name) (>= (env_lookup symbols fn_name) 0)) {
+            set builtin_type (type_unknown_named fn_name)
+        }
         if (and (or (== fn_name "abs") (or (== fn_name "min") (== fn_name "max"))) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }

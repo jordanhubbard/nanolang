@@ -35,7 +35,7 @@ class NumericBuiltinSelection(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         return result
 
-    def exercise(self, source, expected='', *, refused=False):
+    def exercise(self, source, expected='', *, refused=False, source_path=None):
         output = ROOT/'.test_output/numeric-builtin-selection'
         output.mkdir(parents=True, exist_ok=True)
         for provider in PROVIDERS:
@@ -43,10 +43,13 @@ class NumericBuiltinSelection(unittest.TestCase):
                 work = Path(tempfile.mkdtemp(prefix=self._testMethodName+'-'+provider+'-', dir=output))
                 path = work/'main.nano'
                 path.write_text(source)
+                actual_source = path if source_path is None else Path(source_path)
+                self.assertEqual(actual_source.read_text(), source)
+                source_before = hashlib.sha256(actual_source.read_bytes()).hexdigest()
                 compiler = ROOT/'bin'/provider
                 before = hashlib.sha256(compiler.read_bytes()).hexdigest()
                 module, native, generated = work/'module.nvm', work/'native', work/'native.c'
-                argv = [compiler, path, '--emit-nvm', '-o', module]
+                argv = [compiler, actual_source, '--emit-nvm', '-o', module]
                 if refused:
                     original = b'I preserve my prior numeric program.\n'
                     module.write_bytes(original)
@@ -72,14 +75,17 @@ class NumericBuiltinSelection(unittest.TestCase):
                 after = hashlib.sha256(compiler.read_bytes()).hexdigest()
                 (work/'inputs.json').write_text(json.dumps({'provider': str(compiler),
                     'provider_before': before, 'provider_after': after,
-                    'source_sha256': hashlib.sha256(path.read_bytes()).hexdigest()}, indent=2)+'\n')
+                    'source_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                    'actual_source': str(actual_source), 'source_before': source_before,
+                    'source_after': hashlib.sha256(actual_source.read_bytes()).hexdigest()}, indent=2)+'\n')
                 self.assertEqual(before, after)
+                self.assertEqual(source_before, hashlib.sha256(actual_source.read_bytes()).hexdigest())
 
     def test_original_complete_builtin_fixture(self):
         path = ROOT/'tests/test_builtins_phase1.nano'
         before = hashlib.sha256(path.read_bytes()).hexdigest()
         self.exercise(path.read_text(), 'Testing built-in functions...\nhello world\n'
-            'String test result: 11\nConversion test result: 42\nMath test result: 30\n')
+            'String test result: 11\nConversion test result: 42\nMath test result: 30\n', source_path=path)
         self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), before)
 
     def test_numeric_values_and_original_float_bits(self):

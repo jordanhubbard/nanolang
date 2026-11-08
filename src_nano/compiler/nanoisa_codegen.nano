@@ -3302,11 +3302,62 @@ shadow nisa_regex_result {
     assert (== (nisa_regex_parameter "nl_regex_compile" 0) "string")
 }
 
+# I retain exact C99 scalar libm contracts, not arbitrary foreign symbols.
+fn nisa_math_arity(name: string) -> int {
+    if (== name "sqrt") { return 1 }
+    if (== name "sin") { return 1 }
+    if (== name "cos") { return 1 }
+    if (== name "tan") { return 1 }
+    if (== name "asin") { return 1 }
+    if (== name "acos") { return 1 }
+    if (== name "atan") { return 1 }
+    if (== name "floor") { return 1 }
+    if (== name "ceil") { return 1 }
+    if (== name "round") { return 1 }
+    if (== name "log") { return 1 }
+    if (== name "log2") { return 1 }
+    if (== name "log10") { return 1 }
+    if (== name "exp") { return 1 }
+    if (== name "exp2") { return 1 }
+    if (== name "log1p") { return 1 }
+    if (== name "expm1") { return 1 }
+    if (== name "sinh") { return 1 }
+    if (== name "cosh") { return 1 }
+    if (== name "tanh") { return 1 }
+    if (== name "asinh") { return 1 }
+    if (== name "acosh") { return 1 }
+    if (== name "atanh") { return 1 }
+    if (== name "fabs") { return 1 }
+    if (== name "cbrt") { return 1 }
+    if (== name "trunc") { return 1 }
+    if (== name "rint") { return 1 }
+    if (== name "nearbyint") { return 1 }
+    if (== name "pow") { return 2 }
+    if (== name "atan2") { return 2 }
+    if (== name "fmod") { return 2 }
+    if (== name "hypot") { return 2 }
+    if (== name "remainder") { return 2 }
+    if (== name "fmin") { return 2 }
+    if (== name "fmax") { return 2 }
+    if (== name "copysign") { return 2 }
+    return -1
+}
+shadow nisa_math_arity {
+    assert (== (nisa_math_arity "sqrt") 1)
+    assert (== (nisa_math_arity "atan") 1)
+    assert (== (nisa_math_arity "nearbyint") 1)
+    assert (== (nisa_math_arity "exp2") 1)
+    assert (== (nisa_math_arity "pow") 2)
+    assert (== (nisa_math_arity "copysign") 2)
+    assert (== (nisa_math_arity "arbitrary") -1)
+    assert (== (nisa_math_arity "min") -1)
+}
+
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
     if (!= (nisa_regex_result name) "") { return (nisa_regex_result name) }
     if (or (== name "file_read_bytes") (or (== name "vm_file_read_bytes") (== name "nl_os_file_read_bytes"))) { return "array<u8>" }
-    if (== name "atan") { return "float" }
+    if (>= (nisa_math_arity name) 0) { return "float" }
     # I match the C frontend's host-runtime clock imports (nanovirt/codegen.c runtime_names).
     if (or (== name "nl_get_time_ms") (or (== name "nl_timing_get_microseconds") (== name "nl_timing_get_nanoseconds"))) { return "int" }
     let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
@@ -3330,6 +3381,9 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "sqrt") "float")
+    assert (== (nisa_host_result "pow") "float")
+    assert (== (nisa_host_result "exp2") "float")
     assert (== (nisa_host_result "vm_file_read_bytes") "array<u8>")
     assert (== (nisa_host_result "vm_str_index_of") "int")
     assert (== (nisa_host_result "vm_str_last_index_of") "int")
@@ -3347,6 +3401,7 @@ shadow nisa_host_result {
 }
 
 fn nisa_host_arity(name: string) -> int {
+    if (>= (nisa_math_arity name) 0) { return (nisa_math_arity name) }
     if (== (nisa_host_result name) "") { return -1 }
     if (>= (nisa_regex_arity name) 0) { return (nisa_regex_arity name) }
     if (or (== name "get_argc") (or (== name "vm_getcwd") (== name "vm_tmp_dir"))) { return 0 }
@@ -3357,6 +3412,8 @@ fn nisa_host_arity(name: string) -> int {
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "sqrt") 1)
+    assert (== (nisa_host_arity "pow") 2)
     assert (== (nisa_host_arity "vm_file_read_bytes") 1)
     assert (== (nisa_host_arity "vm_str_index_of") 2)
     assert (== (nisa_host_arity "vm_str_last_index_of") 2)
@@ -3379,12 +3436,14 @@ shadow nisa_host_parameter_at {
 }
 
 fn nisa_host_parameter(name: string) -> string {
-    if (== name "atan") { return "float" }
+    if (>= (nisa_math_arity name) 0) { return "float" }
     if (<= (nisa_host_arity name) 0) { return "" }
     if (or (== name "vm_is_alnum") (or (== name "get_argv") (== name "vm_string_from_char"))) { return "int" }
     return "string"
 }
 shadow nisa_host_parameter {
+    assert (== (nisa_host_parameter "sqrt") "float")
+    assert (== (nisa_host_parameter "hypot") "float")
     assert (== (nisa_host_parameter "vm_file_read_bytes") "string")
     assert (== (nisa_host_parameter "strlen") "string")
     assert (== (nisa_host_parameter "atan") "float")
@@ -3396,6 +3455,7 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
+    if (is_float_math_builtin name) { return name }
     let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_read_bytes", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv", "str_index_of", "str_last_index_of"]
     let mut i: int = 0
     while (< i (array_length names)) {
@@ -3405,6 +3465,10 @@ fn nisa_builtin_host_symbol(name: string) -> string {
     return ""
 }
 shadow nisa_builtin_host_symbol {
+    assert (== (nisa_builtin_host_symbol "sqrt") "sqrt")
+    assert (== (nisa_builtin_host_symbol "pow") "pow")
+    assert (== (nisa_builtin_host_symbol "atan") "")
+    assert (== (nisa_builtin_host_symbol "exp2") "")
     assert (== (nisa_builtin_host_symbol "file_read_bytes") "vm_file_read_bytes")
     assert (== (nisa_builtin_host_symbol "str_index_of") "vm_str_index_of")
     assert (== (nisa_builtin_host_symbol "str_last_index_of") "vm_str_last_index_of")
@@ -3988,6 +4052,11 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
 }
 shadow nisa_emit_host_call {
+    let math: string = (nanoisa_emit_nasm "fn main()->int{let root:float = (sqrt 4.0) let power:float = (pow root 2.0) return 0}")
+    assert nisa_ok
+    assert (str_contains math ".import \"\" \"sqrt\" float float")
+    assert (str_contains math ".import \"\" \"pow\" float float float")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let root:float = (sqrt true) return 0}") "")
     let _: int = (nisa_reset)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> string { return (getenv \"TEST\") }")

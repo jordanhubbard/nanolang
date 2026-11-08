@@ -7355,3 +7355,7 @@ test-comprehensive-run-contract-native: bootstrap3 nano_virt nano_vm
 .PHONY: test-numeric-builtin-selection
 test-numeric-builtin-selection: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_numeric_builtin_selection
+
+.PHONY: test-math-host-contracts
+test-math-host-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_math_host_contracts

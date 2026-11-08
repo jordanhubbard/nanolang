@@ -408,7 +408,42 @@ static const Nvm2cHost host_adapters[] = {
     {"strlen", "nhost_strlen", 1, TAG_STRING, TAG_INT},
     {"vm_str_index_of", "nhost_str_index_of", 2, TAG_STRING, TAG_INT},
     {"vm_str_last_index_of", "nhost_str_last_index_of", 2, TAG_STRING, TAG_INT},
+    {"sqrt", "sqrt", 1, TAG_FLOAT, TAG_FLOAT},
+    {"sin", "sin", 1, TAG_FLOAT, TAG_FLOAT},
+    {"cos", "cos", 1, TAG_FLOAT, TAG_FLOAT},
+    {"tan", "tan", 1, TAG_FLOAT, TAG_FLOAT},
+    {"asin", "asin", 1, TAG_FLOAT, TAG_FLOAT},
+    {"acos", "acos", 1, TAG_FLOAT, TAG_FLOAT},
     {"atan", "atan", 1, TAG_FLOAT, TAG_FLOAT},
+    {"floor", "floor", 1, TAG_FLOAT, TAG_FLOAT},
+    {"ceil", "ceil", 1, TAG_FLOAT, TAG_FLOAT},
+    {"round", "round", 1, TAG_FLOAT, TAG_FLOAT},
+    {"log", "log", 1, TAG_FLOAT, TAG_FLOAT},
+    {"log2", "log2", 1, TAG_FLOAT, TAG_FLOAT},
+    {"log10", "log10", 1, TAG_FLOAT, TAG_FLOAT},
+    {"exp", "exp", 1, TAG_FLOAT, TAG_FLOAT},
+    {"exp2", "exp2", 1, TAG_FLOAT, TAG_FLOAT},
+    {"log1p", "log1p", 1, TAG_FLOAT, TAG_FLOAT},
+    {"expm1", "expm1", 1, TAG_FLOAT, TAG_FLOAT},
+    {"sinh", "sinh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"cosh", "cosh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"tanh", "tanh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"asinh", "asinh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"acosh", "acosh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"atanh", "atanh", 1, TAG_FLOAT, TAG_FLOAT},
+    {"fabs", "fabs", 1, TAG_FLOAT, TAG_FLOAT},
+    {"cbrt", "cbrt", 1, TAG_FLOAT, TAG_FLOAT},
+    {"trunc", "trunc", 1, TAG_FLOAT, TAG_FLOAT},
+    {"rint", "rint", 1, TAG_FLOAT, TAG_FLOAT},
+    {"nearbyint", "nearbyint", 1, TAG_FLOAT, TAG_FLOAT},
+    {"pow", "pow", 2, TAG_FLOAT, TAG_FLOAT},
+    {"atan2", "atan2", 2, TAG_FLOAT, TAG_FLOAT},
+    {"fmod", "fmod", 2, TAG_FLOAT, TAG_FLOAT},
+    {"hypot", "hypot", 2, TAG_FLOAT, TAG_FLOAT},
+    {"remainder", "remainder", 2, TAG_FLOAT, TAG_FLOAT},
+    {"fmin", "fmin", 2, TAG_FLOAT, TAG_FLOAT},
+    {"fmax", "fmax", 2, TAG_FLOAT, TAG_FLOAT},
+    {"copysign", "copysign", 2, TAG_FLOAT, TAG_FLOAT},
     {"vm_getcwd", "nhost_getcwd", 0, TAG_VOID, TAG_STRING},
     {"vm_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
     {"nl_os_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
@@ -6378,10 +6413,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                              ins.operands[0].u32, args[0]);
                 else snprintf(expression, sizeof expression, "nhost_artifact_%u()", ins.operands[0].u32);
             } else if (host->argc == 2) {
-                int right = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
-                int left = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
+                uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR :
+                    host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
+                int right = stack_pop_expect(b, &st, kind, "CALL_EXTERN");
+                int left = stack_pop_expect(b, &st, kind, "CALL_EXTERN");
                 if (b->failed) goto done;
-                snprintf(expression, sizeof expression, "%s(s[%d], s[%d])", host->c_name, left, right);
+                char carrier = kind == NVM2C_VK_STR ? 's' : kind == NVM2C_VK_FLOAT ? 'f' : 't';
+                snprintf(expression, sizeof expression, "%s(%c[%d], %c[%d])", host->c_name, carrier, left, carrier, right);
                 if (host->result == TAG_ARRAY && !byte_read_adapter(host))
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d], s[%d])",
                              ins.operands[0].u32, left, right);
@@ -8385,7 +8423,13 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
                 "static inline int64_t nhost_is_digit(int64_t code) { int c = (int)code; return c >= '0' && c <= '9'; }\n");
             if (module_uses_host(mod, "nhost_is_alpha")) nvm2c_puts(&b,
                 "static inline int64_t nhost_is_alpha(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }\n");
-            if (module_uses_host(mod, "atan")) nvm2c_puts(&b, "#include <math.h>\n");
+            for (uint32_t i = 0; i < mod->import_count; ++i) {
+                const Nvm2cHost *host = import_host(mod, i);
+                if (host && host->parameter == TAG_FLOAT && host->result == TAG_FLOAT) {
+                    nvm2c_puts(&b, "#include <math.h>\n");
+                    break;
+                }
+            }
             if (module_uses_host(mod, "nhost_str_index_of")) nvm2c_puts(&b,
                 "static inline int64_t nhost_str_index_of(const char *text, const char *needle) {\n"
                 "    if (!text || !needle) return -1;\n"
