@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1106 I retain the [qualified GCC/Clang string stdlib component checkpoint](evidence/string-stdlib-20261108/qualified-050/README.md): both 112-method suites, actual native source checkers, original C units/aliases, all 2458 translator assertions and 3866 shapes pass. I independently verify 46 string ELF products, two checker ELFs and exact command/source/provider records. Fresh stages, original corpus budget, Apple and release acceptance remain open.
+
 - [ ] Under #1107/#1081 I repair my retained top-level-constants parse failure by matching the C parser's existing uppercase-name/block lookahead for IF, RETURN, LET, WHILE and FOR. I preserve named/qualified/empty literals, the unchanged whole fixture and original malformed/prior-output controls; add useful lookahead/parser shadows and production cases; require complete component and fresh-stage acceptance before closing.
 
 - [x] Under #1081/#1065 I retain the [terminal c003 original-route checkpoint](evidence/fresh-source-contracts-20261108/c003-full/README.md): both seeds pass 237/237 and both fresh stages pass 198/237, with identical ordered selections, zero skips and 39 retained failures. Casting, dynamic arrays, format, opaque-basic and par-let clear the earlier 967 failures. Actual CLI checker ELF bytes now verify against observed hashes; compiler/runtime custody and later-source qualification remain separate.
@@ -18,7 +20,7 @@
 
 - [ ] Under #1106/#1081 I retain the unchanged whole string stdlib fixture and current source/VM/native baseline, then record exact trim/case/replace/split/join semantics before implementation. I preserve byte-wise ASCII conversion, four-byte trimming, UTF-8 bytes, empty delimiters/elements, once-only effects, lexical identity and prior-output refusals. I require existing opcodes and exact builtin contracts with proven ARRAY<STRING> storage, useful source shadows, full original C/translator gates and separate fresh-stage/platform acceptance; no generic extern or SDK descriptor fallback is admitted.
 
-- [ ] Under #1088 I retain the marker helper recorder files alongside its actual native programs: the first qualified 99-method component upload preserves programs/commands but omits the separate compiler-phase-markers directory. I preserve that custody limit, add the directory to both final artifact selections, and require actual upload verification without changing executed tests.
+- [x] Under #1088 I retain the marker helper recorder files alongside its actual native programs. The first 99-method upload omitted the separate directory; both final [050 component uploads](evidence/string-stdlib-20261108/qualified-050/README.md) now include ten independently hashed recorder files, with six exact literal phase JSON records and four scripts. Fresh driver placement/timing remains separate.
 
 - [x] Under #1088/#1065 I retain my [qualified GCC/Clang marker helper checkpoint](evidence/native-phase-markers-20261108/qualified-68/README.md): all 99 methods, original C units/aliases and full translator suites pass. I independently verify six actual sanitized native helper ELF products and their original source/provider hashes and zero-exit command histories. Fresh driver placement/timing, later byte arithmetic and full release admission remain open.
 

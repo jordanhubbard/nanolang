@@ -1,0 +1,452 @@
+[
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "a1fd62194c477ad7d302749eaf1b1b1abdf69418403fc95038e8ad7f2d09b402",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-b5u41hk2/nativeO0",
+    "size": 8740280,
+    "sha256": "5a63dcaf47783907d47ae29a5fbeee676966399313a9bae378e6ea3829246aa9",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "a1fd62194c477ad7d302749eaf1b1b1abdf69418403fc95038e8ad7f2d09b402",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-b5u41hk2/nativeO2",
+    "size": 8601928,
+    "sha256": "c227a77a3146f8bf4ba4fa277c29ed0ac4b9ade6cd8a4dacc51f09ce6e90e5bb",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4ff56074f3e434788a3d610825902d5cc72e0ab38ec471e4b283543b7576f55d",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-enmdo1bz/nativeO0",
+    "size": 8740280,
+    "sha256": "03d4df3113cf21c969fa35ecc78985a62ac0ef3ad97ff38fab4e33c064cc0da4",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4ff56074f3e434788a3d610825902d5cc72e0ab38ec471e4b283543b7576f55d",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-enmdo1bz/nativeO2",
+    "size": 8601928,
+    "sha256": "e722a6b3439666c342692f372951dbad36c9de1687e567056e6d36bcf186b55d",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "1a2f8a18588ebf463f89b3b02cda7030e055d57ab3086b2d541a85e975f11a77",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-jdakzq8d/nativeO0",
+    "size": 8740280,
+    "sha256": "6c93519ac85d5ec357dd41beea56b55d907072520ef3ef30750fcff1784c10ef",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "1a2f8a18588ebf463f89b3b02cda7030e055d57ab3086b2d541a85e975f11a77",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-jdakzq8d/nativeO2",
+    "size": 8601928,
+    "sha256": "674425152e8f44437c62b2abb8bd4af1db85bc33826c718ef7d4fe5461a84e78",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "ff25eacacd7e5c93e2194c694ef39a8ca4764833736053f10be7f43b13d1c224",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-jylr0fm8/nativeO0",
+    "size": 8740280,
+    "sha256": "5e13d5c768c7aa016bc7589c7a549b7160e32e8e939a6feeaaf32b7269800545",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "ff25eacacd7e5c93e2194c694ef39a8ca4764833736053f10be7f43b13d1c224",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-jylr0fm8/nativeO2",
+    "size": 8601928,
+    "sha256": "7bf339322ac821b7450be34e677cc8e885818429306fb1a115fffce113af223b",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5bca271a5436b9c43ca12fbe3d8c97d440ab426f57c430fced2211bc7b6c6ca5",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-k7i1kzo4/nativeO0",
+    "size": 8690760,
+    "sha256": "fd2bf1bec79aae1dfb39100890a2b27265d3026803282e5c3052242e422a4957",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5bca271a5436b9c43ca12fbe3d8c97d440ab426f57c430fced2211bc7b6c6ca5",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-k7i1kzo4/nativeO2",
+    "size": 8525848,
+    "sha256": "0fa159d6cc4e28d1421bb3c4e7ea0a8bd9df0913a2f1ec2ef5a3b8c5f68b0c19",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4f9353e80d06570fc419a285d0fa0649022caa0105f857c38f7e465eeca54abf",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-oiymm_on/nativeO0",
+    "size": 8740280,
+    "sha256": "9cbcc4ca712affd4dbb07f6141483bf7cbce4b398e54fec1301c133af34c4e93",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4f9353e80d06570fc419a285d0fa0649022caa0105f857c38f7e465eeca54abf",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-oiymm_on/nativeO2",
+    "size": 8601928,
+    "sha256": "bb788a0a474fa5d91de2cf3f756ea8992ae921677fda0311fc9984d10af071f1",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5dd8da00cbfbeecd56759590c4b5f072193208c43d4eb225b70dbc6c19cb00af",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-thu_e1yd/nativeO0",
+    "size": 8745704,
+    "sha256": "8e063da89d37931c3995fd1aabc9366073b9ee7b10feff98553c6e763165fdff",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5dd8da00cbfbeecd56759590c4b5f072193208c43d4eb225b70dbc6c19cb00af",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-thu_e1yd/nativeO2",
+    "size": 8603320,
+    "sha256": "ca57357c2d70dd3727b1a8c4bd903e7e833b9f3c28ffe3ef98335461c8dc7fc9",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "2cfd25f55f4231b121db70c69a52de4fead07e3fa0202a6bac4c794d61d6beea",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-v32cvbvh/nativeO0",
+    "size": 8740280,
+    "sha256": "fd7649a1fbd41d2a33019527d18b2224824e7f6e0a1876f01747ec93ebff8bfa",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "2cfd25f55f4231b121db70c69a52de4fead07e3fa0202a6bac4c794d61d6beea",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-v32cvbvh/nativeO2",
+    "size": 8601928,
+    "sha256": "b7c9520e21a2934b5d2ecd13c7f91510b96fad88d87a0e8ecffa79ad34cc3cd0",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "8665c8085d8a0bdc1317adbb656960f243d7ab4c32322e9ba2c5d7aa03b4566e",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-y3fegkru/nativeO0",
+    "size": 8740280,
+    "sha256": "015569d221be9e9a7a59eb49604362efa50d66ff365dfd190f1a568427dcabc0",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "8665c8085d8a0bdc1317adbb656960f243d7ab4c32322e9ba2c5d7aa03b4566e",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/string-stdlib-raw-y3fegkru/nativeO2",
+    "size": 8601928,
+    "sha256": "cd09136d6cd5a059d55e3f94f5a42e1d26848b00cad5b23e4bfe7e760c60b96a",
+    "command_count": 8
+  },
+  {
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "source_sha256": "441569a7e5d91f684b47dce0f34b5ef2cdbc4a8142704c9a63c58e1810511f8a",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_case_and_replacement_keep_original_bytes-nano_virt-zrllj15x/native",
+    "size": 8538336,
+    "sha256": "4e2fdee7d547ff2106b8930e0153292da29da8afb15c6fbd86e6b537a3a990b3",
+    "command_count": 7
+  },
+  {
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "source_sha256": "901f363ff863f8f3e4460b765a3d30203af163fec226714cf02c50da8a1376b7",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_detached_join_result-nano_virt-dfymonh7/native",
+    "size": 8712528,
+    "sha256": "7b7947bacaa8ecedf930ba9c5c7020321f9983791b4d3e5a59a20b1191b19386",
+    "command_count": 6
+  },
+  {
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "source_sha256": "2981c6ee06cac05a6fc11b63e436fcdcda793596e1f8cfc327b82d4862a55a2f",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_original_complete_string_stdlib_fixture-nano_virt-ngq3ppqi/native",
+    "size": 8665520,
+    "sha256": "c253643b3a798fe5aa377733b1810c686f9e7fd6d688c278aab6f25d861aab8d",
+    "command_count": 6
+  },
+  {
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "source_sha256": "d1cc5703205af4e876125cccecd185fbab6c90cff82933b89bb3b9120efd12d0",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_split_join_empty_elements_and_byte_fragments-nano_virt-3wij1nyb/native",
+    "size": 8643040,
+    "sha256": "c6bf47f50049d101f99321b1b621b0ff2219a631b6f57fe103e02b3c9784bb4a",
+    "command_count": 7
+  },
+  {
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "source_sha256": "1835b83ba1a5171c0508413156f1fc57dc18a94d6fe6a31c2b75171e47604bbd",
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_trim_sides_keep_other_bytes-nano_virt-makt4gpd/native",
+    "size": 8582000,
+    "sha256": "5862798f7908e4835b0a08a7c3b16e089d55fb975de6a210795f76e7ee502849",
+    "command_count": 6
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5bca271a5436b9c43ca12fbe3d8c97d440ab426f57c430fced2211bc7b6c6ca5",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-2h6i_s73/nativeO0",
+    "size": 10374336,
+    "sha256": "cca52a20a9af21ba7cfee94bb65b96c1d77e320e00f9ea3c5fa2cd0f67ba143d",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5bca271a5436b9c43ca12fbe3d8c97d440ab426f57c430fced2211bc7b6c6ca5",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-2h6i_s73/nativeO2",
+    "size": 10120840,
+    "sha256": "0498c04ff78bd67cfec6a850fcff9d7aa63d6a420b533abb56f0bbc96bd375d6",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "ff25eacacd7e5c93e2194c694ef39a8ca4764833736053f10be7f43b13d1c224",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-4r82hwxr/nativeO0",
+    "size": 10405624,
+    "sha256": "3f681944bb7c3c0ed9a6073c9562d6d0fdaacda982d38ddb3ce556ce09faa4a5",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "ff25eacacd7e5c93e2194c694ef39a8ca4764833736053f10be7f43b13d1c224",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-4r82hwxr/nativeO2",
+    "size": 10142256,
+    "sha256": "d43fb724dad629d47d850eda886500d6cef8d964c19c10a841cb0e455858947b",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "a1fd62194c477ad7d302749eaf1b1b1abdf69418403fc95038e8ad7f2d09b402",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-bw7hbokx/nativeO0",
+    "size": 10405624,
+    "sha256": "4102bb6f69ccc7a2b864cabcbaf60a18873fe5f5af89ec5bf48a3fedde21846d",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "a1fd62194c477ad7d302749eaf1b1b1abdf69418403fc95038e8ad7f2d09b402",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-bw7hbokx/nativeO2",
+    "size": 10142256,
+    "sha256": "4caf082e24072d09dd571bab361977704c4bc1d2b487574a09c93b2296cefc64",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "2cfd25f55f4231b121db70c69a52de4fead07e3fa0202a6bac4c794d61d6beea",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-fa9cy3fv/nativeO0",
+    "size": 10405624,
+    "sha256": "0b0736fb390d1107bd660dfeb682fd411d23a6eefd035ca00914d46525075272",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "2cfd25f55f4231b121db70c69a52de4fead07e3fa0202a6bac4c794d61d6beea",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-fa9cy3fv/nativeO2",
+    "size": 10142256,
+    "sha256": "5cd7e061c5d2cf83926ec6319beec59ffbd15596c714bd436a2868254d21cb31",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "8665c8085d8a0bdc1317adbb656960f243d7ab4c32322e9ba2c5d7aa03b4566e",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-fjf26oga/nativeO0",
+    "size": 10405624,
+    "sha256": "0f74f148aa21f86dde5419fffc094253ae1ea9d6b0cd30928b862b1f2c8b9ce0",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "8665c8085d8a0bdc1317adbb656960f243d7ab4c32322e9ba2c5d7aa03b4566e",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-fjf26oga/nativeO2",
+    "size": 10142256,
+    "sha256": "56c87ef8090f4091619ca87f0d66d520b547f7ee1e4d9ed1424582bf2939e760",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4ff56074f3e434788a3d610825902d5cc72e0ab38ec471e4b283543b7576f55d",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-ge2zsqjv/nativeO0",
+    "size": 10405624,
+    "sha256": "17090f447f3d927fab041c5df35aca93a4c70e801584e03fb4d072b484d45c9c",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4ff56074f3e434788a3d610825902d5cc72e0ab38ec471e4b283543b7576f55d",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-ge2zsqjv/nativeO2",
+    "size": 10142256,
+    "sha256": "228c01a588945747c84cbe4cfad6f8b7ccd7676c98c20476ab51b87117d934ed",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5dd8da00cbfbeecd56759590c4b5f072193208c43d4eb225b70dbc6c19cb00af",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-mncnaeoq/nativeO0",
+    "size": 10416160,
+    "sha256": "213e1993e905ffc97e47f2fce3d541fbccb6de2a72d98c1b0a346148bc56d845",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": false,
+    "assembly_sha256": "5dd8da00cbfbeecd56759590c4b5f072193208c43d4eb225b70dbc6c19cb00af",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-mncnaeoq/nativeO2",
+    "size": 10147128,
+    "sha256": "76717e4e216f7dac36ef4caaa5e6ff13b2873c9e9cc51980ceca3e9da0e73d3b",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4f9353e80d06570fc419a285d0fa0649022caa0105f857c38f7e465eeca54abf",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-now5ufzb/nativeO0",
+    "size": 10405624,
+    "sha256": "ed873dbb7b450322182c60c9aba122d5937b4f1ea29090a34e0ea2fe3a428eb1",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "4f9353e80d06570fc419a285d0fa0649022caa0105f857c38f7e465eeca54abf",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-now5ufzb/nativeO2",
+    "size": 10142256,
+    "sha256": "7fc0c0d82b1f228c2626ad1c2bb7132e0e8bd99d667f1f0b26f269a5c8f40895",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "1a2f8a18588ebf463f89b3b02cda7030e055d57ab3086b2d541a85e975f11a77",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-wmo57i6q/nativeO0",
+    "size": 10405624,
+    "sha256": "8ffe09efca1f51b617974c517fe1b6ec7c3670151ffbcfc896cdd0cbc0ba88ff",
+    "command_count": 8
+  },
+  {
+    "inputs_unchanged": true,
+    "invalid_utf8": true,
+    "assembly_sha256": "1a2f8a18588ebf463f89b3b02cda7030e055d57ab3086b2d541a85e975f11a77",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/string-stdlib-raw-wmo57i6q/nativeO2",
+    "size": 10142256,
+    "sha256": "ef836a9473a6ee55987f50d6782d53d444e7d0590cdac64175744862b25c09ca",
+    "command_count": 8
+  },
+  {
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "source_sha256": "441569a7e5d91f684b47dce0f34b5ef2cdbc4a8142704c9a63c58e1810511f8a",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_case_and_replacement_keep_original_bytes-nano_virt-zv16z10b/native",
+    "size": 10132432,
+    "sha256": "ad7e961cd2aaab03a79d62212bb6f6db5cdcca331b025a3552df1c9f10e4e8e2",
+    "command_count": 7
+  },
+  {
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "source_sha256": "901f363ff863f8f3e4460b765a3d30203af163fec226714cf02c50da8a1376b7",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_detached_join_result-nano_virt-4d4hhmw3/native",
+    "size": 10203512,
+    "sha256": "7293b5207c723e47c34339532956242e0eb45a653378f449b100d7a25c9fb325",
+    "command_count": 6
+  },
+  {
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "source_sha256": "2981c6ee06cac05a6fc11b63e436fcdcda793596e1f8cfc327b82d4862a55a2f",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_original_complete_string_stdlib_fixture-nano_virt-mpkpri21/native",
+    "size": 10170944,
+    "sha256": "8e2f46187f7fc64c653042f01eee18544872171125aad29c505954739d55f70b",
+    "command_count": 6
+  },
+  {
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "source_sha256": "d1cc5703205af4e876125cccecd185fbab6c90cff82933b89bb3b9120efd12d0",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_split_join_empty_elements_and_byte_fragments-nano_virt-g4vzb2ol/native",
+    "size": 10172512,
+    "sha256": "0d085761c2ff66e07e2d317070b1d2909c5cf3a0cf2a2c22586607f3b5dede4e",
+    "command_count": 7
+  },
+  {
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "source_sha256": "1835b83ba1a5171c0508413156f1fc57dc18a94d6fe6a31c2b75171e47604bbd",
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_trim_sides_keep_other_bytes-nano_virt-r9iuuszs/native",
+    "size": 10136824,
+    "sha256": "a1518fbb41a35d64c2396efca85aef8258160d1a3257cb3e309f7bf402b5c17e",
+    "command_count": 6
+  }
+]
