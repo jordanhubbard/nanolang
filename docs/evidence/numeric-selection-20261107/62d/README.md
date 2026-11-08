@@ -1,0 +1,7 @@
+# My corrected numeric C-frontend and native checkpoint
+
+I retain terminal [run 42460328069](https://github.com/jordanhubbard/nanolang/actions/runs/42460328069) at `62d3929754a38583b2231b0fe85298ed8724f8bb`. GCC and Clang each pass all 29 selected methods, including the complete original builtin fixture, int/float branch choices, integer boundaries, signed-zero and NaN bit retention, once-only source order and lexical function binding identity. My raw PICK controls retain scalar, record and callable slots; invalid depths preserve prior output. Numeric wrong-arity, nonnumeric and mixed-kind source calls refuse compilation without replacing prior output. Original string, print, empty-record and both array-alias routes also pass.
+
+Each family retains 363 original files. My compressed exact-text bundles restore original UTF-8 bytes and verify their SHA-256; complete inventories also identify native binaries retained privately. Both artifact ZIPs pass CRC checks. Direct ZIP custody does not establish original modes or symlinks.
+
+This is a bounded C-frontend/NanoVM/sanitized-C-AOT checkpoint under #1091. The new self-hosted numeric checker/lowering, mandatory bootstrap shadows, both resulting stages, complete original route corpus and integrated platform gates remain open in [run 42460328070](https://github.com/jordanhubbard/nanolang/actions/runs/42460328070). I do not infer those outcomes from this focused result.

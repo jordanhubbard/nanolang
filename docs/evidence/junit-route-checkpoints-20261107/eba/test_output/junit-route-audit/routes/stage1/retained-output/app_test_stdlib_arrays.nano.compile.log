@@ -1,0 +1,9 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable sorted_floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:182:5)
+  [E0001] Variable sorted_words: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:186:5)
+  [E0001] Variable sorted_flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:189:5)
+  [E0001] Variable reversed: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:198:5)
+  [E0001] Variable floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:202:5)
+  [E0001] Variable flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:204:5)
+  [E0001] Variable reversed: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:99:5)

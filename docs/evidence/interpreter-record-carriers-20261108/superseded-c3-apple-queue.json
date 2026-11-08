@@ -1,0 +1,25 @@
+{
+  "reason": "I deliberately clear only a still-queued older candidate with the demonstrated recursive literal invalid-free defect, superseded by pushed f082a05b7. I do not stop or restart running jobs due to observation timeouts.",
+  "before": {
+    "conclusion": "",
+    "databaseId": 42524962076,
+    "headBranch": "fix/5.1-stage-source-contracts",
+    "headSha": "c3e7ccdb2df2b52b8ecfa892aa8e7258b9237f83",
+    "status": "queued"
+  },
+  "cancel_returncode": 0,
+  "stdout": "\u2713 Request to cancel workflow 42524962076 submitted.\n",
+  "stderr": "",
+  "after": {
+    "conclusion": "",
+    "databaseId": 42524962076,
+    "headSha": "c3e7ccdb2df2b52b8ecfa892aa8e7258b9237f83",
+    "status": "queued"
+  },
+  "confirmed_after": {
+    "conclusion": "cancelled",
+    "databaseId": 42524962076,
+    "headSha": "c3e7ccdb2df2b52b8ecfa892aa8e7258b9237f83",
+    "status": "completed"
+  }
+}

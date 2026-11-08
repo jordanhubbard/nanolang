@@ -14,10 +14,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * String structure with explicit length
  */
+/* I begin my mechanically shared native binary-string payload. */
 typedef struct {
     char *data;         // Raw byte data (may contain nulls)
     size_t length;      // Byte length (not including null terminator if present)
@@ -26,13 +28,21 @@ typedef struct {
     bool null_terminated; // True if data has '\0' at data[length]
 } nl_string_t;
 
+/* I share payload destruction with heap-only users without adding a link dependency. */
+static inline void nl_string_free_owned_storage(nl_string_t *str) {
+    if (!str) return;
+    free(str->data);
+    free(str);
+}
+
 /* ============================================================================
  * Creation & Destruction
  * ============================================================================ */
 
 /**
- * Create string from C string (null-terminated)
- * Copies the data and validates UTF-8.
+ * I copy a NUL-terminated C string into length-aware storage.
+ * I leave UTF-8 status unvalidated; call nl_string_validate_utf8 before
+ * querying UTF-8 length or characters.
  */
 nl_string_t* nl_string_new(const char *cstr);
 
@@ -168,6 +178,8 @@ void nl_string_shrink_to_fit(nl_string_t *str);
  * Clone string (deep copy)
  */
 nl_string_t* nl_string_clone(const nl_string_t *str);
+
+/* I end my mechanically shared native binary-string payload. */
 
 /* ============================================================================
  * C String Convenience Wrappers

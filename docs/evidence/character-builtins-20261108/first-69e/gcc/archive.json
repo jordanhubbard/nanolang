@@ -1,0 +1,15 @@
+{
+  "size": 11960420,
+  "sha256": "1006277d98b4a4da3ab86c28e326165ffd3fa2ea9712da3486186d406f42311b",
+  "files": 1753,
+  "text_files": 1595,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-f7lhf1ot.tar.gz",
+      "sha256": "05abe689c3514652d595a79a24c727e64578409545e004941ad4483ca48b9b45",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

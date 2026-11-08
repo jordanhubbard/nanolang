@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5)

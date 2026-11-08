@@ -1,0 +1,7 @@
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require the declared binary-string builtin arity.
+Assertion failed: (stats.num_objects == 0 && stats.current_usage == 0), function main, file test_eval_bstring.c, line 89.

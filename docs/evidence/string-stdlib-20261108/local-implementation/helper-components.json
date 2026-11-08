@@ -1,0 +1,144 @@
+{
+  "scope": "I execute actual emitted helper fragments, not a full NVM translator or native lifecycle.",
+  "production_source_sha256": "457bc2a0961353244858e371da2407db0b0699b4967eae82af6c537d98ac25dc",
+  "helpers": [
+    {
+      "emitter": "emit_nstr_storage",
+      "bytes": 1830,
+      "sha256": "6b9bcb889bc302056184c3c4199a478fe36f74f11954b1fa7198df6a8ce7dda0"
+    },
+    {
+      "emitter": "emit_nagg_accounting",
+      "bytes": 482,
+      "sha256": "f1e63b8ae22a7c295ace5e0ee5a2342501ae4e048caad11ca26990109a4a02c7"
+    },
+    {
+      "emitter": "emit_nsarr_storage",
+      "bytes": 2799,
+      "sha256": "a792a6b5eef1a92ea8729323b15a5270b675b54712a417c775a094669acf7392"
+    },
+    {
+      "emitter": "emit_nsarr_push",
+      "bytes": 229,
+      "sha256": "e124fa6c94bbc548c694a8555688732fe243426db167afbdb44b95ef865fb2b9"
+    },
+    {
+      "emitter": "emit_nstr_case",
+      "bytes": 513,
+      "sha256": "b28e977fdca03c4db216c06bf479cacdd9d3fb8eb9ca5028048dfe47ec73f9b4"
+    },
+    {
+      "emitter": "emit_nstr_replace",
+      "bytes": 1389,
+      "sha256": "64f05c6bdcab0aee1cb54278151c0773926bb534b90029bcc97b7e7c67c6d1cc"
+    },
+    {
+      "emitter": "emit_nstr_split",
+      "bytes": 824,
+      "sha256": "f66a5694489cce05a4a00b385202d731117fa57b8c2286133ed61b082d2dfe0b"
+    },
+    {
+      "emitter": "emit_nstr_trim",
+      "bytes": 824,
+      "sha256": "95a0a67d7e1fa206656a8bd5555287d3611dea9257956344819775996f91c4e7"
+    },
+    {
+      "emitter": "emit_nstr_join",
+      "bytes": 1226,
+      "sha256": "fc39113d9b83bbc28ceb59c98e7c69e404f3b834469f4853a2b8c2f780b046b2"
+    }
+  ],
+  "commands": [
+    {
+      "optimization": "-O0",
+      "label": "compile",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/helpers.c",
+        "/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "optimization": "-O0",
+      "label": "execute",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "optimization": "-O0",
+      "label": "invalid-utf8",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O0",
+        "--invalid"
+      ],
+      "returncode": -6
+    },
+    {
+      "optimization": "-O2",
+      "label": "compile",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/helpers.c",
+        "/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "optimization": "-O2",
+      "label": "execute",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "optimization": "-O2",
+      "label": "invalid-utf8",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O2",
+        "--invalid"
+      ],
+      "returncode": -6
+    }
+  ],
+  "harness_sha256": "1a4a9711c55f4bbd435db8a3a625d2d54da79095922622c0114d8344b44eff4c",
+  "runtime_object": {
+    "path": "bin/nano_aot_runtime.o",
+    "size": 8442104,
+    "sha256": "a0fed6650cd6f1fd3a2b2524301988ab778def6e7823a9d8a43e4551d6cf5ff8"
+  },
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "native_products": [
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O0",
+      "size": 8587536,
+      "sha256": "9afa7226aee836a9fa9db5be32b3b7954833fa138cc0633b93e8abd9d57517a3"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-helper-components/O2",
+      "size": 8569504,
+      "sha256": "8ae11efb46ee9e0bd7df8cf9dfa3399398bebad355c94889c9a981bbd1c65fd6"
+    }
+  ]
+}

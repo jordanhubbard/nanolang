@@ -1,0 +1,48 @@
+.entry main
+.string first "first"
+.string second "second"
+.string kept "retained"
+.string changed "changed"
+.function main 0 3 0 int 1
+HM_NEW 5 5
+STORE_LOCAL 0
+LOAD_LOCAL 0
+HM_KEYS
+PUSH_STR first
+ARR_PUSH
+POP
+LOAD_LOCAL 0
+HM_VALUES
+PUSH_STR kept
+ARR_PUSH
+POP
+LOAD_LOCAL 0
+PUSH_STR first
+PUSH_STR kept
+HM_SET
+POP
+LOAD_LOCAL 0
+HM_KEYS
+STORE_LOCAL 1
+LOAD_LOCAL 0
+HM_VALUES
+STORE_LOCAL 2
+LOAD_LOCAL 0
+PUSH_STR first
+HM_DELETE
+POP
+LOAD_LOCAL 1
+PUSH_I64 0
+ARR_GET
+PUSH_STR first
+EQ
+ASSERT
+LOAD_LOCAL 2
+PUSH_I64 0
+ARR_GET
+PUSH_STR kept
+EQ
+ASSERT
+PUSH_I64 0
+RET
+.end

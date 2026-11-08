@@ -1,0 +1,11 @@
+# My original whole character fixture baseline
+
+I retain failed [run 42476878349](https://github.com/jordanhubbard/nanolang/actions/runs/42476878349) at `69e69a13190ae51df6111d765a488adbedf4cb81` under GCC and Clang. The unchanged complete `tests/unit/test_stdlib_comprehensive.nano` fixture compiles to NanoISA, verifies and executes successfully through the canonical VM. Native translation refuses import 13, `vm_char_to_lower`, because my bounded native host table lacks its exact ABI. I retain the actual command, diagnostic and full original fixture selection; I do not replace this fixture with a smaller success claim.
+
+Both focused suites execute 87 methods and retain three failed subcases: this native adapter refusal and the earlier anonymous duplicate acceptance and empty-literal parser refusal. All three byte-alias methods pass, including the unchanged whole `test_u8_basic.nano` fixture, alias arguments/returns/arrays, computed conversion and wrong-type prior-output controls.
+
+Both compilers also create and execute the actual Nano checker driver through my C seed, including its six byte-alias production cases and eight anonymous-record cases. The checker-component-custody records independently match the uploaded native ELF bytes to before/after execution hashes, unchanged inputs and exact successful commands. Generated C contains the byte production function and native output contains the success marker. These are actual native checker products through the C creation path. They do not qualify the later character checker implementation, fresh self-hosted producers or the full native lifecycle.
+
+Complete original C typechecker units, aliases and independent translator suites pass: 2,443 execution, 3,866 shape and 464 callable checks, zero failures, with adjacent suites retained. Both original ZIPs pass CRC, with complete uploaded-file SHA-256 inventories and deterministic exact UTF-8 text bundles. Embedded translator TAR hashes and full inventories verify independently; empty successful inventories reflect cleanup, not custody of all cleaned native products. Original binaries remain private. ZIP custody does not establish original filesystem modes or symlinks.
+
+I keep #1102/#1103/#1101 and integrated platform acceptance open.

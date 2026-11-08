@@ -1,0 +1,203 @@
+{
+  "run": 42521904940,
+  "artifact": 13633623659,
+  "zip_sha256": "5090ce6170fae51a9b80414011339fd19ce662e3a34ce7c8789af8c895bb0735",
+  "zip_size": 6039597,
+  "crc_checked": true,
+  "zip_saved": false,
+  "scope": "I verify four actual boundary native products and one managed-VM module through the C-seed routes. Actual source-created execution remains unqualified.",
+  "source_sha256": "65bbc71797db8088c88ca6381514ea6533cb2ffe7c0813fda6f3ef936c54ed29",
+  "native_products": [
+    {
+      "path": "bstring-c-contracts/O0-ivrblo05/native",
+      "size": 11265152,
+      "sha256": "4bc6e505839f3a90c04f28c218a5bdfd673aa3ec5beeca7e9a6e11425a2deef7",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-c-contracts/O2-t9zcfjuu/native",
+      "size": 9913096,
+      "sha256": "2b27799c77a9b602227fe7237151ceecefbec2defa4e25e9878cc18dc13bace1",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O0",
+      "size": 8775144,
+      "sha256": "7f855debff41ebc1aa3c20bf6f45c8faddc2a93592c8bf74ebc95541733d3d45",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O2",
+      "size": 8623800,
+      "sha256": "892f8faff0318cfdf4d022a1fb8fddca26c2d0532e6260147d400187fd0bda13",
+      "magic": "7f454c46"
+    }
+  ],
+  "vm_modules": [
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.nvm",
+      "size": 1636,
+      "sha256": "9a8e16ddc5ca39d5b6257b41c6982449b43a7f16a91b5587d93bb3b559c01b6f"
+    }
+  ],
+  "commands": [
+    {
+      "directory": "bstring-c-contracts/O0-ivrblo05",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-ivrblo05/main.nano",
+            "--keep-c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-ivrblo05/native"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-ivrblo05/native"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-c-contracts/O2-t9zcfjuu",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-t9zcfjuu/main.nano",
+            "--keep-c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-t9zcfjuu/native"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-t9zcfjuu/native"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "gcc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "gcc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-548pcm64/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "terminal_methods": [
+    "test_c_seed_native_keeps_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_c_seed_native_keeps_complete_input) ... ok",
+    "test_managed_vm_and_native_keep_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_managed_vm_and_native_keep_complete_input) ... ok",
+    "Ran 2 tests in 185.496s",
+    "FAILED (errors=3)"
+  ],
+  "source_creation": {
+    "starts": 965,
+    "completes": 964,
+    "failures": 0,
+    "summed_body_seconds": 9.922066,
+    "deadline_observed": true
+  }
+}

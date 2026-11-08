@@ -18,7 +18,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 from "src_nano/compiler/effect_bindings.nano" import eb_register, eb_import, eb_rewrite
-from "src_nano/compiler/native_product.nano" import publish_native_module
+from "src_nano/compiler/native_product.nano" import publish_native_module, native_phase_marker
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
 module "modules/compiler_support/compiler_support.nano" as DriverSupport
@@ -1715,6 +1715,7 @@ shadow outputs_preserve_sources {
 
 fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, allow_websocket_connections: bool, allow_websocket_lookup: bool, websocket_resolver_helper: string, implicit_module: bool, service_context: NlFileSourceSnapshots) -> int {
     if (== input_file "") { return 1 }
+    (native_phase_marker "inputs-start")
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -1748,6 +1749,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
     }
 
     let merge_result: MergeResult = (merge_with_imports input_file)
+    (native_phase_marker "imports-done")
     let merged_source: string = merge_result.source
     let merged_files: array<string> = merge_result.files
     let source_files: array<string> = merge_result.source_files
@@ -1783,6 +1785,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
     let tokens: List<LexerToken> = (tokenize_string merged_source source_to_compile diags)
+    (native_phase_marker "lex-done")
     let token_count: int = (list_LexerToken_length tokens)
     (remap_diagnostics diags source_files source_lines)
     
@@ -1811,6 +1814,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             }
             
             let parser: Parser = (parse_program tokens token_count input_file)
+            (native_phase_marker "parse-done")
             # I protect retained companion declarations before publishing parse-error diagnostics.
             let service_origins: ServiceOrigins = (bind_service_origins parser merged_files source_files source_lines)
             if (not service_origins.ok) {
@@ -1968,7 +1972,9 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             let mut first_shadow: int = 0
             if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
             let has_shadows: bool = (< first_shadow parser.shadows_count)
+            (native_phase_marker "checked-emit-start")
             let emitted: NanoisaCheckedText = (nanoisa_check_and_emit parser source_to_compile first_shadow (and has_shadows (not emit_c)))
+            (native_phase_marker "checked-emit-done")
             let tc: TypecheckPhaseOutput = emitted.phase
             if tc.had_error {
                 (remap_diagnostics tc.diagnostics source_files source_lines)
@@ -2035,7 +2041,9 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                         return 1
                     }
                     let shadow_file: string = (+ directory "/shadows.nvm")
+                    (native_phase_marker "shadow-assembly-start")
                     let staged: int = (Nanoisa.assemble_text_save shadow_assembly shadow_file)
+                    (native_phase_marker "shadow-assembly-done")
                     if (!= staged 0) {
                         (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
                         (bytecode_shadow_cleanup directory)
@@ -2044,7 +2052,9 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     let mut vm: string = (getenv "NANO_VM")
                     if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
                     let command: string = (+ (native_shell_quote vm) (+ " --check-shadows " (native_shell_quote shadow_file)))
+                    (native_phase_marker "shadow-execution-start")
                     let checked: int = (nl_exec_shell command)
+                    (native_phase_marker "shadow-execution-done")
                     (bytecode_shadow_cleanup directory)
                     if (!= checked 0) {
                         (println "I will not publish bytecode after failed shadows")
@@ -2058,11 +2068,15 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     let directory: string = (mktemp_dir "nano_bytecode_product_")
                     if (== directory "") { (println "I could not stage the verified module") return 1 }
                     let module_file: string = (+ directory "/program.nvm")
+                    (native_phase_marker "product-assembly-start")
                     set status (Nanoisa.assemble_text_save assembly module_file)
+                    (native_phase_marker "product-assembly-done")
                     if (== status 0) {
+                        (native_phase_marker "native-publication-start")
                         set status (publish_native_module module_file output_file repo_root
                             (resolve_cc_binary) (native_product_cflags (getenv "NANO_CFLAGS"))
                             (native_product_ldflags (getenv "NANO_LDFLAGS") (getenv "LDFLAGS")) emit_c keep_c show_intermediate_code verbose)
+                        (native_phase_marker "native-publication-done")
                     }
                     unsafe { (file_delete module_file) (file_delete directory) }
                 }
@@ -2073,6 +2087,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 if (!= llm_diags_json_path "") {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
                 }
+                (native_phase_marker "inputs-return")
                 return 0
     }
 }
@@ -2090,6 +2105,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         }
         let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files allow_tcp_connections allow_websocket_connections allow_websocket_lookup websocket_resolver_helper implicit_module context)
         (nl_source_inputs_free context)
+        (native_phase_marker "driver-return")
         return status
     }
 }

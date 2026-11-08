@@ -1,0 +1,15 @@
+{
+  "size": 2029959,
+  "sha256": "9cff84bc1cfd67d5a7d7d45831eb06009bc0e457ca61a968b558feb9e05f5db6",
+  "files": 25,
+  "text_files": 24,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-qekz9_se.tar.gz",
+      "sha256": "6e425f51cbb1533c952ef58798c59ebd3110434d51114157b12e64f2b19d7060",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

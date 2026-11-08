@@ -1,0 +1,4 @@
+{
+  "scope": "I attempted the sanitized baseline with unsupported leak detection on this Darwin sanitizer runtime. It stopped before exercising the unit. I correct only ASAN_OPTIONS to detect_leaks=0; explicit zero managed counts remain asserted.",
+  "diagnostic": "AddressSanitizer: detect_leaks is not supported on this platform."
+}

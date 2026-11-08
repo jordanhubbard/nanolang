@@ -1,0 +1,13 @@
+# My arithmetic and casting C-frontend/native checkpoint
+
+I retain successful [run 42468190104](https://github.com/jordanhubbard/nanolang/actions/runs/42468190104) at `967291401fc23f896350ed0a1ff2089bf7de1d7e`. GCC and Clang each pass all 57 methods. All seven raw-profile arithmetic controls now reach their real tools and preserve the original refusal/output assertions. The complete unchanged arithmetic fixture, original binary64 fixed-bit/order oracles, O0/O2 integer boundaries, STRING broadcasts, shorter lengths, independent typed empty storage and lifetime controls pass through C-frontend NanoISA, NanoVM and sanitized native execution.
+
+I also retain successful [run 42468852727](https://github.com/jordanhubbard/nanolang/actions/runs/42468852727) at `e08895fcfc5d2e99d10bc863f60cfc08aa0c8b2c`. Both compilers pass all 61 methods, including the complete unchanged original casting fixture. Production execution checks scalar conversions, byte/bool/string conversions, signed zero, quiet/signaling NaN identity bits, existing ordinary-array fallback, once-only operand evaluation, lexical function identity and both wrong-arity prior-output controls. This does not change my existing ANY conversion signature or consumer fallback semantics.
+
+Both successful pins also pass the complete original C typechecker units, original array-alias routes and full translator gate: 2,443 execution checks, 3,866 shape checks and 464 callable checks, zero failures, plus the original adjacent suites. Existing original string, print, record, numeric, math, reverse/search and full map constructor/snapshot selections remain present and pass.
+
+My first [6d run 42467695936](https://github.com/jordanhubbard/nanolang/actions/runs/42467695936) remains failed: each compiler reports seven missing-Path harness errors before those raw controls execute. I retain both complete failed artifacts alongside both successful pairs; a later success does not erase the failure or establish its missing assertions retroactively.
+
+All six original ZIPs pass CRC. Each directory contains a complete uploaded-file SHA-256 inventory and deterministic exact UTF-8 text bundle. Uploaded binary bytes remain in private original ZIP custody. All six embedded translator TAR hashes and inventories independently verify; their inventories are empty after normal successful cleanup. I do not claim that these archives retain every cleaned native product or establish filesystem modes or symlinks from direct ZIP custody.
+
+This is bounded C-frontend/native acceptance under #1094/#1095. My changed self-hosted lowering still requires both fresh generations, complete original-route parity and integrated platform acceptance. Those issues remain open.

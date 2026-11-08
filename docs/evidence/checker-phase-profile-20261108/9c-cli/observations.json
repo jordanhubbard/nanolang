@@ -1,0 +1,340 @@
+[
+  {
+    "path": "cli-run-contract-native/nano_virt-j8yz391d/",
+    "compile_status": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 4.612426524000512,
+      "compiler_started_monotonic": 5166.653082987,
+      "compiler_returned_monotonic": 5171.265163355
+    },
+    "inputs": {
+      "before": {
+        "bin/nano_virt": "4387617e65575439640b3ec7cce9140e19ff6e780d45dd849ac88f11e05005cd",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "after": {
+        "bin/nano_virt": "4387617e65575439640b3ec7cce9140e19ff6e780d45dd849ac88f11e05005cd",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      }
+    },
+    "run_log": "{\"case\": \"invalid_arity\", \"argv\": [\"/home/runner/work/nanolang/nanolang/bin/nano_vm\", \"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-j8yz391d/checker.nvm\", \"--\"]}\n\n{\"case\": \"invalid_arity\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"accepted_source\", \"argv\": [\"/home/runner/work/nanolang/nanolang/bin/nano_vm\", \"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-j8yz391d/checker.nvm\", \"--\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano\"]}\n\n{\"case\": \"accepted_source\", \"returncode\": 0, \"expected\": 0, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"ownership_refusal\", \"argv\": [\"/home/runner/work/nanolang/nanolang/bin/nano_vm\", \"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-j8yz391d/checker.nvm\", \"--\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano\"]}\nI cannot verify ownership: resource remains live at scope exit: owned\n\n{\"case\": \"ownership_refusal\", \"returncode\": 1, \"expected\": 1, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"extra_argument\", \"argv\": [\"/home/runner/work/nanolang/nanolang/bin/nano_vm\", \"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-j8yz391d/checker.nvm\", \"--\", \"unused\", \"extra\"]}\n\n{\"case\": \"extra_argument\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n"
+  },
+  {
+    "path": "cli-run-contract-native/nanoc_c-75rcw46t/",
+    "compile_status": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 38.637360430000626,
+      "compiler_started_monotonic": 5127.899388321,
+      "compiler_returned_monotonic": 5166.536296988
+    },
+    "inputs": {
+      "before": {
+        "bin/nanoc_c": "6670934e6b511169127e8587c995ad4de00bc8a895be6f51307501f34afcce8e",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "after": {
+        "bin/nanoc_c": "6670934e6b511169127e8587c995ad4de00bc8a895be6f51307501f34afcce8e",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      }
+    },
+    "run_log": "{\"case\": \"invalid_arity\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-75rcw46t/checker\"]}\n\n{\"case\": \"invalid_arity\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"accepted_source\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-75rcw46t/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano\"]}\n\n{\"case\": \"accepted_source\", \"returncode\": 0, \"expected\": 0, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"ownership_refusal\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-75rcw46t/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano\"]}\nI cannot verify ownership: resource remains live at scope exit: owned\n\n{\"case\": \"ownership_refusal\", \"returncode\": 1, \"expected\": 1, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"extra_argument\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-75rcw46t/checker\", \"unused\", \"extra\"]}\n\n{\"case\": \"extra_argument\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n"
+  },
+  {
+    "path": "cli-run-contract-native/nanoc_stage1-wao4f4hm/",
+    "compile_status": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 584.7160501829994,
+      "compiler_started_monotonic": 5172.161106364,
+      "compiler_returned_monotonic": 5756.873426253
+    },
+    "inputs": {
+      "before": {
+        "bin/nanoc_stage1": "369083e257f5a81c8503e46cde40eb3c3c4a1500b5a1c86f991a9e6066a4f11c",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "after": {
+        "bin/nanoc_stage1": "369083e257f5a81c8503e46cde40eb3c3c4a1500b5a1c86f991a9e6066a4f11c",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      }
+    },
+    "run_log": "{\"case\": \"invalid_arity\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-wao4f4hm/checker\"]}\n\n{\"case\": \"invalid_arity\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"accepted_source\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-wao4f4hm/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano\"]}\n\n{\"case\": \"accepted_source\", \"returncode\": 0, \"expected\": 0, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"ownership_refusal\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-wao4f4hm/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano\"]}\nI cannot verify ownership: resource remains live at scope exit: owned\n\n{\"case\": \"ownership_refusal\", \"returncode\": 1, \"expected\": 1, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"extra_argument\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-wao4f4hm/checker\", \"unused\", \"extra\"]}\n\n{\"case\": \"extra_argument\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n",
+    "marker_intervals": [
+      {
+        "from": "inputs-start",
+        "to": "imports-done",
+        "seconds": 64.1201012929996
+      },
+      {
+        "from": "imports-done",
+        "to": "lex-done",
+        "seconds": 54.81337661799989
+      },
+      {
+        "from": "lex-done",
+        "to": "parse-done",
+        "seconds": 23.52191779900022
+      },
+      {
+        "from": "parse-done",
+        "to": "checked-emit-start",
+        "seconds": 1.6886134540000057
+      },
+      {
+        "from": "checked-emit-start",
+        "to": "typecheck-start",
+        "seconds": 0.046074679999946966
+      },
+      {
+        "from": "typecheck-start",
+        "to": "typecheck-done",
+        "seconds": 55.473855137999635
+      },
+      {
+        "from": "typecheck-done",
+        "to": "program-lowering-start",
+        "seconds": 0.044639458000347076
+      },
+      {
+        "from": "program-lowering-start",
+        "to": "program-lowering-done",
+        "seconds": 93.08078100300008
+      },
+      {
+        "from": "program-lowering-done",
+        "to": "shadow-lowering-start",
+        "seconds": 0.04421812700002192
+      },
+      {
+        "from": "shadow-lowering-start",
+        "to": "shadow-lowering-done",
+        "seconds": 161.23762494499988
+      },
+      {
+        "from": "shadow-lowering-done",
+        "to": "checked-emit-done",
+        "seconds": 0.04480872099975386
+      },
+      {
+        "from": "checked-emit-done",
+        "to": "shadow-assembly-start",
+        "seconds": 0.04379656400033127
+      },
+      {
+        "from": "shadow-assembly-start",
+        "to": "shadow-assembly-done",
+        "seconds": 20.46916486400005
+      },
+      {
+        "from": "shadow-assembly-done",
+        "to": "shadow-execution-start",
+        "seconds": 0.04327646299952903
+      },
+      {
+        "from": "shadow-execution-start",
+        "to": "shadow-execution-done",
+        "seconds": 1.0640641110003344
+      },
+      {
+        "from": "shadow-execution-done",
+        "to": "product-assembly-start",
+        "seconds": 0.04342597199956799
+      },
+      {
+        "from": "product-assembly-start",
+        "to": "product-assembly-done",
+        "seconds": 4.717373831000259
+      },
+      {
+        "from": "product-assembly-done",
+        "to": "native-publication-start",
+        "seconds": 0.04387605600004463
+      },
+      {
+        "from": "native-publication-start",
+        "to": "native-publication-done",
+        "seconds": 103.21872860999974
+      },
+      {
+        "from": "native-publication-done",
+        "to": "inputs-return",
+        "seconds": 0.043710524000744044
+      },
+      {
+        "from": "inputs-return",
+        "to": "driver-return",
+        "seconds": 0.04326519400001416
+      }
+    ],
+    "phase_tools": {
+      "nvm2c": 42.82942448100039,
+      "cc": 60.41634660000091
+    },
+    "marker_count": 22,
+    "tool_count": 18
+  },
+  {
+    "path": "cli-run-contract-native/nanoc_stage2-5lq7gfaf/",
+    "compile_status": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 579.6340080270002,
+      "compiler_started_monotonic": 5756.942962545,
+      "compiler_returned_monotonic": 6336.573700611
+    },
+    "inputs": {
+      "before": {
+        "bin/nanoc_stage2": "5b1aa31508265cebd7c5663532568306422248678751e5d133f6b34d52b4d85c",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "after": {
+        "bin/nanoc_stage2": "5b1aa31508265cebd7c5663532568306422248678751e5d133f6b34d52b4d85c",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      }
+    },
+    "run_log": "{\"case\": \"invalid_arity\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-5lq7gfaf/checker\"]}\n\n{\"case\": \"invalid_arity\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"accepted_source\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-5lq7gfaf/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano\"]}\n\n{\"case\": \"accepted_source\", \"returncode\": 0, \"expected\": 0, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"ownership_refusal\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-5lq7gfaf/checker\", \"/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano\"]}\nI cannot verify ownership: resource remains live at scope exit: owned\n\n{\"case\": \"ownership_refusal\", \"returncode\": 1, \"expected\": 1, \"timed_out\": false, \"accepted\": true}\n{\"case\": \"extra_argument\", \"argv\": [\"/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-5lq7gfaf/checker\", \"unused\", \"extra\"]}\n\n{\"case\": \"extra_argument\", \"returncode\": 2, \"expected\": 2, \"timed_out\": false, \"accepted\": true}\n",
+    "marker_intervals": [
+      {
+        "from": "inputs-start",
+        "to": "imports-done",
+        "seconds": 63.58676234599989
+      },
+      {
+        "from": "imports-done",
+        "to": "lex-done",
+        "seconds": 54.48096411999995
+      },
+      {
+        "from": "lex-done",
+        "to": "parse-done",
+        "seconds": 23.234792911999648
+      },
+      {
+        "from": "parse-done",
+        "to": "checked-emit-start",
+        "seconds": 1.6712245350008743
+      },
+      {
+        "from": "checked-emit-start",
+        "to": "typecheck-start",
+        "seconds": 0.04242816799978755
+      },
+      {
+        "from": "typecheck-start",
+        "to": "typecheck-done",
+        "seconds": 54.31334040999991
+      },
+      {
+        "from": "typecheck-done",
+        "to": "program-lowering-start",
+        "seconds": 0.04323212599956605
+      },
+      {
+        "from": "program-lowering-start",
+        "to": "program-lowering-done",
+        "seconds": 92.00139405100072
+      },
+      {
+        "from": "program-lowering-done",
+        "to": "shadow-lowering-start",
+        "seconds": 0.043617870999696606
+      },
+      {
+        "from": "shadow-lowering-start",
+        "to": "shadow-lowering-done",
+        "seconds": 160.2860464559999
+      },
+      {
+        "from": "shadow-lowering-done",
+        "to": "checked-emit-done",
+        "seconds": 0.04312826800014591
+      },
+      {
+        "from": "checked-emit-done",
+        "to": "shadow-assembly-start",
+        "seconds": 0.043636425999466155
+      },
+      {
+        "from": "shadow-assembly-start",
+        "to": "shadow-assembly-done",
+        "seconds": 20.453879310000048
+      },
+      {
+        "from": "shadow-assembly-done",
+        "to": "shadow-execution-start",
+        "seconds": 0.04361087899997074
+      },
+      {
+        "from": "shadow-execution-start",
+        "to": "shadow-execution-done",
+        "seconds": 1.053419708000547
+      },
+      {
+        "from": "shadow-execution-done",
+        "to": "product-assembly-start",
+        "seconds": 0.042430871999386
+      },
+      {
+        "from": "product-assembly-start",
+        "to": "product-assembly-done",
+        "seconds": 4.722026958000242
+      },
+      {
+        "from": "product-assembly-done",
+        "to": "native-publication-start",
+        "seconds": 0.044780788000025495
+      },
+      {
+        "from": "native-publication-start",
+        "to": "native-publication-done",
+        "seconds": 102.5177712069999
+      },
+      {
+        "from": "native-publication-done",
+        "to": "inputs-return",
+        "seconds": 0.0437447450003674
+      },
+      {
+        "from": "inputs-return",
+        "to": "driver-return",
+        "seconds": 0.044750181999916094
+      }
+    ],
+    "phase_tools": {
+      "nvm2c": 42.754969360999894,
+      "cc": 59.78002089700021
+    },
+    "marker_count": 22,
+    "tool_count": 18
+  }
+]

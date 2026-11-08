@@ -1,0 +1,9 @@
+{
+  "schema": "nanolang-test-run@1",
+  "cases": [
+    {"name": "invalid_arity", "args": [], "exit_code": 2},
+    {"name": "accepted_source", "args": [{"input": "fixtures/resource-checker/valid.nano"}], "exit_code": 0},
+    {"name": "ownership_refusal", "args": [{"input": "fixtures/resource-checker/unconsumed.nano"}], "exit_code": 1, "contains": ["ownership"]},
+    {"name": "extra_argument", "args": ["unused", "extra"], "exit_code": 2}
+  ]
+}

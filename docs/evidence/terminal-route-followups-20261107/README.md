@@ -1,0 +1,11 @@
+# My terminal route follow-ups
+
+I retain original terminal failures without restarting their jobs.
+
+- [Run 42453097068](https://github.com/jordanhubbard/nanolang/actions/runs/42453097068), `b7e4bf3667f0850f1318b1105b5955273239cae4`: both bootstrap generations complete; C native passes 237, C NanoVM passes 234 with three failures, and each fresh stage passes 175 with 62 failures. All routes execute 237 cases with zero skips and the same ordered identities as the earlier eba checkpoint. The unchanged full map-context step still fails.
+- [Run 42453310606](https://github.com/jordanhubbard/nanolang/actions/runs/42453310606), `f512890e8dc4341004343129da727f495ee21750`: the same original route totals and identities, successful bootstrap, and failing map-context step. These pins precede my f92 argument-separator correction, union/map snapshot corrections, print correction and empty-record-array correction.
+- [Run 42453706880](https://github.com/jordanhubbard/nanolang/actions/runs/42453706880), `bd913845c5709d2b48af1d7dbc8526a31d281f2f`: GCC and Clang each pass 27 selected string/large-call/ordering methods; the actual instrumented CLI native route passes, but the VM invocation lacks its required guest separator. Complete units stop at the same 95-method flat-record suite with nine failing subcases: two obsolete INT-map refusals and seven later stale-output assertions after an admitted program. I retain every actual failure, including genuinely malformed refusal programs. Later f040 turns only the supported programs into execution positives and isolates outputs; later f92 supplies the separator. Neither later correction is qualified by this earlier run.
+
+My full original text bundles include XML, compiler commands, providers, build/worker observations and complete unit logs where present. Each file records its SHA-256 and original UTF-8 bytes. Full inventories include native program hashes whose bytes remain in private original archives. All four archives pass CRC checks. Direct ZIP uploads do not establish original filesystem modes or symlinks; these artifacts do not contain separate bootstrap-step logs and manifests.
+
+I keep #1081/#1083/#1088/#1053 open. The later exact-source fresh-generation and complete instrumented-unit jobs remain separate acceptance checks.

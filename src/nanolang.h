@@ -49,7 +49,8 @@ typedef enum {
     VAL_FUNCTION,   /* Function values (for first-class functions) */
     VAL_TUPLE,      /* Tuple values: (1, "hello", true) */
     VAL_COROUTINE,  /* Coroutine handle (int_val = scheduler id) */
-    VAL_VOID
+    VAL_VOID,
+    VAL_BSTRING  /* I keep binary strings distinct from STRING and opaque integers. */
 } ValueType;
 
 /* Array structure */
@@ -58,6 +59,7 @@ typedef struct {
     int length;              /* Number of elements */
     int capacity;            /* Allocated capacity */
     void *data;              /* Pointer to array data */
+    bool is_byte_array;       /* I preserve U8 identity while retaining INT-sized slots. */
 } Array;
 
 /* Struct value structure */
@@ -66,7 +68,11 @@ typedef struct {
     char **field_names;      /* Array of field names */
     Value *field_values;     /* Array of field values */
     int field_count;         /* Number of fields */
+    bool packed_names;       /* I own one allocation for type and field names. */
 } StructValue;
+
+StructValue *allocate_struct_carrier(const char *name, char **fields, int field_count);
+void release_struct_carrier_names(StructValue *record);
 
 /* Union value (tagged union) */
 typedef struct {
@@ -173,6 +179,7 @@ struct Value {
         double float_val;
         bool bool_val;
         char *string_val;
+        void *bstring_val;     /* Managed interpreter binary-string owner shell. */
         Array *array_val;
         DynArray *dyn_array_val;    /* Dynamic array (GC-managed) */
         StructValue *struct_val;    /* Struct values (stack) */
@@ -1014,6 +1021,7 @@ Symbol *env_global_import_symbol(Environment *env, const char *name);
 ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr);
 Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
+void env_define_string_copy(Environment *env, const char *name, Type type, bool is_mut, const char *text);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
 
@@ -1025,6 +1033,10 @@ void env_reclaim_static_arrays(Environment *env);
 size_t env_static_array_reclaim_count(void);
 Symbol *env_get_var(Environment *env, const char *name);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
+/* I accept the value just evaluated from this exact expression. */
+void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
+                              TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression);
+void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);

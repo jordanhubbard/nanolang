@@ -1,0 +1,15 @@
+{
+  "size": 93463633,
+  "sha256": "e67f2d40d65d8bed67d0f4a88c1b2ced7a54a591974cef0234a02f48d3208257",
+  "files": 3818,
+  "text_files": 3491,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-p291gqep.tar.gz",
+      "sha256": "62fe4f19d09470d7b2dd5a2a2b327a25c65bef8a0cefab9f7f35d4ac04a87188",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

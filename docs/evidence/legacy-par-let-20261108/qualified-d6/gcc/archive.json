@@ -1,0 +1,15 @@
+{
+  "size": 9727213,
+  "sha256": "2fef9046e27e4ec60c6ff090451498799add16ef850b925918e2e0ab683d0961",
+  "files": 1598,
+  "text_files": 1453,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-twvq5r0p.tar.gz",
+      "sha256": "9e333085d2dbad1a264c8dda14b9d643a0d3b84f0c45e722ee2cf72bf9c5b9a8",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-map-scalar-runtime"
+  ],
+  "exit_code": 0,
+  "platform": "Darwin arm64",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "methods": 4,
+  "seconds": 2.637,
+  "allocation_refusal_prefixes": {
+    "INT/INT": 15,
+    "INT/STRING": 41,
+    "STRING/INT": 27,
+    "STRING/STRING": 53
+  },
+  "input_sha256": {
+    "src/nanoisa/nvm2c_map_runtime.inc": "13b24ec7dd3870fbd03c723a4c0d74438a6552a3e175b3b987e8e94400c6ed93",
+    "tests/test_map_scalar_runtime.py": "0f0e631d97ae5b53637905da9a2df6b55e81809af3ad6dc7db980c19b235450c",
+    "tests/nanoisa/native_map_alloc_probe.h": "94ab7150ab6c4b2d74cf7540b272da715b942aefd34c863591c5c540ff73aa00",
+    "tests/nanoisa/test_nvm2c.c": "19efbd680eb0a469469b061075fe844d0db0ac3ce0897a17925bfdf9d968a088"
+  },
+  "boundary": "I test the standalone actual runtime; full producer/AOT and native lifecycle acceptance remain open."
+}

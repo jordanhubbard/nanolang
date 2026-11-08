@@ -1,0 +1,15 @@
+{
+  "size": 70327852,
+  "sha256": "689b980113a6b11d5b51000841949662589171499f75cea03b0445e9890e392f",
+  "files": 3058,
+  "text_files": 2811,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-5sjv46fx.tar.gz",
+      "sha256": "e2ab4f4340f63a97f41bbc3bcf5bc7144938541a752aac2b327feb52568ca165",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

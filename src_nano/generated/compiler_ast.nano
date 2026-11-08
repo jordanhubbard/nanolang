@@ -187,7 +187,8 @@ extern struct ASTPrint {
     line: int,
     column: int,
     value: int,
-    value_type: int
+    value_type: int,
+    is_println: bool
 }
 
 extern struct ASTAssert {

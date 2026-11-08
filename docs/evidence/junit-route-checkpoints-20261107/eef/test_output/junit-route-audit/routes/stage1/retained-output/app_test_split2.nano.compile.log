@@ -1,0 +1,18 @@
+I am testing shadow __nano_module_0_is_null
+I am testing shadow __nano_module_0_quick_match
+I am testing shadow __nano_module_0_quick_find
+I am testing shadow __nano_module_0_quick_replace
+I am testing shadow __nano_module_0_quick_split
+I am testing shadow __nano_module_0_regex_split
+I am testing shadow __nano_module_0_compile
+I am testing shadow __nano_module_0_matches
+I am testing shadow __nano_module_0_find
+I am testing shadow __nano_module_0_find_all
+I am testing shadow __nano_module_0_groups
+I am testing shadow __nano_module_0_replace
+I am testing shadow __nano_module_0_replace_all
+I am testing shadow __nano_module_0_split
+I am testing shadow __nano_module_0_free
+I cannot translate '/home/runner/work/_temp/nano-qualification-9070etfd/nano_bytecode_product_RyOMgd/program.nvm': import 0 (nl_regex_compile) requires an exact builtin host ABI; nvm2c refuses CALL_EXTERN
+I could not translate the verified module to C
+I could not publish the requested product: 

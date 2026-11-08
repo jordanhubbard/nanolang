@@ -1,0 +1,67 @@
+{
+  "path": "bstring-native-payload/original-66j9z2ik/unit",
+  "inputs": {
+    "scope": "I test only the derived C payload; native BSTRING imports and tagged owner translation remain unimplemented.",
+    "before": {
+      "/home/runner/work/nanolang/nanolang/src/runtime/nl_string.h": "bab2b987fa4a4e586b63f5dde08776c74bdc72506185d7eb55f8d91c7b0ee3ac",
+      "/home/runner/work/nanolang/nanolang/src/runtime/nl_string.c": "59356897bd2a6d388686750f4b46bdb69eb2eced2f100f5877679d711072ec8b",
+      "/home/runner/work/nanolang/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "/home/runner/work/nanolang/nanolang/src/utf8.h": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+      "/home/runner/work/nanolang/nanolang/tests/test_nl_string.c": "ee75f79f7a16cc19ca4dab3678f089f0438bb9afce0c48aa84c8c34e0bb01ac6",
+      "/home/runner/work/nanolang/nanolang/scripts/gen_nvm2c_bstring_payload.py": "dd1f70a97ef21b3d20e0c5f00a57af2883544710696a92d7c7e879f21a0b2874",
+      "/home/runner/work/nanolang/nanolang/src/nanoisa/nvm2c_bstring_payload.inc": "d04fb5e8cc9aa64a8fe6893bd3e583836ecd9670fe0b693f49428887679b09fe"
+    },
+    "after": {
+      "/home/runner/work/nanolang/nanolang/src/runtime/nl_string.h": "bab2b987fa4a4e586b63f5dde08776c74bdc72506185d7eb55f8d91c7b0ee3ac",
+      "/home/runner/work/nanolang/nanolang/src/runtime/nl_string.c": "59356897bd2a6d388686750f4b46bdb69eb2eced2f100f5877679d711072ec8b",
+      "/home/runner/work/nanolang/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "/home/runner/work/nanolang/nanolang/src/utf8.h": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+      "/home/runner/work/nanolang/nanolang/tests/test_nl_string.c": "ee75f79f7a16cc19ca4dab3678f089f0438bb9afce0c48aa84c8c34e0bb01ac6",
+      "/home/runner/work/nanolang/nanolang/scripts/gen_nvm2c_bstring_payload.py": "dd1f70a97ef21b3d20e0c5f00a57af2883544710696a92d7c7e879f21a0b2874",
+      "/home/runner/work/nanolang/nanolang/src/nanoisa/nvm2c_bstring_payload.inc": "d04fb5e8cc9aa64a8fe6893bd3e583836ecd9670fe0b693f49428887679b09fe"
+    },
+    "product_before_run": "d8089ae0b595c47212f6ae65b3c3665daa60b67edc27158f94e4c2d236317b5a",
+    "product_after_run": "d8089ae0b595c47212f6ae65b3c3665daa60b67edc27158f94e4c2d236317b5a"
+  },
+  "commands": [
+    {
+      "label": "generation-check",
+      "argv": [
+        "python3",
+        "/home/runner/work/nanolang/nanolang/scripts/gen_nvm2c_bstring_payload.py",
+        "--check"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build",
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-native-payload/original-66j9z2ik/unit.c",
+        "/home/runner/work/nanolang/nanolang/src/utf8.c",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-native-payload/original-66j9z2ik/unit"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-native-payload/original-66j9z2ik/unit"
+      ],
+      "returncode": 0
+    }
+  ],
+  "observed_entry": {
+    "size": 174736,
+    "sha256": "d8089ae0b595c47212f6ae65b3c3665daa60b67edc27158f94e4c2d236317b5a"
+  },
+  "tests": 16
+}

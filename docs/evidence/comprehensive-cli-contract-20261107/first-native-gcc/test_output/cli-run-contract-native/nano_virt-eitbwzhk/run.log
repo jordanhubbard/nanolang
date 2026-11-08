@@ -1,0 +1,15 @@
+{"case": "invalid_arity", "argv": ["/home/runner/work/nanolang/nanolang/bin/nano_vm", "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-eitbwzhk/checker.nvm"]}
+
+{"case": "invalid_arity", "returncode": 2, "expected": 2, "timed_out": false, "accepted": true}
+{"case": "accepted_source", "argv": ["/home/runner/work/nanolang/nanolang/bin/nano_vm", "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-eitbwzhk/checker.nvm", "/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano"]}
+I accept one module path; place guest arguments after --.
+
+{"case": "accepted_source", "returncode": 1, "expected": 0, "timed_out": false, "accepted": false}
+{"case": "ownership_refusal", "argv": ["/home/runner/work/nanolang/nanolang/bin/nano_vm", "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-eitbwzhk/checker.nvm", "/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano"]}
+I accept one module path; place guest arguments after --.
+
+{"case": "ownership_refusal", "returncode": 1, "expected": 1, "timed_out": false, "accepted": false}
+{"case": "extra_argument", "argv": ["/home/runner/work/nanolang/nanolang/bin/nano_vm", "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-eitbwzhk/checker.nvm", "unused", "extra"]}
+I accept one module path; place guest arguments after --.
+
+{"case": "extra_argument", "returncode": 1, "expected": 2, "timed_out": false, "accepted": false}

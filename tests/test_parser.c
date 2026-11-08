@@ -325,6 +325,23 @@ void test_parse_tuple_literal(void) {
     free_ast(prog);
 }
 
+void test_parse_empty_anonymous_record(void) {
+    ASTNode *program = parse_ok("fn make()->Empty{return {}}");
+    ASSERT_NOT_NULL(program);
+    ASTNode *returned = program->as.program.items[0]->as.function.body->as.block.statements[0];
+    ASSERT_EQ(returned->type, AST_RETURN);
+    ASTNode *literal = returned->as.return_stmt.value;
+    ASSERT_EQ(literal->type, AST_STRUCT_LITERAL);
+    ASSERT_NULL(literal->as.struct_literal.struct_name);
+    ASSERT_EQ(literal->as.struct_literal.field_count, 0);
+    free_ast(program);
+    program = parse_ok("fn empty()->void{} fn main()->int{if true{}else{} return 0}");
+    ASSERT_NOT_NULL(program);
+    ASSERT_EQ(program->as.program.items[0]->as.function.body->type, AST_BLOCK);
+    ASSERT_EQ(program->as.program.items[0]->as.function.body->as.block.count, 0);
+    free_ast(program);
+}
+
 void test_parse_struct_literal(void) {
     ASTNode *prog = parse_ok(
         "struct Vec2 { x: float, y: float }\n"
@@ -1203,6 +1220,7 @@ void test_reexported_call_paths(void) {
 
 int main(void) {
     TEST(reexported_call_paths);
+    TEST(parse_empty_anonymous_record);
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");

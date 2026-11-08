@@ -1,0 +1,19 @@
+{
+  "command": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-gc-shutdown-sanitizers"
+  ],
+  "returncode": 0,
+  "tests_passed": 11,
+  "scope": "I retain the result of the completed local sanitizer control, with the product hash observed after execution. I do not claim a separately retained native archive or SDK custody.",
+  "product_sha256": "d7b727f63b21845bbf8527e8245c24d9c1fff566ac1f63b89d26cc4588871426",
+  "product_size": 8877648,
+  "sources": {
+    "tests/test_gc_struct.c": "d84a6653aee25d223e8741f02d02d320953ad0bd66285eaccdfbb5f96c3f7379",
+    "src/runtime/gc.c": "12d235fdd96e9d6c50fe56ce990f62e10b94b0d9940570ee783b572dfc5d9687",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  }
+}

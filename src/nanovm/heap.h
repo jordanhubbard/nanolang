@@ -10,6 +10,7 @@
 #define NANOVM_HEAP_H
 
 #include "value.h"
+#include "../runtime/nl_string.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -49,6 +50,12 @@ struct VmString {
     uint32_t hash;       /* Cached hash for interning */
     struct VmString *intern_next; /* Chaining link within the intern bucket */
     char data[];         /* Flexible array member */
+};
+
+/* I own a length-aware payload independently of immutable, interned STRINGs. */
+struct VmBString {
+    VmHeapHeader header;
+    nl_string_t *value;
 };
 
 /* Array: dynamic, growable.
@@ -201,6 +208,10 @@ void vm_heap_destroy(VmHeap *heap);
 /* Reference counting */
 void vm_retain(VmHeap *heap, NanoValue v);
 void vm_release(VmHeap *heap, NanoValue v);
+
+/* I consume the payload on success or allocation failure. */
+VmBString *vm_bstring_adopt(VmHeap *heap, nl_string_t *owned);
+void vm_bstring_clear(VmHeap *heap, VmBString *value);
 
 /* String allocation */
 VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length);

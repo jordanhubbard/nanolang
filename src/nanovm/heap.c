@@ -153,6 +153,28 @@ static void release_tuple(VmHeap *heap, VmTuple *t);
 static void release_closure(VmHeap *heap, VmClosure *c);
 static void release_hashmap(VmHeap *heap, VmHashMap *m);
 
+VmBString *vm_bstring_adopt(VmHeap *heap, nl_string_t *owned) {
+    if (!owned) return NULL;
+    VmBString *value = heap ? malloc(sizeof *value) : NULL;
+    if (!value) { nl_string_free_owned_storage(owned); return NULL; }
+    value->header.ref_count = 1;
+    value->header.obj_type = TAG_BSTRING;
+    value->header.colour = VM_GC_BLACK;
+    value->header.buffered = 0;
+    value->value = owned;
+    heap->stats.allocated += sizeof *value + sizeof *owned + owned->capacity;
+    heap->stats.allocation_calls++;
+    heap->stats.num_objects++;
+    return value;
+}
+
+void vm_bstring_clear(VmHeap *heap, VmBString *value) {
+    if (!value || !value->value) return;
+    heap->stats.freed += sizeof *value->value + value->value->capacity;
+    nl_string_free_owned_storage(value->value);
+    value->value = NULL;
+}
+
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
 /* Exact runtime layout/bounded-element checks make this graph a nominal DAG.
  * I keep each dead parent allocated until all its edges have been released.
@@ -167,7 +189,13 @@ static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
             heap->stats.release_calls++;
             assert(h->ref_count && !h->buffered);
             if(--h->ref_count==0) {
-                if(value.tag==TAG_STRING) {
+                if(value.tag==TAG_BSTRING) {
+                    VmBString *s=value.as.obj;
+                    vm_bstring_clear(heap,s);
+                    heap->stats.freed+=sizeof *s;
+                    heap->stats.num_objects--;
+                    free(s);
+                } else if(value.tag==TAG_STRING) {
                     VmString *s=value.as.string;
                     heap->stats.freed+=sizeof *s+s->length+1;
                     heap->stats.num_objects--;
@@ -303,6 +331,14 @@ void vm_release(VmHeap *heap, NanoValue v) {
 
     /* ref_count reached 0 - free the object */
     switch (v.tag) {
+        case TAG_BSTRING: {
+            VmBString *s = v.as.obj;
+            vm_bstring_clear(heap, s);
+            heap->stats.freed += sizeof *s;
+            heap->stats.num_objects--;
+            free(s);
+            break;
+        }
         case TAG_STRING: {
             VmString *s = v.as.string;
             heap->stats.freed += sizeof(VmString) + s->length + 1;

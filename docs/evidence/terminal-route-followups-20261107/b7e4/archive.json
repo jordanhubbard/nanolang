@@ -1,0 +1,34 @@
+{
+  "artifact": 13608796694,
+  "archive_bytes": 2378621,
+  "archive_sha256": "13ad61988080f6b6b771561214493225dc68bd10eec5fc31d1780ca66c257052",
+  "zip_crc_error": null,
+  "members": 177,
+  "text_members": 175,
+  "route_results": {
+    "seed-native": {
+      "cases": 237,
+      "failures": 0,
+      "skips": 0,
+      "same_ordered_case_identity_as_eba": true
+    },
+    "seed-vm": {
+      "cases": 237,
+      "failures": 3,
+      "skips": 0,
+      "same_ordered_case_identity_as_eba": true
+    },
+    "stage1": {
+      "cases": 237,
+      "failures": 62,
+      "skips": 0,
+      "same_ordered_case_identity_as_eba": true
+    },
+    "stage2": {
+      "cases": 237,
+      "failures": 62,
+      "skips": 0,
+      "same_ordered_case_identity_as_eba": true
+    }
+  }
+}

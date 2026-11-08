@@ -1,0 +1,9 @@
+{
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/string-stdlib-local/products.zip",
+  "size": 26544,
+  "sha256": "bcc36bc8279dc60128073cf2d704160361716841de7655cac116ffdf6b3f388d",
+  "crc_verified": true,
+  "files": 91,
+  "text_files": 84,
+  "fresh_source_qualified": false
+}

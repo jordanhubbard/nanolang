@@ -1,0 +1,320 @@
+{
+  "reason": "I replace only queued superseded source pins with corrected 7a5b489c9; I do not cancel because an observation expires and I leave the started 2046 run untouched.",
+  "records": [
+    {
+      "run": 42517809740,
+      "before": {
+        "conclusion": "",
+        "headSha": "2046cd3a906fda06338aec931832c46fe782a655",
+        "jobs": [
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 128844583905,
+            "name": "Seed string operands, VM and C AOT (cc)",
+            "startedAt": "2026-11-08T20:18:09Z",
+            "status": "in_progress",
+            "steps": [
+              {
+                "completedAt": "2026-11-08T20:18:10Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-11-08T20:18:10Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Run actions/checkout@v4",
+                "number": 2,
+                "startedAt": "2026-11-08T20:18:10Z",
+                "status": "in_progress"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Require worker headroom before provisioning or building",
+                "number": 3,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Install my existing Linux native compiler prerequisites",
+                "number": 4,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Install my existing Darwin native compiler prerequisites",
+                "number": 5,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Select my existing qualified Apple compiler and SDK without drift",
+                "number": 6,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Verify my shared reserved-definition tables",
+                "number": 7,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Build actual fresh VM and C AOT providers",
+                "number": 8,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute my existing C lexer fixture controls",
+                "number": 9,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute the complete original C parser unit suite",
+                "number": 10,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute the complete original C typechecker unit suite",
+                "number": 11,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute my existing environment index and STRING ownership controls",
+                "number": 12,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute my binary-string ownership and VM semantic gates",
+                "number": 13,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute actual native binary-string adapters with sanitizers",
+                "number": 14,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Retain current C and VM bstring boundary baselines",
+                "number": 15,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute my actual source checker native component through the C seed",
+                "number": 16,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute binary-string VM contracts through my actual source emitter",
+                "number": 17,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Verify exact and deferred aggregate shape constraints",
+                "number": 18,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute all operand methods and the complete canonical string suite",
+                "number": 19,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Retain checker and focused-source attempt metadata before the translator gate",
+                "number": 20,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Execute the complete original translator regression gate",
+                "number": 21,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Retain complete original array alias regression routes",
+                "number": 22,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Verify unchanged sources and providers",
+                "number": 23,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Retain original build and diagnostic results",
+                "number": 24,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/checkout@v4",
+                "number": 48,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              }
+            ],
+            "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42517809740/job/128844583905"
+          }
+        ],
+        "status": "in_progress"
+      },
+      "reason": "I supersede this queued source pin with corrected 7a5b489c9; I retain the earlier Linux failures separately.",
+      "action": "I leave a started or terminal run untouched.",
+      "after": {
+        "conclusion": "",
+        "headSha": "2046cd3a906fda06338aec931832c46fe782a655",
+        "status": "in_progress"
+      }
+    },
+    {
+      "run": 42518316040,
+      "before": {
+        "conclusion": "",
+        "headSha": "7f83c337bd5bc436fe80d380fe8945f5c3c63ae2",
+        "jobs": [
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 128846089872,
+            "name": "Seed string operands, VM and C AOT (cc)",
+            "startedAt": "2026-11-08T20:05:33Z",
+            "status": "queued",
+            "steps": [],
+            "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42518316040/job/128846089872"
+          }
+        ],
+        "status": "queued"
+      },
+      "reason": "I supersede this queued source pin with corrected 7a5b489c9; I retain the earlier Linux failures separately.",
+      "cancel_returncode": 0,
+      "cancel_stdout": "\u2713 Request to cancel workflow 42518316040 submitted.\n",
+      "cancel_stderr": "",
+      "after": {
+        "conclusion": "cancelled",
+        "headSha": "7f83c337bd5bc436fe80d380fe8945f5c3c63ae2",
+        "status": "completed"
+      }
+    },
+    {
+      "run": 42518448784,
+      "before": {
+        "conclusion": "",
+        "headSha": "9ce535fb73d437f60f19d65143b1205657392c14",
+        "jobs": [
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 128846494350,
+            "name": "Seed string operands, VM and C AOT (cc)",
+            "startedAt": "2026-11-08T20:07:03Z",
+            "status": "queued",
+            "steps": [],
+            "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42518448784/job/128846494350"
+          }
+        ],
+        "status": "queued"
+      },
+      "reason": "I supersede this queued source pin with corrected 7a5b489c9; I retain the earlier Linux failures separately.",
+      "cancel_returncode": 0,
+      "cancel_stdout": "\u2713 Request to cancel workflow 42518448784 submitted.\n",
+      "cancel_stderr": "",
+      "after": {
+        "conclusion": "cancelled",
+        "headSha": "9ce535fb73d437f60f19d65143b1205657392c14",
+        "status": "completed"
+      }
+    },
+    {
+      "run": 42518695063,
+      "before": {
+        "conclusion": "",
+        "headSha": "ca34ed28a217c6f6f57ebca80400799350801080",
+        "jobs": [
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 128847240387,
+            "name": "Seed string operands, VM and C AOT (cc)",
+            "startedAt": "2026-11-08T20:09:52Z",
+            "status": "queued",
+            "steps": [],
+            "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42518695063/job/128847240387"
+          }
+        ],
+        "status": "queued"
+      },
+      "reason": "I supersede this queued source pin with corrected 7a5b489c9; I retain the earlier Linux failures separately.",
+      "cancel_returncode": 0,
+      "cancel_stdout": "\u2713 Request to cancel workflow 42518695063 submitted.\n",
+      "cancel_stderr": "",
+      "after": {
+        "conclusion": "cancelled",
+        "headSha": "ca34ed28a217c6f6f57ebca80400799350801080",
+        "status": "completed"
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+[
+  {
+    "path": "source-checker-component/actual-native-qhxnse9g/checker",
+    "size": 11092360,
+    "sha256": "cf24e4211470a18e5c34af1bf595107543e1ee90498ad9eb2f3dc23c630a46b6",
+    "inputs": {
+      "creation_path": "C-seed-to-native",
+      "native_lifecycle_admitted": false,
+      "fresh_stages_qualified": false,
+      "platform": "darwin",
+      "product_magic_hex": "cffaedfe",
+      "before": {
+        "bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+        "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+        "src_nano/typecheck.nano": "fdf82dd44dfe0df9f184b3025eff6e829735b0f9f6665808d3f993b3daccf176",
+        "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+        "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+      },
+      "after": {
+        "bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+        "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+        "src_nano/typecheck.nano": "fdf82dd44dfe0df9f184b3025eff6e829735b0f9f6665808d3f993b3daccf176",
+        "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+        "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+      },
+      "product_before_run": "cf24e4211470a18e5c34af1bf595107543e1ee90498ad9eb2f3dc23c630a46b6",
+      "product_after_run": "cf24e4211470a18e5c34af1bf595107543e1ee90498ad9eb2f3dc23c630a46b6"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+          "--verbose",
+          "--keep-c",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-qhxnse9g/checker"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-qhxnse9g/checker"
+        ],
+        "returncode": 0
+      }
+    ],
+    "role": "actual Nano checker"
+  },
+  {
+    "path": "source-checker-component/language-environment-r9snz1pf/native",
+    "size": 10021832,
+    "sha256": "bce092b20f4817b199184e57feef1a464d4726ef36b0583c85d183b5ca4f48a1",
+    "inputs": {
+      "scope": "C interpreter and native environment snapshot",
+      "native_build_cflags": " -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-r9snz1pf/main.nano": "552456d7e7b881ec2d26b37edda753e6432000806cf1a74ac4a1b62d437a7bdb",
+        "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-r9snz1pf/main.nano": "552456d7e7b881ec2d26b37edda753e6432000806cf1a74ac4a1b62d437a7bdb",
+        "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c"
+      },
+      "product_before_run": "bce092b20f4817b199184e57feef1a464d4726ef36b0583c85d183b5ca4f48a1",
+      "product_after_run": "bce092b20f4817b199184e57feef1a464d4726ef36b0583c85d183b5ca4f48a1"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-r9snz1pf/main.nano",
+          "--keep-c",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-r9snz1pf/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-r9snz1pf/native"
+        ],
+        "returncode": 0
+      }
+    ],
+    "role": "environment snapshot program"
+  },
+  {
+    "path": "source-checker-component/language-string-self-t446tsvq/native",
+    "size": 8687784,
+    "sha256": "1b06ea2733d92ba5992f26abe221a58b54d32d0008163ed31d21d50f93ac6890",
+    "inputs": {
+      "scope": "C interpreter shadows and generated native STRING self-assignment",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-t446tsvq/main.nano": "883deeb19028713452c6fd6aa43d81b94a4733c7af555d7b282246ec550582e5"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-t446tsvq/main.nano": "883deeb19028713452c6fd6aa43d81b94a4733c7af555d7b282246ec550582e5"
+      },
+      "product_before_run": "1b06ea2733d92ba5992f26abe221a58b54d32d0008163ed31d21d50f93ac6890",
+      "product_after_run": "1b06ea2733d92ba5992f26abe221a58b54d32d0008163ed31d21d50f93ac6890"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-t446tsvq/main.nano",
+          "--keep-c",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-t446tsvq/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-t446tsvq/native"
+        ],
+        "returncode": 0
+      }
+    ],
+    "role": "STRING self-assignment program"
+  }
+]

@@ -1,0 +1,7 @@
+# My deferred map operand constraint
+
+My retained 1d NanoVirt map products fail C AOT with scalar-to-optional storage conversion. I reproduce that constraint independently with the current shape solver: an exact INT map producer flows to a checked map view whose key was equated with an unresolved array read. Resolving the read makes it OPTIONAL and wrongly changes the map key storage. The standalone retained reproducer prints `I cannot convert aggregate storage int to optional at nodes 5/7` before correction.
+
+I now retain a separate checked-payload conversion for unresolved or boxed map operands. Each solver pass examines the resolved producer, extracts one optional wrapper for the runtime-checked use, and keeps its payload exact. The producer read remains optional; map storage remains its original exact INT or STRING. Ordinary storage conversions and private STRING-key admission remain unchanged.
+
+My actual standalone shape suite passes 3,866 assertions with zero failures under local Apple clang, compiled with C99, Wall, Wextra and Werror. New controls cover all four map pairs, key/value fields, bare/optional producers, late resolution and conflicting types; the existing complete shape suite remains selected. The actual nvm2c translation unit passes strict syntax checking. These small checks do not qualify the native product pipeline. Fresh hosted GCC/Clang unchanged full map fixtures, all existing malformed controls and fresh self-hosted stages remain required under #1083.

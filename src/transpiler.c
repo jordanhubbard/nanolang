@@ -3,6 +3,7 @@
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
+#include "builtins_registry.h"
 #include <stdarg.h>
 #include <libgen.h>
 
@@ -986,8 +987,11 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
         return buffer;
     }
 
-    /* I keep an allowed declaration separate from my retained builtin helper. */
-    if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
+    /* I keep allowed global declarations separate from retained runtime helpers. */
+    if (builtin_is_known(nano_name)) {
+        snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
+        return buffer;
+    }
 
     /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
@@ -1827,7 +1831,16 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
         sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
         sb_append(sb, "        if (e->state != 1) continue;\n");
-        sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "        const char *source = e->key ? e->key : \"\";\n");
+            sb_append(sb, "        size_t length = strlen(source);\n");
+            sb_append(sb, "        char *copy = gc_alloc_string(length);\n");
+            sb_append(sb, "        if (!copy) { fputs(\"I cannot allocate a native map snapshot string.\\n\", stderr); abort(); }\n");
+            sb_append(sb, "        memcpy(copy, source, length + 1);\n");
+            sb_append(sb, "        dyn_array_push_string(out, copy);\n");
+        } else {
+            sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        }
         sb_append(sb, "    }\n");
         sb_append(sb, "    return out;\n");
         sb_append(sb, "}\n\n");
@@ -1838,7 +1851,16 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
         sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
         sb_append(sb, "        if (e->state != 1) continue;\n");
-        sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        const char *source = e->value ? e->value : \"\";\n");
+            sb_append(sb, "        size_t length = strlen(source);\n");
+            sb_append(sb, "        char *copy = gc_alloc_string(length);\n");
+            sb_append(sb, "        if (!copy) { fputs(\"I cannot allocate a native map snapshot string.\\n\", stderr); abort(); }\n");
+            sb_append(sb, "        memcpy(copy, source, length + 1);\n");
+            sb_append(sb, "        dyn_array_push_string(out, copy);\n");
+        } else {
+            sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        }
         sb_append(sb, "    }\n");
         sb_append(sb, "    return out;\n");
         sb_append(sb, "}\n\n");
@@ -4140,10 +4162,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    exit((int)code);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? value : \"\";\n");
-    sb_append(sb, "}\n\n");
+    generate_environment_getter(sb);
 
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
     sb_append(sb, "static inline int64_t nl_exec_shell(const char* cmd) {\n");

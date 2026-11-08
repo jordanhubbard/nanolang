@@ -1,0 +1,42 @@
+[
+  {
+    "path": "build.log",
+    "bytes": 41856,
+    "sha256": "0b165e1a8e1e391830025bcc8a9008af152367736a0876f44419854559ee8029"
+  },
+  {
+    "path": "providers-after.log",
+    "bytes": 46,
+    "sha256": "3c051d9ca3d181de122f212663cdc2df71a1f11d51de07947bc054b9f1bc0597"
+  },
+  {
+    "path": "compiler.txt",
+    "bytes": 246,
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+  },
+  {
+    "path": "providers.sha256",
+    "bytes": 232,
+    "sha256": "d74c57b04519d2b740df04c14f3d0e7895714d0ba2450dd0c47bdf9c8c397865"
+  },
+  {
+    "path": "revision.txt",
+    "bytes": 41,
+    "sha256": "8c4d595d362c4763f89892093bfc38c40e3485131552790181c955bbea095778"
+  },
+  {
+    "path": "source-tree.txt",
+    "bytes": 14189627,
+    "sha256": "3d533672260836719f8d29c5c84a05515ffbb4c37b1892e112641304f45b3b49"
+  },
+  {
+    "path": "tests.log",
+    "bytes": 6145,
+    "sha256": "d8f8234280e7deb0c6926cf9986f21a2a6f05f9e532b6b9f186567ce44071ae4"
+  },
+  {
+    "path": "worker.json",
+    "bytes": 499,
+    "sha256": "c878d6ce612d740c7700613c259b1a7731b3ef6c737197ea05fb2f222171cfee"
+  }
+]

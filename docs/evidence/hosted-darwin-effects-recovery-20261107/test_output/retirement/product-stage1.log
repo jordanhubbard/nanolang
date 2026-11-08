@@ -1,0 +1,9 @@
+I retain product-stage1 temporary evidence at /Users/runner/work/_temp/nano-qualification-m77f5c30
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_selfhost_product_derivation
+test_target_c_is_nvm2c_of_the_emitted_module (tests.test_selfhost_product_derivation.SelfHostProductDerivation.test_target_c_is_nvm2c_of_the_emitted_module) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.789s
+
+OK

@@ -1,0 +1,5 @@
+# My checked-emission observer refinement
+
+My [actual f496 driver checkpoint](../../fresh-source-contracts-20261108/f496-cli/README.md) locates about 269 seconds inside checked emission. I retain that measurement before adding six opt-in markers around type checking, program lowering and selected shadow lowering in `nanoisa_check_and_emit`. The existing recorder and its monotonic clock remain unchanged; I add no clock host ABI or SDK descriptor. My successful fresh CLI contract now requires all 22 markers in order and within actual outer compile bounds.
+
+All 22 local observer/CLI/JUnit controls pass, including real CC execution and the existing stalled-process control. Python syntax and diff checks pass. This does not execute the new source call sites or qualify their placement in a fresh compiler; that requires the hosted bootstrap and complete original CLI run. Mandatory source shadows, original budgets/assertions and default C flags remain intact. Recorder calls add work and can alter allocation/collection timing, so I do not claim an uninstrumented baseline or a speed improvement.

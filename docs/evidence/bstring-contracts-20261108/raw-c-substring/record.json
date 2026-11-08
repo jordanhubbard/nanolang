@@ -1,0 +1,46 @@
+{
+  "scope": "I measure the standalone raw C API overflow before repair; I do not rebuild providers or the full project.",
+  "before": {
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c": "13651dbc188ad4836f6adb266389e1c0a5e1ad1107d9087f9a657171e28e48b6",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "90b5dcfd802d67d809ebf96dc5aafa5a4c67729fce09cb3ec7982d51c03721f4",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "a0f216e3010d0092e8c372f88a54e5386231cddf6f04a357a7621461bfaac5cb",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c"
+  },
+  "after": {
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c": "13651dbc188ad4836f6adb266389e1c0a5e1ad1107d9087f9a657171e28e48b6",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "90b5dcfd802d67d809ebf96dc5aafa5a4c67729fce09cb3ec7982d51c03721f4",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "a0f216e3010d0092e8c372f88a54e5386231cddf6f04a357a7621461bfaac5cb",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c"
+  },
+  "commands": [
+    {
+      "label": "build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c",
+        "src/runtime/nl_string.c",
+        "src/utf8.c",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/baseline"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/baseline"
+      ],
+      "returncode": -6
+    }
+  ],
+  "product_sha256": "0e2fc22d62baa018169cb490e7f4d70db182e72c7ed86392f277c7a2896fa96d",
+  "product_size": 77240,
+  "source_pin": "b7473bb094d3a25931e61e52a93a92e8f0d09807"
+}

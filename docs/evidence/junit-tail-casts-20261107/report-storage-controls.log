@@ -1,0 +1,28 @@
+test_contradictory_case_refuses (tests.test_junit_route_audit.JUnitEvidence.test_contradictory_case_refuses) ... ok
+test_empty_or_truncated_corpus_refuses (tests.test_junit_route_audit.JUnitEvidence.test_empty_or_truncated_corpus_refuses) ... ok
+test_failure_and_skip_remain_nonpassing_case_outcomes (tests.test_junit_route_audit.JUnitEvidence.test_failure_and_skip_remain_nonpassing_case_outcomes) ... ok
+test_false_success_totals_refuse (tests.test_junit_route_audit.JUnitEvidence.test_false_success_totals_refuse) ... ok
+test_archive_verification_failure_never_removes_source (tests.test_ci_qualification_storage.QualificationStorage.test_archive_verification_failure_never_removes_source) ... ok
+test_cli_runs_every_original_module_in_order_even_after_failure (tests.test_ci_qualification_storage.QualificationStorage.test_cli_runs_every_original_module_in_order_even_after_failure) ... ok
+test_cli_unknown_collection_options_refuse_before_running (tests.test_ci_qualification_storage.QualificationStorage.test_cli_unknown_collection_options_refuse_before_running) ... usage: python3 -m unittest [-h] [--label LABEL] [--output OUTPUT]
+                           [--temp-parent TEMP_PARENT]
+                           {run,unittest}
+python3 -m unittest: error: I require -v followed by explicit tests.* module names.
+ok
+test_failed_real_child_retains_originals_and_exit_status (tests.test_ci_qualification_storage.QualificationStorage.test_failed_real_child_retains_originals_and_exit_status) ... I retain failed-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-9qn1p_7u/nano-qualification-jw6j0sie
+ok
+test_late_archive_error_never_signals_an_exited_process_group (tests.test_ci_qualification_storage.QualificationStorage.test_late_archive_error_never_signals_an_exited_process_group) ... I retain late-error temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-vl9c31op/nano-qualification-c9_9jjqs
+ok
+test_low_space_refuses_to_launch_and_retains_the_fresh_root (tests.test_ci_qualification_storage.QualificationStorage.test_low_space_refuses_to_launch_and_retains_the_fresh_root) ... ok
+test_make_hook_keeps_the_exact_original_module_selection (tests.test_ci_qualification_storage.QualificationStorage.test_make_hook_keeps_the_exact_original_module_selection) ... ok
+test_nested_phase_archive_outlives_outer_temporary_root (tests.test_ci_qualification_storage.QualificationStorage.test_nested_phase_archive_outlives_outer_temporary_root) ... I retain outer temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-a2hfqk__/nano-qualification-rnwjurh6
+I retain inner temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-a2hfqk__/nano-qualification-rnwjurh6/nano-qualification-91xm7mdt
+ok
+test_source_mutation_during_archive_retains_both_versions (tests.test_ci_qualification_storage.QualificationStorage.test_source_mutation_during_archive_retains_both_versions) ... ok
+test_success_preserves_bytes_modes_links_and_directory_before_removal (tests.test_ci_qualification_storage.QualificationStorage.test_success_preserves_bytes_modes_links_and_directory_before_removal) ... I retain native-output-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-7vt63ixk/nano-qualification-khn7tpv7
+ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 3.712s
+
+OK

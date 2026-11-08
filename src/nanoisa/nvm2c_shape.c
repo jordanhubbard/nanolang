@@ -18,7 +18,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "function", "u8"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "function", "u8", "bstring"};
     return names[kind];
 }
 
@@ -69,7 +69,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_U8)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_BSTRING)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -265,7 +265,13 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
                                     g->conversion_count + 1, sizeof *next);
     if (!next) return 0;
     g->conversions = next;
-    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0};
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0, 0};
+    return 1;
+}
+
+int nvm_shape_checked_payload(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    if (!nvm_shape_convert(g, source, target)) return 0;
+    g->conversions[g->conversion_count - 1].checked_payload = 1;
     return 1;
 }
 
@@ -320,7 +326,7 @@ int nvm_shape_array_alias(NvmShapeGraph *g, NvmShapeId caller, NvmShapeId callee
                                     g->array_alias_count + 1, sizeof *next);
     if (!next) return 0;
     g->array_aliases = next;
-    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0};
+    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0, 0};
     return 1;
 }
 
@@ -333,7 +339,7 @@ int nvm_shape_array_write(NvmShapeGraph *g, NvmShapeId array, NvmShapeId value) 
                                     g->array_write_count + 1, sizeof *next);
     if (!next) return 0;
     g->array_writes = next;
-    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0};
+    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0, 0};
     return nvm_shape_alias_view(g, value, nvm_shape_child(g, array, 0));
 }
 
@@ -388,7 +394,7 @@ static int solve_array_reads(NvmShapeGraph *g, int *changed) {
         }
         if (kind == NVM_SHAPE_UNKNOWN) continue;
         if (kind == NVM_SHAPE_INT || kind == NVM_SHAPE_BOOL ||
-            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING || kind == NVM_SHAPE_FUNCTION || kind == NVM_SHAPE_U8) {
+            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING || kind == NVM_SHAPE_FUNCTION || kind == NVM_SHAPE_U8 || kind == NVM_SHAPE_BSTRING) {
             NvmShapeId optional = nvm_shape_new(g, NVM_SHAPE_OPTIONAL);
             if (!optional ||
                 !nvm_shape_unify(g, nvm_shape_child(g, optional, 0), read->element) ||
@@ -413,7 +419,14 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view, 0};
+    NvmShapeId producer = conversion.source;
+    if (conversion.checked_payload) {
+        NvmShapeKind kind = nvm_shape_kind(g, producer);
+        if (kind == NVM_SHAPE_UNKNOWN) { free(queue); return !g->error; }
+        if (kind == NVM_SHAPE_OPTIONAL) producer = nvm_shape_child(g, producer, 0);
+    }
+    queue[count++] = (FlowPair){producer, conversion.target,
+        conversion.checked_payload, conversion.alias_view, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -448,7 +461,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (pair.alias_view && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL ||
              to == NVM_SHAPE_FLOAT || to == NVM_SHAPE_ARRAY || to == NVM_SHAPE_MAP ||
-             to == NVM_SHAPE_FUNCTION || to == NVM_SHAPE_U8)) {
+             to == NVM_SHAPE_FUNCTION || to == NVM_SHAPE_U8 || to == NVM_SHAPE_BSTRING)) {
             NvmShapeId payload = nvm_shape_child(g, source, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
@@ -473,7 +486,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         }
         if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
                             from == NVM_SHAPE_BOOL || from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_ARRAY ||
-                            from == NVM_SHAPE_MAP || from == NVM_SHAPE_FUNCTION || from == NVM_SHAPE_U8) && to == NVM_SHAPE_OPTIONAL) {
+                            from == NVM_SHAPE_MAP || from == NVM_SHAPE_FUNCTION || from == NVM_SHAPE_U8 || from == NVM_SHAPE_BSTRING) && to == NVM_SHAPE_OPTIONAL) {
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;

@@ -1,0 +1,128 @@
+name: Checked shadow call arguments
+
+on:
+  push:
+    branches: [fix/5.1-shadow-call-arguments]
+    paths:
+      - '.github/workflows/shadow-call-arguments.yml'
+      - 'src/eval.c'
+      - 'src/transpiler_iterative_v3_twopass.c'
+      - 'src/eval/call_arguments.h'
+      - 'tests/test_eval_call_arguments.py'
+      - 'Makefile.gnu'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-call-arguments:
+    name: Instrumented shadow calls (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    timeout-minutes: 90
+    env:
+      CC: ${{ matrix.compiler }}
+      CFLAGS: '-Wall -Wextra -Werror -std=c99 -O1 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
+      LDFLAGS: '-lm -lcrypto -fsanitize=address,undefined'
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_NATIVE_TEST_CC: ${{ matrix.compiler }}
+      NANO_STRING_OPERAND_COMPILERS: nanoc_c,nano_virt
+      NANOLANG_SELFHOST_COMPILER: ${{ github.workspace }}/bin/nano_virt
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require worker headroom before provisioning or building
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/shadow-call-arguments')
+          output.mkdir(parents=True)
+          disks = []
+          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP'], '/var/cache/apt']:
+              usage = shutil.disk_usage(location)
+              disks.append({'path': location, 'free': usage.free, 'total': usage.total})
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disks': disks, 'memory': memory}
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in disks):
+              raise SystemExit('I hold native compilation for insufficient disk headroom.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= .10:
+              raise SystemExit('I hold native compilation for memory pressure.')
+          PY
+      - name: Install my existing native compiler prerequisites
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
+      - name: Build actual fresh VM and C AOT providers
+        id: providers
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" nanoisa_dump nano_vm nvm2c bin/nanoisa bin/nanoc_c nano_virt nvm2c-runtime bin/nano \
+            2>&1 | tee .test_output/shadow-call-arguments/build.log
+          python3 - <<'PYCODE'
+          import subprocess
+          from pathlib import Path
+          for name in ['nanoc_c', 'nano', 'nano_virt', 'nano_vm', 'nvm2c']:
+              result = subprocess.run(['nm', str(Path('bin', name))], capture_output=True, check=True)
+              if b'__asan_init' not in result.stdout:
+                  raise SystemExit('I require actual ASan instrumentation in ' + name)
+          print('I verify actual ASan instrumentation in every selected source/interpreter/VM/AOT provider.')
+          PYCODE
+          git rev-parse HEAD > .test_output/shadow-call-arguments/revision.txt
+          git ls-tree -r HEAD > .test_output/shadow-call-arguments/source-tree.txt
+          sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano bin/nano_aot_runtime.o > .test_output/shadow-call-arguments/providers.sha256
+          "$CC" --version > .test_output/shadow-call-arguments/compiler.txt
+      - name: Execute large call storage, returns and complete eval regressions
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_eval_call_arguments tests.test_native_call_argument_order tests.test_callee_snapshots tests.test_builtin_string_operands tests.test_canonical_string_builtins \
+            2>&1 | tee .test_output/shadow-call-arguments/tests.log
+      - name: Execute the complete original interpreter unit suite
+        if: always() && steps.providers.outcome == 'success'
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-eval \
+            2>&1 | tee .test_output/shadow-call-arguments/eval.log
+      - name: Retain complete original array alias regression routes
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 30
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          output = Path('.test_output/shadow-call-arguments')
+          results = []
+          for provider, route in [('nanoc_c', 'source-native'), ('nano_virt', 'canonical')]:
+              command = [sys.executable, '-m', 'unittest', '-v', 'tests.test_array_builtin_aliases']
+              with (output / (provider + '-array-aliases.log')).open('w') as log:
+                  result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                      env=dict(os.environ, NANOLANG_ARRAY_ALIAS_COMPILERS=str(Path('bin', provider).resolve()),
+                               NANOLANG_ARRAY_ALIAS_ROUTE=route))
+              results.append({'provider': provider, 'route': route, 'argv': command, 'returncode': result.returncode})
+              (output / 'array-alias-results.json').write_text(json.dumps(results, indent=2) + '\n')
+          raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
+          PYCODE
+      - name: Verify unchanged sources and providers
+        if: always()
+        run: |
+          git diff --exit-code
+          if test -f .test_output/shadow-call-arguments/providers.sha256; then
+            sha256sum --check .test_output/shadow-call-arguments/providers.sha256 \
+              > .test_output/shadow-call-arguments/providers-after.log
+          fi
+      - name: Retain original build and diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-call-arguments-${{ matrix.compiler }}-${{ github.sha }}
+          path: |
+            .test_output/shadow-call-arguments/
+          if-no-files-found: error

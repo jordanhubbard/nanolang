@@ -1,0 +1,5 @@
+# My repeated instrumented VM runner failure
+
+Actual instrumented Clang runs 42451010848 at 4ddb46fe1 and 42451175202 at aebf97bd2 pass all 27 focused call/return/native-order/STRING methods and the original module fixture. Both then report AddressSanitizer stack-overflow at entry to tests/nanovm/test_vm.c main before the runner prints its first test. I retain complete original reports, explicit sanitizer build flags, required provider-symbol verification, unchanged providers and exact source-tree identity here. GCC reaches the separate retained label-format refusal at these pins.
+
+The runner directly calls many fixtures with local VmState storage. I measure selected Clang before/after main frames in the correction workflow and preserve an explicit non-inlined fixture boundary. I retain every original fixture body, assertion and invocation order, ordinary stack limits and ASan/UBSan instrumentation. I do not infer general VM stack safety or full unit acceptance from a runner correction; #1087/#1053 require the original complete suite and integrated platform gates.

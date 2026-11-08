@@ -1,0 +1,461 @@
+[
+  {
+    "path": "bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/program.nvm",
+    "size": 1440,
+    "sha256": "af445491dff06d17562e7a36de93dfa5747b8cfb3ed628cf3939e429f2da88d4",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/main.nano": "bb1a8f0aece7e469e5db2fe85a147e504f4821b8b40fb554855476b23b875038",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/main.nano": "bb1a8f0aece7e469e5db2fe85a147e504f4821b8b40fb554855476b23b875038",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "af445491dff06d17562e7a36de93dfa5747b8cfb3ed628cf3939e429f2da88d4",
+      "product_after_run": "af445491dff06d17562e7a36de93dfa5747b8cfb3ed628cf3939e429f2da88d4"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-1pf8aa5q/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/program.nvm",
+    "size": 1728,
+    "sha256": "d28fd2699f412859f22fca512649d05acdb4ce81f0098c281af76d340e762d8e",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/main.nano": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/main.nano": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "d28fd2699f412859f22fca512649d05acdb4ce81f0098c281af76d340e762d8e",
+      "product_after_run": "d28fd2699f412859f22fca512649d05acdb4ce81f0098c281af76d340e762d8e"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3q2tk3n_/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/program.nvm",
+    "size": 1544,
+    "sha256": "5ed04e7bb1adbfb39d173cf21d49ac155e4ef12bc152f0dca9115ca7d704eb0c",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/main.nano": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/main.nano": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "5ed04e7bb1adbfb39d173cf21d49ac155e4ef12bc152f0dca9115ca7d704eb0c",
+      "product_after_run": "5ed04e7bb1adbfb39d173cf21d49ac155e4ef12bc152f0dca9115ca7d704eb0c"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-g7sstk6z/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/program.nvm",
+    "size": 1420,
+    "sha256": "903c655b13efa68b9a00d95351d31a416e00d49655dce1acf90f3e87d3c9e07d",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/main.nano": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/main.nano": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "903c655b13efa68b9a00d95351d31a416e00d49655dce1acf90f3e87d3c9e07d",
+      "product_after_run": "903c655b13efa68b9a00d95351d31a416e00d49655dce1acf90f3e87d3c9e07d"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-hax0ns6z/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/program.nvm",
+    "size": 1504,
+    "sha256": "50cd4475efac8930f08e71225cbc128061af53373dd1ddcd059650c27428d79e",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/main.nano": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/main.nano": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "50cd4475efac8930f08e71225cbc128061af53373dd1ddcd059650c27428d79e",
+      "product_after_run": "50cd4475efac8930f08e71225cbc128061af53373dd1ddcd059650c27428d79e"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-sf8_0msm/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/program.nvm",
+    "size": 1024,
+    "sha256": "6ede51c55921cfd8350de6eba023090fe9d5da5a6561ae215a211e35f457048b",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/main.nano": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/main.nano": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "6ede51c55921cfd8350de6eba023090fe9d5da5a6561ae215a211e35f457048b",
+      "product_after_run": "6ede51c55921cfd8350de6eba023090fe9d5da5a6561ae215a211e35f457048b"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-u3po6u41/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/program.nvm",
+    "size": 1024,
+    "sha256": "405c0a528b1479c91fe0c6f83abd4cbcdfc215931cb6cefff8011433f436f510",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/main.nano": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/main.nano": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "405c0a528b1479c91fe0c6f83abd4cbcdfc215931cb6cefff8011433f436f510",
+      "product_after_run": "405c0a528b1479c91fe0c6f83abd4cbcdfc215931cb6cefff8011433f436f510"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-vs_pz8cp/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/program.nvm",
+    "size": 1960,
+    "sha256": "152eb47ce3176ab96ad81a9336100dcca603889cbc1e2db79d082c3d4dff651b",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/main.nano": "e52c3ba7fe8db5d5ceb3ec9379d538b96506a6569d0090800d155846fb4b3aa6",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/main.nano": "e52c3ba7fe8db5d5ceb3ec9379d538b96506a6569d0090800d155846fb4b3aa6",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "152eb47ce3176ab96ad81a9336100dcca603889cbc1e2db79d082c3d4dff651b",
+      "product_after_run": "152eb47ce3176ab96ad81a9336100dcca603889cbc1e2db79d082c3d4dff651b"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-kk71d57j/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_unchanged_original_fixture-j_j94bud/program.nvm",
+    "size": 2948,
+    "sha256": "a427a857a15b5052d6e2ef0dec2f0c6c0f7650d4d4f30ae9bd45785db7772b4c",
+    "magic": "4e564d02",
+    "inputs": {
+      "scope": "I test C-seed NanoISA emission and VM execution only.",
+      "before": {
+        "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "after": {
+        "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "a2b23f75c2dcfb47bfd7d6e6dbe8dbe3abe184d4d7c8f42909d9461a263821dc",
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "6b964157a46f9db71eb971c639c6d6b0254c8c606fc7a8fdfcc738b70fe393e7"
+      },
+      "product_before_run": "a427a857a15b5052d6e2ef0dec2f0c6c0f7650d4d4f30ae9bd45785db7772b4c",
+      "product_after_run": "a427a857a15b5052d6e2ef0dec2f0c6c0f7650d4d4f30ae9bd45785db7772b4c"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+          "--emit-nvm",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-j_j94bud/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-j_j94bud/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-j_j94bud/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  }
+]

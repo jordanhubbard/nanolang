@@ -1,0 +1,793 @@
+{
+  "run": 42411895451,
+  "job": 128521863128,
+  "artifact": 13594819667,
+  "archive_bytes": 347414539,
+  "sha256": "df33178a087e5dce5beb47a7cb93314bdad3db05a409d35d1b527cf2ed86c82c",
+  "phases": [
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-03j2g6nb.tar.gz",
+      "sha256": "dc0fcb5647965a72df0b8ad266db8fd7ef1d7b33aa8c52b36f81ab3e41f29933",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_call_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-0j5f4cob.tar.gz",
+      "sha256": "75b40ddc17601d7890d938beb8d7b3455a2f64e9b01779414774cccf0f7109cb",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_harness_diagnostics"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-19_3x1ry.tar.gz",
+      "sha256": "2752936af85afebe71911674bde37cc0a69f2e0ae8c1905c69df329aae7ff7c1",
+      "entries_verified": 1466,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_multi_reference_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-2cwedj47.tar.gz",
+      "sha256": "040d62cca8bbd4c14f0706b99234f9a9e22a6a3053a21a408f5b2cc0d485202a",
+      "entries_verified": 2991,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_string_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-2ndnvepy.tar.gz",
+      "sha256": "61b42f9e519813b20a6e44f634a01071de1ff218f8b9e35413bbb939a2db6e9e",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_u8"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-3z3you7q.tar.gz",
+      "sha256": "33156885088869d497b949400bc69fa96929fb96f0dabe2dfd347b44eedd7d72",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_generic_integer"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-4t7okvw5.tar.gz",
+      "sha256": "c9e855d89a9476352165e7914a5328c87816d562f94ef513d67a991e1c22eabd",
+      "entries_verified": 1108,
+      "completed": 1,
+      "labels": [
+        "tests.test_consuming_float_exits_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-5j_waxfy.tar.gz",
+      "sha256": "be1a3834eb8d304c0b99c8e75e839d6204a728e1d775fc84fc798d79e7f63c3d",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_comparisons"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-5sqwlahl.tar.gz",
+      "sha256": "1c164209dc62770c09a3c9a904daeda538c195aefc5ba04c9c841016bc9943b1",
+      "entries_verified": 636,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_void_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-5wu9bwl7.tar.gz",
+      "sha256": "d2b0faedfd7eadb98033f563fac68fd2bc260b490d5becf394bf965f9ce86023",
+      "entries_verified": 1345,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_shared_control_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-6onz6shm.tar.gz",
+      "sha256": "e359841a5c0fe852333308158da0353737b745ed320f541c47b38542d99b78c2",
+      "entries_verified": 1407,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_exclusive_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-6xb9jz30.tar.gz",
+      "sha256": "e6c5d82b21ed24a1f4c602f8db83160b7058207607214d2e9873bf63c3d3c8ad",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_integer_addition"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-7nph68cv.tar.gz",
+      "sha256": "bda6c3259b86c3874ee054123c5eb5cda4137df2f9632dc66750b45951a0eb6d",
+      "entries_verified": 386,
+      "completed": 1,
+      "labels": [
+        "tests.test_single_exclusive_helper_local_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-8f8loz7c.tar.gz",
+      "sha256": "e01b5005f64615e5b5ea0d430e8d624485c5c797de4a5c887975985733ab276b",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-9iol9f2z.tar.gz",
+      "sha256": "45241ecbabe12de7dba20ccab047a1f6555fb82f017f726f25b5eee059cc24d2",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_unsigned_division"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-9us3znj2.tar.gz",
+      "sha256": "fb9cadfec44c49b38957fc2e5e8f8d903a000e2ae244053e8d25ffbaf0d2a805",
+      "entries_verified": 1224,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_loop_first_witness_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-arsk03na.tar.gz",
+      "sha256": "e997d343eb899124caf0bffdb298a37609dd6c159cf9656008760d1e1b8164bd",
+      "entries_verified": 2325,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_exclusive_control_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-b_u8n5u0.tar.gz",
+      "sha256": "ef0a62d5545e2f2dc6a4a56c0f5bfca7e2bb15d8244f4abe5462b0ec72f61faf",
+      "entries_verified": 345,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_f64_transport"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-c2z6lnkg.tar.gz",
+      "sha256": "99618b0881b798aa37f7c287c62f8c29ad5e445b39b4c5ecd679931b3e46fe30",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_integer_bitwise"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-c8uoeyrs.tar.gz",
+      "sha256": "76b9d5777aaa3932d5fbcdeb3eaae6960080b72569e137cccb2b959ce180e115",
+      "entries_verified": 1300,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_double_call_pretest_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-d3h2x7sf.tar.gz",
+      "sha256": "07254d14c47ffb4c84d5123f491514c8566cc5954579a24437a6cb0dc219b2a0",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "metadata-effects"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-ebzu7sor.tar.gz",
+      "sha256": "e07ee85b184a114f1cff75f402c26228c73cb68ed5f591aaea82482c4184217f",
+      "entries_verified": 397,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_shared_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-ej0l53fb.tar.gz",
+      "sha256": "0968eb4a398de58f940205f23c35cc18721508afbc4dc25dde00485952db6b5a",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_scalar_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-eu4ekzdc.tar.gz",
+      "sha256": "2b3ef253eb312e1bb481f9de690e6f1977e194e2732ee57f76e49ff922630950",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_truthiness"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-fs6nk6pt.tar.gz",
+      "sha256": "10753c24c2b67b819e4e4592b23f161986a4505de25de08e9dfff6425714ccc7",
+      "entries_verified": 775,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_helper_local_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-gfucc_4o.tar.gz",
+      "sha256": "2b6a4d3866575b7c9a85f9735223de0327f6fcfbcce9a2313255182d885dc169",
+      "entries_verified": 1342,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_float_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-gv11ol4d.tar.gz",
+      "sha256": "57d645841d3fe717b68f54d8b4853e00bff16f9a056096d0368035974db5e09b",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_integer_shifts"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-h4uu_5xl.tar.gz",
+      "sha256": "ce6701439a4efa244761060131ddde156dbf8e245ec5962956fb7ad344b49efe",
+      "entries_verified": 357,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_f64_arithmetic"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-h5fma8nd.tar.gz",
+      "sha256": "dbf8a8ade7edd16bf50c819c819de3b819715540d0aa8fa9e55b60f3e1bd1a0f",
+      "entries_verified": 490,
+      "completed": 1,
+      "labels": [
+        "tests.test_borrowed_float_local_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-h8h49qa0.tar.gz",
+      "sha256": "57ac73380185e04d91964dd06ad8ce384f0d886e640daa2550d2503be20bde2b",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_rot3"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-hjr_v_cn.tar.gz",
+      "sha256": "5cf2baf87bf340b16e81afa33f4c25d71e29b89fc6e2f729986d1d2889bed5a0",
+      "entries_verified": 626,
+      "completed": 1,
+      "labels": [
+        "tests.test_borrowed_empty_local_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-i1_thg_2.tar.gz",
+      "sha256": "e33fdc0431773437571a645859de1f6e8ed7e8e2e347178f494d38e39b9eab26",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "initial"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-j2huicml.tar.gz",
+      "sha256": "1034f7f433e7296bcdcf52e6c19446b74797d325307670054f900eea49fc72f7",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "post-dependencies"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-j3cnmd05.tar.gz",
+      "sha256": "adb88068a2e28bd942c3b032cb2f38f21846ae6ba3eda088460e746738ede5d4",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_integer_multiplication"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-jys3__lj.tar.gz",
+      "sha256": "dbf928bd8cd7a6c77a89bf229609b7ddd4c95629e2c278bb773e333fe6012abe",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_carry_borrow"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-jzv0y9kx.tar.gz",
+      "sha256": "280682577f26e07d1abea4100b6537bd7a16c8bea46e76d773b93342981e5822",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_integer_division"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-k4j8jlgn.tar.gz",
+      "sha256": "227656825aebe02b0fa408e74cdfe62035e2507e41909df1a8e40df14897a1c5",
+      "entries_verified": 1346,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_loop_exit_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-m77f5c30.tar.gz",
+      "sha256": "f7c3b65485012f083ddc83d7ee81e962aadf22e7a089f8899036966d96a9e94e",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "product-stage1"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-mmt9n4wg.tar.gz",
+      "sha256": "45ce54a746d03b9ca2b2d74f20f20204549b78b0474a7fc729b7741ec27ed2fe",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_unsigned_comparisons"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-mw4xzpde.tar.gz",
+      "sha256": "5c9e5e298168a3f69c57245073bdc3d44d5e0d1277ef5dc782434f22bec79e0b",
+      "entries_verified": 371,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_nested_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-pelk7ljs.tar.gz",
+      "sha256": "ffddad9cff94ba52a1bf663f8244c72f4962c99a7ee382c2e6a0836474126b58",
+      "entries_verified": 1260,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_nested_path_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-pms36qyg.tar.gz",
+      "sha256": "20f31ad7243f31a0b80d6625d2b2f9d7d2b0ba80711f39286b3f928f0da6a0a8",
+      "entries_verified": 642,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_mixed_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-q06zyazx.tar.gz",
+      "sha256": "793fcfc9853e7cf0e2438d3dfad01b31ccf589f33342be03c6af00f429b0d85a",
+      "entries_verified": 294,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_f64_negation"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-s5zg5vk7.tar.gz",
+      "sha256": "d29553f78657803e35eb892485aa37baac4fe6ec0a96edbb5d541cd1e5b813c5",
+      "entries_verified": 2329,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_shared_path_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-ssspyl0z.tar.gz",
+      "sha256": "e7bb3b8091e66cc8e98bfb539c48c9dccfc68baaf39e59d3c52f60aafe468fa7",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_binary64_facts"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-t25cekdv.tar.gz",
+      "sha256": "a0376873d43ad4da0af104c21f3b2376cb6d2a162046deb4ec57f042d6ddc911",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_indexed_stack"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-tig0bqt1.tar.gz",
+      "sha256": "2af01e16391e51946b058643921df2ac6dd1502d8bcbec17cc51adeef216950e",
+      "entries_verified": 429,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_observation_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-v0ztmfao.tar.gz",
+      "sha256": "cc01dbc443e140cf9a4b3aa3ace1bc5c63b96dd3a1dba42c6b76d45f03ea035b",
+      "entries_verified": 1625,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_wrapping_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-v43r0uar.tar.gz",
+      "sha256": "ab778c974db50bd464144e5216e2840acf69f79935ea75f363f2736da8ab7a1a",
+      "entries_verified": 327,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstruction_f64_comparisons"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-vmng_j0j.tar.gz",
+      "sha256": "c797321d0a6d817c6a2dde7137d9ecb3373bfb16fa22419190600b1345d30d7c",
+      "entries_verified": 1295,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_call_pretest_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-vne9nha0.tar.gz",
+      "sha256": "b890176cb9387c7b26ddd415d12ea3409ad748dd7501e89ffa1c59f43d42bcc4",
+      "entries_verified": 718,
+      "completed": 1,
+      "labels": [
+        "tests.test_empty_owned_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-vvsek7j1.tar.gz",
+      "sha256": "8ef9ecb9d331c1440c39920bd96b0341b5240ffc1c1fde24a06daaaae0922f94",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-vzvz753z.tar.gz",
+      "sha256": "34895b364ed230da12a4a120721e7d3c634c659a56960ad3cdbbd2df2092c9d7",
+      "entries_verified": 752,
+      "completed": 1,
+      "labels": [
+        "tests.test_eight_shared_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-wbim3qor.tar.gz",
+      "sha256": "261efa3f5d76869fa2e5e33700802d2e1cb7b8dffa8200ae213b1c4f8f276967",
+      "entries_verified": 1484,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_branch_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-wi0ffzjx.tar.gz",
+      "sha256": "b2035bba18ad64a6848562968ebb99de8f2607a9af8e6d993956bf4b7c9d6edc",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_reconstructed_wide_multiply"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-x2joswvv.tar.gz",
+      "sha256": "cf8600b6fcd70c95db9a4cf43ec604ac5c628a1ed5f8c4a332ad039329386726",
+      "entries_verified": 974,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_reassignment_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-x3layv59.tar.gz",
+      "sha256": "4b387416757c0887aa3fa666cb8454e636f5a916377feb6c01a79b00e332d8a0",
+      "entries_verified": 873,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_extracted_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-y0ggcsd4.tar.gz",
+      "sha256": "1eba1e70d8a301a629ec97ea10199bd0adf321b78ed5d2eb26805f2c8a59537c",
+      "entries_verified": 394,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_depth_three_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-y6efagt5.tar.gz",
+      "sha256": "6a7cc7b7acd8b642aa1d4b40c56dc307462b3dbb1ea169eeb7ff10d7319a2a7c",
+      "entries_verified": 1441,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_loop_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-yqw_t_5_.tar.gz",
+      "sha256": "2fff95fdc8b2bdb13615e25d6f9ddf6838be49a04bb976ca399b9d5642591022",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_helper_local_witness"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-z_c736gp.tar.gz",
+      "sha256": "dbf8104d11fc221308b94a2200bf5a94ab14893f5c2db74e2bbb07981cbd7783",
+      "entries_verified": 748,
+      "completed": 1,
+      "labels": [
+        "tests.test_owned_wrapper_reconstruction"
+      ],
+      "original_root_removed_after_archive": true
+    },
+    {
+      "archive": ".test_output/retirement/storage/nano-qualification-zftn0eyi.tar.gz",
+      "sha256": "92ea9bbf6880697d8de5730b15a1380b868e4c75a0cc695992f9970a95599cd3",
+      "entries_verified": 0,
+      "completed": 1,
+      "labels": [
+        "product-stage2"
+      ],
+      "original_root_removed_after_archive": true
+    }
+  ],
+  "zip_crc_error": null,
+  "source_tree_verified": "f0b99facb4b2415761c980f21e69d644326b3825",
+  "suite_summaries": {
+    ".test_output/retirement/bootstrap.log": [],
+    ".test_output/retirement/metadata-effects.log": [
+      "Ran 16 tests in 22.993s",
+      "OK",
+      "Ran 4 tests in 0.443s",
+      "OK",
+      "Ran 8 tests in 6.808s",
+      "OK",
+      "Ran 7 tests in 11.805s",
+      "OK",
+      "Ran 3 tests in 2.554s",
+      "OK",
+      "Ran 5 tests in 116.283s",
+      "OK",
+      "Ran 9 tests in 852.060s",
+      "OK",
+      "Ran 17 tests in 16.440s",
+      "OK",
+      "Ran 5 tests in 12.075s",
+      "OK",
+      "Ran 4 tests in 26.767s",
+      "OK",
+      "Ran 13 tests in 113.659s",
+      "OK"
+    ],
+    ".test_output/retirement/product-stage1.log": [
+      "Ran 1 test in 1.789s",
+      "OK"
+    ],
+    ".test_output/retirement/product-stage2.log": [
+      "Ran 1 test in 1.645s",
+      "OK"
+    ],
+    ".test_output/retirement/providers-after.log": [
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK"
+    ],
+    ".test_output/retirement/reconstruction.log": [
+      "Ran 5 tests in 8.274s",
+      "OK",
+      "Ran 5 tests in 8.755s",
+      "OK",
+      "Ran 4 tests in 109.190s",
+      "OK",
+      "Ran 5 tests in 118.689s",
+      "OK",
+      "Ran 4 tests in 54.827s",
+      "OK",
+      "Ran 4 tests in 23.208s",
+      "OK",
+      "Ran 4 tests in 29.086s",
+      "OK",
+      "Ran 5 tests in 56.117s",
+      "OK",
+      "Ran 4 tests in 27.922s",
+      "OK",
+      "Ran 4 tests in 121.863s",
+      "OK",
+      "Ran 11 tests in 130.916s",
+      "OK",
+      "Ran 6 tests in 76.766s",
+      "OK",
+      "Ran 4 tests in 39.803s",
+      "OK",
+      "Ran 12 tests in 185.881s",
+      "OK",
+      "Ran 12 tests in 202.337s",
+      "OK",
+      "Ran 11 tests in 342.024s",
+      "OK",
+      "Ran 7 tests in 206.951s",
+      "OK",
+      "Ran 7 tests in 244.966s",
+      "OK",
+      "Ran 8 tests in 239.460s",
+      "OK",
+      "Ran 10 tests in 220.297s",
+      "OK",
+      "Ran 12 tests in 350.960s",
+      "OK",
+      "Ran 11 tests in 157.199s",
+      "OK",
+      "Ran 15 tests in 194.638s",
+      "OK",
+      "Ran 10 tests in 61.291s",
+      "OK",
+      "Ran 6 tests in 12.297s",
+      "OK",
+      "Ran 7 tests in 32.083s",
+      "OK",
+      "Ran 11 tests in 0.006s",
+      "OK",
+      "Ran 7 tests in 112.129s",
+      "OK",
+      "Ran 7 tests in 51.244s",
+      "OK",
+      "Ran 7 tests in 35.019s",
+      "OK",
+      "Ran 6 tests in 38.695s",
+      "OK",
+      "Ran 3 tests in 60.212s",
+      "OK",
+      "Ran 7 tests in 241.503s",
+      "OK",
+      "Ran 6 tests in 58.049s",
+      "OK",
+      "Ran 11 tests in 125.431s",
+      "OK",
+      "Ran 3 tests in 11.709s",
+      "OK",
+      "Ran 3 tests in 12.787s",
+      "OK",
+      "Ran 3 tests in 19.887s",
+      "OK",
+      "Ran 3 tests in 26.073s",
+      "OK",
+      "Ran 4 tests in 34.898s",
+      "OK",
+      "Ran 3 tests in 32.379s",
+      "OK",
+      "Ran 4 tests in 22.126s",
+      "OK",
+      "Ran 3 tests in 9.407s",
+      "OK",
+      "Ran 1 test in 0.001s",
+      "OK",
+      "Ran 5 tests in 24.925s",
+      "OK",
+      "Ran 4 tests in 43.295s",
+      "OK",
+      "Ran 3 tests in 25.123s",
+      "OK",
+      "Ran 3 tests in 22.789s",
+      "OK",
+      "Ran 4 tests in 38.356s",
+      "OK",
+      "Ran 3 tests in 86.090s",
+      "OK",
+      "Ran 5 tests in 15.331s",
+      "OK",
+      "Ran 2 tests in 0.193s",
+      "OK",
+      "Ran 7 tests in 47.086s",
+      "OK",
+      "Ran 4 tests in 41.968s",
+      "OK",
+      "Ran 4 tests in 62.257s",
+      "OK",
+      "Ran 5 tests in 54.252s",
+      "OK"
+    ]
+  },
+  "minimum_observed_free_bytes": 25533837312,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/effects-recovery-f0b/full.zip"
+}

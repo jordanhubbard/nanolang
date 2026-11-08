@@ -832,7 +832,8 @@ static int parse_program(Cc *cc) {
                 cc->nadt++;
                 for (i = 0; i < d->adt.nctor; i++) {
                     if (cc->nctor >= ML_MAX_CTOR) return cc_fail(cc, "I refuse too many constructors");
-                    snprintf(cc->ctors[cc->nctor].name, ML_NAME, "%s", d->adt.ctor[i]);
+                    memmove(cc->ctors[cc->nctor].name, d->adt.ctor[i], ML_NAME);
+                    cc->ctors[cc->nctor].name[ML_NAME - 1] = '\0';
                     cc->ctors[cc->nctor].adt = ai;
                     cc->ctors[cc->nctor].tag = i;
                     cc->ctors[cc->nctor].has_payload = d->adt.has_payload[i];
@@ -1376,7 +1377,8 @@ static int typecheck_program(Cc *cc) {
             }
             {
                 int map[32], nm = 0;
-                snprintf(cc->typenames[cc->ntypes], ML_NAME, "%s", vf->name);
+                memmove(cc->typenames[cc->ntypes], vf->name, ML_NAME);
+                cc->typenames[cc->ntypes][ML_NAME - 1] = '\0';
                 print_ty(cc, cc->fns[idx].ty, cc->typebuf[cc->ntypes], ML_NAME, map, &nm);
                 cc->ntypes++;
             }

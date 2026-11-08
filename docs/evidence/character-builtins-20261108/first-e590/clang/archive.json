@@ -1,0 +1,15 @@
+{
+  "size": 2011811,
+  "sha256": "1c72dcfd77cb769afa030a06ef4fb926869df51a72d59fae94958d05d47801f9",
+  "files": 16,
+  "text_files": 15,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-5nmjbg99.tar.gz",
+      "sha256": "dd495e14b483dc200046c3fa3e607cb5d609c3dbe8177991aea756d677005a2b",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

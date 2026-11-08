@@ -1,0 +1,27 @@
+{
+  "scope": "I describe all predeclared Linux pairs without treating isolated success as release qualification. The first two changes are small and opposite in sign; the third favors the candidate. These observations do not establish a consistent source-body speedup or explain other workers failures.",
+  "pairs": [
+    {
+      "pair": 1,
+      "original_seconds": 7.473001,
+      "modified_seconds": 7.454338,
+      "modified_change_percent": -0.24973902719938046
+    },
+    {
+      "pair": 2,
+      "original_seconds": 7.411854,
+      "modified_seconds": 7.427697,
+      "modified_change_percent": 0.21375218669985596
+    },
+    {
+      "pair": 3,
+      "original_seconds": 6.884627,
+      "modified_seconds": 6.507934,
+      "modified_change_percent": -5.471509204492852
+    }
+  ],
+  "medians": {
+    "original": 7.411854,
+    "modified": 7.427697
+  }
+}

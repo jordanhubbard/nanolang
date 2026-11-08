@@ -1,0 +1,7 @@
+# My complete Linux type-foundation checkpoint
+
+Run [42506595408](https://github.com/jordanhubbard/nanolang/actions/runs/42506595408) at `a98c6e23bd876d4bfe3da85d4fffefc87da3c1c8` succeeds with both GCC and Clang. I retain complete job/step conclusions. Both 144-method suites, original C/environment gates, 2458 translator assertions, 3866 shape assertions and both six-method alias routes pass.
+
+For GCC artifact 13626979549 I independently inspect the actual checker, environment snapshot and STRING self-assignment ELF product bytes and match their before/after execution hashes. All 693 selected GCC checker shadows complete without failure, with recorded body sum 6.030668 seconds under the unchanged ten-second deadline. I retain all 4220 file hashes and 3852 exact text entries from the complete CRC-checked 22901389-byte ZIP inspected in memory. The full ZIP is not retained locally; I do not claim TAR/mode or NativeSDK custody.
+
+In this receipt and ../a98-apple-full, actual-baseline-products.json also matches all fourteen measured baseline product hashes computed from hosted bytes against their recorded execution-boundary hashes. Baseline failures and semantic differences remain observations, not successful runtime acceptance. The paired Apple receipt verifies its three actual native products. This qualifies the source type/checker foundation; the new VM runtime, native adapters, fresh stages, integration and release remain separate gates.

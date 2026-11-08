@@ -102,7 +102,109 @@ void test_tc_minimal_main(void) {
     ASSERT(tc_passes("fn main() -> int { return 0 }"));
 }
 
+void test_tc_reserved_definition_policy(void) {
+    const char *reserved[] = {"print", "println", "format", "min"};
+    const char *ordinary[] = {"str_trim", "exp", "map", "reduce", "array_pop", "array_reverse"};
+    char source[256];
+    for (size_t i = 0; i < sizeof(reserved) / sizeof(reserved[0]); ++i) {
+        snprintf(source, sizeof(source), "fn %s(value:int)->int{return value} fn main()->int{return 0}", reserved[i]);
+        ASSERT(!tc_passes(source));
+    }
+    for (size_t i = 0; i < sizeof(ordinary) / sizeof(ordinary[0]); ++i) {
+        snprintf(source, sizeof(source), "fn %s(value:int)->int{return value} fn main()->int{return 0}", ordinary[i]);
+        ASSERT(tc_passes(source));
+    }
+    ASSERT(tc_passes("extern fn print(value:int)->int fn main()->int{return 0}"));
+}
+
+void test_tc_distinct_record_fields(void) {
+    ASSERT(tc_passes("struct Point{x:int} struct Outer{child:Point} fn make()->Outer{return {child:{x:7}}} fn main()->int{return 0}"));
+    ASSERT(tc_passes("struct Point{x:int} fn main()->int{let values:array<Point> = [{x:7},{x:9}] return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int} struct Other{x:int} fn main()->int{let values:array<Point> = [Point{x:7},Other{x:9}] return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int} struct Outer{child:Point} fn make()->Outer{return {child:{x:true}}} fn main()->int{return 0}"));
+    ASSERT(tc_passes("struct Empty{} fn make()->Empty{return {}} fn main()->int{return 0}"));
+    ASSERT(tc_passes("struct Point{x:int,y:int} fn make()->Point{return {y:9,x:7}} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn make()->Point{return {x:7,x:9}} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn main()->int{let p:Point=Point{x:7,x:9} return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn main()->int{let p:Point=Point{x:7,x:9,y:11} return 0}"));
+    ASSERT(!tc_passes("struct Point{x:u8,y:int} fn main()->int{let p:Point=Point{x:7,x:9} return 0}"));
+}
+
+void test_tc_character_contracts(void) {
+    const char *names[] = {"is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper",
+        "is_lower", "digit_value", "char_to_lower", "char_to_upper"};
+    const char *arguments[] = {"48", "true", "", "48 49", "\"wrong\""};
+    char source[256];
+    for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+        for (size_t j = 0; j < sizeof(arguments) / sizeof(arguments[0]); ++j) {
+            snprintf(source, sizeof(source), "fn main()->int{(%s %s) return 0}", names[i], arguments[j]);
+            ASSERT(tc_passes(source) == (j == 0));
+        }
+    }
+    ASSERT(tc_passes("fn kept(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=kept assert (== (is_digit \"ok\") \"ok\") return 0}"));
+    ASSERT(tc_passes("extern fn is_digit(value:string)->string fn main()->int{return 0}"));
+}
+
+void test_tc_byte_conversion_contracts(void) {
+    ASSERT(tc_passes("fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") return 0}"));
+    ASSERT(tc_passes("fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] let text:string=(string_from_bytes bytes) return 0}"));
+    ASSERT(tc_passes("fn main()->int{let text:string=(string_from_bytes []) return 0}"));
+    ASSERT(tc_passes("fn keep(value:string)->string{return value} fn main()->int{let bytes_from_string:fn(string)->string=keep let string_from_bytes:fn(string)->string=keep assert (== (bytes_from_string \"Hi\") \"Hi\") assert (== (string_from_bytes \"Hi\") \"Hi\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(bytes_from_string) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(bytes_from_string true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(bytes_from_string \"Hi\" \"extra\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(string_from_bytes) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(string_from_bytes [1]) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(string_from_bytes [true]) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] (string_from_bytes bytes bytes) return 0}"));
+}
+
+void test_tc_string_stdlib_contracts(void) {
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_trim_left \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_trim_left true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_left) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_left \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_trim_left:fn(int)->int=identity return (str_trim_left 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_trim_right \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_trim_right true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_right) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_right \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_trim_right:fn(int)->int=identity return (str_trim_right 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_to_lower \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_to_lower true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_lower) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_lower \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_to_lower:fn(int)->int=identity return (str_to_lower 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_to_upper \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_to_upper true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_upper) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_upper \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_to_upper:fn(int)->int=identity return (str_to_upper 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_replace \"a\" \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace true \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace \"a\" true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace \"a\" \"a\" true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_replace) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_replace \"a\" \"a\" \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_replace:fn(int)->int=identity return (str_replace 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:array<string> = (str_split \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:array<string> = (str_split true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:array<string> = (str_split \"a\" true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_split) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_split \"a\" \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_split:fn(int)->int=identity return (str_split 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_join [\"a\"] \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_join true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_join [\"a\"] true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_join) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_join [\"a\"] \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_join:fn(int)->int=identity return (str_join 7)}"));
+    ASSERT(tc_passes("fn main()->int{let parts=(str_split \"a,b\" \",\") let text:string=(str_join parts \"-\") return 0}"));
+    ASSERT(tc_passes("fn main()->int{let text:string=(str_join [] \",\") return 0}"));
+}
+
 void test_tc_format_template(void) {
+    ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
     ASSERT(tc_passes("fn main() -> int { let template = \"plain\" let s = (format template) return 0 }"));
     ASSERT(!tc_passes("fn main() -> int { let s = (format 42) return 0 }"));
@@ -1025,6 +1127,11 @@ int main(void) {
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
     TEST(tc_format_template);
+    TEST(tc_distinct_record_fields);
+    TEST(tc_character_contracts);
+    TEST(tc_byte_conversion_contracts);
+    TEST(tc_string_stdlib_contracts);
+    TEST(tc_reserved_definition_policy);
     TEST(tc_array_index_contract);
     TEST(tc_arithmetic);
     TEST(tc_float_ops);

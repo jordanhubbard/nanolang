@@ -1,0 +1,13 @@
+[
+  {
+    "path": "source-checker-component/actual-native-g6xwp_mk/",
+    "inputs_unchanged": true,
+    "creation_path": "C-seed-to-native",
+    "native_lifecycle_admitted": false,
+    "fresh_stages_qualified": false,
+    "product_sha256": "8d2d24e9a0f4fe5acad362027100903d50703701798046c2882420c260477863",
+    "product_size": 11959616,
+    "native_elf": true,
+    "production_marker_present": true
+  }
+]

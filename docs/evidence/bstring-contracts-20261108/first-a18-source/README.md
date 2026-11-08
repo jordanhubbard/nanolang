@@ -1,0 +1,5 @@
+# My first native U8 execution boundary
+
+At `a18ff5bc50170ddcc1dc6eb515f33ba2bef2e892`, both GCC and Clang in run [42512651978](https://github.com/jordanhubbard/nanolang/actions/runs/42512651978) pass the standalone sanitizer controls, original VM and all useful interpreter shadows. All five VM source methods, native extreme bounds, lexical identity and ignored-invalid-call publication controls pass. The unchanged all-builtin/U8 production program compiles successfully at O0/O2, then aborts with SIGABRT on the runtime's ELEM_INT storage assertion.
+
+The exact retained generated C shows dyn_array_get_int for iteration over the U8 result of bytes_from_string. Its map/filter paths also choose INT getters and INT output storage. I preserve the runtime assertion and source assertions, and correct accessor/output selection from existing type metadata. Reduce has the same missing U8 branch by inspection and receives the same typed correction. Corrected hosted execution remains required; these are product defects, not infrastructure.

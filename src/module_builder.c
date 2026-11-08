@@ -854,13 +854,19 @@ static bool module_capture_invocation(const ModuleBuildMetadata *meta, ModuleBui
                                       ModulePkgFlags *flags);
 
 #ifdef __APPLE__
+static void module_link_trace_refusal(const char *reason, const char *path) {
+    if (getenv("NANO_TRACE_BUILD"))
+        fprintf(stderr, "I could not retain link input evidence (%s): %.1200s\n",
+                reason, path ? path : "");
+}
+
 /* I read tagged NUL-terminated paths, not human-readable archive(member)
  * lines. This records selected bytes and negative searches, not a snapshot
  * of bytes during linking or a complete inventory of indirect flag inputs. */
 static cJSON *module_link_inputs(const char *record_path, const char *stage,
                                  const char *output) {
     FILE *file = fopen(record_path, "rb");
-    if (!file) return NULL;
+    if (!file) { module_link_trace_refusal("record-open", record_path); return NULL; }
     cJSON *inputs = cJSON_CreateObject();
     bool ok = inputs != NULL, version = false, emitted = false, internal = false;
     size_t records = 0, bytes = 0;
@@ -888,15 +894,15 @@ static cJSON *module_link_inputs(const char *record_path, const char *stage,
             if (!emitted) ok = false;
             continue;
         }
-        if (tag != 16 && tag != 17) { ok = false; break; }
+        if (tag != 16 && tag != 17) { module_link_trace_refusal("record-tag", path); ok = false; break; }
         struct stat st;
         int status = stat(path, &st);
         char digest[24];
         if (tag == 17) {
-            if (status == 0 || (errno != ENOENT && errno != ENOTDIR)) { ok = false; break; }
+            if (status == 0 || (errno != ENOENT && errno != ENOTDIR)) { module_link_trace_refusal("negative-search-changed", path); ok = false; break; }
             strcpy(digest, "missing");
         } else {
-            if (status != 0 || !S_ISREG(st.st_mode)) { ok = false; break; }
+            if (status != 0 || !S_ISREG(st.st_mode)) { module_link_trace_refusal("input-file", path); ok = false; break; }
             size_t stage_length = strlen(stage);
             if (!strncmp(path, stage, stage_length) && path[stage_length] == '/') {
                 internal = true;
@@ -912,23 +918,37 @@ static cJSON *module_link_inputs(const char *record_path, const char *stage,
     }
     ok = ok && version && emitted && internal && records > 2 && !ferror(file) && feof(file);
     if (fclose(file) != 0) ok = false;
-    if (!ok) { cJSON_Delete(inputs); return NULL; }
+    if (!ok) {
+        module_link_trace_refusal("record-incomplete", record_path);
+        if (getenv("NANO_TRACE_BUILD"))
+            fprintf(stderr, "I observed linker record state: version=%d output=%d internal=%d records=%zu\n",
+                    version, emitted, internal, records);
+        cJSON_Delete(inputs); return NULL;
+    }
     return inputs;
 }
 
 static bool module_link_inputs_match(const cJSON *inputs) {
-    if (!cJSON_IsObject(inputs) || !inputs->child) return false;
+    if (!cJSON_IsObject(inputs) || !inputs->child) {
+        module_link_trace_refusal("empty-inventory", ""); return false;
+    }
     for (cJSON *item = inputs->child; item; item = item->next) {
         if (!item->string || !cJSON_IsString(item)) return false;
         struct stat st;
         if (!strcmp(item->valuestring, "missing")) {
-            if (stat(item->string, &st) == 0 || (errno != ENOENT && errno != ENOTDIR)) return false;
+            if (stat(item->string, &st) == 0 || (errno != ENOENT && errno != ENOTDIR)) {
+                module_link_trace_refusal("negative-search-changed", item->string); return false;
+            }
         } else {
-            if (stat(item->string, &st) != 0 || !S_ISREG(st.st_mode)) return false;
+            if (stat(item->string, &st) != 0 || !S_ISREG(st.st_mode)) {
+                module_link_trace_refusal("retained-input-disappeared", item->string); return false;
+            }
             uint64_t hash = hash_file_fnv1a(item->string);
             char digest[24];
             snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
-            if (!hash || strcmp(item->valuestring, digest)) return false;
+            if (!hash || strcmp(item->valuestring, digest)) {
+                module_link_trace_refusal("retained-input-bytes-changed", item->string); return false;
+            }
         }
     }
     return true;
@@ -3439,13 +3459,20 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
     int64_t now = module_link_query_clock();
     if (ok && status == 0 && count && now >= 0) {
         int64_t deadline = now + 5000;
-        char output[8193];
+        char output[8193] = {0};
         args[count] = "-Wl,--version";
-        if (module_link_query_output(args, output, sizeof(output), deadline) &&
+        bool queried = module_link_query_output(args, output, sizeof(output), deadline);
+        if (getenv("NANO_TRACE_BUILD"))
+            fprintf(stderr, "I observed linker grammar query: family=GNU completed=%d output=%.8192s\n", queried, output);
+        if (queried &&
             !strncmp(output, "GNU ld (", 8) && strchr(output, '\n')) grammar = MODULE_LINK_RESPONSE_GNU;
         if (!grammar) {
             args[count] = "-Wl,-version_details";
-            if (module_link_query_output(args, output, sizeof(output), deadline)) {
+            output[0] = 0;
+            queried = module_link_query_output(args, output, sizeof(output), deadline);
+            if (getenv("NANO_TRACE_BUILD"))
+                fprintf(stderr, "I observed linker grammar query: family=Apple completed=%d output=%.8192s\n", queried, output);
+            if (queried) {
                 const char *end = NULL;
                 cJSON *details = cJSON_ParseWithOpts(output, &end, true);
                 cJSON *version = cJSON_GetObjectItemCaseSensitive(details, "version");
@@ -3455,7 +3482,8 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
                 /* I admit the installed Apple implementation covered by my
                  * identity/grammar corpus, not every JSON-speaking linker. */
                 if (cJSON_IsString(version) &&
-                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1")) &&
+                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1") ||
+                     !strcmp(version->valuestring, "27106.1")) &&
                     cJSON_IsArray(architectures) && cJSON_GetArraySize(architectures) > 0 &&
                     cJSON_IsString(vendor) && !strncmp(vendor->valuestring, "Apple TAPI version ", 19))
                     grammar = MODULE_LINK_RESPONSE_APPLE;
@@ -3553,7 +3581,9 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
         if (word[0] != '@') {
             /* I distinguish literal path characters (openssl@3) from a
              * response operand forwarded directly to the linker. */
-            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) return false;
+            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) {
+                module_link_trace_refusal("uncaptured-linker-response", word); return false;
+            }
             continue;
         }
         if (link_word[0] && !strcmp(word, link_word)) continue;

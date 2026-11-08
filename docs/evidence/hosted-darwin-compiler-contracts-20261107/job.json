@@ -1,0 +1,212 @@
+{
+  "id": 128477253106,
+  "run_id": 42397278317,
+  "workflow_name": "Release qualification",
+  "head_branch": "fix/5.1-supported-macos-runner",
+  "run_url": "https://api.github.com/repos/jordanhubbard/nanolang/actions/runs/42397278317",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOP5bOts8AAAAd6ddN8g",
+  "head_sha": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "url": "https://api.github.com/repos/jordanhubbard/nanolang/actions/jobs/128477253106",
+  "html_url": "https://github.com/jordanhubbard/nanolang/actions/runs/42397278317/job/128477253106",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-11-07T17:38:07Z",
+  "started_at": "2026-11-07T19:49:12Z",
+  "completed_at": "2026-11-07T21:34:55Z",
+  "name": "Qualification (compiler-contracts, xcode-27)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-11-07T19:49:13Z",
+      "completed_at": "2026-11-07T19:49:14Z"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-11-07T19:49:14Z",
+      "completed_at": "2026-11-07T19:49:48Z"
+    },
+    {
+      "name": "Install Linux dependencies",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 3,
+      "started_at": "2026-11-07T19:49:48Z",
+      "completed_at": "2026-11-07T19:49:48Z"
+    },
+    {
+      "name": "Install Darwin dependencies",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-11-07T19:49:48Z",
+      "completed_at": "2026-11-07T19:51:23Z"
+    },
+    {
+      "name": "Select qualified Darwin capture tools",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-11-07T19:51:23Z",
+      "completed_at": "2026-11-07T19:51:25Z"
+    },
+    {
+      "name": "Install Python dependencies",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-11-07T19:51:25Z",
+      "completed_at": "2026-11-07T19:51:33Z"
+    },
+    {
+      "name": "Require real SQLite header qualification",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-11-07T19:51:33Z",
+      "completed_at": "2026-11-07T19:51:33Z"
+    },
+    {
+      "name": "Record source identity",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-11-07T19:51:33Z",
+      "completed_at": "2026-11-07T19:51:34Z"
+    },
+    {
+      "name": "Build and verify fresh compiler generations",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-11-07T19:51:34Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify complete File parser retirement",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 10,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify array slicing and checked identity",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 11,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify installed header constants and imported globals",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 12,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify affine identity with sanitized native products",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 13,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify complete source snapshots",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 14,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T20:27:22Z"
+    },
+    {
+      "name": "Qualify complete native compiler and managed-runtime corpus",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 15,
+      "started_at": "2026-11-07T20:27:22Z",
+      "completed_at": "2026-11-07T21:34:43Z"
+    },
+    {
+      "name": "Qualify record-map and managed-array publication corpus",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 16,
+      "started_at": "2026-11-07T21:34:43Z",
+      "completed_at": "2026-11-07T21:34:43Z"
+    },
+    {
+      "name": "Qualify advisory metadata and paired source effects",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 17,
+      "started_at": "2026-11-07T21:34:43Z",
+      "completed_at": "2026-11-07T21:34:43Z"
+    },
+    {
+      "name": "Qualify module-derived compiler products",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 18,
+      "started_at": "2026-11-07T21:34:43Z",
+      "completed_at": "2026-11-07T21:34:43Z"
+    },
+    {
+      "name": "Qualify module-derived reconstruction",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 19,
+      "started_at": "2026-11-07T21:34:43Z",
+      "completed_at": "2026-11-07T21:34:43Z"
+    },
+    {
+      "name": "Verify unchanged source and compiler providers",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 20,
+      "started_at": "2026-11-07T21:34:43Z",
+      "completed_at": "2026-11-07T21:34:48Z"
+    },
+    {
+      "name": "Retain qualification evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 21,
+      "started_at": "2026-11-07T21:34:49Z",
+      "completed_at": "2026-11-07T21:34:51Z"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 42,
+      "started_at": "2026-11-07T21:34:51Z",
+      "completed_at": "2026-11-07T21:34:52Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 43,
+      "started_at": "2026-11-07T21:34:52Z",
+      "completed_at": "2026-11-07T21:34:54Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/jordanhubbard/nanolang/check-runs/128477253106",
+  "labels": [
+    "xcode-27"
+  ],
+  "runner_id": 1000190784,
+  "runner_name": "GitHub Actions 1000190784",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

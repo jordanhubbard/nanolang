@@ -1,0 +1,39 @@
+{
+  "artifact": 13593390502,
+  "archive_bytes": 1678,
+  "archive_sha256": "428f857cfcbff00c64474ca8be339047e26160b62d36bd4ea7332f53bf5ddd8d",
+  "zip_crc_error": null,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/map-runtime-7a320/gcc.zip",
+  "members": [
+    {
+      "name": "compiler.txt",
+      "bytes": 246,
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "name": "python.txt",
+      "bytes": 14,
+      "sha256": "5b3e43dc38ca01e3f5a7854ba50d4330864b0c1e0f646650b2c78cf072acc366"
+    },
+    {
+      "name": "inputs.json",
+      "bytes": 428,
+      "sha256": "82f753e26b60fc1ae4ba011749438e5cb5ff05b35e5fc696c36b2f45f588d85a"
+    },
+    {
+      "name": "revision.txt",
+      "bytes": 41,
+      "sha256": "8f2ab59e6c40bf163f3825ae8f72bbe33825c6d43c5c7109c896103500cd8c93"
+    },
+    {
+      "name": "runtime.log",
+      "bytes": 1055,
+      "sha256": "279c634cd85610d32a56d0f67d83ac346d59dbb7afe245016462685b2fe8ce59"
+    },
+    {
+      "name": "worker.json",
+      "bytes": 319,
+      "sha256": "f4a37cf48a91a649ccc44bb679d6b567fa9d6e24358d84146ec777927a8c45b7"
+    }
+  ]
+}

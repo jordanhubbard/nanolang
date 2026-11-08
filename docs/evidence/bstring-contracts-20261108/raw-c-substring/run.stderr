@@ -1,0 +1,11 @@
+=================================================================
+==33128==ERROR: AddressSanitizer: requested allocation size 0xffffffffffffffff (0x800 after adjustments for alignment, red zones etc.) exceeds maximum supported size of 0x10000000000 (thread T0)
+    #0 0x000104ef9274 in malloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x41274)
+    #1 0x0001045a1aa4 in nl_string_new_binary nl_string.c:64
+    #2 0x0001045a1aa4 in nl_string_substring nl_string.c:158
+    #3 0x0001045a088c in main bounds.c:7
+    #4 0x000196433e7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+==33128==HINT: if you don't care about these errors you may set allocator_may_return_null=1
+SUMMARY: AddressSanitizer: allocation-size-too-big nl_string.c:64 in nl_string_new_binary
+==33128==ABORTING

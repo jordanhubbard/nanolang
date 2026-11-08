@@ -1,0 +1,20 @@
+[
+  {
+    "archive": "darwin-link-diagnostic/full-storage/nano-qualification-5qvigp1l.tar.gz",
+    "sha256": "733b66cbd9217e6ece8b864fa528a1d06cefc1641cdb0fcf7265eb643f392c95",
+    "entries": 0,
+    "verified": true
+  },
+  {
+    "archive": "darwin-link-diagnostic/response-storage/nano-qualification-s6lnf08h.tar.gz",
+    "sha256": "352c99622150076dd3efa6cd20c667411c07f6dffa5185b4105267b5adb5513c",
+    "entries": 0,
+    "verified": true
+  },
+  {
+    "archive": "darwin-link-diagnostic/storage/nano-qualification-acndh62j.tar.gz",
+    "sha256": "e8822cd6e843ec28e884042fbfc09f75658c200c0ac032a5d5d2f41d273374c3",
+    "entries": 0,
+    "verified": true
+  }
+]

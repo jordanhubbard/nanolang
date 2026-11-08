@@ -1,0 +1,37 @@
+[
+  {
+    "path": "empty/native",
+    "size": 8687864,
+    "sha256": "9a43b478f61651cca7b706b4bc2db0a2362d48184b8965e852e3abc4d7e02b09"
+  },
+  {
+    "path": "utf8/native",
+    "size": 8687864,
+    "sha256": "6fa99f835aabfba571a5b280bbc628da9baaacebf38cacf4cd7b3625e5414a5f"
+  },
+  {
+    "path": "truncated/native",
+    "size": 8687864,
+    "sha256": "791f8d6ee5ab498338a5daed384e0695dffaabcaf10cce9f2b3bc74ec902ec60"
+  },
+  {
+    "path": "invalid/native",
+    "size": 8687864,
+    "sha256": "2f8171b1c780c21cf6f2fcb9efbb6fb7a7362c35cf835362a7493db30f4b4f91"
+  },
+  {
+    "path": "nul/native",
+    "size": 8687864,
+    "sha256": "79e8bfe0e89ff35aa6aae8a99be2d907678222dbde62fa124e6d6bacc1ab0848"
+  },
+  {
+    "path": "continuation/native",
+    "size": 8687864,
+    "sha256": "9acfbda2deadcf6dff5877557cc9b164e913206a17b5eb6c73f5ad09bc2aff78"
+  },
+  {
+    "path": "overlong/native",
+    "size": 8687864,
+    "sha256": "102728a9021d53a9dae600389e255e2a989e4ee5604460ae1300a48eecb72216"
+  }
+]

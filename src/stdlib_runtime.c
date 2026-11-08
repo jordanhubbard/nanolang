@@ -368,11 +368,11 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "        return nl_string_new(\"\");\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    size_t len = nl_string_length(str);\n");
-    sb_append(sb, "    if ((size_t)start > len) {\n");
+    sb_append(sb, "    if ((uint64_t)start > len) {\n");
     sb_append(sb, "        start = (int64_t)len;\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    if ((size_t)(start + length) > len) {\n");
-    sb_append(sb, "        length = (int64_t)len - start;\n");
+    sb_append(sb, "    if ((uint64_t)length > len - (size_t)start) {\n");
+    sb_append(sb, "        length = (int64_t)(len - (size_t)start);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return nl_string_substring(str, (size_t)start, (size_t)length);\n");
     sb_append(sb, "}\n\n");
@@ -465,7 +465,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    if (!out) return NULL;\n");
     sb_append(sb, "    if (!s) return out;\n");
-    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t len = strlen(s);\n");
     sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
     sb_append(sb, "        dyn_array_push_u8(out, (uint8_t)(unsigned char)s[i]);\n");
     sb_append(sb, "    }\n");
@@ -563,6 +563,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!out) return NULL;\n");
     sb_append(sb, "    for (int64_t i = len - 1; i >= 0; i--) {\n");
     sb_append(sb, "        switch (t) {\n");
+    sb_append(sb, "            case ELEM_U8:     dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;\n");
@@ -578,7 +579,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!arr) return false;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
-    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return true;\n");
+    sb_append(sb, "        int64_t value = dyn_array_get_elem_type(arr) == ELEM_U8 ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);\n");
+    sb_append(sb, "        if (value == elem) return true;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return false;\n");
     sb_append(sb, "}\n\n");
@@ -588,7 +590,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!arr) return -1;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
-    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return i;\n");
+    sb_append(sb, "        int64_t value = dyn_array_get_elem_type(arr) == ELEM_U8 ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);\n");
+    sb_append(sb, "        if (value == elem) return i;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return -1;\n");
     sb_append(sb, "}\n\n");
@@ -1415,6 +1418,18 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 }
 
+void generate_environment_getter(StringBuilder *sb) {
+    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
+    sb_append(sb, "    const char* value = getenv(name);\n");
+    sb_append(sb, "    if (!value) return \"\";\n");
+    sb_append(sb, "    size_t length = strlen(value);\n");
+    sb_append(sb, "    char* copy = gc_alloc_string(length);\n");
+    sb_append(sb, "    if (!copy) { fputs(\"I cannot allocate an environment snapshot.\\n\", stderr); abort(); }\n");
+    sb_append(sb, "    memcpy(copy, value, length + 1);\n");
+    sb_append(sb, "    return copy;\n");
+    sb_append(sb, "}\n\n");
+}
+
 /* Generate complete stdlib runtime (convenience function) */
 void generate_stdlib_runtime(StringBuilder *sb) {
     /* OS stdlib runtime library */
@@ -1442,10 +1457,7 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    exit((int)code);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? value : \"\";\n");
-    sb_append(sb, "}\n\n");
+    generate_environment_getter(sb);
     
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
     sb_append(sb, "int64_t nl_exec_shell(const char* cmd) {\n");

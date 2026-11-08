@@ -1,0 +1,13 @@
+# My local fresh STRING parameter checkpoint
+
+I skip the environment-wide alias scan only when my binding API creates the STRING copy itself. I retain the original copy, declared type, mutability and metadata defaults. My ordinary binding API still scans and retains borrowed aliases; both interpreter function-call paths use the new copy API.
+
+My initial current-C-seed pair executes all 690 selected checker shadows with zero failures and creates and executes the same native checker product. Recorded shadow-body sums are 4.543699 seconds before and 3.745596 seconds after. The two-method component suites pass in 57.400 and 58.220 seconds, respectively; whole-suite time includes other work and is not the shadow-body measurement.
+
+`comparison.json` retains four additional ordered attempts, baseline/candidate/candidate/baseline, with shadow-body sums 3.869328 / 3.162800 / 3.212675 / 3.844269 seconds. Every attempt uses the same sources, explicit unchanged ten-second shadow deadline and default compilation flags, creates an actual Mach-O checker, executes it with exit zero, and verifies provider/source/product hashes before and after. These local observations are not pinned hosted Apple qualification or a general performance guarantee.
+
+My complete original environment index/scope/allocation-failure unit passes. Its added copy controls verify distinct caller storage, independent caller release, ordinary borrowed alias retention, replacement, empty strings and final release. ASan/UBSan also passes with env.c included in the instrumented test translation unit; linked common objects retain ordinary build flags. This is scoped sanitizer coverage, not the complete sanitizer bootstrap. The two language component methods include STRING self-assignment and caller preservation.
+
+I retain one failed preliminary invocation from a provider copied outside my installation layout: generated module compilation cannot find runtime/nl_string.h, so no checker is created. I rerun the preserved identical baseline provider from bin/ with its required repository layout. I do not classify that path failure as a shadow assertion or hide its diagnostics.
+
+The private full ZIP retains both provider executables, six actual checker products, generated C, complete command/output traces, ownership logs, the candidate patch and the benchmark harness. `archive.json` records its digest and CRC result; deterministic gzip retains every file hash and exact text. `products.json` inventories actual executable bytes. My CPU sampling checkpoint remains separate. Complete hosted component/platform checks, original corpus budgets, integration custody and release acceptance remain open.

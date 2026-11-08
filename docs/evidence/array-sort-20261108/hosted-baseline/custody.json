@@ -1,0 +1,7 @@
+{
+  "run": 42489917362,
+  "source": "5f67490daf1b896364b4a477270cc800b7fa7d7a",
+  "log_bytes": 93645,
+  "log_sha256": "fe5d4e786ae6b840b3781ff9589fcb9edace21b7642dddb4825f183c99598376",
+  "scope": "I retain both complete failed-step logs, not full native artifact bytes."
+}

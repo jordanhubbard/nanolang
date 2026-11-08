@@ -1,0 +1,7 @@
+# My local phase-marker smoke boundary
+
+I retain 81 exact local smoke text records with sizes and SHA-256 hashes in `complete-smoke-evidence.json.gz`. My first three attempts compile, verify and execute in NanoVM, then stop during native linking because `bin/nano_aot_runtime.o` is absent. I preserve those attempts. I build only the three small runtime objects through the existing `make nvm2c-runtime` target and repeat the unchanged controls. All three methods then pass VM and ASan/UBSan native execution: disabled recording, a real Python recorder behind a path containing spaces/apostrophes with literal shell metacharacters in its label, and an executable recorder returning failure.
+
+I use the existing local NanoVirt, VM and translator binaries for these smoke checks. Their source provenance is not freshly qualified here. The runtime object repair does not turn them into a fresh compiler chain. I keep full local builds held for disk pressure and require hosted fresh source and driver qualification separately.
+
+All 22 real-CC observer/CLI/JUnit integrity controls and eight Make/lexer controls also pass. Both workflow YAML documents parse and all 24 embedded shell blocks pass `bash -n`; the changed Python sources compile. These checks retain the original compiler flags, selected shadows and deadlines. They do not measure the actual fresh driver or establish the original corpus budget or native lifecycle admission.

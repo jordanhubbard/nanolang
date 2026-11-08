@@ -1,0 +1,531 @@
+{
+  "scope": "I retain C/VM baselines, not a binary-string semantic gate.",
+  "before": {
+    "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+    "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "d193353826195885c623f911024746025e8194e8e83ae8281315d71b22fd31ab",
+    "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "d7dc0197d768b10b709ba1a57db94fa05b2a96211ab745ec52d0a59c874ef8b6",
+    "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+    "/Users/runner/work/nanolang/nanolang/src/stdlib_runtime.c": "b302f69aa6201906f9b6d52805055a5f89cb3b3f2d010cae204ab3e2a6513bda",
+    "/Users/runner/work/nanolang/nanolang/src/nanovirt/codegen.c": "351d40162e7ed14bd8147528071de91cbae2fe5a6eb42959408a7551502b5c23",
+    "/Users/runner/work/nanolang/nanolang/src/runtime/nl_string.c": "24717176b115c3955efff83d7dea887c1199af96bf7912945d216c76d9aacaab",
+    "/Users/runner/work/nanolang/nanolang/src/nanovm/vm_builtins.c": "ae5c58a7cd9f93dc4583d750c49c5513280014395de589f7e6f727e85d8410a6",
+    "/Users/runner/work/nanolang/nanolang/scripts/diagnose_bstring_contracts.py": "8d098ae297735eae8f034153cd5a8f7bb576c9c468113905a9e708e3257cb8d0"
+  },
+  "after": {
+    "/Users/runner/work/nanolang/nanolang/bin/nanoc_c": "50d2b44391f5343ad98a247a4ca117284a5714129ba503161fbdd3f7f7daa61c",
+    "/Users/runner/work/nanolang/nanolang/bin/nano_virt": "d193353826195885c623f911024746025e8194e8e83ae8281315d71b22fd31ab",
+    "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "d7dc0197d768b10b709ba1a57db94fa05b2a96211ab745ec52d0a59c874ef8b6",
+    "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+    "/Users/runner/work/nanolang/nanolang/src/stdlib_runtime.c": "b302f69aa6201906f9b6d52805055a5f89cb3b3f2d010cae204ab3e2a6513bda",
+    "/Users/runner/work/nanolang/nanolang/src/nanovirt/codegen.c": "351d40162e7ed14bd8147528071de91cbae2fe5a6eb42959408a7551502b5c23",
+    "/Users/runner/work/nanolang/nanolang/src/runtime/nl_string.c": "24717176b115c3955efff83d7dea887c1199af96bf7912945d216c76d9aacaab",
+    "/Users/runner/work/nanolang/nanolang/src/nanovm/vm_builtins.c": "ae5c58a7cd9f93dc4583d750c49c5513280014395de589f7e6f727e85d8410a6",
+    "/Users/runner/work/nanolang/nanolang/scripts/diagnose_bstring_contracts.py": "8d098ae297735eae8f034153cd5a8f7bb576c9c468113905a9e708e3257cb8d0"
+  },
+  "cases": [
+    {
+      "case": "whole-fixture",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+      "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+      "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+      "product_magic": "cffaedfe",
+      "product_before_run": "844f65b553f227ebe1081b76753cf47f36cd6ba670d1fc7921e92bd98dfbfd93",
+      "product_after_run": "844f65b553f227ebe1081b76753cf47f36cd6ba670d1fc7921e92bd98dfbfd93",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "whole-fixture",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+      "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+      "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+      "product_magic": "4e564d02",
+      "product_before_run": "897f7c657031ebe9a136818b1d1195a0ef4f5aa9660fc86289bec1bafbc48b20",
+      "product_after_run": "897f7c657031ebe9a136818b1d1195a0ef4f5aa9660fc86289bec1bafbc48b20",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "binary-nul",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+      "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+      "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+      "product_magic": "cffaedfe",
+      "product_before_run": "03720d371be7785c9106de7e9bdcf3a72cb327e547b6a456c0ec5e66d5499b43",
+      "product_after_run": "03720d371be7785c9106de7e9bdcf3a72cb327e547b6a456c0ec5e66d5499b43",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "binary-nul",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+      "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+      "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+      "product_magic": "4e564d02",
+      "product_before_run": "3378efeba70223368d272aa192a31355cf983d47e64ec6ddc4d3adf5a97b2cc7",
+      "product_after_run": "3378efeba70223368d272aa192a31355cf983d47e64ec6ddc4d3adf5a97b2cc7",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "unicode-and-ownership",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+      "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+      "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+      "product_magic": "cffaedfe",
+      "product_before_run": "4339366fa43502329b73c9af1812f6568921855b5d6435ee3a9a70fb2f6adf64",
+      "product_after_run": "4339366fa43502329b73c9af1812f6568921855b5d6435ee3a9a70fb2f6adf64",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "unicode-and-ownership",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+      "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+      "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+      "product_magic": "4e564d02",
+      "product_before_run": "97dc7a83ed25effbae4710bdb6ec4c596df581944a228672a72100aa3b3c80e4",
+      "product_after_run": "97dc7a83ed25effbae4710bdb6ec4c596df581944a228672a72100aa3b3c80e4",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "invalid-utf8",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+      "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+      "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+      "product_magic": "cffaedfe",
+      "product_before_run": "6ec2d1d432947e0c0d6afacc2e212a0d938bfc26b5331a74472ac629b9190e7c",
+      "product_after_run": "6ec2d1d432947e0c0d6afacc2e212a0d938bfc26b5331a74472ac629b9190e7c",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "invalid-utf8",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+      "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+      "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+      "product_magic": "4e564d02",
+      "product_before_run": "9846546fa7d2b6367d74746902488739914f69ded25fb2314ba06bab2f54e0c2",
+      "product_after_run": "9846546fa7d2b6367d74746902488739914f69ded25fb2314ba06bab2f54e0c2",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "substring-bounds",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+      "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+      "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+      "product_magic": "cffaedfe",
+      "product_before_run": "22965710db7dc2f4ecc1b65b98f747556c3840b146f285add201c1ebba324095",
+      "product_after_run": "22965710db7dc2f4ecc1b65b98f747556c3840b146f285add201c1ebba324095",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "substring-bounds",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+      "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+      "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+      "product_magic": "4e564d02",
+      "product_before_run": "96b595367fc09412835d6efcf139fb70715f553b073394515c3744faf95f1cce",
+      "product_after_run": "96b595367fc09412835d6efcf139fb70715f553b073394515c3744faf95f1cce",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "byte-negative",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+      "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+      "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+      "product_magic": "cffaedfe",
+      "product_before_run": "116e1d51b15eda0ae7e20e1b045fd9c212fb131def2cb170d7ae7efcd5a80f0b",
+      "product_after_run": "116e1d51b15eda0ae7e20e1b045fd9c212fb131def2cb170d7ae7efcd5a80f0b",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "byte-negative",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+      "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+      "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+      "product_magic": "4e564d02",
+      "product_before_run": "7ab36e11bddcc87e4bb23299c0bf21dd4a0806d127bf509ab0b78892d269cbd4",
+      "product_after_run": "7ab36e11bddcc87e4bb23299c0bf21dd4a0806d127bf509ab0b78892d269cbd4",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "byte-beyond",
+      "provider": "nanoc_c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program",
+            "--keep-c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+      "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+      "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+      "product_magic": "cffaedfe",
+      "product_before_run": "7e2de8d6b44052199b0166c76d60a59e710a9e2d90b5a4b869a98fb7c8f8b6d5",
+      "product_after_run": "7e2de8d6b44052199b0166c76d60a59e710a9e2d90b5a4b869a98fb7c8f8b6d5",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    },
+    {
+      "case": "byte-beyond",
+      "provider": "nano_virt",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+            "--emit-nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ],
+      "source": "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+      "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+      "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+      "product_magic": "4e564d02",
+      "product_before_run": "446829f68c2fdf2b0ca57c82e4af4845d62442ca43306141ef423cfa91eff1d1",
+      "product_after_run": "446829f68c2fdf2b0ca57c82e4af4845d62442ca43306141ef423cfa91eff1d1",
+      "scope": "I retain observations; boundary failures are not semantic acceptance."
+    }
+  ]
+}

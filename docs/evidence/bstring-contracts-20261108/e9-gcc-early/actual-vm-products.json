@@ -1,0 +1,317 @@
+[
+  {
+    "path": "bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wt_l0enm/program.nvm",
+    "size": 1440,
+    "sha256": "c01a08739eac9d16a1641f997147f801fe8d3186cbc2ccbbc828e850e2072921",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wt_l0enm/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wt_l0enm/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wt_l0enm/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wt_l0enm/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-1xiilv0h/program.nvm",
+    "size": 1728,
+    "sha256": "97f56372c09cebf660abe4ec6c7c97cf8aa169437e5abba37060c2c7aafca5fc",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xiilv0h/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xiilv0h/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xiilv0h/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xiilv0h/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-1xvcjb0m/program.nvm",
+    "size": 1544,
+    "sha256": "9a2243f136330dafac39a969f0a7360698622ec22215d43a05b9c0f4443abfe3",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xvcjb0m/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xvcjb0m/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xvcjb0m/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-1xvcjb0m/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-3c5lkic1/program.nvm",
+    "size": 1504,
+    "sha256": "a7fb295438cb951babb4d55c28b291d38cdf10f367125d089f153883e1f73afd",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3c5lkic1/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3c5lkic1/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3c5lkic1/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-3c5lkic1/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-l_1lbr2p/program.nvm",
+    "size": 1024,
+    "sha256": "72c78ba33f712230addd694e12cc302189d3c1308a7337dd4ce866203cdd098a",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-l_1lbr2p/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-l_1lbr2p/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-l_1lbr2p/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-l_1lbr2p/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-x6v8ho86/program.nvm",
+    "size": 1024,
+    "sha256": "5460e9e0e12d7376943ce3dff87c3445f1ac767279a862aae5a7cbf9521dd76b",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-x6v8ho86/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-x6v8ho86/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-x6v8ho86/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-x6v8ho86/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_reference_boundary_observations-yhjgwgkr/program.nvm",
+    "size": 1420,
+    "sha256": "c7d49d1778d801275c71572367b5a795a2895d89b789a3d7d5d95ce68805b6a4",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-yhjgwgkr/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-yhjgwgkr/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-yhjgwgkr/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_reference_boundary_observations-yhjgwgkr/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-zq6a2ib0/program.nvm",
+    "size": 1960,
+    "sha256": "0a4206c48cb88a44dde52d68e83d2226b4a32b1a440cfd95f631bc2a0a25db99",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-zq6a2ib0/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-zq6a2ib0/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-zq6a2ib0/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-zq6a2ib0/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-vm-contracts/test_unchanged_original_fixture-mx85fqg1/program.nvm",
+    "size": 2948,
+    "sha256": "80e3b9c6c01ef9931653938ac8e13e2a440c623e9d06f9430be832a6399dadf0",
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+          "--emit-nvm",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-mx85fqg1/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-mx85fqg1/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-vm-contracts/test_unchanged_original_fixture-mx85fqg1/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ]
+  }
+]

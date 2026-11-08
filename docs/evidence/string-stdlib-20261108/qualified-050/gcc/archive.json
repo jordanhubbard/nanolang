@@ -1,0 +1,15 @@
+{
+  "size": 16202877,
+  "sha256": "30eac2bf6e2927af954b4151a1141fa530c55fad4721947e7ffdad4bbfd81677",
+  "files": 2933,
+  "text_files": 2694,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-chgpupu5.tar.gz",
+      "sha256": "6c2970b95743bfeb69e6d0e26e1a84d0a8454610236ef0d2012aa933a2ab6454",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

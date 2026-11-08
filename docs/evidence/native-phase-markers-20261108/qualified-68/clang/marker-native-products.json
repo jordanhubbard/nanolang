@@ -1,0 +1,47 @@
+[
+  {
+    "path": "numeric-builtin-selection/test_disabled_recorder_has_no_required_external_tool-nano_virt-fpu270t7/native",
+    "size": 10135176,
+    "sha256": "f1f70ad6888b24f5b0ec02b437539165163ac5f33b8a9dc04ae714ac7f189dcd",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  },
+  {
+    "path": "numeric-builtin-selection/test_literal_phase_and_quoted_recorder_path-nano_virt-jrw4kxde/native",
+    "size": 10135176,
+    "sha256": "386852b3558687dea167b01b010e31c785a311e9b0a8976d1dbcf8d4ea78c03a",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  },
+  {
+    "path": "numeric-builtin-selection/test_recorder_refusal_is_observable_without_changing_program_acceptance-nano_virt-ly9_tc68/native",
+    "size": 10135176,
+    "sha256": "0e4bc904aafc3d3ac6ec6933573e5f9c92a34e26ea6b0b5c97234e54b34e91b0",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  }
+]

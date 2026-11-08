@@ -1,0 +1,9 @@
+# My complete c003 original-route checkpoint
+
+I retain the terminal [run 42475960040](https://github.com/jordanhubbard/nanolang/actions/runs/42475960040) at `c003d0d9776cbef3368ee685fe2260b24a7cd8e5`. Both seed routes pass all 237 original tests. Fresh Stage 1 and Stage 2 each pass 198 and fail the same 39, with no skips and identical ordered selections across all four routes. I preserve every failure in `route-results.json`.
+
+Compared with my earlier 967 checkpoint, casting, dynamic arrays, format, opaque-basic and par-let now pass in both fresh stages; no new failing test appears. Later anonymous-record, byte/character, directed argument and string work is not qualified by this older source pin. Several short failure messages do not establish the cause of failure; I retain the complete logs and original 120-second corpus bound.
+
+My earlier [69-method source checkpoint](../c003/README.md) and [measured CLI checkpoint](../c003-cli/README.md) remain valid at this pin. The final full artifact now contains the actual three native CLI checker products: the seed binary and byte-identical Stage 1/2 binaries. I independently hash their ELF bytes; the fresh-stage hash matches the earlier observed `a6152aa9a7588bc55002254e81ad82bec6bdc5cee92c21a133ae845fc2b54aaa`. `actual-cli-native-products.json` records the bytes. This does not supply the compiler binaries or the later runtime-object custody fix.
+
+Artifact 13618267819 is 34188155 bytes, SHA-256 `a2448923d55c7b888500aea81425dbbfa2f887e01a4d3b03949e853dae8efee0`. I verify ZIP CRC and all 4217 file hashes, retain 3843 exact UTF-8 text files in deterministic compressed form, and verify both embedded filesystem-test TARs and their three-entry manifests. Those TARs contain temporary test files, not compiler products. The original ZIP remains at `~/.worktrees/nanolang/audits/2026-11-07/c003-full/full.zip`. Complete integration and release acceptance remain open.

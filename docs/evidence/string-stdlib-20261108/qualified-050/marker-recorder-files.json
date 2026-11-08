@@ -1,0 +1,62 @@
+[
+  {
+    "compiler": "gcc",
+    "path": "compiler-phase-markers/marker ' literal sush3moo/marker-a7e9d2n4.json",
+    "size": 168,
+    "sha256": "4ccd62f789e9638e8c3ceaac9e4877f523ff2742937e5272a0d9a051393c16f1"
+  },
+  {
+    "compiler": "gcc",
+    "path": "compiler-phase-markers/marker ' literal sush3moo/marker-f8ngl13_.json",
+    "size": 168,
+    "sha256": "660ed14697830324d89756bbff692011b82e35305e9ad018019479c2fd8a669b"
+  },
+  {
+    "compiler": "gcc",
+    "path": "compiler-phase-markers/marker ' literal sush3moo/marker-irzu49f6.json",
+    "size": 168,
+    "sha256": "5c9cee33d527ad5ec421c6be5c414399fa39efe091ea82e84539a1eb2e98f77c"
+  },
+  {
+    "compiler": "gcc",
+    "path": "compiler-phase-markers/marker ' literal sush3moo/recorder ' literal",
+    "size": 226,
+    "sha256": "22581f17b9d39617627f3220076279d745fcd5a810b436ea2522792a1dac9344"
+  },
+  {
+    "compiler": "gcc",
+    "path": "compiler-phase-markers/marker-refusal-o695otsn/refusing-recorder",
+    "size": 17,
+    "sha256": "4d8fe24768718d56bd8c282eb86ad8c8411b2d3d4f8cc99d84fc37f55f7d3780"
+  },
+  {
+    "compiler": "clang",
+    "path": "compiler-phase-markers/marker ' literal g3t36wk_/marker-4k7hx83b.json",
+    "size": 168,
+    "sha256": "6a98d6458158196f721ffd1f4a2de5547d72996d5702e95571d775806c266f8c"
+  },
+  {
+    "compiler": "clang",
+    "path": "compiler-phase-markers/marker ' literal g3t36wk_/marker-6hk7tys2.json",
+    "size": 168,
+    "sha256": "5635ec50346d8aebdd16c8a3b5b95da3e2ae9afbdf11ff11a891ccaa10208766"
+  },
+  {
+    "compiler": "clang",
+    "path": "compiler-phase-markers/marker ' literal g3t36wk_/marker-czjzruhw.json",
+    "size": 168,
+    "sha256": "350710a4615dd5db8f42b2ca0faaaf0cdde2d4c27f725af32dd4e7218f522117"
+  },
+  {
+    "compiler": "clang",
+    "path": "compiler-phase-markers/marker ' literal g3t36wk_/recorder ' literal",
+    "size": 226,
+    "sha256": "65619ffb2e999324577d132de0f2b0200a738cb8a63b33a7b951d301abfce933"
+  },
+  {
+    "compiler": "clang",
+    "path": "compiler-phase-markers/marker-refusal-b1s4mbap/refusing-recorder",
+    "size": 17,
+    "sha256": "4d8fe24768718d56bd8c282eb86ad8c8411b2d3d4f8cc99d84fc37f55f7d3780"
+  }
+]

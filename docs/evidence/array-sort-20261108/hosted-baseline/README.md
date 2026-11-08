@@ -1,0 +1,3 @@
+# My current hosted sorting baseline
+
+I retain [run 42489917362](https://github.com/jordanhubbard/nanolang/actions/runs/42489917362) at `5f67490daf1b896364b4a477270cc800b7fa7d7a`. Both GCC and Clang report two failures in 120 methods: the unchanged whole array stdlib fixture and the five-kind/typed-empty/detached-storage control pass source compilation, verification and VM execution, then stop at the missing exact vm_array_sort native host ABI. The complete failed-step logs are retained without changing their diagnostics or assertions. This baseline predates sorting implementation; these logs do not supply native product custody.

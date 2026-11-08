@@ -1,0 +1,10 @@
+{
+  "cpus": 4,
+  "disk_total": 154894188544,
+  "disk_free": 84681535488,
+  "disk_free_fraction": 0.5467056981543562,
+  "memory": {
+    "MemTotal": 16760344576,
+    "MemAvailable": 15470735360
+  }
+}

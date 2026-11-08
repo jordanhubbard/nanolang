@@ -127,6 +127,7 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_AGG_PACK: pop = in->operands[3].u16; push = 1; break;
         case OP_ARR_LITERAL: pop = in->operands[1].u16; push = 1; break;
         case OP_PERFORM: pop = in->operands[1].u16; push = 1; break;
+        case OP_PICK: pop = 0; push = 1; break;
         case OP_RET: pop = fn->result_count; push = 0; break;
         default: break;
         }
@@ -134,6 +135,9 @@ static int collect_function(Analysis *a, uint32_t function) {
             fail(a, "I require an explicit stack contract for callable analysis"); goto done;
         }
         size_t before = frames[at].count;
+        if (in->opcode == OP_PICK && in->operands[0].u16 >= before) {
+            fail(a, "I require an existing stack slot for callable PICK"); goto done;
+        }
         if ((size_t)pop > before) {
             snprintf(error, sizeof error, "I found callable-analysis stack underflow in function %u at %u (%s: %zu available, %d required)",
                      function, decoded_instruction->byte_offset, info->name, before, pop);
@@ -202,6 +206,7 @@ static int collect_function(Analysis *a, uint32_t function) {
             else if (!flow(a, stack[base], a->globals[target])) goto done;
             break;
         case OP_DUP: output[0] = output[1] = stack[base]; break;
+        case OP_PICK: output[0] = stack[before - 1 - in->operands[0].u16]; break;
         case OP_SWAP: output[0] = stack[base + 1]; output[1] = stack[base]; break;
         case OP_ROT3: output[0] = stack[base + 2]; output[1] = stack[base]; output[2] = stack[base + 1]; break;
         case OP_AGG_PACK:
@@ -221,6 +226,39 @@ static int collect_function(Analysis *a, uint32_t function) {
             break;
         case OP_ARR_NEW:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
+            break;
+        case OP_CALL_EXTERN: {
+            const NvmImportEntry *import = &a->module->imports[target];
+            const char *library = nvm_get_string(a->module, import->module_name_idx);
+            const char *symbol = nvm_get_string(a->module, import->function_name_idx);
+            if (library && !*library && symbol && !strcmp(symbol, "vm_array_sort") &&
+                pop == 1 && push == 1 && import->return_type == TAG_ARRAY &&
+                a->module->import_param_types && a->module->import_param_types[target] &&
+                a->module->import_param_types[target][0] == TAG_ARRAY) {
+                if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                    !flow(a, field(a, stack[base], 0), field(a, output[0], 0)) ||
+                    !nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
+            } else if (library && !*library && symbol &&
+                !strcmp(symbol, "vm_bytes_from_string") && pop == 1 && push == 1 &&
+                import->return_type == TAG_ARRAY && a->module->import_param_types &&
+                a->module->import_param_types[target] && a->module->import_param_types[target][0] == TAG_STRING) {
+                if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                    !nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY) ||
+                    !nvm_shape_tags_add(&a->out->shapes, field(a, output[0], 0), 1u << TAG_U8)) goto done;
+            } else if (library && !*library && symbol &&
+                !strcmp(symbol, "vm_string_from_bytes") && pop == 1 && push == 1 &&
+                import->return_type == TAG_STRING && a->module->import_param_types &&
+                a->module->import_param_types[target] && a->module->import_param_types[target][0] == TAG_ARRAY) {
+                if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_STRING)) goto done;
+            } else {
+                for (int i = 0; i < push; ++i)
+                    if (!nvm_shape_tags_add(&a->out->shapes, output[i], NVM_CALLABLE_TAG_UNKNOWN)) goto done;
+            }
+            break;
+        }
+        case OP_STR_SPLIT:
+            if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                !nvm_shape_tags_add(&a->out->shapes, field(a, output[0], 0), 1u << TAG_STRING)) goto done;
             break;
         case OP_ARR_LITERAL:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
@@ -306,7 +344,7 @@ static int collect_function(Analysis *a, uint32_t function) {
             }
             break;
         }
-        if (push && (in->opcode == OP_ARR_NEW || in->opcode == OP_ARR_LITERAL || in->opcode == OP_ARR_SLICE))
+        if (push && (in->opcode == OP_ARR_NEW || in->opcode == OP_ARR_LITERAL || in->opcode == OP_ARR_SLICE || in->opcode == OP_STR_SPLIT))
             if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
         if (push && (in->opcode == OP_FUNCREF || in->opcode == OP_CLOSURE_NEW))
             if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_FUNCTION)) goto done;

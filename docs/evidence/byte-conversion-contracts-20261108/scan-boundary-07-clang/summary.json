@@ -1,0 +1,203 @@
+{
+  "run": 42521904940,
+  "artifact": 13633708254,
+  "zip_sha256": "2a0926ae083578f01555463eea7706cbf000f5df0864ca69c4ffeadc02996bbc",
+  "zip_size": 24301476,
+  "crc_checked": true,
+  "zip_saved": false,
+  "scope": "I verify four actual boundary native products and one managed-VM module through the C-seed routes. Actual source-created execution remains unqualified.",
+  "source_sha256": "65bbc71797db8088c88ca6381514ea6533cb2ffe7c0813fda6f3ef936c54ed29",
+  "native_products": [
+    {
+      "path": "bstring-c-contracts/O0-10ljyb9r/native",
+      "size": 11825232,
+      "sha256": "645ff4d3f47bb2a858f6440dbff95736b22ad38db288a793c72f45c4d72ebb93",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-c-contracts/O2-4mwbpw0c/native",
+      "size": 11065480,
+      "sha256": "8910b98cc5bb6dc2687efc01fca22be3aa4c2284905e609cdeaba95850275d43",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O0",
+      "size": 10464264,
+      "sha256": "7d7334e4411713ee565d5e7075f345612a0159f33e08d538bd04eafca3ce4b81",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O2",
+      "size": 10157576,
+      "sha256": "55174627ec9dac43dac7b26d076377f809cbfacb4bbd5d1a08e7ecb538376226",
+      "magic": "7f454c46"
+    }
+  ],
+  "vm_modules": [
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.nvm",
+      "size": 1636,
+      "sha256": "937170ac8468e1903c5844bd8412ffa77cf74a94bed893ffd6e0c1c5d5ca29e9"
+    }
+  ],
+  "commands": [
+    {
+      "directory": "bstring-c-contracts/O0-10ljyb9r",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-10ljyb9r/main.nano",
+            "--keep-c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-10ljyb9r/native"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-10ljyb9r/native"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-c-contracts/O2-4mwbpw0c",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-4mwbpw0c/main.nano",
+            "--keep-c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-4mwbpw0c/native"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-4mwbpw0c/native"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-clzsovdc/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "terminal_methods": [
+    "test_c_seed_native_keeps_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_c_seed_native_keeps_complete_input) ... ok",
+    "test_managed_vm_and_native_keep_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_managed_vm_and_native_keep_complete_input) ... ok",
+    "Ran 2 tests in 139.908s",
+    "FAILED (errors=3)"
+  ],
+  "source_creation": {
+    "starts": 970,
+    "completes": 969,
+    "failures": 0,
+    "summed_body_seconds": 9.772342,
+    "deadline_observed": true
+  }
+}

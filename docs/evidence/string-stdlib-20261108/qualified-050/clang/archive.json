@@ -1,0 +1,15 @@
+{
+  "size": 67812087,
+  "sha256": "78eee7d7ebcd05305ee411fccc6eb00952e7440c7a1d38d4680f4a42fdc5904f",
+  "files": 2929,
+  "text_files": 2690,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-cxxp2vg5.tar.gz",
+      "sha256": "7c751682467db9966a965c05dac3ea2a0e4a2130f7fbb1fbc0ac728c6ab2a7cc",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

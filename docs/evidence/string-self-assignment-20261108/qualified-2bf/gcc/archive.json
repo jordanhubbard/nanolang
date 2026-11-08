@@ -1,0 +1,15 @@
+{
+  "size": 20814535,
+  "sha256": "d4b5d02d1d5d72154896f01d96e9c717ac0f49cb0c545e4102d2000871b8306a",
+  "files": 3832,
+  "text_files": 3504,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-t3vsyxnf.tar.gz",
+      "sha256": "77c7daf0bf763c3e76d2300e7c43ce84afb4afb2498a4ce21ada7d73c646d9cb",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

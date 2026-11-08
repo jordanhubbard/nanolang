@@ -1,0 +1,67 @@
+name: Exact scalar map runtime
+
+on:
+  push:
+    branches: [fix/5.1-map-runtime-pairs, fix/5.1-map-aot-allocation]
+    paths:
+      - '.github/workflows/map-scalar-runtime.yml'
+      - 'src/nanoisa/nvm2c_map_runtime.inc'
+      - 'tests/test_map_scalar_runtime.py'
+      - 'tests/nanoisa/test_nvm2c.c'
+      - 'tests/nanoisa/native_map_alloc_probe.h'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scalar-runtime:
+    name: Map runtime (${{ matrix.os }}, ${{ matrix.compiler }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, compiler: gcc}
+          - {os: ubuntu-latest, compiler: clang}
+          - {os: macos-15, compiler: cc}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      NANO_NATIVE_TEST_CC: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record worker and exact runtime inputs before compilation
+        run: |
+          mkdir -p .test_output/map-scalar-runtime
+          python3 - <<'PY'
+          import hashlib, json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/map-scalar-runtime')
+          disks = []
+          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              usage = shutil.disk_usage(location)
+              disks.append({'path': location, 'free': usage.free, 'total': usage.total})
+          (output / 'worker.json').write_text(json.dumps({'cpus': os.cpu_count(), 'disks': disks}, indent=2) + '\n')
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in disks):
+              raise SystemExit('I hold native checks for insufficient disk headroom.')
+          paths = ['src/nanoisa/nvm2c_map_runtime.inc', 'tests/test_map_scalar_runtime.py',
+                   'tests/nanoisa/native_map_alloc_probe.h', 'tests/nanoisa/test_nvm2c.c']
+          hashes = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in paths}
+          (output / 'inputs.json').write_text(json.dumps(hashes, indent=2) + '\n')
+          PY
+          git rev-parse HEAD > .test_output/map-scalar-runtime/revision.txt
+          "$NANO_NATIVE_TEST_CC" --version > .test_output/map-scalar-runtime/compiler.txt
+          python3 --version > .test_output/map-scalar-runtime/python.txt
+      - name: Execute all pairs and every allocation-failure prefix under sanitizers
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_map_scalar_runtime \
+            2>&1 | tee .test_output/map-scalar-runtime/runtime.log
+          git diff --exit-code
+      - name: Retain exact runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: map-scalar-runtime-${{ matrix.os }}-${{ matrix.compiler }}
+          path: .test_output/map-scalar-runtime/
+          if-no-files-found: error

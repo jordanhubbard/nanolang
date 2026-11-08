@@ -1,0 +1,15 @@
+{
+  "size": 21417371,
+  "sha256": "8cc0b17ae991574c9457cbe1e1d597fa523f7754e052ab9731d89c98282a338b",
+  "files": 952,
+  "text_files": 866,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-blvv6bm9.tar.gz",
+      "sha256": "058968bbaab5a66eed4dca75345ac776998c12bc81c834f78d63771187adcc8a",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "scripts/litai_source_preservation.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"schema\": \"nanolang/source-preservation-report@1\",\n  \"baseline_commit\": \"043b52d1ade7023b18917737a0d299b6c431ee98\",\n  \"revision\": \"f2bd676cfd91b1be25361ccf7375fe989b257631\",\n  \"original_entries\": 92816,\n  \"owners\": {\n    \"distribution\": 758,\n    \"bootstrap\": 98,\n    \"qualification\": 90574,\n    \"libraries\": 464,\n    \"frontend\": 450,\n    \"native\": 35,\n    \"isa\": 358,\n    \"vm\": 79\n  },\n  \"inventory_sha256\": \"6fe537b39644e08b9a16462b35bf04412b0f75825c1b00eff3088c98d2b08150\",\n  \"inventory_format\": \"sorted JSONL [path, Git mode, Git type, Git object ID, preservation owner]\",\n  \"changed_original_paths\": [],\n  \"dirty_original_paths\": [],\n  \"preserved\": true,\n  \"native_lifecycle_qualified\": false,\n  \"limits\": \"Git custody only; original Git object IDs are not file SHA256 or native SBOM/toolchain admission\"\n}\n",
+  "stderr": ""
+}

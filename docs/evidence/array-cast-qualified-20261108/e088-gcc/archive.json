@@ -1,0 +1,15 @@
+{
+  "size": 8384490,
+  "sha256": "85ec0281be4bf432c01473214a5a3c4f8c9f83b96f98e4c977f8cc39f8869cc4",
+  "files": 1278,
+  "text_files": 1161,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-zpvoti3_.tar.gz",
+      "sha256": "6ba1a5a88c561832b9a511349e589fe1f0b46a14c906d389d28a433d5a6150ae",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

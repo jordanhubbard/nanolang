@@ -1,0 +1,20 @@
+{
+  "cpus": 3,
+  "disks": [
+    {
+      "path": ".",
+      "free": 42004828160,
+      "total": 343073095680
+    },
+    {
+      "path": "/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T",
+      "free": 42004828160,
+      "total": 343073095680
+    },
+    {
+      "path": "/Users/runner/work/_temp",
+      "free": 42004828160,
+      "total": 343073095680
+    }
+  ]
+}

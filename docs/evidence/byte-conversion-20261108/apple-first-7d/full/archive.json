@@ -1,0 +1,15 @@
+{
+  "size": 2044797,
+  "sha256": "78c66e35ebe82b93a4da418c68fc0269106ba0024899a32f2f0402d478d1d286",
+  "files": 25,
+  "text_files": 24,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-r_w__bdk.tar.gz",
+      "sha256": "8242c7c24a99a074ad1f66e30a3417721a369ab16180e18f2348498bfc4b4896",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# My array arithmetic fresh-route checkpoint
+
+I retain terminal failed [run 42468190057](https://github.com/jordanhubbard/nanolang/actions/runs/42468190057) at `967291401fc23f896350ed0a1ff2089bf7de1d7e`. Fresh bootstrap completes. Every route retains the identical ordered original 237 cases, zero skips. C native and C VM pass all 237; Stage 1 and Stage 2 each pass 193 and fail 44. The unchanged `test_array_operators` and `test_array_search_reverse` fixtures now pass on both stages compared with my ba4 checkpoint. I retain every remaining diagnostic in full-failure-index.json.
+
+All six map contract methods pass across their selected providers, including native snapshot contexts. All nine canonical STRING methods pass through each of the three selected producers. The separate 48-method source suite still retains six failed subcases: four invalid STRING operand acceptances and two reserved print definitions producing verifier underflow instead of the required definition diagnostic. The negative assertions remain correct. Later source corrections do not retroactively qualify this pin.
+
+All four providers pass the original CLI contracts under their selected 1,800-second budget. Compile durations are 31.279579019 seconds for C native, 3.344993019 for C VM, 372.582628844 for Stage 1 native and 370.173834177 for Stage 2 native. Internal phase timing remains unobserved. This result does not satisfy the original separate 120-second corpus bound or complete route parity.
+
+Both original ZIPs pass CRC and have complete uploaded-file SHA-256 inventories and deterministic exact UTF-8 text bundles. Both embedded TARs match their archive hashes and all three inventory entries. Original binary archives remain private; ZIP custody does not establish original filesystem modes or symlinks. Fresh map and array results are bounded evidence for #1083/#1093/#1094. Integrated platform and release acceptance remain open.

@@ -1,0 +1,9 @@
+{
+  "artifact_id": 13621927959,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/sort-0848/gcc-metadata.zip",
+  "size": 834404,
+  "sha256": "32fcfd416ca12abfa5ecfdefdf3b8a2d8db8f095c46ffa2555aaeddd66503bf9",
+  "files": 2161,
+  "text_files": 2161,
+  "crc_verified": true
+}

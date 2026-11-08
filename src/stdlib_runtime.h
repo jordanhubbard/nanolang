@@ -43,6 +43,8 @@ void sb_append(StringBuilder *sb, const char *str);
  * @param sb StringBuilder to append generated code to
  */
 void generate_string_operations(StringBuilder *sb);
+/* I snapshot environment values before later mutation can invalidate them. */
+void generate_environment_getter(StringBuilder *sb);
 
 /**
  * @brief Generate C code for file I/O operations (read, write, exists, etc.)

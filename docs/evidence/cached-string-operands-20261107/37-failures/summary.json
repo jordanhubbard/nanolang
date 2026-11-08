@@ -1,0 +1,18 @@
+[
+  {
+    "family": "gcc",
+    "run": 42421703375,
+    "artifact": 13593677732,
+    "archive_sha256": "edcd78bd4b25f91e675dc24b368c3a0b4dbfcce3cfdd6e40140b17a95d33d15d",
+    "crc_check": "passed",
+    "boundary": "I reach C compilation after corrected shadows; declaration names still collide or disagree with runtime helpers."
+  },
+  {
+    "family": "clang",
+    "run": 42421703375,
+    "artifact": 13593278381,
+    "archive_sha256": "28ffdb8e6feaa34cfe72e559d32c85e9d35fb94e61fad4a702cd1c95073e8da7",
+    "crc_check": "passed",
+    "boundary": "I reach C compilation after corrected shadows; declaration names still collide or disagree with runtime helpers."
+  }
+]

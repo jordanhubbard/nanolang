@@ -1,0 +1,259 @@
+name: Complete JUnit producer-route diagnosis
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots, fix/5.1-legacy-print-statements, fix/5.1-numeric-selection, fix/5.1-math-host-contracts, fix/5.1-stage-source-contracts]
+    paths:
+      - '.github/workflows/junit-route-audit.yml'
+      - 'scripts/junit_route_audit.py'
+      - 'scripts/test_run_contract.py'
+      - 'tests/test_test_run_contract.py'
+      - 'tests/test_test_run_contract_native.py'
+      - 'scripts/native_phase_trace.py'
+      - 'tests/test_native_phase_trace.py'
+      - 'tests/run_all_tests.sh'
+      - 'tests/test_resource_effect_checker.cases.json'
+      - 'tests/fixtures/resource-checker/**'
+      - 'tests/test_junit_route_audit.py'
+      - 'tests/test_canonical_string_builtins.py'
+      - 'tests/test_map_constructor_contexts.py'
+      - 'tests/unit/test_map_constructor_contexts.nano'
+      - 'Makefile.gnu'
+      - 'src_nano/compiler/nanoisa_codegen.nano'
+      - 'src/math_host_contracts.h'
+      - 'src/nanovirt/shadow_runner.c'
+      - 'src/math_host_contracts.def'
+      - 'src/nanoisa/nvm2c.c'
+      - 'tests/nanoisa/test_nvm2c_callables.c'
+      - 'src/nanoisa/nvm2c_callables.c'
+      - 'src/nanoisa/nvm2c_shape.c'
+      - 'src/nanoisa/nvm2c_shape.h'
+      - 'tests/nanoisa/test_nvm2c_shape.c'
+      - 'src/nanovirt/codegen.c'
+      - 'src_nano/typecheck.nano'
+      - 'src/env.c'
+      - 'src/eval.c'
+      - 'src/transpiler.c'
+      - 'src/stdlib_runtime.c'
+      - 'src/stdlib_runtime.h'
+      - 'src/transpiler_iterative_v3_twopass.c'
+      - 'tests/test_builtin_string_operands.py'
+      - 'tests/test_legacy_print_statements.py'
+      - 'tests/test_empty_record_array_contexts.py'
+      - 'tests/test_numeric_builtin_selection.py'
+      - 'tests/test_math_host_contracts.py'
+      - 'tests/test_array_search_reverse_contracts.py'
+      - 'tests/test_array_arithmetic_contracts.py'
+      - 'tests/test_cast_float_contracts.py'
+      - 'tests/test_dynamic_array_contracts.py'
+      - 'tests/test_format_source_contracts.py'
+      - 'tests/test_legacy_par_let_contracts.py'
+      - 'tests/test_anonymous_record_contracts.py'
+      - 'tests/test_byte_alias_contracts.py'
+      - 'tests/test_character_builtin_contracts.py'
+      - 'tests/test_u8_argument_contracts.py'
+      - 'tests/test_string_stdlib_contracts.py'
+      - 'tests/test_uppercase_condition_contracts.py'
+      - 'tests/test_legacy_bang_contracts.py'
+      - 'tests/test_array_sort_contracts.py'
+      - 'tests/test_byte_conversion_contracts.py'
+      - 'tests/test_environment_contracts.py'
+      - 'tests/test_compiler_phase_marker_contracts.py'
+      - 'src_nano/compiler/native_product.nano'
+      - 'src_nano/nanoc_v06.nano'
+      - 'tests/test_typechecker.c'
+      - 'src/typechecker.c'
+      - 'src/parser.c'
+      - 'tests/test_parser.c'
+      - 'schema/compiler_schema.json'
+      - 'src_nano/compiler/lexer.nano'
+      - 'src_nano/parser.nano'
+
+permissions:
+  contents: read
+
+jobs:
+  original-corpus:
+    name: Fresh compiler parity and complete original JUnit routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      CMD_TIMEOUT: '1800'
+      BOOTSTRAP_NANOISA_TIMEOUT: '5400'
+      NANO_SHADOW_TIMEOUT_SECONDS: '120'
+      NANO_SHADOW_TRACE: '1'
+      NANOLANG_NATIVE_PHASE_TRACE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require worker headroom before installation or bootstrap
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/junit-route-audit')
+          output.mkdir(parents=True)
+          resources = {}
+          for name, path in {'workspace': '.', 'temporary': tempfile.gettempdir(),
+                             'runner_temporary': os.environ['RUNNER_TEMP'],
+                             'package_cache': '/var/cache/apt'}.items():
+              disk = shutil.disk_usage(path)
+              resources[name] = {'path': path, 'free': disk.free, 'total': disk.total}
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'volumes': resources, 'memory': memory, 'cpus': os.cpu_count()}
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in resources.values()):
+              raise SystemExit('I hold this native diagnostic worker for insufficient disk headroom.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= .10:
+              raise SystemExit('I hold this native diagnostic worker for memory pressure.')
+          PY
+      - name: Install the same Linux providers as my platform CI
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh build-essential valgrind pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+            libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev \
+            libglew-dev freeglut3-dev libutf8proc-dev gforth
+      - name: Run the actual default fast gate and report integrity controls
+        run: |
+          make -f Makefile.gnu check-fast
+          python3 -m unittest -v tests.test_junit_route_audit tests.test_test_run_contract tests.test_ci_qualification_storage tests.test_native_phase_trace
+      - name: Build and verify fresh compiler generations
+        id: bootstrap
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime \
+            2>&1 | tee .test_output/junit-route-audit/bootstrap.log
+          git rev-parse HEAD > .test_output/junit-route-audit/revision.txt
+          git ls-tree -r HEAD > .test_output/junit-route-audit/source-tree.txt
+          sha256sum bin/nanoc_c bin/nano_virt bin/nano_vm bin/nanoisa bin/nvm2c bin/nanoc_stage1 \
+            bin/nanoc_stage2 bin/nanoc_stage1.nvm bin/nanoc_stage2.nvm bin/nano_aot_runtime.o \
+            > .test_output/junit-route-audit/providers-before.sha256
+          cc --version > .test_output/junit-route-audit/compiler.txt
+      - name: Execute every canonical string method through all three producers
+        timeout-minutes: 45
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          output = Path('.test_output/junit-route-audit')
+          results = []
+          for compiler in ['nano_virt', 'nanoc_stage1', 'nanoc_stage2']:
+              argv = [sys.executable, '-m', 'unittest', '-v', 'tests.test_canonical_string_builtins']
+              with (output / (compiler + '-focused.log')).open('w') as log:
+                  status = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT,
+                      env=dict(os.environ, NANOLANG_SELFHOST_COMPILER=str(Path('bin', compiler).resolve()))).returncode
+              results.append({'compiler': compiler, 'argv': argv, 'returncode': status})
+              (output / 'focused-results.json').write_text(json.dumps(results, indent=2) + '\n')
+          raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
+          PY
+      - name: Retain focused results before complete corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: focused-source-results-${{ github.sha }}
+          path: .test_output/junit-route-audit/
+          if-no-files-found: error
+      - name: Exercise cached string operands and real function identity
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts tests.test_array_arithmetic_contracts tests.test_cast_float_contracts tests.test_dynamic_array_contracts tests.test_format_source_contracts tests.test_legacy_par_let_contracts tests.test_anonymous_record_contracts tests.test_byte_alias_contracts tests.test_character_builtin_contracts tests.test_u8_argument_contracts tests.test_compiler_phase_marker_contracts tests.test_string_stdlib_contracts tests.test_uppercase_condition_contracts tests.test_legacy_bang_contracts tests.test_array_sort_contracts tests.test_byte_conversion_contracts tests.test_environment_contracts \
+            2>&1 | tee .test_output/junit-route-audit/string-operands.log
+
+      - name: Exercise the unchanged complete four-pair map constructor contract
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_map_constructor_contexts \
+            2>&1 | tee .test_output/junit-route-audit/map-contexts.log
+
+      - name: Retain source-contract metadata before CLI and full corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-contract-metadata-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/revision.txt
+            .test_output/junit-route-audit/providers-before.sha256
+            .test_output/junit-route-audit/focused-results.json
+            .test_output/junit-route-audit/string-operands.log
+            .test_output/junit-route-audit/map-contexts.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Measure and execute the original CLI through every fresh provider
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 90
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_test_run_contract_native \
+            2>&1 | tee .test_output/junit-route-audit/checker-cli.log
+
+      - name: Retain measured CLI metadata before complete corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-run-contract-metadata-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/checker-cli.log
+            .test_output/junit-route-audit/revision.txt
+            .test_output/junit-route-audit/providers-before.sha256
+            .test_output/cli-run-contract-native/**/compile-command.json
+            .test_output/cli-run-contract-native/**/compile-status.json
+            .test_output/cli-run-contract-native/**/compile.stdout
+            .test_output/cli-run-contract-native/**/compile.stderr
+            .test_output/cli-run-contract-native/**/compile.log
+            .test_output/cli-run-contract-native/**/run.log
+            .test_output/cli-run-contract-native/**/inputs*.json
+            .test_output/cli-run-contract-native/**/native-phase-summary.json
+            .test_output/cli-run-contract-native/**/native-phase-trace/**/*.json
+            .test_output/cli-run-contract-native/**/native-phase-trace/marker-*.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Retain the complete original corpus across seed native, VM and both stages
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 180
+        run: python3 scripts/junit_route_audit.py
+      - name: Verify unchanged source and fresh compiler providers
+        if: always() && steps.bootstrap.outcome == 'success'
+        run: |
+          git diff --exit-code HEAD
+          sha256sum --check .test_output/junit-route-audit/providers-before.sha256 \
+            > .test_output/junit-route-audit/providers-after.log
+      - name: Preserve every route result and diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-route-audit-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/
+            .test_output/legacy-print-statements/
+            .test_output/empty-record-array-contexts/
+            .test_output/numeric-builtin-selection/
+            .test_output/compiler-phase-markers/
+            .test_output/map-constructor-contexts/
+            .test_output/cli-run-contract-native/
+            obj/bootstrap-nanoisa/**/manifest.json
+            obj/bootstrap-nanoisa/**/*.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve original failed temporary roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-route-temporary-failures-${{ github.sha }}
+          path: ${{ runner.temp }}/nano-qualification-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30

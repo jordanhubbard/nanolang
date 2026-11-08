@@ -1,0 +1,9 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:8:5)
+  [E0001] Variable bs2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:24:5)
+  [E0001] Variable bs3: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:25:5)
+  [E0001] Variable utf8_bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:30:5)
+  [E0001] Variable sub: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:40:5)
+  [E0001] Variable test1: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:45:5)
+  [E0001] Variable test2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:46:5)

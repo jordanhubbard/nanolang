@@ -1,0 +1,1445 @@
+[
+  {
+    "compiler": "apple",
+    "cases": {
+      "whole-fixture": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "844f65b553f227ebe1081b76753cf47f36cd6ba670d1fc7921e92bd98dfbfd93",
+          "product_after_run": "844f65b553f227ebe1081b76753cf47f36cd6ba670d1fc7921e92bd98dfbfd93",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "897f7c657031ebe9a136818b1d1195a0ef4f5aa9660fc86289bec1bafbc48b20",
+          "product_after_run": "897f7c657031ebe9a136818b1d1195a0ef4f5aa9660fc86289bec1bafbc48b20",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        }
+      },
+      "binary-nul": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "03720d371be7785c9106de7e9bdcf3a72cb327e547b6a456c0ec5e66d5499b43",
+          "product_after_run": "03720d371be7785c9106de7e9bdcf3a72cb327e547b6a456c0ec5e66d5499b43",
+          "stdout": "3\n65\n0\n66\n1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 1
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "3378efeba70223368d272aa192a31355cf983d47e64ec6ddc4d3adf5a97b2cc7",
+          "product_after_run": "3378efeba70223368d272aa192a31355cf983d47e64ec6ddc4d3adf5a97b2cc7",
+          "stdout": "",
+          "stderr": "\nRuntime error: Type error\n  STR_LEN: not a string\nStack trace (most recent call first):\n  #0   main  /Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano:5:2\nI could not execute the module: Type error\n  STR_LEN: not a string\n"
+        }
+      },
+      "unicode-and-ownership": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "4339366fa43502329b73c9af1812f6568921855b5d6435ee3a9a70fb2f6adf64",
+          "product_after_run": "4339366fa43502329b73c9af1812f6568921855b5d6435ee3a9a70fb2f6adf64",
+          "stdout": "6\n-1\n-1\n-1\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "97dc7a83ed25effbae4710bdb6ec4c596df581944a228672a72100aa3b3c80e4",
+          "product_after_run": "97dc7a83ed25effbae4710bdb6ec4c596df581944a228672a72100aa3b3c80e4",
+          "stdout": "6\n3\n233\n33590\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        }
+      },
+      "invalid-utf8": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "6ec2d1d432947e0c0d6afacc2e212a0d938bfc26b5331a74472ac629b9190e7c",
+          "product_after_run": "6ec2d1d432947e0c0d6afacc2e212a0d938bfc26b5331a74472ac629b9190e7c",
+          "stdout": "false\n-1\n-1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "9846546fa7d2b6367d74746902488739914f69ded25fb2314ba06bab2f54e0c2",
+          "product_after_run": "9846546fa7d2b6367d74746902488739914f69ded25fb2314ba06bab2f54e0c2",
+          "stdout": "false\n1\n-1\n",
+          "stderr": ""
+        }
+      },
+      "substring-bounds": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "22965710db7dc2f4ecc1b65b98f747556c3840b146f285add201c1ebba324095",
+          "product_after_run": "22965710db7dc2f4ecc1b65b98f747556c3840b146f285add201c1ebba324095",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "96b595367fc09412835d6efcf139fb70715f553b073394515c3744faf95f1cce",
+          "product_after_run": "96b595367fc09412835d6efcf139fb70715f553b073394515c3744faf95f1cce",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        }
+      },
+      "byte-negative": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "116e1d51b15eda0ae7e20e1b045fd9c212fb131def2cb170d7ae7efcd5a80f0b",
+          "product_after_run": "116e1d51b15eda0ae7e20e1b045fd9c212fb131def2cb170d7ae7efcd5a80f0b",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "7ab36e11bddcc87e4bb23299c0bf21dd4a0806d127bf509ab0b78892d269cbd4",
+          "product_after_run": "7ab36e11bddcc87e4bb23299c0bf21dd4a0806d127bf509ab0b78892d269cbd4",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      },
+      "byte-beyond": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "7e2de8d6b44052199b0166c76d60a59e710a9e2d90b5a4b869a98fb7c8f8b6d5",
+          "product_after_run": "7e2de8d6b44052199b0166c76d60a59e710a9e2d90b5a4b869a98fb7c8f8b6d5",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/Users/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "446829f68c2fdf2b0ca57c82e4af4845d62442ca43306141ef423cfa91eff1d1",
+          "product_after_run": "446829f68c2fdf2b0ca57c82e4af4845d62442ca43306141ef423cfa91eff1d1",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      }
+    }
+  },
+  {
+    "compiler": "gcc",
+    "cases": {
+      "whole-fixture": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "35829781786863e9b929f8865c9ac774e75a02778b9e8e84f0476b83188710c3",
+          "product_after_run": "35829781786863e9b929f8865c9ac774e75a02778b9e8e84f0476b83188710c3",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "5d3d1a04c4ac089499744f2d9dcf946954c52879a2a8e154052dc89b582b72e7",
+          "product_after_run": "5d3d1a04c4ac089499744f2d9dcf946954c52879a2a8e154052dc89b582b72e7",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        }
+      },
+      "binary-nul": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "b662ee919b761fd20b6e2d213e128905c255d3632df08ea89c10aaf95564ec6a",
+          "product_after_run": "b662ee919b761fd20b6e2d213e128905c255d3632df08ea89c10aaf95564ec6a",
+          "stdout": "3\n65\n0\n66\n1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 1
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "68a6a665c2b8b0a70f19ff196c4bc0da12d648fd8555067573c3f889cb46c1fe",
+          "product_after_run": "68a6a665c2b8b0a70f19ff196c4bc0da12d648fd8555067573c3f889cb46c1fe",
+          "stdout": "",
+          "stderr": "\nRuntime error: Type error\n  STR_LEN: not a string\nStack trace (most recent call first):\n  #0   main  /home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano:5:2\nI could not execute the module: Type error\n  STR_LEN: not a string\n"
+        }
+      },
+      "unicode-and-ownership": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "749643554ee92cfc1fd922e2500fe7ef27df9f4ba33731ea570b582cc3ed2e9d",
+          "product_after_run": "749643554ee92cfc1fd922e2500fe7ef27df9f4ba33731ea570b582cc3ed2e9d",
+          "stdout": "6\n-1\n-1\n-1\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "b03fceab2f24f27062ad376905a56e2c3a88f8b05c10d15152fe5e5878f45f52",
+          "product_after_run": "b03fceab2f24f27062ad376905a56e2c3a88f8b05c10d15152fe5e5878f45f52",
+          "stdout": "6\n3\n233\n33590\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        }
+      },
+      "invalid-utf8": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "26019523fb51b9dc843f8a360d9496f21ac157e38bdd4b13f7d42ed56978eb58",
+          "product_after_run": "26019523fb51b9dc843f8a360d9496f21ac157e38bdd4b13f7d42ed56978eb58",
+          "stdout": "false\n-1\n-1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "55993daeb7603c2b359cfdd3fc7eaf579d5b102d62708ab951a9f9af08d7915d",
+          "product_after_run": "55993daeb7603c2b359cfdd3fc7eaf579d5b102d62708ab951a9f9af08d7915d",
+          "stdout": "false\n1\n-1\n",
+          "stderr": ""
+        }
+      },
+      "substring-bounds": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "4285b245bdead43c8c473bf1e0838373244c902c50bf7e4bcb33754d9f7c2099",
+          "product_after_run": "4285b245bdead43c8c473bf1e0838373244c902c50bf7e4bcb33754d9f7c2099",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "751205b130d558f174fb2686f0eebaf4d992144e60c27cd1918f56aac5d0345e",
+          "product_after_run": "751205b130d558f174fb2686f0eebaf4d992144e60c27cd1918f56aac5d0345e",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        }
+      },
+      "byte-negative": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "34febd1752161e47ffa1f79055b387c794feb83b94d11ee3b55ff5b84fd05b5b",
+          "product_after_run": "34febd1752161e47ffa1f79055b387c794feb83b94d11ee3b55ff5b84fd05b5b",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "f237df4629e3ec62284346e47f01bc130a36f1c87fbf38a28b2d767fc220ca27",
+          "product_after_run": "f237df4629e3ec62284346e47f01bc130a36f1c87fbf38a28b2d767fc220ca27",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      },
+      "byte-beyond": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "c4cdbd79eee07eaf8754743be3fc1c9764720e5ee3b0ba0e89c211ae948f5554",
+          "product_after_run": "c4cdbd79eee07eaf8754743be3fc1c9764720e5ee3b0ba0e89c211ae948f5554",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "361990e473d45b70191ccf194656f52657a4ce50716fe5915c6f551f9ad5f87c",
+          "product_after_run": "361990e473d45b70191ccf194656f52657a4ce50716fe5915c6f551f9ad5f87c",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      }
+    }
+  },
+  {
+    "compiler": "clang",
+    "cases": {
+      "whole-fixture": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "3a491f22e9c933789d95f144bfc59c027593a33e4bfe3ac292ed119642ebed3c",
+          "product_after_run": "3a491f22e9c933789d95f144bfc59c027593a33e4bfe3ac292ed119642ebed3c",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "source_after": "1909c7be9eac8aa0314e07a67e930df9104edd5afd10e2a62dddd7c4ca0e93b2",
+          "product_before_run": "5d3d1a04c4ac089499744f2d9dcf946954c52879a2a8e154052dc89b582b72e7",
+          "product_after_run": "5d3d1a04c4ac089499744f2d9dcf946954c52879a2a8e154052dc89b582b72e7",
+          "stdout": "Testing bstring type...\n\nCreated bstring\nLength: 11\nFirst byte (H): 72\nContent: Hello World\nConcatenated: Hello World - UTF-8 test\nUTF-8 string: Hello \u4e16\u754c\nByte length: 12\nCharacter length: 8\nSubstring[0:5]: Hello\nEquality test: PASS\n\nAll bstring tests passed!\n",
+          "stderr": ""
+        }
+      },
+      "binary-nul": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "740e898b0b48696ca96d8915ca48d9f6469c44a7fbe93c23b3bafe268165edb5",
+          "product_after_run": "740e898b0b48696ca96d8915ca48d9f6469c44a7fbe93c23b3bafe268165edb5",
+          "stdout": "3\n65\n0\n66\n1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+              ],
+              "returncode": 1
+            }
+          ],
+          "source_before": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "source_after": "470aa30a3bd0f0225c91bc9523b263c2ac30d2b8a5654519065b1d9a3d6232f9",
+          "product_before_run": "68a6a665c2b8b0a70f19ff196c4bc0da12d648fd8555067573c3f889cb46c1fe",
+          "product_after_run": "68a6a665c2b8b0a70f19ff196c4bc0da12d648fd8555067573c3f889cb46c1fe",
+          "stdout": "",
+          "stderr": "\nRuntime error: Type error\n  STR_LEN: not a string\nStack trace (most recent call first):\n  #0   main  /home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano:5:2\nI could not execute the module: Type error\n  STR_LEN: not a string\n"
+        }
+      },
+      "unicode-and-ownership": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "d1b6b2534942cd6ba3b80128a35339c7f9ca39c500b1b61767acaef0f77fc301",
+          "product_after_run": "d1b6b2534942cd6ba3b80128a35339c7f9ca39c500b1b61767acaef0f77fc301",
+          "stdout": "6\n-1\n-1\n-1\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "source_after": "f0face4a82445add9bde336545f864aed96cb66fde9ead836216045f8ac9b608",
+          "product_before_run": "b03fceab2f24f27062ad376905a56e2c3a88f8b05c10d15152fe5e5878f45f52",
+          "product_after_run": "b03fceab2f24f27062ad376905a56e2c3a88f8b05c10d15152fe5e5878f45f52",
+          "stdout": "6\n3\n233\n33590\n195\nA\u00e9\u8336!\nA\u00e9\u8336!kept\n",
+          "stderr": ""
+        }
+      },
+      "invalid-utf8": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "89d056b8039520f560b4e4efdea6128643b78eedf9bd832c31fd9409965fdf22",
+          "product_after_run": "89d056b8039520f560b4e4efdea6128643b78eedf9bd832c31fd9409965fdf22",
+          "stdout": "false\n-1\n-1\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "source_after": "1ffe1a301e2506fd07757c8bdded24eabbbab28fdac5a470cf2782d0e46ab5ad",
+          "product_before_run": "55993daeb7603c2b359cfdd3fc7eaf579d5b102d62708ab951a9f9af08d7915d",
+          "product_after_run": "55993daeb7603c2b359cfdd3fc7eaf579d5b102d62708ab951a9f9af08d7915d",
+          "stdout": "false\n1\n-1\n",
+          "stderr": ""
+        }
+      },
+      "substring-bounds": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "4658b5f9a3702ae83294e856d752e2484c79f1a37636cd88e86363f905bfdcde",
+          "product_after_run": "4658b5f9a3702ae83294e856d752e2484c79f1a37636cd88e86363f905bfdcde",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "source_after": "0d4c2fd032298cb154df8a04ec173ee8d26169ad605cf2008ca7717277496664",
+          "product_before_run": "751205b130d558f174fb2686f0eebaf4d992144e60c27cd1918f56aac5d0345e",
+          "product_after_run": "751205b130d558f174fb2686f0eebaf4d992144e60c27cd1918f56aac5d0345e",
+          "stdout": "0\n0\nlo\n",
+          "stderr": ""
+        }
+      },
+      "byte-negative": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "0391566ce3369a71db3f926f1908d2b2f214b8d0403e590cc6e20933c90c83c1",
+          "product_after_run": "0391566ce3369a71db3f926f1908d2b2f214b8d0403e590cc6e20933c90c83c1",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "source_after": "308f46fc9067ad3c3626607677eb5beaa22360ac754edfcf54dada5d61a055b4",
+          "product_before_run": "f237df4629e3ec62284346e47f01bc130a36f1c87fbf38a28b2d767fc220ca27",
+          "product_after_run": "f237df4629e3ec62284346e47f01bc130a36f1c87fbf38a28b2d767fc220ca27",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      },
+      "byte-beyond": {
+        "nanoc_c": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program",
+                "--keep-c"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "276526fff3d39aa5dff98b29b178bd9922a377c5599a5bfe9f1316d88dcf16fe",
+          "product_after_run": "276526fff3d39aa5dff98b29b178bd9922a377c5599a5bfe9f1316d88dcf16fe",
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "nano_virt": {
+          "commands": [
+            {
+              "label": "build",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+                "-o",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+                "--emit-nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "verify",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "--verify-only",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            },
+            {
+              "label": "run",
+              "argv": [
+                "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+                "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+              ],
+              "returncode": 0
+            }
+          ],
+          "source_before": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "source_after": "564d82891c9fd1fc0a55d98d2d3c56856d96d8de128fc6f4babe64c209bdf22c",
+          "product_before_run": "361990e473d45b70191ccf194656f52657a4ce50716fe5915c6f551f9ad5f87c",
+          "product_after_run": "361990e473d45b70191ccf194656f52657a4ce50716fe5915c6f551f9ad5f87c",
+          "stdout": "-1\n",
+          "stderr": ""
+        }
+      }
+    }
+  }
+]

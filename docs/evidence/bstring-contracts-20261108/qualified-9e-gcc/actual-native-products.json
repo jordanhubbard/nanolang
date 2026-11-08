@@ -1,0 +1,371 @@
+[
+  {
+    "path": "source-checker-component/actual-native-i0roxopg/checker",
+    "size": 14325344,
+    "sha256": "5808899eda4f9f973f7bccccb3dc23901ac97bcd380023dd5e6022034d50be08",
+    "magic": "7f454c46",
+    "inputs": {
+      "creation_path": "C-seed-to-native",
+      "native_lifecycle_admitted": false,
+      "fresh_stages_qualified": false,
+      "platform": "linux",
+      "product_magic_hex": "7f454c46",
+      "before": {
+        "bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416",
+        "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+        "src_nano/typecheck.nano": "fdf82dd44dfe0df9f184b3025eff6e829735b0f9f6665808d3f993b3daccf176",
+        "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+        "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+      },
+      "after": {
+        "bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416",
+        "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+        "src_nano/typecheck.nano": "fdf82dd44dfe0df9f184b3025eff6e829735b0f9f6665808d3f993b3daccf176",
+        "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+        "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+      },
+      "product_before_run": "5808899eda4f9f973f7bccccb3dc23901ac97bcd380023dd5e6022034d50be08",
+      "product_after_run": "5808899eda4f9f973f7bccccb3dc23901ac97bcd380023dd5e6022034d50be08"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+          "--verbose",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-i0roxopg/checker"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-i0roxopg/checker"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "source-checker-component/language-environment-knxyj74n/native",
+    "size": 11272864,
+    "sha256": "b266ccfa81daa2a69ae2c2f5622e359ff99c8b8539981ccb54ca4cec41e43a20",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "C interpreter and native environment snapshot",
+      "native_build_cflags": " -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-knxyj74n/main.nano": "552456d7e7b881ec2d26b37edda753e6432000806cf1a74ac4a1b62d437a7bdb",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-knxyj74n/main.nano": "552456d7e7b881ec2d26b37edda753e6432000806cf1a74ac4a1b62d437a7bdb",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "b266ccfa81daa2a69ae2c2f5622e359ff99c8b8539981ccb54ca4cec41e43a20",
+      "product_after_run": "b266ccfa81daa2a69ae2c2f5622e359ff99c8b8539981ccb54ca4cec41e43a20"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-knxyj74n/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-knxyj74n/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-environment-knxyj74n/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "source-checker-component/language-string-self-nju8inef/native",
+    "size": 8722632,
+    "sha256": "6f996751225ecfacbca15a55204010f83eb15f011556c2372cc25a4bc3e3d9aa",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "C interpreter shadows and generated native STRING self-assignment",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-nju8inef/main.nano": "883deeb19028713452c6fd6aa43d81b94a4733c7af555d7b282246ec550582e5"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-nju8inef/main.nano": "883deeb19028713452c6fd6aa43d81b94a4733c7af555d7b282246ec550582e5"
+      },
+      "product_before_run": "6f996751225ecfacbca15a55204010f83eb15f011556c2372cc25a4bc3e3d9aa",
+      "product_after_run": "6f996751225ecfacbca15a55204010f83eb15f011556c2372cc25a4bc3e3d9aa"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-nju8inef/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-nju8inef/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "native-run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/language-string-self-nju8inef/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O0-3l1tmxt3/native",
+    "size": 11289472,
+    "sha256": "5f5410126fa1b837d50d513db8029ec9acff9e38fdb955219b1b948e42880bc5",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O0 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-3l1tmxt3/main.nano": "1764605a0eb899c32d6c86bc181ad1c98ad9d32f9ce64bd7ceb6000304590bcf",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-3l1tmxt3/main.nano": "1764605a0eb899c32d6c86bc181ad1c98ad9d32f9ce64bd7ceb6000304590bcf",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "5f5410126fa1b837d50d513db8029ec9acff9e38fdb955219b1b948e42880bc5",
+      "product_after_run": "5f5410126fa1b837d50d513db8029ec9acff9e38fdb955219b1b948e42880bc5"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-3l1tmxt3/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-3l1tmxt3/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-3l1tmxt3/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O0-5jlevuhe/native",
+    "size": 11265824,
+    "sha256": "bda0688f7d0b124f039117fe4dfbc71c6dae4d4002caaac6345f35036a45e4c0",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O0 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-5jlevuhe/main.nano": "da62d523345007e1e08ded5bdddf4c7df4def878565aa39a3e5ea77c472301ff",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-5jlevuhe/main.nano": "da62d523345007e1e08ded5bdddf4c7df4def878565aa39a3e5ea77c472301ff",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "bda0688f7d0b124f039117fe4dfbc71c6dae4d4002caaac6345f35036a45e4c0",
+      "product_after_run": "bda0688f7d0b124f039117fe4dfbc71c6dae4d4002caaac6345f35036a45e4c0"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-5jlevuhe/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-5jlevuhe/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-5jlevuhe/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O0-trebbylj/native",
+    "size": 11255968,
+    "sha256": "70875218a27caab204fe471588883b4dd27bb5e35f8f6c10d95a48774b4e992f",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O0 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-trebbylj/main.nano": "1da0d6a6bd0c22092b5da6e24248bed5a0447816df6c07cc4c79eaa59784821a",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-trebbylj/main.nano": "1da0d6a6bd0c22092b5da6e24248bed5a0447816df6c07cc4c79eaa59784821a",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "70875218a27caab204fe471588883b4dd27bb5e35f8f6c10d95a48774b4e992f",
+      "product_after_run": "70875218a27caab204fe471588883b4dd27bb5e35f8f6c10d95a48774b4e992f"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-trebbylj/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-trebbylj/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O0-trebbylj/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O2-0y03pjby/native",
+    "size": 9937984,
+    "sha256": "bd124af5317bbffb311b79673f84a38c0191ea426dd8a09ee715c0b7796370e0",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O2 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-0y03pjby/main.nano": "1764605a0eb899c32d6c86bc181ad1c98ad9d32f9ce64bd7ceb6000304590bcf",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-0y03pjby/main.nano": "1764605a0eb899c32d6c86bc181ad1c98ad9d32f9ce64bd7ceb6000304590bcf",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "bd124af5317bbffb311b79673f84a38c0191ea426dd8a09ee715c0b7796370e0",
+      "product_after_run": "bd124af5317bbffb311b79673f84a38c0191ea426dd8a09ee715c0b7796370e0"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-0y03pjby/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-0y03pjby/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-0y03pjby/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O2-8t892qc5/native",
+    "size": 9912448,
+    "sha256": "10c72a28455260e6edbd706825001e804d747eb30f22c29f6cc61e946b3438ab",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O2 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-8t892qc5/main.nano": "da62d523345007e1e08ded5bdddf4c7df4def878565aa39a3e5ea77c472301ff",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-8t892qc5/main.nano": "da62d523345007e1e08ded5bdddf4c7df4def878565aa39a3e5ea77c472301ff",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "10c72a28455260e6edbd706825001e804d747eb30f22c29f6cc61e946b3438ab",
+      "product_after_run": "10c72a28455260e6edbd706825001e804d747eb30f22c29f6cc61e946b3438ab"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-8t892qc5/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-8t892qc5/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-8t892qc5/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "path": "bstring-c-contracts/O2-e6lua_ib/native",
+    "size": 9906104,
+    "sha256": "318cd4de89adc5aec55b0138497e4373ed2ad54b544701de262bb1a888fb9eb8",
+    "magic": "7f454c46",
+    "inputs": {
+      "scope": "I record actual C-seed shadow creation and native production execution; selected source shadows determine interpreter coverage.",
+      "native_build_cflags": " -O2 -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-e6lua_ib/main.nano": "1da0d6a6bd0c22092b5da6e24248bed5a0447816df6c07cc4c79eaa59784821a",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-e6lua_ib/main.nano": "1da0d6a6bd0c22092b5da6e24248bed5a0447816df6c07cc4c79eaa59784821a",
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c": "f9c0852e19d3b98fb235822060c93f4e5debb44533c3e443050a5ee516fd9416"
+      },
+      "product_before_run": "318cd4de89adc5aec55b0138497e4373ed2ad54b544701de262bb1a888fb9eb8",
+      "product_after_run": "318cd4de89adc5aec55b0138497e4373ed2ad54b544701de262bb1a888fb9eb8"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-e6lua_ib/main.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-e6lua_ib/native"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-c-contracts/O2-e6lua_ib/native"
+        ],
+        "returncode": 0
+      }
+    ]
+  }
+]

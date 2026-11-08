@@ -1,0 +1,64 @@
+{
+  "artifact": 13604618429,
+  "archive_bytes": 1961490,
+  "archive_sha256": "e29bf9f68111bc24e0b549a40995c3b1fefbf54f3a16c4a9a7bdec45a2f66968",
+  "zip_crc_error": null,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/cd810-string-success/gcc.zip",
+  "members": [
+    {
+      "name": "array-alias-results.json",
+      "bytes": 433,
+      "sha256": "7ca4dd991f7b83c16ebf66e95077c468d333ccdba60fdd1bd75a0ac580e1cbde"
+    },
+    {
+      "name": "build.log",
+      "bytes": 47853,
+      "sha256": "ffdd2d7baaa737831f6f666e33f7f0634fab8f7d9f364b502586fa544e0148b2"
+    },
+    {
+      "name": "compiler.txt",
+      "bytes": 246,
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "name": "nano_virt-array-aliases.log",
+      "bytes": 754,
+      "sha256": "c69dc29efc90958b42323a10b3be2ddadac9dd805374c2545c37037ae9bb1e36"
+    },
+    {
+      "name": "nanoc_c-array-aliases.log",
+      "bytes": 755,
+      "sha256": "fd9eedc33d7755bdce752e643896f06763aa67001dc53bfc526fa86667664a6f"
+    },
+    {
+      "name": "providers-after.log",
+      "bytes": 107,
+      "sha256": "176d6fd0db1687d3991c82565be689ffa2daa76e1a47824c48d794175d88397d"
+    },
+    {
+      "name": "providers.sha256",
+      "bytes": 479,
+      "sha256": "e5c17b256b731e5641d993976cb43f577d55c2477b9d97db2206a6f73385124b"
+    },
+    {
+      "name": "revision.txt",
+      "bytes": 41,
+      "sha256": "1822f60ec795e897a6bfdd6ff324b495ebdefd4fad7ccb5b5895ce822792c196"
+    },
+    {
+      "name": "source-tree.txt",
+      "bytes": 14202287,
+      "sha256": "2887e08ebb40b3d98ed1776b88061a3e0d474c0192656476be3b02df66c3ecca"
+    },
+    {
+      "name": "tests.log",
+      "bytes": 2585,
+      "sha256": "12b991dc88d281ce669ab6514eb3869d1fc215f89d6b5f5233435ad336030e50"
+    },
+    {
+      "name": "worker.json",
+      "bytes": 499,
+      "sha256": "a8ff8dc127967a0e634c34e65bf1830211c40d49252799670551974ffc0dbaa3"
+    }
+  ]
+}

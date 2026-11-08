@@ -87,9 +87,19 @@ static int tests_failed = 0;
     } \
 } while(0)
 
+/* I keep each fixture's VM storage outside my runner's stack frame. */
+#if defined(_MSC_VER)
+__declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static void run_fixture(void (*fixture)(void)) {
+    fixture();
+}
+
 #define RUN_TEST(fn) do { \
     printf("  %s...\n", #fn); \
-    fn(); \
+    run_fixture(fn); \
 } while(0)
 
 /* ========================================================================
@@ -2662,10 +2672,9 @@ static void test_array_remove_releases_the_element(void) {
 
     VmArray *a = vm_array_new(&heap, TAG_STRING, 4);
     NanoValue arr = val_array(a);
+    const char *const labels[] = {"s0", "s1", "s2"};
     for (int i = 0; i < 3; i++) {
-        char buf[8];
-        snprintf(buf, sizeof buf, "s%d", i);
-        VmString *s = vm_string_new(&heap, buf, 2);
+        VmString *s = vm_string_new(&heap, labels[i], 2);
         vm_array_push(&heap, a, val_string(s));
         vm_release(&heap, val_string(s));   /* push retains */
     }

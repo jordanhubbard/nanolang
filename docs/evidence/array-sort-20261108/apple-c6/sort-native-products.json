@@ -1,0 +1,294 @@
+[
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "5bfef7270bff2416ffce05e86d69cd66811ffb4758ab26b549cf92cafdf301db",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-4k6eleua/nativeO0",
+    "size": 8828152,
+    "sha256": "4083f30bb77661cb06dd407d42d9eb00d0a981b79b019cd20b78adfda4ce1b41",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "5bfef7270bff2416ffce05e86d69cd66811ffb4758ab26b549cf92cafdf301db",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-4k6eleua/nativeO2",
+    "size": 8566632,
+    "sha256": "b076c1f87e306b56aa0e659bb553e8ff38d54198aa23a519ceccd9995c9095c1",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "558800a77687b4728c23325d41c14a7284f6e432f71468ece0bae375c5169387",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-6f78endh/nativeO0",
+    "size": 8827944,
+    "sha256": "ebee583e1609350e903e632fb21c12351e7bfa64fb5bc2eca4ae7b217256a6bd",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "558800a77687b4728c23325d41c14a7284f6e432f71468ece0bae375c5169387",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-6f78endh/nativeO2",
+    "size": 8566280,
+    "sha256": "2b8f75b6fa238902e8b132b743f6f543bdaf31524e19f1f48ef0d78961cc91c3",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": true,
+    "assembly_sha256": "581ddde2cd1d84f7e333a79110a6e8a0e542b1d19675252ba9657e91c7d018d0",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-7pnmufth/nativeO0",
+    "size": 8810888,
+    "sha256": "9c0e2d69871023ed959a6de6be841d6e5c681f9457b4e1f0e7f41c7217b1a6e7",
+    "command_count": 8,
+    "observed_exit": -6
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": true,
+    "assembly_sha256": "581ddde2cd1d84f7e333a79110a6e8a0e542b1d19675252ba9657e91c7d018d0",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-7pnmufth/nativeO2",
+    "size": 8565864,
+    "sha256": "b8a74b21edff82340ed867708e8139380cf5c227b92bbd6cac4cfc6cbbe14c03",
+    "command_count": 8,
+    "observed_exit": -6
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "eb8c2777d8c85a74bcff54a897d892ae1d90cd7aff0ea623ce4cc1daf3fbb09f",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-rxpbfw4p/nativeO0",
+    "size": 8827944,
+    "sha256": "e4a2fb8203c8d1258961938d4912852a237e7ebf61c3aec0fec70d008cd85b13",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "eb8c2777d8c85a74bcff54a897d892ae1d90cd7aff0ea623ce4cc1daf3fbb09f",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-rxpbfw4p/nativeO2",
+    "size": 8566456,
+    "sha256": "f497c9a34657008a3343bd09aa0648052050aa464daba400030b16a5b0bff46e",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "9d37cb0e723c826daefffc7c46c91bc2c52aef1f93a56bfa31a732fa8d5aedf9",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-vo1e450o/nativeO0",
+    "size": 8827976,
+    "sha256": "32fc4c3cea3cb103548991cc4e45c9d10cfc73910c16e210a7a04ca1126002e3",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "9d37cb0e723c826daefffc7c46c91bc2c52aef1f93a56bfa31a732fa8d5aedf9",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-vo1e450o/nativeO2",
+    "size": 8566456,
+    "sha256": "a63a4828cbbc90a4d0e2cc268802b14bfbb8f7cf2d3c630489e15190cadae4c0",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "6f49470d3fb1ad34c61819b24b73d43635de46acb53d52090caf0063af3032f6",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-xbt5q820/nativeO0",
+    "size": 8827944,
+    "sha256": "4bb604d80f323252bc0d0fcbd4d3b4121ce3b4c0cc5b4c054fe8b209f4702786",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "cd454856449a446ebed7f275a18563154c2bc548c79c6d56d577f7425d901064",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "17b9af77e1141690d6c2b799fe8876d5ad092731de3a742dbf2b99a16ec38060",
+      "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "bfad58e3dbc20bd819dce2c18411141872fb7732d3b08e76f036e46248ea6dfa",
+      "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o": "dd63733130004ed857c74811fa53cae7cd451522106587974759a73849bb40b1"
+    },
+    "invalid_utf8": false,
+    "assembly_sha256": "6f49470d3fb1ad34c61819b24b73d43635de46acb53d52090caf0063af3032f6",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/array-sort-raw-xbt5q820/nativeO2",
+    "size": 8566280,
+    "sha256": "0866613ccc16b9c889d53d98b8acfdbd6e9dd65168a49d0064ca766137f4141a",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "ed610a5cb5097a89c67408b4a10b6aabd44ba456a51b99582a7ba13988a3ea68",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_five_scalar_kinds_typed_empty_and_detached_storage-nano_virt-eovmlxuf/native",
+    "size": 8603000,
+    "sha256": "d3bd58c7dfdbe129dc376355111f7c0b83eb80e100931dd8ec89021c99627cdd",
+    "command_count": 6,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "6a483f3a22827e8cc7a2e91d0e53eb7bef81cc3ca8a53637257c9a51c2c4c4a6",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-4pgbf6rg/native-O0",
+    "size": 8894184,
+    "sha256": "aa4a4ca29fcf535609c35769b1ffe9075879e274592f7d7915cf8df52745e227",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "6a483f3a22827e8cc7a2e91d0e53eb7bef81cc3ca8a53637257c9a51c2c4c4a6",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-4pgbf6rg/native-O2",
+    "size": 8583912,
+    "sha256": "ffbd6d9a9e5998bbf331d254f8323ac9c368a3235bcc794f058b79780be9d5d5",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "0ebbda7fb661db423e5caf6a17b5ee77caeff25a81fe5378eb63c8f774cd2ae3",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-nt4t8g3f/native-O0",
+    "size": 8844488,
+    "sha256": "5f9b49dac7de871406cbf251556056921efa765a449694505a35f597ab2f53b5",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "0ebbda7fb661db423e5caf6a17b5ee77caeff25a81fe5378eb63c8f774cd2ae3",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-nt4t8g3f/native-O2",
+    "size": 8567048,
+    "sha256": "57f44c9207297861448a4c2643f3cb59230d793fec0a0fab609c3683442e00ea",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "e44d74544941857c977c26fbbdfe07e9d68a1725cb53bee84a6e4a657fd3c4d5",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-rwetlacr/native-O0",
+    "size": 8914584,
+    "sha256": "b808fe327c74117d8ef26a043684d9510e1ab725ad469fa9fbb5ef982204a302",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "e44d74544941857c977c26fbbdfe07e9d68a1725cb53bee84a6e4a657fd3c4d5",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-rwetlacr/native-O2",
+    "size": 8587560,
+    "sha256": "4dcad2e64c5c74fe6f10cb805228b6a5f64b2ec0e10447c7905479cb715f9534",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "38cf9438f702a44ec70e4166e635aa0fbc122e0bc73968170e6c6a33ab5d006a",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_original_complete_array_stdlib_fixture-nano_virt-jhbtvq86/native",
+    "size": 8655464,
+    "sha256": "7cfa0a692706f757dfd9830d25136f059b1f1ea93f1dd12cb2ab226a20bf9c55",
+    "command_count": 6,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "f012741129f7217561488a341aa94060ae2101b6412b152d84c074aaca8036ed",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-wgob6ay3/native-O0",
+    "size": 8861544,
+    "sha256": "e7ee631d41abacc9790a968136d846f50755d5aa56a73f2f70c4a0171c3d87d5",
+    "command_count": 8,
+    "observed_exit": 0
+  },
+  {
+    "provider_sha256": "0e5fe184fb83f5bd49794b82c00f9002c27e08b93aef9d9d394b8e48c683c9fa",
+    "source_sha256": "f012741129f7217561488a341aa94060ae2101b6412b152d84c074aaca8036ed",
+    "compiler": "cc",
+    "path": "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-wgob6ay3/native-O2",
+    "size": 8585288,
+    "sha256": "1302e9cdd33315c50bd89378202ca524e2eee1cf2545595410aad38de88f8650",
+    "command_count": 8,
+    "observed_exit": 0
+  }
+]

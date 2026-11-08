@@ -1,0 +1,15 @@
+{
+  "size": 2011855,
+  "sha256": "decbe7b592b37bc9158b8bc0debcf883174ea92eae680776c6313ad89ba5148e",
+  "files": 16,
+  "text_files": 15,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-25zv10uu.tar.gz",
+      "sha256": "748b44f29171777d05bfd753b71dbf48fe43c7e9d01fb7625d09f72266eddf5b",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "volumes": {
+    "workspace": {
+      "path": ".",
+      "free": 84763467776,
+      "total": 154894188544
+    },
+    "temporary": {
+      "path": "/tmp",
+      "free": 84763467776,
+      "total": 154894188544
+    },
+    "runner_temporary": {
+      "path": "/home/runner/work/_temp",
+      "free": 84763467776,
+      "total": 154894188544
+    },
+    "package_cache": {
+      "path": "/var/cache/apt",
+      "free": 84763467776,
+      "total": 154894188544
+    }
+  },
+  "memory": {
+    "MemTotal": 16760344576,
+    "MemAvailable": 15498285056
+  },
+  "cpus": 4
+}

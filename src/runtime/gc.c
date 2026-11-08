@@ -193,6 +193,8 @@ void gc_shutdown(void) {
     while (current != NULL) {
         GCHeader* next = current->next;
         gc_destroy_object(current, false);
+        /* I preserve visibility during finalization, then retire the owner. */
+        gc_hash_remove(gc_header_to_ptr(current));
         free(current);
         current = next;
     }
@@ -201,6 +203,10 @@ void gc_shutdown(void) {
     gc_hash_clear();
     
     gc_state.all_objects = NULL;
+    /* I retain cumulative totals while accounting for every shutdown reclaim. */
+    gc_state.stats.total_freed += gc_state.stats.current_usage;
+    gc_state.stats.current_usage = 0;
+    gc_state.stats.num_objects = 0;
     gc_state.initialized = false;
 }
 
@@ -211,6 +217,10 @@ void* gc_alloc(size_t size, GCObjectType type) {
     }
     
     /* Allocate space for header + object */
+    if (size > SIZE_MAX - sizeof(GCHeader)) {
+        fprintf(stderr, "I cannot allocate a managed object whose header and payload size overflow.\n");
+        return NULL;
+    }
     size_t total_size = sizeof(GCHeader) + size;
     GCHeader* header = (GCHeader*)malloc(total_size);
     
@@ -357,6 +367,10 @@ void gc_set_threshold(size_t bytes) {
 
 /* Allocate GC-managed string */
 char* gc_alloc_string(size_t length) {
+    if (length == SIZE_MAX) {
+        fprintf(stderr, "I cannot allocate a managed string whose terminator size overflows.\n");
+        return NULL;
+    }
     /* Allocate space for the string content + null terminator */
     char* str = (char*)gc_alloc(length + 1, GC_TYPE_STRING);
     if (str) {

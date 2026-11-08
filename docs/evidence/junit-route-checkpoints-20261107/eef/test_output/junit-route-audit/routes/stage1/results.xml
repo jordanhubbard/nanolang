@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="nanolang" tests="237" failures="64" skipped="0" time="260.84" timestamp="2026-11-07T22:22:41Z">
+  <testsuite name="nanolang" tests="237" failures="64" skipped="0" time="260.84" hostname="runnervm7aw5e">
+    <testcase classname="nanolang.nl.nl_syntax_literals" name="nl_syntax_literals" time=".32">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_syntax_operators" name="nl_syntax_operators" time=".36">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_bool_list" name="nl_types_bool_list" time=".40">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_enum" name="nl_types_enum" time=".67">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_struct" name="nl_types_struct" time=".52">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_types_tuple" name="nl_types_tuple" time=".35">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_array_elements" name="nl_control_array_elements" time=".72">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_flow" name="nl_control_flow" time=".34">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_match" name="nl_control_match" time=".31">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_control_while" name="nl_control_while" time=".29">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_array_param" name="nl_functions_array_param" time=".26">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_audio_examples_default_args" name="nl_functions_audio_examples_default_args" time="3.37">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_filter" name="nl_functions_filter" time="1.84">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_map_reduce" name="nl_functions_map_reduce" time=".24">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_module_introspection_flags" name="nl_functions_module_introspection_flags" time=".17">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_module_metadata" name="nl_functions_module_metadata" time=".45">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_nanoamp_default_args" name="nl_functions_nanoamp_default_args" time="3.35">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_relative_import" name="nl_functions_relative_import" time=".21">
+    </testcase>
+    <testcase classname="nanolang.nl.nl_functions_string_edges" name="nl_functions_string_edges" time=".39">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_advanced" name="tuple_advanced" time=".43">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_basic" name="tuple_basic" time=".33">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_params" name="tuple_params" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.tuple_typeinfo_test" name="tuple_typeinfo_test" time=".26">
+    </testcase>
+    <testcase classname="nanolang.app.nested_structs" name="nested_structs" time=".28">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_3d" name="test_nested_3d" time=".33">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_array_shadows" name="test_nested_array_shadows" time=".28">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_complex" name="test_nested_complex" time=".32">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_debug_root" name="test_nested_debug_root" time=".22">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_gc" name="test_nested_gc" time=".31">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested_string_concat" name="test_nested_string_concat" time=".23">
+    </testcase>
+    <testcase classname="nanolang.app.test_affine_integration" name="test_affine_integration" time=".46">
+    </testcase>
+    <testcase classname="nanolang.app.test_algebraic_effects" name="test_algebraic_effects" time=".30">
+      <failure message="compilation failed: I cannot lower this checked program: undefined binding println " type="TestFailure">compilation failed: I cannot lower this checked program: undefined binding println </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_all_imports" name="test_all_imports" time="1.32">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_anonymous_struct_function_args" name="test_anonymous_struct_function_args" time=".05">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_function_args.nano:30, column 31: unexpected token '' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_function_args.nano:30, column 31: unexpected token '' </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_anonymous_struct_literal" name="test_anonymous_struct_literal" time=".02">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_literal.nano:15, column 12: unexpected token '' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_literal.nano:15, column 12: unexpected token '' </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_array_lit" name="test_array_lit" time=".29">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_operators" name="test_array_operators" time=".38">
+      <failure message="compilation failed: I cannot lower this checked program: I require matching flat numeric array and scalar element types for arithmetic " type="TestFailure">compilation failed: I cannot lower this checked program: I require matching flat numeric array and scalar element types for arithmetic </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_array_search_reverse" name="test_array_search_reverse" time=".17">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable reversed_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:50:5)   [E0001] Variable floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:54:5)   [E0001] Variable flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:56:5) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable reversed_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:50:5)   [E0001] Variable floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:54:5)   [E0001] Variable flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:56:5) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_array_slice" name="test_array_slice" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.test_array_struct_comprehensive" name="test_array_struct_comprehensive" time=".50">
+    </testcase>
+    <testcase classname="nanolang.app.test_async" name="test_async" time="0">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_async.nano:4, column 1: unexpected token 'async' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_async.nano:4, column 1: unexpected token 'async' </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_boolean_precedence" name="test_boolean_precedence" time=".38">
+    </testcase>
+    <testcase classname="nanolang.app.test_break_continue" name="test_break_continue" time=".26">
+    </testcase>
+    <testcase classname="nanolang.app.test_bstring" name="test_bstring" time=".10">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:8:5)   [E0001] Variable bs2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:24:5)   [E0001] Variable bs3: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:25:5) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:8:5)   [E0001] Variable bs2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:24:5)   [E0001] Variable bs3: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:25:5) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_builtins" name="test_builtins" time=".35">
+    </testcase>
+    <testcase classname="nanolang.app.test_builtins_phase1" name="test_builtins_phase1" time=".13">
+      <failure message="compilation failed: I cannot lower this checked program: undefined function min " type="TestFailure">compilation failed: I cannot lower this checked program: undefined function min </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_bytes_conversion" name="test_bytes_conversion" time="1.05">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow main at merged line 412: undefined function bytes_from_string " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow main at merged line 412: undefined function bytes_from_string </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_casting" name="test_casting" time=".22">
+      <failure message="compilation failed: I cannot lower this checked program: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower this checked program: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_complex" name="test_complex" time=".50">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_complex_abs at merged line 80: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_complex_abs at merged line 80: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_concat" name="test_concat" time=".19">
+    </testcase>
+    <testcase classname="nanolang.app.test_cond" name="test_cond" time=".79">
+    </testcase>
+    <testcase classname="nanolang.app.test_constant_folding" name="test_constant_folding" time=".33">
+    </testcase>
+    <testcase classname="nanolang.app.test_debug_stacktrace" name="test_debug_stacktrace" time=".13">
+    </testcase>
+    <testcase classname="nanolang.app.test_driver_hello" name="test_driver_hello" time=".13">
+    </testcase>
+    <testcase classname="nanolang.app.test_driver_integration" name="test_driver_integration" time=".53">
+    </testcase>
+    <testcase classname="nanolang.app.test_dynamic_arrays" name="test_dynamic_arrays" time=".37">
+      <failure message="compilation failed: I cannot lower this checked program: undefined function array_pop " type="TestFailure">compilation failed: I cannot lower this checked program: undefined function array_pop </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_effects" name="test_effects" time=".16">
+    </testcase>
+    <testcase classname="nanolang.app.test_effects_pub" name="test_effects_pub" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.test_ensures" name="test_ensures" time=".35">
+    </testcase>
+    <testcase classname="nanolang.app.test_env" name="test_env" time=".21">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_error_messages" name="test_error_messages" time="3.81">
+    </testcase>
+    <testcase classname="nanolang.app.test_fn_call_assign" name="test_fn_call_assign" time=".21">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_continue" name="test_for_continue" time=".40">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_in_loops" name="test_for_in_loops" time=".55">
+    </testcase>
+    <testcase classname="nanolang.app.test_for_in_range_scope_bug" name="test_for_in_range_scope_bug" time=".37">
+    </testcase>
+    <testcase classname="nanolang.app.test_format" name="test_format" time=".22">
+      <failure message="compilation failed: I cannot lower this checked program: string concat needs two strings " type="TestFailure">compilation failed: I cannot lower this checked program: string concat needs two strings </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_fs_walkdir" name="test_fs_walkdir" time="1.88">
+    </testcase>
+    <testcase classname="nanolang.app.test_gc_string_leak" name="test_gc_string_leak" time=".34">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_list_struct" name="test_generic_list_struct" time=".26">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_result" name="test_generic_result" time=".03">
+      <failure message="compilation failed: I cannot lower this checked program: undefined binding println " type="TestFailure">compilation failed: I cannot lower this checked program: undefined binding println </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union" name="test_generic_union" time=".38">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union_match" name="test_generic_union_match" time=".37">
+    </testcase>
+    <testcase classname="nanolang.app.test_generic_union_non_generic" name="test_generic_union_non_generic" time=".18">
+    </testcase>
+    <testcase classname="nanolang.app.test_graphx" name="test_graphx" time="2.32">
+    </testcase>
+    <testcase classname="nanolang.app.test_hashmap_generic_core" name="test_hashmap_generic_core" time=".21">
+      <failure message="compilation failed: I cannot lower this checked program: undefined function map_keys " type="TestFailure">compilation failed: I cannot lower this checked program: undefined function map_keys </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_hashmap_set_advanced" name="test_hashmap_set_advanced" time=".85">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_hello" name="test_hello" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_higher_order" name="test_higher_order" time=".32">
+    </testcase>
+    <testcase classname="nanolang.app.test_hm_inference" name="test_hm_inference" time=".11">
+      <failure message="compilation failed: I cannot lower this checked program: undefined binding println " type="TestFailure">compilation failed: I cannot lower this checked program: undefined binding println </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_import_aliasing" name="test_import_aliasing" time=".47">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported local type StringBuilder " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported local type StringBuilder </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_infix_operators" name="test_infix_operators" time=".67">
+    </testcase>
+    <testcase classname="nanolang.app.test_match_completeness" name="test_match_completeness" time=".36">
+    </testcase>
+    <testcase classname="nanolang.app.test_match_guards" name="test_match_guards" time=".55">
+    </testcase>
+    <testcase classname="nanolang.app.test_mathx" name="test_mathx" time=".89">
+    </testcase>
+    <testcase classname="nanolang.app.test_matrix4" name="test_matrix4" time="2.05">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_minimal" name="test_minimal" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection" name="test_module_introspection" time=".24">
+      <failure message="compilation failed: I am testing shadow add I am testing shadow multiply I am testing shadow helper I am testing shadow distance_squared I am testing shadow main " type="TestFailure">compilation failed: I am testing shadow add I am testing shadow multiply I am testing shadow helper I am testing shadow distance_squared I am testing shadow main </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection_exports" name="test_module_introspection_exports" time=".17">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_introspection_import" name="test_module_introspection_import" time=".35">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_qualified_comprehensive" name="test_module_qualified_comprehensive" time=".40">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_qualified_struct" name="test_module_qualified_struct" time=".35">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_struct_qualification" name="test_module_struct_qualification" time=".62">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 90: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 90: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_module_system" name="test_module_system" time=".51">
+    </testcase>
+    <testcase classname="nanolang.app.test_module_visibility" name="test_module_visibility" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_basic" name="test_namespace_basic" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_syntax" name="test_namespace_syntax" time=".25">
+    </testcase>
+    <testcase classname="nanolang.app.test_namespace_transpiler" name="test_namespace_transpiler" time=".21">
+    </testcase>
+    <testcase classname="nanolang.app.test_nested" name="test_nested" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.test_opaque_basic" name="test_opaque_basic" time="0">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_opaque_basic.nano:4, column 37: unexpected token 'opaque' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_opaque_basic.nano:4, column 37: unexpected token 'opaque' </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_opl_cases_runner" name="test_opl_cases_runner" time="8.74">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported local type OplParseResult " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported local type OplParseResult </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_opl_compile_golden" name="test_opl_compile_golden" time="6.53">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported local type OplParseResult " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported local type OplParseResult </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_par_blocks" name="test_par_blocks" time=".28">
+    </testcase>
+    <testcase classname="nanolang.app.test_par_let" name="test_par_let" time=".31">
+      <failure message="compilation failed: I could not verify the shadow module: Assembled module failed verification: function[8] stack underflow at offset 48 (POP needs 1, has 0) " type="TestFailure">compilation failed: I could not verify the shadow module: Assembled module failed verification: function[8] stack underflow at offset 48 (POP needs 1, has 0) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_path_ops_v2" name="test_path_ops_v2" time="1.61">
+    </testcase>
+    <testcase classname="nanolang.app.test_pretty_printer" name="test_pretty_printer" time="1.05">
+    </testcase>
+    <testcase classname="nanolang.app.test_process" name="test_process" time=".07">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol process_run " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol process_run </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_profile" name="test_profile" time=".38">
+    </testcase>
+    <testcase classname="nanolang.app.test_proptest" name="test_proptest" time="4.22">
+    </testcase>
+    <testcase classname="nanolang.app.test_pub_extern_fn" name="test_pub_extern_fn" time=".17">
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_full" name="test_pybridge_full" time="2.21">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_matplotlib_smoke" name="test_pybridge_matplotlib_smoke" time=".88">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol mpl_init " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol mpl_init </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_pybridge_smoke" name="test_pybridge_smoke" time="2.01">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_qualified_names" name="test_qualified_names" time=".14">
+    </testcase>
+    <testcase classname="nanolang.app.test_quaternion" name="test_quaternion" time="1.09">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_repl_history" name="test_repl_history" time="1.54">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_requires" name="test_requires" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_effect_checker" name="test_resource_effect_checker" time="120.18">
+      <failure message="compilation failed: " type="TestFailure">compilation failed: </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_syntax" name="test_resource_syntax" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_tracking" name="test_resource_tracking" time=".23">
+    </testcase>
+    <testcase classname="nanolang.app.test_resource_valid_use" name="test_resource_valid_use" time=".21">
+    </testcase>
+    <testcase classname="nanolang.app.test_result_let" name="test_result_let" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_result_syntax" name="test_result_syntax" time=".05">
+      <failure message="compilation failed: I cannot lower this checked program: undefined binding println " type="TestFailure">compilation failed: I cannot lower this checked program: undefined binding println </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_row_poly" name="test_row_poly" time=".15">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)   [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)   [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)   [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)   [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_setenv_shadow" name="test_setenv_shadow" time=".19">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_set_env at merged line 36: unsupported extern result or symbol nl_os_setenv " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_set_env at merged line 36: unsupported extern result or symbol nl_os_setenv </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_shadow_scope_redefinition" name="test_shadow_scope_redefinition" time=".14">
+    </testcase>
+    <testcase classname="nanolang.app.test_simple_constant" name="test_simple_constant" time=".18">
+    </testcase>
+    <testcase classname="nanolang.app.test_simple_math_introspection" name="test_simple_math_introspection" time=".40">
+    </testcase>
+    <testcase classname="nanolang.app.test_split2" name="test_split2" time=".59">
+      <failure message="compilation failed: I am testing shadow __nano_module_0_is_null I am testing shadow __nano_module_0_quick_match I am testing shadow __nano_module_0_quick_find I am testing shadow __nano_module_0_quick_replace I am testing shadow __nano_module_0_quick_split " type="TestFailure">compilation failed: I am testing shadow __nano_module_0_is_null I am testing shadow __nano_module_0_quick_match I am testing shadow __nano_module_0_quick_find I am testing shadow __nano_module_0_quick_replace I am testing shadow __nano_module_0_quick_split </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_standalone_if_comprehensive" name="test_standalone_if_comprehensive" time=".28">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_collections" name="test_std_collections" time="1.10">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_fs" name="test_std_fs" time="2.06">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_json" name="test_std_json" time="1.48">
+    </testcase>
+    <testcase classname="nanolang.app.test_std_lib_collections" name="test_std_lib_collections" time="1.14">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_math_extended" name="test_std_math_extended" time=".30">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_math at merged line 273: unsupported extern result or symbol exp2 " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_math at merged line 273: unsupported extern result or symbol exp2 </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_math_extended_full" name="test_std_math_extended_full" time=".50">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_misc at merged line 313: I require the declared float value type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_misc at merged line 313: I require the declared float value type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_modules_env_process_fs_binary" name="test_std_modules_env_process_fs_binary" time="1.62">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_modules_simple" name="test_std_modules_simple" time=".22">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_peg" name="test_std_peg" time=".17">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_std_regex_groups_uaf" name="test_std_regex_groups_uaf" time=".61">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_arrays" name="test_stdlib_arrays" time=".54">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable sorted_floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:182:5)   [E0001] Variable sorted_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:186:5)   [E0001] Variable sorted_flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:189:5) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable sorted_floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:182:5)   [E0001] Variable sorted_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:186:5)   [E0001] Variable sorted_flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:189:5) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_namespaces" name="test_stdlib_namespaces" time=".17">
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_result" name="test_stdlib_result" time=".15">
+      <failure message="compilation failed: I cannot lower this checked program: undefined binding println " type="TestFailure">compilation failed: I cannot lower this checked program: undefined binding println </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_stdlib_strings" name="test_stdlib_strings" time=".40">
+      <failure message="compilation failed: I cannot lower this checked program: undefined function str_trim_left " type="TestFailure">compilation failed: I cannot lower this checked program: undefined function str_trim_left </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_string_plus" name="test_string_plus" time=".29">
+    </testcase>
+    <testcase classname="nanolang.app.test_string_plus_nested" name="test_string_plus_nested" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.test_struct_string_corruption" name="test_struct_string_corruption" time=".54">
+    </testcase>
+    <testcase classname="nanolang.app.test_symbol_scoping" name="test_symbol_scoping" time="0">
+      <failure message="compilation failed: Error: Failed to tokenize input file " type="TestFailure">compilation failed: Error: Failed to tokenize input file </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_tmp_files" name="test_tmp_files" time="1.40">
+    </testcase>
+    <testcase classname="nanolang.app.test_top_level_constants" name="test_top_level_constants" time=".07">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_top_level_constants.nano:47, column 9: unexpected token 'return' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_top_level_constants.nano:47, column 9: unexpected token 'return' </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_types_comprehensive" name="test_types_comprehensive" time="1.08">
+    </testcase>
+    <testcase classname="nanolang.app.test_u8_basic" name="test_u8_basic" time=".07">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0001] Variable d: I expected a value of type `byte`, but found `int`. (/home/runner/work/nanolang/nanolang/tests/test_u8_basic.nano:12:5) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0001] Variable d: I expected a value of type `byte`, but found `int`. (/home/runner/work/nanolang/nanolang/tests/test_u8_basic.nano:12:5) </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_unary_operators" name="test_unary_operators" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.test_unsafe_basic" name="test_unsafe_basic" time=".04">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol getenv " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol getenv </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_unsafe_syntax" name="test_unsafe_syntax" time=".22">
+    </testcase>
+    <testcase classname="nanolang.app.test_vector2d" name="test_vector2d" time="1.06">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 128: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 128: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_vector3d" name="test_vector3d" time=".73">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_vector4d" name="test_vector4d" time="1.26">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type </failure>
+    </testcase>
+    <testcase classname="nanolang.app.test_vm_value_contracts" name="test_vm_value_contracts" time=".48">
+    </testcase>
+    <testcase classname="nanolang.app.test_walkdir" name="test_walkdir" time="1.57">
+    </testcase>
+    <testcase classname="nanolang.app.refresh_getting_started_hello" name="refresh_getting_started_hello" time=".12">
+    </testcase>
+    <testcase classname="nanolang.app.refresh_language_bindings" name="refresh_language_bindings" time=".18">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_arrays" name="ug_canonical_arrays" time=".26">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_cond" name="ug_canonical_cond" time=".14">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_enum" name="ug_canonical_enum" time=".18">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_fn" name="ug_canonical_fn" time=".21">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_for" name="ug_canonical_for" time=".25">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_if" name="ug_canonical_if" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_prefix" name="ug_canonical_prefix" time=".19">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_strings" name="ug_canonical_strings" time=".20">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_struct" name="ug_canonical_struct" time=".17">
+    </testcase>
+    <testcase classname="nanolang.app.ug_canonical_while" name="ug_canonical_while" time=".24">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_cond" name="ug_control_flow_cond" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_for" name="ug_control_flow_for" time=".25">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_if" name="ug_control_flow_if" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_control_flow_loops" name="ug_control_flow_loops" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_contracts_combined" name="ug_fn_contracts_combined" time=".23">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_ensures_basic" name="ug_fn_ensures_basic" time=".23">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fn_requires_basic" name="ug_fn_requires_basic" time=".22">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_arg" name="ug_fstring_arg" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_basic" name="ug_fstring_basic" time=".13">
+    </testcase>
+    <testcase classname="nanolang.app.ug_fstring_exprs" name="ug_fstring_exprs" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_getting_started_arithmetic" name="ug_getting_started_arithmetic" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_getting_started_hello" name="ug_getting_started_hello" time=".13">
+    </testcase>
+    <testcase classname="nanolang.app.ug_modules_std_json" name="ug_modules_std_json" time="1.70">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_builtin_map_reduce" name="ug_patterns_builtin_map_reduce" time=".39">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_first_class" name="ug_patterns_first_class" time=".21">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_fold" name="ug_patterns_fold" time=".27">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_logging_trace_coverage" name="ug_patterns_logging_trace_coverage" time="1.53">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_match_union" name="ug_patterns_match_union" time=".25">
+    </testcase>
+    <testcase classname="nanolang.app.ug_patterns_unsafe_extern" name="ug_patterns_unsafe_extern" time=".14">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_arrays" name="ug_types_arrays" time=".33">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_bools" name="ug_types_bools" time=".15">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_enums" name="ug_types_enums" time=".13">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_generics" name="ug_types_generics" time=".32">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_hashmap" name="ug_types_hashmap" time=".33">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_strings" name="ug_types_strings" time=".20">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_structs" name="ug_types_structs" time=".22">
+    </testcase>
+    <testcase classname="nanolang.app.ug_types_tuples" name="ug_types_tuples" time=".20">
+    </testcase>
+    <testcase classname="nanolang.unit.test_generics_comprehensive" name="test_generics_comprehensive" time=".66">
+    </testcase>
+    <testcase classname="nanolang.unit.test_record_array_projection" name="test_record_array_projection" time=".34">
+    </testcase>
+    <testcase classname="nanolang.unit.test_enums_comprehensive" name="test_enums_comprehensive" time=".34">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported local type unknown " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported local type unknown </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_cseed_nested_array_literals" name="test_cseed_nested_array_literals" time=".50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_match_wildcard" name="test_match_wildcard" time=".37">
+    </testcase>
+    <testcase classname="nanolang.unit.test_pipe_operator" name="test_pipe_operator" time=".32">
+    </testcase>
+    <testcase classname="nanolang.unit.test_c_backend" name="test_c_backend" time=".01">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_c_backend.nano:7, column 12: unexpected token '' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_c_backend.nano:7, column 12: unexpected token '' </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_unions_match_comprehensive" name="test_unions_match_comprehensive" time="1.14">
+    </testcase>
+    <testcase classname="nanolang.unit.test_type_inference" name="test_type_inference" time=".31">
+    </testcase>
+    <testcase classname="nanolang.unit.test_string_interpolation" name="test_string_interpolation" time=".28">
+    </testcase>
+    <testcase classname="nanolang.unit.test_operators_comprehensive" name="test_operators_comprehensive" time=".67">
+    </testcase>
+    <testcase classname="nanolang.unit.test_dwarf_debug" name="test_dwarf_debug" time=".30">
+    </testcase>
+    <testcase classname="nanolang.unit.test_fstring_comprehensive" name="test_fstring_comprehensive" time=".47">
+      <failure message="compilation failed: I am testing shadow fstr_basic I am testing shadow fstr_int I am testing shadow fstr_float I could not execute the module: Assertion failed   Assertion failed " type="TestFailure">compilation failed: I am testing shadow fstr_basic I am testing shadow fstr_int I am testing shadow fstr_float I could not execute the module: Assertion failed   Assertion failed </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_mac_exec_once_vm" name="test_mac_exec_once_vm" time="2.24">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_empty_record_array_fields" name="test_empty_record_array_fields" time=".78">
+    </testcase>
+    <testcase classname="nanolang.unit.test_control_flow" name="test_control_flow" time=".50">
+    </testcase>
+    <testcase classname="nanolang.unit.test_native_generic_contexts" name="test_native_generic_contexts" time=".46">
+    </testcase>
+    <testcase classname="nanolang.unit.test_wasm_simd" name="test_wasm_simd" time=".54">
+    </testcase>
+    <testcase classname="nanolang.unit.test_map_constructor_contexts" name="test_map_constructor_contexts" time=".23">
+      <failure message="compilation failed: NSType checking failed Diagnostics:   [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/home/runner/work/nanolang/nanolang/tests/unit/test_map_constructor_contexts.nano:43:41) " type="TestFailure">compilation failed: NSType checking failed Diagnostics:   [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/home/runner/work/nanolang/nanolang/tests/unit/test_map_constructor_contexts.nano:43:41) </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_launcher_capture" name="test_launcher_capture" time="3.32">
+      <failure message="compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn " type="TestFailure">compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_native_nested_generics" name="test_native_nested_generics" time=".37">
+    </testcase>
+    <testcase classname="nanolang.unit.test_match_orpatterns" name="test_match_orpatterns" time=".01">
+      <failure message="compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano:12, column 16: unexpected token '' " type="TestFailure">compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano:12, column 16: unexpected token '' </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_profile_runtime" name="test_profile_runtime" time=".25">
+    </testcase>
+    <testcase classname="nanolang.unit.test_firstclass_functions" name="test_firstclass_functions" time=".55">
+    </testcase>
+    <testcase classname="nanolang.unit.test_selfhost_generic_contexts" name="test_selfhost_generic_contexts" time=".49">
+    </testcase>
+    <testcase classname="nanolang.unit.test_mac_exec_once" name="test_mac_exec_once" time="3.25">
+      <failure message="compilation failed: I cannot lower this checked program: undefined function str_split " type="TestFailure">compilation failed: I cannot lower this checked program: undefined function str_split </failure>
+    </testcase>
+    <testcase classname="nanolang.unit.test_lambdas" name="test_lambdas" time=".40">
+    </testcase>
+    <testcase classname="nanolang.unit.03_union_multiple_fields" name="03_union_multiple_fields" time=".12">
+    </testcase>
+    <testcase classname="nanolang.unit.04_union_mixed_types" name="04_union_mixed_types" time=".12">
+    </testcase>
+    <testcase classname="nanolang.unit.02_union_with_fields" name="02_union_with_fields" time=".12">
+    </testcase>
+    <testcase classname="nanolang.unit.01_simple_union_def" name="01_simple_union_def" time=".11">
+    </testcase>
+    <testcase classname="nanolang.unit.test_for_list" name="test_for_list" time=".45">
+    </testcase>
+    <testcase classname="nanolang.unit.test_generics" name="test_generics" time=".30">
+    </testcase>
+    <testcase classname="nanolang.unit.test_firstclass_simple" name="test_firstclass_simple" time=".27">
+    </testcase>
+    <testcase classname="nanolang.unit.test_cseed_record_array_literals" name="test_cseed_record_array_literals" time=".47">
+    </testcase>
+    <testcase classname="nanolang.unit.test_tuple_destructuring" name="test_tuple_destructuring" time=".39">
+    </testcase>
+    <testcase classname="nanolang.unit.test_legacy_binary64_parse" name="test_legacy_binary64_parse" time=".29">
+    </testcase>
+    <testcase classname="nanolang.unit.test_map_field_operations" name="test_map_field_operations" time=".33">
+    </testcase>
+    <testcase classname="nanolang.unit.test_stdlib_comprehensive" name="test_stdlib_comprehensive" time=".78">
+      <failure message="compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_min at merged line 23: undefined function min " type="TestFailure">compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_min at merged line 23: undefined function min </failure>
+    </testcase>
+  </testsuite>
+</testsuites>

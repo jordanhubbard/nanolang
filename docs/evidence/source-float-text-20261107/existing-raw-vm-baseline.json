@@ -1,0 +1,31 @@
+{
+  "scope": "I probe existing local raw opcode behavior; no fresh source/native lifecycle admission follows.",
+  "tools": {
+    "/Users/jkh/Src/nanolang/bin/nanoisa": "c23b7c4c6485908ce9f634b0981fad207abbda9d9ca45ee399a996567e74d4c7",
+    "/Users/jkh/Src/nanolang/bin/nano_vm": "ba32991138b260b4a02289e2047a0b148b06c8b29f6100babab1031d144f8425"
+  },
+  "assembly": ".string expected0 \"0\"\n.string expected1 \"-0\"\n.string expected2 \"2\"\n.string expected3 \"-2\"\n.string expected4 \"3.25\"\n.string expected5 \"1e+20\"\n.string expected6 \"inf\"\n.string expected7 \"-inf\"\n.string expected8 \"nan\"\n.string expected9 \"-nan\"\n.entry main\n.function main 0 0 0 int 1\nPUSH_F64 bits:0000000000000000\nCAST_STRING\nPUSH_STR expected0\nEQ\nASSERT\nPUSH_F64 bits:8000000000000000\nCAST_STRING\nPUSH_STR expected1\nEQ\nASSERT\nPUSH_F64 bits:4000000000000000\nCAST_STRING\nPUSH_STR expected2\nEQ\nASSERT\nPUSH_F64 bits:c000000000000000\nCAST_STRING\nPUSH_STR expected3\nEQ\nASSERT\nPUSH_F64 bits:400a000000000000\nCAST_STRING\nPUSH_STR expected4\nEQ\nASSERT\nPUSH_F64 bits:4415af1d78b58c40\nCAST_STRING\nPUSH_STR expected5\nEQ\nASSERT\nPUSH_F64 bits:7ff0000000000000\nCAST_STRING\nPUSH_STR expected6\nEQ\nASSERT\nPUSH_F64 bits:fff0000000000000\nCAST_STRING\nPUSH_STR expected7\nEQ\nASSERT\nPUSH_F64 bits:7ff8000000000001\nCAST_STRING\nPUSH_STR expected8\nEQ\nASSERT\nPUSH_F64 bits:fff8000000000001\nCAST_STRING\nPUSH_STR expected9\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+  "commands": [
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoisa",
+        "asm",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-raw-float-text-xs_moh75/raw.nasm",
+        "-o",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-raw-float-text-xs_moh75/raw.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nano_vm",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-raw-float-text-xs_moh75/raw.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

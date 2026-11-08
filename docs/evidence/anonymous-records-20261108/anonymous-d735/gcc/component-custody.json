@@ -1,0 +1,21 @@
+{
+  "creation_path": "C-seed-to-native",
+  "native_lifecycle_admitted": false,
+  "fresh_stages_qualified": false,
+  "inputs_unchanged": true,
+  "product": null,
+  "commands": [
+    {
+      "label": "source-build",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+        "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+        "--verbose",
+        "--keep-c",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-mvaxnsn_/checker"
+      ],
+      "returncode": 1
+    }
+  ]
+}

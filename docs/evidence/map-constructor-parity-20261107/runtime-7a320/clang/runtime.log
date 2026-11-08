@@ -1,0 +1,14 @@
+test_complete_original_string_runtime_fixture (tests.test_map_scalar_runtime.MapScalarRuntime.test_complete_original_string_runtime_fixture) ... ok
+test_every_allocation_prefix_refuses_for_each_pair (tests.test_map_scalar_runtime.MapScalarRuntime.test_every_allocation_prefix_refuses_for_each_pair) ... ok
+test_four_pairs_ownership_growth_and_existing_string_api (tests.test_map_scalar_runtime.MapScalarRuntime.test_four_pairs_ownership_growth_and_existing_string_api) ... ok
+test_wrong_tags_null_inputs_and_growth_overflow_refuse (tests.test_map_scalar_runtime.MapScalarRuntime.test_wrong_tags_null_inputs_and_growth_overflow_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.353s
+
+OK
+I refuse all 15 allocation prefixes for map pair 1/1.
+I refuse all 41 allocation prefixes for map pair 1/5.
+I refuse all 27 allocation prefixes for map pair 5/1.
+I refuse all 53 allocation prefixes for map pair 5/5.
+I retain all four exact scalar pairs, aliases, growth, copies, extremes and zero live allocations.

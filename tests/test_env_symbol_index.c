@@ -29,6 +29,7 @@ static int compare_name(const char *a, const char *b) {
 #undef calloc
 #undef realloc
 #undef safe_strcmp
+#include "../src/eval/record_carrier_cleanup.inc"
 
 int g_argc;
 char **g_argv;
@@ -197,9 +198,236 @@ static void check_function_index(void) {
     free_environment(env);
 }
 
+/* I retain every immutable builtin signature and refuse near-miss names. */
+static void check_builtin_registry_selection(void) {
+    Environment *env = create_environment();
+    assert(!env_get_function(env, NULL));
+    assert(!env_get_function(env, ""));
+    for (int i = 0; i < builtin_registry_count; ++i) {
+        const BuiltinEntry *entry = &builtin_registry[i];
+        if (!(entry->flags & BUILTIN_LANG)) continue;
+        Function *function = env_get_function(env, entry->name);
+        assert(function && !strcmp(function->name, entry->name));
+        assert(function->param_count == entry->arity);
+        assert(function->return_type == entry->return_type);
+        char missing[256];
+        assert(snprintf(missing, sizeof missing, "%s_missing", entry->name) < (int)sizeof missing);
+        assert(!env_get_function(env, missing));
+    }
+    name_comparisons = 0;
+    for (int i = 0; i < 1000; ++i)
+        assert(!env_get_function(env, "nisa_ordinary_source_function"));
+    size_t matching_first_bytes = 0;
+    for (int i = 0; i < builtin_registry_count; ++i)
+        if ((builtin_registry[i].flags & BUILTIN_LANG) && builtin_registry[i].name[0] == 'n')
+            ++matching_first_bytes;
+    assert(name_comparisons == 1000 * matching_first_bytes);
+    free_environment(env);
+}
+
+/* I keep metadata detached and retain both carrier storage/cleanup forms. */
+static void check_record_carriers(void) {
+    GCStats before = gc_get_stats();
+    char name[] = "é";
+    char field[] = "茶";
+    char *fields[] = {field};
+    Value text = create_string("detached");
+    Value record = create_struct(name, fields, &text, 1);
+    name[0] = 'x'; field[0] = 'x';
+    gc_release(text.as.string_val);
+    assert(!strcmp(record.as.struct_val->struct_name, "é"));
+    assert(!strcmp(record.as.struct_val->field_names[0], "茶"));
+    assert(!strcmp(record.as.struct_val->field_values[0].as.string_val, "detached"));
+    env_free_value(record);
+    env_free_value(create_struct("", NULL, NULL, 0));
+
+    char *nested_names[] = {"inner"};
+    Value source = create_string("nested");
+    Value inner = create_struct("Inner", nested_names, &source, 1);
+    Value outer = create_struct("Outer", nested_names, &inner, 1);
+    Value held = outer.as.struct_val->field_values[0];
+    assert(held.as.struct_val != inner.as.struct_val);
+    gc_release(source.as.string_val);
+    env_free_value(inner);
+    assert(!strcmp(held.as.struct_val->field_values[0].as.string_val, "nested"));
+    /* I retain the existing explicit nested-carrier cleanup boundary. */
+    env_free_value(held);
+    env_free_value(outer);
+
+    Value array = create_array(VAL_STRUCT, 2, 2);
+    StructValue **items = array.as.array_val->data;
+    Value value = create_string("packed");
+    items[0] = create_struct("Packed", nested_names, &value, 1).as.struct_val;
+    gc_release(value.as.string_val);
+    /* I also accept caller-created, separately allocated metadata. */
+    items[1] = calloc(1, sizeof *items[1]);
+    items[1]->struct_name = strdup("Legacy");
+    items[1]->field_count = 1;
+    items[1]->field_names = malloc(sizeof(char *));
+    items[1]->field_names[0] = strdup("held");
+    items[1]->field_values = malloc(sizeof(Value));
+    items[1]->field_values[0] = create_string("legacy");
+    EnvArrayReclaim reclaim = {0};
+    env_release_array(&reclaim, array.as.array_val);
+    free(reclaim.freed);
+    GCStats after = gc_get_stats();
+    assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
+}
+
+/* I reclaim owned nested literals while preserving their borrowed arrays. */
+static void check_record_literal_cleanup(void) {
+    GCStats before = gc_get_stats();
+    Value shared = create_array(VAL_INT, 1, 1);
+    ((long long *)shared.as.array_val->data)[0] = 42;
+    Value original = create_string("held");
+    char *inner_names[] = {"text", "shared"};
+    Value inner_values[] = {original, shared};
+    Value inner = create_struct("Inner", inner_names, inner_values, 2);
+    char *outer_names[] = {"nested"};
+    Value outer = create_struct("Outer", outer_names, &inner, 1);
+    discard_literal_record(inner.as.struct_val);
+    assert(!strcmp(outer.as.struct_val->field_values[0].as.struct_val->field_values[0].as.string_val, "held"));
+    discard_literal_record(outer.as.struct_val);
+    assert(!strcmp(original.as.string_val, "held"));
+    assert(shared.as.array_val->length == 1);
+    assert(((long long *)shared.as.array_val->data)[0] == 42);
+    gc_release(original.as.string_val);
+    free(shared.as.array_val->data); free(shared.as.array_val);
+    StructValue *legacy = calloc(1, sizeof *legacy);
+    legacy->struct_name = strdup("Legacy"); legacy->field_count = 1;
+    legacy->field_names = malloc(sizeof(char *)); legacy->field_names[0] = strdup("plain");
+    legacy->field_values = malloc(sizeof(Value));
+    legacy->field_values[0] = create_void();
+    legacy->field_values[0].type = VAL_STRING;
+    legacy->field_values[0].as.string_val = strdup("unmanaged");
+    discard_literal_record(legacy);
+    Value empty = create_struct("", NULL, NULL, 0);
+    discard_literal_record(empty.as.struct_val);
+    GCStats after = gc_get_stats();
+    assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
+}
+
+/* I preserve borrowed aliases and metadata beside constructor-only elision. */
+static void check_evaluated_string_bindings(void) {
+    Environment *env = create_environment();
+    TypeInfo info = {.base_type = TYPE_STRING};
+    ASTNode literal = {.type = AST_STRING};
+    ASTNode identifier = {.type = AST_IDENTIFIER};
+    ASTNode call = {.type = AST_CALL};
+    call.as.call.name = "str_concat";
+    ASTNode addition = {.type = AST_PREFIX_OP};
+    addition.as.prefix_op.op = TOKEN_PLUS;
+    addition.as.prefix_op.arg_count = 2;
+    Value original = create_string("held");
+    char *pointer = original.as.string_val;
+    env_define_evaluated_var(env, "source", TYPE_STRING, TYPE_UNKNOWN, &info, true, original, &literal);
+    Symbol *source = env_get_var(env, "source");
+    assert(source->type == TYPE_STRING && source->element_type == TYPE_UNKNOWN);
+    assert(source->type_info == &info && source->is_mut);
+    assert(source->value.as.string_val == pointer && gc_get_header(pointer)->ref_count == 1);
+    env_define_evaluated_var(env, "alias", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &identifier);
+    env_define_evaluated_var(env, "call_alias", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &call);
+    assert(gc_get_header(pointer)->ref_count == 3);
+    Value target = create_string("replaced");
+    char *old_target = target.as.string_val;
+    env_define_evaluated_var(env, "target", TYPE_STRING, TYPE_UNKNOWN, &info, true, target, &literal);
+    env_set_evaluated_var(env, "target", original, &call);
+    assert(!gc_is_managed(old_target) && gc_get_header(pointer)->ref_count == 4);
+    env_set_evaluated_var(env, "source", create_string("replacement"), &addition);
+    assert(gc_get_header(pointer)->ref_count == 3);
+    assert(!strcmp(env_get_var(env, "source")->value.as.string_val, "replacement"));
+    assert(!strcmp(env_get_var(env, "alias")->value.as.string_val, "held"));
+    char boundary;
+    Value returned = original;
+    returned.is_return = true; returned.return_target = &boundary;
+    env_define_evaluated_var(env, "signal", TYPE_STRING, TYPE_UNKNOWN, &info, false, returned, &addition);
+    assert(gc_get_header(pointer)->ref_count == 4);
+    assert(env_get_var(env, "signal")->value.return_target == &boundary);
+    addition.as.prefix_op.arg_count = 1;
+    env_define_evaluated_var(env, "unary", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &addition);
+    assert(gc_get_header(pointer)->ref_count == 5);
+    env_set_evaluated_var(env, "target", returned, &identifier);
+    assert(gc_get_header(pointer)->ref_count == 5);
+    assert(env_get_var(env, "target")->value.is_return);
+    assert(env_get_var(env, "target")->value.return_target == &boundary);
+    free_environment(env);
+    assert(!gc_is_managed(pointer));
+}
+
+static void check_fresh_string_copy(void) {
+    Environment *env = create_environment();
+    Value caller = create_string("caller storage");
+    char *caller_pointer = caller.as.string_val;
+    assert(gc_get_header(caller_pointer)->ref_count == 1);
+    env_define_string_copy(env, "copied", TYPE_STRING, false, caller_pointer);
+    Symbol *copied = env_get_var(env, "copied");
+    char *copy_pointer = copied->value.as.string_val;
+    assert(copied->type == TYPE_STRING && !copied->is_mut);
+    assert(copy_pointer != caller_pointer && !strcmp(copy_pointer, caller_pointer));
+    assert(gc_get_header(caller_pointer)->ref_count == 1);
+    assert(gc_get_header(copy_pointer)->ref_count == 1);
+    gc_release(caller_pointer);
+    assert(!gc_is_managed(caller_pointer));
+    assert(gc_is_managed(copy_pointer) && !strcmp(copy_pointer, "caller storage"));
+    env_define_var(env, "borrowed", TYPE_STRING, true, copied->value);
+    assert(gc_get_header(copy_pointer)->ref_count == 2);
+    env_set_var(env, "borrowed", create_string("replacement"));
+    assert(gc_get_header(copy_pointer)->ref_count == 1);
+    env_define_string_copy(env, "empty", TYPE_STRING, true, "");
+    assert(!strcmp(env_get_var(env, "empty")->value.as.string_val, ""));
+    free_environment(env);
+    assert(!gc_is_managed(copy_pointer));
+}
+
+static void check_string_self_assignment(void) {
+    Environment *env = create_environment();
+    env_define_var(env, "text", TYPE_STRING, true, create_string("retained"));
+    Value original = env_get_var(env, "text")->value;
+    char *pointer = original.as.string_val;
+    assert(gc_is_managed(pointer));
+    assert(gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", original);
+    assert(gc_is_managed(pointer));
+    assert(gc_get_header(pointer)->ref_count == 1);
+    assert(!strcmp(env_get_var(env, "text")->value.as.string_val, "retained"));
+
+    char target;
+    Value flagged = original;
+    flagged.is_return = true;
+    flagged.return_target = &target;
+    env_set_var(env, "text", flagged);
+    assert(env_get_var(env, "text")->value.is_return);
+    assert(env_get_var(env, "text")->value.return_target == &target);
+    assert(gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", original);
+    env_define_var(env, "alias", TYPE_STRING, true, original);
+    assert(gc_get_header(pointer)->ref_count == 2);
+    env_set_var(env, "text", original);
+    assert(gc_get_header(pointer)->ref_count == 2);
+    env_set_var(env, "alias", create_string("new alias"));
+    assert(gc_is_managed(pointer) && gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", create_string("replacement"));
+    assert(!gc_is_managed(pointer));
+
+    Value plain = create_void();
+    plain.type = VAL_STRING;
+    plain.as.string_val = strdup("ordinary allocation");
+    assert(plain.as.string_val);
+    env_define_var(env, "plain", TYPE_STRING, true, plain);
+    env_set_var(env, "plain", plain);
+    assert(!strcmp(env_get_var(env, "plain")->value.as.string_val, "ordinary allocation"));
+    free_environment(env);
+}
+
 int main(void) {
     gc_init();
     check_function_index();
+    check_evaluated_string_bindings();
+    check_record_carriers();
+    check_record_literal_cleanup();
+    check_builtin_registry_selection();
+    check_string_self_assignment();
+    check_fresh_string_copy();
     Environment *env = create_environment();
     assert(!env_get_var(env, "absent"));
     for (int i = 0; i < 4096; ++i) {

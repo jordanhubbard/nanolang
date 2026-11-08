@@ -353,6 +353,122 @@
       },
       "members": 27,
       "unchanged_provider_count": 9
+    },
+    "contract-effects": {
+      "artifact": 13591037077,
+      "archive_sha256": "d1c9b1b7876a3497f7f40db78ef8addf1781b70e1e926ac06245d15483053d96",
+      "batches": {
+        "bootstrap.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "metadata-effects.log": {
+          "unittest_batches": [
+            {
+              "methods": 16,
+              "seconds": 10.825
+            },
+            {
+              "methods": 4,
+              "seconds": 0.101
+            },
+            {
+              "methods": 8,
+              "seconds": 2.691
+            },
+            {
+              "methods": 7,
+              "seconds": 16.147
+            },
+            {
+              "methods": 3,
+              "seconds": 2.629
+            },
+            {
+              "methods": 5,
+              "seconds": 76.43
+            },
+            {
+              "methods": 9,
+              "seconds": 1125.931
+            },
+            {
+              "methods": 17,
+              "seconds": 8.569
+            },
+            {
+              "methods": 5,
+              "seconds": 10.474
+            },
+            {
+              "methods": 4,
+              "seconds": 21.539
+            },
+            {
+              "methods": 13,
+              "seconds": 74.936
+            }
+          ],
+          "reported_skips": []
+        },
+        "product-stage1.log": {
+          "unittest_batches": [
+            {
+              "methods": 1,
+              "seconds": 2.388
+            }
+          ],
+          "reported_skips": []
+        },
+        "product-stage2.log": {
+          "unittest_batches": [
+            {
+              "methods": 1,
+              "seconds": 2.367
+            }
+          ],
+          "reported_skips": []
+        },
+        "providers-after.log": {
+          "unittest_batches": [],
+          "reported_skips": []
+        },
+        "reconstruction.log": {
+          "unittest_batches": [
+            {
+              "methods": 247,
+              "seconds": 7128.163
+            },
+            {
+              "methods": 65,
+              "seconds": 494.17
+            },
+            {
+              "methods": 2,
+              "seconds": 0.128
+            },
+            {
+              "methods": 7,
+              "seconds": 29.365
+            },
+            {
+              "methods": 4,
+              "seconds": 29.177
+            },
+            {
+              "methods": 4,
+              "seconds": 55.826
+            },
+            {
+              "methods": 5,
+              "seconds": 43.328
+            }
+          ],
+          "reported_skips": []
+        }
+      },
+      "members": 30,
+      "unchanged_provider_count": 9
     }
   },
   "cross_platform_qualified": false,

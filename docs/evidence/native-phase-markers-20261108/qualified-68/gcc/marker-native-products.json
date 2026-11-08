@@ -1,0 +1,47 @@
+[
+  {
+    "path": "numeric-builtin-selection/test_disabled_recorder_has_no_required_external_tool-nano_virt-zgjw8ecx/native",
+    "size": 8589752,
+    "sha256": "0ace395ce566436846615f00b28a6cafb3baf18b5f754b94a897ddd0d15fd453",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  },
+  {
+    "path": "numeric-builtin-selection/test_literal_phase_and_quoted_recorder_path-nano_virt-p8373tk4/native",
+    "size": 8589752,
+    "sha256": "c1fd36a6ddc6cc5bc07d77a3cc97edb6b2f09ef71e78087501337440f17706b6",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  },
+  {
+    "path": "numeric-builtin-selection/test_recorder_refusal_is_observable_without_changing_program_acceptance-nano_virt-daf3_98u/native",
+    "size": 8589752,
+    "sha256": "26a7f6efa2ea96c41f29fc3c3d79c8cf7e20b33d48e12b360a8b4023c0e75046",
+    "elf_magic_verified": true,
+    "inputs_verified": true,
+    "command_labels": [
+      "source-build",
+      "verify",
+      "vm",
+      "aot",
+      "native-build",
+      "native"
+    ]
+  }
+]

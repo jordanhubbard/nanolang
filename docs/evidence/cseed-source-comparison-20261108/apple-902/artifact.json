@@ -1,0 +1,9 @@
+{
+  "artifact": 13639517823,
+  "run": 42534611623,
+  "size": 12833610,
+  "sha256": "51c4a44d9907d1331d0ce3366074078d61a154e80cc430b1e4d22be1d91c23ae",
+  "crc_checked": true,
+  "saved_zip": false,
+  "scope": "I retain complete text and entry digests from the full diagnostic artifact. Native/provider byte matching follows separately; this is not NativeSDK or release admission."
+}

@@ -1,0 +1,15 @@
+{
+  "size": 51960395,
+  "sha256": "88a6c3e676644300e71fd79fe85aec1542a01c22bda001b807988b7904efb8b6",
+  "files": 2261,
+  "text_files": 2076,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-hk5bl198.tar.gz",
+      "sha256": "1d9a7751777c8decba6b7606175c5f651121f558282c42d1f8c176481b7a5455",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

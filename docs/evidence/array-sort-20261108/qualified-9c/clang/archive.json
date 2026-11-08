@@ -1,0 +1,15 @@
+{
+  "size": 84800531,
+  "sha256": "e37ab1c34239232fe199c2e710d3c149bbb574401f102bd63dc5623a5c2dd9c5",
+  "files": 3418,
+  "text_files": 3130,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-okwrqvn3.tar.gz",
+      "sha256": "9fff8a68bdfb3589433c00526300980d5093f82ea253f9a32d2da34924933b28",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

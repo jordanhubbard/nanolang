@@ -1,0 +1,15 @@
+{
+  "size": 50067790,
+  "sha256": "d1bae081bc1d6e9d2595c6cf52c64d43059ae7ba4509d4cdc6c164c1dfc78ab0",
+  "files": 2207,
+  "text_files": 2028,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-di8e8wmc.tar.gz",
+      "sha256": "abcdd1db73d84e4451196396d414b94dea21bc16729b478be6df68f874a38080",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

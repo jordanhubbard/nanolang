@@ -1,0 +1,15 @@
+{
+  "size": 6593325,
+  "sha256": "ca77c78774242faeb6cce5ee856b8ea914b64501116c4b7ce25fee831814893c",
+  "files": 926,
+  "text_files": 837,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-4mj2oqvc.tar.gz",
+      "sha256": "a69cffa91808443ca1f269ef1403fb9f67053971cca6c9fedf08be96631c974a",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

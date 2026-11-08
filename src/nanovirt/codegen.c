@@ -1,3 +1,4 @@
+#include "../bstring_contracts.h"
 /*
  * codegen.c - NanoISA bytecode generation from nanolang AST
  *
@@ -1181,10 +1182,142 @@ static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) 
 }
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
+/* I scan literal spans after converting all arguments in source order. */
+static bool compile_source_format(CG *cg, ASTNode *node) {
+    ASTNode **args = node->as.call.args;
+    int argc = node->as.call.arg_count;
+    uint16_t fmt = local_add(cg, "__format_template__", node->line);
+    uint16_t parts = local_add(cg, "__format_parts__", node->line);
+    uint16_t result = local_add(cg, "__format_result__", node->line);
+    uint16_t offset = local_add(cg, "__format_offset__", node->line);
+    uint16_t start = local_add(cg, "__format_start__", node->line);
+    uint16_t used = local_add(cg, "__format_used__", node->line);
+    uint16_t code = local_add(cg, "__format_code__", node->line);
+    compile_expr(cg, args[0]);
+    emit_op(cg, OP_STORE_LOCAL, (int)fmt);
+    emit_op(cg, OP_ARR_NEW, (int)TAG_STRING);
+    emit_op(cg, OP_STORE_LOCAL, (int)parts);
+    for (int i = 1; i < argc; ++i) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)parts);
+        compile_expr(cg, args[i]);
+        emit_op(cg, OP_CAST_STRING);
+        emit_op(cg, OP_ARR_PUSH);
+        emit_op(cg, OP_STORE_LOCAL, (int)parts);
+    }
+    emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "", 0));
+    emit_op(cg, OP_STORE_LOCAL, (int)result);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)start);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)used);
+    uint32_t top = cg->code_size;
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_STR_LEN);
+    emit_op(cg, OP_I64_LT_S);
+    uint32_t end = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_PUSH_I64, (int64_t)(argc - 1));
+    emit_op(cg, OP_I64_LT_S);
+    uint32_t no_argument = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_STR_CHAR_AT);
+    emit_op(cg, OP_PUSH_I64, (int64_t)'%');
+    emit_op(cg, OP_I64_EQ);
+    uint32_t no_percent = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STR_CHAR_AT);
+    emit_op(cg, OP_STORE_LOCAL, (int)code);
+    const char markers[] = "sdfg";
+    for (int i = 0; i < 4; ++i) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)code);
+        emit_op(cg, OP_PUSH_I64, (int64_t)markers[i]);
+        emit_op(cg, OP_I64_EQ);
+        if (i) emit_op(cg, OP_OR);
+    }
+    uint32_t no_marker = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_I64_SUB);
+    emit_op(cg, OP_STR_SUBSTR);
+    emit_op(cg, OP_STR_CONCAT);
+    emit_op(cg, OP_LOAD_LOCAL, (int)parts);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_ARR_GET);
+    emit_op(cg, OP_STR_CONCAT);
+    emit_op(cg, OP_STORE_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)used);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)2);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_STORE_LOCAL, (int)start);
+    uint32_t matched = emit_op(cg, OP_JMP, (int32_t)0);
+    patch_jump(cg, matched + 1, matched, top);
+    patch_jump(cg, no_argument + 1, no_argument, cg->code_size);
+    patch_jump(cg, no_percent + 1, no_percent, cg->code_size);
+    patch_jump(cg, no_marker + 1, no_marker, cg->code_size);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    uint32_t next = emit_op(cg, OP_JMP, (int32_t)0);
+    patch_jump(cg, next + 1, next, top);
+    patch_jump(cg, end + 1, end, cg->code_size);
+    emit_op(cg, OP_LOAD_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_I64_SUB);
+    emit_op(cg, OP_STR_SUBSTR);
+    emit_op(cg, OP_STR_CONCAT);
+    return true;
+}
+
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = builtin_array_operation(node->as.call.name);
     int argc = node->as.call.arg_count;
     ASTNode **args = node->as.call.args;
+
+    const NanoBstringContract *bstring = nano_bstring_source_contract(name);
+    if (bstring) {
+        if (argc != bstring->argc) {
+            cg_error(cg, node->line, "I require the declared binary-string builtin arity");
+            return true;
+        }
+        for (int i = 0; i < argc; ++i) {
+            Type actual = check_expression(args[i], cg->env);
+            uint8_t tag = type_to_tag(actual, NULL, cg->env);
+            bool integer = bstring->parameters[i] == TAG_INT && (actual == TYPE_U8 || actual == TYPE_ENUM);
+            if (tag != bstring->parameters[i] && !integer) {
+                cg_error(cg, node->line, "I require the declared binary-string operand type");
+                return true;
+            }
+            compile_expected_tag(cg, args[i], bstring->parameters[i]);
+            if (integer && actual == TYPE_ENUM) emit_op(cg, OP_CAST_INT);
+        }
+        int32_t external = extern_find(cg, bstring->host_name);
+        if (external < 0) {
+            register_extern(cg, bstring->host_name, "", bstring->argc, bstring->result, bstring->parameters);
+            external = extern_find(cg, bstring->host_name);
+        }
+        if (external >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)external);
+        return true;
+    }
 
     /* println / print (as function calls, not AST_PRINT) */
     if (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) {
@@ -1289,7 +1422,10 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_CAST_BOOL);
         return true;
     }
-    if (strcmp(name, "float_to_string") == 0 && argc == 1) {
+    /* I keep source float text distinct from the raw CAST_STRING contract. */
+    if (argc == 1 && (strcmp(name, "float_to_string") == 0 ||
+        ((strcmp(name, "to_string") == 0 || strcmp(name, "cast_string") == 0) &&
+         check_expression(args[0], cg->env) == TYPE_FLOAT))) {
         compile_expr(cg, args[0]);
         emit_op(cg, OP_CAST_STRING);
         const char *markers[] = {".", "e", "n", "i"};
@@ -2107,21 +2243,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
 
     if (strcmp(name, "format") == 0 && argc >= 1) {
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_ARR_NEW, TAG_STRING);
-        for (int i = 1; i < argc; i++) {
-            compile_expr(cg, args[i]);
-            emit_op(cg, OP_CAST_STRING);
-            emit_op(cg, OP_ARR_PUSH);
-        }
-        int32_t ext_idx = extern_find(cg, "vm_format");
-        if (ext_idx < 0) {
-            uint8_t ptags[2] = {TAG_STRING, TAG_ARRAY};
-            register_extern(cg, "vm_format", "", 2, TAG_STRING, ptags);
-            ext_idx = extern_find(cg, "vm_format");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
+        return compile_source_format(cg, node);
     }
 
     /* string_from_bytes(arr) - convert byte array to string */
@@ -2145,19 +2267,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             uint8_t ptags[1] = {TAG_INT};
             register_extern(cg, "vm_digit_value", "", 1, TAG_INT, ptags);
             ext_idx = extern_find(cg, "vm_digit_value");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
-
-    /* bstr_validate_utf8(str) - check if string is valid UTF-8 */
-    if (strcmp(name, "bstr_validate_utf8") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
-        if (ext_idx < 0) {
-            uint8_t ptags[1] = {TAG_STRING};
-            register_extern(cg, "vm_bstr_validate_utf8", "", 1, TAG_BOOL, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
         }
         if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
         return true;
@@ -2290,87 +2399,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         }
     }
 
-    /* bstring operations */
-    if (strcmp(name, "bstr_new") == 0 && argc == 1) {
-        /* bstr_new(str) - for now, just pass through as string */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if (strcmp(name, "bstr_length") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_STR_LEN);
-        return true;
-    }
-    if (strcmp(name, "bstr_concat") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_CONCAT);
-        return true;
-    }
-    if (strcmp(name, "bstr_substring") == 0 && argc == 3) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        compile_expr(cg, args[2]);
-        emit_op(cg, OP_STR_SUBSTR);
-        return true;
-    }
-    if (strcmp(name, "bstr_to_string") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if ((strcmp(name, "bstr_get_byte") == 0 || strcmp(name, "bstr_byte_at") == 0) && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_CHAR_AT);
-        /* STR_CHAR_AT returns a string, we need the byte value */
-        emit_op(cg, OP_CAST_INT);
-        return true;
-    }
-    if (strcmp(name, "bstr_new_binary") == 0 && argc == 1) {
-        /* bstr_new_binary(bytes_array) - create bstring from byte array */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if ((strcmp(name, "bstr_to_cstr") == 0 || strcmp(name, "bstr_to_str") == 0) && argc == 1) {
-        /* bstr_to_cstr/bstr_to_str - identity operation in VM (strings are strings) */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if (strcmp(name, "bstr_equals") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_EQ);
-        return true;
-    }
-    if (strcmp(name, "bstr_free") == 0 && argc == 1) {
-        /* No-op in VM - GC handles memory. Evaluate and discard the argument. */
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_POP);
-        return true;
-    }
-    if (strcmp(name, "bstr_utf8_length") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_length");
-        if (ext_idx < 0) {
-            uint8_t ptags[1] = {TAG_STRING};
-            register_extern(cg, "vm_bstr_utf8_length", "", 1, TAG_INT, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_utf8_length");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
-    if (strcmp(name, "bstr_utf8_char_at") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
-        if (ext_idx < 0) {
-            uint8_t ptags[2] = {TAG_STRING, TAG_INT};
-            register_extern(cg, "vm_bstr_utf8_char_at", "", 2, TAG_INT, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
     if (strcmp(name, "char_to_lower") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
         int32_t ext_idx = extern_find(cg, "vm_char_to_lower");
@@ -2925,8 +2953,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
             for (int i = 0; i < argc; i++) {
-                if (!cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i)))
-                    compile_expr(cg, node->as.call.args[i]);
+                if (!cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i))) {
+                    /* I retain directed integer conversions at the saved callee's boundary. */
+                    FunctionSignature *signature = node->as.call.checked_signature;
+                    uint8_t expected_tag = TAG_COUNT;
+                    if (signature && signature->param_types && i < signature->param_count) {
+                        Type expected = signature->param_types[i];
+                        if (expected == TYPE_INT) expected_tag = TAG_INT;
+                        else if (expected == TYPE_U8) expected_tag = TAG_U8;
+                    }
+                    compile_expected_tag(cg, node->as.call.args[i], expected_tag);
+                }
             }
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,

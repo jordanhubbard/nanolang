@@ -22,6 +22,313 @@ fn check_legacy_global_declarations() -> void {
 }
 shadow check_legacy_global_declarations { (check_legacy_global_declarations) }
 
+fn check_fixed_string_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{return (str_length \"x\")}",
+        "fn main()->int{assert (str_contains \"x\" \"x\") return 0}",
+        "fn count(value:int)->int{return (+ value 100)} fn same(left:int,right:int)->bool{return (== left right)} fn main()->int{let str_length:fn(int)->int=count let str_contains:fn(int,int)->bool=same assert (== (str_length 7) 107) assert (str_contains 7 7) return 0}",
+        "fn main()->int{return (str_length 1)}",
+        "fn main()->int{(str_contains \"x\" false) return 0}",
+        "fn main()->int{return (str_length)}",
+        "fn main()->int{(str_contains \"x\") return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-string.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-string.nano")
+        assert (not (parser_has_error parsed))
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-string.nano")
+        assert (== checked.had_error (>= index 3))
+        assert (== (> checked.environment.error_count 0) (>= index 3))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 3))
+    }
+}
+shadow check_fixed_string_contracts { (check_fixed_string_contracts) }
+
+fn check_reserved_definition_contracts() -> void {
+    let sources: array<string> = [
+        "fn str_trim(value:int)->int{return value} fn main()->int{return (str_trim 7)}",
+        "fn exp(value:float)->float{return value} fn main()->int{return 0}",
+        "fn map(value:int)->int{return value} fn reduce(value:int)->int{return value} fn main()->int{return (+ (map 7) (reduce 8))}",
+        "extern fn print(value:int)->int fn main()->int{return 0}",
+        "fn count(value:int)->int{return value} fn main()->int{let print:fn(int)->int=count let format:fn(int)->int=count return (+ (print 7) (format 8))}",
+        "fn print(value:int)->int{return value} fn main()->int{return 0}",
+        "fn println(value:int)->int{return value} fn main()->int{return 0}",
+        "fn format(value:int)->bool{return true} fn main()->int{return 0}",
+        "fn min(value:int)->int{return value} fn main()->int{return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-reserved.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-reserved.nano")
+        assert (not (parser_has_error parsed))
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-reserved.nano")
+        assert (== checked.had_error (>= index 5))
+        assert (== (> checked.environment.error_count 0) (>= index 5))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 5))
+    }
+}
+shadow check_reserved_definition_contracts { (check_reserved_definition_contracts) }
+
+fn check_anonymous_record_contracts() -> void {
+    let prefix: string = "struct Point{x:int,y:int} "
+    let bodies: array<string> = [
+        "fn make()->Point{return {y:9,x:7}} fn main()->int{let p:Point=(make) return p.x}",
+        "fn take(p:Point)->int{return p.x} fn main()->int{let p:Point={x:7,y:9} return (take {y:p.y,x:p.x})}",
+        "struct Outer{child:Point} fn make()->Outer{return {child:{x:7,y:9}}} fn main()->int{return 0}",
+        "struct Empty{} fn make()->Empty{return {}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7,y:9,z:11}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7,x:9}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:true,y:9}} fn main()->int{return 0}"
+    ]
+    for index in (range 0 (array_length bodies)) {
+        let tokens: List<LexerToken> = (tokenize_string (+ prefix (at bodies index)) "component-anonymous.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-anonymous.nano")
+        assert (not (parser_has_error parsed))
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-anonymous.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_anonymous_record_contracts { (check_anonymous_record_contracts) }
+
+fn check_byte_alias_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let value:byte=7 assert (== value 7) return 0}",
+        "fn keep(value:byte)->byte{return value} fn main()->int{let value:u8=7 let callback:fn(byte)->byte=keep let result:byte=(callback value) return 0}",
+        "fn main()->int{let values:array<byte> = [7,255] let value:byte=(at values 1) return 0}",
+        "fn main()->int{let value:byte=true return 0}",
+        "fn main()->int{let value:byte=256 return 0}",
+        "fn main()->int{let value:byte=\"wrong\" return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-byte.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-byte.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-byte.nano")
+        assert (== checked.had_error (>= index 3))
+        assert (== (> checked.environment.error_count 0) (>= index 3))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 3))
+    }
+}
+shadow check_byte_alias_contracts { (check_byte_alias_contracts) }
+
+fn check_character_contracts() -> void {
+    let names: array<string> = ["is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower", "digit_value", "char_to_lower", "char_to_upper"]
+    for name in names {
+        let calls: array<string> = [(+ name " 48"), (+ name " true"), name, (+ name " 48 49")]
+        for index in (range 0 (array_length calls)) {
+            let source: string = (+ "fn main()->int{(" (+ (at calls index) ") return 0}"))
+            let tokens: List<LexerToken> = (tokenize_string source "component-character.nano" (list_CompilerDiagnostic_new))
+            let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-character.nano")
+            assert (not parsed.has_error)
+            let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-character.nano")
+            assert (== checked.had_error (> index 0))
+            assert (== (> checked.environment.error_count 0) (> index 0))
+            assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (> index 0))
+        }
+    }
+}
+shadow check_character_contracts { (check_character_contracts) }
+
+fn check_u8_argument_contracts() -> void {
+    let sources: array<string> = [
+        "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 return (take value)}",
+        "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 let call:fn(int)->int=take return (call value)}",
+        "fn keep(value:u8)->u8{return value} fn main()->int{let call:fn(u8)->u8=keep let value:u8=(call (+ 255 2)) return 0}",
+        "fn take(value:int)->int{return value} fn main()->int{return (take true)}",
+        "fn take(values:array<int>)->int{return (array_length values)} fn main()->int{let values:array<u8> = [7] return (take values)}",
+        "fn keep(value:u8)->u8{return value} fn main()->int{let value:u8=(keep 256) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-u8-argument.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-u8-argument.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-u8-argument.nano")
+        assert (== checked.had_error (>= index 3))
+        assert (== (> checked.environment.error_count 0) (>= index 3))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 3))
+    }
+}
+shadow check_u8_argument_contracts { (check_u8_argument_contracts) }
+
+fn check_string_stdlib_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let value:string = (str_trim_left \"a\") return 0}",
+        "fn main()->int{let value:string = (str_trim_left true) return 0}",
+        "fn main()->int{(str_trim_left) return 0}",
+        "fn main()->int{(str_trim_left \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_trim_left:fn(int)->int=identity return (str_trim_left 7)}",
+        "fn main()->int{let value:string = (str_trim_right \"a\") return 0}",
+        "fn main()->int{let value:string = (str_trim_right true) return 0}",
+        "fn main()->int{(str_trim_right) return 0}",
+        "fn main()->int{(str_trim_right \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_trim_right:fn(int)->int=identity return (str_trim_right 7)}",
+        "fn main()->int{let value:string = (str_to_lower \"a\") return 0}",
+        "fn main()->int{let value:string = (str_to_lower true) return 0}",
+        "fn main()->int{(str_to_lower) return 0}",
+        "fn main()->int{(str_to_lower \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_to_lower:fn(int)->int=identity return (str_to_lower 7)}",
+        "fn main()->int{let value:string = (str_to_upper \"a\") return 0}",
+        "fn main()->int{let value:string = (str_to_upper true) return 0}",
+        "fn main()->int{(str_to_upper) return 0}",
+        "fn main()->int{(str_to_upper \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_to_upper:fn(int)->int=identity return (str_to_upper 7)}",
+        "fn main()->int{let value:string = (str_replace \"a\" \"a\" \"a\") return 0}",
+        "fn main()->int{let value:string = (str_replace true \"a\" \"a\") return 0}",
+        "fn main()->int{let value:string = (str_replace \"a\" true \"a\") return 0}",
+        "fn main()->int{let value:string = (str_replace \"a\" \"a\" true) return 0}",
+        "fn main()->int{(str_replace) return 0}",
+        "fn main()->int{(str_replace \"a\" \"a\" \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_replace:fn(int)->int=identity return (str_replace 7)}",
+        "fn main()->int{let value:array<string> = (str_split \"a\" \"a\") return 0}",
+        "fn main()->int{let value:array<string> = (str_split true \"a\") return 0}",
+        "fn main()->int{let value:array<string> = (str_split \"a\" true) return 0}",
+        "fn main()->int{(str_split) return 0}",
+        "fn main()->int{(str_split \"a\" \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_split:fn(int)->int=identity return (str_split 7)}",
+        "fn main()->int{let value:string = (str_join [\"a\"] \"a\") return 0}",
+        "fn main()->int{let value:string = (str_join true \"a\") return 0}",
+        "fn main()->int{let value:string = (str_join [\"a\"] true) return 0}",
+        "fn main()->int{(str_join) return 0}",
+        "fn main()->int{(str_join [\"a\"] \"a\" \"extra\") return 0}",
+        "fn identity(value:int)->int{return value} fn main()->int{let str_join:fn(int)->int=identity return (str_join 7)}"
+    ]
+    let failures: array<bool> = [false, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, true, true, true, true, true, false, false, true, true, true, true, false, false, true, true, true, true, false]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-string-stdlib.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-string-stdlib.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-string-stdlib.nano")
+        assert (== checked.had_error (at failures index))
+        assert (== (> checked.environment.error_count 0) (at failures index))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (at failures index))
+    }
+}
+shadow check_string_stdlib_contracts { (check_string_stdlib_contracts) }
+
+fn check_uppercase_parser_contracts() -> void {
+    let bodies: array<string> = ["return 1", "let value:int=1 return value", "if true {return 1}", "while false {}", "for index in (range 0 1) {}"]
+    for body in bodies {
+        let source: string = (+ "fn choose(FLAG:bool)->int{if FLAG {" (+ body "} return 0} fn main()->int{return 0}"))
+        let tokens: List<LexerToken> = (tokenize_string source "native-condition.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-condition.nano")
+        assert (not parsed.has_error)
+        let condition: ASTIf = (parser_get_if parsed (- (parser_get_if_count parsed) 1))
+        assert (== condition.condition_type ParseNodeType.PNODE_IDENTIFIER)
+        assert (== (parser_get_identifier parsed condition.condition).name "FLAG")
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-condition.nano")
+        assert (not checked.had_error) assert (== checked.environment.error_count 0)
+        assert (== (list_CompilerDiagnostic_length checked.diagnostics) 0)
+    }
+}
+shadow check_uppercase_parser_contracts { (check_uppercase_parser_contracts) }
+
+fn check_legacy_bang_contracts() -> void {
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string "!\n!= !true not false" "native-bang.nano" diags)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    assert (== (list_LexerToken_length tokens) 7)
+    let bang: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== bang.token_type LexerTokenType.TOKEN_NOT) assert (== bang.value "!")
+    assert (== bang.line 1) assert (== bang.column 1)
+    let unequal: LexerToken = (list_LexerToken_get tokens 1)
+    assert (== unequal.token_type LexerTokenType.TOKEN_NE)
+    assert (== unequal.line 2) assert (== unequal.column 1)
+    let adjacent: LexerToken = (list_LexerToken_get tokens 2)
+    assert (== adjacent.token_type LexerTokenType.TOKEN_NOT) assert (== adjacent.column 4)
+    assert (== (list_LexerToken_get tokens 6).token_type LexerTokenType.TOKEN_EOF)
+    for expression in ["(! true)", "!true", "(not true)", "not true"] {
+        let source: string = (+ "fn invert()->bool{return " (+ expression "} fn main()->int{return 0}"))
+        let stream: List<LexerToken> = (tokenize_string source "native-bang.nano" diags)
+        let parsed: Parser = (parse_program stream (list_LexerToken_length stream) "native-bang.nano")
+        assert (not parsed.has_error)
+        let call: ASTCall = (parser_get_call parsed 0)
+        assert (== call.arg_count 1)
+        assert (== (parser_get_identifier parsed call.function).name "not")
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-bang.nano")
+        assert (not checked.had_error) assert (== checked.environment.error_count 0)
+        assert (== (list_CompilerDiagnostic_length checked.diagnostics) 0)
+    }
+}
+shadow check_legacy_bang_contracts { (check_legacy_bang_contracts) }
+
+fn check_array_sort_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let result:array<int> = (array_sort [2,1]) return 0}",
+        "fn main()->int{let octet:u8=7 let result:array<u8> = (array_sort [octet]) return 0}",
+        "fn main()->int{let result:array<float> = (array_sort [2.5,1.5]) return 0}",
+        "fn main()->int{let result:array<bool> = (array_sort [true,false]) return 0}",
+        "fn main()->int{let result:array<string> = (array_sort [\"z\",\"a\"]) return 0}",
+        "fn keep(value:int)->int{return value} fn main()->int{let array_sort:fn(int)->int=keep return (array_sort 7)}",
+        "enum Rank{Low=1,High=9} fn main()->int{let sorted:array<Rank> = (array_sort [Rank.High,Rank.Low]) return 0}",
+        "fn main()->int{(array_sort) return 0}",
+        "fn main()->int{(array_sort [1] [2]) return 0}",
+        "fn main()->int{(array_sort true) return 0}",
+        "fn main()->int{(array_sort [[1]]) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-sort.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-sort.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-sort.nano")
+        assert (== checked.had_error (>= index 7))
+        assert (== (> checked.environment.error_count 0) (>= index 7))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 7))
+    }
+}
+shadow check_array_sort_contracts { (check_array_sort_contracts) }
+
+fn check_byte_conversion_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") return 0}",
+        "fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] let text:string=(string_from_bytes bytes) return 0}",
+        "fn main()->int{let text:string=(string_from_bytes []) return 0}",
+        "fn keep(value:string)->string{return value} fn main()->int{let bytes_from_string:fn(string)->string=keep let string_from_bytes:fn(string)->string=keep assert (== (bytes_from_string \"Hi\") \"Hi\") assert (== (string_from_bytes \"Hi\") \"Hi\") return 0}",
+        "fn main()->int{(bytes_from_string) return 0}",
+        "fn main()->int{(bytes_from_string true) return 0}",
+        "fn main()->int{(bytes_from_string \"Hi\" \"extra\") return 0}",
+        "fn main()->int{(string_from_bytes) return 0}",
+        "fn main()->int{(string_from_bytes [1]) return 0}",
+        "fn main()->int{(string_from_bytes [true]) return 0}",
+        "fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] (string_from_bytes bytes bytes) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-byte-conversion.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-byte-conversion.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-byte-conversion.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_byte_conversion_contracts { (check_byte_conversion_contracts) }
+
+fn check_bstring_type_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let first:bstring=(bstr_new \"Hi\") let octet:u8=65 let bytes:array<u8> = [octet] let second:bstring=(bstr_new_binary bytes) let joined:bstring=(bstr_concat first second) let part:bstring=(bstr_substring joined 0 1) let text:string=(bstr_to_cstr part) return 0}",
+        "fn hold(value:bstring)->bstring{return value} fn main()->int{let held:bstring=(hold (bstr_new \"Hi\")) return 0}",
+        "fn length(value:string)->int{return (str_length value)} fn main()->int{let bstr_new:fn(string)->int=length let bstr_to_cstr:fn(string)->int=length let result:int=(bstr_new \"Hi\") let other:int=(bstr_to_cstr \"Hi\") return 0}",
+        "fn main()->int{let value:bstring=(bstr_new \"Hi\") let values:array<bstring> = [value] let kept:bstring=(at values 0) return 0}",
+        "fn main()->int{let value:bstring=\"Hi\" return 0}",
+        "fn main()->int{let value:string=(bstr_new \"Hi\") return 0}",
+        "fn need(value:bstring)->int{return 0} fn main()->int{let result:int=(need \"Hi\") return 0}",
+        "fn main()->int{let values:array<bstring> = [\"Hi\"] return 0}",
+        "fn length(value:string)->int{return (str_length value)} fn main()->int{let bstr_new:fn(string)->int=length let result:int=(bstr_new true) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-bstring-types.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-bstring-types.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-bstring-types.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_bstring_type_contracts { (check_bstring_type_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -43,6 +350,18 @@ fn main() -> int {
         set index (+ index 1)
     }
     (check_legacy_global_declarations)
+    (check_fixed_string_contracts)
+    (check_reserved_definition_contracts)
+    (check_anonymous_record_contracts)
+    (check_byte_alias_contracts)
+    (check_character_contracts)
+    (check_u8_argument_contracts)
+    (check_string_stdlib_contracts)
+    (check_uppercase_parser_contracts)
+    (check_legacy_bang_contracts)
+    (check_array_sort_contracts)
+    (check_byte_conversion_contracts)
+    (check_bstring_type_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

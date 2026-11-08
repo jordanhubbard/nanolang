@@ -326,6 +326,88 @@ static void source_fixture(const char *path) {
     nvm_callable_destroy(&a); nvm_module_free(m);
 }
 
+
+static void split_elements_keep_string_provenance(void) {
+    NvmModule *m = assemble(
+        ".string text \"hi,there\"\n.string delimiter \",\"\n"
+        ".function main 0 0 0 void 0\nPUSH_STR text\nPUSH_STR delimiter\nSTR_SPLIT\n"
+        "PUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nAGG_GET 0\nPOP\nRET\n.end\n", 1);
+    if (!m) return;
+    NvmCallableAnalysis a;
+    if (analyze(m, &a)) {
+        unsigned projections = 0;
+        for (uint32_t pc = 0; pc < m->functions[0].code_length;) {
+            DecodedInstruction in;
+            uint32_t size = isa_decode(m->code + m->functions[0].code_offset + pc,
+                m->functions[0].code_length - pc, &in);
+            CHECK(size != 0);
+            if (!size) break;
+            if (in.opcode == OP_AGG_GET) {
+                CHECK(nvm_callable_projection_tags(&a, 0, pc) == (1u << TAG_STRING));
+                CHECK(nvm_callable_at(&a, 0, pc) == 0);
+                ++projections;
+            }
+            pc += size;
+        }
+        CHECK(projections == 1);
+    }
+    nvm_callable_destroy(&a); nvm_module_free(m);
+}
+
+static void sorted_elements_keep_string_provenance(void) {
+    NvmModule *m = assemble(
+        ".string text \"hi\"\n.import \"\" \"vm_array_sort\" array array\n"
+        ".function main 0 0 0 void 0\nPUSH_STR text\nARR_LITERAL 5 1\nCALL_EXTERN 0\n"
+        "PUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nAGG_GET 0\nPOP\nRET\n.end\n", 1);
+    if (!m) return;
+    NvmCallableAnalysis a;
+    if (analyze(m, &a)) {
+        unsigned projections = 0;
+        for (uint32_t pc = 0; pc < m->functions[0].code_length;) {
+            DecodedInstruction in;
+            uint32_t size = isa_decode(m->code + m->functions[0].code_offset + pc,
+                m->functions[0].code_length - pc, &in);
+            CHECK(size != 0);
+            if (!size) break;
+            if (in.opcode == OP_AGG_GET) {
+                CHECK(nvm_callable_projection_tags(&a, 0, pc) == (1u << TAG_STRING));
+                CHECK(nvm_callable_at(&a, 0, pc) == 0);
+                ++projections;
+            }
+            pc += size;
+        }
+        CHECK(projections == 1);
+    }
+    nvm_callable_destroy(&a); nvm_module_free(m);
+}
+
+static void encoded_elements_keep_byte_provenance(void) {
+    NvmModule *m = assemble(
+        ".string text \"hi\"\n.import \"\" \"vm_bytes_from_string\" array string\n"
+        ".function main 0 0 0 void 0\nPUSH_STR text\nCALL_EXTERN 0\n"
+        "PUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nAGG_GET 0\nPOP\nRET\n.end\n", 1);
+    if (!m) return;
+    NvmCallableAnalysis a;
+    if (analyze(m, &a)) {
+        unsigned projections = 0;
+        for (uint32_t pc = 0; pc < m->functions[0].code_length;) {
+            DecodedInstruction in;
+            uint32_t size = isa_decode(m->code + m->functions[0].code_offset + pc,
+                m->functions[0].code_length - pc, &in);
+            CHECK(size != 0);
+            if (!size) break;
+            if (in.opcode == OP_AGG_GET) {
+                CHECK(nvm_callable_projection_tags(&a, 0, pc) == (1u << TAG_U8));
+                CHECK(nvm_callable_at(&a, 0, pc) == 0);
+                ++projections;
+            }
+            pc += size;
+        }
+        CHECK(projections == 1);
+    }
+    nvm_callable_destroy(&a); nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
     direct_results_and_joins(); indirect_arguments_and_results();
     globals_loops_and_separate_producers(); aggregate_and_array_aliases();
@@ -333,6 +415,9 @@ int main(int argc, char **argv) {
     captured_targets(); captured_array_aliases_and_instances(); malformed_captures();
     variant_guard_targets();
     variant_scalar_producers();
+    split_elements_keep_string_provenance();
+    sorted_elements_keep_string_provenance();
+    encoded_elements_keep_byte_provenance();
     if (argc > 1) source_fixture(argv[1]);
     printf("Callable constraints: %d passed, %d failed\n", passed, failed);
     return failed != 0;

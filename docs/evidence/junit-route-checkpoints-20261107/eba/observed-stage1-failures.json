@@ -1,0 +1,512 @@
+{
+  "source": "ebaefe24bca13fb4a94ba6018b098ea5182bcae6",
+  "run": 42415103105,
+  "count": 63,
+  "classification": "Observed complete failure set; source/ABI/parser causes require separate qualified repairs.",
+  "cases": [
+    {
+      "name": "test_algebraic_effects",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined binding println\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined binding println "
+      ]
+    },
+    {
+      "name": "test_all_imports",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) "
+      ]
+    },
+    {
+      "name": "test_anonymous_struct_function_args",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_function_args.nano:30, column 31: unexpected token ''\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_function_args.nano:30, column 31: unexpected token '' "
+      ]
+    },
+    {
+      "name": "test_anonymous_struct_literal",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_literal.nano:15, column 12: unexpected token ''\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_anonymous_struct_literal.nano:15, column 12: unexpected token '' "
+      ]
+    },
+    {
+      "name": "test_array_operators",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: I require matching flat numeric array and scalar element types for arithmetic\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: I require matching flat numeric array and scalar element types for arithmetic "
+      ]
+    },
+    {
+      "name": "test_array_search_reverse",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable reversed_words: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:50:5)\n  [E0001] Variable floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:54:5)\n  [E0001] Variable flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:56:5)\n  [E0001] Variable reversed_empty: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:60:5)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable reversed_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:50:5)   [E0001] Variable floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:54:5)   [E0001] Variable flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_array_search_reverse.nano:56:5) "
+      ]
+    },
+    {
+      "name": "test_async",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/test_async.nano:4, column 1: unexpected token 'async'\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_async.nano:4, column 1: unexpected token 'async' "
+      ]
+    },
+    {
+      "name": "test_bstring",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:8:5)\n  [E0001] Variable bs2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:24:5)\n  [E0001] Variable bs3: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:25:5)\n  [E0001] Variable utf8_bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:30:5)\n  [E0001] Variable sub: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:40:5)\n  [E0001] Variable test1: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:45:5)\n  [E0001] Variable test2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:46:5)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable bs: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:8:5)   [E0001] Variable bs2: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:24:5)   [E0001] Variable bs3: I expected a value of type `bstring`, but found `string`. (/home/runner/work/nanolang/nanolang/tests/test_bstring.nano:25:5) "
+      ]
+    },
+    {
+      "name": "test_builtins_phase1",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined function min\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined function min "
+      ]
+    },
+    {
+      "name": "test_bytes_conversion",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow main at merged line 412: undefined function bytes_from_string\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow main at merged line 412: undefined function bytes_from_string "
+      ]
+    },
+    {
+      "name": "test_casting",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_complex",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_complex_abs at merged line 80: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_complex_abs at merged line 80: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_dynamic_arrays",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined function array_pop\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined function array_pop "
+      ]
+    },
+    {
+      "name": "test_env",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv "
+      ]
+    },
+    {
+      "name": "test_format",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: string concat needs two strings\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: string concat needs two strings "
+      ]
+    },
+    {
+      "name": "test_generic_result",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined binding println\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined binding println "
+      ]
+    },
+    {
+      "name": "test_hashmap_generic_core",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined function map_keys\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined function map_keys "
+      ]
+    },
+    {
+      "name": "test_hashmap_set_advanced",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap "
+      ]
+    },
+    {
+      "name": "test_hm_inference",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined binding println\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined binding println "
+      ]
+    },
+    {
+      "name": "test_import_aliasing",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported local type StringBuilder\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported local type StringBuilder "
+      ]
+    },
+    {
+      "name": "test_matrix4",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_module_introspection",
+      "status": "failure",
+      "compiler_diagnostic": "I am testing shadow add\nI am testing shadow multiply\nI am testing shadow helper\nI am testing shadow distance_squared\nI am testing shadow main\nI could not execute the module: Assertion failed\n  Assertion failed\n=== Module Introspection Test ===\nModule is unsafe: false\nModule has FFI: false\nExported functions count: 0\nExpected: 3 functions (add, multiply, distance_squared)\nERROR: Function count mismatch!\nI rejected failed shadow execution\nI will not publish bytecode after failed shadows\n",
+      "case_diagnostics": [
+        "compilation failed: I am testing shadow add I am testing shadow multiply I am testing shadow helper I am testing shadow distance_squared I am testing shadow main "
+      ]
+    },
+    {
+      "name": "test_module_struct_qualification",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 90: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 90: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_opaque_basic",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/test_opaque_basic.nano:4, column 37: unexpected token 'opaque'\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_opaque_basic.nano:4, column 37: unexpected token 'opaque' "
+      ]
+    },
+    {
+      "name": "test_opl_cases_runner",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported local type OplParseResult\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+      ]
+    },
+    {
+      "name": "test_opl_compile_golden",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported local type OplParseResult\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+      ]
+    },
+    {
+      "name": "test_par_let",
+      "status": "failure",
+      "compiler_diagnostic": "I could not verify the shadow module: Assembled module failed verification: function[8] stack underflow at offset 48 (POP needs 1, has 0)\n",
+      "case_diagnostics": [
+        "compilation failed: I could not verify the shadow module: Assembled module failed verification: function[8] stack underflow at offset 48 (POP needs 1, has 0) "
+      ]
+    },
+    {
+      "name": "test_process",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol process_run\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol process_run "
+      ]
+    },
+    {
+      "name": "test_pybridge_full",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+      ]
+    },
+    {
+      "name": "test_pybridge_matplotlib_smoke",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol mpl_init\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol mpl_init "
+      ]
+    },
+    {
+      "name": "test_pybridge_smoke",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+      ]
+    },
+    {
+      "name": "test_quaternion",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_repl_history",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper "
+      ]
+    },
+    {
+      "name": "test_resource_effect_checker",
+      "status": "failure",
+      "compiler_diagnostic": "",
+      "case_diagnostics": [
+        "compilation failed: "
+      ]
+    },
+    {
+      "name": "test_result_syntax",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined binding println\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined binding println "
+      ]
+    },
+    {
+      "name": "test_row_poly",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)\n  [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)\n  [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16)\n  [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Employee (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:85:16)\n  [E0010] Argument 1 to 'get_age': expected {name:string,age:int|r}, got Employee (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:90:16)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)   [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)   [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16) "
+      ]
+    },
+    {
+      "name": "test_setenv_shadow",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_set_env at merged line 36: unsupported extern result or symbol nl_os_setenv\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_set_env at merged line 36: unsupported extern result or symbol nl_os_setenv "
+      ]
+    },
+    {
+      "name": "test_split2",
+      "status": "failure",
+      "compiler_diagnostic": "I am testing shadow __nano_module_0_is_null\nI am testing shadow __nano_module_0_quick_match\nI am testing shadow __nano_module_0_quick_find\nI am testing shadow __nano_module_0_quick_replace\nI am testing shadow __nano_module_0_quick_split\nI am testing shadow __nano_module_0_regex_split\nI am testing shadow __nano_module_0_compile\nI am testing shadow __nano_module_0_matches\nI am testing shadow __nano_module_0_find\nI am testing shadow __nano_module_0_find_all\nI am testing shadow __nano_module_0_groups\nI am testing shadow __nano_module_0_replace\nI am testing shadow __nano_module_0_replace_all\nI am testing shadow __nano_module_0_split\nI am testing shadow __nano_module_0_free\nI cannot translate '/home/runner/work/_temp/nano-qualification-jye2ph5g/nano_bytecode_product_2QtVcM/program.nvm': import 0 (nl_regex_compile) requires an exact builtin host ABI; nvm2c refuses CALL_EXTERN\nI could not translate the verified module to C\nI could not publish the requested product: \n",
+      "case_diagnostics": [
+        "compilation failed: I am testing shadow __nano_module_0_is_null I am testing shadow __nano_module_0_quick_match I am testing shadow __nano_module_0_quick_find I am testing shadow __nano_module_0_quick_replace I am testing shadow __nano_module_0_quick_split "
+      ]
+    },
+    {
+      "name": "test_std_collections",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder "
+      ]
+    },
+    {
+      "name": "test_std_lib_collections",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5) "
+      ]
+    },
+    {
+      "name": "test_std_math_extended",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow test_extended_math at merged line 273: unsupported extern result or symbol exp2\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_math at merged line 273: unsupported extern result or symbol exp2 "
+      ]
+    },
+    {
+      "name": "test_std_math_extended_full",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow test_extended_misc at merged line 313: I require the declared float value type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_extended_misc at merged line 313: I require the declared float value type "
+      ]
+    },
+    {
+      "name": "test_std_modules_env_process_fs_binary",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0010] Argument 2 to '__nano_module_3_push_u8': expected int, got u8 (/home/runner/work/nanolang/nanolang/modules/std/binary.nano:174:17) "
+      ]
+    },
+    {
+      "name": "test_std_modules_simple",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv "
+      ]
+    },
+    {
+      "name": "test_std_peg",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match "
+      ]
+    },
+    {
+      "name": "test_stdlib_arrays",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable sorted_floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:182:5)\n  [E0001] Variable sorted_words: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:186:5)\n  [E0001] Variable sorted_flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:189:5)\n  [E0001] Variable reversed: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:198:5)\n  [E0001] Variable floats: I expected a value of type `array<float>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:202:5)\n  [E0001] Variable flags: I expected a value of type `array<bool>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:204:5)\n  [E0001] Variable reversed: I expected a value of type `array<string>`, but found `array<int>`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:99:5)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable sorted_floats: I expected a value of type `array.float.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:182:5)   [E0001] Variable sorted_words: I expected a value of type `array.string.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:186:5)   [E0001] Variable sorted_flags: I expected a value of type `array.bool.`, but found `array.int.`. (/home/runner/work/nanolang/nanolang/tests/test_stdlib_arrays.nano:189:5) "
+      ]
+    },
+    {
+      "name": "test_stdlib_result",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined binding println\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined binding println "
+      ]
+    },
+    {
+      "name": "test_stdlib_strings",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined function str_trim_left\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined function str_trim_left "
+      ]
+    },
+    {
+      "name": "test_symbol_scoping",
+      "status": "failure",
+      "compiler_diagnostic": "Error: Failed to tokenize input file\n",
+      "case_diagnostics": [
+        "compilation failed: Error: Failed to tokenize input file "
+      ]
+    },
+    {
+      "name": "test_top_level_constants",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/test_top_level_constants.nano:47, column 9: unexpected token 'return'\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/test_top_level_constants.nano:47, column 9: unexpected token 'return' "
+      ]
+    },
+    {
+      "name": "test_u8_basic",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Variable d: I expected a value of type `byte`, but found `int`. (/home/runner/work/nanolang/nanolang/tests/test_u8_basic.nano:12:5)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable d: I expected a value of type `byte`, but found `int`. (/home/runner/work/nanolang/nanolang/tests/test_u8_basic.nano:12:5) "
+      ]
+    },
+    {
+      "name": "test_unsafe_basic",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol getenv\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol getenv "
+      ]
+    },
+    {
+      "name": "test_vector2d",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 128: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 128: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_vector3d",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_vector4d",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 118: I require the declared float return type "
+      ]
+    },
+    {
+      "name": "test_enums_comprehensive",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported local type unknown\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported local type unknown "
+      ]
+    },
+    {
+      "name": "test_c_backend",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_c_backend.nano:7, column 12: unexpected token ''\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_c_backend.nano:7, column 12: unexpected token '' "
+      ]
+    },
+    {
+      "name": "test_mac_exec_once_vm",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run "
+      ]
+    },
+    {
+      "name": "test_map_constructor_contexts",
+      "status": "failure",
+      "compiler_diagnostic": "NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/home/runner/work/nanolang/nanolang/tests/unit/test_map_constructor_contexts.nano:43:41)\n",
+      "case_diagnostics": [
+        "compilation failed: NSType checking failed Diagnostics:   [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/home/runner/work/nanolang/nanolang/tests/unit/test_map_constructor_contexts.nano:43:41) "
+      ]
+    },
+    {
+      "name": "test_launcher_capture",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn "
+      ]
+    },
+    {
+      "name": "test_match_orpatterns",
+      "status": "failure",
+      "compiler_diagnostic": "Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano:12, column 16: unexpected token ''\n",
+      "case_diagnostics": [
+        "compilation failed: Parse error at /home/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano:12, column 16: unexpected token '' "
+      ]
+    },
+    {
+      "name": "test_mac_exec_once",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower this checked program: undefined function str_split\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower this checked program: undefined function str_split "
+      ]
+    },
+    {
+      "name": "test_stdlib_comprehensive",
+      "status": "failure",
+      "compiler_diagnostic": "I cannot lower the selected shadows: I cannot lower shadow test_min at merged line 23: undefined function min\n",
+      "case_diagnostics": [
+        "compilation failed: I cannot lower the selected shadows: I cannot lower shadow test_min at merged line 23: undefined function min "
+      ]
+    }
+  ]
+}

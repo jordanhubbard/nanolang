@@ -552,10 +552,10 @@ test-nvm2c-sanitizers:
 
 # I provide the native host ABI required by artifact-backed array operations.
 # A relocatable object retains exports even when only a dlopened module uses them.
-AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/utf8.o
 .PHONY: nvm2c-runtime
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
-$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
+$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) Makefile.gnu | $(BIN_DIR)
 	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
 
 test-compiler-phases: $(COMPILER_C) nano_virt nano_vm nvm2c
@@ -664,7 +664,9 @@ test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_frontend_contract
 
 .PHONY: test-nanoisa-module
-test-nanoisa-module: build
+# I compile this module with my C seed; legacy component entry binaries are
+# separate build qualification and are not inputs to this module fixture.
+test-nanoisa-module: schema modules-index $(COMPILER_C)
 	@mkdir -p build/module_self_tests
 	@$(TIMEOUT_CMD) ./bin/nanoc_c modules/nanoisa/mvp.nano \
 		-o build/module_self_tests/nanoisa
@@ -816,7 +818,7 @@ sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME
 	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
-test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-nanovm: test-vm-bstring-contracts test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -833,6 +835,14 @@ test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJ
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
+
+.PHONY: test-vm-bstring-contracts
+test-vm-bstring-contracts: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -o $(OBJ_DIR)/nanovm/test_bstring_contracts \
+		tests/nanovm/test_bstring_contracts.c src/nanovm/heap.c src/nanovm/heap_cycles.c src/nanovm/value.c src/nanovm/vm_ffi.c src/runtime/nl_string.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(filter-out $(OBJ_DIR)/runtime/nl_string.o,$(RUNTIME_OBJECTS)) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_bstring_contracts
 
 .PHONY: test-vm-substring-contract
 test-vm-substring-contract: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -1273,6 +1283,8 @@ test-coroutine-scheduler: stage1
 .PHONY: test-eval
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
+
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/eval/call_arguments.h
 
 $(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
@@ -1883,6 +1895,32 @@ test-unicode-ffi:
 	rm -f tests/test_unicode_ffi
 
 .PHONY: test-nl-string
+.PHONY: test-gc-shutdown-sanitizers
+test-gc-shutdown-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_struct.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o $(OBJ_DIR)/test_gc_shutdown $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_shutdown
+
+test-units: test-gc-shutdown-sanitizers
+
+.PHONY: test-eval-bstring-sanitizers
+test-eval-bstring-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -ffunction-sections -fdata-sections -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_eval_bstring.c src/env.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/utf8.c \
+		-o $(OBJ_DIR)/test_eval_bstring -Xlinker $(if $(filter Darwin,$(UNAME_S)),-dead_strip,--gc-sections) $(filter-out $(EXPORT_DYNAMIC_LDFLAGS),$(LDFLAGS))
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_eval_bstring
+
+test-units: test-eval-bstring-sanitizers
+
+.PHONY: test-nl-string-bounds-sanitizers
+test-nl-string-bounds-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_nl_string.c src/runtime/nl_string.c src/utf8.c -o $(OBJ_DIR)/test_nl_string_bounds $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_nl_string_bounds
+
+test-units: test-nl-string-bounds-sanitizers
+
 test-nl-string: $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o
 	@echo "Running nl_string unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nl_string tests/test_nl_string.c $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o $(LDFLAGS)
@@ -4812,8 +4850,34 @@ test-units: test-selfhost-generic-contexts
 test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
+.PHONY: test-builtin-string-operands
+test-builtin-string-operands: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_builtin_string_operands
+
+test-units: test-builtin-string-operands
+
+.PHONY: test-empty-record-array-contexts
+test-empty-record-array-contexts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_empty_record_array_contexts
+
+.PHONY: test-legacy-print-statements
+test-legacy-print-statements: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_legacy_print_statements
+
+.PHONY: test-scalar-map-aot
+test-scalar-map-aot: nano_vm nvm2c nanoisa_dump $(BIN_DIR)/nanoisa
+	python3 -m unittest -v tests.test_scalar_map_aot
+
+test-units: test-scalar-map-aot
+
+.PHONY: test-map-scalar-runtime
+test-map-scalar-runtime:
+	python3 -m unittest -v tests.test_map_scalar_runtime
+
+test-units: test-map-scalar-runtime
+
 .PHONY: test-map-constructor-contexts
-test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
+test-map-constructor-contexts: bootstrap nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
@@ -6871,6 +6935,7 @@ test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
 # I keep broader profiles opt-in until their full coverage and job budget qualify.
 FAST_GATE_TEST_PROFILES ?= 0
 check-fast: test-embedded-nano-identifiers
+	python3 scripts/gen_reserved_builtins.py --check
 	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
 	python3 -m unittest -v tests.test_fast_gate
 	python3 scripts/fast_gate.py $(if $(filter 1,$(FAST_GATE_TEST_PROFILES)),--test-profiles --report .test_output/fast-gate-profiles.json)
@@ -7311,3 +7376,85 @@ $(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/nvm2c_union_target_private.inc $(NANO
 test-units: test-union-field-native-target
 test-union-field-native-target: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_union_field_native_target
+
+.PHONY: test-comprehensive-run-contract
+test-comprehensive-run-contract:
+	python3 -m unittest -v tests.test_test_run_contract tests.test_junit_route_audit
+
+check-fast test-units: test-comprehensive-run-contract
+
+.PHONY: test-comprehensive-run-contract-native
+test-comprehensive-run-contract-native: bootstrap3 nano_virt nano_vm
+	python3 -m unittest -v tests.test_test_run_contract_native
+
+.PHONY: test-numeric-builtin-selection
+test-numeric-builtin-selection: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_numeric_builtin_selection
+
+.PHONY: test-math-host-contracts
+test-math-host-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_math_host_contracts
+
+.PHONY: test-array-search-reverse-contracts
+test-array-search-reverse-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_search_reverse_contracts
+
+.PHONY: test-array-arithmetic-contracts
+test-array-arithmetic-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_arithmetic_contracts
+
+.PHONY: test-cast-float-contracts
+test-cast-float-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_cast_float_contracts
+
+.PHONY: test-dynamic-array-contracts
+test-dynamic-array-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_dynamic_array_contracts
+
+.PHONY: test-format-source-contracts
+test-format-source-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_format_source_contracts
+
+.PHONY: test-legacy-par-let-contracts
+test-legacy-par-let-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_legacy_par_let_contracts
+
+.PHONY: test-source-checker-component
+test-source-checker-component: stage1
+	python3 -m unittest -v tests.test_source_checker_component
+
+.PHONY: test-anonymous-record-contracts
+test-anonymous-record-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_anonymous_record_contracts
+
+.PHONY: test-byte-alias-contracts
+test-byte-alias-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_byte_alias_contracts
+
+.PHONY: test-character-builtin-contracts
+test-character-builtin-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_character_builtin_contracts
+
+.PHONY: test-u8-argument-contracts
+test-u8-argument-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_u8_argument_contracts
+
+.PHONY: test-compiler-phase-marker-contracts
+test-compiler-phase-marker-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_compiler_phase_marker_contracts
+
+.PHONY: test-string-stdlib-contracts
+test-string-stdlib-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_string_stdlib_contracts
+
+.PHONY: test-uppercase-condition-contracts
+test-uppercase-condition-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_uppercase_condition_contracts
+
+.PHONY: test-legacy-bang-contracts
+test-legacy-bang-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_legacy_bang_contracts
+
+.PHONY: test-array-sort-contracts
+test-array-sort-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_sort_contracts

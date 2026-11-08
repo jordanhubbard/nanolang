@@ -1,0 +1,224 @@
+{
+  "run": 42516258564,
+  "artifact": 13631518063,
+  "sha256": "48402198bad07cfdb28ad0284c791d040a7113e117d60ccfec3fed70837b1914",
+  "size": 5529699,
+  "crc_checked": true,
+  "zip_saved": false,
+  "emitter": {
+    "starts": 774,
+    "completes": 773,
+    "failures": 0,
+    "summed_body_seconds": 9.931347,
+    "last_started": {
+      "event": "shadow-start",
+      "name": "nb_affine_records",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 1603,
+      "elapsed_seconds": 0.0,
+      "failures": 0
+    },
+    "slowest": [
+      {
+        "event": "shadow-complete",
+        "name": "tc_validate_layouts",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 8318,
+        "elapsed_seconds": 3.06369,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "parse_block_recursive",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/parser.nano",
+        "line": 5775,
+        "elapsed_seconds": 0.432792,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "parse_unsafe_block_recursive",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/parser.nano",
+        "line": 5939,
+        "elapsed_seconds": 0.428316,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_type_is_declared",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 417,
+        "elapsed_seconds": 0.326396,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_constructor_argument",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 4934,
+        "elapsed_seconds": 0.303163,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_transfer_supported",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 1050,
+        "elapsed_seconds": 0.296702,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_concrete_payload_fact",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 253,
+        "elapsed_seconds": 0.281202,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_instantiated_classify",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 985,
+        "elapsed_seconds": 0.184465,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_expr_node",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 6566,
+        "elapsed_seconds": 0.157823,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_callback_unsupported",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 1077,
+        "elapsed_seconds": 0.131418,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_concrete_tag",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 532,
+        "elapsed_seconds": 0.10986,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_owner_field_tag",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 298,
+        "elapsed_seconds": 0.086169,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_let_statement",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 6918,
+        "elapsed_seconds": 0.077696,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_observation_type",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 389,
+        "elapsed_seconds": 0.074057,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_concrete_layout",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 544,
+        "elapsed_seconds": 0.073633,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_project_binding",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 612,
+        "elapsed_seconds": 0.072467,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "parse_primary",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/parser.nano",
+        "line": 3482,
+        "elapsed_seconds": 0.071351,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_flow_value_context",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 8946,
+        "elapsed_seconds": 0.07118,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_flow_block_context",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 8940,
+        "elapsed_seconds": 0.068763,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_flow_node_context",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 8952,
+        "elapsed_seconds": 0.067895,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_classify",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 366,
+        "elapsed_seconds": 0.066918,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_generic_contains",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 1004,
+        "elapsed_seconds": 0.056796,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "tc_generic_function",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 5551,
+        "elapsed_seconds": 0.053541,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_has_collection_payload",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 410,
+        "elapsed_seconds": 0.052683,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_array_mutation_call",
+        "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 5360,
+        "elapsed_seconds": 0.052419,
+        "failures": 0
+      }
+    ]
+  }
+}

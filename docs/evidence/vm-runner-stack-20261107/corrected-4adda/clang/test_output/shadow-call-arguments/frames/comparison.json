@@ -1,0 +1,12 @@
+{
+  "before": {
+    "main": ".test_output/shadow-call-arguments/frames/before.c:5908:main\t130930392\tstatic",
+    "bytes": 130930392,
+    "source_sha256": "8bef8bd696039adad96aeb8989efb969bfe55609066efab79ebf72aa7fc2be5e"
+  },
+  "after": {
+    "main": ".test_output/shadow-call-arguments/frames/after.c:5918:main\t24\tstatic",
+    "bytes": 24,
+    "source_sha256": "1754e6f8c200ce7b44e9ad631a61c9c960078af59df413be6eb660c28ba9e473"
+  }
+}

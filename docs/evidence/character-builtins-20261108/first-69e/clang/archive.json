@@ -1,0 +1,15 @@
+{
+  "size": 44416798,
+  "sha256": "70a4c35c62ee640dc7494d2d0938e976747619c8716e47642e3d73a9f7fbd588",
+  "files": 1749,
+  "text_files": 1591,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-ljzabrf9.tar.gz",
+      "sha256": "d436a6cd5650be3f58e836dc27cbeba7eb625f50821774c4795c28266e545d07",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

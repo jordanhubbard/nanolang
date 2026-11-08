@@ -96,10 +96,12 @@ static int nvm2c_constant_unreachable(const NvmModule *module,
             case OP_CLOSURE_NEW: pop = in->operands[1].u16; push = 1; break;
             case OP_AGG_PACK: pop = in->operands[3].u16; push = 1; break;
             case OP_ARR_LITERAL: pop = in->operands[1].u16; push = 1; break;
+            case OP_PICK: pop = 0; push = 1; break;
             case OP_RET: pop = module->functions[function].result_count; push = 0; break;
             default: break;
             }
             size_t before = frames[at].stack;
+            if (in->opcode == OP_PICK && in->operands[0].u16 >= before) goto done;
             if (pop < 0 || push < 0 || push > 3 || (size_t)pop > before) goto done;
             size_t base = before - (size_t)pop, after = base + (size_t)push;
             if (locals + after > capacity) goto done;
@@ -127,6 +129,7 @@ static int nvm2c_constant_unreachable(const NvmModule *module,
                 if (in->operands[0].u16 >= locals) goto done;
                 values[in->operands[0].u16] = a; break;
             case OP_DUP: output[0] = output[1] = a; break;
+            case OP_PICK: output[0] = stack[before - 1 - in->operands[0].u16]; break;
             case OP_SWAP: output[0] = b; output[1] = a; break;
             case OP_ROT3: output[0] = stack[base + 2]; output[1] = a; output[2] = b; break;
             case OP_ARR_LITERAL:

@@ -36,7 +36,6 @@ BACKEND="${NANOLANG_BACKEND:-c}"
 C_COMPILER="${NANOLANG_COMPILER:-./bin/nanoc}"
 
 mkdir -p .test_output
-rm -f .test_output/*.compile.log
 
 # Colors
 GREEN='\033[0;32m'
@@ -100,8 +99,12 @@ RESULT_TIMES=()    # elapsed seconds (float)
 RESULT_MESSAGES=() # failure message if any
 RESULT_CLASSES=()  # category: nl / app / unit
 
-# Wall-clock start for timing
-SUITE_START=$(date +%s%N 2>/dev/null || date +%s)
+# I use the same monotonic clock on GNU and BSD hosts.
+clock_ns() { python3 -c 'import time; print(time.monotonic_ns())'; }
+elapsed_since() {
+    python3 -c 'import sys,time; print(format((time.monotonic_ns()-int(sys.argv[1]))/1e9, ".2f"))' "$1"
+}
+SUITE_START=$(clock_ns)
 
 # Helper: record a test result
 record_result() {
@@ -176,12 +179,35 @@ run_test() {
     fi
 
     local _t0
-    _t0=$(date +%s%N 2>/dev/null || date +%s)
+    _t0=$(clock_ns)
     
     local log_file=".test_output/${category}_${test_name}.compile.log"
     local out_file=".test_output/${category}_${test_name}.out"
     local run_log=".test_output/${category}_${test_name}.run.log"
     
+    _elapsed() { elapsed_since "$_t0"; }
+
+    # I preserve prior runner-owned bytes before requiring fresh publication.
+    local prior_dir="" prior prepare_failed=0
+    for prior in "$log_file" "$out_file" "${out_file}.nvm" "$run_log"; do
+        if [ -e "$prior" ] || [ -L "$prior" ]; then
+            if [ -z "$prior_dir" ]; then
+                prior_dir=$(mktemp -d ".test_output/prior-${category}-${test_name}.XXXXXX") || { prepare_failed=1; break; }
+            fi
+            mv "$prior" "$prior_dir/" || { prepare_failed=1; break; }
+        fi
+    done
+    if [ "$prepare_failed" -ne 0 ] || [ -e "$out_file" ] || [ -L "$out_file" ] || [ -e "${out_file}.nvm" ] || [ -L "${out_file}.nvm" ]; then
+        TOTAL_FAIL=$((TOTAL_FAIL + 1))
+        case "$category" in
+            nl) NL_FAIL=$((NL_FAIL + 1)) ;;
+            app) APP_FAIL=$((APP_FAIL + 1)) ;;
+            unit) UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
+        esac
+        record_result "$test_name" "fail" "$(_elapsed)" "I could not isolate prior runner output" "$category"
+        return 1
+    fi
+
     # Compile the test (backend-dependent)
     case "$BACKEND" in
         c|native)
@@ -228,35 +254,27 @@ run_test() {
             ;;
         vm|nanovm)
             run_artifact="${out_file}.nvm"
-            run_cmd=(./bin/nano_vm "${out_file}.nvm")
+            run_cmd=(./bin/nano_vm "${out_file}.nvm" --)
             ;;
         daemon)
             run_artifact="${out_file}.nvm"
-            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm")
+            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm" --)
             ;;
     esac
 
-    # Helper: compute elapsed time in seconds (float, 2 decimal places)
-    _elapsed() {
-        local t1
-        t1=$(date +%s%N 2>/dev/null || date +%s)
-        # If nanoseconds available, divide; otherwise just integer seconds
-        if echo "$t1" | grep -q '[0-9]\{10,\}'; then
-            echo "scale=2; ($t1 - $_t0) / 1000000000" | bc 2>/dev/null || echo "0"
-        else
-            echo "$((t1 - _t0))"
-        fi
-    }
-
     # Run the compiled artifact
     if [ -f "$run_artifact" ]; then
-        perl -e "alarm $RUN_TIMEOUT; exec {\$ARGV[0]} @ARGV" "${run_cmd[@]}" >"$run_log" 2>&1
+        python3 scripts/test_run_contract.py --source "$test_file" --log "$run_log" \
+            --timeout "$RUN_TIMEOUT" -- "${run_cmd[@]}"
         local _run_exit=$?
         local _elapsed_val
         _elapsed_val=$(_elapsed)
         if [ $_run_exit -eq 0 ]; then
             echo -e "${GREEN}✅${NC} $test_name"
-            rm -f "$log_file" "$out_file" "${out_file}.nvm" "$run_log"
+            rm -f "$log_file" "$out_file" "${out_file}.nvm"
+            if [ ! -e "${test_file%.nano}.cases.json" ] && [ ! -L "${test_file%.nano}.cases.json" ]; then
+                rm -f "$run_log"
+            fi
             TOTAL_PASS=$((TOTAL_PASS + 1))
             case "$category" in
                 "nl") NL_PASS=$((NL_PASS + 1)) ;;
@@ -439,13 +457,7 @@ echo ""
 emit_junit() {
     local outfile="$1"
     local suite_time
-    local _t1
-    _t1=$(date +%s%N 2>/dev/null || date +%s)
-    if echo "$_t1" | grep -q '[0-9]\{10,\}'; then
-        suite_time=$(echo "scale=2; ($_t1 - $SUITE_START) / 1000000000" | bc 2>/dev/null || echo "0")
-    else
-        suite_time=$(($(date +%s) - SUITE_START))
-    fi
+    suite_time=$(elapsed_since "$SUITE_START")
 
     local total=${#RESULT_NAMES[@]}
     local failures=$TOTAL_FAIL

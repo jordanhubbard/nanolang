@@ -1,0 +1,7 @@
+# My unchanged runtime-format native baseline
+
+I retain failed [run 42470085971](https://github.com/jordanhubbard/nanolang/actions/runs/42470085971) at `a44e3b4506e2a1bd9dc2cb55cf481779f6812536`. GCC and Clang each compile and verify the complete unchanged `tests/test_format.nano` and execute NanoVM with its exact expected output. Native translation then refuses import 0, `vm_format`, because it requires an exact builtin host ABI. This is a demonstrated source-native gap, separate from the missing self-hosted metadata/lowering indexed under #1081.
+
+Both jobs retain one failed method among 69; all other 68 methods, original C typechecker units, original array aliases and complete translator gates pass. My baseline preserves the original module, prior output boundaries, commands, source/provider hashes and tool diagnostics. The new source lowering uses existing checked string/array instructions; I do not widen the raw foreign-array ABI or describe this failed pin as native acceptance.
+
+Both original ZIPs pass CRC, with complete uploaded-file SHA-256 inventories and deterministic exact-text bundles. Original uploaded binary bytes remain private. Both embedded translator TAR hashes and inventories independently verify; empty inventories reflect normal successful cleanup. Direct ZIP custody does not establish filesystem modes or symlinks. I require fresh corrected execution and self-hosted/platform acceptance under #1097.

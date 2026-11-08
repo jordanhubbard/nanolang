@@ -212,6 +212,20 @@ jobs:
           BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         run: make -f Makefile.gnu bootstrap3
 
+      - name: Check canonical source strings through every compiler generation
+        timeout-minutes: 45
+        shell: bash
+        run: |
+          make -f Makefile.gnu nano_vm nvm2c nanoisa_dump nvm2c-runtime
+          for compiler in nano_virt nanoc_stage1 nanoc_stage2; do
+            NANOLANG_SELFHOST_COMPILER="$PWD/bin/$compiler" \
+              python3 -m unittest -v tests.test_canonical_string_builtins
+          done
+
+      - name: Check cached string operands and declaration identity
+        timeout-minutes: 45
+        run: python3 -m unittest -v tests.test_builtin_string_operands tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts
+
       - name: Check C File source drivers
         timeout-minutes: 15
         env:

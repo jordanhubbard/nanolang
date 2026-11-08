@@ -1,0 +1,15 @@
+{
+  "size": 12985207,
+  "sha256": "685813d7efb70deecc36ee50a15f537040ee9b6df934d91de6a4dcb61c54411a",
+  "files": 2211,
+  "text_files": 2032,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-gguqns29.tar.gz",
+      "sha256": "9ad88e341fd14c8b87c071efecb994eda78ef0056bf9139e3f7c95ee9ef140d4",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

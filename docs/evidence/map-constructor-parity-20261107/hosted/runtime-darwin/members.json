@@ -1,0 +1,32 @@
+[
+  {
+    "path": "compiler.txt",
+    "bytes": 206,
+    "sha256": "df12815703ce3452ab4bd51ecbea4cf8155246b94b5b15113a580ff6aec2befd"
+  },
+  {
+    "path": "inputs.json",
+    "bytes": 428,
+    "sha256": "274ff835cdc95192affe38f957071394459fac2d8d67b96ddda93734734bfad7"
+  },
+  {
+    "path": "python.txt",
+    "bytes": 14,
+    "sha256": "b01b5da7ac6a0ecc5ff1aee7998c4ad10df616dc53585c5e44d3c6b916cfaf11"
+  },
+  {
+    "path": "revision.txt",
+    "bytes": 41,
+    "sha256": "452a035534f609f4eb28e47e916fe93cc7bdfc6ab01b93280c7287dbbe03b580"
+  },
+  {
+    "path": "runtime.log",
+    "bytes": 1055,
+    "sha256": "232862ce9190a74d6f6161c06782a51f65d546df4ae525028751814aeef7fe8a"
+  },
+  {
+    "path": "worker.json",
+    "bytes": 364,
+    "sha256": "b1f30bbb2f3f74b3d3eb7632ffb622b51d88358d29ddaee20f6ab98326a3da37"
+  }
+]

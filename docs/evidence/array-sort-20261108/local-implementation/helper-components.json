@@ -1,0 +1,158 @@
+{
+  "scope": "I execute production helper fragments, not a complete translator or generated root lifecycle.",
+  "source_sha256": "43ce3d14d1ec5a9c92fdf41e4362aac9eca999a7021b98869568e022f860f7a6",
+  "helpers": [
+    {
+      "helper": "emit_nstr_storage",
+      "size": 1830,
+      "sha256": "6b9bcb889bc302056184c3c4199a478fe36f74f11954b1fa7198df6a8ce7dda0"
+    },
+    {
+      "helper": "emit_nagg_accounting",
+      "size": 482,
+      "sha256": "f1e63b8ae22a7c295ace5e0ee5a2342501ae4e048caad11ca26990109a4a02c7"
+    },
+    {
+      "helper": "emit_narr_storage",
+      "size": 2640,
+      "sha256": "58a4d20cc02ec089ad6b9958e6d7b902b6afca1a34dd3367b81913bcdb5f6e0e"
+    },
+    {
+      "helper": "emit_nsarr_storage",
+      "size": 2799,
+      "sha256": "a792a6b5eef1a92ea8729323b15a5270b675b54712a417c775a094669acf7392"
+    },
+    {
+      "helper": "emit_array_sort",
+      "size": 2384,
+      "sha256": "6559214c6486c4628c0089cec0f2808c3e746d5f23523a6a806c5aeaf6dce39c"
+    }
+  ],
+  "harness_sha256": "8c06467d9d84661be2efc4320a4b818313bcf8bacb3cfe8dbb849f17124416b7",
+  "runtime_sha256": "a0fed6650cd6f1fd3a2b2524301988ab778def6e7823a9d8a43e4551d6cf5ff8",
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/helpers.c",
+        "/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0"
+      ],
+      "returncode": 0,
+      "label": "build",
+      "optimization": "-O0"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0"
+      ],
+      "returncode": 0,
+      "label": "execute",
+      "optimization": "-O0"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0",
+        "--utf8"
+      ],
+      "returncode": -6,
+      "label": "utf8",
+      "optimization": "-O0"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0",
+        "--byte"
+      ],
+      "returncode": -6,
+      "label": "byte",
+      "optimization": "-O0"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0",
+        "--bool"
+      ],
+      "returncode": -6,
+      "label": "bool",
+      "optimization": "-O0"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/helpers.c",
+        "/Users/jkh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2"
+      ],
+      "returncode": 0,
+      "label": "build",
+      "optimization": "-O2"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2"
+      ],
+      "returncode": 0,
+      "label": "execute",
+      "optimization": "-O2"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2",
+        "--utf8"
+      ],
+      "returncode": -6,
+      "label": "utf8",
+      "optimization": "-O2"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2",
+        "--byte"
+      ],
+      "returncode": -6,
+      "label": "byte",
+      "optimization": "-O2"
+    },
+    {
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2",
+        "--bool"
+      ],
+      "returncode": -6,
+      "label": "bool",
+      "optimization": "-O2"
+    }
+  ],
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "native_products": [
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O0",
+      "sha256": "6fd77ec853d63b770ea794e37e3448f9079af537a053f186c9fdd02adb49fa79",
+      "size": 8616944
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/array-sort-helper/O2",
+      "sha256": "d830c22cca1c40b4deb7ebab539001a07543dc6428454b1207a11566bc870d77",
+      "size": 8565584
+    }
+  ]
+}

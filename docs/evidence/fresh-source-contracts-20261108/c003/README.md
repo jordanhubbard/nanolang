@@ -1,0 +1,9 @@
+# My fresh source contract checkpoint before the original corpus
+
+I retain the early artifacts from [run 42475960040](https://github.com/jordanhubbard/nanolang/actions/runs/42475960040) at `c003d0d9776cbef3368ee685fe2260b24a7cd8e5`. Fresh bootstrap completes before these checks; its provider manifest reports identical Stage 1/2 NVM hashes. I retain the exact provider hashes and revision. These early ZIPs do not contain those compiler binary bytes, so I do not claim independent binary custody from the manifest alone.
+
+All 69 selected source methods pass through their selected fresh providers. These retain the original known-wrong STRING refusals and reserved print-definition diagnostics with prior output preserved, alongside the complete selected math, array, casting, format and par-let controls. The nine original canonical STRING methods also pass through each of NanoVirt, Stage 1 and Stage 2. All six map contract methods pass across their selected providers, including native snapshots.
+
+The earlier four invalid STRING acceptances and two reserved-print verifier-underflow diagnostics are no longer observed in these unchanged controls. I preserve their earlier failed pins separately. This pin predates my anonymous-record, byte-alias, character and directed-argument changes; it does not qualify those later source emitters.
+
+Both early ZIPs pass CRC and have complete uploaded-file SHA-256 inventories and deterministic exact UTF-8 text bundles. They contain no embedded translator TARs. I retain the actual logs and selections, without converting these focused results into complete original 237-case parity, the original 120-second corpus bound or full native lifecycle admission. The same live job continues its four-provider CLI measurement and original corpus; I do not restart it when observation expires.

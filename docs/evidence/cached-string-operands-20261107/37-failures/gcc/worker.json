@@ -1,0 +1,29 @@
+{
+  "cpus": 4,
+  "disks": [
+    {
+      "path": ".",
+      "free": 84763361280,
+      "total": 154894188544
+    },
+    {
+      "path": "/tmp",
+      "free": 84763361280,
+      "total": 154894188544
+    },
+    {
+      "path": "/home/runner/work/_temp",
+      "free": 84763361280,
+      "total": 154894188544
+    },
+    {
+      "path": "/var/cache/apt",
+      "free": 84763361280,
+      "total": 154894188544
+    }
+  ],
+  "memory": {
+    "MemTotal": 16760344576,
+    "MemAvailable": 15473360896
+  }
+}

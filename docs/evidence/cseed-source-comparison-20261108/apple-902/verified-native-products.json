@@ -1,0 +1,30 @@
+{
+  "scope": "I independently match actual bytes of two C providers and three published native source compilers to their production execution records; full SDK/runtime closure and release admission remain separate.",
+  "products": [
+    {
+      "path": "cseed-source-comparison/providers/original/nanoc_c",
+      "size": 12723448,
+      "sha256": "ff48882ed61b2abaf79c2f5f859b40c0d8862131f9ddb5cc3c7807fc96dddf8a"
+    },
+    {
+      "path": "cseed-source-comparison/providers/modified/nanoc_c",
+      "size": 12723448,
+      "sha256": "a28f13793735c367be27ac6f7ac887bb646080f539e0a359ebca7e73111078c7"
+    },
+    {
+      "path": "cseed-source-comparison/samples/02-modified/compiler",
+      "size": 15701880,
+      "sha256": "297220c0621860c98d80662aad13b463a59143a92ba62740036e1ecb4e166dc4"
+    },
+    {
+      "path": "cseed-source-comparison/samples/03-modified/compiler",
+      "size": 15701880,
+      "sha256": "297220c0621860c98d80662aad13b463a59143a92ba62740036e1ecb4e166dc4"
+    },
+    {
+      "path": "cseed-source-comparison/samples/04-original/compiler",
+      "size": 15701880,
+      "sha256": "32d95674aac1c529ce67289ce6e894a2c0fd90398d2856b043e00b2fa8a5204a"
+    }
+  ]
+}

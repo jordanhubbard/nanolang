@@ -1,0 +1,146 @@
+[
+  {
+    "label": "baseline",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano",
+      "--verbose",
+      "--keep-c",
+      "-o",
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-0-baseline/checker"
+    ],
+    "returncode": 0,
+    "wall_seconds": 44.60399387503276,
+    "shadow_count": 690,
+    "body_seconds": 3.869328,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline": "abcd1de378a69f0ca3d868133678cafdb2a139c13f2f572986c7eb1d15aaf84c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline": "abcd1de378a69f0ca3d868133678cafdb2a139c13f2f572986c7eb1d15aaf84c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "product_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "native_argv": [
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-0-baseline/checker"
+    ],
+    "native_returncode": 0,
+    "product_after_run_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "magic": "cffaedfe"
+  },
+  {
+    "label": "candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano",
+      "--verbose",
+      "--keep-c",
+      "-o",
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-1-candidate/checker"
+    ],
+    "returncode": 0,
+    "wall_seconds": 43.230193999945186,
+    "shadow_count": 690,
+    "body_seconds": 3.1628,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "product_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "native_argv": [
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-1-candidate/checker"
+    ],
+    "native_returncode": 0,
+    "product_after_run_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "magic": "cffaedfe"
+  },
+  {
+    "label": "candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano",
+      "--verbose",
+      "--keep-c",
+      "-o",
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-2-candidate/checker"
+    ],
+    "returncode": 0,
+    "wall_seconds": 43.27891049999744,
+    "shadow_count": 690,
+    "body_seconds": 3.212675,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "product_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "native_argv": [
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-2-candidate/checker"
+    ],
+    "native_returncode": 0,
+    "product_after_run_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "magic": "cffaedfe"
+  },
+  {
+    "label": "baseline",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano",
+      "--verbose",
+      "--keep-c",
+      "-o",
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-3-baseline/checker"
+    ],
+    "returncode": 0,
+    "wall_seconds": 44.66101283300668,
+    "shadow_count": 690,
+    "body_seconds": 3.844269,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline": "abcd1de378a69f0ca3d868133678cafdb2a139c13f2f572986c7eb1d15aaf84c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_parameter_baseline": "abcd1de378a69f0ca3d868133678cafdb2a139c13f2f572986c7eb1d15aaf84c",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "/Users/jkh/Src/nanolang/src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "/Users/jkh/Src/nanolang/src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "/Users/jkh/Src/nanolang/src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "product_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "native_argv": [
+      "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/fresh-parameter-pairs/qualified-3-baseline/checker"
+    ],
+    "native_returncode": 0,
+    "product_after_run_sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75",
+    "magic": "cffaedfe"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "path": "source-checker-component/actual-native-qujozt9z/source-build.stderr",
+    "started": 693,
+    "completed": 692,
+    "failures": 0,
+    "body_seconds": 9.370052,
+    "last_started": {
+      "event": "shadow-start",
+      "name": "main",
+      "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+      "line": 369,
+      "elapsed_seconds": 0.0,
+      "failures": 0
+    },
+    "last_completed": {
+      "event": "shadow-complete",
+      "name": "check_bstring_type_contracts",
+      "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+      "line": 330,
+      "elapsed_seconds": 0.271415,
+      "failures": 0
+    },
+    "tail": "ame\":\"check_array_sort_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":280,\"elapsed_seconds\":0.000000,\"failures\":0}\n{\"event\":\"shadow-complete\",\"name\":\"check_array_sort_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":280,\"elapsed_seconds\":0.107146,\"failures\":0}\n{\"event\":\"shadow-start\",\"name\":\"check_byte_conversion_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":306,\"elapsed_seconds\":0.000000,\"failures\":0}\n{\"event\":\"shadow-complete\",\"name\":\"check_byte_conversion_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":306,\"elapsed_seconds\":0.108244,\"failures\":0}\n{\"event\":\"shadow-start\",\"name\":\"check_bstring_type_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":330,\"elapsed_seconds\":0.000000,\"failures\":0}\n{\"event\":\"shadow-complete\",\"name\":\"check_bstring_type_contracts\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":330,\"elapsed_seconds\":0.271415,\"failures\":0}\n{\"event\":\"shadow-start\",\"name\":\"main\",\"source\":\"/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano\",\"line\":369,\"elapsed_seconds\":0.000000,\"failures\":0}\nI stopped shadow execution after 10 seconds.\nShadow tests failed\n[ffi_loader] Shut down\n"
+  }
+]

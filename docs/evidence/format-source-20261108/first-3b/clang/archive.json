@@ -1,0 +1,15 @@
+{
+  "size": 37655771,
+  "sha256": "3c90ab213068b80129559ed1205845359bb9f01be5807ab30efb16cdafb59e4b",
+  "files": 1524,
+  "text_files": 1387,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-izsb49w6.tar.gz",
+      "sha256": "f8b6e8d590faeac9240cb0368961073cde8eef0f12fc2a310a35865c624e6f1b",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

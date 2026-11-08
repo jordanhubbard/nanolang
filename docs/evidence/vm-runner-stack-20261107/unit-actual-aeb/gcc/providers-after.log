@@ -1,0 +1,7 @@
+bin/nanoisa: OK
+bin/nano_vm: OK
+bin/nvm2c: OK
+bin/nanoc_c: OK
+bin/nano_virt: OK
+bin/nano: OK
+bin/nano_aot_runtime.o: OK

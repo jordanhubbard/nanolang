@@ -1,0 +1,1 @@
+Darwin iad20-fj925-a9983eca-7c1b-4601-bb1e-813c81201795-6263A6F0C294.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:00:07 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_VMAPPLE arm64

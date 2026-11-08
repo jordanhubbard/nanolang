@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "nanoc_c",
+    "route": "source-native",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_array_builtin_aliases"
+    ],
+    "returncode": 0
+  },
+  {
+    "provider": "nano_virt",
+    "route": "canonical",
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_array_builtin_aliases"
+    ],
+    "returncode": 0
+  }
+]

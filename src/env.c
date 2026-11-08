@@ -310,9 +310,9 @@ static void env_free_value(Value v) {
     if (v.type == VAL_STRUCT) {
         StructValue *sv = v.as.struct_val;
         if (!sv) return;
-        free(sv->struct_name);
+
         for (int j = 0; j < sv->field_count; j++) {
-            free(sv->field_names[j]);
+
             if (sv->field_values[j].type == VAL_STRING) {
                 /* Release GC-managed strings in struct fields */
                 if (gc_is_managed(sv->field_values[j].as.string_val)) {
@@ -322,7 +322,7 @@ static void env_free_value(Value v) {
                 }
             }
         }
-        free(sv->field_names);
+        release_struct_carrier_names(sv);
         free(sv->field_values);
         free(sv);
         return;
@@ -413,16 +413,16 @@ static void env_release_array(EnvArrayReclaim *ctx, Array *arr) {
                     env_release_array(ctx, sv->field_values[j].as.array_val);
             }
             for (int j = 0; j < sv->field_count; j++) {
-                free(sv->field_names[j]);
+
                 Value f = sv->field_values[j];
                 if (f.type == VAL_STRING) {
                     if (gc_is_managed(f.as.string_val)) gc_release(f.as.string_val);
                     else free(f.as.string_val);
                 }
             }
-            free(sv->field_names);
+            release_struct_carrier_names(sv);
             free(sv->field_values);
-            free(sv->struct_name);
+
             free(sv);
         }
     } else if (arr->element_type == VAL_FUNCTION) {
@@ -709,7 +709,7 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
     return symbol_lookup(env, name, true);
 }
 
-void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+static void env_define_var_impl(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value, bool retain_string_aliases) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     if (value.type == VAL_STRUCT && value.as.struct_val &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
@@ -769,7 +769,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     /* GC refcount fix: If this string value is already referenced by another
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
-    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+    if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
         for (int i = 0; i < env->symbol_count; i++) {
             if (env->symbols[i].value.type == VAL_STRING &&
                 env->symbols[i].value.as.string_val == value.as.string_val) {
@@ -780,6 +780,30 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     }
 
     env->symbols[env->symbol_count++] = sym;
+}
+
+/* I elide alias scans only for completed STRING constructors in my evaluator. */
+static bool evaluated_string_is_fresh(ASTNode *expression, Value value) {
+    if (!expression || value.type != VAL_STRING || value.is_return || value.is_break || value.is_continue)
+        return false;
+    if (expression->type == AST_STRING) return true;
+    return expression->type == AST_PREFIX_OP && expression->as.prefix_op.op == TOKEN_PLUS &&
+           expression->as.prefix_op.arg_count == 2;
+}
+
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value, true);
+}
+
+void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
+                              TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression) {
+    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value,
+                        !evaluated_string_is_fresh(expression, value));
+}
+
+/* I construct a fresh allocation here; an existing binding cannot alias it. */
+void env_define_string_copy(Environment *env, const char *name, Type type, bool is_mut, const char *text) {
+    env_define_var_impl(env, name, type, TYPE_UNKNOWN, NULL, is_mut, create_string(text), false);
 }
 
 /* Get variable */
@@ -957,9 +981,15 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 }
 
 /* Set variable value */
-void env_set_var(Environment *env, const char *name, Value value) {
+static void env_set_var_impl(Environment *env, const char *name, Value value, bool retain_string_aliases) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        /* I keep the binding's ownership when its STRING pointer is unchanged. */
+        if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
+            value.as.string_val == sym->value.as.string_val) {
+            sym->value = value;
+            return;
+        }
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
         if (value.type == VAL_STRUCT && value.as.struct_val) {
@@ -972,7 +1002,7 @@ void env_set_var(Environment *env, const char *name, Value value) {
         /* GC refcount fix: If the new string value is already referenced by
          * another variable, increment refcount to prevent use-after-free.
          * Handles: set x y where y is a string variable */
-        if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
             for (int i = 0; i < env->symbol_count; i++) {
                 if (&env->symbols[i] != sym &&
                     env->symbols[i].value.type == VAL_STRING &&
@@ -983,6 +1013,14 @@ void env_set_var(Environment *env, const char *name, Value value) {
             }
         }
     }
+}
+
+void env_set_var(Environment *env, const char *name, Value value) {
+    env_set_var_impl(env, name, value, true);
+}
+
+void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression) {
+    env_set_var_impl(env, name, value, !evaluated_string_is_fresh(expression, value));
 }
 
 /* Check if a name is a built-in function (known to the typechecker) */
@@ -1081,19 +1119,47 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         if (function) return function;
     }
 
+    /* I retain a real declaration's signature before cached builtin metadata.
+     * Synthetic registered builtins have neither a body nor an extern boundary. */
+    Function *declared = function_named(env, name, env->current_module, true, false, line, column);
+    if (declared && (declared->body || declared->is_extern)) return declared;
+
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
     for (int i = 0; i < builtin_registry_count; i++) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
-        if (safe_strcmp(builtin_registry[i].name, name) == 0) {
+        if (builtin_registry[i].name[0] == name[0] &&
+            safe_strcmp(builtin_registry[i].name, name) == 0) {
             /* Create static function objects for built-ins */
             static Function func_cache[256];
+            static Parameter fixed_params[256][4];
             static bool initialized[256] = {false};
+            if ((size_t)i >= sizeof func_cache / sizeof func_cache[0]) return NULL;
 
             if (!initialized[i]) {
                 func_cache[i].name = (char *)builtin_registry[i].name;
                 func_cache[i].param_count = builtin_registry[i].arity;
                 func_cache[i].return_type = builtin_registry[i].return_type;
-                func_cache[i].params = NULL;  /* Built-ins don't need param names */
+                func_cache[i].params = NULL;
+                /* I retain fixed STRING/FLOAT operands while leaving INT
+                 * placeholders for polymorphic builtins unspecified. These
+                 * borrowed cache parameters are not environment-owned. */
+                const BuiltinEntry *entry = &builtin_registry[i];
+                if (entry->arity <= sizeof entry->param_types / sizeof entry->param_types[0]) {
+                    bool has_fixed = false;
+                    for (uint8_t parameter = 0; parameter < entry->arity; ++parameter)
+                        if (entry->param_types[parameter] == TYPE_STRING ||
+                            entry->param_types[parameter] == TYPE_FLOAT) has_fixed = true;
+                    if (has_fixed) {
+                        for (uint8_t parameter = 0; parameter < entry->arity; ++parameter) {
+                            fixed_params[i][parameter].name = "argument";
+                            fixed_params[i][parameter].type = entry->param_types[parameter] == TYPE_STRING ||
+                                entry->param_types[parameter] == TYPE_FLOAT
+                                ? entry->param_types[parameter] : TYPE_UNKNOWN;
+                            fixed_params[i][parameter].element_type = TYPE_UNKNOWN;
+                        }
+                        func_cache[i].params = fixed_params[i];
+                    }
+                }
                 func_cache[i].body = NULL;
                 func_cache[i].shadow_test = NULL;
                 initialized[i] = true;
@@ -1103,8 +1169,7 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         }
     }
 
-    Function *local = function_named(env, name, env->current_module, true, false, line, column);
-    return local ? local : function_named(env, name, NULL, false, false, line, column);
+    return declared ? declared : function_named(env, name, NULL, false, false, line, column);
 }
 
 Function *env_get_function(Environment *env, const char *name) {
@@ -1199,6 +1264,7 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     v.is_continue = false;
     v.as.array_val = malloc(sizeof(Array));
     v.as.array_val->element_type = elem_type;
+    v.as.array_val->is_byte_array = false;
     v.as.array_val->length = length;
     v.as.array_val->capacity = capacity > length ? capacity : length;
     
@@ -1218,24 +1284,66 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     return v;
 }
 
+static void struct_carrier_allocation_failure(void) {
+    fputs("I could not allocate an interpreter record.\n", stderr);
+    abort();
+}
+
+/* I allocate owned names separately from each caller's value-copy policy. */
+StructValue *allocate_struct_carrier(const char *name, char **fields, int field_count) {
+    if (!name || field_count < 0 || (field_count && !fields))
+        struct_carrier_allocation_failure();
+    size_t count = (size_t)field_count;
+    if (count > SIZE_MAX / sizeof(char *) || count > SIZE_MAX / sizeof(Value))
+        struct_carrier_allocation_failure();
+    size_t pointers = count * sizeof(char *);
+    size_t bytes = pointers;
+    size_t length = strlen(name);
+    if (length >= SIZE_MAX - bytes) struct_carrier_allocation_failure();
+    bytes += length + 1;
+    for (size_t i = 0; i < count; ++i) {
+        if (!fields[i]) struct_carrier_allocation_failure();
+        length = strlen(fields[i]);
+        if (length >= SIZE_MAX - bytes) struct_carrier_allocation_failure();
+        bytes += length + 1;
+    }
+    StructValue *record = malloc(sizeof *record);
+    char *storage = malloc(bytes);
+    Value *values = malloc(count ? count * sizeof(Value) : 1);
+    if (!record || !storage || !values) struct_carrier_allocation_failure();
+    record->field_names = (char **)storage;
+    record->field_values = values;
+    record->field_count = field_count;
+    record->packed_names = true;
+    char *next = storage + pointers;
+    length = strlen(name) + 1;
+    record->struct_name = next;
+    memcpy(next, name, length);
+    next += length;
+    for (size_t i = 0; i < count; ++i) {
+        length = strlen(fields[i]) + 1;
+        record->field_names[i] = next;
+        memcpy(next, fields[i], length);
+        next += length;
+    }
+    return record;
+}
+
+void release_struct_carrier_names(StructValue *record) {
+    if (!record->packed_names) {
+        free(record->struct_name);
+        for (int i = 0; i < record->field_count; ++i) free(record->field_names[i]);
+    }
+    free(record->field_names);
+}
+
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
     Value v;
     v.type = VAL_STRUCT;
     v.is_return = false;
     v.is_break = false;
     v.is_continue = false;
-    v.as.struct_val = malloc(sizeof(StructValue));
-    v.as.struct_val->struct_name = strdup(struct_name);
-    v.as.struct_val->field_count = field_count;
-    
-    /* Allocate and copy field names */
-    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_names[i] = strdup(field_names[i]);
-    }
-    
-    /* Allocate and copy field values */
-    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
+    v.as.struct_val = allocate_struct_carrier(struct_name, field_names, field_count);
     for (int i = 0; i < field_count; i++) {
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";

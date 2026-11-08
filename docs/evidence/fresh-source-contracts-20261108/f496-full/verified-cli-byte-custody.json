@@ -1,0 +1,50 @@
+[
+  {
+    "role": "generated C",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/native-phase-trace/phase-32y57pqh/input-1.c",
+    "size": 9781124,
+    "sha256": "ef54985ee9d444195ef0e9dc6462837bec9bf629240b50860e6f0038938686d7"
+  },
+  {
+    "role": "runtime object",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/native-phase-trace/phase-32y57pqh/input-2.o",
+    "size": 8536200,
+    "sha256": "ae1d60962b0609972041d05040fc2fd6bbf2397301fe520ef52f4f7d84d0855e"
+  },
+  {
+    "role": "native program",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/native-phase-trace/phase-32y57pqh/output",
+    "size": 14464560,
+    "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9"
+  },
+  {
+    "role": "NVM input",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/native-phase-trace/phase-3o_76lbf/input-1.nvm",
+    "size": 441492,
+    "sha256": "852e76acc232e2511d9e09b737ace5d56cd03f999e7457fb7e15e8df6e88eeb4"
+  },
+  {
+    "role": "generated C",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/native-phase-trace/phase-7bcsq8fb/input-1.c",
+    "size": 9781124,
+    "sha256": "ef54985ee9d444195ef0e9dc6462837bec9bf629240b50860e6f0038938686d7"
+  },
+  {
+    "role": "runtime object",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/native-phase-trace/phase-7bcsq8fb/input-2.o",
+    "size": 8536200,
+    "sha256": "ae1d60962b0609972041d05040fc2fd6bbf2397301fe520ef52f4f7d84d0855e"
+  },
+  {
+    "role": "native program",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/native-phase-trace/phase-7bcsq8fb/output",
+    "size": 14464560,
+    "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9"
+  },
+  {
+    "role": "NVM input",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/native-phase-trace/phase-eao_4cox/input-1.nvm",
+    "size": 441492,
+    "sha256": "852e76acc232e2511d9e09b737ace5d56cd03f999e7457fb7e15e8df6e88eeb4"
+  }
+]

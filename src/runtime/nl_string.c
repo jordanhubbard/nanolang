@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
+/* I begin my mechanically shared native binary-string payload. */
 /* ============================================================================
  * UTF-8 Helper Functions
  * ============================================================================ */
@@ -108,9 +109,7 @@ nl_string_t* nl_string_with_capacity(size_t capacity) {
 }
 
 void nl_string_free(nl_string_t *str) {
-    if (!str) return;
-    free(str->data);
-    free(str);
+    nl_string_free_owned_storage(str);
 }
 
 /* ============================================================================
@@ -153,7 +152,7 @@ nl_string_t* nl_string_substring(const nl_string_t *str, size_t start, size_t le
         return nl_string_with_capacity(0);
     }
     
-    if (start + length > str->length) {
+    if (length > str->length - start) {
         length = str->length - start;
     }
     
@@ -366,6 +365,8 @@ nl_string_t* nl_string_clone(const nl_string_t *str) {
 
     return clone;
 }
+
+/* I end my mechanically shared native binary-string payload. */
 
 /* ============================================================================
  * C String Convenience Wrappers

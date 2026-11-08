@@ -1,0 +1,15 @@
+{
+  "size": 13409085,
+  "sha256": "3b773eb80841314349c9f333c990d6953365632399ae069d65fb533bbcc4d106",
+  "files": 2315,
+  "text_files": 2128,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-csxtg1e7.tar.gz",
+      "sha256": "9d55396ec7afd6daf5fbaa3166744e5a61b508aa4a09a65c3f84970998ca4eb6",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

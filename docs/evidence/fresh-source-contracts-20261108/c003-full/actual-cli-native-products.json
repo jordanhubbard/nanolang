@@ -1,0 +1,17 @@
+[
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_c-fhgl4z0z/checker",
+    "size": 14249408,
+    "sha256": "60e3ed0501880610a867794b334f96271e082d8b4909491a3b72672369442c1a"
+  },
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-dggqgzwl/checker",
+    "size": 14406752,
+    "sha256": "a6152aa9a7588bc55002254e81ad82bec6bdc5cee92c21a133ae845fc2b54aaa"
+  },
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-2s5svosq/checker",
+    "size": 14406752,
+    "sha256": "a6152aa9a7588bc55002254e81ad82bec6bdc5cee92c21a133ae845fc2b54aaa"
+  }
+]

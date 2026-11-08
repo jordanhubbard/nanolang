@@ -20,7 +20,8 @@ enum TypeKind {
     TYPE_FUNCTION,
     TYPE_TUPLE,
     TYPE_OPAQUE,
-    TYPE_UNKNOWN
+    TYPE_UNKNOWN,
+    TYPE_BSTRING
 }
 
 enum DiagnosticSeverity {

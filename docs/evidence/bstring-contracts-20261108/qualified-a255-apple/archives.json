@@ -1,0 +1,18 @@
+[
+  {
+    "artifact": 13629432166,
+    "size": 17181622,
+    "sha256": "aa372c42c23ce273b168f0bcb2cc39afca9ee4d33d0db10e15800f8984a2395f",
+    "files": 4252,
+    "crc_verified": true,
+    "original_zip_retained_locally": false
+  },
+  {
+    "artifact": 13629385923,
+    "size": 1542511,
+    "sha256": "25fe030891457d8c893fd127b595a4555872967d56230dd681a368aeb333350b",
+    "files": 2927,
+    "crc_verified": true,
+    "original_zip_retained_locally": false
+  }
+]

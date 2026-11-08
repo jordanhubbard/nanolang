@@ -1,0 +1,7 @@
+# My actual above-cap C-created production checkpoint
+
+At 07a88314f I execute the full above-cap source fixture through the rebuilt C seed and C-created NanoISA producer. C-native and translated-native products run at O0/O2 with ASan/UBSan; the managed VM executes the verified actual module. All four native runs and the VM run pass the complete length, both sides of the former 64 MiB cap and the final Z marker. Useful small helper shadows remain selected and the large production body executes separately.
+
+I CRC-check the complete early ZIP in memory, retain every exact text and entry size/hash, and independently match actual native bytes, platform magic, unchanged input/product records and successful execution commands. I verify the actual module and generated-C digests as well. I do not save the ZIP or claim TAR/mode/native-SDK custody. Other binary-string products in this archive are outside this receipt's four-product verification scope.
+
+The combined gate still fails during its first actual source-compiler creation, before the source VM/native/above-cap classes can run. Those classes retain that failure without rebuilding. Their failure does not undo the two executed C-created boundary methods, and those two passes do not qualify source-created, fresh-stage, integrated platform or release acceptance. I retain the exact source-creation trace and terminal alongside the passing boundary commands.

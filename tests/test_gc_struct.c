@@ -222,6 +222,123 @@ static void test_field_types(void) {
     PASS(test_name);
 }
 
+static int shutdown_finalizations;
+
+static void count_shutdown_finalizer(void *object) {
+    (void)object;
+    shutdown_finalizations++;
+}
+
+static void test_shutdown_statistics(void) {
+    const char *test_name = "gc_shutdown_statistics_and_finalization";
+    gc_init();
+    char *transient = gc_alloc_string(3);
+    ASSERT(transient != NULL, "transient allocation failed");
+    gc_release(transient);
+    ASSERT(gc_alloc_string(8) != NULL, "live string allocation failed");
+    ASSERT(gc_alloc_opaque(1, count_shutdown_finalizer) != NULL, "live owner allocation failed");
+    GCStats before = gc_get_stats();
+    ASSERT(before.num_objects == 2, "live object setup mismatch");
+    gc_shutdown();
+    GCStats after = gc_get_stats();
+    ASSERT_EQ(after.current_usage, 0, "shutdown retains current bytes");
+    ASSERT_EQ(after.num_objects, 0, "shutdown retains live objects");
+    ASSERT_EQ(after.total_allocated, before.total_allocated, "shutdown changed allocated total");
+    ASSERT_EQ(after.total_freed, after.total_allocated, "shutdown omitted reclaimed bytes");
+    ASSERT_EQ(shutdown_finalizations, 1, "shutdown finalizer count mismatch");
+    gc_shutdown();
+    GCStats twice = gc_get_stats();
+    ASSERT_EQ(twice.total_freed, after.total_freed, "repeated shutdown double-counted bytes");
+    ASSERT_EQ(shutdown_finalizations, 1, "repeated shutdown finalized twice");
+    gc_init();
+    ASSERT_EQ(gc_get_stats().total_allocated, 0, "new GC lifetime kept old allocated total");
+    gc_shutdown();
+    PASS(test_name);
+}
+
+static void *registry_owners[3];
+static int registry_finalizations;
+
+static void inspect_shutdown_registry(void *object) {
+    const char *test_name = "gc_shutdown_registry_visibility";
+    int index = *(unsigned char *)object;
+    ASSERT_EQ(index, 2 - registry_finalizations, "I changed shutdown finalizer order.");
+    ASSERT(gc_is_managed(object), "I hid an owner during its own finalizer.");
+    for (int i = 0; i < 3; ++i)
+        ASSERT(gc_is_managed(registry_owners[i]) == (i <= index),
+               "I confused a released owner with a still-live owner during shutdown.");
+    registry_finalizations++;
+}
+
+static void test_shutdown_registry_visibility(void) {
+    const char *test_name = "gc_shutdown_registry_visibility";
+    gc_init();
+    registry_finalizations = 0;
+    for (int i = 0; i < 3; ++i) {
+        registry_owners[i] = gc_alloc_opaque(1, inspect_shutdown_registry);
+        ASSERT(registry_owners[i] != NULL, "I could not allocate my finalizer control.");
+        *(unsigned char *)registry_owners[i] = (unsigned char)i;
+    }
+    gc_shutdown();
+    ASSERT_EQ(registry_finalizations, 3, "I lost a shutdown finalizer.");
+    for (int i = 0; i < 3; ++i)
+        ASSERT(!gc_is_managed(registry_owners[i]), "I retain a shutdown registry entry.");
+    GCStats after = gc_get_stats();
+    ASSERT_EQ(after.current_usage, 0, "I retain bytes after registry shutdown.");
+    ASSERT_EQ(after.num_objects, 0, "I retain objects after registry shutdown.");
+    ASSERT_EQ(after.total_freed, after.total_allocated, "I omitted shutdown reclamation.");
+    gc_shutdown();
+    ASSERT_EQ(registry_finalizations, 3, "I repeated shutdown finalizers.");
+    gc_init();
+    void *fresh = gc_alloc(1, GC_TYPE_OPAQUE);
+    ASSERT(fresh != NULL && gc_is_managed(fresh), "I lost registration after reinitializing.");
+    gc_release(fresh);
+    gc_shutdown();
+    PASS(test_name);
+}
+
+static void test_allocation_size_boundary(void) {
+    const char *test_name = "gc_allocation_size_boundary";
+    gc_init();
+    GCStats before = gc_get_stats();
+    ASSERT(gc_alloc(SIZE_MAX, GC_TYPE_OPAQUE) == NULL, "I accepted an overflowing allocation.");
+    ASSERT(gc_alloc(SIZE_MAX - sizeof(GCHeader) + 1, GC_TYPE_OPAQUE) == NULL,
+           "I accepted the first overflowing header size.");
+    ASSERT(gc_alloc_string(SIZE_MAX) == NULL, "I accepted an overflowing string terminator.");
+    GCStats refused = gc_get_stats();
+    ASSERT_EQ(refused.total_allocated, before.total_allocated, "I changed allocated bytes on refusal.");
+    ASSERT_EQ(refused.total_freed, before.total_freed, "I changed freed bytes on refusal.");
+    ASSERT_EQ(refused.current_usage, before.current_usage, "I changed live bytes on refusal.");
+    ASSERT_EQ(refused.num_objects, before.num_objects, "I registered an object on refusal.");
+    char *empty = gc_alloc_string(0);
+    ASSERT(empty != NULL && empty[0] == '\0', "I lost my empty string terminator.");
+    gc_release(empty);
+    char *text = gc_alloc_string(3);
+    ASSERT(text != NULL && text[3] == '\0', "I lost my nonempty string terminator.");
+    memcpy(text, "abc", 3);
+    ASSERT_STR(text, "abc", "I changed valid string storage.");
+    gc_release(text);
+    size_t sizes[] = {0, 1, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 4095, 4096, 4097};
+    for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i) {
+        void *value = gc_alloc(sizes[i], GC_TYPE_OPAQUE);
+        ASSERT(value != NULL && gc_is_managed(value), "I did not register a valid allocation.");
+        ASSERT_EQ(gc_get_header(value)->size, sizeof(GCHeader) + sizes[i], "I changed the logical allocation size.");
+        gc_retain(value);
+        ASSERT_EQ(gc_get_header(value)->ref_count, 2, "I changed the retained reference count.");
+        gc_release(value);
+        ASSERT(gc_is_managed(value), "I lost a retained value.");
+        gc_release(value);
+        ASSERT(!gc_is_managed(value), "I kept a released value registered.");
+    }
+    int foreign = 7;
+    gc_release(&foreign);
+    ASSERT(!gc_is_managed(&foreign), "I registered a foreign pointer.");
+    ASSERT_EQ(gc_get_stats().current_usage, 0, "I retain managed bytes after my boundary controls.");
+    ASSERT_EQ(gc_get_stats().num_objects, 0, "I retain managed objects after my boundary controls.");
+    gc_shutdown();
+    PASS(test_name);
+}
+
 /* ── main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -237,6 +354,9 @@ int main(void) {
     test_clone_primitive();
     test_gc_object_field_retain_release();
     test_field_types();
+    test_shutdown_statistics();
+    test_allocation_size_boundary();
+    test_shutdown_registry_visibility();
 
     printf("\n");
     if (g_fail == 0) {

@@ -1,0 +1,224 @@
+name: Instrumented complete unit prerequisite recovery
+
+on:
+  push:
+    branches: [fix/5.1-unit-module-prerequisite, fix/5.1-junit-run-contract, fix/5.1-map-refusal-expectations]
+    paths:
+      - '.github/workflows/unit-prerequisite-recovery.yml'
+      - 'src/eval.c'
+      - 'src/transpiler_iterative_v3_twopass.c'
+      - 'src/eval/call_arguments.h'
+      - 'tests/test_eval_call_arguments.py'
+      - 'tests/test_nanoisa_flat_records.py'
+      - 'Makefile.gnu'
+      - 'tests/nanovm/test_vm.c'
+      - 'src/ml/ml.c'
+      - 'src/object/object.c'
+      - 'src/nanoisa/nvm2c.c'
+      - 'tests/nanoisa/test_nvm2c.c'
+      - 'tests/test_dispatch_equivalence.sh'
+      - 'tests/test_test_run_contract_native.py'
+      - 'scripts/test_run_contract.py'
+      - 'tests/test_resource_effect_checker.cases.json'
+      - 'tests/fixtures/resource-checker/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-call-arguments:
+    name: Instrumented shadow calls (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    timeout-minutes: 360
+    env:
+      CC: ${{ matrix.compiler }}
+      CFLAGS: '-Wall -Wextra -Werror -std=c99 -O1 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer'
+      LDFLAGS: '-lm -lcrypto -fsanitize=address,undefined'
+      ASAN_OPTIONS: detect_leaks=0
+      NANO_SHADOW_TIMEOUT_SECONDS: '300'
+      CMD_TIMEOUT: '3600'
+      BOOTSTRAP_NANOISA_TIMEOUT: '10800' 
+      NANO_NATIVE_TEST_CC: ${{ matrix.compiler }}
+      NANO_STRING_OPERAND_COMPILERS: nanoc_c,nano_virt
+      NANOLANG_SELFHOST_COMPILER: ${{ github.workspace }}/bin/nano_virt
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Require worker headroom before provisioning or building
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, tempfile
+          from pathlib import Path
+          output = Path('.test_output/shadow-call-arguments')
+          output.mkdir(parents=True)
+          disks = []
+          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP'], '/var/cache/apt']:
+              usage = shutil.disk_usage(location)
+              disks.append({'path': location, 'free': usage.free, 'total': usage.total})
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          report = {'cpus': os.cpu_count(), 'disks': disks, 'memory': memory}
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          if any(row['free'] < 20 * 1024**3 or row['free'] / row['total'] < .10 for row in disks):
+              raise SystemExit('I hold native compilation for insufficient disk headroom.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= .10:
+              raise SystemExit('I hold native compilation for memory pressure.')
+          PY
+      - name: Install my existing native compiler prerequisites
+        timeout-minutes: 20
+        run: |
+          ./scripts/ci-apt-install.sh build-essential clang pkg-config valgrind \
+            libssl-dev libffi-dev libsqlite3-dev libsdl2-dev libsdl2-image-dev \
+            libsdl2-mixer-dev libsdl2-ttf-dev libncurses-dev libreadline-dev \
+            libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev \
+            freeglut3-dev libutf8proc-dev gforth llvm-18 lld-18 nodejs
+      - name: Build actual fresh VM and C AOT providers
+        id: providers
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" nanoisa_dump nano_vm nvm2c bin/nanoisa bin/nanoc_c nano_virt nvm2c-runtime bin/nano \
+            2>&1 | tee .test_output/shadow-call-arguments/build.log
+          python3 - <<'PYCODE'
+          import subprocess
+          from pathlib import Path
+          for name in ['nanoc_c', 'nano', 'nano_virt', 'nano_vm', 'nvm2c']:
+              result = subprocess.run(['nm', str(Path('bin', name))], capture_output=True, check=True)
+              if b'__asan_init' not in result.stdout:
+                  raise SystemExit('I require actual ASan instrumentation in ' + name)
+          print('I verify actual ASan instrumentation in every selected source/interpreter/VM/AOT provider.')
+          PYCODE
+          git rev-parse HEAD > .test_output/shadow-call-arguments/revision.txt
+          git ls-tree -r HEAD > .test_output/shadow-call-arguments/source-tree.txt
+          sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano bin/nano_aot_runtime.o > .test_output/shadow-call-arguments/providers.sha256
+          "$CC" --version > .test_output/shadow-call-arguments/compiler.txt
+      - name: Execute large call storage, returns and complete eval regressions
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_eval_call_arguments tests.test_native_call_argument_order tests.test_callee_snapshots tests.test_builtin_string_operands tests.test_canonical_string_builtins \
+            2>&1 | tee .test_output/shadow-call-arguments/tests.log
+      - name: Execute original checker CLI through actual seed-native and seed-VM routes
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 30
+        env:
+          NANOLANG_RUN_CONTRACT_ROUTES: nanoc_c:native,nano_virt:vm
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_test_run_contract_native \
+            2>&1 | tee .test_output/shadow-call-arguments/checker-cli.log
+      - name: Measure original and corrected Clang VM runner frames
+        if: matrix.compiler == 'clang' && steps.providers.outcome == 'success'
+        run: |
+          set -o pipefail
+          mkdir -p .test_output/shadow-call-arguments/frames
+          git show HEAD^:tests/nanovm/test_vm.c > .test_output/shadow-call-arguments/frames/before.c
+          cp tests/nanovm/test_vm.c .test_output/shadow-call-arguments/frames/after.c
+          for version in before after; do
+            "$CC" $CFLAGS -fstack-usage -S \
+              .test_output/shadow-call-arguments/frames/"$version".c \
+              -o .test_output/shadow-call-arguments/frames/"$version".s
+          done
+          python3 - <<'PYCODE'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.test_output/shadow-call-arguments/frames')
+          frames = {}
+          for version in ['before', 'after']:
+              lines = (root / (version + '.su')).read_text().splitlines()
+              main = [line for line in lines if line.split('\t')[0].endswith(':main')]
+              if len(main) != 1:
+                  raise SystemExit('I require an unambiguous measured main frame.')
+              frames[version] = {'main': main[0],
+                  'bytes': int(main[0].split('\t')[1]),
+                  'source_sha256': hashlib.sha256((root / (version + '.c')).read_bytes()).hexdigest()}
+          (root / 'comparison.json').write_text(json.dumps(frames, indent=2) + '\n')
+          print(json.dumps(frames, indent=2))
+          if frames['after']['bytes'] > 1024 * 1024:
+              raise SystemExit('I refuse a VM test runner frame larger than one MiB.')
+          PYCODE
+      - name: Execute my unchanged instrumented module and complete units
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 120
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-nanoisa-module \
+            2>&1 | tee .test_output/shadow-call-arguments/module.log
+          python3 scripts/ci_qualification_storage.py run \
+            --output .test_output/shadow-call-arguments/storage --label complete-units -- \
+            make -f Makefile.gnu CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+            RECONSTRUCTION_UNITTEST='python3 scripts/ci_qualification_storage.py unittest --output .test_output/shadow-call-arguments/storage --' \
+            test-units \
+            2>&1 | tee .test_output/shadow-call-arguments/units.log
+      - name: Execute my unchanged negative corpus with instrumentation
+        if: always() && steps.providers.outcome == 'success'
+        env:
+          NANOLANG_COMPILER: ./bin/nanoc_c
+        run: |
+          set -o pipefail
+          bash tests/run_negative_tests.sh \
+            2>&1 | tee .test_output/shadow-call-arguments/negative.log
+      - name: Execute the complete original interpreter unit suite
+        if: always() && steps.providers.outcome == 'success'
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-eval \
+            2>&1 | tee .test_output/shadow-call-arguments/eval.log
+      - name: Retain complete original array alias regression routes
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 30
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          output = Path('.test_output/shadow-call-arguments')
+          results = []
+          for provider, route in [('nanoc_c', 'source-native'), ('nano_virt', 'canonical')]:
+              command = [sys.executable, '-m', 'unittest', '-v', 'tests.test_array_builtin_aliases']
+              with (output / (provider + '-array-aliases.log')).open('w') as log:
+                  result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                      env=dict(os.environ, NANOLANG_ARRAY_ALIAS_COMPILERS=str(Path('bin', provider).resolve()),
+                               NANOLANG_ARRAY_ALIAS_ROUTE=route))
+              results.append({'provider': provider, 'route': route, 'argv': command, 'returncode': result.returncode})
+              (output / 'array-alias-results.json').write_text(json.dumps(results, indent=2) + '\n')
+          raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
+          PYCODE
+      - name: Verify unchanged sources and providers
+        if: always()
+        run: |
+          git diff --exit-code
+          if test -f .test_output/shadow-call-arguments/providers.sha256; then
+            sha256sum --check .test_output/shadow-call-arguments/providers.sha256 \
+              > .test_output/shadow-call-arguments/providers-after.log
+          fi
+      - name: Retain original build and diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-call-arguments-${{ matrix.compiler }}-${{ github.sha }}
+          path: |
+            .test_output/shadow-call-arguments/
+            .test_output/cli-run-contract-native/
+            .test_output/*.log
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Retain original failed temporary roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complete-unit-temporary-failures-${{ matrix.compiler }}-${{ github.sha }}
+          path: ${{ runner.temp }}/nano-qualification-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30

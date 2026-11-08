@@ -1,0 +1,38 @@
+[
+  {
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_each_existing_statement_head_keeps_identifier_condition-nano_virt-wp4b_cwt/native",
+    "size": 8613576,
+    "sha256": "61e144a20c465bc7cdf309e474a19533547d938685353d92e73db972ebbd8cd1",
+    "source_sha256": "69462e8d01b13ddb57a45e06602fa50d440ea9faa48f09313da6e168d6fc1d8f",
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "commands_verified": 6
+  },
+  {
+    "compiler": "gcc",
+    "path": "numeric-builtin-selection/test_original_complete_top_level_constants_fixture-nano_virt-wg8aa5kj/native",
+    "size": 8562032,
+    "sha256": "402b887834b1f7d536a9031cbeea41ede15b08a7c0b74b731ec28c52ee1fb807",
+    "source_sha256": "a5d77f48640dab2b75ab7f716db9f43fbf7bcdf3c9e25c702f6381db848f538a",
+    "provider_sha256": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+    "commands_verified": 6
+  },
+  {
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_each_existing_statement_head_keeps_identifier_condition-nano_virt-hnl78hpw/native",
+    "size": 10156136,
+    "sha256": "a161693627b342d223e061ca056941b066a366fe78a85a46d8adf4ad8a2d2093",
+    "source_sha256": "69462e8d01b13ddb57a45e06602fa50d440ea9faa48f09313da6e168d6fc1d8f",
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "commands_verified": 6
+  },
+  {
+    "compiler": "clang",
+    "path": "numeric-builtin-selection/test_original_complete_top_level_constants_fixture-nano_virt-q256zthg/native",
+    "size": 10137704,
+    "sha256": "108a7e16aaf99711cf586260ff2259d7126570d8084e27fc6e9b97c878b614a9",
+    "source_sha256": "a5d77f48640dab2b75ab7f716db9f43fbf7bcdf3c9e25c702f6381db848f538a",
+    "provider_sha256": "935c1f91e9be8c1355d0d1307342db256ec547219f1f7ca3ff09ae44fc7e282a",
+    "commands_verified": 6
+  }
+]

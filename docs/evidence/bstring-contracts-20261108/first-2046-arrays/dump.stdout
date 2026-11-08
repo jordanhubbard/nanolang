@@ -1,0 +1,385 @@
+.string "identity"
+.string "present"
+.string "count"
+.string "main"
+.string "nano.purity.v1"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00"
+.string "nano.affine.v1"
+.string "nano.effects.v1"
+.string "\x00\x00\x00\x00\x02\x00\x00\x00"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00"
+.string "\x01\x00\x00\x00\n\x00\x00\x00"
+.string ""
+.string "vm_bstring_length"
+.string "\x02\x00\x00\x00\x00\x00\x00\x00"
+.string "\x02\x00\x00\x00\n\x00\x00\x00"
+.string "\x03\x00\x00\x00\x00\x00\x00\x00"
+.string "\x03\x00\x00\x00\x0e\x00\x00\x00"
+.string "left"
+.string "vm_bstring_new"
+.string "right"
+.string "vm_bstring_free"
+.string "/home/runner/work/nanolang/nanolang/.test_output/bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-m6mzdm4d/main.nano"
+.string "nano.local.v1"
+.string "\x03\x00\x00\x00\x1f\x00\x00\x00\xf8\x02\x00\x00<\x03\x00\x00filled"
+.string "\x03\x00\x00\x00\x15\x00\x00\x00\x16\x02\x00\x00<\x03\x00\x00filtered"
+.string "\x03\x00\x00\x00\x0e\x00\x00\x00\x7f\x01\x00\x00<\x03\x00\x00mapped"
+.string "\x03\x00\x00\x00\x08\x00\x00\x00\t\x01\x00\x00<\x03\x00\x00slice"
+.string "\x03\x00\x00\x00\x03\x00\x00\x00/\x00\x00\x00<\x03\x00\x00alias"
+.string "\x03\x00\x00\x00\x02\x00\x00\x00!\x00\x00\x00<\x03\x00\x00values"
+.string "\x03\x00\x00\x00\x01\x00\x00\x00\x1a\x00\x00\x00<\x03\x00\x00second"
+.string "\x03\x00\x00\x00\x00\x00\x00\x00\r\x00\x00\x00<\x03\x00\x00first"
+.string "\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\r\x00\x00\x00value"
+.string "\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\r\x00\x00\x00total"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x13\x00\x00\x00value"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00value"
+.string "nano.source_file"
+
+.metadata 4 5
+.metadata 6 5
+.metadata 7 8
+.metadata 4 9
+.metadata 6 9
+.metadata 7 10
+.metadata 4 13
+.metadata 6 13
+.metadata 7 14
+.metadata 4 15
+.metadata 6 15
+.metadata 7 16
+.metadata 22 23
+.metadata 22 24
+.metadata 22 25
+.metadata 22 26
+.metadata 22 27
+.metadata 22 28
+.metadata 22 29
+.metadata 22 30
+.metadata 22 31
+.metadata 22 32
+.metadata 22 33
+.metadata 22 34
+.metadata 35 21
+
+.import "" "vm_bstring_length" int bstring
+.import "" "vm_bstring_new" bstring string
+.import "" "vm_bstring_free" void bstring
+
+.flag needs_extern
+.flag debug_info
+
+.debug 0 1 37
+.debug 4 3 33
+.debug 23 5 40
+.debug 36 8 2
+.debug 49 9 2
+.debug 62 10 2
+.debug 69 11 2
+.debug 77 12 2
+.debug 83 13 2
+.debug 91 14 2
+.debug 106 15 2
+.debug 123 16 2
+.debug 141 17 2
+.debug 301 18 2
+.debug 319 19 2
+.debug 419 20 2
+.debug 437 21 2
+.debug 570 22 2
+.debug 585 23 2
+.debug 698 24 2
+.debug 796 25 2
+.debug 814 26 2
+.debug 823 27 2
+.debug 838 28 2
+.debug 846 28 20
+.debug 854 29 2
+
+.entry 3
+
+.function identity 1 1 0 bstring 1
+  LOAD_LOCAL 0
+  RET
+.end
+
+.parameters 0 bstring
+
+.function present 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 0
+  PUSH_I64 0
+  I64_GT_S
+  RET
+.end
+
+.parameters 1 bstring
+
+.function count 2 2 0 int 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL_EXTERN 0
+  I64_ADD
+  RET
+.end
+
+.parameters 2 int bstring
+
+.function main 0 32 0 int 1
+  PUSH_STR 17
+  CALL_EXTERN 1
+  STORE_LOCAL 0
+  PUSH_STR 19
+  CALL_EXTERN 1
+  STORE_LOCAL 1
+  ARR_LITERAL 6 0
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  LOAD_LOCAL 0
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 2
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  LOAD_LOCAL 1
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 3
+  ARR_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  LOAD_LOCAL 1
+  ARR_SET
+  POP
+  LOAD_LOCAL 3
+  PUSH_I64 0
+  ARR_GET
+  LOAD_LOCAL 1
+  EQ
+  ASSERT
+  LOAD_LOCAL 2
+  STORE_LOCAL 4
+  PUSH_I64 0
+  STORE_LOCAL 5
+  PUSH_I64 1
+  STORE_LOCAL 6
+  LOAD_LOCAL 4
+  ARR_LEN
+  STORE_LOCAL 7
+  LOAD_LOCAL 5
+  PUSH_I64 0
+  I64_LT_S
+  JMP_FALSE L0
+  PUSH_I64 0
+  STORE_LOCAL 5
+L0:
+  LOAD_LOCAL 5
+  LOAD_LOCAL 7
+  I64_GT_S
+  JMP_FALSE L1
+  LOAD_LOCAL 7
+  STORE_LOCAL 5
+L1:
+  LOAD_LOCAL 7
+  LOAD_LOCAL 5
+  I64_SUB
+  STORE_LOCAL 7
+  LOAD_LOCAL 6
+  PUSH_I64 0
+  I64_LT_S
+  JMP_FALSE L2
+  PUSH_I64 0
+  STORE_LOCAL 6
+L2:
+  LOAD_LOCAL 6
+  LOAD_LOCAL 7
+  I64_GT_S
+  JMP_FALSE L3
+  LOAD_LOCAL 7
+  STORE_LOCAL 6
+L3:
+  LOAD_LOCAL 4
+  LOAD_LOCAL 5
+  LOAD_LOCAL 5
+  LOAD_LOCAL 6
+  I64_ADD
+  ARR_SLICE
+  STORE_LOCAL 8
+  LOAD_LOCAL 8
+  PUSH_I64 0
+  ARR_GET
+  LOAD_LOCAL 1
+  EQ
+  ASSERT
+  LOAD_LOCAL 2
+  STORE_LOCAL 9
+  FUNCREF 0
+  STORE_LOCAL 10
+  LOAD_LOCAL 9
+  ARR_LEN
+  STORE_LOCAL 11
+  ARR_NEW 6
+  STORE_LOCAL 12
+  PUSH_I64 0
+  STORE_LOCAL 13
+L5:
+  LOAD_LOCAL 13
+  LOAD_LOCAL 11
+  LT
+  JMP_FALSE L4
+  LOAD_LOCAL 9
+  LOAD_LOCAL 13
+  ARR_GET
+  LOAD_LOCAL 10
+  CALL_INDIRECT 1 1
+  LOAD_LOCAL 12
+  SWAP
+  ARR_PUSH
+  STORE_LOCAL 12
+  LOAD_LOCAL 13
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 13
+  JMP L5
+L4:
+  LOAD_LOCAL 12
+  STORE_LOCAL 14
+  LOAD_LOCAL 14
+  PUSH_I64 1
+  ARR_GET
+  LOAD_LOCAL 1
+  EQ
+  ASSERT
+  LOAD_LOCAL 14
+  STORE_LOCAL 15
+  FUNCREF 1
+  STORE_LOCAL 16
+  LOAD_LOCAL 15
+  ARR_LEN
+  STORE_LOCAL 17
+  LOAD_LOCAL 15
+  PUSH_I64 0
+  PUSH_I64 0
+  ARR_SLICE
+  STORE_LOCAL 18
+  PUSH_I64 0
+  STORE_LOCAL 19
+L8:
+  LOAD_LOCAL 19
+  LOAD_LOCAL 17
+  LT
+  JMP_FALSE L6
+  LOAD_LOCAL 15
+  LOAD_LOCAL 19
+  ARR_GET
+  STORE_LOCAL 20
+  LOAD_LOCAL 20
+  LOAD_LOCAL 16
+  CALL_INDIRECT 1 1
+  JMP_FALSE L7
+  LOAD_LOCAL 18
+  LOAD_LOCAL 20
+  ARR_PUSH
+  STORE_LOCAL 18
+L7:
+  LOAD_LOCAL 19
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 19
+  JMP L8
+L6:
+  LOAD_LOCAL 18
+  STORE_LOCAL 21
+  LOAD_LOCAL 21
+  ARR_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 21
+  STORE_LOCAL 22
+  PUSH_I64 0
+  STORE_LOCAL 23
+  FUNCREF 2
+  STORE_LOCAL 24
+  LOAD_LOCAL 22
+  ARR_LEN
+  STORE_LOCAL 25
+  PUSH_I64 0
+  STORE_LOCAL 26
+L10:
+  LOAD_LOCAL 26
+  LOAD_LOCAL 25
+  LT
+  JMP_FALSE L9
+  LOAD_LOCAL 23
+  LOAD_LOCAL 22
+  LOAD_LOCAL 26
+  ARR_GET
+  LOAD_LOCAL 24
+  CALL_INDIRECT 2 1
+  STORE_LOCAL 23
+  LOAD_LOCAL 26
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 26
+  JMP L10
+L9:
+  LOAD_LOCAL 23
+  PUSH_I64 10
+  I64_EQ
+  ASSERT
+  PUSH_I64 2
+  STORE_LOCAL 27
+  LOAD_LOCAL 0
+  STORE_LOCAL 28
+  LOAD_LOCAL 27
+  PUSH_I64 0
+  I64_GE_S
+  ASSERT
+  ARR_NEW 6
+  STORE_LOCAL 29
+  PUSH_I64 0
+  STORE_LOCAL 30
+L12:
+  LOAD_LOCAL 30
+  LOAD_LOCAL 27
+  LT
+  JMP_FALSE L11
+  LOAD_LOCAL 29
+  LOAD_LOCAL 28
+  ARR_PUSH
+  STORE_LOCAL 29
+  LOAD_LOCAL 30
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 30
+  JMP L12
+L11:
+  LOAD_LOCAL 29
+  STORE_LOCAL 31
+  LOAD_LOCAL 31
+  PUSH_I64 1
+  ARR_GET
+  LOAD_LOCAL 0
+  EQ
+  ASSERT
+  LOAD_LOCAL 2
+  ARR_POP
+  LOAD_LOCAL 1
+  EQ
+  ASSERT
+  LOAD_LOCAL 3
+  ARR_LEN
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  CALL_EXTERN 2
+  LOAD_LOCAL 1
+  CALL_EXTERN 2
+  PUSH_I64 0
+  RET
+.end
+

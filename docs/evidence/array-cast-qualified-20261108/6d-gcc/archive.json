@@ -1,0 +1,15 @@
+{
+  "size": 8073450,
+  "sha256": "3c8f45b1991e067121a81c379d2a82a8e03b35d8c76466718ffc1582692d6add",
+  "files": 1136,
+  "text_files": 1032,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-f64epayd.tar.gz",
+      "sha256": "9e2677139672b71d82baeeec58c96767c681e676ece653a356b824724b729cc8",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

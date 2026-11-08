@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable d: I expected a value of type `byte`, but found `int`. (/home/runner/work/nanolang/nanolang/tests/test_u8_basic.nano:12:5)

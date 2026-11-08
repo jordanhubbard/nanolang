@@ -2211,6 +2211,15 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
     let mut i: int = 0
     while (and (== nb_error "") (and (not (or nb_returned nb_transferred)) (< i (list_ASTStmtRef_length statements)))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
+        if (== stmt.node_type ParseNodeType.PNODE_PRINT) {
+            if (or (not nb_value_graph) nb_owner_arrays) { return (nb_fail "STRING print outside the owner ARRAY profile") }
+            let printed: ASTPrint = (list_ASTPrint_get parser.prints stmt.node_id)
+            if (!= (nb_expr parser printed.value printed.value_type) 5) { return (nb_fail "one exact immutable string print operand") }
+            if printed.is_println { let _: int = (nb_emit "PRINTLN") }
+            else { let _: int = (nb_emit "PRINT") }
+            set i (+ i 1)
+            continue
+        }
         if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
             if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
             let scope: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
@@ -2450,6 +2459,21 @@ shadow nb_body_statements {
     assert (== (nb_local "outer") outer)
     assert (== (at nb_tags outer) 3)
     set nb_control_depth 0
+    let _: int = (nb_reset_locals)
+    let graph: bool = nb_value_graph let arrays: bool = nb_owner_arrays
+    let strings: array<string> = nb_strings set nb_strings []
+    let print_tokens: List<LexerToken> = (tokenize_string "fn main()->void{print \"a\" println \"b\"}" "print.nano" (list_CompilerDiagnostic_new))
+    let printed: Parser = (parse_program print_tokens (list_LexerToken_length print_tokens) "print.nano")
+    let statements: List<ASTStmtRef> = (parser_get_block printed (parser_get_function printed 0).body).statements
+    set nb_value_graph true set nb_owner_arrays false set nb_error ""
+    let _: int = (nb_body_statements printed statements false)
+    assert (== nb_error "")
+    assert (str_contains nb_code "PRINT\n") assert (str_contains nb_code "PRINTLN\n")
+    let _: int = (nb_reset_locals)
+    set nb_owner_arrays true set nb_error ""
+    let _: int = (nb_body_statements printed statements false)
+    assert (!= nb_error "")
+    set nb_value_graph graph set nb_owner_arrays arrays set nb_strings strings set nb_error ""
     let _: int = (nb_reset_locals)
 }
 fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, helper: bool) -> string {

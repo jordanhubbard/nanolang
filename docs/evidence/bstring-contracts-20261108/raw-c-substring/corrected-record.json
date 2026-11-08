@@ -1,0 +1,45 @@
+{
+  "scope": "I execute the same direct C API input after replacing the overflowing addition. This is a small standalone sanitizer probe, not provider/native SDK qualification.",
+  "before": {
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c": "13651dbc188ad4836f6adb266389e1c0a5e1ad1107d9087f9a657171e28e48b6",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "f8bd1789df92c5470f83c066daec6c041ce48c433fb39ed7cebb316599710691",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "a0f216e3010d0092e8c372f88a54e5386231cddf6f04a357a7621461bfaac5cb",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c"
+  },
+  "after": {
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c": "13651dbc188ad4836f6adb266389e1c0a5e1ad1107d9087f9a657171e28e48b6",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "f8bd1789df92c5470f83c066daec6c041ce48c433fb39ed7cebb316599710691",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "a0f216e3010d0092e8c372f88a54e5386231cddf6f04a357a7621461bfaac5cb",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c"
+  },
+  "commands": [
+    {
+      "label": "build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/bounds.c",
+        "src/runtime/nl_string.c",
+        "src/utf8.c",
+        "-o",
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/corrected"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run",
+      "argv": [
+        "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/bstring-raw-overflow/corrected"
+      ],
+      "returncode": 0
+    }
+  ],
+  "product_sha256": "ff2a6d7306e7e91f73c3c8d2b5c4542d59fd47b705d8891366ce82f00eeed80c",
+  "product_size": 77240
+}

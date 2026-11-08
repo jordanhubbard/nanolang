@@ -1,0 +1,9 @@
+{
+  "scope": "I retain observer/CLI/JUnit local controls, not actual new driver placement qualification.",
+  "log_sha256": "457b0de398e88f949c906151009d2ff688abcc156e17242e6182963db4b96e13",
+  "source_hashes": {
+    "src_nano/compiler/nanoisa_codegen.nano": "c4c483f4e9a98d7c21e153a06bf23e76ccfeaa31d0609cbd71c1ed859f6a9b9f",
+    "tests/test_test_run_contract_native.py": "418fbe1108fa6c8c68b9607276997b87346f09da8766f0d82def377576e70732",
+    "scripts/native_phase_trace.py": "b51c0318605675aba102982e19a4214c0b6b6d390f11fc3e5de44d4d7b1b8b32"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "before": {
+    "bin/nano_virt": "13902ef354ceaca64a77df1964cb5f8f8dc42f416c18045c421f416a7c5cf81f",
+    "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+    "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+    "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+    "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+  },
+  "after": {
+    "bin/nano_virt": "13902ef354ceaca64a77df1964cb5f8f8dc42f416c18045c421f416a7c5cf81f",
+    "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+    "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+    "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+    "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+  }
+}

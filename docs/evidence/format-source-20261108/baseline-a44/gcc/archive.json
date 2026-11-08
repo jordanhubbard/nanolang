@@ -1,0 +1,15 @@
+{
+  "size": 8968272,
+  "sha256": "0365a1dd933822d503bd90799dbfe42ab0d0b87d9bf8e8fa97f2aa7e27cc968f",
+  "files": 1443,
+  "text_files": 1313,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-sc4rd06g.tar.gz",
+      "sha256": "862c5c452052bfc1990557a5a352937a41b0e83bfe65f934c1e87e4bdf2225e9",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

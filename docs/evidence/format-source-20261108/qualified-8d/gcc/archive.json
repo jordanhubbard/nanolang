@@ -1,0 +1,15 @@
+{
+  "size": 9504250,
+  "sha256": "7a4fd06dad5db66a6a6a816d08b8f5c817e1537b562516d337a1aee365529d03",
+  "files": 1542,
+  "text_files": 1403,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-smxl7ews.tar.gz",
+      "sha256": "35803164746984ad96684b9668bd5a9f7ed18d88c6f7c0d0f1b8da2c9a2cd452",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

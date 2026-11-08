@@ -1,0 +1,3 @@
+{"label": "generation-check", "argv": ["python3", "/Users/jkh/Src/nanolang/scripts/gen_nvm2c_bstring_payload.py", "--check"], "returncode": 0}
+{"label": "build", "argv": ["cc", "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-fno-sanitize-recover=all", "/Users/jkh/Src/nanolang/.test_output/bstring-native-payload/original-by9z40ls/unit.c", "/Users/jkh/Src/nanolang/src/utf8.c", "-o", "/Users/jkh/Src/nanolang/.test_output/bstring-native-payload/original-by9z40ls/unit"], "returncode": 0}
+{"label": "run", "argv": ["/Users/jkh/Src/nanolang/.test_output/bstring-native-payload/original-by9z40ls/unit"], "returncode": 0}

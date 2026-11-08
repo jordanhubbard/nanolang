@@ -1,0 +1,7 @@
+# My complete byte-conversion helper checkpoint
+
+I choose conversion of all bytes before the STRING terminator, retaining the checked dynamic-array allocator and existing U8 storage. I remove only nl_bytes_from_string's emitted-C 64 MiB scan cap. Other string operations and the legacy VM helper storage ABI are unchanged.
+
+My actual corrected emitted-C body, actual interpreter builtin and legacy VM C helper execute at 67108863, 67108864 and 67108881 bytes under ASan/UBSan. All return the complete input length and final Z marker; final managed counts are zero. I retain commands, actual source/provider/product hashes, diagnostics and exact output. The actual emitted helper is extracted mechanically from the changed emitter; this unit does not rebuild the full compiler. Quarantine is limited to 32 MiB and leak detection disabled explicitly. The original differing baseline remains in ../scan-boundary-local.
+
+The new production fixture constructs a 64 MiB prefix by repeated concatenation and appends a seventeen-byte suffix ending in Z, without embedding a large source literal or artifact. I check the full conversion length, both sides of the former cap and the final marker. A small useful helper shadow remains selected; the large production body runs separately. I require actual C CLI, managed VM, source and sanitized native execution before full acceptance. Those hosted checks remain pending.

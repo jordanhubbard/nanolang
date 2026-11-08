@@ -19,6 +19,7 @@
 #include "interpreter_ffi.h"
 #include "eval/eval_hashmap.h"
 #include "eval/eval_math.h"
+#include "eval/call_arguments.h"
 #include "eval/eval_string.h"
 #include "eval/eval_io.h"
 #include "utf8.h"
@@ -118,6 +119,8 @@ static Value eval_foreign_call(Function *func, Value *args, int arg_count,
     }
     return result;
 }
+
+#include "eval/bstring_intrinsics.inc"
 
 static void shadow_json_escape(FILE *out, const char *s) {
     if (!s) return;
@@ -591,6 +594,9 @@ static void print_value(Value val) {
             for (int64_t i = 0; i < len; i++) {
                 if (i > 0) printf(", ");
                 switch (elem_type) {
+                    case ELEM_U8:
+                        printf("%u", dyn_array_get_u8(arr, i));
+                        break;
                     case ELEM_INT:
                         printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
@@ -658,6 +664,9 @@ static void print_value(Value val) {
         }
         case VAL_COROUTINE:
             printf("<coroutine:%lld>", val.as.int_val);
+            break;
+        case VAL_BSTRING:
+            printf("<bstring>");
             break;
         case VAL_VOID:
             printf("void");
@@ -804,6 +813,12 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
     for (int64_t i = 0; i < len; i++) {
         if (i > 0) eval_sb_append_cstr(sb, ", ");
         switch (elem_type) {
+            case ELEM_U8: {
+                char tmp[8];
+                snprintf(tmp, sizeof(tmp), "%u", dyn_array_get_u8(arr, i));
+                eval_sb_append_cstr(sb, tmp);
+                break;
+            }
             case ELEM_INT: {
                 char tmp[64];
                 snprintf(tmp, sizeof(tmp), "%lld", (long long)dyn_array_get_int(arr, i));
@@ -957,6 +972,9 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
             eval_sb_append_cstr(sb, coro_buf);
             break;
         }
+        case VAL_BSTRING:
+            eval_sb_append_cstr(sb, "<bstring>");
+            break;
         case VAL_VOID:
             eval_sb_append_cstr(sb, "void");
             break;
@@ -1030,6 +1048,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_BSTRING:
+                return eval_bstring_borrow(((void **)arr->data)[index]);
             case VAL_FUNCTION:
                 return copy_array_callable(((Value *)arr->data)[index]);
             case VAL_ARRAY:
@@ -1127,6 +1147,9 @@ static Value builtin_array_new(Value *args) {
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
         switch (elem_type) {
+            case VAL_BSTRING:
+                ((void **)arr.as.array_val->data)[i] = args[1].as.bstring_val;
+                break;
             case VAL_FUNCTION:
                 ((Value *)arr.as.array_val->data)[i] = copy_array_callable(args[1]);
                 break;
@@ -1179,12 +1202,17 @@ static Value builtin_array_set(Value *args) {
                     index, (long long)dyn_array_length(arr));
             exit(1);
         }
-        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
+        bool byte_value = dyn_array_get_elem_type(arr) == ELEM_U8 && args[2].type == VAL_INT &&
+                          args[2].as.int_val >= 0 && args[2].as.int_val <= UINT8_MAX;
+        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr) && !byte_value) {
             fprintf(stderr, "I cannot assign a different element type to this array.\n");
             exit(1);
         }
         switch (args[2].type) {
-            case VAL_INT: dyn_array_set_int(arr, index, args[2].as.int_val); break;
+            case VAL_INT:
+                if (byte_value) dyn_array_set_u8(arr, index, (uint8_t)args[2].as.int_val);
+                else dyn_array_set_int(arr, index, args[2].as.int_val);
+                break;
             case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
             case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
             case VAL_STRING: {
@@ -1220,6 +1248,13 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_BSTRING:
+            if (args[2].type != VAL_BSTRING) {
+                fprintf(stderr, "I require a binary-string array element.\n");
+                return create_void();
+            }
+            ((void **)arr->data)[index] = args[2].as.bstring_val;
+            break;
         case VAL_FUNCTION: {
             if (args[2].type != VAL_FUNCTION) {
                 fprintf(stderr, "I require a callable array element.\n");
@@ -1312,7 +1347,11 @@ static Value builtin_array_slice(Value *args) {
         int64_t out_len = end - start;
 
         Value out = create_array(arr->element_type, out_len, out_len);
+        out.as.array_val->is_byte_array = arr->is_byte_array;
         switch (arr->element_type) {
+            case VAL_BSTRING:
+                if (out_len) memcpy(out.as.array_val->data, (void **)arr->data + start, (size_t)out_len * sizeof(void *));
+                break;
             case VAL_FUNCTION:
                 for (int64_t i = 0; i < out_len; ++i)
                     ((Value *)out.as.array_val->data)[i] = copy_array_callable(((Value *)arr->data)[start + i]);
@@ -1436,6 +1475,7 @@ static size_t static_array_element_width(ValueType type) {
         case VAL_BOOL: return sizeof(bool);
         case VAL_STRING: return sizeof(char*);
         case VAL_STRUCT: return sizeof(StructValue*);
+        case VAL_BSTRING: return sizeof(void*);
         default:
             fprintf(stderr, "I cannot mutate this array element representation.\n");
             exit(1);
@@ -1509,7 +1549,9 @@ static Value builtin_array_push(Value *args) {
     ElementType expected_type = dyn_array_get_elem_type(arr);
     ValueType value_type = args[1].type;
     
-    if (value_type_to_elem_type(value_type) != expected_type) {
+    bool byte_value = expected_type == ELEM_U8 && value_type == VAL_INT &&
+                      args[1].as.int_val >= 0 && args[1].as.int_val <= UINT8_MAX;
+    if (value_type_to_elem_type(value_type) != expected_type && !byte_value) {
         fprintf(stderr, "Error: Type mismatch in array_push\n");
         return create_void();
     }
@@ -1517,7 +1559,8 @@ static Value builtin_array_push(Value *args) {
     /* Push element */
     switch (value_type) {
         case VAL_INT:
-            dyn_array_push_int(arr, args[1].as.int_val);
+            if (byte_value) dyn_array_push_u8(arr, (uint8_t)args[1].as.int_val);
+            else dyn_array_push_int(arr, args[1].as.int_val);
             break;
         case VAL_FLOAT:
             dyn_array_push_float(arr, args[1].as.float_val);
@@ -1578,6 +1621,10 @@ static Value builtin_array_pop(Value *args) {
     bool success = false;
     ElementType elem_type = dyn_array_get_elem_type(arr);
     switch (elem_type) {
+        case ELEM_U8: {
+            uint8_t val = dyn_array_pop_u8(arr, &success);
+            return success ? create_int(val) : create_void();
+        }
         case ELEM_INT: {
             int64_t val = dyn_array_pop_int(arr, &success);
             return success ? create_int(val) : create_void();
@@ -1658,7 +1705,7 @@ static DynArray *builtin_scalar_array(Value value) {
     if (source->length < 0 || (source->length && !source->data)) return NULL;
     ElementType type;
     switch (source->element_type) {
-        case VAL_INT: type = ELEM_INT; break;
+        case VAL_INT: type = source->is_byte_array ? ELEM_U8 : ELEM_INT; break;
         case VAL_FLOAT: type = ELEM_FLOAT; break;
         case VAL_BOOL: type = ELEM_BOOL; break;
         case VAL_STRING: type = ELEM_STRING; break;
@@ -1668,7 +1715,10 @@ static DynArray *builtin_scalar_array(Value value) {
     if (!result) return NULL;
     for (int i = 0; i < source->length; i++) {
         switch (source->element_type) {
-            case VAL_INT: dyn_array_push_int(result, ((long long *)source->data)[i]); break;
+            case VAL_INT:
+                if (source->is_byte_array) dyn_array_push_u8(result, (uint8_t)((long long *)source->data)[i]);
+                else dyn_array_push_int(result, ((long long *)source->data)[i]);
+                break;
             case VAL_FLOAT: dyn_array_push_float(result, ((double *)source->data)[i]); break;
             case VAL_BOOL: dyn_array_push_bool(result, ((bool *)source->data)[i]); break;
             case VAL_STRING: dyn_array_push_string(result, ((char **)source->data)[i]); break;
@@ -1706,6 +1756,7 @@ static Value builtin_array_reverse(Value *args) {
     if (!out) return create_void();
     for (int64_t i = len - 1; i >= 0; i--) {
         switch (t) {
+            case ELEM_U8:     dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;
             case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
             case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
             case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
@@ -1729,6 +1780,10 @@ static Value builtin_array_contains(Value *args) {
         switch (t) {
             case ELEM_INT:
                 if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_bool(true);
+                break;
+            case ELEM_U8:
+                if (args[1].type == VAL_INT && dyn_array_get_u8(arr, i) == args[1].as.int_val)
                     return create_bool(true);
                 break;
             case ELEM_FLOAT:
@@ -1762,6 +1817,10 @@ static Value builtin_array_index_of(Value *args) {
         switch (t) {
             case ELEM_INT:
                 if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_int(i);
+                break;
+            case ELEM_U8:
+                if (args[1].type == VAL_INT && dyn_array_get_u8(arr, i) == args[1].as.int_val)
                     return create_int(i);
                 break;
             case ELEM_FLOAT:
@@ -1973,9 +2032,12 @@ static Value builtin_map(Value *args, Environment *env) {
     const char *transform_fn_name = args[1].as.function_val.function_name;
     Function *transform = env_get_function(env, transform_fn_name);
     ValueType result_type = VAL_VOID;
+    bool byte_result = false;
     if (transform) {
         FunctionSignature *signature = args[1].as.function_val.signature;
         switch (signature ? signature->return_type : transform->return_type) {
+            case TYPE_U8: result_type = VAL_INT; byte_result = true; break;
+            case TYPE_BSTRING: result_type = VAL_BSTRING; break;
             case TYPE_INT: result_type = VAL_INT; break;
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
@@ -1994,6 +2056,7 @@ static Value builtin_map(Value *args, Environment *env) {
         /* I retain declared scalar output types even when no callback runs. */
         Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
+        output_arr->is_byte_array = byte_result;
         
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -2005,6 +2068,9 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Get element from input array */
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)input_arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)input_arr->data)[i];
                     break;
@@ -2048,6 +2114,14 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
+                case VAL_BSTRING:
+                    if (transformed.type != VAL_BSTRING) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a binary-string result in map.\n");
+                        return create_void();
+                    }
+                    ((void **)output_arr->data)[i] = transformed.as.bstring_val;
+                    break;
                 case VAL_FUNCTION:
                     if (transformed.type != VAL_FUNCTION) {
                         discard_partial_owned_array(output_arr, (int)i);
@@ -2140,8 +2214,14 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
 
-        ElementType output_type = result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
-        DynArray *output_arr = dyn_array_new(output_type);
+        ElementType output_type = byte_result ? ELEM_U8 : result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
+        bool binary_output = result_type == VAL_BSTRING;
+        if (binary_output && len > INT_MAX) {
+            fprintf(stderr, "I cannot represent this interpreted binary-string array length.\n");
+            return create_void();
+        }
+        Value binary_array = binary_output ? create_array(VAL_BSTRING, (int)len, (int)len) : create_void();
+        DynArray *output_arr = binary_output ? NULL : dyn_array_new(output_type);
 
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -2152,6 +2232,9 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Get element from input array */
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(input_arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(input_arr, i);
@@ -2188,12 +2271,29 @@ static Value builtin_map(Value *args, Environment *env) {
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
             if (transformed.is_return) {
-                gc_release(output_arr);
+                if (binary_output) discard_partial_owned_array(binary_array.as.array_val, (int)i);
+                else gc_release(output_arr);
                 return transformed;
             }
             
+            if (binary_output) {
+                if (transformed.type != VAL_BSTRING) {
+                    discard_partial_owned_array(binary_array.as.array_val, (int)i);
+                    fprintf(stderr, "I require a binary-string result in map.\n");
+                    return create_void();
+                }
+                ((void **)binary_array.as.array_val->data)[i] = transformed.as.bstring_val;
+                continue;
+            }
             /* Push transformed value to output array */
             switch (output_type) {
+                case ELEM_U8:
+                    if (transformed.type != VAL_INT || transformed.as.int_val < 0 || transformed.as.int_val > UINT8_MAX) {
+                        fprintf(stderr, "I require a byte result in map.\n");
+                        return create_void();
+                    }
+                    dyn_array_push_u8(output_arr, (uint8_t)transformed.as.int_val);
+                    break;
                 case ELEM_INT:
                     if (transformed.type != VAL_INT) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2246,7 +2346,7 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
         
-        return create_dyn_array(output_arr);
+        return binary_output ? binary_array : create_dyn_array(output_arr);
     }
     
     fprintf(stderr, "Error: map() requires an array as first argument\n");
@@ -2311,6 +2411,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             elem.is_continue = false;
 
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)input_arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)input_arr->data)[i];
                     break;
@@ -2353,12 +2456,16 @@ static Value builtin_filter(Value *args, Environment *env) {
 
         Value result = create_array(input_arr->element_type, out_len, out_len);
         Array *output_arr = result.as.array_val;
+        output_arr->is_byte_array = input_arr->is_byte_array;
 
         int64_t out_i = 0;
         for (int64_t i = 0; i < len; i++) {
             if (!keep[i]) continue;
 
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    ((void **)output_arr->data)[out_i] = ((void **)input_arr->data)[i];
+                    break;
                 case VAL_INT:
                     ((long long*)output_arr->data)[out_i] = ((long long*)input_arr->data)[i];
                     break;
@@ -2402,6 +2509,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             elem.is_continue = false;
 
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(input_arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(input_arr, i);
@@ -2448,6 +2558,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             if (!pred.as.bool_val) continue;
 
             switch (elem_type) {
+                case ELEM_U8:
+                    dyn_array_push_u8(output_arr, (uint8_t)elem.as.int_val);
+                    break;
                 case ELEM_INT:
                     dyn_array_push_int(output_arr, elem.as.int_val);
                     break;
@@ -2508,6 +2621,9 @@ static Value builtin_reduce(Value *args, Environment *env) {
             
             /* Get element */
             switch (arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)arr->data)[i];
                     break;
@@ -2598,6 +2714,9 @@ static Value builtin_reduce(Value *args, Environment *env) {
 
             /* Get element */
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(arr, i);
@@ -3131,6 +3250,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     }
                     break;
                 }
+                case VAL_BSTRING: equal = left.as.bstring_val == right.as.bstring_val; break;
                 case VAL_VOID: equal = true; break;  /* void == void */
                 case VAL_ARRAY: {
                     /* Arrays are equal if they have same length and all elements equal */
@@ -3236,186 +3356,14 @@ static Value eval_call(ASTNode *node, Environment *env) {
     return result;
 }
 
-/* Evaluate function call */
-static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
-    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
-    if (node->as.call.func_expr) {
-        /* Evaluate the inner function call to get the function */
-        Value func_val = eval_expression(node->as.call.func_expr, env);
-        if (func_val.is_return) return func_val;
-        if (func_val.type != VAL_FUNCTION) {
-            fprintf(stderr, "Error: Expression does not return a function\n");
-            return create_void();
-        }
-        
-        /* Get the function name from the function value */
-        const char *borrowed_name = func_val.as.function_val.function_name;
-        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
-        if (!func_name) {
-            fprintf(stderr, "Error: Cannot get function name from function value\n");
-            return create_void();
-        }
-        
-        /* Call the function */
-        Function *func = env_get_function(env, func_name);
-
-        /* Infer anonymous struct literal names from parameter types before evaluating */
-        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
-            ASTNode *arg = node->as.call.args[i];
-            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
-                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
-                }
-            }
-        }
-
-        /* Evaluate arguments */
-        Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
-        for (int i = 0; i < node->as.call.arg_count; i++) {
-            args[i] = eval_expression(node->as.call.args[i], env);
-            if (args[i].is_return) {
-                Value result = args[i];
-                free(args);
-                free(func_name);
-                return result;
-            }
-        }
-        if (!func) {
-            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
-            free(args);
-            free(func_name);
-            return create_void();
-        }
-        
-        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
-                                        node->line, node->column);
-        free(args);
-        free(func_name);
-        return result;
-    }
-    
-    const char *name = bound_name ? bound_name : node->as.call.name;
-    EvalCallName call_name = eval_call_name(name);
-
-    /* Special built-in: range (used in for loops only) */
-    if (call_name == EVAL_CALL_range) {
-        /* This should not be called directly */
-        return create_void();
-    }
-
-    /* ── Coroutine builtins ─────────────────────────────────────────── */
-
-    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
-     * Returns a VAL_COROUTINE value (int_val = coroutine id).
-     */
-    if (call_name == EVAL_CALL_coro_spawn) {
-        if (node->as.call.arg_count < 1) {
-            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
-            return create_void();
-        }
-        ASTNode *fn_arg = node->as.call.args[0];
-        const char *async_fn_name = NULL;
-        if (fn_arg->type == AST_IDENTIFIER) {
-            async_fn_name = fn_arg->as.identifier;
-        } else if (fn_arg->type == AST_STRING) {
-            async_fn_name = fn_arg->as.string_val;
-        } else {
-            Value fn_val = eval_expression(fn_arg, env);
-            if (fn_val.type == VAL_FUNCTION) {
-                async_fn_name = fn_val.as.function_val.function_name;
-            }
-        }
-        if (!async_fn_name) {
-            fprintf(stderr, "Error: spawn() first argument must be a function\n");
-            return create_void();
-        }
-
-        int extra_args = node->as.call.arg_count - 1;
-        Value *spawn_args = extra_args > 0
-            ? malloc(sizeof(Value) * extra_args)
-            : NULL;
-        for (int i = 0; i < extra_args; i++) {
-            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
-        }
-
-        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
-        ca->func_name = strdup(async_fn_name);
-        ca->args = spawn_args;
-        ca->arg_count = extra_args;
-        ca->env = env;
-
-        if (!g_scheduler.initialized) nano_scheduler_init();
-        int coro_id = nano_coro_spawn(coro_trampoline, ca);
-        if (coro_id < 0) {
-            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
-            free(ca->func_name);
-            free(ca->args);
-            free(ca);
-            return create_void();
-        }
-
-        Value coro_val;
-        memset(&coro_val, 0, sizeof(coro_val));
-        coro_val.type = VAL_COROUTINE;
-        coro_val.as.int_val = (long long)coro_id;
-        return coro_val;
-    }
-
-    /* coro_yield() — cooperatively suspend the current coroutine */
-    if (call_name == EVAL_CALL_coro_yield) {
-        nano_coro_yield();
-        return create_void();
-    }
-
-    /* coro_done(handle) — returns true if the coroutine is done */
-    if (call_name == EVAL_CALL_coro_done) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        bool done = (h.type == VAL_COROUTINE)
-            ? nano_coro_is_done((int)h.as.int_val)
-            : true;
-        return create_bool(done);
-    }
-
-    /* coro_result(handle) — returns result of a completed coroutine */
-    if (call_name == EVAL_CALL_coro_result) {
-        if (node->as.call.arg_count < 1) return create_void();
-        Value h = eval_expression(node->as.call.args[0], env);
-        return (h.type == VAL_COROUTINE)
-            ? nano_coro_result((int)h.as.int_val)
-            : create_void();
-    }
-
-    /* scheduler_run() — drain all pending coroutines */
-    if (call_name == EVAL_CALL_scheduler_run) {
-        nano_scheduler_run_until_done();
-        return create_void();
-    }
-
-    /* scheduler_step() — run one scheduler step */
-    if (call_name == EVAL_CALL_scheduler_step) {
-        bool did_work = nano_scheduler_step();
-        return create_bool(did_work);
-    }
-
-    /* Infer anonymous struct literal names from parameter types before evaluating */
+/* I dispatch already evaluated arguments without owning their carrier. */
+static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *name,
+                                 EvalCallName call_name, Value *args) {
     Function *named_func = env_get_function(env, name);
-    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
-        ASTNode *arg = node->as.call.args[i];
-        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
-            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
-                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
-            }
-        }
+    if (call_name == EVAL_CALL_unknown && !named_func && !strncmp(name, "bstr_", 5)) {
+        const NanoBstringContract *contract = nano_bstring_source_contract(name);
+        if (contract) return eval_bstring_intrinsic(node, contract, args);
     }
-
-    /* Evaluate arguments */
-    Value args[16];  /* Max args for function calls */
-    for (int i = 0; i < node->as.call.arg_count; i++) {
-        args[i] = eval_expression(node->as.call.args[i], env);
-        if (args[i].is_return) return args[i];
-    }
-
     /* File operations */
     if (call_name == EVAL_CALL_file_read) return builtin_file_read(args);
     if (call_name == EVAL_CALL_file_read_bytes) return builtin_file_read_bytes(args);
@@ -4215,13 +4163,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 /* Handle different value types */
                 if (args[1].type == VAL_STRUCT) {
                     /* Allocate struct on heap and store pointer */
-                    StructValue *sv_copy = malloc(sizeof(StructValue));
-                    sv_copy->struct_name = strdup(args[1].as.struct_val->struct_name);
-                    sv_copy->field_count = args[1].as.struct_val->field_count;
-                    sv_copy->field_names = malloc(sizeof(char*) * sv_copy->field_count);
-                    sv_copy->field_values = malloc(sizeof(Value) * sv_copy->field_count);
+                    StructValue *sv_copy = allocate_struct_carrier(
+                        args[1].as.struct_val->struct_name, args[1].as.struct_val->field_names,
+                        args[1].as.struct_val->field_count);
                     for (int i = 0; i < sv_copy->field_count; i++) {
-                        sv_copy->field_names[i] = strdup(args[1].as.struct_val->field_names[i]);
                         sv_copy->field_values[i] = args[1].as.struct_val->field_values[i];
                         /* Deep-copy strings so they outlive the caller's stack frame */
                         if (sv_copy->field_values[i].type == VAL_STRING && sv_copy->field_values[i].as.string_val) {
@@ -5022,7 +4967,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
         /* Make a deep copy of string values to avoid memory corruption */
         if (param_value.type == VAL_STRING) {
-            param_value = create_string(args[i].as.string_val);
+            env_define_string_copy(env, func->params[i].name, func->params[i].type,
+                false, args[i].as.string_val);
+            continue;
         }
         if (param_value.type == VAL_FUNCTION) {
             FunctionSignature *sig_copy = copy_function_signature(param_value.as.function_val.signature);
@@ -5077,17 +5024,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return_value = create_function(result.as.function_val.function_name, sig_copy);
     } else if (result.type == VAL_STRUCT && result.as.struct_val) {
         StructValue *src = result.as.struct_val;
-        StructValue *dst = malloc(sizeof(StructValue));
-        if (!dst) {
-            fprintf(stderr, "Error: Out of memory copying struct return value\n");
-            exit(1);
-        }
-        dst->struct_name = strdup(src->struct_name);
-        dst->field_count = src->field_count;
-        dst->field_names = malloc(sizeof(char*) * dst->field_count);
-        dst->field_values = malloc(sizeof(Value) * dst->field_count);
+        StructValue *dst = allocate_struct_carrier(src->struct_name, src->field_names,
+                                                    src->field_count);
         for (int i = 0; i < dst->field_count; i++) {
-            dst->field_names[i] = strdup(src->field_names[i]);
             dst->field_values[i] = src->field_values[i];
             if (dst->field_values[i].type == VAL_STRING && dst->field_values[i].as.string_val) {
                 dst->field_values[i].as.string_val = strdup(dst->field_values[i].as.string_val);
@@ -5134,24 +5073,204 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     return return_value;
 }
 
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
+    /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
+    if (node->as.call.func_expr) {
+        /* Evaluate the inner function call to get the function */
+        Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.is_return) return func_val;
+        if (func_val.type != VAL_FUNCTION) {
+            fprintf(stderr, "Error: Expression does not return a function\n");
+            return create_void();
+        }
+
+        /* Get the function name from the function value */
+        const char *borrowed_name = func_val.as.function_val.function_name;
+        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
+        if (!func_name) {
+            fprintf(stderr, "Error: Cannot get function name from function value\n");
+            return create_void();
+        }
+
+        /* Call the function */
+        Function *func = env_get_function(env, func_name);
+
+        /* Infer anonymous struct literal names from parameter types before evaluating */
+        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
+            ASTNode *arg = node->as.call.args[i];
+            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
+                }
+            }
+        }
+
+        /* Evaluate arguments */
+        Value inline_args[EVAL_CALL_INLINE_ARGUMENTS];
+        Value *args = eval_call_arguments_acquire(inline_args, node->as.call.arg_count);
+        for (int i = 0; i < node->as.call.arg_count; i++) {
+            args[i] = eval_expression(node->as.call.args[i], env);
+            if (args[i].is_return) {
+                Value result = args[i];
+                eval_call_arguments_release(args, inline_args);
+                free(func_name);
+                return result;
+            }
+        }
+        if (!func) {
+            fprintf(stderr, "Error: Function '%s' not found\n", func_name);
+            eval_call_arguments_release(args, inline_args);
+            free(func_name);
+            return create_void();
+        }
+
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
+        eval_call_arguments_release(args, inline_args);
+        free(func_name);
+        return result;
+    }
+
+    const char *name = bound_name ? bound_name : node->as.call.name;
+    EvalCallName call_name = eval_call_name(name);
+
+    /* Special built-in: range (used in for loops only) */
+    if (call_name == EVAL_CALL_range) {
+        /* This should not be called directly */
+        return create_void();
+    }
+
+    /* ── Coroutine builtins ─────────────────────────────────────────── */
+
+    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
+     * Returns a VAL_COROUTINE value (int_val = coroutine id).
+     */
+    if (call_name == EVAL_CALL_coro_spawn) {
+        if (node->as.call.arg_count < 1) {
+            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
+            return create_void();
+        }
+        ASTNode *fn_arg = node->as.call.args[0];
+        const char *async_fn_name = NULL;
+        if (fn_arg->type == AST_IDENTIFIER) {
+            async_fn_name = fn_arg->as.identifier;
+        } else if (fn_arg->type == AST_STRING) {
+            async_fn_name = fn_arg->as.string_val;
+        } else {
+            Value fn_val = eval_expression(fn_arg, env);
+            if (fn_val.type == VAL_FUNCTION) {
+                async_fn_name = fn_val.as.function_val.function_name;
+            }
+        }
+        if (!async_fn_name) {
+            fprintf(stderr, "Error: spawn() first argument must be a function\n");
+            return create_void();
+        }
+
+        int extra_args = node->as.call.arg_count - 1;
+        Value *spawn_args = extra_args > 0
+            ? malloc(sizeof(Value) * extra_args)
+            : NULL;
+        for (int i = 0; i < extra_args; i++) {
+            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+        }
+
+        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        ca->func_name = strdup(async_fn_name);
+        ca->args = spawn_args;
+        ca->arg_count = extra_args;
+        ca->env = env;
+
+        if (!g_scheduler.initialized) nano_scheduler_init();
+        int coro_id = nano_coro_spawn(coro_trampoline, ca);
+        if (coro_id < 0) {
+            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
+            free(ca->func_name);
+            free(ca->args);
+            free(ca);
+            return create_void();
+        }
+
+        Value coro_val;
+        memset(&coro_val, 0, sizeof(coro_val));
+        coro_val.type = VAL_COROUTINE;
+        coro_val.as.int_val = (long long)coro_id;
+        return coro_val;
+    }
+
+    /* coro_yield() — cooperatively suspend the current coroutine */
+    if (call_name == EVAL_CALL_coro_yield) {
+        nano_coro_yield();
+        return create_void();
+    }
+
+    /* coro_done(handle) — returns true if the coroutine is done */
+    if (call_name == EVAL_CALL_coro_done) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        bool done = (h.type == VAL_COROUTINE)
+            ? nano_coro_is_done((int)h.as.int_val)
+            : true;
+        return create_bool(done);
+    }
+
+    /* coro_result(handle) — returns result of a completed coroutine */
+    if (call_name == EVAL_CALL_coro_result) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        return (h.type == VAL_COROUTINE)
+            ? nano_coro_result((int)h.as.int_val)
+            : create_void();
+    }
+
+    /* scheduler_run() — drain all pending coroutines */
+    if (call_name == EVAL_CALL_scheduler_run) {
+        nano_scheduler_run_until_done();
+        return create_void();
+    }
+
+    /* scheduler_step() — run one scheduler step */
+    if (call_name == EVAL_CALL_scheduler_step) {
+        bool did_work = nano_scheduler_step();
+        return create_bool(did_work);
+    }
+
+    /* Infer anonymous struct literal names from parameter types before evaluating */
+    Function *named_func = env_get_function(env, name);
+    /* I keep a real declaration on the ordinary invocation path, with the
+     * same argument evaluation, return boundary and frame cleanup below. */
+    if (call_name != EVAL_CALL_unknown && named_func && named_func->body && is_builtin_function(name))
+        call_name = EVAL_CALL_unknown;
+    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
+        ASTNode *arg = node->as.call.args[i];
+        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
+                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
+            }
+        }
+    }
+
+    /* I retain inline storage for small calls and check larger carriers. */
+    Value inline_args[EVAL_CALL_INLINE_ARGUMENTS];
+    Value *args = eval_call_arguments_acquire(inline_args, node->as.call.arg_count);
+    for (int i = 0; i < node->as.call.arg_count; i++) {
+        args[i] = eval_expression(node->as.call.args[i], env);
+        if (args[i].is_return) {
+            Value result = args[i];
+            eval_call_arguments_release(args, inline_args);
+            return result;
+        }
+    }
+
+    Value result = eval_evaluated_call(node, env, name, call_name, args);
+    eval_call_arguments_release(args, inline_args);
+    return result;
+}
+
 /* I discard only record/string storage cloned by create_struct. Arrays and
  * other referenced fields remain borrowed, as in that constructor. */
-static void discard_literal_record(StructValue *record) {
-    if (!record) return;
-    for (int i = 0; i < record->field_count; i++) {
-        Value field = record->field_values[i];
-        if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);
-        else if (field.type == VAL_STRING) {
-            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
-            else free(field.as.string_val);
-        }
-        free(record->field_names[i]);
-    }
-    free(record->field_names);
-    free(record->field_values);
-    free(record->struct_name);
-    free(record);
-}
+#include "eval/record_carrier_cleanup.inc"
 
 static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {
@@ -5288,6 +5407,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (count == 0) {
                 ValueType element = VAL_INT;
                 switch (expr->as.array_literal.element_type) {
+                    case TYPE_BSTRING: element = VAL_BSTRING; break;
                     case TYPE_FUNCTION: element = VAL_FUNCTION; break;
                     case TYPE_FLOAT: element = VAL_FLOAT; break;
                     case TYPE_BOOL: element = VAL_BOOL; break;
@@ -5296,7 +5416,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case TYPE_STRUCT: element = VAL_STRUCT; break;
                     default: break;
                 }
-                return create_array(element, 0, 0);
+                Value empty = create_array(element, 0, 0);
+                empty.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
+                return empty;
             }
             
             /* Evaluate first element to determine type */
@@ -5307,6 +5429,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Create array */
             Value arr = create_array(elem_type, count, count);
+            arr.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
@@ -5318,6 +5441,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_BSTRING:
+                        ((void **)arr.as.array_val->data)[i] = elem.as.bstring_val;
+                        break;
                     case VAL_FUNCTION: {
                         ASTNode *element = expr->as.array_literal.elements[i];
                         ((Value *)arr.as.array_val->data)[i] = element->type == AST_IDENTIFIER
@@ -6031,14 +6157,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (value.is_return || value.is_break || value.is_continue) {
                 return value;
             }
+            if (value.type == VAL_ARRAY && stmt->as.let.element_type == TYPE_U8)
+                value.as.array_val->is_byte_array = true;
             value = own_function_identifier(stmt->as.let.value, env, value);
-            env_define_var_with_type_info(env,
+            env_define_evaluated_var(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,
                                          stmt->as.let.element_type,
                                          stmt->as.let.type_info,
                                          stmt->as.let.is_mut,
-                                         value);
+                                         value, stmt->as.let.value);
             
             /* Trace variable declaration */
 #ifdef TRACING_ENABLED
@@ -6072,7 +6200,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             value = own_function_identifier(stmt->as.set.value, env, value);
-            env_set_var(env, stmt->as.set.name, value);
+            env_set_evaluated_var(env, stmt->as.set.name, value, stmt->as.set.value);
             
             /* Trace variable assignment */
 #ifdef TRACING_ENABLED
@@ -6173,6 +6301,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     for (int idx = 0; idx < arr->length; idx++) {
                         Value elem = create_void();
                         switch (arr->element_type) {
+                            case VAL_BSTRING: elem = eval_bstring_borrow(((void **)arr->data)[idx]); break;
                             case VAL_INT:    elem = create_int(((long long*)arr->data)[idx]); break;
                             case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
                             case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
@@ -6209,6 +6338,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     for (int64_t idx = 0; idx < len; idx++) {
                         Value elem = create_void();
                         switch (et) {
+                            case ELEM_U8:     elem = create_int(dyn_array_get_u8(arr, idx)); break;
                             case ELEM_INT:    elem = create_int(dyn_array_get_int(arr, idx)); break;
                             case ELEM_FLOAT:  elem = create_float(dyn_array_get_float(arr, idx)); break;
                             case ELEM_BOOL:   elem = create_bool(dyn_array_get_bool(arr, idx)); break;
@@ -6864,7 +6994,9 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
 
         /* Make a deep copy of string values to avoid memory corruption */
         if (param_value.type == VAL_STRING) {
-            param_value = create_string(args[i].as.string_val);
+            env_define_string_copy(env, func->params[i].name, func->params[i].type,
+                false, args[i].as.string_val);
+            continue;
         }
 
         if (param_value.type == VAL_FUNCTION) param_value = copy_array_callable(param_value);

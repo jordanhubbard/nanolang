@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:6307b0c6a123997a58fc83d0592a07f98589fe9efd7c18f53c1e4144029e6ea6 -->
+<!-- literate-ai:authority-reviewed sha256:904cbb373616cfcb35d5b18090144b2a5fbc8843a7a6665071c42b3f48fb5914 -->
 
 ## My first metadata checkpoint
 
@@ -242,3 +242,78 @@ at `2ecd38eab130f4a307d3e1336f269f78e8e01e38` preserves all 90,248 baseline entr
 original paths. I retain the earlier profile baseline and reports unchanged.
 My metadata controls establish source custody, not native lifecycle admission or
 a passing exact-candidate compiler/qualification run.
+
+## My original source-contract checkpoint, 2026-11-08
+
+I reconcile parent metadata `7c4c015b4` into the source-contract review branch.
+My explicit reviewed original-source baseline is
+`043b52d1ade7023b18917737a0d299b6c431ee98`. I preserve all previous reports and
+all five existing content-only metadata exemptions. I verify that no original
+f0b path, Git type or mode was lost during the source-contract work. The metadata
+merge changes none of that reviewed checkpoint's compiler, runtime, Nano sources,
+module, Make, test or existing script bytes.
+
+I retain the [first old-baseline refusal](source-contract-first-refusal-20261108.json)
+before advancing this explicit baseline. Its changed original content is the
+intentional source-contract repair work tracked through #1111, including exact
+BSTRING identity, U8 storage, environment contracts and GC correctness. This is
+source preservation ownership, not a claim of native acceptance for that code.
+
+My current full source-creation attempts still hit their ten-second supervisor.
+The controlled Linux comparison publishes six native compilers with identical
+complete shadow selections but does not establish a consistent allocation
+speedup or reproduce the full component prelude. Apple comparison and exact
+integration remain open. My fresh original corpus remains 214/237 in each
+stage, with all 23 failures retained under #1081. I preserve those failures,
+original budgets, GitGuardian #1076, current native/platform gates and every
+release obligation.
+
+I retain original-source release authority, the historical framework adoption
+binding, empty native implementation selections and the absent native lifecycle
+receipt. The eight integration Components and four delegates remain metadata;
+they do not complete the native producer graph or authorize native cutover.
+
+My [committed source-contract custody report](source-preservation-source-contracts-20261108.json)
+at `e07772c724ee08ccbf3cf5ec094f31baa853e2f0` preserves all 92,816 reviewed entries,
+with no changed or dirty original paths. My [metadata checks](source-contract-metadata-checks-20261108.json)
+retain the real Git controls, all eight current integration locks, four current
+delegates, supported authority review and canonical validation. The native receipt
+guard still refuses `project.test_receipt_policy_unconfigured`, as required.
+I preserve every inherited component commit and all 67 original scope rows.
+These facts establish Git custody and initial integration metadata, not native
+execution admission or release qualification.
+
+My [merge-tree audit](source-contract-merge-tree-check-20261108.json) checks every
+reviewed pre-merge entry against the staged merge tree, permitting only the five
+prior content-only metadata exemptions. I retain unchanged path/type/mode checks
+and the exact staged tree identity separately from native lifecycle admission.
+
+I freeze my catalog reports before the final documentation-authority review.
+I retain post-freeze validation logs outside this catalog, under
+`docs/evidence/source-contract-custody-20261108/`, so saving those logs cannot
+change the authority inputs they just checked.
+
+
+## My GC-entry retirement checkpoint, 2026-11-08
+
+I retire private GC-entry tail storage because my fixed Linux and Apple
+comparisons do not establish a reliable source-creation benefit. I preserve
+all candidate measurements and retain both allocation-overflow corrections
+and shutdown registry retirement. My local sanitizer receipt in
+`docs/evidence/gc-pointer-entry-20261108/retired/` passes all thirteen GC controls and the existing interpreted BSTRING and
+STRING bounds gates; hosted source/platform acceptance remains open.
+
+My reviewed original-source baseline is `91735dabca36439915c02f58848bd1197bb1ad90`.
+This is a real code-only descendant of my previous `043b52d1a` baseline,
+changing exactly `src/runtime/gc.c` and `tests/test_gc_struct.c` to their
+`9baeba459` correctness-checkpoint bytes. I merge it with real ancestry into
+my source-contract branch. Its other 92,814 reviewed entries remain unchanged.
+I retain my five content-only metadata exceptions without widening them.
+This checkpoint contains the complete original source tree; my temporary
+sparse working view is not an omitted-input qualification.
+
+I retain custody and post-review logs outside my documentation catalog under
+`docs/evidence/gc-pointer-entry-20261108/retired/`. Original-source authority,
+empty native implementation selections and the absent native lifecycle
+receipt remain unchanged. The original source-creation failures, full corpus,
+compiler budget, GitGuardian and release requirements remain open.

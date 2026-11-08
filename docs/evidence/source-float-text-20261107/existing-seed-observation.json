@@ -1,0 +1,15 @@
+{
+  "scope": "I observe existing local seed shadow text; these binaries are not fresh source admission.",
+  "source": "fn render(value: float) -> string { return f\"x={value}\" }\nshadow render { assert (str_equals (render 3.25) \"x=3.25\") }\nfn main() -> int { return 0 }\nshadow main {\n (println (to_string 0.0))\n (println (to_string (float_from_bits 0)))\n (println (float_to_string 0.0))\n (println (cast_string 0.0))\n (println (render 0.0))\n (println (render (float_from_bits 0)))\n assert true\n}\n",
+  "compiler_sha256": "38883afcb4bc8482758f548fbebec5df40cd25032b0a44c2ea1e828dfb1eb400",
+  "argv": [
+    "/Users/jkh/Src/nanolang/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-float-text-observe-ihkmcl8q/observe.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-float-text-observe-ihkmcl8q/observe.nvm"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "0\n0\n0.0\n0\nx=0\nx=0\n"
+}

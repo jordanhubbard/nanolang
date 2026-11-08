@@ -249,6 +249,9 @@ const char *format_value_for_trace(Value val) {
         case VAL_STRING:
             snprintf(buffer, sizeof(buffer), "\"%s\"", val.as.string_val ? val.as.string_val : "(null)");
             break;
+        case VAL_BSTRING:
+            snprintf(buffer, sizeof(buffer), "<bstring>");
+            break;
         case VAL_VOID:
             snprintf(buffer, sizeof(buffer), "void");
             break;

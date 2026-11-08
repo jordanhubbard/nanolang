@@ -49,6 +49,9 @@ void val_print(NanoValue v, FILE *out) {
                 fprintf(out, "null");
             }
             break;
+        case TAG_BSTRING:
+            fputs("<bstring>", out);
+            break;
         case TAG_ENUM:
             fprintf(out, "enum(%d)", v.as.enum_val);
             break;

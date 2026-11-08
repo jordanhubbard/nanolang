@@ -713,13 +713,45 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
     return NULL;
 }
 
+/* I supply a declared context only to an anonymous record expression. */
+static bool retain_anonymous_record_context(Environment *env, const char *name, ASTNode *value) {
+    if (!value || value->type != AST_STRUCT_LITERAL || value->as.struct_literal.struct_name ||
+        value->as.struct_literal.spread_source || !name) return true;
+    StructDef *record = env_get_struct(env, name);
+    if (!record) return true;
+    char *identity = strdup(record->name);
+    if (!identity) {
+        emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+            "I could not retain the declared anonymous record identity.",
+            "Provide enough memory to retain the checked context.");
+        return false;
+    }
+    value->as.struct_literal.struct_name = identity;
+    return true;
+}
+
 /* I compare declarations, including their module identity, at array boundaries. */
 static bool check_record_array_contract(Environment *env, Type type, Type element,
                                          const char *name, ASTNode *value) {
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
-    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) return true;
+    if (value->type == AST_ARRAY_LITERAL) {
+        for (int i = 0; i < value->as.array_literal.element_count; ++i) {
+            ASTNode *child = value->as.array_literal.elements[i];
+            if (!retain_anonymous_record_context(env, name, child)) return false;
+            const char *child_name = get_struct_type_name(child, env);
+            if (!child_name || env_get_struct(env, child_name) != expected) {
+                emit_context_error("E001 TYPE MISMATCH", child->line, child->column, 1,
+                    "I require every record array element to retain its declared nominal identity.",
+                    "Match the array element declaration, including its module identity.");
+                return false;
+            }
+        }
+        value->as.array_literal.element_type = TYPE_STRUCT;
+        value->as.array_literal.has_element_annotation = true;
+        return true;
+    }
     const char *actual_name = array_record_name(value, env);
     StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
     if (actual == expected) return true;
@@ -964,6 +996,11 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
                 free_payload_type_info(wanted);
             }
         }
+        return;
+    }
+    if (expected->base_type == TYPE_STRUCT && expected->generic_name &&
+        env_get_struct(env, expected->generic_name)) {
+        retain_anonymous_record_context(env, expected->generic_name, value);
         return;
     }
     if (!expected->generic_name) return;
@@ -1342,6 +1379,14 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "str_split") &&
+        array_expr->as.call.arg_count == 2 &&
+        !env_get_var_visible_at(env, array_expr->as.call.name, array_expr->line, array_expr->column)) {
+        Function *definition = env_get_function_at(env, array_expr->as.call.name,
+            array_expr->line, array_expr->column);
+        if (!definition || (!definition->body && !definition->is_extern)) return TYPE_STRING;
+    }
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
         array_expr->as.call.arg_count == 2)
         return check_expression(array_expr->as.call.args[1], env);
@@ -1361,8 +1406,12 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
         const char *name = array_expr->as.call.name;
+        Function *function = env_get_function_at(env, name, array_expr->line, array_expr->column);
+        bool builtin_reverse = !strcmp(name, "array_reverse") && array_expr->as.call.arg_count == 1 &&
+            !env_get_var_visible_at(env, name, array_expr->line, array_expr->column) &&
+            function && !function->body && !function->is_extern && !function->params;
         bool keeps_source = (!strcmp(env_array_operation(env, array_expr), "filter") && array_expr->as.call.arg_count == 2) ||
-                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
+                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2) || builtin_reverse;
         if (keeps_source)
             return infer_array_element_type(array_expr->as.call.args[0], env);
     }
@@ -3020,12 +3069,98 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
-            /* Special handling for format builtin - variadic string interpolation */
+            /* I retain byte-array identity at my existing conversion boundary. */
+            if (!strcmp(expr->as.call.name, "bytes_from_string") ||
+                !strcmp(expr->as.call.name, "string_from_bytes")) {
+                Function *definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                if (!definition || (!definition->body && !definition->is_extern)) {
+                    bool encode = !strcmp(expr->as.call.name, "bytes_from_string");
+                    bool valid = expr->as.call.arg_count == 1;
+                    if (valid) {
+                        ASTNode *argument = expr->as.call.args[0];
+                        if (!encode && argument->type == AST_ARRAY_LITERAL &&
+                            argument->as.array_literal.element_count == 0)
+                            argument->as.array_literal.element_type = TYPE_U8;
+                        Type actual = check_expression(argument, env);
+                        valid = encode ? actual == TYPE_STRING :
+                            actual == TYPE_ARRAY && infer_array_element_type(argument, env) == TYPE_U8;
+                    }
+                    if (!valid) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require one STRING operand for bytes_from_string or one ARRAY<U8> operand for string_from_bytes.",
+                            "Use the declared builtin operand type and count.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return encode ? TYPE_ARRAY : TYPE_STRING;
+                }
+            }
+
+            /* I keep these existing string builtins exact after lexical binding. */
+            {
+                static const char *names[] = {"str_trim_left", "str_trim_right", "str_to_lower",
+                    "str_to_upper", "str_replace", "str_split", "str_join"};
+                int expected = -1;
+                for (size_t i = 0; i < sizeof names / sizeof names[0]; ++i)
+                    if (!strcmp(expr->as.call.name, names[i])) expected = i < 4 ? 1 : i == 4 ? 3 : 2;
+                Function *definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                bool builtin = !definition || (!definition->body && !definition->is_extern);
+                if (expected >= 0 && builtin) {
+                    bool valid = expr->as.call.arg_count == expected;
+                    for (int i = 0; i < expr->as.call.arg_count; ++i) {
+                        ASTNode *argument = expr->as.call.args[i];
+                        bool array = i == 0 && !strcmp(expr->as.call.name, "str_join");
+                        if (array && argument->type == AST_ARRAY_LITERAL &&
+                            argument->as.array_literal.element_count == 0)
+                            argument->as.array_literal.element_type = TYPE_STRING;
+                        Type actual = check_expression(argument, env);
+                        if (array) valid = valid && actual == TYPE_ARRAY &&
+                            infer_array_element_type(argument, env) == TYPE_STRING;
+                        else valid = valid && actual == TYPE_STRING;
+                    }
+                    if (!valid) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require exact string stdlib arity and STRING operands, with ARRAY<STRING> for the join receiver.",
+                            "Use the declared builtin argument types and count.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return !strcmp(expr->as.call.name, "str_split") ? TYPE_ARRAY : TYPE_STRING;
+                }
+            }
+
+            /* I keep character host operands exact after lexical values resolve. */
+            {
+                static const char *predicates[] = {"is_digit", "is_alpha", "is_alnum",
+                    "is_whitespace", "is_upper", "is_lower"};
+                static const char *integers[] = {"digit_value", "char_to_lower", "char_to_upper"};
+                Type result = TYPE_UNKNOWN;
+                for (size_t i = 0; i < sizeof(predicates) / sizeof(predicates[0]); ++i)
+                    if (!strcmp(expr->as.call.name, predicates[i])) result = TYPE_BOOL;
+                for (size_t i = 0; i < sizeof(integers) / sizeof(integers[0]); ++i)
+                    if (!strcmp(expr->as.call.name, integers[i])) result = TYPE_INT;
+                Function *character_definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                bool character_builtin = !character_definition ||
+                    (!character_definition->body && !character_definition->is_extern);
+                if (result != TYPE_UNKNOWN && character_builtin) {
+                    if (expr->as.call.arg_count != 1 ||
+                        check_expression(expr->as.call.args[0], env) != TYPE_INT) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require one INT character operand.",
+                            "Pass one integer character code.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return result;
+                }
+            }
+
+            /* I check the variadic builtin after bound function values resolve. */
             if (strcmp(expr->as.call.name, "format") == 0) {
                 if (expr->as.call.arg_count < 1) {
                     emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
-                        "format requires at least 1 argument (the template string).",
-                        "Usage: format(\"Hello %s\", name)");
+                        "I require a string template argument for format.",
+                        "Use (format \"Hello %s\" name).");
                     return TYPE_UNKNOWN;
                 }
                 Type template_type = check_expression(expr->as.call.args[0], env);
@@ -3200,6 +3335,25 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 strcmp(expr->as.call.name, "map_free") == 0 ||
                 strcmp(expr->as.call.name, "map_keys") == 0 ||
                 strcmp(expr->as.call.name, "map_values") == 0);
+            /* I retain exact source-array removal operands after lexical resolution. */
+            if ((!func || (!func->body && !func->is_extern && !func->params)) &&
+                (strcmp(expr->as.call.name, "array_pop") == 0 ||
+                 strcmp(expr->as.call.name, "array_remove_at") == 0)) {
+                bool pop = strcmp(expr->as.call.name, "array_pop") == 0;
+                bool valid = expr->as.call.arg_count == (pop ? 1 : 2);
+                if (valid) {
+                    valid = check_expression(expr->as.call.args[0], env) == TYPE_ARRAY;
+                    if (!pop && check_expression(expr->as.call.args[1], env) != TYPE_INT)
+                        valid = false;
+                }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the array removal arity, an array and an integer index.",
+                        "Use the declared array removal operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return pop ? infer_array_element_type(expr->as.call.args[0], env) : TYPE_ARRAY;
+            }
             if (!func || (is_map_builtin && is_hashmap_generic_context)) {
                 /* Special handling for dynamic array builtins */
                 if (strcmp(expr->as.call.name, "array_push") == 0) {
@@ -4083,20 +4237,53 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_ARRAY;
             }
             
-            /* Special handling for polymorphic built-in functions (abs, min, max) */
-            /* These functions return the same type as their input arguments */
-            if (strcmp(expr->as.call.name, "abs") == 0 ||
-                strcmp(expr->as.call.name, "min") == 0 ||
-                strcmp(expr->as.call.name, "max") == 0) {
-                /* Check the type of the first argument */
-                if (expr->as.call.arg_count >= 1) {
-                    Type arg_type = check_expression(expr->as.call.args[0], env);
-                    if (arg_type == TYPE_FLOAT) {
-                        return TYPE_FLOAT;
-                    }
-                    /* For int or other types, return int */
-                    return TYPE_INT;
+            /* I check cached generic array operands after lexical calls resolve. */
+            if (!func->body && !func->is_extern && !func->params &&
+                (strcmp(expr->as.call.name, "array_reverse") == 0 ||
+                 strcmp(expr->as.call.name, "array_contains") == 0 ||
+                 strcmp(expr->as.call.name, "array_index_of") == 0)) {
+                ASTNode *source = expr->as.call.args[0];
+                bool valid = check_expression(source, env) == TYPE_ARRAY;
+                if (expr->as.call.arg_count == 2) {
+                    ASTNode *needle = expr->as.call.args[1];
+                    Type actual = check_expression(needle, env);
+                    Type element = infer_array_element_type(source, env);
+                    if (element != TYPE_UNKNOWN && actual != element) valid = false;
+                    TypeInfo *container = valid ? copy_generic_argument_info(source, env, 0) : NULL;
+                    TypeInfo *argument = valid ? copy_generic_argument_info(needle, env, 0) : NULL;
+                    if (container && container->element_type && argument &&
+                        !type_infos_equal(container->element_type, argument)) valid = false;
+                    free_payload_type_info(container);
+                    free_payload_type_info(argument);
                 }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require an array and its exact needle element type for this builtin.",
+                        "Use matching array and element operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return func->return_type;
+            }
+
+            /* I keep one numeric result kind, after lexical calls have resolved. */
+            if (!func->body && !func->is_extern && !func->params &&
+                (strcmp(expr->as.call.name, "abs") == 0 ||
+                strcmp(expr->as.call.name, "min") == 0 ||
+                strcmp(expr->as.call.name, "max") == 0)) {
+                Type result = check_expression(expr->as.call.args[0], env);
+                bool valid = result == TYPE_INT || result == TYPE_FLOAT;
+                for (int i = 1; i < expr->as.call.arg_count; ++i) {
+                    if (check_expression(expr->as.call.args[i], env) != result) {
+                        valid = false;
+                    }
+                }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require matching int or float operands for this numeric builtin.",
+                        "Use one numeric kind for all operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return result;
             }
 
             /* Check if function returns a function type */
@@ -4494,15 +4681,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             bool byte_fields = false;
             for (int i = 0; i < sdef->field_count; ++i)
                 if (sdef->field_types[i] == TYPE_U8) byte_fields = true;
-            if (byte_fields) {
-                for (int i = 0; i < expr->as.struct_literal.field_count; ++i)
-                    for (int j = 0; j < i; ++j)
-                        if (!strcmp(expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_names[j])) {
-                            emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
-                                "I require distinct byte record fields.", "Supply each field at most once.");
-                            return TYPE_UNKNOWN;
-                        }
-            }
+            for (int i = 0; i < expr->as.struct_literal.field_count; ++i)
+                for (int j = 0; j < i; ++j)
+                    if (!strcmp(expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_names[j])) {
+                        emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
+                            byte_fields ? "I require distinct byte record fields." :
+                                          "I require distinct record fields.",
+                            "Supply each field at most once.");
+                        return TYPE_UNKNOWN;
+                    }
             /* Check each field */
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                 const char *field_name = expr->as.struct_literal.field_names[i];
@@ -4530,6 +4717,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     continue;
                 }
 
+                /* Plain nominal fields can have a name without a complete TypeInfo tree. */
+                if (sdef->field_types[field_index] == TYPE_STRUCT && sdef->field_type_names)
+                    retain_anonymous_record_context(env, sdef->field_type_names[field_index],
+                        expr->as.struct_literal.field_values[i]);
                 /* I apply the complete field annotation before checking its constructor. */
                 if (sdef->field_type_info)
                     check_concrete_union_arrays(env, sdef->field_type_info[field_index],
@@ -6767,69 +6958,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 }
 
 /* Check program */
-/* List of all built-in function names */
-static const char *builtin_function_names[] = {
-    /* Core */
-    "range", "print", "println", "assert",
-    /* Math */
-    "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
-    "sin", "cos", "tan", "atan2",
-    /* Type casting */
-    "float_from_bits", "float_to_bits", "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
-    /* String (C strings) */
-    "str_length", "str_concat", "str_substring", "str_contains", "str_equals", "format",
-    /* Bytes (array<u8>) */
-    "bytes_from_string", "string_from_bytes",
-    /* Binary strings (nl_string_t) */
-    "bstr_new", "bstr_new_binary", "bstr_length", "bstr_concat", "bstr_substring",
-    "bstr_equals", "bstr_byte_at", "bstr_validate_utf8", "bstr_utf8_length",
-    "bstr_utf8_char_at", "bstr_to_cstr", "bstr_free",
-    /* Advanced string operations */
-    "char_at", "string_from_char",
-    /* Character classification */
-    "is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower",
-    /* Type conversions */
-    "int_to_string", "string_to_int", "digit_value", "char_to_lower", "char_to_upper",
-    /* Array */
-    "at", "array_get", "array_length", "array_new", "array_set",
-    "array_slice",
-    /* Higher-order array functions */
-    "map", "reduce",
-    /* OS */
-    "getcwd", "getenv", "exit",
-    /* File I/O (stdlib functions) */
-    "file_read", "file_read_bytes", "file_write", "file_append", "file_remove", "file_rename",
-    "file_exists", "file_size",
-    /* Temp helpers */
-    "tmp_dir", "mktemp", "mktemp_dir",
-    /* Directory operations */
-    "dir_create", "dir_remove", "dir_list", "dir_exists", "chdir",
-    /* Path operations */
-    "path_isfile", "path_isdir", "path_join", "path_basename", "path_dirname",
-    /* Process operations */
-    "system",
-    "process_run",
-    /* List operations - list_int */
-    "list_int_new", "list_int_with_capacity", "list_int_push", "list_int_pop",
-    "list_int_get", "list_int_set", "list_int_insert", "list_int_remove",
-    "list_int_length", "list_int_capacity", "list_int_is_empty", "list_int_clear",
-    "list_int_free",
-    /* List operations - list_bool */
-    "list_bool_new", "list_bool_with_capacity", "list_bool_push", "list_bool_pop",
-    "list_bool_get", "list_bool_set", "list_bool_insert", "list_bool_remove",
-    "list_bool_length", "list_bool_capacity", "list_bool_is_empty", "list_bool_clear",
-    "list_bool_free",
-    /* List operations - list_string */
-    "list_string_new", "list_string_with_capacity", "list_string_push", "list_string_pop",
-    "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
-    "list_string_length", "list_string_capacity", "list_string_is_empty", "list_string_clear",
-    "list_string_free",
-    /* List operations - list_Token */
-    "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
-    "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
-    "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
-    "nl_list_Token_free"
-};
+/* I share my effective non-extern definition policy with the source checker. */
+#include "generated/reserved_builtin_names.h"
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
 
@@ -7002,7 +7132,6 @@ static void emit_context_error(
 
 /* Check if a function name is a built-in */
 static bool is_builtin_name(const char *name) {
-    if (builtin_is_array_operation(name)) return false;
     for (int i = 0; i < builtin_function_name_count; i++) {
         if (strcmp(builtin_function_names[i], name) == 0) {
             return true;

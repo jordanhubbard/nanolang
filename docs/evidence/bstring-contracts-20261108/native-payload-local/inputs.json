@@ -1,0 +1,23 @@
+{
+  "scope": "I test only the derived C payload; native BSTRING imports and tagged owner translation remain unimplemented.",
+  "before": {
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "bab2b987fa4a4e586b63f5dde08776c74bdc72506185d7eb55f8d91c7b0ee3ac",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "59356897bd2a6d388686750f4b46bdb69eb2eced2f100f5877679d711072ec8b",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "/Users/jkh/Src/nanolang/src/utf8.h": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+    "/Users/jkh/Src/nanolang/tests/test_nl_string.c": "ee75f79f7a16cc19ca4dab3678f089f0438bb9afce0c48aa84c8c34e0bb01ac6",
+    "/Users/jkh/Src/nanolang/scripts/gen_nvm2c_bstring_payload.py": "dd1f70a97ef21b3d20e0c5f00a57af2883544710696a92d7c7e879f21a0b2874",
+    "/Users/jkh/Src/nanolang/src/nanoisa/nvm2c_bstring_payload.inc": "d04fb5e8cc9aa64a8fe6893bd3e583836ecd9670fe0b693f49428887679b09fe"
+  },
+  "after": {
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.h": "bab2b987fa4a4e586b63f5dde08776c74bdc72506185d7eb55f8d91c7b0ee3ac",
+    "/Users/jkh/Src/nanolang/src/runtime/nl_string.c": "59356897bd2a6d388686750f4b46bdb69eb2eced2f100f5877679d711072ec8b",
+    "/Users/jkh/Src/nanolang/src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "/Users/jkh/Src/nanolang/src/utf8.h": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+    "/Users/jkh/Src/nanolang/tests/test_nl_string.c": "ee75f79f7a16cc19ca4dab3678f089f0438bb9afce0c48aa84c8c34e0bb01ac6",
+    "/Users/jkh/Src/nanolang/scripts/gen_nvm2c_bstring_payload.py": "dd1f70a97ef21b3d20e0c5f00a57af2883544710696a92d7c7e879f21a0b2874",
+    "/Users/jkh/Src/nanolang/src/nanoisa/nvm2c_bstring_payload.inc": "d04fb5e8cc9aa64a8fe6893bd3e583836ecd9670fe0b693f49428887679b09fe"
+  },
+  "product_before_run": "e9eecf018688596aacd009d635ae018d369711ee3ae9351882ef001a8b53a9b4",
+  "product_after_run": "e9eecf018688596aacd009d635ae018d369711ee3ae9351882ef001a8b53a9b4"
+}

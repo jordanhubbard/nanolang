@@ -1,0 +1,69 @@
+{
+  "creation_path": "C-seed-to-native",
+  "native_lifecycle_admitted": false,
+  "fresh_stages_qualified": false,
+  "inputs_unchanged": true,
+  "product": {
+    "path": "source-checker-component/actual-native-491z5dil/checker",
+    "size": 11057976,
+    "sha256": "60b5d8440c8b5ef8841f5ea9601b7c6226421b986e239c09be396897c9cf7aa8",
+    "magic": "cffaedfe",
+    "format": "Mach-O64",
+    "cpu": "arm64",
+    "file_type": 2
+  },
+  "generated_c": {
+    "path": "source-checker-component/actual-native-491z5dil/checker.c",
+    "size": 285798,
+    "sha256": "ea7fc93b97c552dee2aa9d87d56aa9bd712db55a36d1fa3d0a7dae7f4150c1bb"
+  },
+  "commands": [
+    {
+      "label": "source-build",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+        "/Users/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+        "--verbose",
+        "--keep-c",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-491z5dil/checker"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "native-run",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-491z5dil/checker"
+      ],
+      "returncode": 0
+    }
+  ],
+  "toolchain": {
+    "developer_dir": "/Applications/Xcode_27.2.0.app/Contents/Developer",
+    "sdk_root": "/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "sdk_version": "27.2",
+    "sdk_resolved": "/Applications/Xcode_27.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "sdk_settings_sha256": "82165b15ee21419d4cffaba8895797391b908ac9499ba70f561f3e1bd16758d6",
+    "tools": {
+      "clang": {
+        "path": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "sha256": "04988adaddb282c8c074a1a55f8221452f18f64df3ca0006135f62031710377b"
+      },
+      "as": {
+        "path": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as",
+        "sha256": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc"
+      }
+    },
+    "wrappers": {
+      "cc": {
+        "path": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc",
+        "sha256": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+      },
+      "clang": {
+        "path": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/clang",
+        "sha256": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+      }
+    },
+    "version": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+  }
+}

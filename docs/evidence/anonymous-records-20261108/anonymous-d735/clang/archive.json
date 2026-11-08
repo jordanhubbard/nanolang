@@ -1,0 +1,15 @@
+{
+  "size": 2019491,
+  "sha256": "1e15f3478a3e0dcd3e7a9707b06f688a32de3dddcac764d7492789e242fe7759",
+  "files": 20,
+  "text_files": 19,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-3846iape.tar.gz",
+      "sha256": "14389ce31cf0ab35ecd7b525b9e8ee7a7f39d9e449ec4f09bb8cf78628e082ee",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

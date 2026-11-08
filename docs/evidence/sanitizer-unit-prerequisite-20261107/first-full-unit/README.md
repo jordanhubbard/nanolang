@@ -1,0 +1,5 @@
+# My first complete-unit attempt after prerequisite repair
+
+Run 42450650694 at a1a035c93d2ed2961569ce128ae53d1fc377c636 compiles and executes the unchanged module fixture on both GCC and Clang without rebuilding the legacy component prerequisites. The complete unit selection then stops at dispatch equivalence: 188 original fixtures are selected, 187 compile/compare identically, and test_repl_history.nano fails compilation. Its detailed dispatch log is reported under a failed temporary root but was not included in this first artifact; I do not guess its cause. The unchanged negative corpus, complete interpreter units and array alias routes are collected independently.
+
+Make replaced my environment sanitizer flags with defaults in this attempt. I retain these functional results and correct the workflow to use explicit flags, provider instrumentation checks, full declared Linux dependency inputs, serial unit execution and verified temporary-root archive/retention controls. Complete actual instrumented acceptance remains open. I retain complete original logs and exact source/provider evidence here.

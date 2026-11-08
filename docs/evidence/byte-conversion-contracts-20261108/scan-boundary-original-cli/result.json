@@ -1,0 +1,35 @@
+{
+  "scope": "I execute an actual retained original C-seed CLI native product above the old cap; current source rebuilding remains separate. My first recorder checked the wrong diagnostic phrase after the real execution failed, and stopped before writing a complete JSON receipt. I retain that first output and record this same-product rerun explicitly.",
+  "before": {
+    "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/main.nano": "65bbc71797db8088c88ca6381514ea6533cb2ffe7c0813fda6f3ef936c54ed29",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/native": "baed2c4a4a11a94cbe4cdcbd41dc2574ebad5f9d0c6f4af35b9ffd5e59c2e2ee"
+  },
+  "after": {
+    "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/main.nano": "65bbc71797db8088c88ca6381514ea6533cb2ffe7c0813fda6f3ef936c54ed29",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/native": "baed2c4a4a11a94cbe4cdcbd41dc2574ebad5f9d0c6f4af35b9ffd5e59c2e2ee"
+  },
+  "observed_run": {
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/native"
+    ],
+    "returncode": 1,
+    "elapsed": 1.0633314159931615
+  },
+  "run_env": {
+    "ASAN_OPTIONS": "detect_leaks=0:quarantine_size_mb=32"
+  },
+  "initial_build_argv": [
+    "/Users/jkh/Src/nanolang/bin/nanoc_c",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/main.nano",
+    "--keep-c",
+    "-o",
+    "/Users/jkh/Src/nanolang/.test_output/byte-scan-original-cli-9hgbehk6/native"
+  ],
+  "initial_build_env": {
+    "NANO_CFLAGS": "-O0 -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "ASAN_OPTIONS": "detect_leaks=0:quarantine_size_mb=32"
+  },
+  "initial_build_returncode_observed": 0
+}

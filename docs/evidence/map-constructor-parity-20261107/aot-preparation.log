@@ -1,0 +1,20 @@
+python3 -m unittest -v tests.test_map_scalar_runtime
+setUpClass (tests.test_map_scalar_runtime.MapScalarRuntime) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_map_scalar_runtime.MapScalarRuntime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_map_scalar_runtime.py", line 141, in setUpClass
+    raise AssertionError(result.stdout + result.stderr)
+AssertionError: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-scalar-runtime-zqtwa1uk/original.c:71:23: error: unused function 'nmap_key_kind' [-Werror,-Wunused-function]
+   71 | static inline uint8_t nmap_key_kind(nmap_t map) {
+      |                       ^~~~~~~~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.279s
+
+FAILED (errors=1)
+make: *** [test-map-scalar-runtime] Error 1

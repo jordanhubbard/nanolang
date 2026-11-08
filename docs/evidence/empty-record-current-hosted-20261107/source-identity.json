@@ -1,0 +1,22 @@
+[
+  {
+    "path": "src/typechecker.c",
+    "same_as_requested_head": true,
+    "sha256": "d11e3e58314133e96ffaef9990fb4f2e14eba65da69ba0cb9cbbc15ff1bc9b7e"
+  },
+  {
+    "path": "tests/test_empty_record_array_fields.py",
+    "same_as_requested_head": true,
+    "sha256": "170739812dd0d1ad74a6572f13b4432ed1b54103eb2d7cb4e468b6dc1ea0a14e"
+  },
+  {
+    "path": "tests/test_nominal_record_array_contracts.py",
+    "same_as_requested_head": true,
+    "sha256": "0ea93665ebf714739265871c683149b5f24c2734eb456b5a76ce175aee53cbcb"
+  },
+  {
+    "path": "tests/unit/test_empty_record_array_fields.nano",
+    "same_as_requested_head": true,
+    "sha256": "3338ecf7550216496b3bed4db6a53021e9b5c6ad2869c3686d46ad3a05e428a2"
+  }
+]

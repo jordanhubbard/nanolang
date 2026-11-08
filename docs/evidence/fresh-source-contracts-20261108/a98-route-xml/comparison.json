@@ -1,0 +1,24 @@
+{
+  "stage1": {
+    "cleared": [
+      "test_all_imports",
+      "test_bytes_conversion",
+      "test_env",
+      "test_setenv_shadow",
+      "test_std_modules_simple",
+      "test_unsafe_basic"
+    ],
+    "new_failures": []
+  },
+  "stage2": {
+    "cleared": [
+      "test_all_imports",
+      "test_bytes_conversion",
+      "test_env",
+      "test_setenv_shadow",
+      "test_std_modules_simple",
+      "test_unsafe_basic"
+    ],
+    "new_failures": []
+  }
+}

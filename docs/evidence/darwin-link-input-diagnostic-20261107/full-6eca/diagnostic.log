@@ -1,0 +1,12 @@
+I retain exact-assembler-link-inputs temporary evidence at /Users/runner/work/_temp/nano-qualification-acndh62j
+test_xassembler (__main__.FocusedLinkInputs.test_xassembler) ... ok
+test_split_xassembler (__main__.FocusedLinkInputs.test_split_xassembler) ... ok
+test_raw_assembler (__main__.FocusedLinkInputs.test_raw_assembler) ... ok
+test_preprocessed_assembler (__main__.FocusedLinkInputs.test_preprocessed_assembler) ... ok
+test_shared_raw_assembler (__main__.FocusedLinkInputs.test_shared_raw_assembler) ... ok
+test_shared_preprocessed_assembler (__main__.FocusedLinkInputs.test_shared_preprocessed_assembler) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 495.362s
+
+OK

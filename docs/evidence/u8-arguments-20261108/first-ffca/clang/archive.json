@@ -1,0 +1,15 @@
+{
+  "size": 2022670,
+  "sha256": "bcedf67a704424a352f2938bf6ee4eda463bd9d242cf9d7804443eeb5b1f7325",
+  "files": 21,
+  "text_files": 20,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-i0wkm7g4.tar.gz",
+      "sha256": "457c4a70b7389dfcbb2239c2fde6bd4615338f5f9c03476ab8e4298e0e327c2f",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

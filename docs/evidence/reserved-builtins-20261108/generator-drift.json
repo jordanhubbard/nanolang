@@ -1,0 +1,35 @@
+{
+  "purpose": "I test read-only generated-table drift refusal, separate from runtime qualification.",
+  "checks": [
+    {
+      "path": "src/generated/reserved_builtin_names.h",
+      "returncode": 1,
+      "diagnostic": "I need to regenerate src/generated/reserved_builtin_names.h\n",
+      "checker_preserved_drift": true
+    },
+    {
+      "path": "src_nano/generated/reserved_builtin_names.nano",
+      "returncode": 1,
+      "diagnostic": "I need to regenerate src_nano/generated/reserved_builtin_names.nano\n",
+      "checker_preserved_drift": true
+    },
+    {
+      "case": "wrong-kind",
+      "returncode": 1,
+      "diagnostic": "I require a unique closed reserved-definition name set.\n",
+      "checker_preserved_invalid_spec": true
+    },
+    {
+      "case": "non-string",
+      "returncode": 1,
+      "diagnostic": "I require a unique closed reserved-definition name set.\n",
+      "checker_preserved_invalid_spec": true
+    },
+    {
+      "case": "duplicate",
+      "returncode": 1,
+      "diagnostic": "I require a unique closed reserved-definition name set.\n",
+      "checker_preserved_invalid_spec": true
+    }
+  ]
+}
