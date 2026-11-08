@@ -1,0 +1,15 @@
+{
+  "size": 11963173,
+  "sha256": "94669f6cff14ec3efae1cdaed4e481081edff3b2cc3c2c085c3fb7833c982c25",
+  "files": 1755,
+  "text_files": 1598,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-ww635kxo.tar.gz",
+      "sha256": "c1c67b69f413983a031a693b257b202f75d5e19780555425efda07400cf323eb",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

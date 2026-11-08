@@ -1,0 +1,9 @@
+# My canonical empty-record parser checkpoint
+
+I retain failed [run 42477187366](https://github.com/jordanhubbard/nanolang/actions/runs/42477187366) at `a129c7ac2f27dc9f4d24c5f54e12960e4730b342` under GCC and Clang. Both complete original C parser and typechecker unit suites pass, including the new empty-expression/block distinction and duplicate-field controls. The original malformed anonymous-record method now passes all four prior-output refusals.
+
+Both focused suites execute 87 methods and retain two failed subcases. My original nested/empty positive now passes parsing but stops in C type checking: its nested field and both anonymous record-array children lack declared context. I preserve that whole assertion. The other failure remains the original whole character fixture's missing native `vm_char_to_lower` adapter. The unchanged complete original anonymous fixtures, separate nominal contexts and all three byte-alias methods pass through verified VM/native execution.
+
+Both actual C-seed-created Nano checker products execute the eight anonymous and six byte production cases. I independently verify uploaded ELF bytes, before/after product hashes, unchanged inputs, generated C and exact successful native commands in the custody records. This bounded C creation path does not establish fresh self-hosted stages or full native lifecycle admission.
+
+Original array aliases and complete translator suites pass: 2,443 execution, 3,866 shape and 464 callable checks, zero failures, with adjacent suites. Both ZIPs pass CRC and retain complete uploaded-file inventories and exact deterministic text. Both embedded TAR hashes and empty successful inventories verify; the empty inventories reflect cleanup. Original binaries remain private; ZIP custody does not establish original modes or symlinks. Later context and character corrections do not make this pin green.

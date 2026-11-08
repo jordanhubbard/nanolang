@@ -1,0 +1,38 @@
+{
+  "creation_path": "C-seed-to-native",
+  "native_lifecycle_admitted": false,
+  "fresh_stages_qualified": false,
+  "inputs_unchanged": true,
+  "product": {
+    "path": "source-checker-component/actual-native-ziqhmj5m/checker",
+    "size": 11989200,
+    "sha256": "ebd968f44c477e9df1411acd41b3dfc9b00c3b33e8b2e946140f28e88dcf3b7a",
+    "elf": true
+  },
+  "generated_c": {
+    "path": "source-checker-component/actual-native-ziqhmj5m/checker.c",
+    "size": 281257,
+    "sha256": "a35a897946b1f53a81c53ab277da1a18ec9d1a1dba1d6f71d3fc5981e56a49e1"
+  },
+  "commands": [
+    {
+      "label": "source-build",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+        "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+        "--verbose",
+        "--keep-c",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-ziqhmj5m/checker"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "native-run",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-ziqhmj5m/checker"
+      ],
+      "returncode": 0
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "size": 12704167,
+  "sha256": "86b5e1dddde93abfec625369a9a363d409d40bce89fec9bbe628f8e7ade8e078",
+  "files": 2127,
+  "text_files": 1954,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-arghzoj_.tar.gz",
+      "sha256": "9ac820b5590641e3c6766173fc1d581da5489d0e193f5d9220986730827ec63d",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
