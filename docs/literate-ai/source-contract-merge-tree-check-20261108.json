@@ -1,0 +1,16 @@
+{
+  "scope": "I compare every reviewed pre-merge entry with the actual staged merge tree. Only the five prior content-only metadata exemptions may differ; native lifecycle remains unqualified.",
+  "baseline": "043b52d1ade7023b18917737a0d299b6c431ee98",
+  "entries": 92816,
+  "tree": "fd6bee8ae10f377cbecb8463f3293e8805af18af",
+  "missing": [],
+  "changed_outside_prior_exemptions": [],
+  "changed_types_or_modes": [],
+  "prior_exemptions": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/RELEASE_5.1_SCOPE.md",
+    "docs/RELEASE_5.1_STATUS.md",
+    "docs/ROADMAP.md"
+  ]
+}

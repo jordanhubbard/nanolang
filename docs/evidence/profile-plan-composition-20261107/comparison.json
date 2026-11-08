@@ -1,0 +1,65 @@
+{
+  "baseline": "7db768cc675b3487342823351710bff685f5a3b1",
+  "candidate": "61fb56d58e4112e1d833e6de53c53846cd204b55",
+  "scope": "I compare planned exact command vectors without executing compilers or qualifying runtime.",
+  "compilers": {
+    "clang": {
+      "prior_profiles": 1254,
+      "current_profiles": 1368,
+      "removed": 0,
+      "added": 114,
+      "added_sources": [
+        "src/cJSON.c",
+        "src/nanoisa/file_source_snapshot.c",
+        "src/nsi.c",
+        "src/nsi_file_binding.c",
+        "src/nsi_file_plan.c",
+        "src/nsi_gen.c",
+        "src/nsi_socket_binding.c",
+        "src/nsi_socket_plan.c",
+        "src/nsi_websocket_binding.c",
+        "src/nsi_websocket_plan.c",
+        "src/utf8.c",
+        "tests/test_nsi.c",
+        "tests/test_nsi_binding_isolation.c",
+        "tests/test_nsi_file_binding.c",
+        "tests/test_nsi_file_plan.c",
+        "tests/test_nsi_gen.c",
+        "tests/test_nsi_socket_binding.c",
+        "tests/test_nsi_socket_plan.c",
+        "tests/test_nsi_websocket_binding.c",
+        "tests/test_nsi_websocket_plan.c",
+        "tests/test_websocket_source_snapshot.c"
+      ]
+    },
+    "gcc": {
+      "prior_profiles": 1246,
+      "current_profiles": 1360,
+      "removed": 0,
+      "added": 114,
+      "added_sources": [
+        "src/cJSON.c",
+        "src/nanoisa/file_source_snapshot.c",
+        "src/nsi.c",
+        "src/nsi_file_binding.c",
+        "src/nsi_file_plan.c",
+        "src/nsi_gen.c",
+        "src/nsi_socket_binding.c",
+        "src/nsi_socket_plan.c",
+        "src/nsi_websocket_binding.c",
+        "src/nsi_websocket_plan.c",
+        "src/utf8.c",
+        "tests/test_nsi.c",
+        "tests/test_nsi_binding_isolation.c",
+        "tests/test_nsi_file_binding.c",
+        "tests/test_nsi_file_plan.c",
+        "tests/test_nsi_gen.c",
+        "tests/test_nsi_socket_binding.c",
+        "tests/test_nsi_socket_plan.c",
+        "tests/test_nsi_websocket_binding.c",
+        "tests/test_nsi_websocket_plan.c",
+        "tests/test_websocket_source_snapshot.c"
+      ]
+    }
+  }
+}
