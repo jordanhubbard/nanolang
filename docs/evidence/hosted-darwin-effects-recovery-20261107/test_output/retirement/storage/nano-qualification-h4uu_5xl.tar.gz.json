@@ -1,0 +1,2137 @@
+{
+  "archive_sha256": "ce6701439a4efa244761060131ddde156dbf8e245ec5962956fb7ad344b49efe",
+  "entries": {
+    "nano-reconstruct-f64-ci8ep_0u": {
+      "mode": 448,
+      "kind": "directory"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-1.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "851cdc3fdc8db15211362ed7a45f22b2180d5c33d9af1490fce028fb064fa31f"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-10.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1551,
+      "sha256": "b296d2a4aaf7390d8d730ec6c1c7aaf5f02fed0088a6c7b252f48576e6895175"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-11.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "45ed2e00df75fb2c494faf6147ceb98a9a7d9bb9f55bed08a0b7128db9015343"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-12.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 394,
+      "sha256": "e71f3c5e9f0c33eff9535fc38857c77dc4f15846657b963b80541349f4b31a54"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-13.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "29a50cce5cdef55dd1e59669b84b1f381e588c434909785dfdef7fac8a6cd661"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-14.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 394,
+      "sha256": "25d32be48bcce0b40f67be3664def6bba89644a8e567f9d9d9ee88c8d8e01236"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-15.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "f486a56e4e0ff46785e3d50ec6a3bc72be5a7844527e9ca7c4773c0741fb7394"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-16.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 439,
+      "sha256": "3ea2b0b76331970eb4355099bf434ee2afe89f7aa41d7cdc04bbeebc59f36d48"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-17.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "462f22bc656d4760be1fa16a96af0bc949d28d0d1245831655ae9ebee705734b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-18.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "8bff8a3322c814293873f53318959950428997457d38a9b9e1da2936f3212b1c"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-19.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "2481470bbdd16c135631b36fa02e546528e1d34dee62d4440737604f10a2625a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-2.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "01a2977e7d0369d9fb711004c438674faa93d2b0a55d81fdc7ed73af87a61074"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-20.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "e3ce05dd63a30c34ef5bff0e5ad742208008463a83a1a575e3c908b0e090c2a7"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-21.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 360,
+      "sha256": "e9852d08eb1c4ce17f2d70ab2f78a7d3b711b4c777bda92fe6ebf6f0908ae8fa"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-22.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "a32d12e935cb9fcaef5f9341cac08a5d5c2743242c3b8dd551cb1ba50fedb844"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-23.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "befd5ee04094283af82a773ca7b14b4f7a4289a9de9c4fc2cbf6f4b197b586c5"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-24.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "f78dd78ac2aafe3eb194c45dcd053adbfcf8b8fb75d4b568dd306a5bdd8b5530"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-25.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "e12a19aa96489a7ad0cc56e5aee4956300f6ddba2670bd0be837d24ff08ec7f8"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-26.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 360,
+      "sha256": "0cbe1f16144a830cce2e74b3f2266e26d62e163e543f0e236c9c662f3ec6b41e"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-27.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "b67ce375434778cf98d11d2573beba62cc7f8aa69a8cb161c433d5c4094cb90f"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-28.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "b1fff66a1f08bc57fdcd2fb149afe105634412daa210c3f2562f0383b6054f35"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-29.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "8f9940165509cfc09442805afc836862c0983126e71b4622825664f0b6ecc5c1"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-3.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "f475909f5550eb90c4fa5917db8eee4e4cdcabd0953e5c3904a2f03510d4add9"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-30.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "5875aa057ff84112de85fad1affe6b6cb7cf32a14155daf1aab24d61ff55bc0a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-31.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "022472ec3d4c1278dedb17c80f48b4b1726bba855d6a4f81a7f73b907b606b33"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-32.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "2440f116a3787126736fae3c31821309bcf660ae8b9f3f6366b621b31cd89c3a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-33.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1525,
+      "sha256": "711743580a3cd17032ebfdb2e6aca331c2eaf2dd74e5a7533dfaac433e8044ff"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-34.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "db6e95b4993320afec6b631c5b8950bf4011a762cdcbe5e4a7aff7a31f6f012b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-35.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 398,
+      "sha256": "2a5ba5f47d054bedb79a71c91727e4f71845245f94ded8c00e75b642002c29c9"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-36.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 105,
+      "sha256": "39bb73a7d90e29aa8838af62bd95f66fa5566334e1bd1fb29c9a416cc9448ae9"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-37.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 398,
+      "sha256": "c7c614291a4d12d27426ba431808d228cad6f64d2d3a16e8425f4de8c69825c2"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-38.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 105,
+      "sha256": "9ffbc16fa3151fe220546a92fd8e9f05414d1066147ae42c2784240bb39dc0bb"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-39.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 443,
+      "sha256": "904ed48c2b13ee4464cf0d5b9843eff593f98292b99cfd576157436ce4a7d1bf"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-4.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "6e77de3120be6fc80ce56cc9c3082f3aec5c36d772c4b309631250e6385d87d4"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-40.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 155,
+      "sha256": "9375f4e14c6911a86f23cfd7dcccc7dba51991fea517ca75383b374ce3edbe57"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-41.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 267,
+      "sha256": "6b5ab29a01673999a43217503e7e1d70589f6adf95d8987bd24e1349189f0e14"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-42.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 346,
+      "sha256": "3befb7e4abbd5d3fc372a0daa49353c938bb6e15b1368489d8d09c2a756df841"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-43.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 109,
+      "sha256": "36c335c0b7ba5395bbaadd23c0a01adac96c7f80b186e981b94a252e3ec28217"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-44.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 364,
+      "sha256": "485d767f6a29474a5d7e9aea12fbee39d2cb8363706e93badd5ea7e5019166e0"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-45.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 158,
+      "sha256": "ebe4df47f12f9c11e765954b29bd8a50485694c81cbddcd9738153a806dd409a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-46.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 273,
+      "sha256": "4201bd49c6286ef01ae0178d89a224c4153ceb7382e7bf5799d28afffc03e5f8"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-47.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 352,
+      "sha256": "ac5f0738faf12f8a51fcb3c7d1105750a2ba2b6bb0421b351d4adc6c75167242"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-48.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 112,
+      "sha256": "79cfa4f5556626d44bc2c133f45965ebe830c8f2774ba824c2c5a9edd941cffa"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-49.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 364,
+      "sha256": "3d06d5fd5a41657c7a42247f26a1be1f47fe9321078c418b5cb63608010201f5"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-5.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "31a3b61194edacaec617a1dc7fc0bfed268d5d58147f31be9ab6740feba19499"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-50.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 158,
+      "sha256": "ba1ceb2032a1b7f800db9cda3aff9f60e537e71eb7e697ae2708fef75cdf69a1"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-51.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 273,
+      "sha256": "ffecdc87daa7f3b57e967176680662dbf14a948817776b5acde39ee51ba21ffc"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-52.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 352,
+      "sha256": "24d61bc892abec566dbf0e731e0825f4891f2d11fadcb7837a4c54f042e34095"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-53.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 112,
+      "sha256": "f296c1e38db9d64d4b0499330b1a732e22a471573fc1dc41c5706c4f84f8acc3"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-54.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 310,
+      "sha256": "8081eb8e0a596903a0214555f19246695a5afc37562527228e89dfd3a0b34904"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-55.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "b22508187dab901645df6cdab85d22409d761950ace7b32dbf2cb38b3ae72fc8"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-6.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "9adf9ca71b68af353c032378280a4c577298b7a4552497c36c89324064c3a942"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-7.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "ba5901f56da6c99734febafc6fdb8d915bde15bc99297f5f5fcb5b52264ba858"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-8.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "3acaea29a34a7d9fdded4baf0c62e73cb10476bdc213758d018c92d97c91c0b3"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/command-9.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "545b3393cc97572cedbdee0733c08fb4e53c3a524c16b71c9d3bbfaa8aec0e6a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/input.nasm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 231,
+      "sha256": "6f0fbe5b73a54f0b1c45670bfd55251439b47007826139dc999328e62126352d"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/input.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 444,
+      "sha256": "1ea66d76d1f0288e457ffd96471ddb06387ddbc8c53a2393d04ebee3403c8968"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nano_virt-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50768,
+      "sha256": "ffc9781e19718f852f467fb899c5606f3b9be5971ba791c467a4e9db1a9b306f"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nano_virt-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 7003,
+      "sha256": "1ee95a7821593b673b4a279f024791eb8a0290833dc2e67eff25f4e726ef3008"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nano_virt.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1340,
+      "sha256": "3012a8afd515e853ffad465872c6f741cf4a92938d7f75d624c8c719feb51019"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_c": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8687816,
+      "sha256": "1608b52b3df2acdd0d0a9d3eb528374eb72a2c9e7e9e4137b422f2f5b971e98c"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage1": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "86048ff3456aacfa85d4afb6e94a200027fa076f8cd87d27259f995b8e232218"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage1-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50768,
+      "sha256": "cfc01117d12702b7e5bd8648cf635c98db5cd844b952395ed99ed9a83277ff07"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage1-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 7003,
+      "sha256": "992e6f6c03cba5b9a3229e4215c2eb9b0ea3e958ee7fd41b682506b0e909c2ee"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage1.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 1040,
+      "sha256": "6c1cdb410ecb02346005a97d2be22dd72c6ddb709b1dc91a5657ede8951d9f93"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage2": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "86048ff3456aacfa85d4afb6e94a200027fa076f8cd87d27259f995b8e232218"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage2-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50768,
+      "sha256": "04dd418474cb747dab037d1deafeb6673b01ac21c83069f06a48f6bf3552a483"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage2-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 7003,
+      "sha256": "992e6f6c03cba5b9a3229e4215c2eb9b0ea3e958ee7fd41b682506b0e909c2ee"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/nanoc_stage2.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 1040,
+      "sha256": "6c1cdb410ecb02346005a97d2be22dd72c6ddb709b1dc91a5657ede8951d9f93"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50760,
+      "sha256": "6ba7700532002aa491518375dc76f70bcb7aed331c4299aa7984d3147b429194"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nano_virt-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53016,
+      "sha256": "dabf91ee6e0445aa6378cd854decb6aa531ffb1e477c24fe1398e1777a6f2a6b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nano_virt-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 43777,
+      "sha256": "e7ec26eeceb50472543bf957b4c267a0bd87cfb477552ac9252f75993aadce2a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nano_virt.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1560,
+      "sha256": "56a5dae5b6fbc1253c9ca08c20afc23d0365801f2a5cb040bb5b80b2a9b79721"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_c": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8687888,
+      "sha256": "a20d8c6dad2449fb1e281d3fe4f535a89090d3d794ef9805be0bfa841da0032e"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage1": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8530760,
+      "sha256": "f243d119a160cb42b5f3b7aeab32ba76cd68d123175378a2cba97977d2170a0b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage1-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53024,
+      "sha256": "90ed5c28f1850b471179f7dfcb26cb0265a2a6debbbc482ffc3f5abdfe4d3e1b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage1-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 43777,
+      "sha256": "d86b93a248f7f405b800a1ac1b516898bc8000081e6482d50ec0041f607293d6"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage1.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 1204,
+      "sha256": "c5092dae51bea35fd2612bc6d3f336a965152ac354f400044bd1d0927632f12b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage2": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8530760,
+      "sha256": "f243d119a160cb42b5f3b7aeab32ba76cd68d123175378a2cba97977d2170a0b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage2-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53024,
+      "sha256": "0d6d2059aec90b81a01f5f31bebb5499bf9031dc5d360cf9b530e3c7bd69816a"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage2-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 43777,
+      "sha256": "d86b93a248f7f405b800a1ac1b516898bc8000081e6482d50ec0041f607293d6"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed-nanoc_stage2.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 1204,
+      "sha256": "c5092dae51bea35fd2612bc6d3f336a965152ac354f400044bd1d0927632f12b"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 3602,
+      "sha256": "ff2296326b0570d2eb4dd8d72ffcd089d70979fdd29d5e95f598af205c4e6398"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/observed.nano": {
+      "mode": 420,
+      "kind": "file",
+      "size": 817,
+      "sha256": "b0db7baf506d71edea2cbd7db8569f6ea33a8052dad27948cec55302eac79f68"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/ordered": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50936,
+      "sha256": "30ce2f4fec49a45db639c39ffac367849586792e519db03cc97c7ea778f8358f"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/ordered.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 3601,
+      "sha256": "e6e02f00d905e59696384355a5c5d49f4580ec7092e04164cca2c197cc23bece"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/original": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50696,
+      "sha256": "437edb09fd7f4bbf37c823fdf6d2d9a4e4e85fe974dea9795bafc1eb6a6f2db2"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/original.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 5507,
+      "sha256": "a377dd63a67984297a2ffc22b20dd01fd485fa89b4243eccaee7d0c38532e6b5"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/reconstructed": {
+      "mode": 493,
+      "kind": "file",
+      "size": 33680,
+      "sha256": "69803037b1374e82cd18641fb95d8909ebceea38bffcb9a3c91eb288ce86b061"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/reconstructed.c": {
+      "mode": 384,
+      "kind": "file",
+      "size": 3498,
+      "sha256": "0825d97aaee2283157bc264c3e7ea743053b1cb2f929e7237f176616a798782c"
+    },
+    "nano-reconstruct-f64-ci8ep_0u/reconstructed.nano": {
+      "mode": 384,
+      "kind": "file",
+      "size": 670,
+      "sha256": "05c767840ec3f2c2bacd8d2f4a67f237dfb57649485dfb79e683d9d2a4b29113"
+    },
+    "nano-reconstruct-f64-dap6wk13": {
+      "mode": 448,
+      "kind": "directory"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-1.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "fb81ed9e20b069e0b384d9f9aba5441dcc827ecb2f626da2aa040422be20620e"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-10.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1917,
+      "sha256": "0e745b2f078f0a3268a3e2dd68b3648a15d755ab5c51c0d33a7f5b6caeb17f61"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-11.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "eee6bf792f9e6ee4c5bcb0087ccce486db766ed95fe89d2c5cd1da056a696988"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-12.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 426,
+      "sha256": "31269a07f75edfced40a8b60f3fb206dce88a1ccc0c8e177895fb14256ad9618"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-13.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "5d9b6665ef0ba463d4df6ea0f7501211ac4853cc23881c7919b125325ef339f5"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-14.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 426,
+      "sha256": "f89fde22051d7ca80f600ee29d94ab70dcf392ec5dce9eef2860327888599ee7"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-15.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "6346ca3e95a0d365025ea99649da6186bedfb1e81dc16efc891a138247418495"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-16.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 426,
+      "sha256": "9e209b5f9a8249b0eaee692825f33b2db1bea068a4eab9d2900c019b584f8a72"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-17.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "bd65631059c4b3f4b4f2ea1b893a94f5e9bc96da8d797349207d6b9beccada3c"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-18.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "3f0a0c0913154de6399084429c2a82026e108fa5b07dc974dfe3524ede3828a5"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-19.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "b20a6d8c04d45438b0a72b99c64b02db24b98ce5d31a02dbcba590684d2b2f23"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-2.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "fb814eabffd98085f3ecf0371d61ffee84ce6267fa19e628fe00ce8b90a73522"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-20.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "e06e52453fd641c4ae6c6608fb6545b2e4174367689ecde854798eaac03f8695"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-21.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 392,
+      "sha256": "c7a7f09fbe792e75e0fc146a40d448c8c6f77d0047f0d44e2a3437cdf9a1c3a4"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-22.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "8f6a419b0897a9578190ea61c8f8e5130eec7163659bb13a2e05c1156c43b3e9"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-23.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "0ffdc8550d043b044ae0eca59b55acb926520429a8f25ae9bb17b5e4fd479913"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-24.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "ea50a7a3a706a05e3969fa30d38927a3e125d2ebc0a720ebce9070cdaf2cb1bb"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-25.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "291f6e5965097ac986ff0aae67273c2612b5382db6c8e2168e476fb162b7298d"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-26.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 392,
+      "sha256": "1ae9483c194a95a2c9678c091c31210891cd5b5dcd8f763e4efdd6220f8f82c9"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-27.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "6015d140a6c4d6ecf0aa69ed0662c32e78d70541b48c8e8fa58404fe359c7c75"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-28.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "333a8af8c2389bf06b3aa5c4257a2abba428e46882f5b715ee175ab68a21de03"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-29.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "b67b105afd1db02d1313ec25f296fa5869ae597438e17c0574d36a8bb3c12e32"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-3.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "76d7942c45eb3fc3683978cf79cf08bf72ddcb4e97ab1283f8593c7c3ce67492"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-30.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "cdba0512a31bf7cbf89903f3fb64a3ff96a85dc6e13b1fc8d3997eaeb207dd12"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-31.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 7777,
+      "sha256": "3fb05db8f88e383c2a9f8a8dc5882ef285ddb3bf0173f1086d82f0d297fba5f1"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-32.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 6604,
+      "sha256": "cfa50bacb784fdf4161a74ac1b144e52e376859c7746af0afc65514485ccb8ca"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-33.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 6604,
+      "sha256": "75774026e01a847da59f8a7c523305a10d871e9378ad19cd23b6e371e050ed52"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-34.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "be122144dbf7283be73946591f08058fb22e8d66e5a69446945955cd5794a748"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-35.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "27df11196ba216ccc94fc842ef18f613abf24e3ec4dac60e88995d6af3d9abba"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-36.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1881,
+      "sha256": "ac3f2e434c0900588ccc9c7bf490ca69246a6caf515d23d92999859c385c8e77"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-37.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "a116be773258436b4711068e3a37785e3ac4b62b0375feffaee3fbecb051ad48"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-38.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 430,
+      "sha256": "1359ccf32e84f1b2e38d977364d42a11dd2725c47741eb94599ea7b916fba846"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-39.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 105,
+      "sha256": "842700a37fbc8223f7b43f425f52d5cdde6fc53d1e2cb223293ba2be17ae31a9"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-4.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "897977fd779fbc54cf46bc418d0748b35522fde7d5f7d7513dad839470eaf30f"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-40.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 430,
+      "sha256": "aedfb075ff2237a45b71fd2e166dcfd9af9f2145513c73ecd20d268ef4be8b4b"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-41.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 105,
+      "sha256": "eb100da6005f010af64ae34bbf2df45231d260e606096974aec31d5394c8a1f8"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-42.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 430,
+      "sha256": "900795d101601c31420bb36afcaddfcaff45b02d50f690a783a63ef5e79e5541"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-43.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 155,
+      "sha256": "cbbd0d73eb22196359c222a9932dd102dee44fa782c930f42719c5aeed63b6db"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-44.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 267,
+      "sha256": "05ffcff9f676d0ef591effc5262b359ec9cc6ed4590118469059c1c5ab242014"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-45.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 346,
+      "sha256": "c889a79af434d16dbc6a3552d1227ae71592350e1fd92cbe107ec099548cacf6"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-46.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 109,
+      "sha256": "27bd9475a256cd0e08bc62533c8883a3ee6f7ab13ec14926446849a709d3948c"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-47.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 396,
+      "sha256": "1967138070e0463398c29794ea0796744d59422ab45f9e04bf5451877f2bb55b"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-48.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 158,
+      "sha256": "5aee2f154b86f886bdd33ae20b3af3eec5dc96ccae6fee40f8e99c0b2f5a15fc"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-49.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 273,
+      "sha256": "6d9d054981ec568e50745a859df03cfa2662af71bd7ba22247972d71b81b633d"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-5.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "e64c279abd23e6fad2dcce4957a94f3d3009183d5cbcc5acdaef6607535592be"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-50.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 352,
+      "sha256": "0b35c6123e7cac0e6c51bae9edf505c947564311d3baa69da89d0d509907f4a3"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-51.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 112,
+      "sha256": "2a772f360b5f8657275f1702eddae7d5ff6243f7cc3797c54d51f50d4e57ffe0"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-52.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 396,
+      "sha256": "dc104e0ca96a869067ce42f3fe37e13d519a1683192356299b7f5b0f39b0b8f5"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-53.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 158,
+      "sha256": "789dd9a689a676fcf9da6919557bb19e2fd1a49e5a0bda353a644ec19665728f"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-54.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 273,
+      "sha256": "96334c510ee6b24e7a9e2691d7036731f70477901c5fc15b5f5984d62d4a4b07"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-55.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 352,
+      "sha256": "4285394a47693ddd9178b926a75e03bc50684a904492212c85b33602cf5bc4ce"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-56.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 112,
+      "sha256": "13a41e0de9de063a620f8bd78413b40b2676fce78646c157f16be4067d39718e"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-57.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 276,
+      "sha256": "e47dea82275c67184d83372ec05c0322c5f19a8c43a87d00fc4952c56750ef78"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-58.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "8494348fc1ba565f6cba50e2efb8e67a4d95c2d1f314ab39d19728f6f2deebde"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-6.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "5ea21958c2cc1725172c2c47a62d3b2028850847b80fb12d0d7256480a6dc4a9"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-7.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "e62317deebd61d09d410168ef97fda9290819ec1ad8924c7bddc09003fd8d67b"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-8.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "200441ba311212820800f338532ca26233454797bb322d5e7dc08bdb064c0434"
+    },
+    "nano-reconstruct-f64-dap6wk13/command-9.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "4ba3b68b03423cc21219d7ab1e52ffbc6e4a862fbfdc601db631e91be13e83f4"
+    },
+    "nano-reconstruct-f64-dap6wk13/contract": {
+      "mode": 493,
+      "kind": "file",
+      "size": 16936,
+      "sha256": "ea53dab3beb9ed41a4cf2a5ec4daf3445525a437b6cde76a85fbe9651513799e"
+    },
+    "nano-reconstruct-f64-dap6wk13/contract.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 5813,
+      "sha256": "4b7a6596fba62921d01575c7e5c5e7be11a5892054f980b6054f2b02545f5927"
+    },
+    "nano-reconstruct-f64-dap6wk13/input.nasm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1118,
+      "sha256": "f3a1d464535ef252d4fd8582bc8d80eb42a667fb6f2ade9c7bc7bd0861a03767"
+    },
+    "nano-reconstruct-f64-dap6wk13/input.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 704,
+      "sha256": "370308e043889e9f38b2803ff0023f908c04a90643a24ee285dff6c9059e27c6"
+    },
+    "nano-reconstruct-f64-dap6wk13/nano_virt-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50832,
+      "sha256": "e9cf1f416540ba24807a1c44539cbc401a137ce1884a716a1ea1c1bb4b351bc3"
+    },
+    "nano-reconstruct-f64-dap6wk13/nano_virt-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 12817,
+      "sha256": "3fb9edf5ef9df7eec0b52513214ffaaf3083c2d5e405be066a9b66cf549c9480"
+    },
+    "nano-reconstruct-f64-dap6wk13/nano_virt.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 3804,
+      "sha256": "8e98c0b5278f54d0d0980a4cf086c56898fc47f66dc462c900a10c0b246e3667"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_c": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8687992,
+      "sha256": "3bff31b0792cd77a2795234b26512745b05197ff32b92607b44f130d4d0f8a0d"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage1": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "c2d4b498ed1cbf02b692e7b6ed4c806ffec39f150b1ec646e2eaae7f9412d5e3"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage1-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50832,
+      "sha256": "ba7c74752840ab57459c5e807b8d78ab30ad374d08cd6516ae46f65f3f9200a9"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage1-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 12817,
+      "sha256": "85b4c9aa63ef3e263b60df049e7829b7458cc884153ab08230d56b97a6217e13"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage1.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 2656,
+      "sha256": "29f8a8135d667ea90921bc1ff4ee5f603fcc46469476b15e57ee06ec0cd59346"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage2": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "c2d4b498ed1cbf02b692e7b6ed4c806ffec39f150b1ec646e2eaae7f9412d5e3"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage2-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50832,
+      "sha256": "b7ee0f7300d9d9c7641569b523d61146d6f195395d4ba5512940e36f56a9a728"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage2-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 12817,
+      "sha256": "85b4c9aa63ef3e263b60df049e7829b7458cc884153ab08230d56b97a6217e13"
+    },
+    "nano-reconstruct-f64-dap6wk13/nanoc_stage2.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 2656,
+      "sha256": "29f8a8135d667ea90921bc1ff4ee5f603fcc46469476b15e57ee06ec0cd59346"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50760,
+      "sha256": "e9990adbae5e78a060e5a3ed64c963dfc81526074b3cc087e0499c29ce612834"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nano_virt-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53048,
+      "sha256": "29dadb34c28b3cadb5407ca19642bf9b208a2b2b7abf8d26c5420dd5765c7e40"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nano_virt-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 49856,
+      "sha256": "1521e10e7358bbea1febca8c5dc793ba97bfc1203b7769627c8664045fdecb31"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nano_virt.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 4024,
+      "sha256": "75da4e664cbebab225233e8eb0494bb2af0bd911af25dd72032f4f8696ffe4ef"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_c": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8688080,
+      "sha256": "e89408d529310f7480d5a04fe82141963c2c56dfda51e831fa056c42e76589d2"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage1": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8530760,
+      "sha256": "69503f939affef095ca927c40b7ecd3bd8eb167745cef4f92f6eba0ca5e483f1"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage1-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53056,
+      "sha256": "a894d682cd5a5d43d23bd08bbdfd62d04fcc10499e866ca1c54fe80fac40c0bb"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage1-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 49856,
+      "sha256": "e7d3cbe5c951039bdad6f2612cebcd1496b20bc591cba5befc38135ef88d50fb"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage1.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 2820,
+      "sha256": "40560c24b7ae66db37fc10185cee0b595f672d6fafc70fb33bd3525d12026e19"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage2": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8530760,
+      "sha256": "69503f939affef095ca927c40b7ecd3bd8eb167745cef4f92f6eba0ca5e483f1"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage2-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 53056,
+      "sha256": "9bfce8b61449147d0edf3908bfc7b10f27a9e5284b76c68cee8e790c5976e6a3"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage2-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 49856,
+      "sha256": "e7d3cbe5c951039bdad6f2612cebcd1496b20bc591cba5befc38135ef88d50fb"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed-nanoc_stage2.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 2820,
+      "sha256": "40560c24b7ae66db37fc10185cee0b595f672d6fafc70fb33bd3525d12026e19"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 5917,
+      "sha256": "fab3de1866b5233b0ef8b2f8f62e9017013b3549a613d4365be3f2bbc05a8006"
+    },
+    "nano-reconstruct-f64-dap6wk13/observed.nano": {
+      "mode": 420,
+      "kind": "file",
+      "size": 2935,
+      "sha256": "e5cb1ebb5f4646891b7eb19147c3c9444a6a058af4463f5d8faaefd3e39df802"
+    },
+    "nano-reconstruct-f64-dap6wk13/original": {
+      "mode": 493,
+      "kind": "file",
+      "size": 50824,
+      "sha256": "225f8f574650204a2855e107dc8d1f45071f088572183470dab81cb0e65ac6c5"
+    },
+    "nano-reconstruct-f64-dap6wk13/original.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 8146,
+      "sha256": "06ae33bb753df4baf364723bd844dca6d4d44a935d85733b0523cb2a6a5eb8ca"
+    },
+    "nano-reconstruct-f64-dap6wk13/reconstructed": {
+      "mode": 493,
+      "kind": "file",
+      "size": 33680,
+      "sha256": "6079ff46624c444880f5f0a77dc59acc7cd04cfe28b2eb3fc6572a5fe0a262f5"
+    },
+    "nano-reconstruct-f64-dap6wk13/reconstructed.c": {
+      "mode": 384,
+      "kind": "file",
+      "size": 5813,
+      "sha256": "4b7a6596fba62921d01575c7e5c5e7be11a5892054f980b6054f2b02545f5927"
+    },
+    "nano-reconstruct-f64-dap6wk13/reconstructed.nano": {
+      "mode": 384,
+      "kind": "file",
+      "size": 2788,
+      "sha256": "06abf1e1feda584760555f250e286526ab0cc2cfc1f30f41989b35eb20999b56"
+    },
+    "nano-reconstruct-f64-k31ryxvt": {
+      "mode": 448,
+      "kind": "directory"
+    },
+    "nano-reconstruct-f64-t0m4fsm6": {
+      "mode": 448,
+      "kind": "directory"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-1.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "fd606d079d8ed792ace52416bb2a273fc51b79264968056b4040b40fcff6e9ec"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-10.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1077,
+      "sha256": "37d4662569ebd6b648d3fb5f4ad7e690d753bf439d743066e9508dcd49e02dd0"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-100.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "fd606d079d8ed792ace52416bb2a273fc51b79264968056b4040b40fcff6e9ec"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-101.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "5b9e1caabdc49e8e7809049176df96e756bb7c69cecfceff7dd193f02e1281ae"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-102.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "90c0046147f7da951d3ef48ac36095d4fbbb152ab31c7220b2c4bffd8c803b3c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-103.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "ce1e5763d46d077ab8582942c4d8c1ce08b5c3e27536fa25b2f89914b4308143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-104.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "66e8dd4a901b5f952990291809be6f40d2488b1ce8c33463fb5f9e5adb7568ac"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-105.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "dc465239deee5effe78983c47130bd85c852a81f57ab497b76901ab64012969e"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-106.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "a25c109577b887739ae1413bc249be71d7c049b31811f245888b176e666c0143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-107.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "904f654393e6fbdab800c34a967774adb67e33de8a64ad755ab9e54c5655bf0a"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-108.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "05f8d4991755ece63cbe18a3d36444a33943fdc5a5830dde7381f233806d4670"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-109.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1077,
+      "sha256": "d16f29117fa965ef648f9476e0003682eed1812f3c98a6ddba23cc382ab724f9"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-11.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "5f251b2b86ef8eee5457705580b22669de9c25795e4b5b9efe273ca802f56da8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-110.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "5f251b2b86ef8eee5457705580b22669de9c25795e4b5b9efe273ca802f56da8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-111.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "21f8cea758f1f2013bdd18363f8ad2ee0bd8b317aa58ad0fee60df2cdb32bba8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-112.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a8932753e0586e5dfb9186b88af0a1f17f07bb0e9ffac1ab82b9db77fb90d311"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-113.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "e2e3616019c0b2c45174292f5ce48e336f0f93a554563e6b4db972943805c654"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-114.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a959faecf3aa17b697b9a9f3b9245270739096cc5783427b4d0a4d513a55f486"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-115.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 341,
+      "sha256": "ae32ee3c63f43b19facfb2f01f3c8c1d22fb7b465bb575bced582beab5013bea"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-116.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "69318b5c4cd0d408127547cf404691c7346bdc31025f66a2ce5d56f828552c3b"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-117.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "18751e1f6383189bcc7a638e6f0f183bcd2b9b5e6a7de78048b31ee1f25c4fba"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-118.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "df3235606c3825625abfdf66679cf2a385f40d06b33c1e6f3115e1ed1575e052"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-119.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "ec3680d5a153b1127a7434c4200ff13b1c2558d8e4b5c4078ee0d77157be7eed"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-12.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "21f8cea758f1f2013bdd18363f8ad2ee0bd8b317aa58ad0fee60df2cdb32bba8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-120.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "b602679d23e5f10745019322f802572e4362be2898a2cdabcb4cbeaff6924dcc"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-121.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "c400dc321a025282f8d075e1da1158d9d2d102ae5d847837711c6a29d045e5c0"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-122.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "c08261d49258f31f6826bdeec3ccb12aba6dea22adaa182ebcd9dd0a89b0deb7"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-123.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "e4a469b95728a690a1b705e3886a876c4456d64043d5c6c0793fa04d03993b57"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-124.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "0539a69e5d5dcbdb7742690761f4e39689576f553514677e0b82c786954d5cf3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-125.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "ee1d4b4e82b133e7d2f012fbf930d1f02a35d9159511374ffd1df5927b5a4c22"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-126.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "f12152894018b241d036a00328533ec896c6e8a54a2fc26a66dfad83d0964ac3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-127.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "29e2264ffaed7f1283a88eff4f168fd7ecd926d0f2445c35b94901697201349f"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-128.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "ff1622cb3c4454ce4dc533cbcdfe98857732ba657a7d015e3cf5f9cf00da820d"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-129.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "cc726b4e88dd5eb185dbbd480a2654a18312626833fa21fb101c3e1d2fa6f976"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-13.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a8932753e0586e5dfb9186b88af0a1f17f07bb0e9ffac1ab82b9db77fb90d311"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-130.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 50186,
+      "sha256": "339ae4541c7b330a8cf4796a489b037264804e5c16202e3b6333938b8bf69931"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-131.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 41562,
+      "sha256": "d0a043a6264aeef64d9069e3070a999c52dcbd162c9111cfb1bb3e5a884008cf"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-132.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 41562,
+      "sha256": "381af31c8e4b4f6ff7786e3ebef15baabb8b91d07bc441d3cc1cba9601a81513"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-14.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "e2e3616019c0b2c45174292f5ce48e336f0f93a554563e6b4db972943805c654"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-15.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a959faecf3aa17b697b9a9f3b9245270739096cc5783427b4d0a4d513a55f486"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-16.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 341,
+      "sha256": "ae32ee3c63f43b19facfb2f01f3c8c1d22fb7b465bb575bced582beab5013bea"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-17.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "69318b5c4cd0d408127547cf404691c7346bdc31025f66a2ce5d56f828552c3b"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-18.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "18751e1f6383189bcc7a638e6f0f183bcd2b9b5e6a7de78048b31ee1f25c4fba"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-19.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "df3235606c3825625abfdf66679cf2a385f40d06b33c1e6f3115e1ed1575e052"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-2.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "5b9e1caabdc49e8e7809049176df96e756bb7c69cecfceff7dd193f02e1281ae"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-20.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "ec3680d5a153b1127a7434c4200ff13b1c2558d8e4b5c4078ee0d77157be7eed"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-21.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "b602679d23e5f10745019322f802572e4362be2898a2cdabcb4cbeaff6924dcc"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-22.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "c400dc321a025282f8d075e1da1158d9d2d102ae5d847837711c6a29d045e5c0"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-23.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "c08261d49258f31f6826bdeec3ccb12aba6dea22adaa182ebcd9dd0a89b0deb7"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-24.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "e4a469b95728a690a1b705e3886a876c4456d64043d5c6c0793fa04d03993b57"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-25.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "0539a69e5d5dcbdb7742690761f4e39689576f553514677e0b82c786954d5cf3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-26.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "ee1d4b4e82b133e7d2f012fbf930d1f02a35d9159511374ffd1df5927b5a4c22"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-27.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "f12152894018b241d036a00328533ec896c6e8a54a2fc26a66dfad83d0964ac3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-28.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "29e2264ffaed7f1283a88eff4f168fd7ecd926d0f2445c35b94901697201349f"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-29.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "ff1622cb3c4454ce4dc533cbcdfe98857732ba657a7d015e3cf5f9cf00da820d"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-3.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "90c0046147f7da951d3ef48ac36095d4fbbb152ab31c7220b2c4bffd8c803b3c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-30.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "cc726b4e88dd5eb185dbbd480a2654a18312626833fa21fb101c3e1d2fa6f976"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-31.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 26294,
+      "sha256": "0c39e77384549d0b1f166369e9c655744b434727eb2fd654430f24d8e93a0658"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-32.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 21767,
+      "sha256": "b5447250b226cb46aa8e17f78a1b878cce171c3d9f327e0577f95c4c546cb0c2"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-33.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 21767,
+      "sha256": "5a5df326deb9f11b62c6e224189e038ce46aaac74c224d93eed01eec964cc957"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-34.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "fd606d079d8ed792ace52416bb2a273fc51b79264968056b4040b40fcff6e9ec"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-35.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "5b9e1caabdc49e8e7809049176df96e756bb7c69cecfceff7dd193f02e1281ae"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-36.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "90c0046147f7da951d3ef48ac36095d4fbbb152ab31c7220b2c4bffd8c803b3c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-37.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "ce1e5763d46d077ab8582942c4d8c1ce08b5c3e27536fa25b2f89914b4308143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-38.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "66e8dd4a901b5f952990291809be6f40d2488b1ce8c33463fb5f9e5adb7568ac"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-39.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "dc465239deee5effe78983c47130bd85c852a81f57ab497b76901ab64012969e"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-4.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "ce1e5763d46d077ab8582942c4d8c1ce08b5c3e27536fa25b2f89914b4308143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-40.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "a25c109577b887739ae1413bc249be71d7c049b31811f245888b176e666c0143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-41.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "904f654393e6fbdab800c34a967774adb67e33de8a64ad755ab9e54c5655bf0a"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-42.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "05f8d4991755ece63cbe18a3d36444a33943fdc5a5830dde7381f233806d4670"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-43.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1077,
+      "sha256": "7d4ec9e2874e0abb21fdbd78ce45e4431122137c5ab6ca324fcea99014190fd1"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-44.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "5f251b2b86ef8eee5457705580b22669de9c25795e4b5b9efe273ca802f56da8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-45.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "21f8cea758f1f2013bdd18363f8ad2ee0bd8b317aa58ad0fee60df2cdb32bba8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-46.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a8932753e0586e5dfb9186b88af0a1f17f07bb0e9ffac1ab82b9db77fb90d311"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-47.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "e2e3616019c0b2c45174292f5ce48e336f0f93a554563e6b4db972943805c654"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-48.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a959faecf3aa17b697b9a9f3b9245270739096cc5783427b4d0a4d513a55f486"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-49.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 341,
+      "sha256": "ae32ee3c63f43b19facfb2f01f3c8c1d22fb7b465bb575bced582beab5013bea"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-5.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "66e8dd4a901b5f952990291809be6f40d2488b1ce8c33463fb5f9e5adb7568ac"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-50.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "69318b5c4cd0d408127547cf404691c7346bdc31025f66a2ce5d56f828552c3b"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-51.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "18751e1f6383189bcc7a638e6f0f183bcd2b9b5e6a7de78048b31ee1f25c4fba"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-52.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "df3235606c3825625abfdf66679cf2a385f40d06b33c1e6f3115e1ed1575e052"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-53.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "ec3680d5a153b1127a7434c4200ff13b1c2558d8e4b5c4078ee0d77157be7eed"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-54.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "b602679d23e5f10745019322f802572e4362be2898a2cdabcb4cbeaff6924dcc"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-55.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "c400dc321a025282f8d075e1da1158d9d2d102ae5d847837711c6a29d045e5c0"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-56.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "c08261d49258f31f6826bdeec3ccb12aba6dea22adaa182ebcd9dd0a89b0deb7"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-57.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "e4a469b95728a690a1b705e3886a876c4456d64043d5c6c0793fa04d03993b57"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-58.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "0539a69e5d5dcbdb7742690761f4e39689576f553514677e0b82c786954d5cf3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-59.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "ee1d4b4e82b133e7d2f012fbf930d1f02a35d9159511374ffd1df5927b5a4c22"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-6.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "dc465239deee5effe78983c47130bd85c852a81f57ab497b76901ab64012969e"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-60.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "f12152894018b241d036a00328533ec896c6e8a54a2fc26a66dfad83d0964ac3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-61.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "29e2264ffaed7f1283a88eff4f168fd7ecd926d0f2445c35b94901697201349f"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-62.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "ff1622cb3c4454ce4dc533cbcdfe98857732ba657a7d015e3cf5f9cf00da820d"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-63.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "cc726b4e88dd5eb185dbbd480a2654a18312626833fa21fb101c3e1d2fa6f976"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-64.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 21814,
+      "sha256": "268ea391e6230bf8c52831c930a24079c432b27bcbf4bd2a70e6ba29d4a1b059"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-65.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 18110,
+      "sha256": "980760198ac287075d8578c5998a9dd91d241ff8e25f7ac343f37e7feebbfa52"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-66.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 18110,
+      "sha256": "e477bf29540b6c7ca783dfb6ef5b8b0b4267352c74c3c347a6545c47e60111b3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-67.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "fd606d079d8ed792ace52416bb2a273fc51b79264968056b4040b40fcff6e9ec"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-68.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 142,
+      "sha256": "5b9e1caabdc49e8e7809049176df96e756bb7c69cecfceff7dd193f02e1281ae"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-69.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 237,
+      "sha256": "90c0046147f7da951d3ef48ac36095d4fbbb152ab31c7220b2c4bffd8c803b3c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-7.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "a25c109577b887739ae1413bc249be71d7c049b31811f245888b176e666c0143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-70.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 312,
+      "sha256": "ce1e5763d46d077ab8582942c4d8c1ce08b5c3e27536fa25b2f89914b4308143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-71.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 92,
+      "sha256": "66e8dd4a901b5f952990291809be6f40d2488b1ce8c33463fb5f9e5adb7568ac"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-72.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 256,
+      "sha256": "dc465239deee5effe78983c47130bd85c852a81f57ab497b76901ab64012969e"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-73.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 262,
+      "sha256": "a25c109577b887739ae1413bc249be71d7c049b31811f245888b176e666c0143"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-74.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "904f654393e6fbdab800c34a967774adb67e33de8a64ad755ab9e54c5655bf0a"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-75.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "05f8d4991755ece63cbe18a3d36444a33943fdc5a5830dde7381f233806d4670"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-76.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 1077,
+      "sha256": "294d3d4f6210f534537c13b3719152e58bc2b840650ae56bee179b443daa517a"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-77.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 91,
+      "sha256": "5f251b2b86ef8eee5457705580b22669de9c25795e4b5b9efe273ca802f56da8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-78.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "21f8cea758f1f2013bdd18363f8ad2ee0bd8b317aa58ad0fee60df2cdb32bba8"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-79.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a8932753e0586e5dfb9186b88af0a1f17f07bb0e9ffac1ab82b9db77fb90d311"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-8.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 322,
+      "sha256": "904f654393e6fbdab800c34a967774adb67e33de8a64ad755ab9e54c5655bf0a"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-80.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 361,
+      "sha256": "e2e3616019c0b2c45174292f5ce48e336f0f93a554563e6b4db972943805c654"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-81.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 96,
+      "sha256": "a959faecf3aa17b697b9a9f3b9245270739096cc5783427b4d0a4d513a55f486"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-82.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 341,
+      "sha256": "ae32ee3c63f43b19facfb2f01f3c8c1d22fb7b465bb575bced582beab5013bea"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-83.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 146,
+      "sha256": "69318b5c4cd0d408127547cf404691c7346bdc31025f66a2ce5d56f828552c3b"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-84.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 249,
+      "sha256": "18751e1f6383189bcc7a638e6f0f183bcd2b9b5e6a7de78048b31ee1f25c4fba"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-85.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 328,
+      "sha256": "df3235606c3825625abfdf66679cf2a385f40d06b33c1e6f3115e1ed1575e052"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-86.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 100,
+      "sha256": "ec3680d5a153b1127a7434c4200ff13b1c2558d8e4b5c4078ee0d77157be7eed"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-87.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "b602679d23e5f10745019322f802572e4362be2898a2cdabcb4cbeaff6924dcc"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-88.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "c400dc321a025282f8d075e1da1158d9d2d102ae5d847837711c6a29d045e5c0"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-89.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "c08261d49258f31f6826bdeec3ccb12aba6dea22adaa182ebcd9dd0a89b0deb7"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-9.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 97,
+      "sha256": "05f8d4991755ece63cbe18a3d36444a33943fdc5a5830dde7381f233806d4670"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-90.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "e4a469b95728a690a1b705e3886a876c4456d64043d5c6c0793fa04d03993b57"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-91.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "0539a69e5d5dcbdb7742690761f4e39689576f553514677e0b82c786954d5cf3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-92.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "ee1d4b4e82b133e7d2f012fbf930d1f02a35d9159511374ffd1df5927b5a4c22"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-93.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 149,
+      "sha256": "f12152894018b241d036a00328533ec896c6e8a54a2fc26a66dfad83d0964ac3"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-94.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 255,
+      "sha256": "29e2264ffaed7f1283a88eff4f168fd7ecd926d0f2445c35b94901697201349f"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-95.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 334,
+      "sha256": "ff1622cb3c4454ce4dc533cbcdfe98857732ba657a7d015e3cf5f9cf00da820d"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-96.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 103,
+      "sha256": "cc726b4e88dd5eb185dbbd480a2654a18312626833fa21fb101c3e1d2fa6f976"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-97.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 24136,
+      "sha256": "c618d3e09f17c1634baef88628ba9cf3a9e16b19b638b468d1fe2019f280eb90"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-98.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 20021,
+      "sha256": "f3d8eeadec3dfdb9dc59b6b2b5bee3f2c81f3045877a2a5ced7b4f3a098f16ee"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/command-99.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 20021,
+      "sha256": "649e9b47ee84c10c1a30627dad3d088d6165593542a0b6a24928d0fa892ca863"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/input.nasm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 8324,
+      "sha256": "a8a0f5c137dfb7b5cf0d35824b4697a3df37105b1da581aba5463c40f3e895c6"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/input.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 2768,
+      "sha256": "7be840e48f3ec41ad386510fe610af46eea129f2802ab0e86a928e20aa467e44"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nano_virt-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 100496,
+      "sha256": "ceec58b243ef9c23d6571aa685fdf96c4e9bad64ccf96799f6888ec47824528d"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nano_virt-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 45027,
+      "sha256": "49e6d677c3cd481a29ae4e5883fb68d0a7e049a18465b70d1db0378c1c30feab"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nano_virt.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 22156,
+      "sha256": "d2c46b9b6ef3ca1eebc4b2414c675ed980a45c20afc4e1562d63fa6e47e69b9e"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_c": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8687864,
+      "sha256": "6d16a6172f0111abea39d922d95f2d61744ecaa16c94bb38a00db5975072548b"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage1": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "af0ee8b906dd02de5e4ca9e2c3288cd9987fc18e80e78052ebbb3900d7842e55"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage1-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 100496,
+      "sha256": "7f8924eadadb6b081078454d29b04a6c854fb038bf65fb357f1a1415daa6f9af"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage1-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 45027,
+      "sha256": "21f77b2cca3105d6d74e4bbfc2dab233f2905507dee5ab46ef9187d1f50bd28c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage1.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 14528,
+      "sha256": "c42450d827c4a5a3b9070c4306f1351a669de34831bea568fc7c963a4b792c06"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage2": {
+      "mode": 493,
+      "kind": "file",
+      "size": 8514040,
+      "sha256": "af0ee8b906dd02de5e4ca9e2c3288cd9987fc18e80e78052ebbb3900d7842e55"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage2-native": {
+      "mode": 493,
+      "kind": "file",
+      "size": 100496,
+      "sha256": "14ee956b57bc78966c135614117dff4fba2bee406fa017a8541825fcf07fbfe2"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage2-native.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 45027,
+      "sha256": "21f77b2cca3105d6d74e4bbfc2dab233f2905507dee5ab46ef9187d1f50bd28c"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/nanoc_stage2.nvm": {
+      "mode": 384,
+      "kind": "file",
+      "size": 14528,
+      "sha256": "c42450d827c4a5a3b9070c4306f1351a669de34831bea568fc7c963a4b792c06"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/original": {
+      "mode": 493,
+      "kind": "file",
+      "size": 67448,
+      "sha256": "6d9da52a28b9ffc339dd1e8ad7c9bb1dc4de942e457caeb3d9287fd1e0ff36f4"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/original.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 23958,
+      "sha256": "69c7e92d69c90c3d19d206a0f269734b9ff4e7e34c59ff6410049e9ed1ab8b51"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/reconstructed": {
+      "mode": 493,
+      "kind": "file",
+      "size": 33616,
+      "sha256": "fe74a8aadab2189813d870dbb5bbe7e0eb94e099dbc2ac7a92a475cd30d542c6"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/reconstructed.c": {
+      "mode": 384,
+      "kind": "file",
+      "size": 24807,
+      "sha256": "06debc96f29c1720fb14c006ab2bf4673520635f88e6bb42c21ed3b8c5eb4e15"
+    },
+    "nano-reconstruct-f64-t0m4fsm6/reconstructed.nano": {
+      "mode": 384,
+      "kind": "file",
+      "size": 15948,
+      "sha256": "aba0e1e0b83f308653031a0875a18484eb6af5061b758ad04c777f7556b1931a"
+    },
+    "nano-reconstruct-f64-zxgwab1d": {
+      "mode": 448,
+      "kind": "directory"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-1.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "5fff52cbce71cbc562261ab97cc040a9dd76c81d13030c53e43679353c2959cf"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-10.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "5fff52cbce71cbc562261ab97cc040a9dd76c81d13030c53e43679353c2959cf"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-11.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 324,
+      "sha256": "f669525ed6080d82c7fdde802e520f40c7d060083fbad15cf4ec5540a29579b9"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-12.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 330,
+      "sha256": "39fe865155fac34dab038bcbaf8a57f8eaf10f58ccc7f3bbb39c391404a18e19"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-2.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 329,
+      "sha256": "400fae07d8295fff59d7875ea0f46f71271ff32b694e97a708e7a857f1105f5f"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-3.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 335,
+      "sha256": "47a557cdd19fdc13c39dd916c37e0a2cc15998d2bbf832797a7b1d71a183d76c"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-4.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "5fff52cbce71cbc562261ab97cc040a9dd76c81d13030c53e43679353c2959cf"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-5.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 327,
+      "sha256": "14b77d24133458970b92bb648a71f0672f06e0cb89420e52381c97abbf658ea1"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-6.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 333,
+      "sha256": "a166b012ddeadf719ac8af10a78106e678b02be99512c8c26116a58e794494e3"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-7.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 243,
+      "sha256": "5fff52cbce71cbc562261ab97cc040a9dd76c81d13030c53e43679353c2959cf"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-8.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 340,
+      "sha256": "e11732b5932e063d9edc9319dc4f25cf474df2bcc3baad72aba529afce22da5f"
+    },
+    "nano-reconstruct-f64-zxgwab1d/command-9.log": {
+      "mode": 420,
+      "kind": "file",
+      "size": 346,
+      "sha256": "e740e0051878f438c69111fcbb47b7a77c2543d1df2768d765ea318ce9947ea5"
+    },
+    "nano-reconstruct-f64-zxgwab1d/input.nasm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 93,
+      "sha256": "0c4ae04201bddbbcddc1d4261e88463f1c68cb722c0cf51166cc2059dd2e7ecb"
+    },
+    "nano-reconstruct-f64-zxgwab1d/input.nvm": {
+      "mode": 420,
+      "kind": "file",
+      "size": 372,
+      "sha256": "4bb73305c719c01d1700ac93c60b3d2cbf8b1e87c23cf1aa4d56c918d1bb9200"
+    },
+    "nano-reconstruct-f64-zxgwab1d/prior.c": {
+      "mode": 420,
+      "kind": "file",
+      "size": 8,
+      "sha256": "ca67bd59cc4116ac80db5f64cbf4747f26ba929c85e8cc689a6123368d08719b"
+    },
+    "nano-reconstruct-f64-zxgwab1d/prior.nano": {
+      "mode": 420,
+      "kind": "file",
+      "size": 8,
+      "sha256": "ca67bd59cc4116ac80db5f64cbf4747f26ba929c85e8cc689a6123368d08719b"
+    }
+  }
+}

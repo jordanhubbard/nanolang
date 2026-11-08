@@ -1,0 +1,3 @@
+I am testing shadow main
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
