@@ -1,0 +1,54 @@
+[tool] Building module index generator (C)...
+[modules] Generating module index from manifests...
+Generating module index...
+Found 47 module manifests
+  ✓ readline
+  ✓ pt2_audio
+  ✓ tools
+  ✓ sdl_helpers
+  ✓ sqlite
+  ✓ uv
+  ✓ ncurses
+  ✓ pt2_state
+  ✓ ui_widgets
+  ✓ bullet
+  ✓ std
+  ✓ unicode
+  ✓ openai
+  ✓ math_ext
+  ✓ glut
+  ✓ event
+  ✓ opengl
+  ✓ sdl_mixer
+  ✓ nano_eval
+  ✓ github
+  ✓ pybridge_warp
+  ✓ curl
+  ✓ sdl
+  ✓ glfw
+  ✓ pybridge_matplotlib
+  ✓ glew
+  ✓ audio_viz
+  ✓ nano_highlight
+  ✓ stdio
+  ✓ nanoisa
+  ✓ pybridge
+  ✓ nano_tools
+  ✓ preferences
+  ✓ audio_helpers
+  ✓ pt2_module
+  ✓ proptest
+  ✓ http_server
+  ✓ filesystem
+  ✓ stdlib
+  ✓ vector2d
+  ✓ sdl_ttf
+  ✓ forth_see
+  ✓ mujoco
+  ✓ sdl_term
+  ✓ sdl_image
+  ✓ pty
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed

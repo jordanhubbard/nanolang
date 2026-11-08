@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1046/#1053 I repair the exact GCC format-truncation refusal in test_array_remove_releases_the_element without changing its ownership assertions or disabling warnings. Actual instrumented run 42451010848 passes all 27 focused methods, then refuses snprintf into the fixture's eight-byte label buffer. I retain the diagnostic, use exact constant labels for the same three strings, and require fresh strict compilation plus the original VM/interpreter/unit corpus.
+
 - [ ] Under #1053 I preserve the terminal complete-unit attempt at a1a035c93: the unchanged module prerequisite now passes, then dispatch equivalence compiles 187 of 188 original fixtures and refuses test_repl_history.nano on both GCC/Clang. I retain that observation, supply the full declared CI dependency closure, run units serially with verified instrumentation, archive failed temporary roots, and require the unchanged full corpus rather than attributing an unavailable compile log to a guessed cause.
 
 - [ ] Under #1053/#1085 I pass sanitizer flags as explicit Make command-line assignments and verify actual provider ASan symbols before claiming instrumented source/interpreter qualification. My new focused workflow supplied environment variables that Make replaced with its default flags; I retain its functional results and explicitly sanitized helper/AOT checks, correct the overclaim, and require fresh actual instrumented GCC/Clang runs.

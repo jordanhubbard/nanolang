@@ -10,6 +10,7 @@ on:
       - 'src/eval/call_arguments.h'
       - 'tests/test_eval_call_arguments.py'
       - 'Makefile.gnu'
+      - 'tests/nanovm/test_vm.c'
   workflow_dispatch:
 
 permissions:
