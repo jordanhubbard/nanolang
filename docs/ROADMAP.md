@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1094 I retain the complete original array-arithmetic fixture through current frontend, VM and C AOT before implementation. I then preserve exact numeric policy, qualify matching STRING-array PLUS/broadcast metadata and canonical array opcodes, retain once-only ordering/independent storage and malformed/output boundaries, and require both frontends/fresh stages, sanitized native and complete translator/platform gates.
+
 - [x] Under #1083 I retain my [checked map-return regression checkpoint](evidence/stage-source-contracts-20261108/map-return-b21/README.md): fresh GCC/Clang each pass 40 methods, every original scalar-map/storage/lifetime control, all four tagged-global map-return/snapshot pairs and all 304 generated snapshot allocation-denial prefixes. Full source, fresh-stage and integrated acceptance remain open.
 
 - [ ] Under #1093 I retain the 832 C-frontend results: the whole original fixture, float-bit/independence and lexical binding controls pass VM/native, but five invalid receiver/needle programs compile successfully. I check cached builtin array/search operands after binding resolution, preserve original arity/output assertions and require both frontend/fresh-stage refusal qualification.
