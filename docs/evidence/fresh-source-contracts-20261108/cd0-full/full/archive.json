@@ -1,0 +1,21 @@
+{
+  "size": 40145551,
+  "sha256": "95e5b60e7ff18a12929de5f3007e1a49d9753923f55304ef92b03a96cc7e8b86",
+  "files": 6224,
+  "text_files": 5735,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": ".test_output/junit-route-audit/storage/nano-qualification-feiikc7s.tar.gz",
+      "sha256": "e8fad49977a6f0f2d9ba6a7ec30670254783cc87861839de345b654381ba2d4d",
+      "entries": 3,
+      "verified": true
+    },
+    {
+      "path": ".test_output/junit-route-audit/storage/nano-qualification-k5eimsuq.tar.gz",
+      "sha256": "75b55eb7249ac6805983ed53e4a97d97ec40842103a6b3c4993242b9200f277b",
+      "entries": 3,
+      "verified": true
+    }
+  ]
+}

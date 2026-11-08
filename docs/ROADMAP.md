@@ -1,6 +1,9 @@
 # My Roadmap
 
 
+- [x] Under #1105/#1102/#1081 I retain my [terminal cd0 original-route checkpoint](evidence/fresh-source-contracts-20261108/cd0-full/README.md): both seeds pass 237/237; both fresh stages pass 203/237, with the same 34 failures, identical selections and zero skips. The unchanged whole U8 fixture clears f496 with no new original failures. Nine byte and twelve character ELF products plus eight CLI input/product byte copies independently verify. The two retained negative diagnostic assertions, later source/runtime and integrated budget/platform/release acceptance remain open.
+
+
 - [x] Under #1109 I retain my [qualified GCC/Clang sorting component checkpoint](evidence/array-sort-20261108/qualified-9c/README.md): both 128-method suites, actual Nano checkers, original parser/typechecker/lexer/alias gates and full translator/shape gates pass. I independently verify 44 sorting ELF products and two checker ELFs, including nominal enum, direct U8 and all five typed function/result storage controls. Fresh stages, Apple and original corpus/release acceptance remain open.
 
 - [ ] Under #1065/#1109 I retain [Apple run 42493885215 at 4f79e631a](evidence/source-checker-apple-20261108/first-4f/README.md): my C seed stops source-checker dependency shadows after the unchanged ten-second deadline, while printing format_error_elm_style. No checker product is published and later operand gates are skipped. I preserve the failed attempt and enable existing per-shadow tracing only for checker creation to measure the selected work before choosing a correction; I do not infer an infinite formatter loop or infrastructure cause from the last printed name.
