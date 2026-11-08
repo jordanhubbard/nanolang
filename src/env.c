@@ -709,7 +709,7 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
     return symbol_lookup(env, name, true);
 }
 
-void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+static void env_define_var_impl(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value, bool retain_string_aliases) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     if (value.type == VAL_STRUCT && value.as.struct_val &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
@@ -769,7 +769,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     /* GC refcount fix: If this string value is already referenced by another
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
-    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+    if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
         for (int i = 0; i < env->symbol_count; i++) {
             if (env->symbols[i].value.type == VAL_STRING &&
                 env->symbols[i].value.as.string_val == value.as.string_val) {
@@ -780,6 +780,15 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     }
 
     env->symbols[env->symbol_count++] = sym;
+}
+
+void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value, true);
+}
+
+/* I construct a fresh allocation here; an existing binding cannot alias it. */
+void env_define_string_copy(Environment *env, const char *name, Type type, bool is_mut, const char *text) {
+    env_define_var_impl(env, name, type, TYPE_UNKNOWN, NULL, is_mut, create_string(text), false);
 }
 
 /* Get variable */

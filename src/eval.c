@@ -4847,7 +4847,9 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
 
         /* Make a deep copy of string values to avoid memory corruption */
         if (param_value.type == VAL_STRING) {
-            param_value = create_string(args[i].as.string_val);
+            env_define_string_copy(env, func->params[i].name, func->params[i].type,
+                false, args[i].as.string_val);
+            continue;
         }
         if (param_value.type == VAL_FUNCTION) {
             FunctionSignature *sig_copy = copy_function_signature(param_value.as.function_val.signature);
@@ -6884,7 +6886,9 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
 
         /* Make a deep copy of string values to avoid memory corruption */
         if (param_value.type == VAL_STRING) {
-            param_value = create_string(args[i].as.string_val);
+            env_define_string_copy(env, func->params[i].name, func->params[i].type,
+                false, args[i].as.string_val);
+            continue;
         }
 
         if (param_value.type == VAL_FUNCTION) param_value = copy_array_callable(param_value);

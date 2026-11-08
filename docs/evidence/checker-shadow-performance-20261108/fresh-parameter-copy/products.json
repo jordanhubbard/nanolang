@@ -1,0 +1,42 @@
+[
+  {
+    "path": "baseline-provider",
+    "size": 12653720,
+    "sha256": "abcd1de378a69f0ca3d868133678cafdb2a139c13f2f572986c7eb1d15aaf84c"
+  },
+  {
+    "path": "candidate-provider",
+    "size": 12653944,
+    "sha256": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4"
+  },
+  {
+    "path": "initial-baseline/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  },
+  {
+    "path": "initial-candidate/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  },
+  {
+    "path": "qualified-0-baseline/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  },
+  {
+    "path": "qualified-1-candidate/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  },
+  {
+    "path": "qualified-2-candidate/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  },
+  {
+    "path": "qualified-3-baseline/checker",
+    "size": 11092168,
+    "sha256": "3a0713422c16a4e4c4c521ebd5fdc20bcf87ad3977bfd546f4c807652b307e75"
+  }
+]

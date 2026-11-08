@@ -197,6 +197,31 @@ static void check_function_index(void) {
     free_environment(env);
 }
 
+static void check_fresh_string_copy(void) {
+    Environment *env = create_environment();
+    Value caller = create_string("caller storage");
+    char *caller_pointer = caller.as.string_val;
+    assert(gc_get_header(caller_pointer)->ref_count == 1);
+    env_define_string_copy(env, "copied", TYPE_STRING, false, caller_pointer);
+    Symbol *copied = env_get_var(env, "copied");
+    char *copy_pointer = copied->value.as.string_val;
+    assert(copied->type == TYPE_STRING && !copied->is_mut);
+    assert(copy_pointer != caller_pointer && !strcmp(copy_pointer, caller_pointer));
+    assert(gc_get_header(caller_pointer)->ref_count == 1);
+    assert(gc_get_header(copy_pointer)->ref_count == 1);
+    gc_release(caller_pointer);
+    assert(!gc_is_managed(caller_pointer));
+    assert(gc_is_managed(copy_pointer) && !strcmp(copy_pointer, "caller storage"));
+    env_define_var(env, "borrowed", TYPE_STRING, true, copied->value);
+    assert(gc_get_header(copy_pointer)->ref_count == 2);
+    env_set_var(env, "borrowed", create_string("replacement"));
+    assert(gc_get_header(copy_pointer)->ref_count == 1);
+    env_define_string_copy(env, "empty", TYPE_STRING, true, "");
+    assert(!strcmp(env_get_var(env, "empty")->value.as.string_val, ""));
+    free_environment(env);
+    assert(!gc_is_managed(copy_pointer));
+}
+
 static void check_string_self_assignment(void) {
     Environment *env = create_environment();
     env_define_var(env, "text", TYPE_STRING, true, create_string("retained"));
@@ -241,6 +266,7 @@ int main(void) {
     gc_init();
     check_function_index();
     check_string_self_assignment();
+    check_fresh_string_copy();
     Environment *env = create_environment();
     assert(!env_get_var(env, "absent"));
     for (int i = 0; i < 4096; ++i) {
