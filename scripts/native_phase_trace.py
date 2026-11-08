@@ -63,6 +63,12 @@ def configure(work, environment, root=ROOT):
         wrapper.chmod(0o700)
         environment['NANO_CC' if role == 'cc' else 'NANO_NVM2C'] = (
             shlex.quote(str(wrapper.resolve())) if role == 'cc' else str(wrapper.resolve()))
+    recorder = directory/'marker-recorder'
+    marker_command = [sys.executable, str(root/'scripts/native_phase_trace.py'),
+                      '--directory', str(directory.resolve()), '--mark']
+    recorder.write_text('#!/bin/sh\nexec '+' '.join(shlex.quote(value) for value in marker_command)+' "$@"\n')
+    recorder.chmod(0o700)
+    environment['NANO_COMPILER_PHASE_RECORDER'] = str(recorder.resolve())
     return environment
 
 
@@ -71,7 +77,9 @@ def summarize(work):
     phases = [json.loads(path.read_text()) for path in sorted(directory.glob('phase-*/phase.json'))]
     summary = {'schema': 'nanolang.native-phase-summary.v1',
         'native_lifecycle_admitted': False, 'phase_count': len(phases), 'phases': phases,
-        'scope': 'I time only observed publisher tool calls; other elapsed time remains unattributed.'}
+        'driver_markers': sorted([json.loads(path.read_text()) for path in directory.glob('marker-*.json')],
+                                 key=lambda row: row['monotonic_seconds']),
+        'scope': 'I retain publisher tool calls and opt-in driver boundaries; other elapsed time remains unattributed.'}
     write_record(Path(work)/'native-phase-summary.json', summary)
     return summary
 
@@ -123,9 +131,22 @@ def run_phase(config, arguments):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=Path, required=True)
+    selection = parser.add_mutually_exclusive_group(required=True)
+    selection.add_argument('--config', type=Path)
+    selection.add_argument('--mark')
+    parser.add_argument('--directory', type=Path)
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     options = parser.parse_args()
+    if options.mark is not None:
+        if options.directory is None:
+            parser.error('I require a marker directory.')
+        record = {'schema': 'nanolang.compiler-phase-marker.v1', 'phase': options.mark,
+                  'monotonic_seconds': time.monotonic(), 'observer_pid': os.getpid(),
+                  'parent_pid': os.getppid()}
+        descriptor, name = tempfile.mkstemp(prefix='marker-', suffix='.partial', dir=options.directory)
+        os.close(descriptor)
+        write_record(Path(name).with_suffix('.json'), record)
+        return 0
     arguments = options.arguments[1:] if options.arguments[:1] == ['--'] else options.arguments
     return run_phase(json.loads(options.config.read_text()), arguments)
 

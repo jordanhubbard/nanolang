@@ -19,6 +19,28 @@ shadow aot_shell_quote {
     assert (== (aot_shell_quote "a b'c") "'a b'\\''c'")
 }
 
+pub fn native_phase_marker_command(recorder: string, phase: string) -> string {
+    if (== recorder "") { return "" }
+    return (+ (aot_shell_quote recorder) (+ " " (aot_shell_quote phase)))
+}
+shadow native_phase_marker_command {
+    assert (== (native_phase_marker_command "" "unused") "")
+    assert (== (native_phase_marker_command "a b'c" "x;y") "'a b'\\''c' 'x;y'")
+}
+
+pub fn native_phase_marker(phase: string) -> int {
+    let command: string = (native_phase_marker_command (getenv "NANO_COMPILER_PHASE_RECORDER") phase)
+    if (== command "") { return 0 }
+    return (nl_exec_shell command)
+}
+shadow native_phase_marker {
+    if (== (getenv "NANO_COMPILER_PHASE_RECORDER") "") {
+        assert (== (native_phase_marker "shadow-disabled") 0)
+    } else {
+        assert (!= (native_phase_marker_command (getenv "NANO_COMPILER_PHASE_RECORDER") "shadow") "")
+    }
+}
+
 fn aot_parent(path: string) -> string {
     let mut last: int = -1
     let mut i: int = 0

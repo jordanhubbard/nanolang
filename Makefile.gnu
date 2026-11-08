@@ -7404,3 +7404,7 @@ test-character-builtin-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dum
 .PHONY: test-u8-argument-contracts
 test-u8-argument-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_u8_argument_contracts
+
+.PHONY: test-compiler-phase-marker-contracts
+test-compiler-phase-marker-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_compiler_phase_marker_contracts

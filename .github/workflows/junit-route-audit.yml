@@ -49,6 +49,9 @@ on:
       - 'tests/test_byte_alias_contracts.py'
       - 'tests/test_character_builtin_contracts.py'
       - 'tests/test_u8_argument_contracts.py'
+      - 'tests/test_compiler_phase_marker_contracts.py'
+      - 'src_nano/compiler/native_product.nano'
+      - 'src_nano/nanoc_v06.nano'
       - 'tests/test_typechecker.c'
       - 'src/typechecker.c'
       - 'src/parser.c'
@@ -149,7 +152,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts tests.test_array_arithmetic_contracts tests.test_cast_float_contracts tests.test_dynamic_array_contracts tests.test_format_source_contracts tests.test_legacy_par_let_contracts tests.test_anonymous_record_contracts tests.test_byte_alias_contracts tests.test_character_builtin_contracts tests.test_u8_argument_contracts \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts tests.test_array_arithmetic_contracts tests.test_cast_float_contracts tests.test_dynamic_array_contracts tests.test_format_source_contracts tests.test_legacy_par_let_contracts tests.test_anonymous_record_contracts tests.test_byte_alias_contracts tests.test_character_builtin_contracts tests.test_u8_argument_contracts tests.test_compiler_phase_marker_contracts \
             2>&1 | tee .test_output/junit-route-audit/string-operands.log
 
       - name: Exercise the unchanged complete four-pair map constructor contract
@@ -201,6 +204,7 @@ jobs:
             .test_output/cli-run-contract-native/**/inputs*.json
             .test_output/cli-run-contract-native/**/native-phase-summary.json
             .test_output/cli-run-contract-native/**/native-phase-trace/**/*.json
+            .test_output/cli-run-contract-native/**/native-phase-trace/marker-*.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30

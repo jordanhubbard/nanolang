@@ -109,6 +109,18 @@ class NativePhaseTrace(unittest.TestCase):
                 os.killpg(process.pid, signal.SIGKILL)
                 process.communicate(timeout=5)
 
+    def test_real_marker_recorder_retains_literal_phase_and_order(self):
+        recorder = self.environment['NANO_COMPILER_PHASE_RECORDER']
+        for phase in ('entry; literal $value', "return ' literal"):
+            result = subprocess.run([recorder, phase], capture_output=True, text=True, timeout=5)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, '')
+        markers = summarize(self.work)['driver_markers']
+        self.assertEqual([row['phase'] for row in markers],
+                         ['entry; literal $value', "return ' literal"])
+        self.assertLess(markers[0]['monotonic_seconds'], markers[1]['monotonic_seconds'])
+        self.assertTrue(all(row['observer_pid'] > 0 and row['parent_pid'] > 0 for row in markers))
+
     def test_configuration_preserves_existing_tool_flags(self):
         cc = json.loads((self.work/'native-phase-trace/cc.json').read_text())
         original = shlex.split(os.environ.get('CC') or 'cc')

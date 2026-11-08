@@ -68,6 +68,15 @@ class NativeTestRunContract(unittest.TestCase):
                     phases = phase_summary['phases']
                     self.assertTrue(any(row['role'] == 'cc' for row in phases), phase_summary)
                     self.assertTrue(any(row['role'] == 'nvm2c' for row in phases), phase_summary)
+                    markers = phase_summary['driver_markers']
+                    self.assertEqual([row['phase'] for row in markers], [
+                        'inputs-start', 'imports-done', 'lex-done', 'parse-done',
+                        'checked-emit-start', 'checked-emit-done',
+                        'shadow-assembly-start', 'shadow-assembly-done',
+                        'shadow-execution-start', 'shadow-execution-done',
+                        'product-assembly-start', 'product-assembly-done',
+                        'native-publication-start', 'native-publication-done',
+                        'inputs-return', 'driver-return'], phase_summary)
                     for phase in phases:
                         self.assertTrue(phase['completed'], phase)
                         self.assertEqual(phase['returncode'], 0, phase)
