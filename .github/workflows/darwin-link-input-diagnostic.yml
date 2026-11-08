@@ -2,7 +2,7 @@ name: Darwin assembler link-input diagnosis
 
 on:
   push:
-    branches: [fix/5.1-darwin-link-input-trace]
+    branches: [fix/5.1-darwin-link-input-trace, fix/5.1-darwin-link-grammar-trace]
     paths:
       - '.github/workflows/darwin-link-input-diagnostic.yml'
       - 'scripts/ci_darwin_link_diagnostic.py'

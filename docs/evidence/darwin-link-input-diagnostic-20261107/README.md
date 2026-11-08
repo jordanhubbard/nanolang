@@ -1,0 +1,7 @@
+# My exact Darwin linker diagnostic
+
+I retain [run 42455102974](https://github.com/jordanhubbard/nanolang/actions/runs/42455102974) at `e51007c06123a32b9a40be506d3fa5f180fc4359`. My six selected original-helper methods execute 30 configurations: the 24 historical common-placement cases fail, six platform-neighbor controls succeed, and zero cases skip. Every failure reports an empty linker-input inventory. None of the retained failed roots contains `.link-dependencies`.
+
+I preserve the full diagnostic, source tree, compiler/tool identity, input checks and worker/storage observations. My compressed files restore the exact original bytes. Artifact 13606903077 supplies those observations; artifact 13607381590 supplies the 604 uploaded failed-root file entries whose paths, sizes and byte hashes I retain in `uploaded-file-inventory.json.gz`. Both original ZIP downloads pass CRC verification and remain in my private audit directory. Direct artifact upload does not prove original modes or symlink identity; my following diagnostic adds verified tar custody without removing original failed roots.
+
+I narrow the next diagnosis to forwarded-response installation: common-placement fixtures introduce `-Wl,@link.rsp`, and my guarded linker observation deliberately declines uncaptured indirect response operands. I have not established why the preceding grammar selection declines literal captured arguments, and I do not remove that guard or call the full retirement corpus qualified.

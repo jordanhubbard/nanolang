@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tests.test_source_snapshots import SourceSnapshots
+from scripts.ci_qualification_storage import archive_success
 
 
 class PreserveFailedDirectory(tempfile.TemporaryDirectory):
@@ -117,6 +118,11 @@ def main():
         result = unittest.TextTestRunner(verbosity=2).run(suite)
     roots = [json.loads(line)['root'] for line in journal.read_text().splitlines()] if journal.exists() else []
     (output/'link-records.json').write_text(json.dumps(inspect_records(roots), indent=2)+'\n')
+    archives = output/'failed-root-archives'
+    archives.mkdir()
+    for root in roots:
+        selected = Path(root)
+        archive_success(selected, archives/(selected.name+'.tar.gz'), remove=False)
     summary = {'methods': methods, 'selected_configurations': 30,
         'targeted_historical_failures': 24, 'neighbor_controls': 6,
         'methods_run': result.testsRun, 'failures': len(result.failures),

@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #980/#1049 I retain verified tar archives of failed diagnostic roots without removing their originals. Direct artifact uploads preserve useful file bytes but do not prove original executable modes or symlink identity; I use the existing inventory/archive verifier with explicit retention for that custody boundary.
+
+- [ ] Under #980/#1049 I retain the e510 Darwin diagnostic: all 24 historical configurations fail with empty linker inventories, six neighbor controls pass, and no raw linker record is created. I trace the preceding forwarded-response grammar selection and capture refusal before changing admission; I retain bounded original tool output to distinguish unsupported identity from argument/query failure.
+
 - [ ] Under #1046 I retain my [bd913 strict profile checkpoint](evidence/compiler-profiles-bd913-20261107/README.md): GCC and Clang each pass 1,727 diagnostic compiles. My combined measured time exceeds 1,200 seconds; 230 test sources and the absent Unicode FFI dependency keep complete inventory qualification open. I do not treat the longer diagnostic tier as fast-gate acceptance.
 
 - [ ] Under #1083/#1053 I replace two obsolete INT-key map refusal premises with positive producer/VM/C AOT execution while preserving every genuinely malformed map/record refusal. I isolate each refusal output so a preceding admitted program cannot create cascading stale-output failures; existing-output preservation remains a separate checked contract.

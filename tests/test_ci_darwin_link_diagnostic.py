@@ -7,6 +7,7 @@ import sys
 import unittest
 
 from scripts.ci_darwin_link_diagnostic import PreserveFailedDirectory, inspect_records
+from scripts.ci_qualification_storage import archive_success, verify_archive
 
 
 class DarwinLinkRetention(unittest.TestCase):
@@ -51,3 +52,11 @@ class DarwinLinkRetention(unittest.TestCase):
             self.assertEqual(parsed[0]['entries'][1]['tag'],16)
             self.assertTrue(parsed[0]['entries'][1]['regular'])
             self.assertEqual(parsed[0]['entries'][1]['text'],str(content))
+            archive=root/'failed.tar.gz'
+            archive_success(work, archive, remove=False)
+            manifest=json.loads((root/'failed.tar.gz.json').read_text())
+            verify_archive(archive, manifest['entries'])
+            self.assertEqual(manifest['entries']['native']['mode'],0o751)
+            self.assertEqual(manifest['entries']['alias']['target'],'native')
+            self.assertEqual(content.read_bytes(),b'\x00I retain original bytes.\xff')
+            self.assertTrue((work/'alias').is_symlink())

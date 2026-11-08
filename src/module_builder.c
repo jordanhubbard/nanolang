@@ -3459,13 +3459,20 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
     int64_t now = module_link_query_clock();
     if (ok && status == 0 && count && now >= 0) {
         int64_t deadline = now + 5000;
-        char output[8193];
+        char output[8193] = {0};
         args[count] = "-Wl,--version";
-        if (module_link_query_output(args, output, sizeof(output), deadline) &&
+        bool queried = module_link_query_output(args, output, sizeof(output), deadline);
+        if (getenv("NANO_TRACE_BUILD"))
+            fprintf(stderr, "I observed linker grammar query: family=GNU completed=%d output=%.8192s\n", queried, output);
+        if (queried &&
             !strncmp(output, "GNU ld (", 8) && strchr(output, '\n')) grammar = MODULE_LINK_RESPONSE_GNU;
         if (!grammar) {
             args[count] = "-Wl,-version_details";
-            if (module_link_query_output(args, output, sizeof(output), deadline)) {
+            output[0] = 0;
+            queried = module_link_query_output(args, output, sizeof(output), deadline);
+            if (getenv("NANO_TRACE_BUILD"))
+                fprintf(stderr, "I observed linker grammar query: family=Apple completed=%d output=%.8192s\n", queried, output);
+            if (queried) {
                 const char *end = NULL;
                 cJSON *details = cJSON_ParseWithOpts(output, &end, true);
                 cJSON *version = cJSON_GetObjectItemCaseSensitive(details, "version");
@@ -3573,7 +3580,9 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
         if (word[0] != '@') {
             /* I distinguish literal path characters (openssl@3) from a
              * response operand forwarded directly to the linker. */
-            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) return false;
+            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) {
+                module_link_trace_refusal("uncaptured-linker-response", word); return false;
+            }
             continue;
         }
         if (link_word[0] && !strcmp(word, link_word)) continue;

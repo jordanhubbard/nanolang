@@ -61,8 +61,8 @@ def verify_archive(archive, expected):
         raise ValueError('I refuse to remove temporary evidence whose archive differs.')
 
 
-def archive_success(root, destination):
-    """I only remove my freshly allocated root after two source inventories agree."""
+def archive_success(root, destination, *, remove=True):
+    """I verify exact archival before optional removal of my freshly allocated root."""
     if root.resolve() in destination.resolve().parents:
         raise ValueError('I require an archive outside the temporary root.')
     expected = inventory(root)
@@ -79,7 +79,8 @@ def archive_success(root, destination):
     partial.replace(destination)
     manifest = destination.with_suffix(destination.suffix + '.json')
     manifest.write_text(json.dumps({'archive_sha256': archive_hash, 'entries': expected}, indent=2) + '\n')
-    shutil.rmtree(root)
+    if remove:
+        shutil.rmtree(root)
     return archive_hash
 
 
