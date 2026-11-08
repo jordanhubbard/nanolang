@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1081/#1083/#1093/#1094 I retain the [967 fresh-route checkpoint](evidence/junit-route-checkpoints-20261107/967/README.md): original selection remains 237 cases, C routes pass all, stages each pass 193 with unchanged array arithmetic/reverse fixtures newly passing, and all six map contract methods pass. I preserve the remaining 44 failures per stage and separate CLI/corpus budgets.
+
 - [x] Under #1100 I retain the [shared reserved-definition native component checkpoint](evidence/reserved-builtins-20261108/qualified-ca/README.md): actual C-seed-created Nano checker execution under GCC/Clang, unchanged effective policy, all 78 focused methods and full units/translator gates pass, with ELF/generated C custody. Fresh stages and integrated platform acceptance remain open.
 
 - [x] Under #1081/#1083 I retain the [ba4 fresh-route checkpoint](evidence/junit-route-checkpoints-20261107/ba4/README.md): identical original 237-case selection, C routes 237/237 and both stages 191/237, including the unchanged map-constructor fixture newly passing. I preserve all remaining failures and do not turn the 1,800-second CLI passes into 120-second corpus acceptance.
