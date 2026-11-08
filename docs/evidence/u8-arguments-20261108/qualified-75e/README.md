@@ -1,0 +1,11 @@
+# My qualified directed argument component checkpoint
+
+I retain successful [run 42480170839](https://github.com/jordanhubbard/nanolang/actions/runs/42480170839) at `75e965a12ce876e17c48466c6e2237f3a07ca041`. GCC and Clang pass all 96 focused methods, complete original C parser/typechecker suites, original aliases and the complete translator gate: 2,443 execution, 3,866 shape and 464 callable checks, zero failures, with adjacent suites unchanged.
+
+My four new methods execute direct, bound and computed-callee integer calls, verify callee-before-argument and once-only evaluation, retain explicit CAST_INT/CAST_U8 operations, preserve computed modulo-256 byte destinations and exercise a typed byte-element caller. BOOL/string/array scalar arguments and an incompatible array-storage alias refuse with prior output unchanged. I do not replace the original complete corpus or claim complete std/binary module/host acceptance from this independent caller regression. Generic binding and foreign host descriptors remain on their existing paths.
+
+Both actual Nano checker drivers are compiled through my C seed and executed as native ELF products. Their production entry runs six argument cases alongside the earlier controls. I independently verify uploaded executable bytes against both execution hashes, unchanged inputs, generated C production functions, exact successful commands and actual native output. The custody records retain native/generated C sizes and hashes. This C creation path does not establish fresh self-hosted emission or the full native lifecycle.
+
+I retain the preceding real checker baseline failure alongside this pair. Both successful ZIPs pass CRC, with complete uploaded-file SHA-256 inventories and deterministic exact UTF-8 text. Both embedded translator TAR hashes and full inventories independently verify; empty successful inventories reflect cleanup, not custody of every cleaned native product. Original uploaded binaries remain private. ZIP custody does not establish original modes or symlinks.
+
+The separate pinned Darwin profile at 298e1e37c remains in progress when I record this Linux checkpoint. Fresh generations, original route parity and corpus-budget acceptance remain open under #1104/#1081/#1088; native lifecycle admission remains false.
