@@ -1415,6 +1415,18 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 }
 
+void generate_environment_getter(StringBuilder *sb) {
+    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
+    sb_append(sb, "    const char* value = getenv(name);\n");
+    sb_append(sb, "    if (!value) return \"\";\n");
+    sb_append(sb, "    size_t length = strlen(value);\n");
+    sb_append(sb, "    char* copy = gc_alloc_string(length);\n");
+    sb_append(sb, "    if (!copy) { fputs(\"I cannot allocate an environment snapshot.\\n\", stderr); abort(); }\n");
+    sb_append(sb, "    memcpy(copy, value, length + 1);\n");
+    sb_append(sb, "    return copy;\n");
+    sb_append(sb, "}\n\n");
+}
+
 /* Generate complete stdlib runtime (convenience function) */
 void generate_stdlib_runtime(StringBuilder *sb) {
     /* OS stdlib runtime library */
@@ -1442,10 +1454,7 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    exit((int)code);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? value : \"\";\n");
-    sb_append(sb, "}\n\n");
+    generate_environment_getter(sb);
     
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
     sb_append(sb, "int64_t nl_exec_shell(const char* cmd) {\n");

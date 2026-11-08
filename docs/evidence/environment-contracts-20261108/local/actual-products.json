@@ -1,0 +1,112 @@
+[
+  {
+    "path": "baseline/production-nanoc_c/main",
+    "size": 8687704,
+    "sha256": "fb64416c244203c63524b9f405ff90254d7696fcb7b3af12622aa4a12f83414a"
+  },
+  {
+    "path": "baseline/source-emitter/emitter",
+    "size": 13429496,
+    "sha256": "838ec38fbc8abaa31d48cd177863bfb7ae50b36edf24c20e2c936d4d1bf17dcf"
+  },
+  {
+    "path": "baseline/source-emitter/first-product",
+    "size": 13429496,
+    "sha256": "838ec38fbc8abaa31d48cd177863bfb7ae50b36edf24c20e2c936d4d1bf17dcf"
+  },
+  {
+    "path": "baseline/source-emitter/productionO0",
+    "size": 8808160,
+    "sha256": "b8e356d73f7d17f45814fbd8455ccb4dd3ee8c5f8e7adaa8b7acc1886c6aac05"
+  },
+  {
+    "path": "baseline/source-emitter/productionO2",
+    "size": 8565536,
+    "sha256": "2d326801f580be4078ffae6c3d8ae8293c68b5c551b2009a25e660a43b62b748"
+  },
+  {
+    "path": "baseline/whole-env-nanoc_c/main",
+    "size": 8726936,
+    "sha256": "a7fcabf373ae4b2a335f220d2a4f3e07909b2d2dcfc04d6506957fab42014cdf"
+  },
+  {
+    "path": "baseline/whole-shadow-nanoc_c/main",
+    "size": 8726696,
+    "sha256": "02399b24b17dc114fe2d4dcc54f492390342f5eb0a6fe29f52b53bf36fa332de"
+  },
+  {
+    "path": "baseline-nano_virt",
+    "size": 12586056,
+    "sha256": "38883afcb4bc8482758f548fbebec5df40cd25032b0a44c2ea1e828dfb1eb400"
+  },
+  {
+    "path": "baseline-nanoc_c",
+    "size": 12653944,
+    "sha256": "5bdc2322c47bd6cfe9880d18a3e8ba2c56fede571a7eb1aeccf5141e4ef871a4"
+  },
+  {
+    "path": "baseline-nvm2c",
+    "size": 1633128,
+    "sha256": "c3b106e539db05f2465967ecad810a1b3185d65a2f20397cc1fabd142ecb97da"
+  },
+  {
+    "path": "current-controls/environment-raw-nr19_l_s/nativeO0",
+    "size": 8774824,
+    "sha256": "12e2a33e9373ffb1f8e1bd337c116ce10cf55fa30085db24e951b0edee590f18"
+  },
+  {
+    "path": "current-controls/environment-raw-nr19_l_s/nativeO2",
+    "size": 8565144,
+    "sha256": "801315f75a6e5f71c6643f0a09063d84ed65c64d9023bff9d7f7bc89fb00e7ea"
+  },
+  {
+    "path": "current-controls/language-environment-oulqiu8s/native",
+    "size": 10021832,
+    "sha256": "b56ad419ea498fc12d46eb81525a44e8c8bde8ea6418a5941d4531f96c6c70cc"
+  },
+  {
+    "path": "current-controls/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-scpwa0y3/native-O0",
+    "size": 8826040,
+    "sha256": "68015d9030dd2f41f5b26ba87c737fe1622b5159fc7f34f061e794817425335b"
+  },
+  {
+    "path": "current-controls/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-scpwa0y3/native-O2",
+    "size": 8566664,
+    "sha256": "207978947bbbb0ee8bc428d75f9ff5d3af673fa49929bb6677fed5cbe786da8d"
+  },
+  {
+    "path": "current-controls/test_original_complete_environment_fixtures-nano_virt-58idafz_/native",
+    "size": 8546376,
+    "sha256": "7bd6110605445ed811f89782de0a7bacb56785316b4f814a7504e366f9971033"
+  },
+  {
+    "path": "current-controls/test_original_complete_environment_fixtures-nano_virt-mrzaexcj/native",
+    "size": 8567688,
+    "sha256": "812477c54b3999cea0131487fc544c87eede14b1c150e89a2f8f76ca4490b33f"
+  },
+  {
+    "path": "current-controls/test_overwrite_unset_errors_and_retained_getter-nano_virt-246regv3/native-O0",
+    "size": 8808152,
+    "sha256": "25c3758577f11e654d10ae74c5d19c8bd3a41facbd26000a05b6742aa3118b5c"
+  },
+  {
+    "path": "current-controls/test_overwrite_unset_errors_and_retained_getter-nano_virt-246regv3/native-O2",
+    "size": 8565528,
+    "sha256": "444392f759efe67d84cfafe0e33bc3382854b00225f6b8efe9eb564bca8f609b"
+  },
+  {
+    "path": "current-nano_virt",
+    "size": 12622008,
+    "sha256": "ed325c65299a289d34037f55bdff5f999569385a65d321a61904e730acbe67f2"
+  },
+  {
+    "path": "current-nanoc_c",
+    "size": 12654088,
+    "sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff"
+  },
+  {
+    "path": "current-nvm2c",
+    "size": 1651048,
+    "sha256": "08e45aa3a401d4fc444e44f70247ac021267abd58459035e44579e57059d874b"
+  }
+]

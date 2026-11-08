@@ -4162,10 +4162,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    exit((int)code);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static const char* nl_os_getenv(const char* name) {\n");
-    sb_append(sb, "    const char* value = getenv(name);\n");
-    sb_append(sb, "    return value ? value : \"\";\n");
-    sb_append(sb, "}\n\n");
+    generate_environment_getter(sb);
 
     sb_append(sb, "/* system() wrapper - stdlib system() available via stdlib.h */\n");
     sb_append(sb, "static inline int64_t nl_exec_shell(const char* cmd) {\n");

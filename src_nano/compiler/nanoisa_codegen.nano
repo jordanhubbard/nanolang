@@ -3402,6 +3402,8 @@ shadow nisa_math_arity {
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (or (== name "nl_os_setenv") (== name "nl_os_unsetenv")) { return "int" }
+    if (== name "getenv") { return "string" }
     if (== name "vm_bytes_from_string") { return "array<u8>" }
     if (== name "vm_string_from_bytes") { return "string" }
     if (== name "vm_array_sort") { return "array" }
@@ -3435,6 +3437,10 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "nl_os_setenv") "int")
+    assert (== (nisa_host_result "nl_os_unsetenv") "int")
+    assert (== (nisa_host_result "getenv") "string")
+    assert (== (nisa_host_result "nl_os_setenv_other") "")
     assert (== (nisa_host_result "vm_bytes_from_string") "array<u8>")
     assert (== (nisa_host_result "vm_string_from_bytes") "string")
     assert (== (nisa_host_result "vm_array_sort") "array")
@@ -3462,6 +3468,7 @@ shadow nisa_host_result {
 }
 
 fn nisa_host_arity(name: string) -> int {
+    if (== name "nl_os_setenv") { return 3 }
     if (== name "vm_str_join") { return 2 }
     if (>= (nisa_math_arity name) 0) { return (nisa_math_arity name) }
     if (== (nisa_host_result name) "") { return -1 }
@@ -3474,6 +3481,9 @@ fn nisa_host_arity(name: string) -> int {
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "nl_os_setenv") 3)
+    assert (== (nisa_host_arity "nl_os_unsetenv") 1)
+    assert (== (nisa_host_arity "getenv") 1)
     assert (== (nisa_host_arity "vm_bytes_from_string") 1)
     assert (== (nisa_host_arity "vm_string_from_bytes") 1)
     assert (== (nisa_host_arity "vm_str_join") 2)
@@ -3492,11 +3502,21 @@ shadow nisa_host_arity {
 }
 
 fn nisa_host_parameter_at(name: string, index: int) -> string {
+    if (== name "nl_os_setenv") {
+        if (== index 2) { return "int" }
+        if (or (== index 0) (== index 1)) { return "string" }
+        return ""
+    }
     if (and (== name "vm_str_join") (== index 0)) { return "array<string>" }
     if (>= (nisa_regex_arity name) 0) { return (nisa_regex_parameter name index) }
     return (nisa_host_parameter name)
 }
 shadow nisa_host_parameter_at {
+    assert (== (nisa_host_parameter_at "nl_os_setenv" 0) "string")
+    assert (== (nisa_host_parameter_at "nl_os_setenv" 1) "string")
+    assert (== (nisa_host_parameter_at "nl_os_setenv" 2) "int")
+    assert (== (nisa_host_parameter_at "nl_os_setenv" 3) "")
+    assert (== (nisa_host_parameter_at "nl_os_unsetenv" 0) "string")
     assert (== (nisa_host_parameter_at "vm_string_from_bytes" 0) "array<u8>")
     assert (== (nisa_host_parameter_at "vm_str_join" 0) "array<string>")
     assert (== (nisa_host_parameter_at "vm_str_join" 1) "string")
@@ -4145,6 +4165,28 @@ shadow nisa_register_extern {
     assert (== (nisa_register_extern parser (parser_get_function parser 0)) 0)
     assert (str_contains nisa_import_text "string int")
     let _2: int = (nisa_reset)
+    let declarations: array<string> = [
+        "extern fn nl_os_setenv(name:string,value:string,overwrite:int)->int",
+        "extern fn nl_os_unsetenv(name:string)->int",
+        "extern fn getenv(name:string)->string",
+        "extern fn nl_os_setenv(name:string,value:string,overwrite:bool)->int",
+        "extern fn nl_os_setenv(name:string,value:string)->int",
+        "extern fn nl_os_setenv(name:string,value:string,overwrite:int)->bool",
+        "extern fn nl_os_unsetenv(name:int)->int",
+        "extern fn getenv(name:int)->string"
+    ]
+    let mut i: int = 0
+    while (< i (array_length declarations)) {
+        let _: int = (nisa_reset)
+        let tokens: List<LexerToken> = (tokenize_string (at declarations i) "environment.nano" (diag_list_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "environment.nano")
+        let registered: int = (nisa_register_extern parser (parser_get_function parser 0))
+        assert (== (>= registered 0) (< i 3))
+        if (< i 3) { assert (str_contains nisa_import_text "string") }
+        if (>= i 3) { assert (!= nisa_err "") }
+        set i (+ i 1)
+    }
+    let _: int = (nisa_reset)
 }
 
 fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string {

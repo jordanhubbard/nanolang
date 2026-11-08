@@ -418,6 +418,10 @@ static const Nvm2cHost host_adapters[] = {
 #undef NANO_MATH_HOST
     {"vm_getcwd", "nhost_getcwd", 0, TAG_VOID, TAG_STRING},
     {"vm_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
+    {"getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
+    {"vm_setenv", "nhost_setenv_replace", 2, TAG_STRING, TAG_INT},
+    {"nl_os_setenv", "nhost_setenv", 3, TAG_STRING, TAG_INT},
+    {"nl_os_unsetenv", "nhost_unsetenv", 1, TAG_STRING, TAG_INT},
     {"vm_str_trim_left", "nhost_trim_left", 1, TAG_STRING, TAG_STRING},
     {"vm_str_trim_right", "nhost_trim_right", 1, TAG_STRING, TAG_STRING},
     {"vm_str_join", "nhost_join", 2, TAG_ARRAY, TAG_STRING},
@@ -615,6 +619,7 @@ static bool typed_artifact_adapter(const Nvm2cHost *host) {
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
     if (host && !strcmp(host->c_name, "nhost_join") && index == 1) return TAG_STRING;
+    if (host && !strcmp(host->c_name, "nhost_setenv") && index == 2) return TAG_INT;
     if (typed_artifact_adapter(host)) {
         for (size_t i = 0; i < sizeof typed_artifact_adapters / sizeof typed_artifact_adapters[0]; ++i)
             if (host == &typed_artifact_adapters[i].host)
@@ -6603,6 +6608,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int receiver = stack_pop_expect(b, &st, NVM2C_VK_SARR, "STRING-array join receiver");
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "nhost_join(sa[%d], s[%d])", receiver, separator);
+            } else if (!strcmp(host->c_name, "nhost_setenv")) {
+                int overwrite = stack_pop_expect(b, &st, NVM2C_VK_INT, "environment overwrite");
+                int value = stack_pop_expect(b, &st, NVM2C_VK_STR, "environment value");
+                int name = stack_pop_expect(b, &st, NVM2C_VK_STR, "environment name");
+                if (b->failed) goto done;
+                snprintf(expression, sizeof expression, "nhost_setenv(s[%d], s[%d], t[%d])", name, value, overwrite);
             } else if (host->argc == 2) {
                 uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR :
                     host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
@@ -8771,7 +8782,9 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         }
 
         if (module_uses_host(mod, "nhost_destinations") || module_uses_host(mod, "nhost_capture") ||
-            module_uses_host(mod, "nhost_mktemp_dir") || module_uses_host(mod, "nhost_mktemp")) nvm2c_puts(&b,
+            module_uses_host(mod, "nhost_mktemp_dir") || module_uses_host(mod, "nhost_mktemp") ||
+            module_uses_host(mod, "nhost_setenv") || module_uses_host(mod, "nhost_setenv_replace") ||
+            module_uses_host(mod, "nhost_unsetenv")) nvm2c_puts(&b,
             "#ifndef _POSIX_C_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#endif\n");
         if (module_uses_host(mod, "nhost_mktemp_dir")) nvm2c_puts(&b,
             "#ifdef __APPLE__\n#ifndef _DARWIN_C_SOURCE\n#define _DARWIN_C_SOURCE\n#endif\n#endif\n");
@@ -8963,6 +8976,15 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             if (env_used) nvm2c_puts(&b,
                 "static inline const char *nhost_getenv(const char *name) {\n"
                 "    return nhost_copy(getenv(name ? name : \"\"));\n}\n");
+            if (module_uses_host(mod, "nhost_setenv")) nvm2c_puts(&b,
+                "static inline int64_t nhost_setenv(const char *name, const char *value, int64_t overwrite) {\n"
+                "    return (int64_t)setenv(name, value, (int)overwrite);\n}\n");
+            if (module_uses_host(mod, "nhost_setenv_replace")) nvm2c_puts(&b,
+                "static inline int64_t nhost_setenv_replace(const char *name, const char *value) {\n"
+                "    return setenv(name, value, 1) == 0 ? 0 : -1;\n}\n");
+            if (module_uses_host(mod, "nhost_unsetenv")) nvm2c_puts(&b,
+                "static inline int64_t nhost_unsetenv(const char *name) {\n"
+                "    return (int64_t)unsetenv(name);\n}\n");
             if (tmp_used) nvm2c_puts(&b,
                 "static inline const char *nhost_tmp_dir(void) {\n"
                 "    const char *value = getenv(\"TMPDIR\");\n"
