@@ -1,0 +1,72 @@
+[
+  {
+    "provider": "nano_virt",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 3.40287114199964
+    },
+    "statuses": [
+      2,
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "provider": "nanoc_c",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 31.98257086700005
+    },
+    "statuses": [
+      2,
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "provider": "nanoc_stage1",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 395.59350063200054
+    },
+    "tool_sums_seconds": {
+      "cc": 49.91586565200032,
+      "nvm2c": 37.107857435999904
+    },
+    "outside_tool_elapsed_seconds": 308.5697775440003,
+    "statuses": [
+      2,
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "provider": "nanoc_stage2",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 393.3397463299998
+    },
+    "tool_sums_seconds": {
+      "cc": 50.00275961400348,
+      "nvm2c": 37.23992555899986
+    },
+    "outside_tool_elapsed_seconds": 306.09706115699646,
+    "statuses": [
+      2,
+      0,
+      1,
+      2
+    ]
+  }
+]

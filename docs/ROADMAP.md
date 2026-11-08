@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1065/#1088 I retain my [first measured fresh CLI checkpoint](evidence/fresh-source-contracts-20261108/c003-cli/README.md): all four providers execute exact 2/0/1/2 outcomes; Stage 1/2 compile in 395.594/393.340 seconds, with about 37 seconds translation and 50 seconds observed CC each. I retain all 77 metadata files and leave 308.570/306.097 seconds outside those tools unattributed. Product byte custody, later-source qualification and the original 120-second corpus acceptance remain separate.
+
 - [x] Under #1084/#1100/#1081 I retain the [c003 fresh source contract checkpoint](evidence/fresh-source-contracts-20261108/c003/README.md): fresh bootstrap, all 69 selected source methods, all nine canonical STRING methods through three producers and all six map methods pass. The original invalid STRING and reserved-print diagnostic assertions remain unchanged. Provider hashes are retained without claiming binary custody, complete original corpus/budget or later-source qualification.
 
 - [x] Under #1104 I retain the [pinned Apple directed argument component checkpoint](evidence/u8-arguments-20261108/apple-298e/README.md): all 96 methods, original C units/aliases and complete translator suites pass, with exact source/toolchain custody and an independently verified arm64 Mach-O checker product executing the production cases. Fresh self-hosted, original route/budget and full native lifecycle acceptance remain open.
