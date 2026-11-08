@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1108/#1081 I restore my existing standalone bang spelling in the source lexer: retain TOKEN_NOT/value `!`, preserve `!=` and token positions, and normalize the parenthesized unary AST call to my canonical `not` identity. The unchanged symbol-scoping fixture currently stops during tokenization, before symbol lookup; I require useful lexer/parser shadows, whole-fixture and wrong-operand controls, complete component gates and fresh-stage acceptance rather than rewriting the fixture.
+
 - [x] Under #1106 I retain the [qualified GCC/Clang string stdlib component checkpoint](evidence/string-stdlib-20261108/qualified-050/README.md): both 112-method suites, actual native source checkers, original C units/aliases, all 2458 translator assertions and 3866 shapes pass. I independently verify 46 string ELF products, two checker ELFs and exact command/source/provider records. Fresh stages, original corpus budget, Apple and release acceptance remain open.
 
 - [ ] Under #1107/#1081 I repair my retained top-level-constants parse failure by matching the C parser's existing uppercase-name/block lookahead for IF, RETURN, LET, WHILE and FOR. I preserve named/qualified/empty literals, the unchanged whole fixture and original malformed/prior-output controls; add useful lookahead/parser shadows and production cases; require complete component and fresh-stage acceptance before closing.
