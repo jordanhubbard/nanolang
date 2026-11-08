@@ -38,4 +38,23 @@ GitHub initially refuses both file-name dispatch requests with HTTP 404 because
 this workflow is absent from the default branch. I add a push trigger limited
 to my review branch and its two comparison implementation files. That trigger
 starts Linux/Apple diagnostic jobs; it does not change any release gate. Manual
-inputs remain available once GitHub registers the workflow.
+input declarations remain in the workflow; the first successful run uses push.
+
+## My first Apple setup refusal
+
+Run 42533514074's Apple job stops before building a provider or running any
+source sample. Its preflight has 28.75 GiB free; after two ordinary full
+worktrees, 14.42 GiB remains. The bounded inspection measures 14,900,644 KiB in
+the worktree directory. I retain the CRC-checked artifact, worker/plan snapshots
+and inspection in `first-apple-headroom/`. This is a verified setup refusal,
+not a compiler timing result. The Linux job remains on its original handle.
+
+I keep the headroom policy and complete tracked trees. On macOS I prepare the
+exact Git index without checkout, use native copy-on-write clones for unchanged
+regular files, preserve links and executable modes, and materialize changed
+entries from that exact index. Clones have distinct inodes and independent
+writes. I do not omit evidence, source or fixtures to fit. Other platforms keep
+ordinary full checkouts. The real Git/APFS fixture checks baseline differences,
+links, modes, whole-tree equality and write isolation. All four local driver
+controls pass. The corrective push starts only Apple; the already-running Linux
+comparison is not restarted.

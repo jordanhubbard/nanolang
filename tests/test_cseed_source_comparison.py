@@ -1,5 +1,8 @@
 """I refuse changed comparison inputs and preserve interleaved trace events."""
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -51,3 +54,37 @@ class CseedSourceComparison(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, 'earlier observed prefix'):
             comparison.check_selection(full, None, full[:1], True)
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'I require macOS copy-on-write storage.')
+    def test_complete_clone_keeps_baseline_links_modes_and_write_isolation(self):
+        parent = Path.home()/'.worktrees/nanolang'
+        parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='comparison-fixture-', dir=parent) as directory:
+            repository, target = Path(directory)/'repo', Path(directory)/'clone'
+            repository.mkdir()
+            env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1')
+            def git(*args):
+                return subprocess.check_output(['git', *args], cwd=repository, env=env, stderr=subprocess.PIPE)
+            git('init', '-q')
+            git('config', 'user.name', 'NanoLang fixture')
+            git('config', 'user.email', 'fixture@example.invalid')
+            (repository/'changed.txt').write_text('I retain my baseline.\n')
+            (repository/'shared.txt').write_text('I retain independent data.\n')
+            (repository/'shared.txt').chmod(0o755)
+            (repository/'alias').symlink_to('shared.txt')
+            git('add', '.')
+            git('commit', '-qm', 'baseline')
+            baseline = git('rev-parse', 'HEAD').decode().strip()
+            (repository/'changed.txt').write_text('I retain my candidate.\n')
+            git('commit', '-qam', 'candidate')
+            report = comparison.prepare_worktree(repository, target, baseline)
+            self.assertEqual(report['tracked_entries'], 3)
+            self.assertEqual((target/'changed.txt').read_text(), 'I retain my baseline.\n')
+            self.assertEqual(os.readlink(target/'alias'), 'shared.txt')
+            self.assertTrue((target/'shared.txt').stat().st_mode & 0o111)
+            self.assertNotEqual((target/'shared.txt').stat().st_ino,
+                                (repository/'shared.txt').stat().st_ino)
+            subprocess.run(['git', 'diff', '--exit-code', 'HEAD'], cwd=target, check=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (target/'shared.txt').write_text('I changed only my clone.\n')
+            self.assertEqual((repository/'shared.txt').read_text(), 'I retain independent data.\n')

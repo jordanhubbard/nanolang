@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        worker: ${{ fromJSON(github.event_name == 'push' && '["ubuntu-latest","xcode-27"]' || (inputs.native_darwin && '["xcode-27"]' || '["ubuntu-latest"]')) }}
+        worker: ${{ fromJSON(github.event_name == 'push' && '["xcode-27"]' || (inputs.native_darwin && '["xcode-27"]' || '["ubuntu-latest"]')) }}
     runs-on: ${{ matrix.worker }}
     timeout-minutes: 120
     env:

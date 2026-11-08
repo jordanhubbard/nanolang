@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """I compare fixed, alternating source creations without replacing release gates."""
 import argparse
+import ctypes
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -34,6 +36,69 @@ def digest(path):
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + '\n')
+
+
+
+@lru_cache(maxsize=1)
+def clone_operation():
+    library = ctypes.CDLL('/usr/lib/libSystem.B.dylib', use_errno=True)
+    operation = library.clonefile
+    operation.argtypes = (ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int)
+    operation.restype = ctypes.c_int
+    return operation
+
+
+def clone_file(source, destination):
+    if clone_operation()(os.fsencode(source), os.fsencode(destination), 0) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), str(destination))
+
+
+def git_tree(repository, revision):
+    raw = subprocess.check_output(['git', 'ls-tree', '-rz', '--full-tree', revision], cwd=repository)
+    result = {}
+    for entry in raw.split(b'\0'):
+        if entry:
+            header, path = entry.split(b'\t', 1)
+            result[os.fsdecode(path)] = tuple(header.decode().split())
+    return result
+
+
+def prepare_worktree(repository, root, revision):
+    if sys.platform != 'darwin':
+        subprocess.run(['git', 'worktree', 'add', '--detach', str(root), revision], cwd=repository, check=True)
+        return {'mode': 'ordinary full checkout'}
+    subprocess.run(['git', 'worktree', 'add', '--detach', '--no-checkout', str(root), revision],
+                   cwd=repository, check=True)
+    subprocess.run(['git', 'read-tree', revision], cwd=root, check=True)
+    baseline, reference = git_tree(repository, revision), git_tree(repository, 'HEAD')
+    changed, cloned, links = [], 0, 0
+    for name, entry in baseline.items():
+        target, source = root/name, repository/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        mode, kind, _ = entry
+        if mode == '160000':
+            target.mkdir(exist_ok=True)  # I match checkout's uninitialized submodule directories.
+        elif entry != reference.get(name):
+            changed.append(name)
+        elif kind == 'blob' and mode == '120000' and source.is_symlink():
+            target.symlink_to(os.readlink(source))
+            links += 1
+        elif kind == 'blob' and mode in ('100644', '100755') and source.is_file() and not source.is_symlink():
+            clone_file(source, target)
+            if source.stat().st_ino == target.stat().st_ino:
+                raise RuntimeError('I refuse shared writable file inodes.')
+            if bool(target.stat().st_mode & 0o111) != (mode == '100755'):
+                raise RuntimeError('I refuse changed executable modes.')
+            cloned += 1
+        else:
+            changed.append(name)
+    if changed:
+        subprocess.run(['git', 'checkout-index', '--force', '-z', '--stdin'], cwd=root,
+                       input=b''.join(os.fsencode(name)+b'\0' for name in changed), check=True)
+    return {'mode': 'complete tracked tree with independent copy-on-write files',
+            'tracked_entries': len(baseline), 'cloned_files': cloned,
+            'copied_links': links, 'materialized_from_exact_git_index': len(changed)}
 
 
 def shared_inputs(root):
@@ -177,8 +242,10 @@ def run(output, baseline):
                     NANO_NUMERIC_PROVIDERS='nano_virt',
                     NANO_MAP_CONTEXT_PROVIDERS='nanoc_c,nano_virt')
     records, providers, environments = {}, {}, {}
+    checkouts = {}
     for name, revision in (('original', baseline), ('modified', candidate)):
-        subprocess.run(['git', 'worktree', 'add', '--detach', str(roots[name]), revision], cwd=ROOT, check=True)
+        checkouts[name] = prepare_worktree(ROOT, roots[name], revision)
+        write(output/'checkouts.json', checkouts)
     common = require_same_inputs(roots['original'], roots['modified'])
     write(output/'shared-inputs.json', common)
     cc = os.environ.get('CC', 'cc')
