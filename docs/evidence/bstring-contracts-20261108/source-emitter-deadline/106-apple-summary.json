@@ -1,0 +1,224 @@
+{
+  "run": 42531094636,
+  "artifact": 13637980801,
+  "sha256": "a6c40002c95065e6cff264dadea141199dcf563c870755da9390e18384443790",
+  "size": 4395312,
+  "crc_checked": true,
+  "zip_saved": false,
+  "emitter": {
+    "starts": 1042,
+    "completes": 1041,
+    "failures": 0,
+    "summed_body_seconds": 9.87493,
+    "last_started": {
+      "event": "shadow-start",
+      "name": "nisa_call_has_result",
+      "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 8050,
+      "elapsed_seconds": 0.0,
+      "failures": 0
+    },
+    "slowest": [
+      {
+        "event": "shadow-complete",
+        "name": "parse_block_recursive",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/parser.nano",
+        "line": 5805,
+        "elapsed_seconds": 0.403235,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "parse_unsafe_block_recursive",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/parser.nano",
+        "line": 5969,
+        "elapsed_seconds": 0.397095,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_owner_array_mutation_fixture",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 3543,
+        "elapsed_seconds": 0.354264,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_call",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 7354,
+        "elapsed_seconds": 0.289767,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_expected_expr",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 5348,
+        "elapsed_seconds": 0.219358,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_ordinary",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 2077,
+        "elapsed_seconds": 0.20694,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_owner_array_fixture",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 3516,
+        "elapsed_seconds": 0.167511,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "tc_validate_layouts",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 8313,
+        "elapsed_seconds": 0.159574,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_map_call",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 3299,
+        "elapsed_seconds": 0.156831,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_constructor_argument",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 4929,
+        "elapsed_seconds": 0.148678,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_host_call",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 4314,
+        "elapsed_seconds": 0.147222,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_concrete_tag",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 532,
+        "elapsed_seconds": 0.145246,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_expr",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 7722,
+        "elapsed_seconds": 0.142602,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_owner",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 3459,
+        "elapsed_seconds": 0.122914,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_project_binding",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 612,
+        "elapsed_seconds": 0.120855,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_binding",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 3407,
+        "elapsed_seconds": 0.11393,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_mixed_fixture",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 3492,
+        "elapsed_seconds": 0.1078,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_union_context",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 2188,
+        "elapsed_seconds": 0.101776,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_concrete_layout",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 544,
+        "elapsed_seconds": 0.098801,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "check_expr_node",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 6561,
+        "elapsed_seconds": 0.095605,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nb_owner_field_tag",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+        "line": 298,
+        "elapsed_seconds": 0.085471,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_expr_type",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 4972,
+        "elapsed_seconds": 0.083178,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "resource_transfer_supported",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/typecheck.nano",
+        "line": 1050,
+        "elapsed_seconds": 0.081585,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_emit_indirect_call",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 6752,
+        "elapsed_seconds": 0.080725,
+        "failures": 0
+      },
+      {
+        "event": "shadow-complete",
+        "name": "nisa_register_extern",
+        "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+        "line": 4209,
+        "elapsed_seconds": 0.078601,
+        "failures": 0
+      }
+    ]
+  }
+}
