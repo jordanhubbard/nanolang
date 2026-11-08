@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1097 I retain a complete original runtime-format native baseline before adding source admission. I repair self-hosted result/checker/lowering and any demonstrated C-frontend native gap while retaining current %s/%d/%f/%g substitution, raw conversion policy, Unicode/empty/long and missing/extra argument semantics, once-only source order, lexical identity, prior output and useful shadows. I require both fresh stages, full translator/units and integrated acceptance; I do not widen raw foreign-array ABI admission.
+
 - [x] Under #1081 I retain the [historical d054 terminal](evidence/junit-route-checkpoints-20261107/d054/README.md): all four routes select 237 original cases with zero skips, with 237/235/180/180 passes. Three ZIPs pass CRC and the embedded temporary TAR verifies all three entries. Later corrections remain separately pinned; this old failure is not current stage acceptance.
 
 - [ ] Under #1096 I preserve the original complete dynamic-array fixture and repair missing self-hosted array_pop/array_remove_at metadata, checking and canonical opcode emission. I retain lexical binding identity, once-only operand order, one-result pop, mutation aliases, existing consumer empty/out-of-range behavior, malformed prior-output controls and meaningful shadows. I audit the C checker's currently permissive missing-function fallback, then require both fresh stages, complete translator/units and integrated platform acceptance.
