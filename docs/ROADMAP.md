@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1081 I correct my new print identity control to use legal lexical function bindings and retain forbidden global print/println redeclarations as refusals with prior-output integrity. Exact b8 hosted results also expose #1089: C-seed shadows fail the unchanged escaping-capture fixture while NanoVirt passes it. I retain that capture assertion and diagnose it separately rather than removing it for a green print suite.
+
 - [x] Under #980/#1049 I retain my [qualified pinned linker checkpoint](evidence/darwin-link-input-diagnostic-20261107/qualified-0644/README.md): actual Apple ld 27106.1 passes 22 grammar outcome cases, all 49 original response methods, and all 30 original assembler configurations with zero focused skips. The unchanged complete source-snapshot corpus and integrated release gates remain open.
 
 - [ ] Under #1081 I retain bare `print value` and `println value` as dedicated print statements, matching my C parser even when a declaration uses that spelling; parenthesized prefix calls keep ordinary binding identity. I carry an explicit newline bit in the shared AST schema, check the printed expression, preserve purity/resource/borrow traversal, emit existing PRINT/PRINTLN operations, and require meaningful parser/lowering shadows plus exact four-route output/refusal coverage without rewriting the original corpus.

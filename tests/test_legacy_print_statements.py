@@ -80,12 +80,14 @@ class LegacyPrintStatements(unittest.TestCase):
                     'before':before,'after':after},indent=2)+'\n')
                 self.assertEqual(before,after)
 
-    def test_bare_statements_and_declared_prefix_calls_keep_their_identity(self):
-        self.exercise('''fn print(value:int)->int{return (+ value 100)}
-shadow print { assert (== (print 7) 107) }
-fn println(value:int)->int{return (+ value 200)}
-shadow println { assert (== (println 7) 207) }
+    def test_bare_statements_and_lexical_prefix_calls_keep_their_identity(self):
+        self.exercise('''fn hundred(value:int)->int{return (+ value 100)}
+shadow hundred { assert (== (hundred 7) 107) }
+fn two_hundred(value:int)->int{return (+ value 200)}
+shadow two_hundred { assert (== (two_hundred 7) 207) }
 fn main()->int {
+ let print:fn(int)->int=hundred
+ let println:fn(int)->int=two_hundred
  print 1
  println 2
  println (print 3)
@@ -114,6 +116,10 @@ shadow main {assert (== (main) 0)}
 
     def test_missing_values_unknown_names_and_false_purity_preserve_output(self):
         sources=[
+            ('fn print(value:int)->int{return (+ value 100)} shadow print{assert (== (print 7) 107)} '
+             'fn println(value:int)->int{return (+ value 200)} shadow println{assert (== (println 7) 207)} '
+             'fn main()->int{print 1 println 2 println (print 3) println (println 4) return 0} '
+             'shadow main{assert (== (main) 0)}', r"(?i)cannot redefine built-in function"),
             ('fn main()->int{println missing return 0} shadow main{assert true}', r'(?i)(undefined|unknown|unresolved|not defined|cannot find)'),
             ('fn main()->int{print} shadow main{assert true}', r'(?i)(parse|expected|unexpected|syntax)'),
             ('pure fn show()->int{println 7 return 0} shadow show{assert (== (show) 0)} '
