@@ -58,6 +58,7 @@ on:
       - 'tests/nanovm/test_bstring_contracts.c'
       - 'tests/test_bstring_vm_contracts.py'
       - 'tests/test_bstring_source_vm.py'
+      - 'tests/test_bstring_source_native.py'
       - 'tests/test_bstring_c_contracts.py'
       - 'tests/test_nl_string.c'
       - 'Makefile.gnu'
@@ -235,12 +236,12 @@ jobs:
         env:
           NANO_SHADOW_TRACE: '1'
         run: python3 -m unittest -v tests.test_source_checker_component
-      - name: Execute binary-string VM contracts through my actual source emitter
+      - name: Execute binary-string VM and native contracts through my actual source emitter
         env:
           NANO_SHADOW_TRACE: '1'
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_bstring_source_vm \
+          python3 -m unittest -v tests.test_bstring_source_vm tests.test_bstring_source_native \
             2>&1 | tee .test_output/string-builtin-operands/bstring-source-vm.log
       - name: Verify exact and deferred aggregate shape constraints
         run: |
@@ -279,6 +280,7 @@ jobs:
             .test_output/bstring-vm-contracts/
             .test_output/bstring-source-compiler/
             .test_output/bstring-source-vm-contracts/
+            .test_output/bstring-source-native-contracts/
             .test_output/bstring-contract-baselines/**/*.json
             .test_output/bstring-contract-baselines/**/*.stdout
             .test_output/bstring-contract-baselines/**/*.stderr
@@ -355,6 +357,7 @@ jobs:
             .test_output/bstring-vm-contracts/
             .test_output/bstring-source-compiler/
             .test_output/bstring-source-vm-contracts/
+            .test_output/bstring-source-native-contracts/
             .test_output/compiler-phase-markers/
             .test_output/map-constructor-contexts/
           include-hidden-files: true

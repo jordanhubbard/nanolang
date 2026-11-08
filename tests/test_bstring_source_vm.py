@@ -16,6 +16,12 @@ class BstringSourceVmContracts(binary.BstringVmContracts):
 
     @classmethod
     def setUpClass(cls):
+        if getattr(cls, '_creation_attempted', False):
+            if (not getattr(cls, '_creation_succeeded', False) or not cls.compiler.is_file()
+                    or hashlib.sha256(cls.compiler.read_bytes()).hexdigest() != cls._creation_digest):
+                raise AssertionError('I require my retained first source-compiler creation to succeed and remain unchanged.')
+            return
+        cls._creation_attempted = True
         output = ROOT/'.test_output/bstring-source-compiler'
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix='actual-native-', dir=output))
@@ -51,6 +57,8 @@ class BstringSourceVmContracts(binary.BstringVmContracts):
                 'product_after_run': product_after}, indent=2)+'\n')
             if before != after or (product_before is not None and product_before != product_after):
                 raise AssertionError('I require unchanged source/provider inputs and a stable completed compiler product.')
+        cls._creation_digest = product_before
+        cls._creation_succeeded = True
 
     def test_lexical_callee_and_constructor_argument_order(self):
         self.exercise('''let mut trace:int=0

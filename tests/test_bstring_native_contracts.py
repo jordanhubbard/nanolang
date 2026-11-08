@@ -16,16 +16,19 @@ ROOT = binary.ROOT
 
 
 class BstringNativeContracts(unittest.TestCase):
+    compiler = ROOT/'bin/nano_virt'
+    artifact_directory = 'bstring-native-contracts'
+    scope = 'I execute C-created NanoISA and actual translated native products; source-emitter qualification remains separate.'
     command = binary.BstringVmContracts.command
 
     def exercise(self, source, expected='', *, source_path=None):
-        output = ROOT/'.test_output/bstring-native-contracts'
+        output = ROOT/'.test_output'/self.artifact_directory
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix=self._testMethodName+'-', dir=output))
         path = work/'main.nano' if source_path is None else source_path
         if source_path is None:
             path.write_text(source)
-        providers = [path, ROOT/'bin/nano_virt', ROOT/'bin/nano_vm', ROOT/'bin/nvm2c',
+        providers = [path, self.compiler, ROOT/'bin/nano_vm', ROOT/'bin/nvm2c',
                      ROOT/'bin/nano_aot_runtime.o']
         before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
         module, generated = work/'program.nvm', work/'program.c'
@@ -53,7 +56,7 @@ class BstringNativeContracts(unittest.TestCase):
         finally:
             after = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
             (work/'inputs.json').write_text(json.dumps({'scope':
-                'I execute C-created NanoISA and actual translated native products; source-emitter and container qualification remain separate.',
+                self.scope,
                 'before': before, 'after': after, 'native_products': products,
                 'module_sha256': hashlib.sha256(module.read_bytes()).hexdigest() if module.exists() else None,
                 'generated_sha256': hashlib.sha256(generated.read_bytes()).hexdigest() if generated.exists() else None}, indent=2)+'\n')
@@ -143,13 +146,13 @@ shadow main{assert (== (main) 0)}
 ''')
 
     def test_generated_owner_collection_and_refusals(self):
-        output = ROOT/'.test_output/bstring-native-contracts'
+        output = ROOT/'.test_output'/self.artifact_directory
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix='generated-collection-', dir=output))
         source, module, generated = work/'main.nano', work/'program.nvm', work/'program.c'
         source.write_text('fn main()->int{let value:bstring=(bstr_new "seed") (bstr_free value) return 0}\n'
                           'shadow main{assert (== (main) 0)}\n')
-        providers = [ROOT/'bin/nano_virt', ROOT/'bin/nano_vm', ROOT/'bin/nvm2c', ROOT/'bin/nano_aot_runtime.o']
+        providers = [self.compiler, ROOT/'bin/nano_vm', ROOT/'bin/nvm2c', ROOT/'bin/nano_aot_runtime.o']
         before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
         products = []
         try:
