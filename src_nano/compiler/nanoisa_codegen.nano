@@ -4262,6 +4262,7 @@ shadow nisa_emit_bstring_call {
     let text: string = (nanoisa_emit_nasm "fn main()->int{let value:bstring=(bstr_new \"hi\") (bstr_free value) return 0}")
     assert (str_contains text ".import \"\" \"vm_bstring_new\" bstring string")
     assert (str_contains text ".import \"\" \"vm_bstring_free\" void bstring")
+    assert (not (str_contains text "CALL_EXTERN 1\n  POP"))
     assert (== (nanoisa_emit_nasm "fn main()->int{(bstr_length \"wrong\") return 0}") "")
     assert (== (nanoisa_emit_nasm "fn main()->int{let value:bstring=(bstr_new \"x\") (bstr_byte_at value true) return 0}") "")
     let reset: int = (nisa_reset)
@@ -4607,6 +4608,7 @@ fn nisa_element_type(parser: Parser, container: string) -> string {
     if (== container "array<u8>") { return "u8" }
     if (== container "array<float>") { return "float" }
     if (== container "array<bool>") { return "bool" }
+    if (== container "array<bstring>") { return "bstring" }
     if (and (str_starts_with container "array<") (str_ends_with container ">")) {
         let element: string = (str_substring container 6 (- (str_length container) 7))
         if (and (str_starts_with element "array<") (nisa_type_ok parser element)) { return element }
@@ -4633,6 +4635,8 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "array<bool>") "bool")
     assert (== (nisa_element_type parser "array<float>") "float")
     assert (== (nisa_element_type parser "array<u8>") "u8")
+    assert (== (nisa_element_type parser "array<bstring>") "bstring")
+    assert (== (nisa_element_type parser "array<array<bstring>>") "array<bstring>")
     assert (== (nisa_element_type parser "array<array<u8>>") "array<u8>")
     assert (== (nisa_element_type parser "array<fn(int)->int>") "fn(int)->int")
     assert (== (nisa_element_type parser "array<Box<int>>") "Box<int>")
@@ -7541,12 +7545,12 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     }
                     if (or (== left_type "bstring") (== right_type "bstring")) {
                         if (or (!= left_type "bstring") (!= right_type "bstring")) {
-                            return (nisa_fail "I require two binary-string owners for identity comparison.")
+                            return (nisa_fail "I require two binary-string operands for identity comparison.")
                         }
                         let mut opcode: string = ""
                         if (== binop.op LexerTokenType.TOKEN_EQ) { set opcode "EQ" }
                         if (== binop.op LexerTokenType.TOKEN_NE) { set opcode "NE" }
-                        if (== opcode "") { return (nisa_fail "I require equality for binary-string owners.") }
+                        if (== opcode "") { return (nisa_fail "I require equality for binary-string operands.") }
                         let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                         let right: string = (nisa_emit_expr parser binop.right binop.right_type)
                         return (+ (+ left right) (nisa_line opcode))
@@ -8025,6 +8029,10 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     if (nisa_is_set_call name) { return false }
     if (or (== (nisa_map_opcode name) "HM_CLEAR") (or (== (nisa_map_opcode name) "HM_SET") (== (nisa_map_opcode name) "HM_DELETE"))) { return false }
     let index: int = (nisa_call_index parser call)
+    if (and (< index 0) (str_starts_with name "bstr_")) {
+        let result: string = (bstring_builtin_result name)
+        if (!= result "") { return (!= result "void") }
+    }
     if (and (< index 0) (> (nisa_list_removal name) 0)) { return (!= (nisa_list_removal_result parser call name) "void") }
     if (< index 0) { return (not (or (nisa_is_list_insert name) (nisa_is_list_free name))) }
     let function: ASTFunction = (parser_get_function parser index)
@@ -8032,6 +8040,13 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
 }
 
 shadow nisa_call_has_result {
+    let binary_tokens: List<LexerToken> = (tokenize_string "fn main()->int{let value:bstring=(bstr_new \"x\") (bstr_free value) return 0}" "binary-result.nano" (diag_list_new))
+    let binary_parser: Parser = (parse_program binary_tokens (list_LexerToken_length binary_tokens) "binary-result.nano")
+    assert (nisa_call_has_result binary_parser (parser_get_call binary_parser 0))
+    assert (not (nisa_call_has_result binary_parser (parser_get_call binary_parser 1)))
+    let declared_tokens: List<LexerToken> = (tokenize_string "fn bstr_free()->int{return 7} fn main()->int{return (bstr_free)}" "binary-declared.nano" (diag_list_new))
+    let declared_parser: Parser = (parse_program declared_tokens (list_LexerToken_length declared_tokens) "binary-declared.nano")
+    assert (nisa_call_has_result declared_parser (parser_get_call declared_parser 0))
     let clear_tokens: List<LexerToken> = (tokenize_string "fn main()->int{let values:HashMap<int,string> = (map_new) (map_clear values) return 0}" "clear.nano" (diag_list_new))
     let clear_parser: Parser = (parse_program clear_tokens (list_LexerToken_length clear_tokens) "clear.nano")
     assert (not (nisa_call_has_result clear_parser (parser_get_call clear_parser 1)))

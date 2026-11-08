@@ -69,6 +69,10 @@ fn add_two(value:int)->int{return (+ value 2)}
 shadow add_two{assert (== (add_two 40) 42)}
 fn apply(bstr_length:fn(int)->int,value:int)->int{return (bstr_length value)}
 shadow apply{assert (== (apply add_two 40) 42)}
+fn forty_two()->int{return 42}
+shadow forty_two{assert (== (forty_two) 42)}
+fn apply_free(bstr_free:fn()->int)->int{return (bstr_free)}
+shadow apply_free{assert (== (apply_free forty_two) 42)}
 fn identity(value:bstring)->bstring{return value}
 shadow identity {
  let value:bstring=(bstr_new "held")
@@ -77,6 +81,7 @@ shadow identity {
 }
 fn main()->int{
  assert (== (apply add_two 40) 42)
+ assert (== (apply_free forty_two) 42)
  let first:bstring=(bstr_new "left")
  let second:bstring=(bstr_new "right")
  set trace 0

@@ -4785,6 +4785,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    else if (v[%d].kind == 11 || v[%d].kind == 15) printf(\"%%s(%%u)\", v[%d].kind == 15 ? \"closure\" : \"fn\", (unsigned)v[%d].integer);\n", slot, slot, slot, slot);
                 nvm2c_puts(b, "    else fputs(\"void\", stdout);\n");
                 if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
+            } else if (k == NVM2C_VK_BSARR) {
+                nvm2c_printf(b, "    nvalue_array_print((nmap_value){7, %u, (char *)a[%d]});\n", k, slot);
+                if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
             } else if (k == NVM2C_VK_BOOL) {
                 nvm2c_printf(b, "    fputs(t[%d] ? \"true\" : \"false\", stdout);\n", slot);
                 if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
