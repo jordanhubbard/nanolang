@@ -124,7 +124,8 @@ fn exercise()->int{
  assert (== (bstr_byte_at tail 1) 66)
  let same:bstring=(bstr_new_binary bytes)
  assert (bstr_equals binary same)
- assert (== binary binary)
+ let alias:bstring=binary
+ assert (== binary alias)
  assert (not (== binary same))
  let sliced:array<u8> = (array_slice bytes 1 2)
  let sliced_binary:bstring=(bstr_new_binary sliced)
