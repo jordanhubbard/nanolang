@@ -563,6 +563,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!out) return NULL;\n");
     sb_append(sb, "    for (int64_t i = len - 1; i >= 0; i--) {\n");
     sb_append(sb, "        switch (t) {\n");
+    sb_append(sb, "            case ELEM_U8:     dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;\n");
     sb_append(sb, "            case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;\n");
@@ -578,7 +579,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!arr) return false;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
-    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return true;\n");
+    sb_append(sb, "        int64_t value = dyn_array_get_elem_type(arr) == ELEM_U8 ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);\n");
+    sb_append(sb, "        if (value == elem) return true;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return false;\n");
     sb_append(sb, "}\n\n");
@@ -588,7 +590,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (!arr) return -1;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
-    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return i;\n");
+    sb_append(sb, "        int64_t value = dyn_array_get_elem_type(arr) == ELEM_U8 ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);\n");
+    sb_append(sb, "        if (value == elem) return i;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return -1;\n");
     sb_append(sb, "}\n\n");
