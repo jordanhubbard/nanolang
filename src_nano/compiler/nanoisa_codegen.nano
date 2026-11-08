@@ -2101,7 +2101,8 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let kind: int = (at literal.field_value_types i)
         let contextual_union: bool = (or (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
                                          (and (== kind ParseNodeType.PNODE_ARRAY_LITERAL) (str_starts_with expected "array<")))
-        if (and (not contextual_union) (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected))) { return (nisa_fail "I require the declared union field type") }
+        let contextual_map: bool = (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser value kind))
+        if (and (not (or contextual_union contextual_map)) (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected))) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)
@@ -2146,6 +2147,32 @@ shadow nisa_emit_union_context {
     let _: int = (nisa_reset)
     assert (== (nisa_emit_union_context p id "Box<int>") "")
     assert (not nisa_ok)
+    for map_type in ["HashMap<int,int>", "HashMap<int,string>", "HashMap<string,int>", "HashMap<string,string>"] {
+        let source: string = (+ "union Box<T> { Some { value: T } } fn main()->int{let boxed: Box<" (+ map_type "> = Box.Some { value: (map_new) } return 0}"))
+        let tokens: List<LexerToken> = (tokenize_string source "map-union.nano" (diag_list_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "map-union.nano")
+        assert (not (parser_has_error parser))
+        let _: int = (nisa_reset)
+        let lowered: string = (nisa_emit_union_context parser 0 (+ "Box<" (+ map_type ">")))
+        assert nisa_ok
+        let mut key_tag: string = "1"
+        let mut value_tag: string = "1"
+        if (== (nisa_map_key_type map_type) "string") { set key_tag "5" }
+        if (== (nisa_map_value_type map_type) "string") { set value_tag "5" }
+        assert (str_contains lowered (+ "HM_NEW " (+ key_tag (+ " " value_tag))))
+        assert (str_contains lowered "AGG_PACK 1 0 0 1")
+    }
+    for source in [
+        "union Box<T>{Some{value:T}} fn map_new()->int{return 7} fn main()->int{let boxed: Box<HashMap<int,int>> = Box.Some { value: (map_new) } return 0}",
+        "union Box<T>{Some{value:T}} fn main()->int{let boxed: Box<HashMap<int,int>> = Box.Some { value: (map_new 1) } return 0}"
+    ] {
+        let tokens: List<LexerToken> = (tokenize_string source "map-union-refusal.nano" (diag_list_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "map-union-refusal.nano")
+        assert (not (parser_has_error parser))
+        let _: int = (nisa_reset)
+        assert (== (nisa_emit_union_context parser 0 "Box<HashMap<int,int>>") "")
+        assert (not nisa_ok)
+    }
     let _: int = (nisa_reset)
 }
 shadow nisa_emit_union {
