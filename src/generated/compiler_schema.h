@@ -584,6 +584,7 @@ typedef struct nl_ASTPrint {
     int column;
     int value;
     int value_type;
+    bool is_println;
 } nl_ASTPrint;
 typedef nl_ASTPrint ASTPrint;
 #endif

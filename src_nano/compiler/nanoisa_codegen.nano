@@ -7506,6 +7506,12 @@ shadow nisa_emit_par {
 }
 
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_PRINT) {
+        let printed: ASTPrint = (list_ASTPrint_get parser.prints stmt.node_id)
+        let value: string = (nisa_emit_expr parser printed.value printed.value_type)
+        if printed.is_println { return (+ value (nisa_line "PRINTLN")) }
+        return (+ value (nisa_line "PRINT"))
+    }
     if (or (== stmt.node_type ParseNodeType.PNODE_EFFECT_OP) (== stmt.node_type ParseNodeType.PNODE_HANDLE_EXPR)) { return (+ (nisa_emit_expr parser stmt.node_id stmt.node_type) (nisa_line "POP")) }
     if (== stmt.node_type ParseNodeType.PNODE_MATCH) { return (nisa_emit_match parser stmt.node_id) }
     if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
@@ -7716,6 +7722,11 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
 }
 
 shadow nisa_emit_stmt {
+    let _: int = (nisa_reset)
+    let printed: string = (nanoisa_emit_nasm "fn main()->int{print 7 println 8 return 0} shadow main{assert (== (main) 0)}")
+    assert nisa_ok
+    assert (str_contains printed "PUSH_I64 7\n  PRINT\n")
+    assert (str_contains printed "PUSH_I64 8\n  PRINTLN\n")
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let src: string = (+ "f" "n main() -> int { return 1 } shadow main { assert (== (main) 1) }")

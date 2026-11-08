@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1081 I retain bare `print value` and `println value` as dedicated print statements, matching my C parser even when a declaration uses that spelling; parenthesized prefix calls keep ordinary binding identity. I carry an explicit newline bit in the shared AST schema, check the printed expression, preserve purity/resource/borrow traversal, emit existing PRINT/PRINTLN operations, and require meaningful parser/lowering shadows plus exact four-route output/refusal coverage without rewriting the original corpus.
+
 - [x] Under #1083 I retain the [tagged-map snapshot checkpoint](evidence/map-tagged-snapshots-20261107/README.md): GCC and Clang each pass 39 VM/sanitized-C-AOT methods, including eight all-pair global/helper cases, conflicting-pair refusal, and all 304 original generated snapshot allocation-denial prefixes. Full source contexts, fresh stages and integrated platform acceptance remain open.
 
 - [ ] Under #980/#1049 I rerun every original Darwin source-snapshot method after qualifying the observed linker identity. I reuse the exact failure-retention harness and original assertions, record the full method selection and platform skips, verify failed-root archives without deleting originals, and keep this component result separate from full integrated release qualification.

@@ -4822,6 +4822,10 @@ test-builtin-string-operands: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
 
 test-units: test-builtin-string-operands
 
+.PHONY: test-legacy-print-statements
+test-legacy-print-statements: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_legacy_print_statements
+
 .PHONY: test-scalar-map-aot
 test-scalar-map-aot: nano_vm nvm2c nanoisa_dump $(BIN_DIR)/nanoisa
 	python3 -m unittest -v tests.test_scalar_map_aot

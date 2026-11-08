@@ -5162,6 +5162,120 @@ shadow parser_store_return {
 }
 
 /* Helper: Store assert statement node */
+fn parser_store_print(p: Parser, value_id: int, value_type: int, is_println: bool, line: int, column: int) -> Parser {
+    let node: ASTPrint = ASTPrint {
+        node_type: ParseNodeType.PNODE_PRINT,
+        line: line,
+        column: column,
+        value: value_id,
+        value_type: value_type,
+        is_println: is_println
+    }
+    let node_id: int = p.prints_count
+    (list_ASTPrint_push p.prints node)
+
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name,
+
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: (+ p.prints_count 1),
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        services_count: p.services_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_PRINT
+    }
+}
+
+shadow parser_store_print {
+    let tokens: List<LexerToken> = (tokenize_string "7" "print.nano" (Diagnostics.diag_list_new))
+    let expression: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "print.nano"))
+    let first: Parser = (parser_store_print expression expression.last_expr_node_id expression.last_expr_node_type false 3 4)
+    assert (== first.prints_count 1)
+    assert (== first.last_expr_node_type ParseNodeType.PNODE_PRINT)
+    let node: ASTPrint = (list_ASTPrint_get first.prints first.last_expr_node_id)
+    assert (not node.is_println)
+    assert (== node.value expression.last_expr_node_id)
+    assert (== node.value_type ParseNodeType.PNODE_NUMBER)
+    assert (== node.line 3) assert (== node.column 4)
+    let second: Parser = (parser_store_print first node.value node.value_type true 5 6)
+    assert (== second.prints_count 2)
+    assert (== second.last_expr_node_id 1)
+    assert (list_ASTPrint_get second.prints 1).is_println
+    assert (not (list_ASTPrint_get second.prints 0).is_println)
+}
+
 fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: int, column: int) -> Parser {
     let node: ASTAssert = ASTAssert {
         node_type: ParseNodeType.PNODE_ASSERT,
@@ -6461,6 +6575,13 @@ fn parse_statement(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
         
+        # I reserve only the bare statement spelling; prefix calls keep their binding.
+        if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (or (== tok.value "print") (== tok.value "println"))) {
+            let value: Parser = (parse_expression (parser_advance p))
+            if (parser_has_error value) { return value }
+            return (parser_store_print value value.last_expr_node_id value.last_expr_node_type (== tok.value "println") tok.line tok.column)
+        }
+
         /* Dispatch based on token type */
         if (== tok.token_type LexerTokenType.TOKEN_BREAK) {
             return (parser_with_statement (parser_advance p) ParseNodeType.PNODE_BREAK)
@@ -6535,7 +6656,21 @@ fn parse_statement(p: Parser) -> Parser {
 }
 
 shadow parse_statement {
-    assert (== 1 1)
+    for spelling in ["print", "println"] {
+        let tokens: List<LexerToken> = (tokenize_string (+ spelling " 7") "print.nano" (Diagnostics.diag_list_new))
+        let parsed: Parser = (parse_statement (parser_new tokens (list_LexerToken_length tokens) "print.nano"))
+        assert (not (parser_has_error parsed))
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_PRINT)
+        let printed: ASTPrint = (list_ASTPrint_get parsed.prints parsed.last_expr_node_id)
+        assert (== printed.value_type ParseNodeType.PNODE_NUMBER)
+        assert (== printed.is_println (== spelling "println"))
+        let calls: List<LexerToken> = (tokenize_string (+ "(" (+ spelling " 7)")) "print.nano" (Diagnostics.diag_list_new))
+        let called: Parser = (parse_statement (parser_new calls (list_LexerToken_length calls) "print.nano"))
+        assert (not (parser_has_error called))
+        assert (== called.last_expr_node_type ParseNodeType.PNODE_CALL)
+        let missing: List<LexerToken> = (tokenize_string spelling "print.nano" (Diagnostics.diag_list_new))
+        assert (parser_has_error (parse_statement (parser_new missing (list_LexerToken_length missing) "print.nano")))
+    }
 }
 
 /* ========== Definition Parsing ========== */

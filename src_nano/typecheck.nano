@@ -2261,6 +2261,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     /* ASTPrint fields */
     set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "is_println", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
 
@@ -6668,6 +6669,14 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             (Diagnostics.diag_list_add diags ret_diag)
         } else { (print "") }
         
+        if (== stmt.node_type ParseNodeType.PNODE_PRINT) {
+            let printed: ASTPrint = (list_ASTPrint_get parser.prints stmt.node_id)
+            let value: NSType = (check_expr_node parser printed.value printed.value_type local_symbols diags file_name)
+            if (== value.kind TypeKind.TYPE_UNKNOWN) { set ok false }
+            set i (+ i 1)
+            continue
+        }
+
         if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
             let parallel_block: ASTBlock = (parser_get_block parser stmt.node_id)
             if parallel_block.is_legacy_par {
@@ -6793,6 +6802,15 @@ shadow check_statement_list {
     let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { unsafe { assert 7 } return 0 }" "unsafe.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "unsafe.nano")
     assert (typecheck_phase p "unsafe.nano").had_error
+    let valid: List<LexerToken> = (tokenize_string "fn main()->int{print 7 println 8 return 0}" "print.nano" (list_CompilerDiagnostic_new))
+    let printed: Parser = (parse_program valid (list_LexerToken_length valid) "print.nano")
+    assert (not (typecheck_phase printed "print.nano").had_error)
+    let invalid: List<LexerToken> = (tokenize_string "fn main()->int{println missing return 0}" "print.nano" (list_CompilerDiagnostic_new))
+    let refused: Parser = (parse_program invalid (list_LexerToken_length invalid) "print.nano")
+    assert (typecheck_phase refused "print.nano").had_error
+    let impure: List<LexerToken> = (tokenize_string "pure fn show()->int{println 7 return 0}" "print.nano" (list_CompilerDiagnostic_new))
+    let claimed: Parser = (parse_program impure (list_LexerToken_length impure) "print.nano")
+    assert (typecheck_phase claimed "print.nano").had_error
 }
 
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {

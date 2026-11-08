@@ -140,6 +140,10 @@ fn nos_scan(parser: Parser, id: int, kind: int, depth: int) -> bool {
         let value: ASTAssert = (parser_get_assert parser id)
         return (nos_scan parser value.condition value.condition_type (+ depth 1))
     }
+    if (== kind ParseNodeType.PNODE_PRINT) {
+        let value: ASTPrint = (list_ASTPrint_get parser.prints id)
+        return (nos_scan parser value.value value.value_type (+ depth 1))
+    }
     if (== kind ParseNodeType.PNODE_IF) {
         let value: ASTIf = (parser_get_if parser id)
         if (not (nos_scan parser value.condition value.condition_type (+ depth 1))) { return false }
@@ -183,6 +187,11 @@ shadow nos_scan {
     assert (nos_scan parser (parser_get_function parser 0).body ParseNodeType.PNODE_BLOCK 0)
     assert (== nos_name_count 0)
     assert (not (nos_scan parser (parser_get_function parser 0).body ParseNodeType.PNODE_BLOCK 65))
+    let printed: List<LexerToken> = (tokenize_string "fn main()->int{print 7 println missing return 0}" "print.nano" (diag_list_new))
+    let printing: Parser = (parse_program printed (list_LexerToken_length printed) "print.nano")
+    let _: int = (nos_reset)
+    assert (nos_scan printing 0 ParseNodeType.PNODE_PRINT 0)
+    assert (not (nos_scan printing 1 ParseNodeType.PNODE_PRINT 0))
 }
 
 # 1 is a positive scalar proof; 2 retains known ownership; 0 is unknown.
