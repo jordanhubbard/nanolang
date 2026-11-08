@@ -1806,8 +1806,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 break;
             }
             
-            /* Special handling for println - needs type dispatch */
-            if (strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
+            Symbol *lexical_callee = env_get_var_visible_at(env, func_name, expr->line, expr->column);
+            bool bound_callable = lexical_callee && lexical_callee->type == TYPE_FUNCTION;
+            /* I keep typed lexical calls on my ordinary ordered call path. */
+            if (!bound_callable && strcmp(func_name, "println") == 0 && expr->as.call.arg_count == 1) {
                 Type arg_type = check_expression(expr->as.call.args[0], env);
                 if (arg_type == TYPE_STRING) {
                     emit_literal(list, "nl_println_string(");
@@ -1846,7 +1848,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, ")");
             }
             /* Special handling for print - needs type dispatch */
-            else if (strcmp(func_name, "print") == 0 && expr->as.call.arg_count == 1) {
+            else if (!bound_callable && strcmp(func_name, "print") == 0 && expr->as.call.arg_count == 1) {
                 Type arg_type = check_expression(expr->as.call.args[0], env);
                 if (arg_type == TYPE_STRING) {
                     emit_literal(list, "nl_print_string(");
