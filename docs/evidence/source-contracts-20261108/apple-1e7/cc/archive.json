@@ -1,0 +1,15 @@
+{
+  "size": 9419375,
+  "sha256": "71c19be067af1c0c32f89ff84c4dbae660a401dec2f353d9e237105ef9ddf851",
+  "files": 2128,
+  "text_files": 1953,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-5qsw5n4y.tar.gz",
+      "sha256": "1bcd1cac7a0fe1396a13b3d4d1fc46660c1b0219eb3c4da6d6a65bee8ded5438",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
