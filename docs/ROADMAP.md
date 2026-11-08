@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1053 I preserve the terminal complete-unit attempt at a1a035c93: the unchanged module prerequisite now passes, then dispatch equivalence compiles 187 of 188 original fixtures and refuses test_repl_history.nano on both GCC/Clang. I retain that observation, supply the full declared CI dependency closure, run units serially with verified instrumentation, archive failed temporary roots, and require the unchanged full corpus rather than attributing an unavailable compile log to a guessed cause.
+
 - [ ] Under #1053/#1085 I pass sanitizer flags as explicit Make command-line assignments and verify actual provider ASan symbols before claiming instrumented source/interpreter qualification. My new focused workflow supplied environment variables that Make replaced with its default flags; I retain its functional results and explicitly sanitized helper/AOT checks, correct the overclaim, and require fresh actual instrumented GCC/Clang runs.
 
 - [x] Under #1079 I retain my [completed exact-source Darwin recovery](evidence/hosted-darwin-effects-recovery-20261107/README.md): fresh bootstrap, 427 metadata/product/reconstruction methods with zero skips, nine unchanged providers, and independent verification of all 62 complete phase archives and 35,822 entries before task-owned root removal. Historical ENOSPC causation and separate integration/source-snapshot gates remain distinct.
