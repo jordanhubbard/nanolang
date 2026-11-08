@@ -1,0 +1,5 @@
+# My first hosted string checker failure
+
+I retain early metadata artifact 13620227106 from [run 42487438913](https://github.com/jordanhubbard/nanolang/actions/runs/42487438913), source `e350b091b894a5a0475fac02feafb26b48974f5b`. The C parser/typechecker gates pass. My C seed then refuses to publish the Nano checker because its mandatory shadows fail: `check_string_stdlib_contracts` and main each report 21 failures, first at the expected-error assertion on line 203. No native checker product exists.
+
+I added exact builtin checks after lexical resolution but omitted the corresponding bound-name reset before the fallback builtin-result query. Seven bound function controls each assert three error-state properties. I correct that result dispatch and retain all 39 production cases and original assertions. This record is a failed attempt, not native checker qualification. GCC reports the same failed step; this early archive contains Clang metadata only. ZIP CRC, full inventory and deterministic text custody verify.

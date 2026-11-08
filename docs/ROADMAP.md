@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1106 I repair the first hosted source-checker failure: all seven bound string names still receive a builtin result through my fallback query, producing 21 assertion failures. I retain the failure metadata, route those names through ordinary symbol lookup after lexical resolution, preserve all 39 production cases and require actual native checker plus fresh-stage acceptance.
+
 - [x] Under #1105 I retain the [pinned GCC/Clang scalar arithmetic component checkpoint](evidence/u8-scalar-arithmetic-20261108/qualified-cd0/README.md): both 101-method suites, original units/aliases and translator/shape gates pass; actual sanitized arithmetic ELF products, source/provider hashes and zero-exit commands independently verify. Fresh source query, whole-route budget, Apple and release acceptance remain open.
 
 - [x] Under #1106 I retain the [failed hosted baseline and local emitted-helper checkpoint](evidence/string-stdlib-20261108/local-implementation/README.md): both hosted baselines report four failures in 106 methods; actual helper fragments linked to the shared runtime pass ASan/UBSan at O0/O2, including UTF-8 refusal. Full translator, source checker, fresh-stage and platform qualification remain open.
