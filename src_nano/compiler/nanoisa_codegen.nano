@@ -1176,6 +1176,26 @@ shadow nisa_array_arithmetic_type {
     assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_PERCENT "array<int>" "int") "")
 }
 
+fn nisa_array_string_addition_type(op: int, left: string, right: string) -> string {
+    if (!= op LexerTokenType.TOKEN_PLUS) { return "" }
+    if (and (== left "array<string>") (or (== right "array<string>") (== right "string"))) { return "array<string>" }
+    if (and (== left "string") (== right "array<string>")) { return "array<string>" }
+    return ""
+}
+shadow nisa_array_string_addition_type {
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_PLUS "array<string>" "array<string>") "array<string>")
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_PLUS "array<string>" "string") "array<string>")
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_PLUS "string" "array<string>") "array<string>")
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_MINUS "array<string>" "array<string>") "")
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_PLUS "array<string>" "int") "")
+    assert (== (nisa_array_string_addition_type LexerTokenType.TOKEN_PLUS "string" "string") "")
+    let text: string = (nanoisa_emit_nasm "fn main()->int{let words:array<string> = (+ [\"a\"] \"b\") return (array_length words)}")
+    assert nisa_ok
+    assert (str_contains text "ARRAY_ADD")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let words:array<string> = (- [\"a\"] \"b\") return 0}") "")
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_binop_mnemonic(op: int) -> string {
     if (== op LexerTokenType.TOKEN_PLUS) {
         return "I64_ADD"
@@ -4655,6 +4675,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let right: string = (nisa_expr_type parser binary.right binary.right_type)
         let array_result: string = (nisa_array_arithmetic_type binary.op left right)
         if (!= array_result "") { return array_result }
+        let string_array: string = (nisa_array_string_addition_type binary.op left right)
+        if (!= string_array "") { return string_array }
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
         if (and (== left "float") (== right "float")) { return "float" }
@@ -7028,12 +7050,13 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     }
                     let arithmetic: bool = (or (!= (nisa_array_arithmetic_mnemonic binop.op) "") (== binop.op LexerTokenType.TOKEN_PERCENT))
                     if (and array_operand arithmetic) {
-                        if (== (nisa_array_arithmetic_type binop.op left_type right_type) "") {
-                            return (nisa_fail "I require matching flat numeric array and scalar element types for arithmetic")
+                        if (and (== (nisa_array_arithmetic_type binop.op left_type right_type) "")
+                                (== (nisa_array_string_addition_type binop.op left_type right_type) "")) {
+                            return (nisa_fail "I require matching flat numeric array and scalar element types for arithmetic, or matching string addition")
                         }
                         let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                         let right: string = (nisa_emit_expr parser binop.right binop.right_type)
-                        return (+ (+ left right) (nisa_line (nisa_array_arithmetic_mnemonic binop.op)))
+                        return (+ (+ left right) (nisa_line (+ "ARRAY_" (nisa_array_arithmetic_mnemonic binop.op))))
                     }
                     if (or (nisa_function_type_ok parser left_type) (nisa_function_type_ok parser right_type)) {
                         let mut opcode: string = ""

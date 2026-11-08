@@ -1068,6 +1068,15 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
 
 /* Read only resolved representation facts. An array with no established
  * element kind is not evidence for an integer-array representation. */
+static uint8_t array_arithmetic_kind(uint8_t opcode, uint8_t left, uint8_t right) {
+    uint8_t array = NVM2C_VK_UNK;
+    if (left == NVM2C_VK_ARR || left == NVM2C_VK_FARR || left == NVM2C_VK_SARR) array = left;
+    else if (right == NVM2C_VK_ARR || right == NVM2C_VK_FARR || right == NVM2C_VK_SARR) array = right;
+    if (array == NVM2C_VK_UNK || (array == NVM2C_VK_SARR && opcode != OP_ARRAY_ADD)) return NVM2C_VK_UNK;
+    uint8_t scalar = array == NVM2C_VK_SARR ? NVM2C_VK_STR : array == NVM2C_VK_FARR ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
+    return (left == array || left == scalar) && (right == array || right == scalar) ? array : NVM2C_VK_UNK;
+}
+
 static uint8_t resolved_shape_kind(Nvm2cBuf *b, NvmShapeId id) {
     if (!id) return NVM2C_VK_UNK;
     switch (nvm_shape_kind(&b->shapes, id)) {
@@ -2043,6 +2052,25 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1) ||
                 !sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_ARRAY_ADD: case OP_ARRAY_SUB: case OP_ARRAY_MUL: case OP_ARRAY_DIV: {
+            Nvm2cSimSlot right, left;
+            if (!sim_pop(b, idx, stk, &sp, &right) || !sim_pop(b, idx, stk, &sp, &left)) return 0;
+            uint8_t result = array_arithmetic_kind(ins.opcode, left.kind, right.kind);
+            if (result == NVM2C_VK_UNK && left.kind != NVM2C_VK_UNK && right.kind != NVM2C_VK_UNK) {
+                nvm2c_fail(b, "I require matching known flat int/float arrays or string addition for native array arithmetic"); return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp, result, -1) ||
+                !shape_type(b, stk[sp - 1].shape, NVM_SHAPE_ARRAY)) return 0;
+            if (result != NVM2C_VK_UNK) {
+                uint8_t scalar = result == NVM2C_VK_SARR ? NVM2C_VK_STR : result == NVM2C_VK_FARR ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
+                NvmShapeId element = shape_child(b, stk[sp - 1].shape, 0);
+                if (!shape_kind(b, element, scalar)) return 0;
+                if (left.kind == result && !shape_equal(b, element, shape_child(b, left.shape, 0))) return 0;
+                if (right.kind == result && !shape_equal(b, element, shape_child(b, right.shape, 0))) return 0;
+                if (facts->final) b->array_shape_kinds |= 1u << result;
+            }
             break;
         }
         case OP_ADD:
@@ -4849,6 +4877,54 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (boolean_result(ins.opcode)) stack_push_bool(b, &st, expression);
             else stack_push_float(b, &st, expression);
+            break;
+        }
+        case OP_ARRAY_ADD: case OP_ARRAY_SUB: case OP_ARRAY_MUL: case OP_ARRAY_DIV: {
+            uint8_t rk = NVM2C_VK_UNK, lk = NVM2C_VK_UNK;
+            int right = stack_pop_kind(b, &st, &rk), left = stack_pop_kind(b, &st, &lk);
+            if (b->failed) goto done;
+            uint8_t result_kind = array_arithmetic_kind(ins.opcode, lk, rk);
+            if (result_kind == NVM2C_VK_UNK) {
+                nvm2c_fail(b, "I require matching known flat int/float arrays or string addition for native array arithmetic"); goto done;
+            }
+            int left_array = lk == result_kind, right_array = rk == result_kind;
+            const char *arrays = result_kind == NVM2C_VK_SARR ? "sa" : "a";
+            int source = left_array ? left : right;
+            nvm2c_puts(b, "    {\n");
+            if (left_array) nvm2c_printf(b, "    if (!%s[%d] || (%s[%d]->len && !%s[%d]->data)) NVM2C_ABORT();\n", arrays, left, arrays, left, arrays, left);
+            if (right_array) nvm2c_printf(b, "    if (!%s[%d] || (%s[%d]->len && !%s[%d]->data)) NVM2C_ABORT();\n", arrays, right, arrays, right, arrays, right);
+            nvm2c_printf(b, "    size_t length = %s[%d]->len;\n", arrays, source);
+            if (left_array && right_array) nvm2c_printf(b, "    if (%s[%d]->len < length) length = %s[%d]->len;\n", arrays, right, arrays, right);
+            int result = result_kind == NVM2C_VK_SARR ? stack_push_sarr(b, &st, "nsarr_new()") : stack_push_iarray(b, &st, "narr_new()", result_kind);
+            if (result < 0 || b->failed) goto done;
+            nvm2c_printf(b, "    %s_reserve(%s[%d], length);\n    for (size_t at = 0; at < length; ++at) {\n", result_kind == NVM2C_VK_SARR ? "nsarr" : "narr", arrays, result);
+            if (result_kind == NVM2C_VK_SARR) {
+                char lv[80], rv[80];
+                if (left_array) snprintf(lv, sizeof lv, "sa[%d]->data[at]", left);
+                else snprintf(lv, sizeof lv, "s[%d]", left);
+                if (right_array) snprintf(rv, sizeof rv, "sa[%d]->data[at]", right);
+                else snprintf(rv, sizeof rv, "s[%d]", right);
+                nvm2c_printf(b, "        nsarr_push(sa[%d], nstr_concat(%s, %s));\n", result, lv, rv);
+            } else if (result_kind == NVM2C_VK_FARR) {
+                if (left_array) nvm2c_printf(b, "        double left_value; memcpy(&left_value, &a[%d]->data[at], sizeof left_value);\n", left);
+                else nvm2c_printf(b, "        double left_value = f[%d];\n", left);
+                if (right_array) nvm2c_printf(b, "        double right_value; memcpy(&right_value, &a[%d]->data[at], sizeof right_value);\n", right);
+                else nvm2c_printf(b, "        double right_value = f[%d];\n", right);
+                const char *operation = ins.opcode == OP_ARRAY_ADD ? "add" : ins.opcode == OP_ARRAY_SUB ? "sub" : ins.opcode == OP_ARRAY_MUL ? "mul" : "div";
+                nvm2c_printf(b, "        double value = nano_rt_f64_%s(left_value, right_value);\n        memcpy(&a[%d]->data[at], &value, sizeof value);\n", operation, result);
+            } else {
+                if (left_array) nvm2c_printf(b, "        int64_t left_value = a[%d]->data[at];\n", left);
+                else nvm2c_printf(b, "        int64_t left_value = t[%d];\n", left);
+                if (right_array) nvm2c_printf(b, "        int64_t right_value = a[%d]->data[at];\n", right);
+                else nvm2c_printf(b, "        int64_t right_value = t[%d];\n", right);
+                if (ins.opcode == OP_ARRAY_DIV) nvm2c_printf(b,
+                    "        a[%d]->data[at] = right_value == 0 ? 0 : (left_value == INT64_MIN && right_value == -1) ? INT64_MIN : left_value / right_value;\n", result);
+                else nvm2c_printf(b, "        a[%d]->data[at] = ni64_from_bits((uint64_t)left_value %c (uint64_t)right_value);\n", result,
+                    ins.opcode == OP_ARRAY_ADD ? '+' : ins.opcode == OP_ARRAY_SUB ? '-' : '*');
+            }
+            nvm2c_puts(b, "    }\n");
+            if (result_kind != NVM2C_VK_SARR) nvm2c_printf(b, "    a[%d]->len = length;\n", result);
+            nvm2c_puts(b, "    }\n");
             break;
         }
         case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: {
@@ -8272,7 +8348,9 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
 
     {
         if (!prune_unemittable_callers(&b, mod)) goto fail;
-        int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
+        int array_string_add = module_has_opcode(mod, OP_ARRAY_ADD) && (b.array_shape_kinds & (1u << NVM2C_VK_SARR));
+        int need_concat = module_has_opcode(mod, OP_STR_CONCAT) || array_string_add;
+        if (array_string_add) { b.has_owned_strings = 1; b.has_maps = 1; }
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
         int need_starts = module_has_opcode(mod, OP_STR_STARTS_WITH);
@@ -8328,7 +8406,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
-        int need_sarr_push = need_arr_push && need_sarr;
+        int need_sarr_push = (need_arr_push || array_string_add) && need_sarr;
         int need_agg_get = module_has_opcode(mod, OP_AGG_GET) || module_has_opcode(mod, OP_AGG_TAG);
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);

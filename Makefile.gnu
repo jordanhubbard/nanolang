@@ -7363,3 +7363,7 @@ test-math-host-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-
 .PHONY: test-array-search-reverse-contracts
 test-array-search-reverse-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_array_search_reverse_contracts
+
+.PHONY: test-array-arithmetic-contracts
+test-array-arithmetic-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_arithmetic_contracts

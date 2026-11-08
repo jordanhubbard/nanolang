@@ -4175,7 +4175,30 @@ shadow array_arithmetic_matches {
     assert (not (array_arithmetic_matches (type_unknown_named "") TypeKind.TYPE_INT))
 }
 
+fn array_string_addition_selected(op: string, left: NSType, right: NSType) -> bool {
+    if (!= op "+") { return false }
+    let left_array: bool = (and (== left.kind TypeKind.TYPE_ARRAY)
+        (and (== left.element_type_kind TypeKind.TYPE_STRING) (or (== left.element_type_name "") (== left.element_type_name "string"))))
+    let right_array: bool = (and (== right.kind TypeKind.TYPE_ARRAY)
+        (and (== right.element_type_kind TypeKind.TYPE_STRING) (or (== right.element_type_name "") (== right.element_type_name "string"))))
+    return (or left_array right_array)
+}
+shadow array_string_addition_selected {
+    let words: NSType = (type_array TypeKind.TYPE_STRING "string")
+    assert (array_string_addition_selected "+" words (type_string))
+    assert (array_string_addition_selected "+" (type_string) words)
+    assert (not (array_string_addition_selected "-" words words))
+    assert (not (array_string_addition_selected "+" (type_array TypeKind.TYPE_INT "int") (type_int)))
+}
+
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    if (array_string_addition_selected op left_type right_type) {
+        let words: NSType = (type_array TypeKind.TYPE_STRING "string")
+        let left_matches: bool = (or (array_string_addition_selected "+" left_type left_type) (== left_type.kind TypeKind.TYPE_STRING))
+        let right_matches: bool = (or (array_string_addition_selected "+" right_type right_type) (== right_type.kind TypeKind.TYPE_STRING))
+        if (and left_matches right_matches) { return words }
+        return (type_unknown_named "incompatible string array addition")
+    }
     if (array_arithmetic_selected op left_type right_type) {
         let mut array_type: NSType = left_type
         if (!= left_type.kind TypeKind.TYPE_ARRAY) { set array_type right_type }
@@ -4247,6 +4270,15 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
 }
 
 shadow check_binary_op {
+    let words: NSType = (type_array TypeKind.TYPE_STRING "string")
+    let joined: NSType = (check_binary_op "+" words (type_string))
+    assert (== joined.kind TypeKind.TYPE_ARRAY)
+    assert (== joined.element_type_kind TypeKind.TYPE_STRING)
+    assert (== (check_binary_op "+" (type_string) words).kind TypeKind.TYPE_ARRAY)
+    assert (== (check_binary_op "+" words (type_int)).kind TypeKind.TYPE_UNKNOWN)
+    let source_tokens: List<LexerToken> = (tokenize_string "fn main()->array<string>{return (+ [\"a\"] 1)}" "string-array.nano" (list_CompilerDiagnostic_new))
+    let source_parser: Parser = (parse_program source_tokens (list_LexerToken_length source_tokens) "string-array.nano")
+    assert (typecheck_phase source_parser "string-array.nano").had_error
     let int_t: NSType = (type_int)
     let bool_t: NSType = (type_bool)
     
@@ -5488,8 +5520,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
         let op_str: string = (op_token_to_string binop.op)
         let result: NSType = (check_binary_op op_str left_t right_t)
-        if (and (array_arithmetic_selected op_str left_t right_t) (== result.kind TypeKind.TYPE_UNKNOWN)) {
-            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat numeric array and scalar element types for arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
+        if (== result.kind TypeKind.TYPE_UNKNOWN) {
+            if (array_string_addition_selected op_str left_t right_t) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat string arrays and string operands for addition." (Diagnostics.diag_location file_name binop.line binop.column)))
+            } else {
+                if (array_arithmetic_selected op_str left_t right_t) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat numeric array and scalar element types for arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
+                }
+            }
         }
         return result
     } else { (print "") }

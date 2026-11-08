@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import sys
@@ -35,7 +36,8 @@ class NumericBuiltinSelection(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         return result
 
-    def exercise(self, source, expected='', *, refused=False, source_path=None):
+    def exercise(self, source, expected='', *, refused=False, source_path=None,
+                 native_optimizations=('-O1',), native_flags=(), expected_opcodes=()):
         output = ROOT/'.test_output/numeric-builtin-selection'
         output.mkdir(parents=True, exist_ok=True)
         for provider in PROVIDERS:
@@ -63,15 +65,22 @@ class NumericBuiltinSelection(unittest.TestCase):
                     result = self.command(work, 'vm', [ROOT/'bin/nano_vm', module])
                     self.assertEqual(result.stdout, expected)
                     self.command(work, 'aot', [ROOT/'bin/nvm2c', module, '-o', generated], build=True)
-                    self.command(work, 'native-build', [
-                        *shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')),
-                        '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
-                        '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                        generated, ROOT/'bin/nano_aot_runtime.o', '-lm', *native_link_flags(),
-                        *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
-                        '-o', native], build=True)
-                    result = self.command(work, 'native', [native])
-                    self.assertEqual(result.stdout, expected)
+                    if expected_opcodes:
+                        dump = self.command(work, 'dump', [ROOT/'bin/nanoisa', 'dump', module])
+                        for opcode in expected_opcodes:
+                            self.assertRegex(dump.stdout, r'(?m)^\s+'+re.escape(opcode)+r'(?:\s|$)')
+                    for optimization in native_optimizations:
+                        suffix = '' if len(native_optimizations) == 1 else '-'+optimization.lstrip('-')
+                        product = native if not suffix else work/('native'+suffix)
+                        self.command(work, 'native-build'+suffix, [
+                            *shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')),
+                            '-std=c11', optimization, '-Wall', '-Wextra', '-Werror',
+                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all', *native_flags,
+                            generated, ROOT/'bin/nano_aot_runtime.o', '-lm', *native_link_flags(),
+                            *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                            '-o', product], build=True)
+                        result = self.command(work, 'native'+suffix, [product])
+                        self.assertEqual(result.stdout, expected)
                 after = hashlib.sha256(compiler.read_bytes()).hexdigest()
                 (work/'inputs.json').write_text(json.dumps({'provider': str(compiler),
                     'provider_before': before, 'provider_after': after,
