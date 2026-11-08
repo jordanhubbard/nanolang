@@ -1,0 +1,610 @@
+[
+  {
+    "provider": "nano_virt-bl732cdn",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 4.482604431999789,
+      "compiler_started_monotonic": 4658.675710775,
+      "compiler_returned_monotonic": 4663.157974612
+    },
+    "cases": [
+      {
+        "case": "invalid_arity",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "accepted_source",
+        "returncode": 0,
+        "expected": 0,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "ownership_refusal",
+        "returncode": 1,
+        "expected": 1,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "extra_argument",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      }
+    ]
+  },
+  {
+    "provider": "nanoc_c-4i2gxcji",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 37.94626254400009,
+      "compiler_started_monotonic": 4620.613709292,
+      "compiler_returned_monotonic": 4658.559538279
+    },
+    "cases": [
+      {
+        "case": "invalid_arity",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "accepted_source",
+        "returncode": 0,
+        "expected": 0,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "ownership_refusal",
+        "returncode": 1,
+        "expected": 1,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "extra_argument",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      }
+    ]
+  },
+  {
+    "provider": "nanoc_stage1-5rsymcby",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 538.176129079,
+      "compiler_started_monotonic": 4664.052724276,
+      "compiler_returned_monotonic": 5202.225277262
+    },
+    "cases": [
+      {
+        "case": "invalid_arity",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "accepted_source",
+        "returncode": 0,
+        "expected": 0,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "ownership_refusal",
+        "returncode": 1,
+        "expected": 1,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "extra_argument",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      }
+    ],
+    "intervals": [
+      {
+        "from": "inputs-start",
+        "to": "imports-done",
+        "elapsed_seconds": 62.045890904999396
+      },
+      {
+        "from": "imports-done",
+        "to": "lex-done",
+        "elapsed_seconds": 53.87885428100071
+      },
+      {
+        "from": "lex-done",
+        "to": "parse-done",
+        "elapsed_seconds": 22.68145697899945
+      },
+      {
+        "from": "parse-done",
+        "to": "checked-emit-start",
+        "elapsed_seconds": 1.7018779640002322
+      },
+      {
+        "from": "checked-emit-start",
+        "to": "checked-emit-done",
+        "elapsed_seconds": 269.6317665739998
+      },
+      {
+        "from": "checked-emit-done",
+        "to": "shadow-assembly-start",
+        "elapsed_seconds": 0.0432582410003306
+      },
+      {
+        "from": "shadow-assembly-start",
+        "to": "shadow-assembly-done",
+        "elapsed_seconds": 19.962568506000025
+      },
+      {
+        "from": "shadow-assembly-done",
+        "to": "shadow-execution-start",
+        "elapsed_seconds": 0.04285186499964766
+      },
+      {
+        "from": "shadow-execution-start",
+        "to": "shadow-execution-done",
+        "elapsed_seconds": 1.0439750989999084
+      },
+      {
+        "from": "shadow-execution-done",
+        "to": "product-assembly-start",
+        "elapsed_seconds": 0.04268696800045291
+      },
+      {
+        "from": "product-assembly-start",
+        "to": "product-assembly-done",
+        "elapsed_seconds": 4.633639408999443
+      },
+      {
+        "from": "product-assembly-done",
+        "to": "native-publication-start",
+        "elapsed_seconds": 0.04341600899988407
+      },
+      {
+        "from": "native-publication-start",
+        "to": "native-publication-done",
+        "elapsed_seconds": 101.69939398500082
+      },
+      {
+        "from": "native-publication-done",
+        "to": "inputs-return",
+        "elapsed_seconds": 0.04280534899953636
+      },
+      {
+        "from": "inputs-return",
+        "to": "driver-return",
+        "elapsed_seconds": 0.041815964999841526
+      }
+    ],
+    "markers": [
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "inputs-start",
+        "monotonic_seconds": 4664.091026103,
+        "observer_pid": 52853,
+        "parent_pid": 52852
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "imports-done",
+        "monotonic_seconds": 4726.136917008,
+        "observer_pid": 52857,
+        "parent_pid": 52856
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "lex-done",
+        "monotonic_seconds": 4780.015771289,
+        "observer_pid": 52863,
+        "parent_pid": 52862
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "parse-done",
+        "monotonic_seconds": 4802.697228268,
+        "observer_pid": 52866,
+        "parent_pid": 52865
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "checked-emit-start",
+        "monotonic_seconds": 4804.399106232,
+        "observer_pid": 52868,
+        "parent_pid": 52867
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "checked-emit-done",
+        "monotonic_seconds": 5074.030872806,
+        "observer_pid": 52956,
+        "parent_pid": 52955
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-assembly-start",
+        "monotonic_seconds": 5074.074131047,
+        "observer_pid": 52958,
+        "parent_pid": 52957
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-assembly-done",
+        "monotonic_seconds": 5094.036699553,
+        "observer_pid": 52962,
+        "parent_pid": 52961
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-execution-start",
+        "monotonic_seconds": 5094.079551418,
+        "observer_pid": 52964,
+        "parent_pid": 52963
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-execution-done",
+        "monotonic_seconds": 5095.123526517,
+        "observer_pid": 52969,
+        "parent_pid": 52968
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "product-assembly-start",
+        "monotonic_seconds": 5095.166213485,
+        "observer_pid": 52971,
+        "parent_pid": 52970
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "product-assembly-done",
+        "monotonic_seconds": 5099.799852894,
+        "observer_pid": 52973,
+        "parent_pid": 52972
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "native-publication-start",
+        "monotonic_seconds": 5099.843268903,
+        "observer_pid": 52975,
+        "parent_pid": 52974
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "native-publication-done",
+        "monotonic_seconds": 5201.542662888,
+        "observer_pid": 53000,
+        "parent_pid": 52999
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "inputs-return",
+        "monotonic_seconds": 5201.585468237,
+        "observer_pid": 53002,
+        "parent_pid": 53001
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "driver-return",
+        "monotonic_seconds": 5201.627284202,
+        "observer_pid": 53004,
+        "parent_pid": 53003
+      }
+    ],
+    "tool_union_seconds": 101.71039868199841,
+    "tool_counts": {
+      "cc": 17,
+      "nvm2c": 1
+    },
+    "tool_sums": {
+      "cc": 59.37090856799841,
+      "nvm2c": 42.339490114
+    },
+    "before_first_marker": 0.03830182700039586,
+    "after_last_marker": 0.59799306000059,
+    "native_command": [
+      "/usr/bin/cc",
+      "-std=c11",
+      "-O1",
+      "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/.nano-native.gFcJMP/program.c",
+      "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-rdynamic",
+      "-ldl",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/.nano-native.gFcJMP/program"
+    ],
+    "native_outputs": [
+      {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/.nano-native.gFcJMP/program",
+        "size": 14464560,
+        "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9",
+        "copy": "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/native-phase-trace/phase-32y57pqh/output"
+      }
+    ]
+  },
+  {
+    "provider": "nanoc_stage2-cmhg20e2",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "timeout": 1800,
+      "elapsed_seconds": 541.9298365919994,
+      "compiler_started_monotonic": 5202.294417324,
+      "compiler_returned_monotonic": 5744.221133832
+    },
+    "cases": [
+      {
+        "case": "invalid_arity",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "accepted_source",
+        "returncode": 0,
+        "expected": 0,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "ownership_refusal",
+        "returncode": 1,
+        "expected": 1,
+        "timed_out": false,
+        "accepted": true
+      },
+      {
+        "case": "extra_argument",
+        "returncode": 2,
+        "expected": 2,
+        "timed_out": false,
+        "accepted": true
+      }
+    ],
+    "intervals": [
+      {
+        "from": "inputs-start",
+        "to": "imports-done",
+        "elapsed_seconds": 62.0068991600001
+      },
+      {
+        "from": "imports-done",
+        "to": "lex-done",
+        "elapsed_seconds": 54.10607847400024
+      },
+      {
+        "from": "lex-done",
+        "to": "parse-done",
+        "elapsed_seconds": 22.795243243000186
+      },
+      {
+        "from": "parse-done",
+        "to": "checked-emit-start",
+        "elapsed_seconds": 1.747485941999912
+      },
+      {
+        "from": "checked-emit-start",
+        "to": "checked-emit-done",
+        "elapsed_seconds": 269.00822945599975
+      },
+      {
+        "from": "checked-emit-done",
+        "to": "shadow-assembly-start",
+        "elapsed_seconds": 0.04243798500010598
+      },
+      {
+        "from": "shadow-assembly-start",
+        "to": "shadow-assembly-done",
+        "elapsed_seconds": 19.986836652999955
+      },
+      {
+        "from": "shadow-assembly-done",
+        "to": "shadow-execution-start",
+        "elapsed_seconds": 0.042412013999637566
+      },
+      {
+        "from": "shadow-execution-start",
+        "to": "shadow-execution-done",
+        "elapsed_seconds": 1.0430461420000938
+      },
+      {
+        "from": "shadow-execution-done",
+        "to": "product-assembly-start",
+        "elapsed_seconds": 0.04252915200049756
+      },
+      {
+        "from": "product-assembly-start",
+        "to": "product-assembly-done",
+        "elapsed_seconds": 4.653695434999463
+      },
+      {
+        "from": "product-assembly-done",
+        "to": "native-publication-start",
+        "elapsed_seconds": 0.04313794600057008
+      },
+      {
+        "from": "native-publication-start",
+        "to": "native-publication-done",
+        "elapsed_seconds": 105.69744891299979
+      },
+      {
+        "from": "native-publication-done",
+        "to": "inputs-return",
+        "elapsed_seconds": 0.042504021000240755
+      },
+      {
+        "from": "inputs-return",
+        "to": "driver-return",
+        "elapsed_seconds": 0.04201014099999156
+      }
+    ],
+    "markers": [
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "inputs-start",
+        "monotonic_seconds": 5202.332427654,
+        "observer_pid": 53011,
+        "parent_pid": 53010
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "imports-done",
+        "monotonic_seconds": 5264.339326814,
+        "observer_pid": 53015,
+        "parent_pid": 53014
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "lex-done",
+        "monotonic_seconds": 5318.445405288,
+        "observer_pid": 53019,
+        "parent_pid": 53018
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "parse-done",
+        "monotonic_seconds": 5341.240648531,
+        "observer_pid": 53025,
+        "parent_pid": 53024
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "checked-emit-start",
+        "monotonic_seconds": 5342.988134473,
+        "observer_pid": 53027,
+        "parent_pid": 53026
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "checked-emit-done",
+        "monotonic_seconds": 5611.996363929,
+        "observer_pid": 53106,
+        "parent_pid": 53105
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-assembly-start",
+        "monotonic_seconds": 5612.038801914,
+        "observer_pid": 53108,
+        "parent_pid": 53107
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-assembly-done",
+        "monotonic_seconds": 5632.025638567,
+        "observer_pid": 53117,
+        "parent_pid": 53116
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-execution-start",
+        "monotonic_seconds": 5632.068050581,
+        "observer_pid": 53119,
+        "parent_pid": 53118
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "shadow-execution-done",
+        "monotonic_seconds": 5633.111096723,
+        "observer_pid": 53124,
+        "parent_pid": 53123
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "product-assembly-start",
+        "monotonic_seconds": 5633.153625875,
+        "observer_pid": 53126,
+        "parent_pid": 53125
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "product-assembly-done",
+        "monotonic_seconds": 5637.80732131,
+        "observer_pid": 53128,
+        "parent_pid": 53127
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "native-publication-start",
+        "monotonic_seconds": 5637.850459256,
+        "observer_pid": 53130,
+        "parent_pid": 53129
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "native-publication-done",
+        "monotonic_seconds": 5743.547908169,
+        "observer_pid": 53158,
+        "parent_pid": 53157
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "inputs-return",
+        "monotonic_seconds": 5743.59041219,
+        "observer_pid": 53160,
+        "parent_pid": 53159
+      },
+      {
+        "schema": "nanolang.compiler-phase-marker.v1",
+        "phase": "driver-return",
+        "monotonic_seconds": 5743.632422331,
+        "observer_pid": 53162,
+        "parent_pid": 53161
+      }
+    ],
+    "tool_union_seconds": 105.70892689300035,
+    "tool_counts": {
+      "cc": 17,
+      "nvm2c": 1
+    },
+    "tool_sums": {
+      "cc": 59.022138954000184,
+      "nvm2c": 46.68678793900017
+    },
+    "before_first_marker": 0.03801032999945164,
+    "after_last_marker": 0.5887115010000343,
+    "native_command": [
+      "/usr/bin/cc",
+      "-std=c11",
+      "-O1",
+      "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/.nano-native.WejTWG/program.c",
+      "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-rdynamic",
+      "-ldl",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/.nano-native.WejTWG/program"
+    ],
+    "native_outputs": [
+      {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/.nano-native.WejTWG/program",
+        "size": 14464560,
+        "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9",
+        "copy": "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/native-phase-trace/phase-7bcsq8fb/output"
+      }
+    ]
+  }
+]

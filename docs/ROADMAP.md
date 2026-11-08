@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [x] Under #1065/#1088 I retain the [f496 fresh driver phase checkpoint](evidence/fresh-source-contracts-20261108/f496-cli/README.md): both stages report all sixteen markers within measured outer bounds and exact original CLI outcomes. Checked emission takes about 269 seconds; imports about 62, lexing 54, parsing 23 and native publication 102-106. After driver return is about 0.6 seconds. I preserve instrumented/source-pin limitations and original flags, shadows and deadlines; finer checked-emission attribution remains open.
+
+- [ ] Under #1065/#1088 I split the measured checked-emission interval into type checking, program lowering and selected shadow lowering through the existing opt-in recorder. I retain actual fresh marker order/clock bounds and disabled-marker behavior, preserve all original semantics/budgets and qualify placement before optimizing.
+
 - [ ] Under #1109 I preserve the existing integer storage of enum arrays after my actual C-created VM baseline sorts them successfully. I retain nominal array<Enum> result identity, add source/native and checker controls, and keep unrelated array element equality unchanged. I use module-qualified helper imports so my sorting suite does not rediscover the imported string TestCase.
 
 - [ ] Under #1109/#1102 I repair the direct array-literal result query that omits U8 although typed U8 arrays already lower. I retain homogeneous array<u8> identity for direct sorting operands, add a useful query shadow and production control, and preserve mixed/other element refusals without changing general type equality.
