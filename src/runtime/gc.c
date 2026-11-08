@@ -193,6 +193,8 @@ void gc_shutdown(void) {
     while (current != NULL) {
         GCHeader* next = current->next;
         gc_destroy_object(current, false);
+        /* I preserve visibility during finalization, then retire the owner. */
+        gc_hash_remove(gc_header_to_ptr(current));
         free(current);
         current = next;
     }

@@ -256,6 +256,47 @@ static void test_shutdown_statistics(void) {
     PASS(test_name);
 }
 
+static void *registry_owners[3];
+static int registry_finalizations;
+
+static void inspect_shutdown_registry(void *object) {
+    const char *test_name = "gc_shutdown_registry_visibility";
+    int index = *(unsigned char *)object;
+    ASSERT_EQ(index, 2 - registry_finalizations, "I changed shutdown finalizer order.");
+    ASSERT(gc_is_managed(object), "I hid an owner during its own finalizer.");
+    for (int i = 0; i < 3; ++i)
+        ASSERT(gc_is_managed(registry_owners[i]) == (i <= index),
+               "I confused a released owner with a still-live owner during shutdown.");
+    registry_finalizations++;
+}
+
+static void test_shutdown_registry_visibility(void) {
+    const char *test_name = "gc_shutdown_registry_visibility";
+    gc_init();
+    registry_finalizations = 0;
+    for (int i = 0; i < 3; ++i) {
+        registry_owners[i] = gc_alloc_opaque(1, inspect_shutdown_registry);
+        ASSERT(registry_owners[i] != NULL, "I could not allocate my finalizer control.");
+        *(unsigned char *)registry_owners[i] = (unsigned char)i;
+    }
+    gc_shutdown();
+    ASSERT_EQ(registry_finalizations, 3, "I lost a shutdown finalizer.");
+    for (int i = 0; i < 3; ++i)
+        ASSERT(!gc_is_managed(registry_owners[i]), "I retain a shutdown registry entry.");
+    GCStats after = gc_get_stats();
+    ASSERT_EQ(after.current_usage, 0, "I retain bytes after registry shutdown.");
+    ASSERT_EQ(after.num_objects, 0, "I retain objects after registry shutdown.");
+    ASSERT_EQ(after.total_freed, after.total_allocated, "I omitted shutdown reclamation.");
+    gc_shutdown();
+    ASSERT_EQ(registry_finalizations, 3, "I repeated shutdown finalizers.");
+    gc_init();
+    void *fresh = gc_alloc(1, GC_TYPE_OPAQUE);
+    ASSERT(fresh != NULL && gc_is_managed(fresh), "I lost registration after reinitializing.");
+    gc_release(fresh);
+    gc_shutdown();
+    PASS(test_name);
+}
+
 static void test_allocation_size_boundary(void) {
     const char *test_name = "gc_allocation_size_boundary";
     gc_init();
@@ -306,6 +347,7 @@ int main(void) {
     test_field_types();
     test_shutdown_statistics();
     test_allocation_size_boundary();
+    test_shutdown_registry_visibility();
 
     printf("\n");
     if (g_fail == 0) {
