@@ -1,0 +1,15 @@
+{
+  "size": 69070517,
+  "sha256": "9dbd74fe6fc0015783b5b75af6a222c37c7aabbcf28742384005a8504a6b7327",
+  "files": 2983,
+  "text_files": 2740,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-h51znmm5.tar.gz",
+      "sha256": "7eefa1af76953ee81d1d5c80f3e88c6f5e8cbee43698f4c7b40ac3de226ac1d9",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

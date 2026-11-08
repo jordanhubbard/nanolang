@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1107 I retain the [pinned GCC/Clang uppercase condition component checkpoint](evidence/uppercase-conditions-20261108/qualified-de27/README.md): both 115-method suites, mandatory parser shadows, native checker and original C/alias/translator/shape gates pass. Four actual positive-program ELFs and command/source/provider hashes independently verify. The programs use the C frontend; dedicated native source-parser and fresh-stage/platform qualification remain open.
+
 - [ ] Under #1105 I retain the fresh cd0 92-method result: whole byte/arithmetic and anonymous-record controls pass, but two wrong-string arithmetic cases fail only the existing diagnostic regex after correct refusal. I state the string operand requirement in my diagnostic, preserve the assertions and prior-output checks, and require corrected fresh qualification.
 
 - [ ] Under #1108/#1081 I restore my existing standalone bang spelling in the source lexer: retain TOKEN_NOT/value `!`, preserve `!=` and token positions, and normalize the parenthesized unary AST call to my canonical `not` identity. The unchanged symbol-scoping fixture currently stops during tokenization, before symbol lookup; I require useful lexer/parser shadows, whole-fixture and wrong-operand controls, complete component gates and fresh-stage acceptance rather than rewriting the fixture.
