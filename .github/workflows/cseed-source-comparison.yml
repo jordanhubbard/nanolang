@@ -1,6 +1,11 @@
 name: Diagnostic alternating C-seed source creation
 
 on:
+  push:
+    branches: [fix/5.1-stage-source-contracts]
+    paths:
+      - '.github/workflows/cseed-source-comparison.yml'
+      - 'scripts/compare_cseed_source_creation.py'
   workflow_dispatch:
     inputs:
       baseline:
@@ -23,11 +28,15 @@ permissions:
 
 jobs:
   compare:
-    name: Diagnostic only — fixed alternating source creations
-    runs-on: ${{ inputs.native_darwin && 'xcode-27' || 'ubuntu-latest' }}
+    name: Diagnostic only (${{ matrix.worker }})
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: ${{ fromJSON(github.event_name == 'push' && '["ubuntu-latest","xcode-27"]' || (inputs.native_darwin && '["xcode-27"]' || '["ubuntu-latest"]')) }}
+    runs-on: ${{ matrix.worker }}
     timeout-minutes: 120
     env:
-      CC: ${{ inputs.native_darwin && 'cc' || inputs.compiler }}
+      CC: ${{ matrix.worker == 'xcode-27' && 'cc' || inputs.compiler || 'clang' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,7 +56,7 @@ jobs:
         run: python3 scripts/ci_select_capture_clang.py
       - name: Retain all six planned actual factory attempts
         env:
-          BASELINE_SHA: ${{ inputs.baseline }}
+          BASELINE_SHA: ${{ inputs.baseline || '9baeba459e6ea4c7ebd6c0694cb05fef4d36f401' }}
         run: |
           ulimit -c 0
           python3 scripts/compare_cseed_source_creation.py run \

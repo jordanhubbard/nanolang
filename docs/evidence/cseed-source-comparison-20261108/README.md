@@ -6,7 +6,7 @@ The baseline already includes the shutdown registry and STRING terminator
 correctness fixes. The candidate adds aligned private pointer-entry allocation.
 I keep those correctness fixes separate when judging that performance candidate.
 
-My manual `cseed-source-comparison.yml` workflow builds both actual provider
+My `cseed-source-comparison.yml` diagnostic workflow builds both actual provider
 closures serially on one worker with the same selected compiler and SDK. I put
 both detached checkouts under `~/.worktrees/nanolang/`, with equal-length names,
 check worker headroom before provisioning/builds/samples, and retain the source,
@@ -33,3 +33,9 @@ Local validation covers changed/missing input refusal, interleaved/truncated
 trace parsing and successful-subset refusal. I parse the workflow and check the
 script without launching full provider builds on my disk-constrained local worker.
 Hosted results remain required; I do not infer them from these driver tests.
+
+GitHub initially refuses both file-name dispatch requests with HTTP 404 because
+this workflow is absent from the default branch. I add a push trigger limited
+to my review branch and its two comparison implementation files. That trigger
+starts Linux/Apple diagnostic jobs; it does not change any release gate. Manual
+inputs remain available once GitHub registers the workflow.
