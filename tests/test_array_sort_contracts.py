@@ -180,3 +180,26 @@ fn main()->int{
 }
 shadow main{assert (== (main) 0)}
 ''', native_optimizations=('-O0', '-O2'))
+
+    def test_typed_function_array_arguments_and_result_storage(self):
+        self.exercise('''fn sort_int(values:array<int>)->array<int>{return (array_sort values)}
+shadow sort_int{assert (== (at (sort_int [2,1]) 0) 1)}
+fn sort_byte(values:array<u8>)->array<u8>{return (array_sort values)}
+shadow sort_byte{let a:u8=2 let b:u8=1 assert (== (at (sort_byte [a,b]) 0) b)}
+fn sort_float(values:array<float>)->array<float>{return (array_sort values)}
+shadow sort_float{assert (== (at (sort_float [2.5,1.5]) 0) 1.5)}
+fn sort_bool(values:array<bool>)->array<bool>{return (array_sort values)}
+shadow sort_bool{assert (not (at (sort_bool [true,false]) 0))}
+fn sort_string(values:array<string>)->array<string>{return (array_sort values)}
+shadow sort_string{assert (== (at (sort_string ["z","a"]) 0) "a")}
+fn main()->int{
+ let a:u8=2 let b:u8=1
+ assert (== (at (sort_int [2,1]) 0) 1)
+ assert (== (at (sort_byte [a,b]) 0) b)
+ assert (== (at (sort_float [2.5,1.5]) 0) 1.5)
+ assert (not (at (sort_bool [true,false]) 0))
+ assert (== (at (sort_string ["z","a"]) 0) "a")
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''', native_optimizations=('-O0', '-O2'))

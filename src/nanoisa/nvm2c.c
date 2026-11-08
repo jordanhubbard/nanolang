@@ -3077,9 +3077,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeId original = checked_array_payload(b, &array);
                 if (!shape_type(b, original, NVM_SHAPE_ARRAY)) return 0;
                 uint8_t kind = resolved_shape_kind(b, original);
-                if ((kind != NVM2C_VK_UNK && !sortable_array_storage(kind)) ||
-                    (facts->final && !sortable_array_storage(kind))) {
-                    nvm2c_fail(b, "I require proven flat scalar array_sort storage"); return 0;
+                /* I defer unresolved parameter shapes until the whole-program
+                 * conversion solver runs. Emission still requires an exact
+                 * supported input/result family; unknown is not an integer default. */
+                if (kind != NVM2C_VK_UNK && !sortable_array_storage(kind)) {
+                    nvm2c_fail(b, "I require proven flat scalar array_sort storage (function %u, input %u, shape %u)",
+                        idx, array.kind, kind); return 0;
                 }
                 if (kind != NVM2C_VK_UNK) mark_origin(local_kind, nloc, array.origin, kind);
                 array.kind = kind;

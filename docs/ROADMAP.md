@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1109 I repair the first 0848 native sorting attempt: my final fact pass rejects an unresolved array parameter before the later whole-program shape solver supplies its caller facts. I retain the failed enum-array function control, defer unknown storage to final emission, keep the exact allowed-family check there and add typed function/result controls for every supported storage family.
+
 - [x] Under #1065/#1088 I retain the [f496 fresh driver phase checkpoint](evidence/fresh-source-contracts-20261108/f496-cli/README.md): both stages report all sixteen markers within measured outer bounds and exact original CLI outcomes. Checked emission takes about 269 seconds; imports about 62, lexing 54, parsing 23 and native publication 102-106. After driver return is about 0.6 seconds. I preserve instrumented/source-pin limitations and original flags, shadows and deadlines; finer checked-emission attribution remains open.
 
 - [ ] Under #1065/#1088 I split the measured checked-emission interval into type checking, program lowering and selected shadow lowering through the existing opt-in recorder. I retain actual fresh marker order/clock bounds and disabled-marker behavior, preserve all original semantics/budgets and qualify placement before optimizing.
