@@ -1,0 +1,21 @@
+{
+  "compared_files": [
+    "bstring-contract-baselines/binary-nul-nano_virt/run.stdout",
+    "bstring-contract-baselines/binary-nul-nanoc_c/run.stdout",
+    "bstring-contract-baselines/byte-beyond-nano_virt/run.stdout",
+    "bstring-contract-baselines/byte-beyond-nanoc_c/run.stdout",
+    "bstring-contract-baselines/byte-negative-nano_virt/run.stdout",
+    "bstring-contract-baselines/byte-negative-nanoc_c/run.stdout",
+    "bstring-contract-baselines/invalid-utf8-nano_virt/run.stdout",
+    "bstring-contract-baselines/invalid-utf8-nanoc_c/run.stdout",
+    "bstring-contract-baselines/substring-bounds-nano_virt/run.stdout",
+    "bstring-contract-baselines/substring-bounds-nanoc_c/run.stdout",
+    "bstring-contract-baselines/unicode-and-ownership-nano_virt/run.stdout",
+    "bstring-contract-baselines/unicode-and-ownership-nanoc_c/run.stdout",
+    "bstring-contract-baselines/whole-fixture-nano_virt/run.stdout",
+    "bstring-contract-baselines/whole-fixture-nanoc_c/run.stdout"
+  ],
+  "all_exact_stdout_unchanged": true,
+  "prior_source": "b65af0567",
+  "current_source": "a98c6e23b"
+}

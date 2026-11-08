@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1114/#1065 I retain my [corrected a98 Apple checker checkpoint](evidence/bstring-contracts-20261108/a98-apple/README.md): actual creation/execution succeeds and all 693 selected shadows complete in 7.810016 recorded body seconds under the unchanged ten-second deadline, with every assertion preserved. All fourteen measured C/VM baseline stdout files remain byte-identical to b65. Full job/product custody, runtime restoration and integrated/fresh/platform release acceptance remain separate.
+
 - [x] Under #1114 I correct my public nl_string_new header claim that construction validates UTF-8. The implementation sets is_utf8 false, and all three retained C-native probes return -1 for Unicode queries before explicit validation. I document the required validation call without changing constructor/query behavior; full runtime parity remains in the binary-string item.
 
 - [ ] Under #1114/#1065 I retain the first b65 Apple checker deadline failure: 693 shadows start, 692 complete without assertion failure in 9.370052 recorded body seconds, then the unchanged ten-second limit stops the final main shadow. Both Linux checkers complete all 693 in 8.825130/8.455578 seconds. I remove the newly introduced unconditional binary-string result lookups and hot-path type-format checks from unrelated queries, preserve all assertions/selection and existing enum identities, and require corrected exact platform runs before qualification.

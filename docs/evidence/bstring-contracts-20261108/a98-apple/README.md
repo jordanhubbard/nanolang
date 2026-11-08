@@ -1,0 +1,9 @@
+# My corrected Apple binary-string checker checkpoint
+
+At a98c6e23bd876d4bfe3da85d4fffefc87da3c1c8, pinned Apple run [42506651457](https://github.com/jordanhubbard/nanolang/actions/runs/42506651457) completes actual Nano checker creation and execution successfully. All 693 selected shadows complete without assertion failures in 7.810016 recorded body seconds under the unchanged ten-second parent deadline, including final main. The new type identity, array distinctions, ordinary lexical bindings and positive/negative entry cases are exercised by the actual source checker.
+
+I keep the full selection and original assertions. The source change avoids invoking binary-string result lookup for unrelated names, evaluates a recognized result once, and places its new formatting case after the established kinds. This is the corrected observed result after the retained b65 timeout; I do not infer a general cross-worker speedup from two differently loaded runs. The complete original operand/translator/platform job continues separately at this early checkpoint.
+
+I compare all fourteen C-native/VM baseline stdout files byte-for-byte against b65: every output is unchanged. The measured binary-NUL, UTF-8-state and invalid byte-index differences remain. I have not changed binary-string runtime representation or accepted the differing VM behavior.
+
+The complete early artifact 13627857829 passes CRC; `apple/archive.json` retains its size and SHA-256, file inventory and exact text. Provider/source/product hash observations and successful commands are retained. This early upload excludes actual executable bytes, embedded TAR and filesystem mode custody; independent native product verification, full exact job completion, runtime restoration, fresh stages and integrated original-route/budget/native SDK/release acceptance remain open.
