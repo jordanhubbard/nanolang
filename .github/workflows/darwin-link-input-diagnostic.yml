@@ -1,0 +1,106 @@
+name: Darwin assembler link-input diagnosis
+
+on:
+  push:
+    branches: [fix/5.1-darwin-link-input-trace]
+    paths:
+      - '.github/workflows/darwin-link-input-diagnostic.yml'
+      - 'scripts/ci_darwin_link_diagnostic.py'
+      - 'tests/test_ci_darwin_link_diagnostic.py'
+      - 'src/module_builder.c'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-link-inputs:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    env:
+      NANO_TRACE_BUILD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require native worker headroom before provisioning
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil, subprocess, tempfile
+          from pathlib import Path
+          root = Path('.test_output/darwin-link-diagnostic')
+          root.mkdir(parents=True)
+          disks = []
+          for path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              disk = shutil.disk_usage(path)
+              disks.append({'path': path, 'free': disk.free, 'total': disk.total})
+          page_output = subprocess.check_output(['vm_stat'], text=True)
+          pages = {line.split(':')[0]: int(line.split(':')[1].strip().rstrip('.'))
+                   for line in page_output.splitlines()[1:] if ':' in line}
+          page_size = int(subprocess.check_output(['sysctl', '-n', 'hw.pagesize'], text=True))
+          total = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True))
+          available = page_size * sum(pages.get(name, 0) for name in
+              ['Pages free', 'Pages inactive', 'Pages speculative'])
+          report = {'disks': disks, 'memory_total': total, 'memory_available': available}
+          (root/'worker.json').write_text(json.dumps(report, indent=2)+'\n')
+          print(json.dumps(report, indent=2))
+          if any(d['free'] < 20*1024**3 or d['free']/d['total'] < .10 for d in disks):
+              raise SystemExit('I hold native diagnosis for insufficient disk headroom.')
+          if available/total <= .10:
+              raise SystemExit('I hold native diagnosis for memory pressure.')
+          PY
+      - name: Install the existing native probe dependencies
+        timeout-minutes: 20
+        run: ./scripts/ci-brew-install.sh pkg-config openssl
+      - name: Select the qualified Apple compiler and SDK without drift
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Validate exact failure retention through public directory APIs
+        run: python3 -m unittest -v tests.test_ci_darwin_link_diagnostic
+      - name: Build only the actual production module-generation probe
+        run: |
+          set -o pipefail
+          prefix="$(brew --prefix openssl)"
+          make -f Makefile.gnu -j2 obj/test_module_generation_probe CC=cc \
+            CFLAGS="-Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE -I$prefix/include" \
+            LDFLAGS="-lm -lcrypto -L$prefix/lib" \
+            2>&1 | tee .test_output/darwin-link-diagnostic/probe-build.log
+          git rev-parse HEAD > .test_output/darwin-link-diagnostic/revision.txt
+          git ls-tree -r HEAD > .test_output/darwin-link-diagnostic/source-tree.txt
+          shasum -a 256 obj/test_module_generation_probe src/module_builder.c \
+            tests/test_source_snapshots.py > .test_output/darwin-link-diagnostic/inputs.sha256
+          cc --version > .test_output/darwin-link-diagnostic/compiler.txt
+      - name: Execute the exact failing configurations and neighbor controls
+        timeout-minutes: 50
+        run: |
+          set -o pipefail
+          python3 scripts/ci_qualification_storage.py run \
+            --output .test_output/darwin-link-diagnostic/storage --label exact-assembler-link-inputs -- \
+            python3 scripts/ci_darwin_link_diagnostic.py \
+            2>&1 | tee .test_output/darwin-link-diagnostic/diagnostic.log
+      - name: Verify unchanged original assertions and production probe
+        if: always()
+        run: |
+          git diff --exit-code HEAD
+          if test -f .test_output/darwin-link-diagnostic/inputs.sha256; then
+            shasum -a 256 -c .test_output/darwin-link-diagnostic/inputs.sha256 \
+              > .test_output/darwin-link-diagnostic/inputs-after.log
+          fi
+      - name: Retain exact original records, source and toolchain observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-link-input-diagnostic-${{ github.sha }}
+          path: |
+            .test_output/darwin-link-diagnostic/
+            .test_output/retirement/capture-toolchain.json
+            .test_output/retirement/selected-tools/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Retain original failed fixture roots without cleanup or relocation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-link-input-original-failures-${{ github.sha }}
+          path: ${{ runner.temp }}/nano-qualification-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
