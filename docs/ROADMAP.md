@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #1088 I retain the marker helper recorder files alongside its actual native programs: the first qualified 99-method component upload preserves programs/commands but omits the separate compiler-phase-markers directory. I preserve that custody limit, add the directory to both final artifact selections, and require actual upload verification without changing executed tests.
+
+- [x] Under #1088/#1065 I retain my [qualified GCC/Clang marker helper checkpoint](evidence/native-phase-markers-20261108/qualified-68/README.md): all 99 methods, original C units/aliases and full translator suites pass. I independently verify six actual sanitized native helper ELF products and their original source/provider hashes and zero-exit command histories. Fresh driver placement/timing, later byte arithmetic and full release admission remain open.
+
 - [ ] Under #1105/#1102 I repair the [366 fresh byte arithmetic refusal](evidence/fresh-source-contracts-20261108/366/README.md): my scalar binary result query omits U8/INT promotion even though checked arithmetic accepts it. I preserve exact general/array identity, use the existing explicit operand conversion and computed byte narrowing, add useful query/emitter shadows and actual source controls, and require unchanged whole byte fixture plus fresh integrated acceptance. My [local smoke](evidence/u8-scalar-arithmetic-20261108/local/README.md) checks arithmetic/order/refusals with older tools; it does not qualify the changed source query.
 
 - [ ] Under #1101 I retain the [366 original literal-fixture opcode assertion failure](evidence/fresh-source-contracts-20261108/366/README.md). Its main only prints; record work belongs to selected shadows. I keep that whole fixture and every shadow assertion unchanged, and apply the AGG_PACK/AGG_GET product-opcode assertion to the separate production-main record fixture that executes those operations.

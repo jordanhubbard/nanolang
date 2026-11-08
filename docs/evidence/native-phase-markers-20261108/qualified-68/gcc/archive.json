@@ -1,0 +1,15 @@
+{
+  "size": 13308910,
+  "sha256": "f98e27f0f76fbd1815f48d8516da3ddb3f5635a9434f40d72e8213575f0f7fe6",
+  "files": 2265,
+  "text_files": 2080,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-xfb2n__0.tar.gz",
+      "sha256": "a7c068524d4ed2d0e5df10e4f424d5590d51bc5f2e264c6e5ca84adffed6d152",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
