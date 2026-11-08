@@ -1,0 +1,9 @@
+{
+  "artifact": 13605438722,
+  "run": 42451010848,
+  "archive_bytes": 1984963,
+  "sha256": "f0bd3f5678ee82154bc7256850fb15f856e5d5b9401013c33d56f8e36d99d6da",
+  "zip_crc_error": null,
+  "source_tree_verified": "4ddb46fe1d6c18134c03bce797ea308e6f566bb8",
+  "instrumentation": "Explicit ASan/UBSan Make flags and actual provider ASan-symbol verification."
+}

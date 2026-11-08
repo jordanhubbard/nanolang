@@ -87,9 +87,19 @@ static int tests_failed = 0;
     } \
 } while(0)
 
+/* I keep each fixture's VM storage outside my runner's stack frame. */
+#if defined(_MSC_VER)
+__declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static void run_fixture(void (*fixture)(void)) {
+    fixture();
+}
+
 #define RUN_TEST(fn) do { \
     printf("  %s...\n", #fn); \
-    fn(); \
+    run_fixture(fn); \
 } while(0)
 
 /* ========================================================================

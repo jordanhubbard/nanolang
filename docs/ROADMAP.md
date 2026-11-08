@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1087/#1053 I measure the repeated actual Clang ASan stack overflow in the VM test runner main frame, retain both source-pinned failures, preserve a fixture call boundary without disabling instrumentation or changing stack limits, and require every original VM assertion plus complete unit/platform acceptance. I compare original/corrected frames before claiming an inlining cause.
+
 - [ ] Under #1053 I preserve selected sanitizer flags when my dispatch-equivalence helper rebuilds each VM strategy, and require actual ASan symbols in both selected binaries before comparing the unchanged corpus. Its hard-coded flags replaced caller instrumentation for vm.c; I retain normal default flags and restoration behavior, full selection and failure retention.
 
 - [ ] Under #1046/#1053 I repair the exact GCC format-truncation refusal in test_array_remove_releases_the_element without changing its ownership assertions or disabling warnings. Actual instrumented run 42451010848 passes all 27 focused methods, then refuses snprintf into the fixture's eight-byte label buffer. I retain the diagnostic, use exact constant labels for the same three strings, and require fresh strict compilation plus the original VM/interpreter/unit corpus.
