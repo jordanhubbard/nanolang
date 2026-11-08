@@ -36,7 +36,7 @@ def read_contract(source):
         contains = case.get('contains', [])
         if (not isinstance(name, str) or not name.isidentifier() or name in names
                 or not isinstance(arguments, list) or len(arguments) > 16
-                or type(status) is not int or not 0 <= status <= 125
+                or type(status) is not int or not 0 <= status <= 255
                 or not isinstance(contains, list) or len(contains) > 8
                 or any(not isinstance(s, str) or not s or len(s) > 4096 or '\0' in s for s in contains)):
             raise ValueError('I require unique cases, bounded arguments and exact ordinary exit statuses.')

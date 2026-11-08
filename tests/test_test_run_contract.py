@@ -37,6 +37,16 @@ class TestRunContract(unittest.TestCase):
                 result, log = self.execute(Path(tmp), program)
                 self.assertEqual(result.returncode, expected, log)
 
+    def test_exact_high_exit_status_does_not_accept_a_signal(self):
+        for program,status,expected in [('raise SystemExit(255)',255,0),
+                ('import os,signal;os.kill(os.getpid(),signal.SIGTERM)',143,1)]:
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as tmp:
+                result,log=self.execute(Path(tmp),program,self.document([
+                    {'name':'exact_status','args':[],'exit_code':status}]))
+                self.assertEqual(result.returncode,expected,log)
+                if expected:
+                    self.assertIn('"returncode": -15',log)
+
     def test_explicit_positive_refusal_and_arity_contract(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
