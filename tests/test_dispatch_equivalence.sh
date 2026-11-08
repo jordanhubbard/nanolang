@@ -26,7 +26,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-FLAGS="-Wall -Wextra -Werror -std=c99 -g -O2 -Isrc -D_GNU_SOURCE"
+FLAGS="${CFLAGS:--Wall -Wextra -Werror -std=c99 -g -O2 -Isrc -D_GNU_SOURCE}"
 if [ -d /opt/homebrew/opt/openssl@3/include ]; then
     FLAGS="$FLAGS -I/opt/homebrew/opt/openssl@3/include"
 fi
@@ -39,6 +39,13 @@ build_vm() {
     rm -f obj/nanovm/vm.o
     make nano_vm CFLAGS="$FLAGS $*" >"$out.build.log" 2>&1 || return 1
     cp bin/nano_vm "$out"
+    if [[ "$FLAGS" == *-fsanitize=*address* ]]; then
+        nm "$out" >"$out.symbols.log" || return 1
+        if ! grep -q '__asan_init' "$out.symbols.log"; then
+            printf 'I require actual ASan instrumentation in %s\n' "$out" >&2
+            return 1
+        fi
+    fi
 }
 
 build_vm "$WORK/vm_goto"   || { echo "threaded build failed"; exit 1; }

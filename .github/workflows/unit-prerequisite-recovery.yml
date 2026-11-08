@@ -11,6 +11,7 @@ on:
       - 'tests/test_eval_call_arguments.py'
       - 'Makefile.gnu'
       - 'tests/nanovm/test_vm.c'
+      - 'tests/test_dispatch_equivalence.sh'
   workflow_dispatch:
 
 permissions:

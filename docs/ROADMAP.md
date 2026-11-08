@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1053 I preserve selected sanitizer flags when my dispatch-equivalence helper rebuilds each VM strategy, and require actual ASan symbols in both selected binaries before comparing the unchanged corpus. Its hard-coded flags replaced caller instrumentation for vm.c; I retain normal default flags and restoration behavior, full selection and failure retention.
+
 - [ ] Under #1046/#1053 I repair the exact GCC format-truncation refusal in test_array_remove_releases_the_element without changing its ownership assertions or disabling warnings. Actual instrumented run 42451010848 passes all 27 focused methods, then refuses snprintf into the fixture's eight-byte label buffer. I retain the diagnostic, use exact constant labels for the same three strings, and require fresh strict compilation plus the original VM/interpreter/unit corpus.
 
 - [ ] Under #1053 I preserve the terminal complete-unit attempt at a1a035c93: the unchanged module prerequisite now passes, then dispatch equivalence compiles 187 of 188 original fixtures and refuses test_repl_history.nano on both GCC/Clang. I retain that observation, supply the full declared CI dependency closure, run units serially with verified instrumentation, archive failed temporary roots, and require the unchanged full corpus rather than attributing an unavailable compile log to a guessed cause.
