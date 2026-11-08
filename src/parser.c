@@ -1689,9 +1689,11 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             bool looks_like_spread = first_tok && second_tok &&
                 first_tok->token_type == TOKEN_DOT &&
                 second_tok->token_type == TOKEN_DOT;
-            bool looks_like_struct_literal = looks_like_spread || (first_tok && second_tok &&
-                first_tok->token_type == TOKEN_IDENTIFIER &&
-                second_tok->token_type == TOKEN_COLON);
+            /* I am in an expression here; statement blocks have their own parser. */
+            bool looks_like_empty_record = first_tok && first_tok->token_type == TOKEN_RBRACE;
+            bool looks_like_struct_literal = looks_like_empty_record || looks_like_spread ||
+                (first_tok && second_tok && first_tok->token_type == TOKEN_IDENTIFIER &&
+                 second_tok->token_type == TOKEN_COLON);
             
             if (looks_like_struct_literal) {
                 /* Parse anonymous struct literal, possibly with spread: {..base, field: val} */

@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1101 I repair the retained canonical VM parse refusal for an empty anonymous record in a declared expression context, preserving empty statement blocks. I keep the original nested/empty positive assertion and require original C parser units plus source/native acceptance.
+
 - [x] Under #1088 I exercise my phase observer against a test-owned real preprocessor waiting on stdin, stop only that process group and require its actual PID, incomplete record and absent invented exit status. All 21 local trace/CLI/JUnit controls pass; actual self-hosted phase timing remains pending.
 
 - [ ] Under #1088 I retain C-seed checker and focused-source metadata immediately after those attempts, before the independent translator gate finishes, preserving failed attempts and final binary custody without changing test selection or deadlines.

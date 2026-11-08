@@ -111,6 +111,11 @@ jobs:
           git ls-tree -r HEAD > .test_output/string-builtin-operands/source-tree.txt
           sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano_aot_runtime.o > .test_output/string-builtin-operands/providers.sha256
           "$CC" --version > .test_output/string-builtin-operands/compiler.txt
+      - name: Execute the complete original C parser unit suite
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-parser \
+            2>&1 | tee .test_output/string-builtin-operands/parser.log
       - name: Execute the complete original C typechecker unit suite
         run: |
           set -o pipefail
