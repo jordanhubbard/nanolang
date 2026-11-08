@@ -1,3 +1,5 @@
+- [ ] Under #1114 I retain the static raw nl_string_substring start+length wrap concern for a direct C baseline and repair. The VM and corrected generated helper preclamp their calls; those routes do not qualify the public raw C API.
+
 - [ ] Under #1114 I retain my first 6f ownership-test link failures (GCC and Clang both lack the test executable's g_argc/g_argv definitions), supply the normal unit entry globals and require actual sanitizer execution. I also preserve the existing standalone/private heap link closure: the new managed leaf destructor must not add an unresolved nl_string_free dependency to heap-only users. I share the payload-storage destructor with the C wrapper and run existing private-heap controls before qualifying this checkpoint.
 
 # My Roadmap
@@ -6,7 +8,7 @@
 
 - [ ] Under #1114 I measure useful C-seed bstring function-shadow execution before claiming interpreter parity; my current production baselines use the original main exemption and do not establish that boundary. I retain any unsupported-call evidence and repair the actual interpreter path if required.
 
-- [ ] Under #1114 I retain an extreme substring sanitizer baseline before correcting the generated C helper's signed start+length expression. I clamp with subtraction after checking bounds and preserve existing negative/clipped results; ordinary small-bound probes do not establish overflow safety.
+- [ ] Under #1114 I retain the measured e9 GCC generated-C signed overflow at start=1,length=INT64_MAX, replace the helper addition with a checked remaining-length subtraction, and require actual C-created O0/O2 ASan/UBSan native bounds execution. I preserve existing negative/clipped results; ordinary small-bound probes do not establish overflow safety.
 
 - [x] Under #1114/#1065 I retain my [corrected a98 Apple checker checkpoint](evidence/bstring-contracts-20261108/a98-apple/README.md): actual creation/execution succeeds and all 693 selected shadows complete in 7.810016 recorded body seconds under the unchanged ten-second deadline, with every assertion preserved. All fourteen measured C/VM baseline stdout files remain byte-identical to b65. Full job/product custody, runtime restoration and integrated/fresh/platform release acceptance remain separate.
 

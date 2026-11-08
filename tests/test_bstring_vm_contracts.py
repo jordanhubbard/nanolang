@@ -6,11 +6,13 @@ import tempfile
 import unittest
 
 from scripts.diagnose_bstring_contracts import probes
-from tests.test_numeric_builtin_selection import NumericBuiltinSelection, ROOT
+from tests import test_numeric_builtin_selection as numeric
+
+ROOT = numeric.ROOT
 
 
 class BstringVmContracts(unittest.TestCase):
-    command = NumericBuiltinSelection.command
+    command = numeric.NumericBuiltinSelection.command
 
     def exercise(self, source, expected='', *, source_path=None, refused=False):
         output = ROOT/'.test_output/bstring-vm-contracts'

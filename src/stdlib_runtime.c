@@ -368,11 +368,11 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "        return nl_string_new(\"\");\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    size_t len = nl_string_length(str);\n");
-    sb_append(sb, "    if ((size_t)start > len) {\n");
+    sb_append(sb, "    if ((uint64_t)start > len) {\n");
     sb_append(sb, "        start = (int64_t)len;\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    if ((size_t)(start + length) > len) {\n");
-    sb_append(sb, "        length = (int64_t)len - start;\n");
+    sb_append(sb, "    if ((uint64_t)length > len - (size_t)start) {\n");
+    sb_append(sb, "        length = (int64_t)(len - (size_t)start);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return nl_string_substring(str, (size_t)start, (size_t)length);\n");
     sb_append(sb, "}\n\n");
