@@ -108,9 +108,7 @@ nl_string_t* nl_string_with_capacity(size_t capacity) {
 }
 
 void nl_string_free(nl_string_t *str) {
-    if (!str) return;
-    free(str->data);
-    free(str);
+    nl_string_free_owned_storage(str);
 }
 
 /* ============================================================================

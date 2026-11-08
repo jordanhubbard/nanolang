@@ -14,6 +14,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * String structure with explicit length
@@ -25,6 +26,13 @@ typedef struct {
     bool is_utf8;       // True if validated as UTF-8
     bool null_terminated; // True if data has '\0' at data[length]
 } nl_string_t;
+
+/* I share payload destruction with heap-only users without adding a link dependency. */
+static inline void nl_string_free_owned_storage(nl_string_t *str) {
+    if (!str) return;
+    free(str->data);
+    free(str);
+}
 
 /* ============================================================================
  * Creation & Destruction

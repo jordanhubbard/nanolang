@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 
+int g_argc = 0;
+char **g_argv = NULL;
+
 static NvmModule *module(void) {
     AsmResult error;
     NvmModule *m = asm_assemble(

@@ -36,6 +36,8 @@ on:
       - 'tests/test_environment_contracts.py'
       - 'src/bstring_contracts.h'
       - 'src/nanovm/bstring_intrinsics.inc'
+      - 'src/runtime/nl_string.c'
+      - 'src/runtime/nl_string.h'
       - 'src/nanovm/heap.c'
       - 'src/nanovm/heap.h'
       - 'src/nanovm/value.h'
@@ -198,6 +200,8 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu CC="$CC" test-nanovm \
             2>&1 | tee .test_output/string-builtin-operands/bstring-ownership.log
+          python3 -m unittest -v tests.test_record_map_heap tests.test_record_map_string_heap tests.test_record_map_ordinary_heap \
+            2>&1 | tee .test_output/string-builtin-operands/bstring-private-heap.log
           python3 -m unittest -v tests.test_bstring_vm_contracts \
             2>&1 | tee .test_output/string-builtin-operands/bstring-vm.log
       - name: Retain current C and VM bstring boundary baselines
@@ -228,6 +232,7 @@ jobs:
             .test_output/string-builtin-operands/build.log
             .test_output/string-builtin-operands/parser.log
             .test_output/string-builtin-operands/typechecker.log
+            .test_output/string-builtin-operands/bstring-private-heap.log
             .test_output/string-builtin-operands/bstring-ownership.log
             .test_output/string-builtin-operands/bstring-vm.log
             .test_output/string-builtin-operands/environment.log

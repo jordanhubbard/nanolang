@@ -156,7 +156,7 @@ static void release_hashmap(VmHeap *heap, VmHashMap *m);
 VmBString *vm_bstring_adopt(VmHeap *heap, nl_string_t *owned) {
     if (!owned) return NULL;
     VmBString *value = heap ? malloc(sizeof *value) : NULL;
-    if (!value) { nl_string_free(owned); return NULL; }
+    if (!value) { nl_string_free_owned_storage(owned); return NULL; }
     value->header.ref_count = 1;
     value->header.obj_type = TAG_BSTRING;
     value->header.colour = VM_GC_BLACK;
@@ -171,7 +171,7 @@ VmBString *vm_bstring_adopt(VmHeap *heap, nl_string_t *owned) {
 void vm_bstring_clear(VmHeap *heap, VmBString *value) {
     if (!value || !value->value) return;
     heap->stats.freed += sizeof *value->value + value->value->capacity;
-    nl_string_free(value->value);
+    nl_string_free_owned_storage(value->value);
     value->value = NULL;
 }
 
