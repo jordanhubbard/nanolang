@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1096 I preserve the original complete dynamic-array fixture and repair missing self-hosted array_pop/array_remove_at metadata, checking and canonical opcode emission. I retain lexical binding identity, once-only operand order, one-result pop, mutation aliases, existing consumer empty/out-of-range behavior, malformed prior-output controls and meaningful shadows. I audit the C checker's currently permissive missing-function fallback, then require both fresh stages, complete translator/units and integrated platform acceptance.
+
 - [x] Under #1094/#1095 I retain my [arithmetic/casting C-frontend checkpoint](evidence/array-cast-qualified-20261108/README.md): paired GCC/Clang pass all 57 corrected arithmetic methods at 967 and all 61 casting-inclusive methods at e088, original C units and full translator gates. All seven original raw refusal controls execute. Six original artifacts retain both earlier seven-error failures and later successes; fresh self-hosted and integrated acceptance remain open.
 
 - [ ] Under #1095 I preserve the complete original casting fixture and repair self-hosted cast_float result metadata, inline selection and one-argument emission. I retain legal lexical binding identity and the existing ANY operand/consumer semantics, test scalar bits, byte/bool/string/array fallback and once-only execution in production main, preserve arity/prior output and meaningful shadows, and require fresh stages and full platform acceptance.

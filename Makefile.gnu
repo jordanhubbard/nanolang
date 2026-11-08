@@ -7371,3 +7371,7 @@ test-array-arithmetic-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump
 .PHONY: test-cast-float-contracts
 test-cast-float-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_cast_float_contracts
+
+.PHONY: test-dynamic-array-contracts
+test-dynamic-array-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_dynamic_array_contracts

@@ -3208,6 +3208,25 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 strcmp(expr->as.call.name, "map_free") == 0 ||
                 strcmp(expr->as.call.name, "map_keys") == 0 ||
                 strcmp(expr->as.call.name, "map_values") == 0);
+            /* I retain exact source-array removal operands after lexical resolution. */
+            if ((!func || (!func->body && !func->is_extern && !func->params)) &&
+                (strcmp(expr->as.call.name, "array_pop") == 0 ||
+                 strcmp(expr->as.call.name, "array_remove_at") == 0)) {
+                bool pop = strcmp(expr->as.call.name, "array_pop") == 0;
+                bool valid = expr->as.call.arg_count == (pop ? 1 : 2);
+                if (valid) {
+                    valid = check_expression(expr->as.call.args[0], env) == TYPE_ARRAY;
+                    if (!pop && check_expression(expr->as.call.args[1], env) != TYPE_INT)
+                        valid = false;
+                }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the array removal arity, an array and an integer index.",
+                        "Use the declared array removal operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return pop ? infer_array_element_type(expr->as.call.args[0], env) : TYPE_ARRAY;
+            }
             if (!func || (is_map_builtin && is_hashmap_generic_context)) {
                 /* Special handling for dynamic array builtins */
                 if (strcmp(expr->as.call.name, "array_push") == 0) {
