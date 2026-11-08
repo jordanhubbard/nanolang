@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1109/#1081 I retain the unchanged whole array stdlib fixture and array_sort baseline before implementation, then preserve exact INT/U8/FLOAT/BOOL/STRING argument/result identity, detached storage, once-only receiver evaluation, typed empties, lexical identity and malformed/prior-output refusals. I follow the existing extrema/NaN/signed-zero/byte-string comparison contract without assuming stable equal-element order; require proven flat native storage, actual Nano checker/VM/sanitized-native and fresh-stage/platform gates, and keep generic host/SDK admission closed.
+
 - [ ] Under #1107/#1108 I execute dedicated compiled Nano checker-main cases for all five uppercase statement heads and the bang token/AST identity, including token positions and all four unary spellings. I keep the existing shared controls, retain the direct lexer input hash, watch lexer-only changes in both jobs and run my existing C lexer fixture controls. I require actual native product/hash custody, complete component gates and separate fresh-stage acceptance.
 
 - [x] Under #1107 I retain the [pinned GCC/Clang uppercase condition component checkpoint](evidence/uppercase-conditions-20261108/qualified-de27/README.md): both 115-method suites, mandatory parser shadows, native checker and original C/alias/translator/shape gates pass. Four actual positive-program ELFs and command/source/provider hashes independently verify. The programs use the C frontend; dedicated native source-parser and fresh-stage/platform qualification remain open.

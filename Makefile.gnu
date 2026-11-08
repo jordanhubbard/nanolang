@@ -7420,3 +7420,7 @@ test-uppercase-condition-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_d
 .PHONY: test-legacy-bang-contracts
 test-legacy-bang-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_legacy_bang_contracts
+
+.PHONY: test-array-sort-contracts
+test-array-sort-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_sort_contracts
