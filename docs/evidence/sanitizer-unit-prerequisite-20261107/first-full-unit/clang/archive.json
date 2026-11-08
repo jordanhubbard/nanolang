@@ -1,0 +1,8 @@
+{
+  "artifact": 13605507423,
+  "bytes": 2003174,
+  "sha256": "765242a703ec1edc76d96725dc22e91d2cc7dd326f3a6b52679c17d420e609d3",
+  "zip_crc_error": null,
+  "source_tree_verified": "a1a035c93d2ed2961569ce128ae53d1fc377c636",
+  "provider_instrumentation": "Make defaults override environment flags; functional evidence only. Explicit helper/AOT sanitizer flags remain separately visible."
+}
