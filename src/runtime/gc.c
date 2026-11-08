@@ -367,6 +367,10 @@ void gc_set_threshold(size_t bytes) {
 
 /* Allocate GC-managed string */
 char* gc_alloc_string(size_t length) {
+    if (length == SIZE_MAX) {
+        fprintf(stderr, "I cannot allocate a managed string whose terminator size overflows.\n");
+        return NULL;
+    }
     /* Allocate space for the string content + null terminator */
     char* str = (char*)gc_alloc(length + 1, GC_TYPE_STRING);
     if (str) {

@@ -304,11 +304,20 @@ static void test_allocation_size_boundary(void) {
     ASSERT(gc_alloc(SIZE_MAX, GC_TYPE_OPAQUE) == NULL, "I accepted an overflowing allocation.");
     ASSERT(gc_alloc(SIZE_MAX - sizeof(GCHeader) + 1, GC_TYPE_OPAQUE) == NULL,
            "I accepted the first overflowing header size.");
+    ASSERT(gc_alloc_string(SIZE_MAX) == NULL, "I accepted an overflowing string terminator.");
     GCStats refused = gc_get_stats();
     ASSERT_EQ(refused.total_allocated, before.total_allocated, "I changed allocated bytes on refusal.");
     ASSERT_EQ(refused.total_freed, before.total_freed, "I changed freed bytes on refusal.");
     ASSERT_EQ(refused.current_usage, before.current_usage, "I changed live bytes on refusal.");
     ASSERT_EQ(refused.num_objects, before.num_objects, "I registered an object on refusal.");
+    char *empty = gc_alloc_string(0);
+    ASSERT(empty != NULL && empty[0] == '\0', "I lost my empty string terminator.");
+    gc_release(empty);
+    char *text = gc_alloc_string(3);
+    ASSERT(text != NULL && text[3] == '\0', "I lost my nonempty string terminator.");
+    memcpy(text, "abc", 3);
+    ASSERT_STR(text, "abc", "I changed valid string storage.");
+    gc_release(text);
     size_t sizes[] = {0, 1, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 4095, 4096, 4097};
     for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i) {
         void *value = gc_alloc(sizes[i], GC_TYPE_OPAQUE);
