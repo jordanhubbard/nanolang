@@ -7333,3 +7333,9 @@ $(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/nvm2c_union_target_private.inc $(NANO
 test-units: test-union-field-native-target
 test-union-field-native-target: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_union_field_native_target
+
+.PHONY: test-comprehensive-run-contract
+test-comprehensive-run-contract:
+	python3 -m unittest -v tests.test_test_run_contract tests.test_junit_route_audit
+
+check-fast test-units: test-comprehensive-run-contract

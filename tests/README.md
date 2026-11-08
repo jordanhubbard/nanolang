@@ -201,3 +201,40 @@ Use in CI:
 ```bash
 make test && echo "Tests passed" || echo "Tests failed"
 ```
+
+## My executable test contracts
+
+I run each selected source as one reported test. By default I require its compiled
+program to exit zero with no arguments. A command-line checker can declare a
+companion `.cases.json` file, as in
+[`test_resource_effect_checker.cases.json`](test_resource_effect_checker.cases.json):
+
+```json
+{
+  "schema": "nanolang-test-run@1",
+  "cases": [
+    {"name": "arity_refusal", "args": [], "exit_code": 2},
+    {"name": "accepted_input", "args": [{"input": "fixtures/resource-checker/valid.nano"}], "exit_code": 0}
+  ]
+}
+```
+
+I validate the complete contract before execution. I accept at most 64 KiB of
+metadata, sixteen unique cases, sixteen arguments per case and eight required
+output strings. Arguments are literal strings or present regular input files
+within the source directory. I pass argument vectors directly to the program.
+Each case requires its exact ordinary exit status and every declared `contains`
+string in that case's own output. Signals, timeouts and missing inputs fail.
+All cases share the existing total run deadline. An interrupted run reaps its
+active child, and I retain its log.
+
+My resource-checker case executes valid input, ownership refusal and both invalid
+arity forms while preserving the original CLI source and JUnit case identity.
+I retain every explicit contract's command/status/output log even on success.
+I preserve previous runner-owned outputs under `.test_output/prior-*` before
+compilation, so a compiler returning success without publishing cannot execute
+an old program. My product refusal tests keep their separate prior-output checks.
+`make test-comprehensive-run-contract` exercises real child processes, timeout
+and interruption cleanup, rejected metadata, diagnostic separation, first-compile
+failure timing, stale output refusal and complete report counts. Full compiler
+and installed-stage execution remain separate required gates.

@@ -1,0 +1,2 @@
+fn main() -> int { return 7 }
+shadow main { assert (== (main) 7) }
