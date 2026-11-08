@@ -7420,7 +7420,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         }
                     } else {
                         if (or left_s right_s) {
-                            return (nisa_fail "string concat needs two strings")
+                            return (nisa_fail "I require two string operands for this string operation.")
                         } else {
                             let mut mnemonic: string = (nisa_binop_mnemonic binop.op)
                             if (or (== binop.op LexerTokenType.TOKEN_EQ) (== binop.op LexerTokenType.TOKEN_NE)) {
@@ -7506,6 +7506,10 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_emit_expr {
+    let rejected_string: string = (nanoisa_emit_nasm "fn main()->int{let value:u8=1 let wrong:int=(+ value \"wrong\") return 0}")
+    assert (== rejected_string "")
+    assert (not nisa_ok)
+    assert (== nisa_err "I require two string operands for this string operation.")
     let byte_math: string = (nanoisa_emit_nasm "fn main()->int{let value:u8=255 let result:u8=(+ value 2) assert (== result 1) return 0}")
     assert nisa_ok
     assert (str_contains byte_math "CAST_INT")
