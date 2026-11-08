@@ -1,0 +1,15 @@
+{
+  "size": 43186353,
+  "sha256": "909301479351102d41587785977f13d73174c4f4f633838887701e63fd6768e0",
+  "files": 1688,
+  "text_files": 1535,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-yybn8zmj.tar.gz",
+      "sha256": "66cde2ee3ed633c04cc45daeaf9ef7fd32725e0143b412109d4e9681ada63d6c",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
