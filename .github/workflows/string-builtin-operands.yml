@@ -23,6 +23,9 @@ on:
       - 'src_nano/parser.nano'
       - 'src_nano/typecheck.nano'
       - 'src_nano/compiler/nanoisa_codegen.nano'
+      - 'src/math_host_contracts.h'
+      - 'src/nanovirt/shadow_runner.c'
+      - 'src/math_host_contracts.def'
   workflow_dispatch:
 
 permissions:

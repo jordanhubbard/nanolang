@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1092 I retain 78bfd94a9 math failures: imported C-frontend math declarations retain a logical source-module namespace instead of the known scalar host namespace, and cached fixed-float builtin parameters are lost. I share the exact native math name/arity table between C lowering and C AOT, bind only its matching all-float declaration signatures to the host namespace, preserve raw named-library refusals and real function bodies, and retain fixed FLOAT cache operands alongside existing STRING contracts. Every original math assertion stays selected.
+
 - [x] Under #1091 I retain my [corrected numeric C-frontend/native checkpoint](evidence/numeric-selection-20261107/62d/README.md): GCC and Clang each pass all 29 selected methods, original builtin fixture, numeric bit/order/binding controls, raw scalar/record/callable PICK and prior-output refusals. The new self-hosted lowering, mandatory bootstrap shadows, both resulting stages and complete integrated routes remain open.
 
 - [ ] Under #1092/#1081 I retain exact scalar libm signatures for my existing core builtins and std/math/extended declarations through self-hosted NanoISA and C AOT. I preserve builtin-library namespace and declaration identity, require meaningful signature shadows and unchanged complete math/vector fixtures through VM/sanitized native execution, and preserve invalid signature/library prior outputs. The numeric-selection correction remains under fresh-stage qualification in #1091.

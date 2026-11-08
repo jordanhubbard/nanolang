@@ -1,5 +1,6 @@
 """I retain exact scalar libm imports and unchanged whole math fixtures."""
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -56,11 +57,56 @@ fn main()->int{
 shadow main{assert (== (main) 0)}
 ''')
 
+    def test_every_extended_math_symbol_executes_in_the_product(self):
+        calls = [
+            ('asin 0.0', '0.0'), ('acos 1.0', '0.0'), ('atan 0.0', '0.0'),
+            ('log 1.0', '0.0'), ('log10 1.0', '0.0'), ('log2 1.0', '0.0'),
+            ('log1p 0.0', '0.0'), ('exp 0.0', '1.0'), ('exp2 3.0', '8.0'),
+            ('expm1 0.0', '0.0'), ('sinh 0.0', '0.0'), ('cosh 0.0', '1.0'),
+            ('tanh 0.0', '0.0'), ('asinh 0.0', '0.0'), ('acosh 1.0', '0.0'),
+            ('atanh 0.0', '0.0'), ('fmod 7.0 2.0', '1.0'), ('fabs -2.0', '2.0'),
+            ('cbrt 27.0', '3.0'), ('hypot 3.0 4.0', '5.0'), ('trunc -2.9', '-2.0'),
+            ('rint 2.3', '2.0'), ('nearbyint -1.2', '-1.0'),
+            ('remainder 7.0 2.0', '-1.0'), ('fmin 3.0 4.0', '3.0'),
+            ('fmax 3.0 4.0', '4.0'), ('copysign 1.0 -2.0', '-1.0'),
+        ]
+        body = ''.join(' assert (< (abs (- (math.'+call+') '+expected+')) 0.00001)\n'
+                       for call, expected in calls)
+        self.exercise('module "modules/std/math/extended.nano" as math\nfn main()->int{\n'+
+                      body+' return 0\n}\nshadow main{assert (== (main) 0)}\n')
+
     def test_wrong_math_source_operands_preserve_output(self):
         for expression in ['(sqrt)', '(pow 2.0)', '(sqrt true)', '(pow "bad" "bad")']:
             with self.subTest(expression=expression):
                 self.exercise('fn main()->int{let result = '+expression+
                               ' return 0} shadow main{assert true}', refused=True)
+
+    def test_c_frontend_preserves_a_selected_same_name_artifact(self):
+        output = ROOT/'.test_output/numeric-builtin-selection'
+        output.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix='math-selected-artifact-', dir=output))
+        provider = work/'provider'
+        provider.mkdir()
+        api = provider/'api.nano'
+        api.write_text('pub extern fn exp(value:float)->float\n')
+        (provider/'module.json').write_text(json.dumps({'name':'math-selected-provider',
+            'c_sources':['api.c']}))
+        (provider/'api.c').write_text('double exp(double value) { return value + 41.0; }\n')
+        source, module, generated = work/'main.nano', work/'module.nvm', work/'prior.c'
+        source.write_text('module '+json.dumps(str(api))+' as foreign\n'
+            'fn main()->int{unsafe{assert (== (foreign.exp 1.0) 42.0)} return 0}\n'
+            'shadow main{assert (== (main) 0)}\n')
+        self.command(work, 'source-build', [ROOT/'bin/nano_virt',source,'--emit-nvm','-o',module], build=True)
+        self.command(work, 'verify', [ROOT/'bin/nano_vm','--verify-only',module])
+        self.command(work, 'vm', [ROOT/'bin/nano_vm',module])
+        dump = self.command(work, 'dump', [ROOT/'bin/nanoisa','dump',module]).stdout
+        self.assertRegex(dump, r'(?m)^\.import_kind [0-9]+ artifact$')
+        self.assertNotIn('.import "" "exp"', dump)
+        prior = b'I retain my prior translation.\n'
+        generated.write_bytes(prior)
+        result = self.command(work, 'refusal', [ROOT/'bin/nvm2c',module,'-o',generated], accepted=False)
+        self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+        self.assertEqual(generated.read_bytes(), prior)
 
     def test_wrong_import_signatures_and_libraries_preserve_output(self):
         cases = [

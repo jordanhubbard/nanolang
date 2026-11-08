@@ -1,3 +1,4 @@
+#include "math_host_contracts.h"
 #include "runtime/shadow_timeout.h"
 #include "nanolang.h"
 #include "module_builder.h"
@@ -44,13 +45,17 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
         const char *resolved = resolve_module_path(name, input);
         char *canonical = realpath(resolved ? resolved : name, NULL);
         free((void *)resolved);
+        unsigned math_arity = nano_math_host_arity(nvm_get_string(module, imp->function_name_idx));
+        bool source_seen = false;
         for (int j = 0; j < modules->count; j++) {
-            if (!bindings[j].artifact) continue;
+            if (!bindings[j].artifact && !math_arity) continue;
             char *candidate = realpath(modules->module_paths[j], NULL);
             bool match = strcmp(name, modules->module_paths[j]) == 0 ||
                          (canonical && candidate && strcmp(canonical, candidate) == 0);
             free(candidate);
             if (!match) continue;
+            source_seen = true;
+            if (!bindings[j].artifact) continue;
             ModuleBuildMetadata *metadata = bindings[j].metadata;
             const char *symbol = nvm_get_string(module, imp->function_name_idx);
             for (size_t a = 0; a < metadata->callback_adapters_count; a++) {
@@ -78,6 +83,20 @@ bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
             imp->module_name_idx = idx;
             imp->kind = NVM_IMPORT_ARTIFACT;
             break;
+        }
+        /* I normalize a known scalar host declaration only after giving its
+         * selected module artifact priority. A source path is not a library
+         * identity, and a real artifact is never replaced by a math name. */
+        if (source_seen && imp->kind == NVM_IMPORT_FFI) {
+            bool exact = math_arity && imp->param_count == math_arity && imp->return_type == TAG_FLOAT &&
+                module->import_param_types && module->import_param_types[i];
+            for (uint16_t p = 0; exact && p < imp->param_count; ++p)
+                if (module->import_param_types[i][p] != TAG_FLOAT) exact = false;
+            if (exact) {
+                uint32_t empty = nvm_add_string(module, "", 0);
+                if (empty == UINT32_MAX) { free(canonical); return false; }
+                imp->module_name_idx = empty;
+            }
         }
         free(canonical);
     }

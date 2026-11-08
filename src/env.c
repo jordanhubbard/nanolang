@@ -1092,7 +1092,7 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         if (safe_strcmp(builtin_registry[i].name, name) == 0) {
             /* Create static function objects for built-ins */
             static Function func_cache[256];
-            static Parameter string_params[256][4];
+            static Parameter fixed_params[256][4];
             static bool initialized[256] = {false};
             if ((size_t)i >= sizeof func_cache / sizeof func_cache[0]) return NULL;
 
@@ -1101,22 +1101,24 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
                 func_cache[i].param_count = builtin_registry[i].arity;
                 func_cache[i].return_type = builtin_registry[i].return_type;
                 func_cache[i].params = NULL;
-                /* I retain fixed STRING operands without changing the existing
-                 * numeric/polymorphic contracts of my other builtin operands.
-                 * These borrowed cache parameters are not environment-owned. */
+                /* I retain fixed STRING/FLOAT operands while leaving INT
+                 * placeholders for polymorphic builtins unspecified. These
+                 * borrowed cache parameters are not environment-owned. */
                 const BuiltinEntry *entry = &builtin_registry[i];
                 if (entry->arity <= sizeof entry->param_types / sizeof entry->param_types[0]) {
-                    bool has_string = false;
+                    bool has_fixed = false;
                     for (uint8_t parameter = 0; parameter < entry->arity; ++parameter)
-                        if (entry->param_types[parameter] == TYPE_STRING) has_string = true;
-                    if (has_string) {
+                        if (entry->param_types[parameter] == TYPE_STRING ||
+                            entry->param_types[parameter] == TYPE_FLOAT) has_fixed = true;
+                    if (has_fixed) {
                         for (uint8_t parameter = 0; parameter < entry->arity; ++parameter) {
-                            string_params[i][parameter].name = "argument";
-                            string_params[i][parameter].type = entry->param_types[parameter] == TYPE_STRING
-                                ? TYPE_STRING : TYPE_UNKNOWN;
-                            string_params[i][parameter].element_type = TYPE_UNKNOWN;
+                            fixed_params[i][parameter].name = "argument";
+                            fixed_params[i][parameter].type = entry->param_types[parameter] == TYPE_STRING ||
+                                entry->param_types[parameter] == TYPE_FLOAT
+                                ? entry->param_types[parameter] : TYPE_UNKNOWN;
+                            fixed_params[i][parameter].element_type = TYPE_UNKNOWN;
                         }
-                        func_cache[i].params = string_params[i];
+                        func_cache[i].params = fixed_params[i];
                     }
                 }
                 func_cache[i].body = NULL;
