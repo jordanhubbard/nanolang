@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:66f4fd22ce614cad9ea2dafa43f0f5f68426118dbf69534f0d595d575eecd977 -->
+<!-- literate-ai:authority-reviewed sha256:a12230c681226e61ed0daa54190912b77b42036cae19fabc1c5e95c8139ec4e1 -->
 
 ## My first metadata checkpoint
 
@@ -287,3 +287,8 @@ My [merge-tree audit](source-contract-merge-tree-check-20261108.json) checks eve
 reviewed pre-merge entry against the staged merge tree, permitting only the five
 prior content-only metadata exemptions. I retain unchanged path/type/mode checks
 and the exact staged tree identity separately from native lifecycle admission.
+
+I freeze my catalog reports before the final documentation-authority review.
+I retain post-freeze validation logs outside this catalog, under
+`docs/evidence/source-contract-custody-20261108/`, so saving those logs cannot
+change the authority inputs they just checked.
