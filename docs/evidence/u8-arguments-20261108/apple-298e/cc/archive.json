@@ -1,0 +1,15 @@
+{
+  "size": 9590992,
+  "sha256": "8efd15dce8c5b81f756fbbf4ad432ab1663ba1176ebc0612d7b557e664589344",
+  "files": 2212,
+  "text_files": 2031,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-rs4ondsg.tar.gz",
+      "sha256": "e5f66f9c6268b9d10adb43853b3eda0ebbe25cce87c07c41c5875b52de7490e4",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

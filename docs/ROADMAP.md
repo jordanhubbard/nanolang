@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1104 I retain the [pinned Apple directed argument component checkpoint](evidence/u8-arguments-20261108/apple-298e/README.md): all 96 methods, original C units/aliases and complete translator suites pass, with exact source/toolchain custody and an independently verified arm64 Mach-O checker product executing the production cases. Fresh self-hosted, original route/budget and full native lifecycle acceptance remain open.
+
 - [x] Under #1104 I retain the [directed argument checker baseline](evidence/u8-arguments-20261108/first-ffca/README.md) and [qualified GCC/Clang component checkpoint](evidence/u8-arguments-20261108/qualified-75e/README.md): actual native checker products execute six production cases; all 96 source methods and complete units/aliases/translator gates pass. I retain the original refusals, explicit conversions and evaluation order, while keeping fresh-stage, Darwin, complete module and native lifecycle acceptance separate.
 
 - [x] Under #1049/#1101/#1102/#1103 I retain the [qualified pinned Apple source component checkpoint](evidence/source-contracts-20261108/apple-1e7/README.md): all 92 methods, original C units/aliases and full translator suites pass, with an independently verified arm64 Mach-O checker product, exact Nano input pin and selected compiler/assembler/SDK custody. This predates #1104 and leaves fresh self-hosted, original corpus-budget and full native lifecycle acceptance open.
