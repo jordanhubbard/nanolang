@@ -159,6 +159,26 @@ jobs:
           python3 -m unittest -v tests.test_test_run_contract_native \
             2>&1 | tee .test_output/junit-route-audit/checker-cli.log
 
+      - name: Retain measured CLI metadata before complete corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-run-contract-metadata-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/checker-cli.log
+            .test_output/junit-route-audit/revision.txt
+            .test_output/junit-route-audit/providers-before.sha256
+            .test_output/cli-run-contract-native/**/compile-command.json
+            .test_output/cli-run-contract-native/**/compile-status.json
+            .test_output/cli-run-contract-native/**/compile.stdout
+            .test_output/cli-run-contract-native/**/compile.stderr
+            .test_output/cli-run-contract-native/**/compile.log
+            .test_output/cli-run-contract-native/**/run.log
+            .test_output/cli-run-contract-native/**/inputs*.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Retain the complete original corpus across seed native, VM and both stages
         if: always() && steps.bootstrap.outcome == 'success'
         timeout-minutes: 180

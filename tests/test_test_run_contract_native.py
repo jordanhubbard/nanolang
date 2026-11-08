@@ -32,6 +32,7 @@ class NativeTestRunContract(unittest.TestCase):
                           for path in [compiler, SOURCE, SOURCE.with_suffix('.cases.json'),
                             ROOT/'tests/fixtures/resource-checker/valid.nano',
                             ROOT/'tests/fixtures/resource-checker/unconsumed.nano']}
+                (work/'inputs-before.json').write_text(json.dumps(before, indent=2)+'\n')
                 artifact = work / ('checker.nvm' if route == 'vm' else 'checker')
                 command = [str(compiler), str(SOURCE), '-o', str(artifact)]
                 if route == 'vm':
