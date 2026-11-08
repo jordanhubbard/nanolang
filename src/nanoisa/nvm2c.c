@@ -3155,12 +3155,19 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!shape_type(b, shape_variable(b, &b->shape_results[idx]), NVM_SHAPE_OPTIONAL)) return 0;
                     break;
                 }
+                if (v.kind == NVM2C_VK_VALUE && declared == NVM_SHAPE_MAP) {
+                    NvmShapeId result = shape_variable(b, &b->shape_results[idx]);
+                    if (!shape_type(b, result, NVM_SHAPE_MAP) ||
+                        (b->track_shapes &&
+                         (!nvm_shape_checked_payload(&b->shapes, v.shape, result) || !shape_ok(b)))) return 0;
+                    break;
+                }
                 if (((v.kind == NVM2C_VK_VALUE || v.kind == NVM2C_VK_UNK ||
                       v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL ||
                       v.kind == NVM2C_VK_FLOAT || v.kind == NVM2C_VK_STR) &&
                      (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL ||
                       declared == NVM_SHAPE_FLOAT || declared == NVM_SHAPE_STRING)) ||
-                    (v.kind == NVM2C_VK_VALUE && (declared == NVM_SHAPE_MAP || declared == NVM_SHAPE_FUNCTION))) {
+                    (v.kind == NVM2C_VK_VALUE && declared == NVM_SHAPE_FUNCTION)) {
                     if (!shape_type(b, shape_variable(b, &b->shape_results[idx]), declared)) return 0;
                     break;
                 }

@@ -89,6 +89,24 @@ class ScalarMapAot(unittest.TestCase):
                         self.paired(HEADER+'.function main 0 2 0 int 1\n'+body+
                             'PUSH_I64 0\nRET\n.end\n'+helpers+CHURN)
 
+    def test_tagged_global_map_return_retains_snapshot_pairs(self):
+        for key in (1, 5):
+            for value in (1, 5):
+                with self.subTest(key=key, value=value):
+                    push_key = 'PUSH_I64 -9223372036854775808\n' if key == 1 else 'PUSH_STR first\n'
+                    push_value = 'PUSH_I64 -7\n' if value == 1 else 'PUSH_STR kept\n'
+                    body = f'HM_NEW {key} {value}\nSTORE_GLOBAL 0\n'
+                    body += 'LOAD_GLOBAL 0\n'+push_key+push_value+'HM_SET\nPOP\n'
+                    body += 'CALL receiver\nHM_KEYS\nSTORE_LOCAL 0\n'
+                    body += 'CALL receiver\nHM_VALUES\nSTORE_LOCAL 1\n'
+                    body += f'HM_NEW {key} {value}\nSTORE_GLOBAL 0\nCALL churn\n'
+                    for slot, tag, push in ((0, key, push_key), (1, value, push_value)):
+                        body += f'LOAD_LOCAL {slot}\nDUP\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\n'
+                        body += 'PUSH_I64 0\nARR_GET\nDUP\n'+f'TYPE_CHECK {tag}\nASSERT\n'+push+'EQ\nASSERT\n'
+                    helper = '.function receiver 0 0 0 hashmap 1\nLOAD_GLOBAL 0\nRET\n.end\n'
+                    self.paired(HEADER+'.function main 0 2 0 int 1\n'+body+
+                                'PUSH_I64 0\nRET\n.end\n'+helper+CHURN)
+
     def test_conflicting_global_map_pairs_do_not_guess_snapshot_storage(self):
         text = (HEADER+'.function main 0 0 0 int 1\nHM_NEW 1 1\nSTORE_GLOBAL 0\n'
                 'HM_NEW 5 5\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nHM_KEYS\nARR_LEN\nPOP\n'
