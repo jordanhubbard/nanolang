@@ -407,17 +407,16 @@ shadow parser_position {
 
 /* Get current token from token stream */
 pub fn parser_current(p: Parser) -> LexerToken {
-    if (parser_is_at_end p) {
-        /* Return EOF token */
-        return LexerToken {
-            token_type: 0,  /* EOF */
-            value: "",
-            line: 0,
-            column: 0,
-            value_bytes: 0
-        }
-    } else {
-        return (list_LexerToken_get p.tokens p.position)
+    if (< p.position p.token_count) {
+        let tok: LexerToken = (list_LexerToken_get p.tokens p.position)
+        if (!= tok.token_type LexerTokenType.TOKEN_EOF) { return tok }
+    }
+    return LexerToken {
+        token_type: 0,
+        value: "",
+        line: 0,
+        column: 0,
+        value_bytes: 0
     }
 }
 
@@ -427,6 +426,37 @@ shadow parser_current {
     let tok: LexerToken = (parser_current p)
     assert (== tok.token_type 0)
     assert (== tok.value "")
+    assert (== tok.line 0)
+    assert (== tok.column 0)
+    assert (== tok.value_bytes 0)
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    (list_LexerToken_push tokens LexerToken {
+        token_type: LexerTokenType.TOKEN_IDENTIFIER,
+        value: "é", line: 3, column: 7, value_bytes: 19
+    })
+    let current: LexerToken = (parser_current (parser_new tokens 1 "token.nano"))
+    assert (== current.token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== current.value "é")
+    assert (== current.line 3)
+    assert (== current.column 7)
+    assert (== current.value_bytes 19)
+    let limited: LexerToken = (parser_current (parser_new tokens 0 "limited.nano"))
+    assert (== limited.token_type 0)
+    assert (== limited.value "")
+    assert (== limited.line 0)
+    assert (== limited.column 0)
+    assert (== limited.value_bytes 0)
+    let eof_tokens: List<LexerToken> = (list_LexerToken_new)
+    (list_LexerToken_push eof_tokens LexerToken {
+        token_type: LexerTokenType.TOKEN_EOF,
+        value: "not canonical", line: 99, column: 88, value_bytes: 77
+    })
+    let explicit: LexerToken = (parser_current (parser_new eof_tokens 1 "eof.nano"))
+    assert (== explicit.token_type 0)
+    assert (== explicit.value "")
+    assert (== explicit.line 0)
+    assert (== explicit.column 0)
+    assert (== explicit.value_bytes 0)
 }
 
 /* Check if current token matches a specific type */
