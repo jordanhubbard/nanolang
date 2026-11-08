@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1098 I restore the existing bare opaque type token in my self-hosted parser, preserve the unchanged original unused-extern fixture and assert parsed spelling, parameter metadata and token consumption in useful shadows. I require fresh original-route/platform acceptance and leave native FFI admission, pointer forging and nominal identity unchanged.
+
 - [ ] Under #1097 I retain the first 45b C-unit refusal before focused format execution. My new declared-function guard incorrectly assumes a synthetic builtin has no parameters; the actual cached format builtin retains a fixed STRING parameter. I distinguish executable bodies/extern declarations from that cached metadata, preserve every original unit assertion and require corrected paired execution.
 
 - [x] Under #1097 I retain my [a44 native baseline](evidence/format-source-20261108/baseline-a44/README.md): both C frontends execute the unchanged whole format fixture in NanoVM, then nvm2c refuses vm_format's exact host ABI. Both jobs retain one failed method among 69 and pass the full original units/translator/alias gates. I preserve both full artifacts before adding source lowering; the foreign-array consumer refusal remains intact.

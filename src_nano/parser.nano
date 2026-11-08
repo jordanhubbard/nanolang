@@ -922,7 +922,7 @@ struct TypeParseResult {
 }
 
 fn is_type_start_token_type(token_type: int) -> bool {
-    if (== token_type LexerTokenType.TOKEN_LBRACE) { return true }
+    if (or (== token_type LexerTokenType.TOKEN_LBRACE) (== token_type (token_opaque))) { return true }
     return (or
         (== token_type (token_identifier))
         (or
@@ -957,6 +957,7 @@ fn is_type_start_token_type(token_type: int) -> bool {
 }
 
 shadow is_type_start_token_type {
+    assert (is_type_start_token_type (token_opaque))
     assert (is_type_start_token_type (token_identifier))
     assert (not (is_type_start_token_type (token_plus)))
 }
@@ -1233,6 +1234,20 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
 }
 
 shadow parse_type_string {
+    for spelling in ["opaque", "array<opaque>", "fn(opaque)->opaque"] {
+        let opaque_tokens: List<LexerToken> = (tokenize_string spelling "opaque-type.nano" (list_CompilerDiagnostic_new))
+        let opaque_parser: Parser = (parser_new opaque_tokens (list_LexerToken_length opaque_tokens) "opaque-type.nano")
+        let parsed_opaque: TypeParseResult = (parse_type_string opaque_parser)
+        assert parsed_opaque.ok
+        assert (== parsed_opaque.type_name spelling)
+        assert (parser_is_at_end parsed_opaque.p)
+    }
+    let signature_tokens: List<LexerToken> = (tokenize_string "extern fn dormant(ptr:opaque)->int fn main()->int{return 0}" "opaque-signature.nano" (list_CompilerDiagnostic_new))
+    let signature_parser: Parser = (parse_program signature_tokens (list_LexerToken_length signature_tokens) "opaque-signature.nano")
+    assert (not (parser_has_error signature_parser))
+    let declaration: ASTFunction = (parser_get_function signature_parser 0)
+    assert (== declaration.param_count 1)
+    assert (== (parser_get_let signature_parser declaration.param_start).var_type "opaque")
     let source: string = "int"
     let tokens: List<LexerToken> = (tokenize_string source "test.nano" (list_CompilerDiagnostic_new))
     let token_count: int = (list_LexerToken_length tokens)
