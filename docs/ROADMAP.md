@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1092 I retain my [corrected scalar math C-frontend/native checkpoint](evidence/math-host-contracts-20261107/dfbb/README.md): GCC and Clang each pass 38 methods, unchanged original math/vector/complex files, production execution of all 36 math symbols, selected artifact identity and source/import refusals. Hidden provider-library bytes were absent from that upload; their custody, later source visibility fixes and fresh-stage/platform acceptance remain open.
+
 - [ ] Under #1091 I retain the b7bcf56f6 Stage 1 lowering refusal: my new checker shadow uses unbound diag_list_new from its own module, although C-seed interpretation completed it. I use the checker module's existing list_CompilerDiagnostic_new constructor, preserve every numeric assertion, and require the same shadow through fresh self-hosted lowering.
 
 - [ ] Under #1092 I retain the 78bfd94a9 seed refusal: my emitter cannot call the private is_float_math_builtin query in the typechecker module. I explicitly export that shared internal query, retain its meaningful shadow and require actual fresh bootstrap; I do not weaken module visibility checking.

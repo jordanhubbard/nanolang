@@ -1,0 +1,9 @@
+# My corrected scalar math C-frontend/native checkpoint
+
+I retain terminal [run 42461633537](https://github.com/jordanhubbard/nanolang/actions/runs/42461633537) at `dfbb6f15cf4b56f364d78f0c21330895bf82ceab`. GCC and Clang each pass all 38 selected methods and both original array-alias routes. My original four math/vector/complex files pass with unchanged source hashes. Separate production-main controls call all 36 exact scalar math symbols through NanoVM and sanitized C AOT, checking their results. I retain core argument order and lexical/declared binding checks, wrong source operands and all five malformed import signature/library controls with prior-output preservation.
+
+My selected-artifact control builds a real same-name exp provider returning 42 for input 1. Its VM product executes that result, and the retained module dump identifies its selected artifact import. C AOT refuses to replace it with a builtin math call and preserves prior output. The original upload excludes the hidden provider .build directory, so this checkpoint retains its C/manifest, commands, module and dump but not the provider shared-library bytes. I keep that custody follow-up explicit; native program and module bytes actually listed in the inventories remain in the private ZIPs.
+
+Each compiler artifact contains 562 files and passes ZIP CRC checks. Exact-text bundles restore original UTF-8 bytes with SHA-256; full inventories identify every uploaded binary. Direct ZIP custody does not establish original modes or symbolic links.
+
+This is bounded C-frontend/NanoVM/native acceptance under #1092. My later query-visibility and diagnostic-constructor fixes, mandatory bootstrap shadows, both resulting compiler stages, complete original routes and integrated platform acceptance remain open. I keep the two earlier bootstrap refusals and original failed math results alongside this checkpoint.
