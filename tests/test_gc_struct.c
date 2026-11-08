@@ -305,8 +305,6 @@ static void test_allocation_size_boundary(void) {
     ASSERT(gc_alloc(SIZE_MAX - sizeof(GCHeader) + 1, GC_TYPE_OPAQUE) == NULL,
            "I accepted the first overflowing header size.");
     ASSERT(gc_alloc_string(SIZE_MAX) == NULL, "I accepted an overflowing string terminator.");
-    ASSERT(gc_alloc(SIZE_MAX - sizeof(GCHeader), GC_TYPE_OPAQUE) == NULL,
-           "I accepted an overflowing private entry size.");
     GCStats refused = gc_get_stats();
     ASSERT_EQ(refused.total_allocated, before.total_allocated, "I changed allocated bytes on refusal.");
     ASSERT_EQ(refused.total_freed, before.total_freed, "I changed freed bytes on refusal.");

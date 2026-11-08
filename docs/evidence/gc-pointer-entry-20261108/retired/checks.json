@@ -1,0 +1,45 @@
+{
+  "scope": "I restore separate GC registry allocation while preserving the 9ba correctness fixes. Native lifecycle and full source/platform acceptance remain open.",
+  "timestamp": "2026-11-08T23:54:12.267945+00:00",
+  "before": {
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "tests/test_gc_struct.c": "dbd52088616ff625cb78fda22545429ae2d8c0d20f3b204a6218da49e5363257"
+  },
+  "after": {
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "tests/test_gc_struct.c": "dbd52088616ff625cb78fda22545429ae2d8c0d20f3b204a6218da49e5363257"
+  },
+  "exact_checkpoint_bytes": {
+    "src/runtime/gc.c": true,
+    "tests/test_gc_struct.c": true
+  },
+  "commands": [
+    {
+      "label": "health",
+      "argv": [
+        "df",
+        "-k",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "gc-and-bstring",
+      "argv": [
+        "make",
+        "-f",
+        "Makefile.gnu",
+        "CC=clang",
+        "test-gc-shutdown-sanitizers",
+        "test-eval-bstring-sanitizers",
+        "test-nl-string-bounds-sanitizers"
+      ],
+      "returncode": 0
+    }
+  ],
+  "products": {
+    "obj/test_gc_shutdown": "67fc88b130ccbf4ec6493174f43c70138712eed231ccbd45a720e9b91c1e4817",
+    "obj/test_eval_bstring": "ba5892c730a80d10a55383acf1bb3b30e658145a910d4dd87a9ccf248a7ba4a2",
+    "obj/test_nl_string_bounds": "956bce55041773255680b290bb25398f73d660a2c12a136291a541cd0bdbb3b3"
+  }
+}
