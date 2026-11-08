@@ -1,3 +1,4 @@
+#include "../bstring_contracts.h"
 /*
  * codegen.c - NanoISA bytecode generation from nanolang AST
  *
@@ -1292,6 +1293,32 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     int argc = node->as.call.arg_count;
     ASTNode **args = node->as.call.args;
 
+    const NanoBstringContract *bstring = nano_bstring_source_contract(name);
+    if (bstring) {
+        if (argc != bstring->argc) {
+            cg_error(cg, node->line, "I require the declared binary-string builtin arity");
+            return true;
+        }
+        for (int i = 0; i < argc; ++i) {
+            Type actual = check_expression(args[i], cg->env);
+            uint8_t tag = type_to_tag(actual, NULL, cg->env);
+            bool integer = bstring->parameters[i] == TAG_INT && (actual == TYPE_U8 || actual == TYPE_ENUM);
+            if (tag != bstring->parameters[i] && !integer) {
+                cg_error(cg, node->line, "I require the declared binary-string operand type");
+                return true;
+            }
+            compile_expected_tag(cg, args[i], bstring->parameters[i]);
+            if (integer && actual == TYPE_ENUM) emit_op(cg, OP_CAST_INT);
+        }
+        int32_t external = extern_find(cg, bstring->host_name);
+        if (external < 0) {
+            register_extern(cg, bstring->host_name, "", bstring->argc, bstring->result, bstring->parameters);
+            external = extern_find(cg, bstring->host_name);
+        }
+        if (external >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)external);
+        return true;
+    }
+
     /* println / print (as function calls, not AST_PRINT) */
     if (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) {
         if (argc >= 1) compile_expr(cg, args[0]);
@@ -2245,19 +2272,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
-    /* bstr_validate_utf8(str) - check if string is valid UTF-8 */
-    if (strcmp(name, "bstr_validate_utf8") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
-        if (ext_idx < 0) {
-            uint8_t ptags[1] = {TAG_STRING};
-            register_extern(cg, "vm_bstr_validate_utf8", "", 1, TAG_BOOL, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
-
     /* Character classification builtins */
     if ((strcmp(name, "is_digit") == 0 || strcmp(name, "is_alpha") == 0 ||
          strcmp(name, "is_alnum") == 0 || strcmp(name, "is_space") == 0 ||
@@ -2385,87 +2399,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         }
     }
 
-    /* bstring operations */
-    if (strcmp(name, "bstr_new") == 0 && argc == 1) {
-        /* bstr_new(str) - for now, just pass through as string */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if (strcmp(name, "bstr_length") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_STR_LEN);
-        return true;
-    }
-    if (strcmp(name, "bstr_concat") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_CONCAT);
-        return true;
-    }
-    if (strcmp(name, "bstr_substring") == 0 && argc == 3) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        compile_expr(cg, args[2]);
-        emit_op(cg, OP_STR_SUBSTR);
-        return true;
-    }
-    if (strcmp(name, "bstr_to_string") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if ((strcmp(name, "bstr_get_byte") == 0 || strcmp(name, "bstr_byte_at") == 0) && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_CHAR_AT);
-        /* STR_CHAR_AT returns a string, we need the byte value */
-        emit_op(cg, OP_CAST_INT);
-        return true;
-    }
-    if (strcmp(name, "bstr_new_binary") == 0 && argc == 1) {
-        /* bstr_new_binary(bytes_array) - create bstring from byte array */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if ((strcmp(name, "bstr_to_cstr") == 0 || strcmp(name, "bstr_to_str") == 0) && argc == 1) {
-        /* bstr_to_cstr/bstr_to_str - identity operation in VM (strings are strings) */
-        compile_expr(cg, args[0]);
-        return true;
-    }
-    if (strcmp(name, "bstr_equals") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_STR_EQ);
-        return true;
-    }
-    if (strcmp(name, "bstr_free") == 0 && argc == 1) {
-        /* No-op in VM - GC handles memory. Evaluate and discard the argument. */
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_POP);
-        return true;
-    }
-    if (strcmp(name, "bstr_utf8_length") == 0 && argc == 1) {
-        compile_expr(cg, args[0]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_length");
-        if (ext_idx < 0) {
-            uint8_t ptags[1] = {TAG_STRING};
-            register_extern(cg, "vm_bstr_utf8_length", "", 1, TAG_INT, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_utf8_length");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
-    if (strcmp(name, "bstr_utf8_char_at") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
-        if (ext_idx < 0) {
-            uint8_t ptags[2] = {TAG_STRING, TAG_INT};
-            register_extern(cg, "vm_bstr_utf8_char_at", "", 2, TAG_INT, ptags);
-            ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
-    }
     if (strcmp(name, "char_to_lower") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
         int32_t ext_idx = extern_find(cg, "vm_char_to_lower");

@@ -19,6 +19,7 @@
  * ======================================================================== */
 
 typedef struct VmString VmString;
+typedef struct VmBString VmBString;
 typedef struct VmArray VmArray;
 typedef struct VmStruct VmStruct;
 typedef struct VmUnion VmUnion;
@@ -98,6 +99,13 @@ static inline NanoValue val_string(VmString *s) {
     NanoValue v = {0};
     v.tag = TAG_STRING;
     v.as.string = s;
+    return v;
+}
+
+static inline NanoValue val_bstring(VmBString *s) {
+    NanoValue v = {0};
+    v.tag = TAG_BSTRING;
+    v.as.obj = s;
     return v;
 }
 
@@ -182,7 +190,7 @@ static inline bool val_is_function(NanoValue v) {
 }
 static inline bool val_is_void(NanoValue v)     { return v.tag == TAG_VOID; }
 static inline bool val_is_heap_obj(NanoValue v) {
-    return v.tag == TAG_STRING || v.tag == TAG_ARRAY || v.tag == TAG_STRUCT ||
+    return v.tag == TAG_STRING || v.tag == TAG_BSTRING || v.tag == TAG_ARRAY || v.tag == TAG_STRUCT ||
            v.tag == TAG_UNION || v.tag == TAG_TUPLE || v.tag == TAG_HASHMAP ||
            v.tag == TAG_CLOSURE;
 }

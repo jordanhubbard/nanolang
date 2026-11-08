@@ -818,7 +818,7 @@ sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME
 	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
-test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-nanovm: test-vm-bstring-contracts test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -835,6 +835,14 @@ test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJ
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
+
+.PHONY: test-vm-bstring-contracts
+test-vm-bstring-contracts: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -o $(OBJ_DIR)/nanovm/test_bstring_contracts \
+		tests/nanovm/test_bstring_contracts.c src/nanovm/heap.c src/nanovm/heap_cycles.c src/nanovm/value.c src/nanovm/vm_ffi.c src/runtime/nl_string.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(filter-out $(OBJ_DIR)/runtime/nl_string.o,$(RUNTIME_OBJECTS)) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_bstring_contracts
 
 .PHONY: test-vm-substring-contract
 test-vm-substring-contract: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

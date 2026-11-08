@@ -1,5 +1,11 @@
 # My Roadmap
 
+- [ ] Under #1114 I implement managed VM TAG_BSTRING values with the existing length-aware C payload and explicit UTF-8 validation state. I add exact typed vm_bstring_* intrinsics, preserve legacy vm_bstr_* string ABI behavior, release payloads once across aliases/arrays/cycles and explicit free, and update the C-created VM producer without admitting generic foreign BSTRING pointers. My pending hosted gate instruments heap, cycles, values, intrinsic dispatch and the C binary-string payload with ASan/UBSan, then executes unchanged original and typed VM source fixtures. I require actual boundary/call/ownership/refusal and original VM gates; source/native translation and full original acceptance remain in the overall binary-string item.
+
+- [ ] Under #1114 I measure useful C-seed bstring function-shadow execution before claiming interpreter parity; my current production baselines use the original main exemption and do not establish that boundary. I retain any unsupported-call evidence and repair the actual interpreter path if required.
+
+- [ ] Under #1114 I retain an extreme substring sanitizer baseline before correcting the generated C helper's signed start+length expression. I clamp with subtraction after checking bounds and preserve existing negative/clipped results; ordinary small-bound probes do not establish overflow safety.
+
 - [x] Under #1114/#1065 I retain my [corrected a98 Apple checker checkpoint](evidence/bstring-contracts-20261108/a98-apple/README.md): actual creation/execution succeeds and all 693 selected shadows complete in 7.810016 recorded body seconds under the unchanged ten-second deadline, with every assertion preserved. All fourteen measured C/VM baseline stdout files remain byte-identical to b65. Full job/product custody, runtime restoration and integrated/fresh/platform release acceptance remain separate.
 
 - [x] Under #1114 I correct my public nl_string_new header claim that construction validates UTF-8. The implementation sets is_utf8 false, and all three retained C-native probes return -1 for Unicode queries before explicit validation. I document the required validation call without changing constructor/query behavior; full runtime parity remains in the binary-string item.

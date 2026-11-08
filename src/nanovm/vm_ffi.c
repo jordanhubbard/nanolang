@@ -612,6 +612,8 @@ static ffi_type *callback_native_type(uint8_t tag) {
 }
 
 /* I reuse the service check only inside one synchronous dispatch, before foreign code runs. */
+#include "bstring_intrinsics.inc"
+
 static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
@@ -643,6 +645,15 @@ bool vm_ffi_call_vm_classified(VmState *vm, const NvmModule *module,
     const NvmCallbackContract *policy = NULL;
     for (uint32_t i = 0; i < module->callback_contract_count; i++)
         if (module->callback_contracts[i].import_idx == import_idx) { policy = &module->callback_contracts[i]; break; }
+    const NanoBstringContract *bstring = vm_bstring_import(module, import_idx);
+    if (bstring) {
+        if (policy) {
+            snprintf(error_msg, error_msg_size, "I do not attach foreign callback contracts to binary-string intrinsics");
+            return false;
+        }
+        return vm_bstring_intrinsic(module, import_idx, bstring, args, arg_count,
+                                   result, &vm->heap, error_msg, error_msg_size);
+    }
     if (!policy) {
         return vm->isolate_ffi
             ? vm_ffi_call_cop(vm, module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size)
@@ -834,6 +845,18 @@ static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
 
     const NvmImportEntry *imp = &module->imports[import_idx];
     const char *func_name = nvm_get_string(module, imp->function_name_idx);
+
+    const NanoBstringContract *bstring = vm_bstring_import(module, import_idx);
+    if (bstring) return vm_bstring_intrinsic(module, import_idx, bstring, args, arg_count,
+                                           result, heap, error_msg, error_msg_size);
+    bool foreign_bstring = imp->return_type == TAG_BSTRING;
+    if (module->import_param_types && module->import_param_types[import_idx])
+        for (uint16_t p = 0; p < imp->param_count; ++p)
+            foreign_bstring |= module->import_param_types[import_idx][p] == TAG_BSTRING;
+    if (foreign_bstring) {
+        snprintf(error_msg, error_msg_size, "I require a known binary-string ownership ABI for this foreign call");
+        return false;
+    }
 
     /* I own only these exact builtin results; selected artifacts retain their
      * existing symbol identity and result ownership contract. */
@@ -1292,6 +1315,7 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         snprintf(error_msg, error_msg_size, "I require a valid isolated argument count and result");
         return false;
     }
+    if (vm_bstring_cop_refused(module, import_idx, args, arg_count, error_msg, error_msg_size)) return false;
     if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         /* Isolation was explicitly requested (this function only runs under
@@ -1469,6 +1493,10 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
 
     for (int i = 0; i < count; i++)
         if (callback_contract_pending(module, calls[i].import_idx, error_msg, error_msg_size)) return false;
+
+    for (int i = 0; i < count; ++i)
+        if (vm_bstring_cop_refused(module, calls[i].import_idx, calls[i].args,
+                                  calls[i].arg_count, error_msg, error_msg_size)) return false;
 
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         snprintf(error_msg, error_msg_size,
