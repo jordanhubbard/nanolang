@@ -6901,6 +6901,7 @@ test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
 # I keep broader profiles opt-in until their full coverage and job budget qualify.
 FAST_GATE_TEST_PROFILES ?= 0
 check-fast: test-embedded-nano-identifiers
+	python3 scripts/gen_reserved_builtins.py --check
 	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
 	python3 -m unittest -v tests.test_fast_gate
 	python3 scripts/fast_gate.py $(if $(filter 1,$(FAST_GATE_TEST_PROFILES)),--test-profiles --report .test_output/fast-gate-profiles.json)

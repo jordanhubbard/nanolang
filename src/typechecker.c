@@ -6827,69 +6827,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 }
 
 /* Check program */
-/* List of all built-in function names */
-static const char *builtin_function_names[] = {
-    /* Core */
-    "range", "print", "println", "assert",
-    /* Math */
-    "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
-    "sin", "cos", "tan", "atan2",
-    /* Type casting */
-    "float_from_bits", "float_to_bits", "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
-    /* String (C strings) */
-    "str_length", "str_concat", "str_substring", "str_contains", "str_equals", "format",
-    /* Bytes (array<u8>) */
-    "bytes_from_string", "string_from_bytes",
-    /* Binary strings (nl_string_t) */
-    "bstr_new", "bstr_new_binary", "bstr_length", "bstr_concat", "bstr_substring",
-    "bstr_equals", "bstr_byte_at", "bstr_validate_utf8", "bstr_utf8_length",
-    "bstr_utf8_char_at", "bstr_to_cstr", "bstr_free",
-    /* Advanced string operations */
-    "char_at", "string_from_char",
-    /* Character classification */
-    "is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower",
-    /* Type conversions */
-    "int_to_string", "string_to_int", "digit_value", "char_to_lower", "char_to_upper",
-    /* Array */
-    "at", "array_get", "array_length", "array_new", "array_set",
-    "array_slice",
-    /* Higher-order array functions */
-    "map", "reduce",
-    /* OS */
-    "getcwd", "getenv", "exit",
-    /* File I/O (stdlib functions) */
-    "file_read", "file_read_bytes", "file_write", "file_append", "file_remove", "file_rename",
-    "file_exists", "file_size",
-    /* Temp helpers */
-    "tmp_dir", "mktemp", "mktemp_dir",
-    /* Directory operations */
-    "dir_create", "dir_remove", "dir_list", "dir_exists", "chdir",
-    /* Path operations */
-    "path_isfile", "path_isdir", "path_join", "path_basename", "path_dirname",
-    /* Process operations */
-    "system",
-    "process_run",
-    /* List operations - list_int */
-    "list_int_new", "list_int_with_capacity", "list_int_push", "list_int_pop",
-    "list_int_get", "list_int_set", "list_int_insert", "list_int_remove",
-    "list_int_length", "list_int_capacity", "list_int_is_empty", "list_int_clear",
-    "list_int_free",
-    /* List operations - list_bool */
-    "list_bool_new", "list_bool_with_capacity", "list_bool_push", "list_bool_pop",
-    "list_bool_get", "list_bool_set", "list_bool_insert", "list_bool_remove",
-    "list_bool_length", "list_bool_capacity", "list_bool_is_empty", "list_bool_clear",
-    "list_bool_free",
-    /* List operations - list_string */
-    "list_string_new", "list_string_with_capacity", "list_string_push", "list_string_pop",
-    "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
-    "list_string_length", "list_string_capacity", "list_string_is_empty", "list_string_clear",
-    "list_string_free",
-    /* List operations - list_Token */
-    "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
-    "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
-    "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
-    "nl_list_Token_free"
-};
+/* I share my effective non-extern definition policy with the source checker. */
+#include "generated/reserved_builtin_names.h"
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
 
@@ -7062,7 +7001,6 @@ static void emit_context_error(
 
 /* Check if a function name is a built-in */
 static bool is_builtin_name(const char *name) {
-    if (builtin_is_array_operation(name)) return false;
     for (int i = 0; i < builtin_function_name_count; i++) {
         if (strcmp(builtin_function_names[i], name) == 0) {
             return true;

@@ -33,6 +33,7 @@ import "src_nano/compiler/ir.nano"
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/generated/purity_intrinsics.nano"
+from "src_nano/generated/reserved_builtin_names.nano" import reserved_builtin_name
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message, encode_undefined_name_message, encode_wrong_arg_count_message, encode_missing_return_message, encode_immutable_assignment_message
 
@@ -6180,6 +6181,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    let fixed_operand_invalid: Parser = (resource_test_parser "fn main()->int{return (str_length 1)}")
+    assert (typecheck_phase fixed_operand_invalid "string-expression.nano").had_error
+    let fixed_operand_valid: Parser = (resource_test_parser "fn main()->int{return (str_length \"x\")}")
+    assert (not (typecheck_phase fixed_operand_valid "string-expression.nano").had_error)
     let cast_tokens: List<LexerToken> = (tokenize_string "fn word(value:int)->string{return \"kept\"} fn main()->string{let cast_float:fn(int)->string=word return (cast_float 7)}" "bound-cast.nano" (list_CompilerDiagnostic_new))
     let cast_parser: Parser = (parse_program cast_tokens (list_LexerToken_length cast_tokens) "bound-cast.nano")
     assert (not (typecheck_phase cast_parser "bound-cast.nano").had_error)
@@ -8014,6 +8019,28 @@ shadow typecheck_for_immediate_emission {
     assert (== (purity_identifier parser restored "fixed" 0) 0)
 }
 
+fn check_reserved_builtin_declarations(parser: Parser, diags: List<CompilerDiagnostic>, file_name: string) -> int {
+    let mut errors: int = 0
+    for index in (range 0 (parser_get_function_count parser)) {
+        let function: ASTFunction = (parser_get_function parser index)
+        if (and (>= function.body 0) (reserved_builtin_name function.name)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot redefine built-in function '" (+ function.name "'.")) (Diagnostics.diag_location file_name function.line function.column)))
+            set errors (+ errors 1)
+        }
+    }
+    return errors
+}
+shadow check_reserved_builtin_declarations {
+    let invalid: Parser = (resource_test_parser "fn print(value:int)->int{return value} fn format(value:int)->bool{return true} fn main()->int{return 0}")
+    let refused: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_reserved_builtin_declarations invalid refused "reserved.nano") 2)
+    assert (== (list_CompilerDiagnostic_length refused) 2)
+    let valid: Parser = (resource_test_parser "extern fn print(value:int)->int fn str_trim(value:int)->int{return value} fn exp(value:float)->float{return value} fn map(value:int)->int{return value} fn main()->int{return 0}")
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_reserved_builtin_declarations valid accepted "ordinary.nano") 0)
+    assert (== (list_CompilerDiagnostic_length accepted) 0)
+}
+
 fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int, collect_advisory: bool) -> CheckedAdvisoryOutput {
     let mut borrow_context: array<BorrowFactContext> = []
     if collect_advisory { set borrow_context (borrow_fact_context_new) }
@@ -8027,7 +8054,7 @@ fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: a
         return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
     }
     let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
-    let mut error_count: int = 0
+    let mut error_count: int = (check_reserved_builtin_declarations parser env.diagnostics file_name)
 
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
@@ -8197,6 +8224,13 @@ fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: a
     let phase: TypecheckPhaseOutput = (typecheck_output env.diagnostics error_count had_error)
     if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols borrow_context) }
     return (checked_advisory_empty phase)
+}
+
+shadow typecheck_advisory_core {
+    let parsed: Parser = (resource_test_parser "fn println(value:int)->int{return value} fn main()->int{return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_advisory_core parsed "reserved-core.nano" [] 0 false)
+    assert checked.phase.had_error
+    assert (> checked.phase.environment.error_count 0)
 }
 
 shadow typecheck_phase_with_symbols { assert true }

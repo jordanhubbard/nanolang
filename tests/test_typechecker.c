@@ -102,6 +102,21 @@ void test_tc_minimal_main(void) {
     ASSERT(tc_passes("fn main() -> int { return 0 }"));
 }
 
+void test_tc_reserved_definition_policy(void) {
+    const char *reserved[] = {"print", "println", "format", "min"};
+    const char *ordinary[] = {"str_trim", "exp", "map", "reduce", "array_pop", "array_reverse"};
+    char source[256];
+    for (size_t i = 0; i < sizeof(reserved) / sizeof(reserved[0]); ++i) {
+        snprintf(source, sizeof(source), "fn %s(value:int)->int{return value} fn main()->int{return 0}", reserved[i]);
+        ASSERT(!tc_passes(source));
+    }
+    for (size_t i = 0; i < sizeof(ordinary) / sizeof(ordinary[0]); ++i) {
+        snprintf(source, sizeof(source), "fn %s(value:int)->int{return value} fn main()->int{return 0}", ordinary[i]);
+        ASSERT(tc_passes(source));
+    }
+    ASSERT(tc_passes("extern fn print(value:int)->int fn main()->int{return 0}"));
+}
+
 void test_tc_format_template(void) {
     ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
@@ -1026,6 +1041,7 @@ int main(void) {
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
     TEST(tc_format_template);
+    TEST(tc_reserved_definition_policy);
     TEST(tc_array_index_contract);
     TEST(tc_arithmetic);
     TEST(tc_float_ops);

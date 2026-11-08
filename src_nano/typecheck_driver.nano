@@ -44,6 +44,30 @@ fn check_fixed_string_contracts() -> void {
 }
 shadow check_fixed_string_contracts { (check_fixed_string_contracts) }
 
+fn check_reserved_definition_contracts() -> void {
+    let sources: array<string> = [
+        "fn str_trim(value:int)->int{return value} fn main()->int{return (str_trim 7)}",
+        "fn exp(value:float)->float{return value} fn main()->int{return 0}",
+        "fn map(value:int)->int{return value} fn reduce(value:int)->int{return value} fn main()->int{return (+ (map 7) (reduce 8))}",
+        "extern fn print(value:int)->int fn main()->int{return 0}",
+        "fn count(value:int)->int{return value} fn main()->int{let print:fn(int)->int=count let format:fn(int)->int=count return (+ (print 7) (format 8))}",
+        "fn print(value:int)->int{return value} fn main()->int{return 0}",
+        "fn println(value:int)->int{return value} fn main()->int{return 0}",
+        "fn format(value:int)->bool{return true} fn main()->int{return 0}",
+        "fn min(value:int)->int{return value} fn main()->int{return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-reserved.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-reserved.nano")
+        assert (not (parser_has_error parsed))
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-reserved.nano")
+        assert (== checked.had_error (>= index 5))
+        assert (== (> checked.environment.error_count 0) (>= index 5))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 5))
+    }
+}
+shadow check_reserved_definition_contracts { (check_reserved_definition_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -66,6 +90,7 @@ fn main() -> int {
     }
     (check_legacy_global_declarations)
     (check_fixed_string_contracts)
+    (check_reserved_definition_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

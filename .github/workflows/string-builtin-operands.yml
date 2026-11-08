@@ -35,6 +35,10 @@ on:
       - 'src_nano/parser.nano'
       - 'src_nano/typecheck.nano'
       - 'src_nano/typecheck_driver.nano'
+      - 'spec/reserved_builtin_names.json'
+      - 'scripts/gen_reserved_builtins.py'
+      - 'src/generated/reserved_builtin_names.h'
+      - 'src_nano/generated/reserved_builtin_names.nano'
       - 'tests/test_source_checker_component.py'
       - 'src_nano/compiler/nanoisa_codegen.nano'
       - 'src/math_host_contracts.h'
@@ -91,6 +95,8 @@ jobs:
       - name: Install my existing native compiler prerequisites
         timeout-minutes: 20
         run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
+      - name: Verify my shared reserved-definition tables
+        run: python3 scripts/gen_reserved_builtins.py --check
       - name: Build actual fresh VM and C AOT providers
         id: providers
         timeout-minutes: 25

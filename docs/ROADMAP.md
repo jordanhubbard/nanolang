@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1100 I preserve my exact effective C reserved-definition set (144 table entries minus existing map/reduce exceptions), share it through checked generated tables and reject matching non-extern source definitions before emission. I retain legal ordinary names, bound values, extern/module identities and the original print diagnostic/prior-output assertions; actual source-component, fresh-stage, full translator and integrated/platform evidence remain required.
+
 - [ ] Under #1084 I retain the first source-component transport failure before execution: I passed the self-hosted -v/-k spellings to the C seed, whose actual src/main.c parser accepts --verbose/--keep-c. I correct only those harness options, preserve the failed artifacts and require the actual native component and complete source suites to execute before acceptance.
 
 - [ ] Under #1084 I execute the actual Nano source checker component through the C seed in focused CI, including production invalid/valid/bound STRING checks, before waiting for full self-hosted bootstrap. I retain source/tool/native hashes and compile/run logs, publish source-contract metadata before CLI/corpus collection, and keep this C-creation-path component evidence separate from fresh Stage 1/2 and full native lifecycle acceptance.
