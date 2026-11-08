@@ -1,6 +1,15 @@
 # My Roadmap
 
 
+- [ ] Under #1110 I preserve the unchanged whole byte fixture's existing vm_mktemp dependency. I retain a production-main tempfile baseline before adding only its exact STRING-to-STRING native builtin adapter, keep TMPDIR/default-prefix/1024-byte template/failure-empty and descriptor-close behavior, and require actual created-file/write/read/delete plus malformed import controls. I do not substitute a rewritten fixture or generic SDK host access.
+
+
+- [ ] Under #1110 I reconcile the existing C encoding scan cap of 64 MiB with the VM strlen-based conversion and native overflow-checked allocation. I document this preexisting route difference and retain above-cap evidence before choosing a shared size contract; small conversion controls do not establish size-boundary equivalence.
+
+
+- [ ] Under #1110 I retain the first local source-checker conversion failure: reusing general array-constructor context incorrectly admits the negative nonempty INT literal [1] as U8 storage. I preserve that refusal assertion, contextualize only a directly empty literal at this builtin boundary, and require exact U8 identity for other arguments before publishing the corrected native checker.
+
+
 - [x] Under #1109/#1106/#1107/#1108 I retain my [qualified Apple 128-method component checkpoint](evidence/array-sort-20261108/apple-c6/README.md): actual Nano checker, original C lexer/parser/typechecker/alias gates and all translator/shape gates pass with my pinned compiler/SDK. Twenty-two sorting Mach-O products and one checker product independently verify. The earlier shadow timeout remains retained and its margin concern open; fresh stages, original corpus budget, native SDK lifecycle and release acceptance remain separate.
 
 

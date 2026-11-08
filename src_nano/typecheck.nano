@@ -5544,6 +5544,54 @@ shadow tc_generic_call {
 
 # I share my checked builtin type contracts with the producer.
 
+pub fn byte_conversion_result(name: string) -> string {
+    if (== name "bytes_from_string") { return "array<u8>" }
+    if (== name "string_from_bytes") { return "string" }
+    return ""
+}
+shadow byte_conversion_result {
+    assert (== (byte_conversion_result "bytes_from_string") "array<u8>")
+    assert (== (byte_conversion_result "string_from_bytes") "string")
+    assert (== (byte_conversion_result "unrelated") "")
+}
+
+fn check_byte_conversion_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut valid: bool = (== call.arg_count 1)
+    if valid {
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        if (== name "bytes_from_string") {
+            set valid (== actual.kind TypeKind.TYPE_STRING)
+        } else {
+            let expected: NSType = (type_from_string "array<u8>")
+            let mut checked: NSType = actual
+            if (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                if (== (parser_get_array_literal parser argument.node_id).element_count 0) {
+                    (parser_set_array_literal_element_type parser argument.node_id "u8")
+                    set checked expected
+                }
+            }
+            set valid (and (== checked.kind TypeKind.TYPE_ARRAY) (== (type_to_string checked) "array<u8>"))
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one STRING operand for bytes_from_string or one ARRAY<U8> operand for string_from_bytes." (Diagnostics.diag_location file_name call.line call.column)))
+    }
+    return (type_from_string (byte_conversion_result name))
+}
+shadow check_byte_conversion_builtin {
+    for source in ["fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") let text:string=(string_from_bytes bytes) return 0}", "fn main()->int{let text:string=(string_from_bytes []) return 0}"] {
+        let parsed: Parser = (resource_test_parser source)
+        assert (not parsed.has_error)
+        assert (not (typecheck_phase parsed "byte-conversion.nano").had_error)
+    }
+    for source in ["fn main()->int{(bytes_from_string) return 0}", "fn main()->int{(bytes_from_string true) return 0}", "fn main()->int{(string_from_bytes [1]) return 0}"] {
+        let parsed: Parser = (resource_test_parser source)
+        assert (not parsed.has_error)
+        assert (typecheck_phase parsed "byte-conversion.nano").had_error
+    }
+}
+
 pub fn array_sort_type_supported(parser: Parser, name: string) -> bool {
     let supported: array<string> = ["array<int>", "array<u8>", "array<float>", "array<bool>", "array<string>"]
     for candidate in supported { if (== name candidate) { return true } }
@@ -6045,6 +6093,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             return (check_builtin_function fn_name)
         }
+        if (and (!= (byte_conversion_result fn_name) "") (< (env_lookup symbols fn_name) 0)) {
+            return (check_byte_conversion_builtin parser call_node fn_name symbols diags file_name)
+        }
         if (and (== fn_name "array_sort") (< (env_lookup symbols fn_name) 0)) {
             return (check_array_sort_builtin parser call_node symbols diags file_name)
         }
@@ -6071,6 +6122,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (!= (byte_conversion_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (== fn_name "array_sort") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (!= (string_stdlib_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and character (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }

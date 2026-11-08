@@ -1,0 +1,246 @@
+{
+  "scope": "actual Nano checker via older C seed and emitted helper fragments; not full C/translator/fresh/platform qualification",
+  "checker_attempts": [
+    {
+      "directory": "actual-native-83xo8kw_",
+      "inputs": {
+        "creation_path": "C-seed-to-native",
+        "native_lifecycle_admitted": false,
+        "fresh_stages_qualified": false,
+        "platform": "darwin",
+        "product_magic_hex": null,
+        "before": {
+          "bin/nanoc_c": "ad1176e6191916f25dfd8ab25a7b93b687526d24bab63f02b6636af5bcd518c7",
+          "src_nano/typecheck_driver.nano": "39c869358ce195c805d97aad99358d5af6c27ccf082524f54631ec624e66b56d",
+          "src_nano/typecheck.nano": "db384c1f0aca81dcf02d11e29967fcad2354d1f8f43bd849e97b64f1ff61dfce",
+          "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+          "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+        },
+        "after": {
+          "bin/nanoc_c": "ad1176e6191916f25dfd8ab25a7b93b687526d24bab63f02b6636af5bcd518c7",
+          "src_nano/typecheck_driver.nano": "39c869358ce195c805d97aad99358d5af6c27ccf082524f54631ec624e66b56d",
+          "src_nano/typecheck.nano": "db384c1f0aca81dcf02d11e29967fcad2354d1f8f43bd849e97b64f1ff61dfce",
+          "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+          "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+        },
+        "product_before_run": null,
+        "product_after_run": null
+      }
+    },
+    {
+      "directory": "actual-native-mlzuet3l",
+      "inputs": {
+        "creation_path": "C-seed-to-native",
+        "native_lifecycle_admitted": false,
+        "fresh_stages_qualified": false,
+        "platform": "darwin",
+        "product_magic_hex": "cffaedfe",
+        "before": {
+          "bin/nanoc_c": "ad1176e6191916f25dfd8ab25a7b93b687526d24bab63f02b6636af5bcd518c7",
+          "src_nano/typecheck_driver.nano": "39c869358ce195c805d97aad99358d5af6c27ccf082524f54631ec624e66b56d",
+          "src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+          "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+          "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+        },
+        "after": {
+          "bin/nanoc_c": "ad1176e6191916f25dfd8ab25a7b93b687526d24bab63f02b6636af5bcd518c7",
+          "src_nano/typecheck_driver.nano": "39c869358ce195c805d97aad99358d5af6c27ccf082524f54631ec624e66b56d",
+          "src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+          "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+          "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+        },
+        "product_before_run": "897cd9ebf25febae723773d30ddd2615f6f87a9d7270b28e7ef594c72daf6821",
+        "product_after_run": "897cd9ebf25febae723773d30ddd2615f6f87a9d7270b28e7ef594c72daf6821"
+      }
+    }
+  ],
+  "helper": {
+    "scope": "actual production helper fragments; not full translator or generated root lifecycle",
+    "source_sha256": "8a8b6e4d97b313574890530e2506048f235784c9ed7bf121c6447cb2437e2dae",
+    "helpers": [
+      {
+        "helper": "emit_nstr_storage",
+        "size": 1830,
+        "sha256": "6b9bcb889bc302056184c3c4199a478fe36f74f11954b1fa7198df6a8ce7dda0"
+      },
+      {
+        "helper": "emit_nagg_accounting",
+        "size": 482,
+        "sha256": "f1e63b8ae22a7c295ace5e0ee5a2342501ae4e048caad11ca26990109a4a02c7"
+      },
+      {
+        "helper": "emit_narr_storage",
+        "size": 2640,
+        "sha256": "58a4d20cc02ec089ad6b9958e6d7b902b6afca1a34dd3367b81913bcdb5f6e0e"
+      },
+      {
+        "helper": "emit_byte_conversions",
+        "size": 892,
+        "sha256": "ae2d21f94401f3ed962339e2f107528a3b1737b81c66c3aa30af705d169ca6f7"
+      },
+      {
+        "helper": "emit_host_mktemp",
+        "size": 418,
+        "sha256": "ec10baa6b231048c92927c81935ef0025e64a4a58315cf85b581ca93b8af4316"
+      }
+    ],
+    "harness_sha256": "8e9c05f2d17ea11835a2784517e2ad9b81aeab5113e8198e17694e349891c771",
+    "commands": [
+      {
+        "argv": [
+          "cc",
+          "-std=c11",
+          "-O0",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/helpers.c",
+          "-o",
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0"
+        ],
+        "label": "build",
+        "optimization": "-O0",
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0"
+        ],
+        "label": "execute",
+        "optimization": "-O0",
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+          "--invalid-byte"
+        ],
+        "label": "invalid-byte",
+        "optimization": "-O0",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+          "--capacity"
+        ],
+        "label": "capacity",
+        "optimization": "-O0",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+          "--huge"
+        ],
+        "label": "huge",
+        "optimization": "-O0",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+          "--null"
+        ],
+        "label": "null",
+        "optimization": "-O0",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+          "--null-string"
+        ],
+        "label": "null-string",
+        "optimization": "-O0",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "cc",
+          "-std=c11",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all",
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/helpers.c",
+          "-o",
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2"
+        ],
+        "label": "build",
+        "optimization": "-O2",
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2"
+        ],
+        "label": "execute",
+        "optimization": "-O2",
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+          "--invalid-byte"
+        ],
+        "label": "invalid-byte",
+        "optimization": "-O2",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+          "--capacity"
+        ],
+        "label": "capacity",
+        "optimization": "-O2",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+          "--huge"
+        ],
+        "label": "huge",
+        "optimization": "-O2",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+          "--null"
+        ],
+        "label": "null",
+        "optimization": "-O2",
+        "returncode": -6
+      },
+      {
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+          "--null-string"
+        ],
+        "label": "null-string",
+        "optimization": "-O2",
+        "returncode": -6
+      }
+    ],
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "native_products": [
+      {
+        "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O0",
+        "sha256": "cca90134e03f54c472fee3678a548778557b613efc73a57446e4110d7b5bce95",
+        "size": 91680
+      },
+      {
+        "path": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/byte-conversion-helper/O2",
+        "sha256": "22d4305cf165ad1487f4a96c2325a840aecec0181a795d9a1b974722d60d6332",
+        "size": 57712
+      }
+    ]
+  }
+}

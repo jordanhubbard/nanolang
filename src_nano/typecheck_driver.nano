@@ -279,6 +279,32 @@ fn check_array_sort_contracts() -> void {
 }
 shadow check_array_sort_contracts { (check_array_sort_contracts) }
 
+fn check_byte_conversion_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") return 0}",
+        "fn main()->int{let byte:u8=65 let bytes:array<u8> = [byte] let text:string=(string_from_bytes bytes) return 0}",
+        "fn main()->int{let text:string=(string_from_bytes []) return 0}",
+        "fn keep(value:string)->string{return value} fn main()->int{let bytes_from_string:fn(string)->string=keep let string_from_bytes:fn(string)->string=keep assert (== (bytes_from_string \"Hi\") \"Hi\") assert (== (string_from_bytes \"Hi\") \"Hi\") return 0}",
+        "fn main()->int{(bytes_from_string) return 0}",
+        "fn main()->int{(bytes_from_string true) return 0}",
+        "fn main()->int{(bytes_from_string \"Hi\" \"extra\") return 0}",
+        "fn main()->int{(string_from_bytes) return 0}",
+        "fn main()->int{(string_from_bytes [1]) return 0}",
+        "fn main()->int{(string_from_bytes [true]) return 0}",
+        "fn main()->int{let byte:u8=65 let bytes:array<u8> = [byte] (string_from_bytes bytes bytes) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-byte-conversion.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-byte-conversion.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-byte-conversion.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_byte_conversion_contracts { (check_byte_conversion_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -310,6 +336,7 @@ fn main() -> int {
     (check_uppercase_parser_contracts)
     (check_legacy_bang_contracts)
     (check_array_sort_contracts)
+    (check_byte_conversion_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

@@ -422,6 +422,8 @@ static const Nvm2cHost host_adapters[] = {
     {"vm_str_trim_right", "nhost_trim_right", 1, TAG_STRING, TAG_STRING},
     {"vm_str_join", "nhost_join", 2, TAG_ARRAY, TAG_STRING},
     {"vm_array_sort", "nhost_array_sort", 1, TAG_ARRAY, TAG_ARRAY},
+    {"vm_bytes_from_string", "nhost_bytes_from_string", 1, TAG_STRING, TAG_ARRAY},
+    {"vm_string_from_bytes", "nhost_string_from_bytes", 1, TAG_ARRAY, TAG_STRING},
     {"nl_os_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
     {"vm_tmp_dir", "nhost_tmp_dir", 0, TAG_VOID, TAG_STRING},
     {"get_argc", "nhost_argc", 0, TAG_VOID, TAG_INT},
@@ -466,10 +468,12 @@ static const Nvm2cHost host_adapters[] = {
     {"vm_string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"vm_mktemp_dir", "nhost_mktemp_dir", 1, TAG_STRING, TAG_STRING},
+    {"vm_mktemp", "nhost_mktemp", 1, TAG_STRING, TAG_STRING},
 };
 
-static int byte_read_adapter(const Nvm2cHost *host) {
-    return host && !strcmp(host->c_name,"nhost_file_read_bytes");
+static int byte_array_result_adapter(const Nvm2cHost *host) {
+    return host && (!strcmp(host->c_name,"nhost_file_read_bytes") ||
+        !strcmp(host->c_name,"nhost_bytes_from_string"));
 }
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -3098,14 +3102,17 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 uint8_t parameter = host_parameter(host, host->argc - p - 1);
-                if (!strcmp(host->c_name, "nhost_join") && parameter == TAG_ARRAY) {
-                    if (arg.kind != NVM2C_VK_SARR && arg.kind != NVM2C_VK_VALUE && arg.kind != NVM2C_VK_UNK) {
-                        nvm2c_fail(b, "I require STRING-array join storage"); return 0;
+                if (parameter == TAG_ARRAY && (!strcmp(host->c_name, "nhost_join") ||
+                        !strcmp(host->c_name, "nhost_string_from_bytes"))) {
+                    int bytes = !strcmp(host->c_name, "nhost_string_from_bytes");
+                    uint8_t kind = bytes ? NVM2C_VK_U8ARR : NVM2C_VK_SARR;
+                    if (arg.kind != kind && arg.kind != NVM2C_VK_VALUE && arg.kind != NVM2C_VK_UNK) {
+                        nvm2c_fail(b, "I require exact byte/string array host operand storage"); return 0;
                     }
                     NvmShapeId payload = checked_array_payload(b, &arg);
                     if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
-                        !shape_type(b, shape_child(b, payload, 0), NVM_SHAPE_STRING)) return 0;
-                    mark_origin(local_kind, nloc, arg.origin, NVM2C_VK_SARR);
+                        !shape_type(b, shape_child(b, payload, 0), bytes ? NVM_SHAPE_U8 : NVM_SHAPE_STRING)) return 0;
+                    mark_origin(local_kind, nloc, arg.origin, kind);
                     continue;
                 }
                 uint8_t expected = parameter == TAG_STRING ? NVM2C_VK_STR :
@@ -3129,7 +3136,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (host->result == TAG_OPAQUE) b->has_maps = 1;
             if (!sim_push(b, idx, stk, &sp,
                           host->result == TAG_OPAQUE ? NVM2C_VK_VALUE :
-                          host->result == TAG_ARRAY ? (byte_read_adapter(host)?NVM2C_VK_U8ARR:NVM2C_VK_SARR) :
+                          host->result == TAG_ARRAY ? (byte_array_result_adapter(host)?NVM2C_VK_U8ARR:NVM2C_VK_SARR) :
                           host->result == TAG_STRING ? NVM2C_VK_STR :
                           host->result == TAG_BOOL ? NVM2C_VK_BOOL :
                           host->result == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, -1)) return 0;
@@ -6587,6 +6594,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 else if (host->argc) snprintf(expression, sizeof expression, "nhost_artifact_%u(s[%d])",
                                              ins.operands[0].u32, args[0]);
                 else snprintf(expression, sizeof expression, "nhost_artifact_%u()", ins.operands[0].u32);
+            } else if (!strcmp(host->c_name, "nhost_string_from_bytes")) {
+                int receiver = stack_pop_expect(b, &st, NVM2C_VK_U8ARR, "byte string receiver");
+                if (b->failed) goto done;
+                snprintf(expression, sizeof expression, "nhost_string_from_bytes(a[%d])", receiver);
             } else if (!strcmp(host->c_name, "nhost_join")) {
                 int separator = stack_pop_expect(b, &st, NVM2C_VK_STR, "STRING-array join separator");
                 int receiver = stack_pop_expect(b, &st, NVM2C_VK_SARR, "STRING-array join receiver");
@@ -6600,7 +6611,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 char carrier = kind == NVM2C_VK_STR ? 's' : kind == NVM2C_VK_FLOAT ? 'f' : 't';
                 snprintf(expression, sizeof expression, "%s(%c[%d], %c[%d])", host->c_name, carrier, left, carrier, right);
-                if (host->result == TAG_ARRAY && !byte_read_adapter(host))
+                if (host->result == TAG_ARRAY && !byte_array_result_adapter(host))
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d], s[%d])",
                              ins.operands[0].u32, left, right);
             } else if (host->argc) {
@@ -6610,7 +6621,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(%c[%d])", host->c_name,
                          kind == NVM2C_VK_STR ? 's' : kind == NVM2C_VK_FLOAT ? 'f' : 't', arg);
-                if (host->result == TAG_ARRAY && !byte_read_adapter(host))
+                if (host->result == TAG_ARRAY && !byte_array_result_adapter(host))
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d])",
                              ins.operands[0].u32, arg);
             } else {
@@ -6618,7 +6629,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (host->result == TAG_VOID) nvm2c_printf(b, "    %s;\n", expression);
             else if (host->result == TAG_OPAQUE) stack_push_value(b, &st, expression);
-            else if (byte_read_adapter(host)) stack_push_iarray(b, &st, expression, NVM2C_VK_U8ARR);
+            else if (byte_array_result_adapter(host)) stack_push_iarray(b, &st, expression, NVM2C_VK_U8ARR);
             else if (sort_kind != NVM2C_VK_UNK) {
                 if (sort_kind == NVM2C_VK_SARR) stack_push_sarr(b, &st, expression);
                 else stack_push_iarray(b, &st, expression, sort_kind);
@@ -7063,6 +7074,27 @@ static void emit_nstr_join(Nvm2cBuf *b) {
         "    return result;\n"
         "}\n"
     );
+}
+
+static void emit_byte_conversions(Nvm2cBuf *b, int encode, int decode) {
+    if (encode) nvm2c_puts(b,
+        "static inline narr_t nhost_bytes_from_string(const char *text) {\n"
+        "    if (!text) NVM2C_ABORT();\n"
+        "    size_t length = strlen(text);\n"
+        "    if (length > INT64_MAX) NVM2C_ABORT();\n"
+        "    narr_t bytes = narr_new();\n"
+        "    narr_reserve(bytes, length);\n"
+        "    for (size_t i = 0; i < length; ++i) bytes->data[i] = (unsigned char)text[i];\n"
+        "    bytes->len = length; return bytes;\n}\n");
+    if (decode) nvm2c_puts(b,
+        "static inline const char *nhost_string_from_bytes(narr_t bytes) {\n"
+        "    if (!bytes || bytes->len > INT64_MAX || (bytes->len && !bytes->data)) NVM2C_ABORT();\n"
+        "    if (bytes->owner && (bytes->owner->data != bytes->data || bytes->len > bytes->owner->cap)) NVM2C_ABORT();\n"
+        "    for (size_t i = 0; i < bytes->len; ++i)\n"
+        "        if (bytes->data[i] < 0 || bytes->data[i] > 255) NVM2C_ABORT();\n"
+        "    char *text = nstr_allocate(bytes->len);\n"
+        "    for (size_t i = 0; i < bytes->len; ++i) text[i] = (char)(unsigned char)bytes->data[i];\n"
+        "    return text;\n}\n");
 }
 
 static void emit_array_sort(Nvm2cBuf *b) {
@@ -7709,6 +7741,20 @@ static void emit_host_file_write(Nvm2cBuf *b) {
         "    return written == length && closed == 0 ? 0 : -1;\n}\n");
 }
 
+static void emit_host_mktemp(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static inline const char *nhost_mktemp(const char *prefix) {\n"
+        "    const char *root = getenv(\"TMPDIR\");\n"
+        "    if (!root || !*root) root = \"/tmp\";\n"
+        "    const char *name = prefix && *prefix ? prefix : \"nanolang_\";\n"
+        "    char path[1024];\n"
+        "    snprintf(path, sizeof path, \"%s/%sXXXXXX\", root, name);\n"
+        "    int descriptor = mkstemp(path);\n"
+        "    if (descriptor < 0) return \"\";\n"
+        "    (void)close(descriptor);\n"
+        "    return nstr_copy(path);\n}\n");
+}
+
 static void emit_host_file_read_bytes(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "#include <stdio.h>\n"
@@ -7863,7 +7909,7 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     int emitted = 0;
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
-        if (!host || host->result != TAG_ARRAY || byte_read_adapter(host)) continue;
+        if (!host || host->result != TAG_ARRAY || byte_array_result_adapter(host)) continue;
         if (!emitted++) nvm2c_puts(b,
             "#include <dlfcn.h>\n#include <stdbool.h>\n"
             "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
@@ -8293,7 +8339,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
         module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
-        module_uses_host(mod, "nhost_walk") || module_uses_host(mod, "nhost_array_sort");
+        module_uses_host(mod, "nhost_walk") || module_uses_host(mod, "nhost_array_sort") ||
+        module_uses_host(mod, "nhost_bytes_from_string") || module_uses_host(mod, "nhost_string_from_bytes");
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
         if (mod->function_param_types && mod->function_param_types[f])
@@ -8654,6 +8701,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_trim_right = module_uses_host(mod, "nhost_trim_right");
         int need_join = module_uses_host(mod, "nhost_join");
         int need_sort = module_uses_host(mod, "nhost_array_sort");
+        int need_encode_bytes = module_uses_host(mod, "nhost_bytes_from_string");
+        int need_decode_bytes = module_uses_host(mod, "nhost_string_from_bytes");
         int need_case = module_has_opcode(mod, OP_STR_TO_LOWER) || module_has_opcode(mod, OP_STR_TO_UPPER);
         int need_replace = module_has_opcode(mod, OP_STR_REPLACE);
         int need_split = module_has_opcode(mod, OP_STR_SPLIT);
@@ -8667,7 +8716,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_arr_slice = module_has_opcode(mod, OP_ARR_SLICE);
         int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
         int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
-        int need_iarr_new = need_sort || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
+        int need_iarr_new = need_encode_bytes || need_sort || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_BARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FNARR) ||
@@ -8682,7 +8731,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_FUNCTION) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_CLOSURE);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
-        int need_iarr = need_iarr_new || need_iarr_lit ||
+        int need_iarr = need_decode_bytes || need_iarr_new || need_iarr_lit ||
             (b.array_shape_kinds & ((1u << NVM2C_VK_ARR) | (1u << NVM2C_VK_BARR) | (1u << NVM2C_VK_FARR) | (1u << NVM2C_VK_FNARR) | (1u << NVM2C_VK_U8ARR) | (1u << NVM2C_VK_NARR))) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_ARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_BARR) ||
@@ -8696,7 +8745,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         /* I emit retained adapters even when no instruction calls them. */
         for (uint32_t import = 0; import < mod->import_count; ++import) {
             const Nvm2cHost *host = import_host(mod, import);
-            if (byte_read_adapter(host)) need_iarr = 1;
+            if (byte_array_result_adapter(host)) need_iarr = 1;
             else if (host && host->result == TAG_ARRAY) need_sarr = 1;
         }
         int need_rarr_lit = (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_UNION) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_TUPLE));
@@ -8722,7 +8771,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         }
 
         if (module_uses_host(mod, "nhost_destinations") || module_uses_host(mod, "nhost_capture") ||
-            module_uses_host(mod, "nhost_mktemp_dir")) nvm2c_puts(&b,
+            module_uses_host(mod, "nhost_mktemp_dir") || module_uses_host(mod, "nhost_mktemp")) nvm2c_puts(&b,
             "#ifndef _POSIX_C_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#endif\n");
         if (module_uses_host(mod, "nhost_mktemp_dir")) nvm2c_puts(&b,
             "#ifdef __APPLE__\n#ifndef _DARWIN_C_SOURCE\n#define _DARWIN_C_SOURCE\n#endif\n#endif\n");
@@ -8794,6 +8843,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
+            if (module_uses_host(mod, "nhost_mktemp")) emit_host_mktemp(&b);
             if (module_uses_host(mod, "nhost_normalize")) emit_host_normalize(&b);
             /* I preserve the VM builtin contract, including its explicit int narrowing. */
             if (module_uses_host(mod, "nhost_is_digit")) nvm2c_puts(&b,
@@ -9213,6 +9263,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (need_sarr_push) emit_nsarr_push(&b);
         if (need_split) emit_nstr_split(&b);
         if (need_sort) emit_array_sort(&b);
+        if (need_encode_bytes || need_decode_bytes) emit_byte_conversions(&b, need_encode_bytes, need_decode_bytes);
         if (module_has_opcode(mod, OP_HM_KEYS) || module_has_opcode(mod, OP_HM_VALUES))
             emit_map_snapshots(&b, need_iarr, need_sarr);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
@@ -9283,6 +9334,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (module_uses_host(mod, "nhost_trim_left")) nvm2c_puts(&b, "    (void)nhost_trim_left;\n");
         if (module_uses_host(mod, "nhost_trim_right")) nvm2c_puts(&b, "    (void)nhost_trim_right;\n");
         if (module_uses_host(mod, "nhost_join")) nvm2c_puts(&b, "    (void)nhost_join;\n");
+        if (module_uses_host(mod, "nhost_bytes_from_string")) nvm2c_puts(&b, "    (void)nhost_bytes_from_string;\n");
+        if (module_uses_host(mod, "nhost_string_from_bytes")) nvm2c_puts(&b, "    (void)nhost_string_from_bytes;\n");
         if (module_uses_host(mod, "nhost_array_sort")) nvm2c_puts(&b, "    (void)nhost_array_sort;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
@@ -9352,7 +9405,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if ((module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_UNION) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_TUPLE))) nvm2c_puts(&b, "    (void)nrarr_push;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
             const Nvm2cHost *host = import_host(mod, i);
-            if (host && host->result == TAG_ARRAY && !byte_read_adapter(host))
+            if (host && host->result == TAG_ARRAY && !byte_array_result_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
             if (scalar_artifact_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);

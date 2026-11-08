@@ -1,0 +1,5 @@
+# My hosted byte-conversion baseline
+
+At `a447fb70bfea2afcffe39d65d4e02eb07519467d`, run [42495133359](https://github.com/jordanhubbard/nanolang/actions/runs/42495133359) terminates with the same two failures in each 131-method GCC/Clang suite. Both independent production controls pass source creation, verification and VM execution, then refuse the missing exact `vm_bytes_from_string` native ABI. My unchanged complete fixture passes; its main only returns zero, so production-main controls retain a separate native execution obligation. Earlier sorting and other methods remain selected.
+
+I retain early artifacts 13622739765 (GCC) and 13623347553 (Clang), each with 2220 exact text files. Both complete ZIPs pass CRC verification and all file hashes are retained with deterministic gzip. These uploads record source/checker/provider observations, not actual native product bytes or complete original translator custody. I preserve these failures before changing conversion admission under #1110.

@@ -1,6 +1,6 @@
 from "src_nano/compiler/native_product.nano" import native_phase_marker
 from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup, field_write_fact_lookup
-from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin, character_builtin_result, string_stdlib_result, string_stdlib_arity, array_sort_type_supported
+from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin, character_builtin_result, string_stdlib_result, string_stdlib_arity, array_sort_type_supported, byte_conversion_result
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
@@ -3402,6 +3402,8 @@ shadow nisa_math_arity {
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (== name "vm_bytes_from_string") { return "array<u8>" }
+    if (== name "vm_string_from_bytes") { return "string" }
     if (== name "vm_array_sort") { return "array" }
     if (str_starts_with name "vm_") {
         let character: string = (character_builtin_result (str_substring name 3 (- (str_length name) 3)))
@@ -3433,6 +3435,8 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "vm_bytes_from_string") "array<u8>")
+    assert (== (nisa_host_result "vm_string_from_bytes") "string")
     assert (== (nisa_host_result "vm_array_sort") "array")
     assert (== (nisa_host_result "vm_str_trim_left") "string")
     assert (== (nisa_host_result "vm_str_join") "string")
@@ -3470,6 +3474,8 @@ fn nisa_host_arity(name: string) -> int {
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "vm_bytes_from_string") 1)
+    assert (== (nisa_host_arity "vm_string_from_bytes") 1)
     assert (== (nisa_host_arity "vm_str_join") 2)
     assert (== (nisa_host_arity "sqrt") 1)
     assert (== (nisa_host_arity "pow") 2)
@@ -3491,6 +3497,7 @@ fn nisa_host_parameter_at(name: string, index: int) -> string {
     return (nisa_host_parameter name)
 }
 shadow nisa_host_parameter_at {
+    assert (== (nisa_host_parameter_at "vm_string_from_bytes" 0) "array<u8>")
     assert (== (nisa_host_parameter_at "vm_str_join" 0) "array<string>")
     assert (== (nisa_host_parameter_at "vm_str_join" 1) "string")
     assert (== (nisa_host_parameter_at "nl_regex_match" 0) "Regex")
@@ -3498,6 +3505,7 @@ shadow nisa_host_parameter_at {
 }
 
 fn nisa_host_parameter(name: string) -> string {
+    if (== name "vm_string_from_bytes") { return "array<u8>" }
     if (== name "vm_array_sort") { return "array" }
     if (str_starts_with name "vm_") {
         if (!= (character_builtin_result (str_substring name 3 (- (str_length name) 3))) "") { return "int" }
@@ -3508,6 +3516,8 @@ fn nisa_host_parameter(name: string) -> string {
     return "string"
 }
 shadow nisa_host_parameter {
+    assert (== (nisa_host_parameter "vm_string_from_bytes") "array<u8>")
+    assert (== (nisa_host_parameter "vm_bytes_from_string") "string")
     assert (== (nisa_host_parameter "vm_array_sort") "array")
     assert (== (nisa_host_parameter "vm_is_digit") "int")
     assert (== (nisa_host_parameter "vm_char_to_upper") "int")
@@ -3524,6 +3534,7 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
+    if (!= (byte_conversion_result name) "") { return (+ "vm_" name) }
     if (== name "array_sort") { return "vm_array_sort" }
     if (!= (character_builtin_result name) "") { return (+ "vm_" name) }
     if (is_float_math_builtin name) { return name }
@@ -3536,6 +3547,8 @@ fn nisa_builtin_host_symbol(name: string) -> string {
     return ""
 }
 shadow nisa_builtin_host_symbol {
+    assert (== (nisa_builtin_host_symbol "bytes_from_string") "vm_bytes_from_string")
+    assert (== (nisa_builtin_host_symbol "string_from_bytes") "vm_string_from_bytes")
     assert (== (nisa_builtin_host_symbol "array_sort") "vm_array_sort")
     assert (== (nisa_builtin_host_symbol "str_trim_left") "vm_str_trim_left")
     assert (== (nisa_builtin_host_symbol "str_join") "vm_str_join")
@@ -3561,6 +3574,7 @@ fn nisa_call_host_symbol(parser: Parser, name: string) -> string {
         let function: ASTFunction = (parser_get_function parser index)
         if (>= function.body 0) { return "" }
         # I do not rename an explicit foreign declaration into a character builtin.
+        if (!= (byte_conversion_result name) "") { return "" }
         if (or (== name "array_sort") (or (!= (character_builtin_result name) "") (!= (string_stdlib_result name) ""))) { return "" }
     }
     let builtin: string = (nisa_builtin_host_symbol name)
@@ -3569,6 +3583,10 @@ fn nisa_call_host_symbol(parser: Parser, name: string) -> string {
     return ""
 }
 shadow nisa_call_host_symbol {
+    let byte_tokens: List<LexerToken> = (tokenize_string "extern fn bytes_from_string(value:string)->array<u8>" "byte.nano" (diag_list_new))
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
+    assert (== (nisa_call_host_symbol byte_parser "bytes_from_string") "")
+    assert (== (nisa_call_host_symbol byte_parser "string_from_bytes") "vm_string_from_bytes")
     let character_tokens: List<LexerToken> = (tokenize_string "extern fn is_digit(value:int)->bool" "character.nano" (diag_list_new))
     let character_parser: Parser = (parse_program character_tokens (list_LexerToken_length character_tokens) "character.nano")
     assert (== (nisa_call_host_symbol character_parser "is_digit") "")
@@ -3630,6 +3648,7 @@ fn nisa_import_add(symbol: string) -> int {
     while (< i (nisa_host_arity symbol)) {
         let mut wire_parameter: string = (nisa_host_parameter_at symbol i)
         if (and (== symbol "vm_str_join") (== i 0)) { set wire_parameter "array" }
+        if (== symbol "vm_string_from_bytes") { set wire_parameter "array" }
         if (>= (nisa_regex_arity symbol) 0) { set wire_parameter (nisa_regex_wire wire_parameter) }
         set nisa_import_text (+ nisa_import_text (+ " " wire_parameter))
         set i (+ i 1)
@@ -3638,6 +3657,10 @@ fn nisa_import_add(symbol: string) -> int {
     return index
 }
 shadow nisa_import_add {
+    let byte_reset: int = (nisa_reset)
+    assert (== (nisa_import_add "vm_bytes_from_string") 0)
+    assert (== (nisa_import_add "vm_string_from_bytes") 1)
+    assert (== nisa_import_text ".import \"\" \"vm_bytes_from_string\" array string\n.import \"\" \"vm_string_from_bytes\" string array\n")
     let join_reset: int = (nisa_reset)
     assert (== (nisa_import_add "vm_str_join") 0)
     assert (== nisa_import_text ".import \"\" \"vm_str_join\" string array string\n")
@@ -4133,6 +4156,9 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
         if (and (== symbol "vm_str_join") (and (== i 0) (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL))) {
             if (== (parser_get_array_literal parser argument.node_id).element_count 0) { set argument_type "array<string>" }
         }
+        if (and (== symbol "vm_string_from_bytes") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+            if (== (parser_get_array_literal parser argument.node_id).element_count 0) { set argument_type "array<u8>" }
+        }
         if (== symbol "vm_array_sort") {
             if (not (array_sort_type_supported parser argument_type)) { return (nisa_fail "I require one flat scalar array operand for array_sort.") }
             set argument_type "array"
@@ -4142,6 +4168,10 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
     }
     let mut index: int = (nisa_import_find symbol)
     if (< index 0) { set index (nisa_import_add symbol) }
+    if (== symbol "vm_string_from_bytes") {
+        let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        return (+ (nisa_emit_expected_expr parser receiver.node_id receiver.node_type "array<u8>") (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
+    }
     if (== symbol "vm_str_join") {
         let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
         let separator: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
@@ -4152,6 +4182,13 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
 }
 shadow nisa_emit_host_call {
+    let byte_encoded: string = (nanoisa_emit_nasm "fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") return 0}")
+    assert (!= byte_encoded "")
+    assert (str_contains byte_encoded ".import \"\" \"vm_bytes_from_string\" array string")
+    let byte_decoded: string = (nanoisa_emit_nasm "fn main()->int{let text:string=(string_from_bytes []) return 0}")
+    assert (!= byte_decoded "")
+    assert (str_contains byte_decoded ".import \"\" \"vm_string_from_bytes\" string array")
+    assert (== (nanoisa_emit_nasm "fn main()->int{(string_from_bytes [1]) return 0}") "")
     let sorted: string = (nanoisa_emit_nasm "fn main()->int{let values:array<float> = (array_sort [2.5,1.5]) return 0}")
     assert nisa_ok
     assert (str_contains sorted ".import \"\" \"vm_array_sort\" array array")

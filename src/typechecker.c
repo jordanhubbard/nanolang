@@ -3069,6 +3069,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
+            /* I retain byte-array identity at my existing conversion boundary. */
+            if (!strcmp(expr->as.call.name, "bytes_from_string") ||
+                !strcmp(expr->as.call.name, "string_from_bytes")) {
+                Function *definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                if (!definition || (!definition->body && !definition->is_extern)) {
+                    bool encode = !strcmp(expr->as.call.name, "bytes_from_string");
+                    bool valid = expr->as.call.arg_count == 1;
+                    if (valid) {
+                        ASTNode *argument = expr->as.call.args[0];
+                        if (!encode && argument->type == AST_ARRAY_LITERAL &&
+                            argument->as.array_literal.element_count == 0)
+                            argument->as.array_literal.element_type = TYPE_U8;
+                        Type actual = check_expression(argument, env);
+                        valid = encode ? actual == TYPE_STRING :
+                            actual == TYPE_ARRAY && infer_array_element_type(argument, env) == TYPE_U8;
+                    }
+                    if (!valid) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require one STRING operand for bytes_from_string or one ARRAY<U8> operand for string_from_bytes.",
+                            "Use the declared builtin operand type and count.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return encode ? TYPE_ARRAY : TYPE_STRING;
+                }
+            }
+
             /* I keep these existing string builtins exact after lexical binding. */
             {
                 static const char *names[] = {"str_trim_left", "str_trim_right", "str_to_lower",

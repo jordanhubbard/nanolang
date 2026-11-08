@@ -238,6 +238,18 @@ static int collect_function(Analysis *a, uint32_t function) {
                 if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
                     !flow(a, field(a, stack[base], 0), field(a, output[0], 0)) ||
                     !nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
+            } else if (library && !*library && symbol &&
+                !strcmp(symbol, "vm_bytes_from_string") && pop == 1 && push == 1 &&
+                import->return_type == TAG_ARRAY && a->module->import_param_types &&
+                a->module->import_param_types[target] && a->module->import_param_types[target][0] == TAG_STRING) {
+                if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                    !nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY) ||
+                    !nvm_shape_tags_add(&a->out->shapes, field(a, output[0], 0), 1u << TAG_U8)) goto done;
+            } else if (library && !*library && symbol &&
+                !strcmp(symbol, "vm_string_from_bytes") && pop == 1 && push == 1 &&
+                import->return_type == TAG_STRING && a->module->import_param_types &&
+                a->module->import_param_types[target] && a->module->import_param_types[target][0] == TAG_ARRAY) {
+                if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_STRING)) goto done;
             } else {
                 for (int i = 0; i < push; ++i)
                     if (!nvm_shape_tags_add(&a->out->shapes, output[i], NVM_CALLABLE_TAG_UNKNOWN)) goto done;
