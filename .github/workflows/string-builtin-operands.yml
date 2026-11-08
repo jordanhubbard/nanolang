@@ -321,6 +321,8 @@ jobs:
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
             .test_output/bstring-contract-baselines/
+            .test_output/bstring-c-contracts/
+            .test_output/bstring-vm-contracts/
             .test_output/compiler-phase-markers/
             .test_output/map-constructor-contexts/
           include-hidden-files: true
