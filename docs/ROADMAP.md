@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1088/#1081 I execute the resource checker helper's real CLI contract in my unchanged comprehensive selection, preserving its positive/ownership/arity refusals and original source. I define timing before a first compile failure and isolate runner-owned outputs so success-without-publication cannot reuse an old artifact. I require explicit bounded metadata/adapter validation, meaningful failure/report controls and complete fresh four-route acceptance; I do not exclude or rewrite the helper to hide the no-argument runner mismatch.
+
 - [ ] Under #1081 I preserve legacy print/println statement parsing accepted by my C frontend through my self-hosted frontend, without rewriting the original fixtures to hide undefined-binding failures. I retain the exact eba four-route evidence and the current parser dispatch difference, specify statement versus declared-call identity before implementation, add meaningful parser/VM/native/refusal shadows and require complete fresh-stage reports.
 
 - [ ] Under #1087/#1053 I measure the repeated actual Clang ASan stack overflow in the VM test runner main frame, retain both source-pinned failures, preserve a fixture call boundary without disabling instrumentation or changing stack limits, and require every original VM assertion plus complete unit/platform acceptance. I compare original/corrected frames before claiming an inlining cause.
