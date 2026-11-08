@@ -93,7 +93,8 @@ def run_phase(config, arguments):
         if index and arguments[index-1] == '-o':
             output = argument
             continue
-        if ((config['role'] == 'nvm2c' and index == 0) or argument.endswith(('.c', '.nvm'))):
+        direct_input = (config['role'] == 'cc' and not argument.startswith('-'))
+        if ((config['role'] == 'nvm2c' and index == 0) or direct_input):
             if Path(argument).is_file():
                 inputs.append(argument)
                 copied = file_record(argument, directory/('input-'+str(len(inputs))+Path(argument).suffix))

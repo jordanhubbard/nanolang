@@ -25,11 +25,11 @@ class NativePhaseTrace(unittest.TestCase):
         self.environment = configure(self.work, dict(os.environ,
             NANO_CC=selected, NANO_NVM2C=sys.executable))
 
-    def invoke(self, source):
+    def invoke(self, source, extra_inputs=()):
         path = self.work/'source $value.c'
         path.write_text(source)
         product = self.work/'native output'
-        arguments = ['-std=c99', '-O1', '-Wall', '-Wextra', '-Werror', str(path), '-o', str(product)]
+        arguments = ['-std=c99', '-O1', '-Wall', '-Wextra', '-Werror', str(path), *map(str, extra_inputs), '-o', str(product)]
         command = shlex.split(self.environment['NANO_CC'])+arguments
         result = subprocess.run(command, cwd=ROOT, env=self.environment, capture_output=True, text=True, timeout=30)
         summary = summarize(self.work)
@@ -45,7 +45,19 @@ class NativePhaseTrace(unittest.TestCase):
         return result, product, phase
 
     def test_real_cc_native_output_and_exact_custody(self):
-        result, product, phase = self.invoke('#include <stdio.h>\nint main(void){puts("I ran traced C.");return 0;}\n')
+        support = self.work/'support.c'
+        support.write_text('int support(void); int support(void){return 7;}\n')
+        runtime = self.work/'support object.o'
+        selected = json.loads((self.work/'native-phase-trace/cc.json').read_text())['tool_argv']
+        compiled = subprocess.run(selected+['-std=c99', '-c', str(support), '-o', str(runtime)],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(compiled.returncode, 0, compiled.stdout+compiled.stderr)
+        result, product, phase = self.invoke('#include <stdio.h>\nextern int support(void);\n'
+            'int main(void){if(support()!=7)return 1;puts("I ran traced C.");return 0;}\n', (runtime,))
+        self.assertEqual(len(phase['inputs_before']), 2)
+        linked = phase['inputs_before'][1]
+        self.assertEqual(linked['sha256'], hashlib.sha256(runtime.read_bytes()).hexdigest())
+        self.assertEqual(Path(linked['copy']).read_bytes(), runtime.read_bytes())
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         execution = subprocess.run([product], capture_output=True, text=True, timeout=5)
         self.assertEqual(execution.returncode, 0, execution.stderr)
