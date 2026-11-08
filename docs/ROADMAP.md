@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1106/#1081 I retain the unchanged whole string stdlib fixture and current source/VM/native baseline, then record exact trim/case/replace/split/join semantics before implementation. I preserve byte-wise ASCII conversion, four-byte trimming, UTF-8 bytes, empty delimiters/elements, once-only effects, lexical identity and prior-output refusals. I require existing opcodes and exact builtin contracts with proven ARRAY<STRING> storage, useful source shadows, full original C/translator gates and separate fresh-stage/platform acceptance; no generic extern or SDK descriptor fallback is admitted.
+
 - [ ] Under #1088 I retain the marker helper recorder files alongside its actual native programs: the first qualified 99-method component upload preserves programs/commands but omits the separate compiler-phase-markers directory. I preserve that custody limit, add the directory to both final artifact selections, and require actual upload verification without changing executed tests.
 
 - [x] Under #1088/#1065 I retain my [qualified GCC/Clang marker helper checkpoint](evidence/native-phase-markers-20261108/qualified-68/README.md): all 99 methods, original C units/aliases and full translator suites pass. I independently verify six actual sanitized native helper ELF products and their original source/provider hashes and zero-exit command histories. Fresh driver placement/timing, later byte arithmetic and full release admission remain open.
