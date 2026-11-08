@@ -1,5 +1,9 @@
 # My GC pointer-entry experiment and allocation-size defect
 
+I retain this original rejected experiment and the bounded 2ff25c513 correction.
+My later #1119 registry correction, STRING terminator guard and separately
+measured corrected candidate are recorded in [CORRECTED_TAIL.md](CORRECTED_TAIL.md).
+
 I measure a private candidate that reserves aligned pointer-table entry storage
 after the managed payload, preserving `GCHeader` layout and logical statistics.
 Each of three executions allocates, looks up, retains and releases 100,000

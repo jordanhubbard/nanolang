@@ -62,14 +62,11 @@ static struct {
  * ============================================================================ */
 
 /* Add pointer to hash table */
-static void gc_hash_add(void* ptr) {
+static void gc_hash_add(void* ptr, GCHashEntry* entry) {
     size_t idx = gc_hash_ptr(ptr);
-    GCHashEntry* entry = (GCHashEntry*)malloc(sizeof(GCHashEntry));
-    if (entry) {
-        entry->ptr = ptr;
-        entry->next = gc_state.hash_table[idx];
-        gc_state.hash_table[idx] = entry;
-    }
+    entry->ptr = ptr;
+    entry->next = gc_state.hash_table[idx];
+    gc_state.hash_table[idx] = entry;
 }
 
 /* Remove pointer from hash table */
@@ -79,9 +76,7 @@ static void gc_hash_remove(void* ptr) {
     
     while (*current != NULL) {
         if ((*current)->ptr == ptr) {
-            GCHashEntry* to_free = *current;
             *current = (*current)->next;
-            free(to_free);
             return;
         }
         current = &(*current)->next;
@@ -104,15 +99,8 @@ static inline bool gc_hash_contains(void* ptr) {
 
 /* Clear entire hash table */
 static void gc_hash_clear(void) {
-    for (size_t i = 0; i < GC_HASH_SIZE; i++) {
-        GCHashEntry* current = gc_state.hash_table[i];
-        while (current != NULL) {
-            GCHashEntry* next = current->next;
-            free(current);
-            current = next;
-        }
-        gc_state.hash_table[i] = NULL;
-    }
+    /* I retire entries with their owners before clearing the buckets. */
+    memset(gc_state.hash_table, 0, sizeof gc_state.hash_table);
 }
 
 static void gc_destroy_object(GCHeader *header, bool release_children) {
@@ -222,7 +210,16 @@ void* gc_alloc(size_t size, GCObjectType type) {
         return NULL;
     }
     size_t total_size = sizeof(GCHeader) + size;
-    GCHeader* header = (GCHeader*)malloc(total_size);
+    /* I keep my public header and logical size; private entry storage follows. */
+    size_t alignment = _Alignof(GCHashEntry);
+    size_t padding = (alignment - total_size % alignment) % alignment;
+    if (total_size > SIZE_MAX - padding ||
+        total_size + padding > SIZE_MAX - sizeof(GCHashEntry)) {
+        fprintf(stderr, "I cannot allocate a managed object whose private entry size overflows.\n");
+        return NULL;
+    }
+    size_t entry_offset = total_size + padding;
+    GCHeader* header = (GCHeader*)malloc(entry_offset + sizeof(GCHashEntry));
     
     if (header == NULL) {
         fprintf(stderr, "GC: Out of memory (requested %zu bytes)\n", total_size);
@@ -249,7 +246,7 @@ void* gc_alloc(size_t size, GCObjectType type) {
     void* ptr = gc_header_to_ptr(header);
     
     /* Add to hash table for O(1) lookup */
-    gc_hash_add(ptr);
+    gc_hash_add(ptr, (GCHashEntry*)((char*)header + entry_offset));
     
     /* Update statistics */
     gc_state.stats.total_allocated += total_size;
