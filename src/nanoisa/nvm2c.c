@@ -2281,13 +2281,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (key.kind == NVM2C_VK_STR && !mark_string_operand(b, local_kind, nloc, key)) return 0;
                 if (key.kind == NVM2C_VK_INT) mark_origin(local_kind, nloc, key.origin, NVM2C_VK_INT);
                 NvmShapeId key_shape = key.shape;
-                if (key.kind == NVM2C_VK_VALUE) {
+                if (key.kind == NVM2C_VK_VALUE || key.kind == NVM2C_VK_UNK) {
                     /* I constrain this checked use without rewriting optional
                      * producer storage. Emission extracts the exact runtime tag. */
                     NvmShapeId checked = 0;
                     key_shape = shape_variable(b, &checked);
                     if (b->track_shapes &&
-                        (!nvm_shape_convert(&b->shapes, shape_child(b, key.shape, 0), key_shape) ||
+                        (!nvm_shape_checked_payload(&b->shapes, key.shape, key_shape) ||
                          !shape_ok(b))) return 0;
                 }
                 if (!shape_equal(b, shape_child(b, map.shape, 0), key_shape)) return 0;
@@ -2301,11 +2301,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     nvm2c_fail(b, "I found conflicting hashmap value representations"); return 0;
                 }
                 NvmShapeId value_shape = value.shape;
-                if (value.kind == NVM2C_VK_VALUE) {
+                if (value.kind == NVM2C_VK_VALUE || value.kind == NVM2C_VK_UNK) {
                     NvmShapeId checked = 0;
                     value_shape = shape_variable(b, &checked);
                     if (b->track_shapes &&
-                        (!nvm_shape_convert(&b->shapes, shape_child(b, value.shape, 0), value_shape) ||
+                        (!nvm_shape_checked_payload(&b->shapes, value.shape, value_shape) ||
                          !shape_ok(b))) return 0;
                 }
                 if (!shape_equal(b, shape_child(b, map.shape, 1), value_shape)) return 0;

@@ -803,6 +803,39 @@ static void test_producer_tags(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_checked_map_payloads(void) {
+    for (int key_string = 0; key_string < 2; ++key_string)
+    for (int value_string = 0; value_string < 2; ++value_string)
+    for (int field = 0; field < 2; ++field)
+    for (int optional = 0; optional < 2; ++optional)
+    for (int conflict = 0; conflict < 2; ++conflict) {
+        NvmShapeGraph g = {0};
+        NvmShapeKind kind = (field ? value_string : key_string) ? NVM_SHAPE_STRING : NVM_SHAPE_INT;
+        NvmShapeId map = nvm_shape_new(&g, NVM_SHAPE_MAP);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, map, 0),
+            nvm_shape_new(&g, key_string ? NVM_SHAPE_STRING : NVM_SHAPE_INT)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, map, 1),
+            nvm_shape_new(&g, value_string ? NVM_SHAPE_STRING : NVM_SHAPE_INT)));
+        NvmShapeId storage = nvm_shape_new(&g, NVM_SHAPE_MAP);
+        NvmShapeId read = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId element = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_checked_payload(&g, read, nvm_shape_child(&g, storage, field)));
+        CHECK(nvm_shape_convert(&g, map, storage));
+        CHECK(nvm_shape_solve_conversions(&g));
+        NvmShapeKind actual = conflict ? (kind == NVM_SHAPE_INT ? NVM_SHAPE_STRING : NVM_SHAPE_INT) : kind;
+        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, actual)));
+        if (optional) CHECK(nvm_shape_array_read(&g, element, read));
+        else CHECK(nvm_shape_unify(&g, element, read));
+        CHECK(nvm_shape_solve_conversions(&g) == !conflict);
+        if (!conflict) {
+            CHECK(nvm_shape_kind(&g, read) == (optional ? NVM_SHAPE_OPTIONAL : kind));
+            CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, storage, field)) == kind);
+            CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, map, field)) == kind);
+        }
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
     {
         NvmShapeGraph g = {0};
@@ -876,6 +909,7 @@ int main(void) {
     test_late_optional_scalar_join();
     test_deferred_array_reads();
     test_map_shapes();
+    test_checked_map_payloads();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();
     test_deep_graph(0);

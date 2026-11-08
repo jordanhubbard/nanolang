@@ -19,6 +19,9 @@ on:
       - 'tests/unit/test_map_constructor_contexts.nano'
       - 'src/typechecker.c'
       - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/nvm2c_shape.c'
+      - 'src/nanoisa/nvm2c_shape.h'
+      - 'tests/nanoisa/test_nvm2c_shape.c'
       - 'src/nanoisa/nvm2c_callables.c'
       - 'src/nanoisa/nvm2c_reachability.h'
       - 'schema/compiler_schema.json'
@@ -89,6 +92,11 @@ jobs:
           git ls-tree -r HEAD > .test_output/string-builtin-operands/source-tree.txt
           sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano_aot_runtime.o > .test_output/string-builtin-operands/providers.sha256
           "$CC" --version > .test_output/string-builtin-operands/compiler.txt
+      - name: Verify exact and deferred aggregate shape constraints
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-nvm2c-shapes \
+            2>&1 | tee .test_output/string-builtin-operands/shapes.log
       - name: Execute all operand methods and the complete canonical string suite
         timeout-minutes: 45
         run: |

@@ -265,7 +265,13 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
                                     g->conversion_count + 1, sizeof *next);
     if (!next) return 0;
     g->conversions = next;
-    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0};
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0, 0};
+    return 1;
+}
+
+int nvm_shape_checked_payload(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    if (!nvm_shape_convert(g, source, target)) return 0;
+    g->conversions[g->conversion_count - 1].checked_payload = 1;
     return 1;
 }
 
@@ -320,7 +326,7 @@ int nvm_shape_array_alias(NvmShapeGraph *g, NvmShapeId caller, NvmShapeId callee
                                     g->array_alias_count + 1, sizeof *next);
     if (!next) return 0;
     g->array_aliases = next;
-    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0};
+    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0, 0};
     return 1;
 }
 
@@ -333,7 +339,7 @@ int nvm_shape_array_write(NvmShapeGraph *g, NvmShapeId array, NvmShapeId value) 
                                     g->array_write_count + 1, sizeof *next);
     if (!next) return 0;
     g->array_writes = next;
-    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0};
+    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0, 0};
     return nvm_shape_alias_view(g, value, nvm_shape_child(g, array, 0));
 }
 
@@ -413,7 +419,14 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view, 0};
+    NvmShapeId producer = conversion.source;
+    if (conversion.checked_payload) {
+        NvmShapeKind kind = nvm_shape_kind(g, producer);
+        if (kind == NVM_SHAPE_UNKNOWN) { free(queue); return !g->error; }
+        if (kind == NVM_SHAPE_OPTIONAL) producer = nvm_shape_child(g, producer, 0);
+    }
+    queue[count++] = (FlowPair){producer, conversion.target,
+        conversion.checked_payload, conversion.alias_view, 0};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);

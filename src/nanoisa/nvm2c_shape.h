@@ -22,7 +22,7 @@ typedef enum {
     NVM_SHAPE_FUNCTION, NVM_SHAPE_U8
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
-typedef struct { NvmShapeId source, target; int alias_view; } NvmShapeConversion;
+typedef struct { NvmShapeId source, target; int alias_view, checked_payload; } NvmShapeConversion;
 typedef struct { NvmShapeId element, result; int resolved; } NvmShapeArrayRead;
 typedef struct { uint64_t *keys; size_t count, capacity; } NvmShapePairSet;
 typedef struct {
@@ -64,6 +64,9 @@ int nvm_shape_function_target(NvmShapeGraph *graph, NvmShapeId id,
 /* Storage conversion does not equate source and destination nodes. I solve
  * these directed constraints after collecting the module's exact shapes. */
 int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* A runtime-checked use extracts one optional wrapper after producer storage
+ * resolves. Its exact payload cannot widen the producer or destination. */
+int nvm_shape_checked_payload(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
 /* I separate optional scalar reads from exact element storage, even when
  * the element kind becomes known only through later record conversions. */
 int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
