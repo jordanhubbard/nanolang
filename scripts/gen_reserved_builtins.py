@@ -13,11 +13,12 @@ def main():
     options.add_argument('--check', action='store_true')
     args = options.parse_args()
     spec = json.loads((ROOT/'spec/reserved_builtin_names.json').read_text())
-    names = spec['names']
-    if (spec['schema'] != 'nanolang.reserved_builtin_names.v1' or not names
-            or len(names) != len(set(names))
+    names = spec.get('names') if isinstance(spec, dict) else None
+    if (not isinstance(spec, dict) or spec.get('schema') != 'nanolang.reserved_builtin_names.v1'
+            or not isinstance(names, list) or not names
             or any(not isinstance(name, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', name)
-                   for name in names)):
+                   for name in names)
+            or len(names) != len(set(names))):
         raise SystemExit('I require a unique closed reserved-definition name set.')
     outputs = {
         ROOT/'src/generated/reserved_builtin_names.h':
