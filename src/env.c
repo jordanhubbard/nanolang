@@ -1104,7 +1104,8 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
     for (int i = 0; i < builtin_registry_count; i++) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
-        if (safe_strcmp(builtin_registry[i].name, name) == 0) {
+        if (builtin_registry[i].name[0] == name[0] &&
+            safe_strcmp(builtin_registry[i].name, name) == 0) {
             /* Create static function objects for built-ins */
             static Function func_cache[256];
             static Parameter fixed_params[256][4];

@@ -197,6 +197,33 @@ static void check_function_index(void) {
     free_environment(env);
 }
 
+/* I retain every immutable builtin signature and refuse near-miss names. */
+static void check_builtin_registry_selection(void) {
+    Environment *env = create_environment();
+    assert(!env_get_function(env, NULL));
+    assert(!env_get_function(env, ""));
+    for (int i = 0; i < builtin_registry_count; ++i) {
+        const BuiltinEntry *entry = &builtin_registry[i];
+        if (!(entry->flags & BUILTIN_LANG)) continue;
+        Function *function = env_get_function(env, entry->name);
+        assert(function && !strcmp(function->name, entry->name));
+        assert(function->param_count == entry->arity);
+        assert(function->return_type == entry->return_type);
+        char missing[256];
+        assert(snprintf(missing, sizeof missing, "%s_missing", entry->name) < (int)sizeof missing);
+        assert(!env_get_function(env, missing));
+    }
+    name_comparisons = 0;
+    for (int i = 0; i < 1000; ++i)
+        assert(!env_get_function(env, "nisa_ordinary_source_function"));
+    size_t matching_first_bytes = 0;
+    for (int i = 0; i < builtin_registry_count; ++i)
+        if ((builtin_registry[i].flags & BUILTIN_LANG) && builtin_registry[i].name[0] == 'n')
+            ++matching_first_bytes;
+    assert(name_comparisons == 1000 * matching_first_bytes);
+    free_environment(env);
+}
+
 static void check_fresh_string_copy(void) {
     Environment *env = create_environment();
     Value caller = create_string("caller storage");
@@ -265,6 +292,7 @@ static void check_string_self_assignment(void) {
 int main(void) {
     gc_init();
     check_function_index();
+    check_builtin_registry_selection();
     check_string_self_assignment();
     check_fresh_string_copy();
     Environment *env = create_environment();
