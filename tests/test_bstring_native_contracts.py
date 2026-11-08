@@ -141,3 +141,93 @@ fn main()->int{
 }
 shadow main{assert (== (main) 0)}
 ''')
+
+    def test_generated_owner_collection_and_refusals(self):
+        output = ROOT/'.test_output/bstring-native-contracts'
+        output.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix='generated-collection-', dir=output))
+        source, module, generated = work/'main.nano', work/'program.nvm', work/'program.c'
+        source.write_text('fn main()->int{let value:bstring=(bstr_new "seed") (bstr_free value) return 0}\n'
+                          'shadow main{assert (== (main) 0)}\n')
+        providers = [ROOT/'bin/nano_virt', ROOT/'bin/nano_vm', ROOT/'bin/nvm2c', ROOT/'bin/nano_aot_runtime.o']
+        before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
+        products = []
+        try:
+            self.command(work, 'emit', [providers[0], source, '--emit-nvm', '-o', module], build=True)
+            self.command(work, 'verify', [providers[1], '--verify-only', module])
+            self.command(work, 'translate', [providers[2], module, '-o', generated], build=True)
+            wrapper = work/'collection.c'
+            wrapper.write_text(r'''#define main generated_main
+#include "program.c"
+#undef main
+#include <assert.h>
+#include <sys/resource.h>
+int main(int argc, char **argv) {
+    struct rlimit core_limit = {0, 0}; assert(setrlimit(RLIMIT_CORE, &core_limit) == 0);
+    assert(generated_main(0, NULL) == 0);
+    nroot_frame frame = {0}; frame.prev = nroot_head; nroot_head = &frame;
+    nmap_value held = nhost_vm_bstring_new("kept");
+    nroot_add(&frame.live, 8, &held);
+    if (argc == 2) {
+        if (!strcmp(argv[1], "freed")) {
+            nhost_vm_bstring_free(held);
+            (void)nhost_vm_bstring_length(held);
+        } else if (!strcmp(argv[1], "double-free")) {
+            nhost_vm_bstring_free(held); nhost_vm_bstring_free(held);
+        } else if (!strcmp(argv[1], "wrong-tag")) {
+            (void)nhost_vm_bstring_length((nmap_value){5, 0, "text"});
+        } else if (!strcmp(argv[1], "unowned")) {
+            int unrelated = 0;
+            (void)nhost_vm_bstring_length((nmap_value){6, 0, (char *)&unrelated});
+        }
+        return 91;
+    }
+    for (size_t i = 0; i < 1000; ++i) {
+        (void)nhost_vm_bstring_new("temporary");
+        if (!(i % 31)) nmap_collect();
+        assert(nhost_vm_bstring_length(held) == 4);
+    }
+    nmap_collect(); assert(nmap_owned_live == 1);
+    nmap_value alias = held; nroot_add(&frame.live, 8, &alias);
+    const char *snapshot = nhost_vm_bstring_to_cstr(alias);
+    nroot_add(&frame.live, 1, snapshot);
+    size_t payload_bytes = nmap_live_bytes;
+    nhost_vm_bstring_free(held);
+    assert(nmap_live_bytes < payload_bytes);
+    nmap_collect(); assert(nmap_owned_live == 1);
+    assert(!strcmp(snapshot, "kept"));
+    nroot_reset(&frame.live); nmap_collect();
+    assert(nmap_owned_live == 0 && nmap_live_bytes == 0 && nstr_live_bytes == 0);
+    nroot_head = frame.prev; nroot_destroy(&frame.live);
+    nmap_release_owned(); nstr_release_owned();
+    assert(nmap_live_bytes == 0 && nstr_live_bytes == 0);
+    puts("I passed native binary-string collection and refusal controls.");
+    return 0;
+}
+''')
+            for optimization in ['-O0', '-O2']:
+                product = work/('native'+optimization)
+                self.command(work, 'build'+optimization, [*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')),
+                    '-std=c11', optimization, '-Wall', '-Wextra', '-Werror',
+                    '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                    wrapper, providers[3], '-lm', *native_link_flags(),
+                    *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                    '-o', product], build=True)
+                pin = hashlib.sha256(product.read_bytes()).hexdigest()
+                run = self.command(work, 'collection'+optimization, [product])
+                self.assertEqual(run.stdout, 'I passed native binary-string collection and refusal controls.\n')
+                for mode in ['freed', 'double-free', 'wrong-tag', 'unowned']:
+                    refused = self.command(work, mode+optimization, [product, mode], accepted=False)
+                    self.assertNotEqual(refused.returncode, 0)
+                    self.assertNotEqual(refused.returncode, 91)
+                    self.assertIn('I stopped at a native invariant', refused.stderr)
+                    self.assertNotIn('ERROR: AddressSanitizer', refused.stderr)
+                    self.assertNotIn('runtime error:', refused.stderr)
+                self.assertEqual(pin, hashlib.sha256(product.read_bytes()).hexdigest())
+                products.append({'path': str(product), 'before': pin, 'after': pin})
+        finally:
+            after = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in providers}
+            (work/'inputs.json').write_text(json.dumps({'scope':
+                'I exercise the actual generated private owner/collector boundary, not generic foreign or NativeSDK admission.',
+                'before': before, 'after': after, 'native_products': products}, indent=2)+'\n')
+            self.assertEqual(before, after)
