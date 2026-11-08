@@ -1,0 +1,11 @@
+[
+  {
+    "path": "source-checker-component/actual-native-pyi2f9yl/",
+    "inputs_unchanged": true,
+    "creation_path": "C-seed-to-native",
+    "native_lifecycle_admitted": false,
+    "fresh_stages_qualified": false,
+    "native_product_present": false,
+    "observed_refusal": "Unknown option: -v\nTry '/home/runner/work/nanolang/nanolang/bin/nanoc_c --help' for more information.\n"
+  }
+]

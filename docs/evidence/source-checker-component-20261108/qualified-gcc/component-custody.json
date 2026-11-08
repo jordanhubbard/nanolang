@@ -1,0 +1,13 @@
+[
+  {
+    "path": "source-checker-component/actual-native-mi85zk70/",
+    "inputs_unchanged": true,
+    "creation_path": "C-seed-to-native",
+    "native_lifecycle_admitted": false,
+    "fresh_stages_qualified": false,
+    "product_sha256": "58c63129084111db90d61b74e170d83820429274ef67deb54a67a027c41e9e20",
+    "product_size": 14181520,
+    "native_elf": true,
+    "production_marker_present": true
+  }
+]

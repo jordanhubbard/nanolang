@@ -1,0 +1,15 @@
+{
+  "size": 2010688,
+  "sha256": "b461b0361e00809437e3e76e4f200e6b65baa591aca5f22d8f84c65537e77611",
+  "files": 20,
+  "text_files": 19,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-umam51h3.tar.gz",
+      "sha256": "a23037150aa93d47864cd0f0414acb411d1a4f80961c9aba87abd7b367a75803",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
