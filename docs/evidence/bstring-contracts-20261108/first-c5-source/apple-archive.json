@@ -1,0 +1,12 @@
+{
+  "run": 42515796795,
+  "artifact": 13631930229,
+  "size": 1402625,
+  "sha256": "6f40eaa0c5d7b247b307ae878ec15f691695d858ddd75fd2653db24e56a9aaac",
+  "crc_checked": true,
+  "zip_saved": false,
+  "shadow_starts": 695,
+  "shadow_completes": 693,
+  "shadow_failures": 0,
+  "summed_body_seconds": 8.446105
+}

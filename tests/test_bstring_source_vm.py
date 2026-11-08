@@ -2,7 +2,6 @@
 import hashlib
 import json
 from pathlib import Path
-import subprocess
 import tempfile
 
 from tests import test_bstring_vm_contracts as binary
@@ -23,8 +22,7 @@ class BstringSourceVmContracts(binary.BstringVmContracts):
         compiler = ROOT/'bin/nanoc_c'
         source = ROOT/'src_nano/nanoc_v06.nano'
         cls.compiler = work/'compiler'
-        paths = [ROOT/p for p in subprocess.check_output(['rg', '--files', 'src_nano'],
-                                                       cwd=ROOT, text=True).splitlines() if p.endswith('.nano')]
+        paths = sorted((ROOT/'src_nano').rglob('*.nano'))
         paths += [compiler, ROOT/'modules/compiler_support/compiler_support.nano',
                   ROOT/'modules/nanoisa/nanoisa.nano']
         before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
