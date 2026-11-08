@@ -1,0 +1,3 @@
+input=67108863 emitted_c_helper=67108863 emitted_last=90 interpreter_builtin=67108863 legacy_vm_c_builtin=67108863
+input=67108864 emitted_c_helper=67108864 emitted_last=90 interpreter_builtin=67108864 legacy_vm_c_builtin=67108864
+input=67108881 emitted_c_helper=67108864 emitted_last=65 interpreter_builtin=67108881 legacy_vm_c_builtin=67108881

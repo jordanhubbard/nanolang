@@ -1,0 +1,7 @@
+# My measured 64 MiB encoding scan boundary
+
+I compile the verbatim nl_bytes_from_string body from my current C emitter together with my actual interpreter builtin, legacy VM C builtin, environment value factory, dynamic-array storage and collector implementations. The standalone program runs under ASan/UBSan and checks real allocations, element kinds, lengths, final-byte values and zero remaining managed objects. I preserve unchanged source-input hashes, the compiler command, executable hash and exact output. I limit the sanitizer quarantine to 32 MiB for this allocation-heavy diagnostic; Darwin leak detection is disabled as in my existing sanitizer targets. The unit executes successfully.
+
+At input sizes 67108863 and 67108864 all three helpers return the complete length and final byte Z. At 67108881, the emitted-C helper returns only 67108864 bytes and its last byte is A; the interpreter and legacy VM helpers return all 67108881 bytes ending in Z. The emitted helper and current interpreter store ELEM_U8; the legacy VM C ABI stores ELEM_INT, independently of later public VM bridge conversion.
+
+This establishes the real helper boundary difference. I do not run the complete C CLI, new owner-heap VM bridge, source emitter or AOT above this cap, and I do not claim their complete execution/lifetime qualification from this direct helper diagnostic. I do not copy the local executable into this receipt. Choosing and qualifying a shared size contract remains open under #1110; I have not silently changed the old cap or the strlen-based helpers.
