@@ -2243,6 +2243,21 @@ shadow literal_type_spelling {
     }
 }
 
+# I match my C parser's existing distinction between fields and statement blocks.
+fn parser_brace_starts_statement(p: Parser) -> bool {
+    if (!= (parser_peek p 0) (token_lbrace)) { return false }
+    let head: int = (parser_peek p 1)
+    return (or (== head (token_if)) (or (== head (token_return)) (or (== head (token_let)) (or (== head (token_while)) (== head (token_for))))))
+}
+shadow parser_brace_starts_statement {
+    let sources: array<string> = ["{if true {return 1}}", "{return 1}", "{let value:int=1}", "{while false {}}", "{for index in (range 0 1) {}}", "{value:1}", "{}", "return 1"]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "block-head.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parser_new tokens (list_LexerToken_length tokens) "block-head.nano")
+        assert (== (parser_brace_starts_statement parser) (< index 5))
+    }
+}
+
 /* I distinguish a declared union variant from a qualified record name. */
 fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
     # I retain a qualified Type.Variant path before its import is bound.
@@ -3067,7 +3082,7 @@ fn parse_primary(p: Parser) -> Parser {
                         let literal: NameParseResult = (parse_call_name p)
                         if (and literal.ok (literal_type_spelling literal.name)) {
                             if (not (parser_is_at_end literal.p)) {
-                                if (== (parser_current literal.p).token_type (token_lbrace)) {
+                                if (and (== (parser_current literal.p).token_type (token_lbrace)) (not (parser_brace_starts_statement literal.p))) {
                                     return (parse_named_literal (parser_advance literal.p) literal.name tok.line tok.column)
                                 }
                             }
@@ -3081,7 +3096,7 @@ fn parse_primary(p: Parser) -> Parser {
 
                             if (not (parser_is_at_end p_after_name)) {
                                 let tnext: LexerToken = (parser_current p_after_name)
-                                if (== tnext.token_type (token_lbrace)) {
+                                if (and (== tnext.token_type (token_lbrace)) (not (parser_brace_starts_statement p_after_name))) {
                                     /* Struct literal: NSType { field: value, ... } */
                                     /* Only if name looks like a type (starts with uppercase) */
                                     let first_char: int = (char_at name 0)
@@ -6240,7 +6255,17 @@ fn parse_if_statement(p: Parser) -> Parser {
 }
 
 shadow parse_if_statement {
-    assert (== 1 1)
+    let bodies: array<string> = ["return 1", "let value:int=1 return value", "if true {return 1}", "while false {}", "for index in (range 0 1) {}"]
+    for body in bodies {
+        let source: string = (+ "if DEBUG_MODE {" (+ body "} else {return 2}"))
+        let tokens: List<LexerToken> = (tokenize_string source "if-head.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_if_statement (parser_new tokens (list_LexerToken_length tokens) "if-head.nano"))
+        assert (not parsed.has_error) assert (parser_is_at_end parsed)
+        let condition: ASTIf = (parser_get_if parsed parsed.last_expr_node_id)
+        assert (== condition.condition_type ParseNodeType.PNODE_IDENTIFIER)
+        assert (== (parser_get_identifier parsed condition.condition).name "DEBUG_MODE")
+        assert (== parsed.struct_literals_count 0)
+    }
 }
 
 /* Parse while statement: while (expression) { statements } */

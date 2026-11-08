@@ -7412,3 +7412,7 @@ test-compiler-phase-marker-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa
 .PHONY: test-string-stdlib-contracts
 test-string-stdlib-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_string_stdlib_contracts
+
+.PHONY: test-uppercase-condition-contracts
+test-uppercase-condition-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_uppercase_condition_contracts
