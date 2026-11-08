@@ -1181,6 +1181,112 @@ static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) 
 }
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
+/* I scan literal spans after converting all arguments in source order. */
+static bool compile_source_format(CG *cg, ASTNode *node) {
+    ASTNode **args = node->as.call.args;
+    int argc = node->as.call.arg_count;
+    uint16_t fmt = local_add(cg, "__format_template__", node->line);
+    uint16_t parts = local_add(cg, "__format_parts__", node->line);
+    uint16_t result = local_add(cg, "__format_result__", node->line);
+    uint16_t offset = local_add(cg, "__format_offset__", node->line);
+    uint16_t start = local_add(cg, "__format_start__", node->line);
+    uint16_t used = local_add(cg, "__format_used__", node->line);
+    uint16_t code = local_add(cg, "__format_code__", node->line);
+    compile_expr(cg, args[0]);
+    emit_op(cg, OP_STORE_LOCAL, (int)fmt);
+    emit_op(cg, OP_ARR_NEW, (int)TAG_STRING);
+    emit_op(cg, OP_STORE_LOCAL, (int)parts);
+    for (int i = 1; i < argc; ++i) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)parts);
+        compile_expr(cg, args[i]);
+        emit_op(cg, OP_CAST_STRING);
+        emit_op(cg, OP_ARR_PUSH);
+        emit_op(cg, OP_STORE_LOCAL, (int)parts);
+    }
+    emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "", 0));
+    emit_op(cg, OP_STORE_LOCAL, (int)result);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)start);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_STORE_LOCAL, (int)used);
+    uint32_t top = cg->code_size;
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_STR_LEN);
+    emit_op(cg, OP_I64_LT_S);
+    uint32_t end = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_PUSH_I64, (int64_t)(argc - 1));
+    emit_op(cg, OP_I64_LT_S);
+    uint32_t no_argument = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_STR_CHAR_AT);
+    emit_op(cg, OP_PUSH_I64, (int64_t)'%');
+    emit_op(cg, OP_I64_EQ);
+    uint32_t no_percent = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STR_CHAR_AT);
+    emit_op(cg, OP_STORE_LOCAL, (int)code);
+    const char markers[] = "sdfg";
+    for (int i = 0; i < 4; ++i) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)code);
+        emit_op(cg, OP_PUSH_I64, (int64_t)markers[i]);
+        emit_op(cg, OP_I64_EQ);
+        if (i) emit_op(cg, OP_OR);
+    }
+    uint32_t no_marker = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+    emit_op(cg, OP_LOAD_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_I64_SUB);
+    emit_op(cg, OP_STR_SUBSTR);
+    emit_op(cg, OP_STR_CONCAT);
+    emit_op(cg, OP_LOAD_LOCAL, (int)parts);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_ARR_GET);
+    emit_op(cg, OP_STR_CONCAT);
+    emit_op(cg, OP_STORE_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)used);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)used);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)2);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_STORE_LOCAL, (int)start);
+    uint32_t matched = emit_op(cg, OP_JMP, (int32_t)0);
+    patch_jump(cg, matched + 1, matched, top);
+    patch_jump(cg, no_argument + 1, no_argument, cg->code_size);
+    patch_jump(cg, no_percent + 1, no_percent, cg->code_size);
+    patch_jump(cg, no_marker + 1, no_marker, cg->code_size);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_PUSH_I64, (int64_t)1);
+    emit_op(cg, OP_I64_ADD);
+    emit_op(cg, OP_STORE_LOCAL, (int)offset);
+    uint32_t next = emit_op(cg, OP_JMP, (int32_t)0);
+    patch_jump(cg, next + 1, next, top);
+    patch_jump(cg, end + 1, end, cg->code_size);
+    emit_op(cg, OP_LOAD_LOCAL, (int)result);
+    emit_op(cg, OP_LOAD_LOCAL, (int)fmt);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_LOAD_LOCAL, (int)offset);
+    emit_op(cg, OP_LOAD_LOCAL, (int)start);
+    emit_op(cg, OP_I64_SUB);
+    emit_op(cg, OP_STR_SUBSTR);
+    emit_op(cg, OP_STR_CONCAT);
+    return true;
+}
+
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = builtin_array_operation(node->as.call.name);
     int argc = node->as.call.arg_count;
@@ -2110,21 +2216,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
 
     if (strcmp(name, "format") == 0 && argc >= 1) {
-        compile_expr(cg, args[0]);
-        emit_op(cg, OP_ARR_NEW, TAG_STRING);
-        for (int i = 1; i < argc; i++) {
-            compile_expr(cg, args[i]);
-            emit_op(cg, OP_CAST_STRING);
-            emit_op(cg, OP_ARR_PUSH);
-        }
-        int32_t ext_idx = extern_find(cg, "vm_format");
-        if (ext_idx < 0) {
-            uint8_t ptags[2] = {TAG_STRING, TAG_ARRAY};
-            register_extern(cg, "vm_format", "", 2, TAG_STRING, ptags);
-            ext_idx = extern_find(cg, "vm_format");
-        }
-        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
-        return true;
+        return compile_source_format(cg, node);
     }
 
     /* string_from_bytes(arr) - convert byte array to string */

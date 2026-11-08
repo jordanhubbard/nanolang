@@ -1623,6 +1623,7 @@ shadow nisa_cast_string_name {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "format") { return true }
     if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
     if (or (== name "abs") (nisa_functional_name name)) { return true }
@@ -1644,6 +1645,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "format")
     assert (nisa_is_inline_call "cast_float")
     assert (nisa_is_inline_call "min")
     assert (nisa_is_inline_call "max")
@@ -4571,6 +4573,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return (at parts (- (array_length parts) 1))
         }
         let target_name: string = (nisa_call_name parser call)
+        if (and (== target_name "format") (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (< (nisa_call_index parser call) 0) (or (== target_name "array_pop") (== target_name "array_remove_at"))) {
             let container: string = (nisa_array_removal_container parser call target_name)
             if (== container "") { return "" }
@@ -4697,6 +4700,10 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let format_reset: int = (nisa_reset)
+    let format_tokens: List<LexerToken> = (tokenize_string "fn main()->string{return (format \"%s\" 7)}" "format-result.nano" (diag_list_new))
+    let format_parser: Parser = (parse_program format_tokens (list_LexerToken_length format_tokens) "format-result.nano")
+    assert (== (nisa_expr_type format_parser 0 ParseNodeType.PNODE_CALL) "string")
     let removal_reset: int = (nisa_reset)
     let removal_tokens: List<LexerToken> = (tokenize_string "fn main()->float{return (array_pop [1.5])}" "pop-result.nano" (diag_list_new))
     let removal_parser: Parser = (parse_program removal_tokens (list_LexerToken_length removal_tokens) "pop-result.nano")
@@ -6637,6 +6644,118 @@ shadow nisa_emit_float_text {
     assert (== (str_index_of suffix call) -1)
 }
 
+# I scan byte spans after saving every raw conversion in source order.
+fn nisa_emit_format(parser: Parser, call: ASTCall) -> string {
+    if (< call.arg_count 1) { return (nisa_fail "I require a string template argument for format") }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    if (!= (nisa_expr_type parser source.node_id source.node_type) "string") {
+        return (nisa_fail "I require a string template argument for format")
+    }
+    let template: string = (nisa_temp_local "string")
+    let parts: string = (nisa_temp_local "array<string>")
+    let result: string = (nisa_temp_local "string")
+    let index: string = (nisa_temp_local "int")
+    let start: string = (nisa_temp_local "int")
+    let used: string = (nisa_temp_local "int")
+    let code: string = (nisa_temp_local "int")
+    let top: string = (nisa_fresh)
+    let literal: string = (nisa_fresh)
+    let done: string = (nisa_fresh)
+    let mut text: string = (nisa_emit_expr parser source.node_id source.node_type)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" template))
+    set text (+ text (nisa_line_imm "ARR_NEW" "5"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" parts))
+    let mut argument_index: int = 1
+    while (< argument_index call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start argument_index))
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" parts))
+        set text (+ text (nisa_emit_expr parser argument.node_id argument.node_type))
+        set text (+ text (nisa_line "CAST_STRING"))
+        set text (+ text (nisa_line "ARR_PUSH"))
+        set text (+ text (nisa_line_imm "STORE_LOCAL" parts))
+        set argument_index (+ argument_index 1)
+    }
+    set text (+ text (nisa_line_imm "PUSH_STR" (nisa_intern "")))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" result))
+    for slot in [index,start,used] {
+        set text (+ text (nisa_line_imm "PUSH_I64" "0"))
+        set text (+ text (nisa_line_imm "STORE_LOCAL" slot))
+    }
+    # I reuse this exact span expression at each substitution and at the end.
+    let span: string = (+ (nisa_line_imm "LOAD_LOCAL" result)
+        (+ (nisa_line_imm "LOAD_LOCAL" template)
+        (+ (nisa_line_imm "LOAD_LOCAL" start)
+        (+ (nisa_line_imm "LOAD_LOCAL" index)
+        (+ (nisa_line_imm "LOAD_LOCAL" start)
+        (+ (nisa_line "I64_SUB") (+ (nisa_line "STR_SUBSTR") (nisa_line "STR_CONCAT"))))))))
+    set text (+ text (nisa_label_line top))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" template))
+    set text (+ text (nisa_line "STR_LEN"))
+    set text (+ text (nisa_line "I64_LT_S"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" done))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" used))
+    set text (+ text (nisa_line_imm "PUSH_I64" (int_to_string (- call.arg_count 1))))
+    set text (+ text (nisa_line "I64_LT_S"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" literal))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" template))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line "STR_CHAR_AT"))
+    set text (+ text (nisa_line_imm "PUSH_I64" "37"))
+    set text (+ text (nisa_line "I64_EQ"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" literal))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" template))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_ADD"))
+    set text (+ text (nisa_line "STR_CHAR_AT"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" code))
+    let markers: array<int> = [115,100,102,103]
+    for marker_index in (range 0 4) {
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" code))
+        set text (+ text (nisa_line_imm "PUSH_I64" (int_to_string (at markers marker_index))))
+        set text (+ text (nisa_line "I64_EQ"))
+        if (> marker_index 0) { set text (+ text (nisa_line "OR")) }
+    }
+    set text (+ text (nisa_line_imm "JMP_FALSE" literal))
+    set text (+ text span)
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" parts))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" used))
+    set text (+ text (nisa_line "ARR_GET"))
+    set text (+ text (nisa_line "STR_CONCAT"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" result))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" used))
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_ADD"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" used))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "PUSH_I64" "2"))
+    set text (+ text (nisa_line "I64_ADD"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" index))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" start))
+    set text (+ text (nisa_line_imm "JMP" top))
+    set text (+ text (nisa_label_line literal))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_ADD"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" index))
+    set text (+ text (nisa_line_imm "JMP" top))
+    set text (+ text (nisa_label_line done))
+    return (+ text span)
+}
+shadow nisa_emit_format {
+    let text: string = (nanoisa_emit_nasm "fn main()->int{let result:string=(format \"%s/%d\" \"x\" 7) assert (== result \"x/7\") return 0}")
+    assert nisa_ok
+    assert (str_contains text "STR_CHAR_AT")
+    assert (str_contains text "CAST_STRING")
+    assert (str_contains text "STR_SUBSTR")
+    assert (not (str_contains text "CALL_EXTERN"))
+    assert (== (nanoisa_emit_nasm "fn main()->int{(format) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{(format 7) return 0}") "")
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (nisa_indirect_call parser call) { return (nisa_emit_indirect_call parser call) }
     let function_name: string = (nisa_call_name parser call)
@@ -6662,6 +6781,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
     }
     if (< declared_index 0) {
+        if (== function_name "format") { return (nisa_emit_format parser call) }
         if (or (== function_name "array_pop") (== function_name "array_remove_at")) { return (nisa_emit_array_removal parser call function_name) }
         if (nisa_is_list_free function_name) { return (nisa_emit_list_free parser call function_name) }
         if (== function_name "array_slice") { return (nisa_emit_array_slice parser call) }

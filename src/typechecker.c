@@ -3028,12 +3028,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
-            /* Special handling for format builtin - variadic string interpolation */
-            if (strcmp(expr->as.call.name, "format") == 0) {
+            /* I retain a declared function's own signature before builtin format. */
+            Function *format_definition = strcmp(expr->as.call.name, "format") == 0
+                ? env_get_function_at(env, "format", expr->line, expr->column) : NULL;
+            if (strcmp(expr->as.call.name, "format") == 0 &&
+                (!format_definition || (!format_definition->body &&
+                 !format_definition->is_extern && !format_definition->params))) {
                 if (expr->as.call.arg_count < 1) {
                     emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
-                        "format requires at least 1 argument (the template string).",
-                        "Usage: format(\"Hello %s\", name)");
+                        "I require a string template argument for format.",
+                        "Use (format \"Hello %s\" name).");
                     return TYPE_UNKNOWN;
                 }
                 Type template_type = check_expression(expr->as.call.args[0], env);
