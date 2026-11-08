@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1081 I retain the [historical d054 terminal](evidence/junit-route-checkpoints-20261107/d054/README.md): all four routes select 237 original cases with zero skips, with 237/235/180/180 passes. Three ZIPs pass CRC and the embedded temporary TAR verifies all three entries. Later corrections remain separately pinned; this old failure is not current stage acceptance.
+
 - [ ] Under #1096 I preserve the original complete dynamic-array fixture and repair missing self-hosted array_pop/array_remove_at metadata, checking and canonical opcode emission. I retain lexical binding identity, once-only operand order, one-result pop, mutation aliases, existing consumer empty/out-of-range behavior, malformed prior-output controls and meaningful shadows. I audit the C checker's currently permissive missing-function fallback, then require both fresh stages, complete translator/units and integrated platform acceptance.
 
 - [x] Under #1094/#1095 I retain my [arithmetic/casting C-frontend checkpoint](evidence/array-cast-qualified-20261108/README.md): paired GCC/Clang pass all 57 corrected arithmetic methods at 967 and all 61 casting-inclusive methods at e088, original C units and full translator gates. All seven original raw refusal controls execute. Six original artifacts retain both earlier seven-error failures and later successes; fresh self-hosted and integrated acceptance remain open.

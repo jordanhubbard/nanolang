@@ -1,0 +1,15 @@
+{
+  "size": 3185016,
+  "sha256": "5e51da68a28c1c71c642ee16f3979b1d75851505989641a3d0df5e2b6c32688e",
+  "files": 437,
+  "text_files": 416,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": ".test_output/junit-route-audit/storage/nano-qualification-y1l890fu.tar.gz",
+      "sha256": "a754fa42cab5bc2d11b3696f01941bf5bc6acfac319962ec2d86654f156bcee4",
+      "entries": 3,
+      "verified": true
+    }
+  ]
+}

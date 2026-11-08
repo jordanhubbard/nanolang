@@ -1,0 +1,7 @@
+# My retained d054 original-route terminal
+
+I retain failed [run 42458034637](https://github.com/jordanhubbard/nanolang/actions/runs/42458034637) at `d054b8373c8c6b54ef5b18751716cb1e52d563f0`. Each route selects 237 original cases with zero skips: C native passes 237, C-frontend NanoVM passes 235 with two failures, and each fresh self-hosted stage passes 180 with 57 failures. All nine canonical-string methods pass through each of the three NanoISA source providers. Full diagnostics and original ordered reports remain in my exact-text bundles.
+
+This historical pin predates the 78d record-array repair and later numeric, math, array, map and casting work. Its focused operand suite reports 24 failed subcases across 16 methods, including an obsolete built-in-print redefinition diagnostic expectation. I preserve those actual failures rather than applying later source or harness outcomes to this earlier run. My later 78d receipt already records both C routes at 237 passes; complete stage acceptance remains open under #1081.
+
+All three ZIPs pass CRC and have complete uploaded-file SHA-256 inventories. Exact-text bundles restore original UTF-8 bytes; uploaded binaries remain private. The embedded successful temporary TAR independently matches its recorded hash and all three inventory entries (one directory and two files). The separate failed-root ZIP retains its two uploaded files. Direct ZIP custody does not establish original filesystem modes or symlinks.
