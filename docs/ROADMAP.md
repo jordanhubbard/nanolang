@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1099 I retain the original legacy par-let fixture and repair missing void result metadata for actual builtin print/println so a consumed print argument is not followed by an extra POP. I preserve value-result dropping, legal bound function signatures and binding scope, add meaningful metadata/emitter shadows and runtime controls, then require both fresh stages, full translator/units and integrated corpus/platform acceptance. Existing sequential behavior and independence checks remain unchanged.
+
 - [ ] Under #1097 I retain the [corrected 3b unit/runtime checkpoint](evidence/format-source-20261108/first-3b/README.md) and one remaining harness failure among 74 methods: my direct format function-definition positive contradicts the C frontend's existing reserved-name refusal. I retain that full failure, replace the invalid positive with a legal direct STRING-result wrapper, add an explicit C-unit reserved-definition refusal, preserve legal bound function values and require a fresh complete paired checkpoint. The whole original format fixture and four other format methods already pass at 3b; I do not call that whole job green.
 
 - [ ] Under #1098 I restore the existing bare opaque type token in my self-hosted parser, preserve the unchanged original unused-extern fixture and assert parsed spelling, parameter metadata and token consumption in useful shadows. I require fresh original-route/platform acceptance and leave native FFI admission, pointer forging and nominal identity unchanged.

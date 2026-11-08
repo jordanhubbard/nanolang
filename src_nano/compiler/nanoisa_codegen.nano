@@ -4573,6 +4573,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return (at parts (- (array_length parts) 1))
         }
         let target_name: string = (nisa_call_name parser call)
+        if (and (nisa_is_print_builtin target_name) (< (nisa_call_index parser call) 0)) { return "void" }
         if (and (== target_name "format") (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (< (nisa_call_index parser call) 0) (or (== target_name "array_pop") (== target_name "array_remove_at"))) {
             let container: string = (nisa_array_removal_container parser call target_name)
@@ -4700,6 +4701,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let print_reset: int = (nisa_reset)
+    let print_tokens: List<LexerToken> = (tokenize_string "fn main()->int{(print 1) (println 2) return 0}" "print-result.nano" (diag_list_new))
+    let print_parser: Parser = (parse_program print_tokens (list_LexerToken_length print_tokens) "print-result.nano")
+    assert (== (nisa_expr_type print_parser 0 ParseNodeType.PNODE_CALL) "void")
+    assert (== (nisa_expr_type print_parser 1 ParseNodeType.PNODE_CALL) "void")
     let format_reset: int = (nisa_reset)
     let format_tokens: List<LexerToken> = (tokenize_string "fn main()->string{return (format \"%s\" 7)}" "format-result.nano" (diag_list_new))
     let format_parser: Parser = (parse_program format_tokens (list_LexerToken_length format_tokens) "format-result.nano")
@@ -8261,6 +8267,13 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
 }
 
 shadow nisa_emit_stmt {
+    let legacy_print: string = (nanoisa_emit_nasm "fn main()->int{par-let x=3 y=12 in (println x) return (+ x y)}")
+    assert nisa_ok
+    assert (str_contains legacy_print "PRINTLN")
+    assert (not (str_contains legacy_print "PRINTLN\n  POP"))
+    let legacy_value: string = (nanoisa_emit_nasm "fn main()->int{par-let x=3 y=12 in (+ x y) return (+ x y)}")
+    assert nisa_ok
+    assert (str_contains legacy_value "I64_ADD\n  POP")
     let _: int = (nisa_reset)
     let printed: string = (nanoisa_emit_nasm "fn main()->int{print 7 println 8 return 0} shadow main{assert (== (main) 0)}")
     assert nisa_ok
