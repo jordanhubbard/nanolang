@@ -68,7 +68,11 @@ typedef struct {
     char **field_names;      /* Array of field names */
     Value *field_values;     /* Array of field values */
     int field_count;         /* Number of fields */
+    bool packed_names;       /* I own one allocation for type and field names. */
 } StructValue;
+
+StructValue *allocate_struct_carrier(const char *name, char **fields, int field_count);
+void release_struct_carrier_names(StructValue *record);
 
 /* Union value (tagged union) */
 typedef struct {

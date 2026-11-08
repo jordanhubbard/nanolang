@@ -4163,13 +4163,10 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 /* Handle different value types */
                 if (args[1].type == VAL_STRUCT) {
                     /* Allocate struct on heap and store pointer */
-                    StructValue *sv_copy = malloc(sizeof(StructValue));
-                    sv_copy->struct_name = strdup(args[1].as.struct_val->struct_name);
-                    sv_copy->field_count = args[1].as.struct_val->field_count;
-                    sv_copy->field_names = malloc(sizeof(char*) * sv_copy->field_count);
-                    sv_copy->field_values = malloc(sizeof(Value) * sv_copy->field_count);
+                    StructValue *sv_copy = allocate_struct_carrier(
+                        args[1].as.struct_val->struct_name, args[1].as.struct_val->field_names,
+                        args[1].as.struct_val->field_count);
                     for (int i = 0; i < sv_copy->field_count; i++) {
-                        sv_copy->field_names[i] = strdup(args[1].as.struct_val->field_names[i]);
                         sv_copy->field_values[i] = args[1].as.struct_val->field_values[i];
                         /* Deep-copy strings so they outlive the caller's stack frame */
                         if (sv_copy->field_values[i].type == VAL_STRING && sv_copy->field_values[i].as.string_val) {
@@ -5027,17 +5024,9 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
         return_value = create_function(result.as.function_val.function_name, sig_copy);
     } else if (result.type == VAL_STRUCT && result.as.struct_val) {
         StructValue *src = result.as.struct_val;
-        StructValue *dst = malloc(sizeof(StructValue));
-        if (!dst) {
-            fprintf(stderr, "Error: Out of memory copying struct return value\n");
-            exit(1);
-        }
-        dst->struct_name = strdup(src->struct_name);
-        dst->field_count = src->field_count;
-        dst->field_names = malloc(sizeof(char*) * dst->field_count);
-        dst->field_values = malloc(sizeof(Value) * dst->field_count);
+        StructValue *dst = allocate_struct_carrier(src->struct_name, src->field_names,
+                                                    src->field_count);
         for (int i = 0; i < dst->field_count; i++) {
-            dst->field_names[i] = strdup(src->field_names[i]);
             dst->field_values[i] = src->field_values[i];
             if (dst->field_values[i].type == VAL_STRING && dst->field_values[i].as.string_val) {
                 dst->field_values[i].as.string_val = strdup(dst->field_values[i].as.string_val);

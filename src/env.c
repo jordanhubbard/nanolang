@@ -310,9 +310,9 @@ static void env_free_value(Value v) {
     if (v.type == VAL_STRUCT) {
         StructValue *sv = v.as.struct_val;
         if (!sv) return;
-        free(sv->struct_name);
+
         for (int j = 0; j < sv->field_count; j++) {
-            free(sv->field_names[j]);
+
             if (sv->field_values[j].type == VAL_STRING) {
                 /* Release GC-managed strings in struct fields */
                 if (gc_is_managed(sv->field_values[j].as.string_val)) {
@@ -322,7 +322,7 @@ static void env_free_value(Value v) {
                 }
             }
         }
-        free(sv->field_names);
+        release_struct_carrier_names(sv);
         free(sv->field_values);
         free(sv);
         return;
@@ -413,16 +413,16 @@ static void env_release_array(EnvArrayReclaim *ctx, Array *arr) {
                     env_release_array(ctx, sv->field_values[j].as.array_val);
             }
             for (int j = 0; j < sv->field_count; j++) {
-                free(sv->field_names[j]);
+
                 Value f = sv->field_values[j];
                 if (f.type == VAL_STRING) {
                     if (gc_is_managed(f.as.string_val)) gc_release(f.as.string_val);
                     else free(f.as.string_val);
                 }
             }
-            free(sv->field_names);
+            release_struct_carrier_names(sv);
             free(sv->field_values);
-            free(sv->struct_name);
+
             free(sv);
         }
     } else if (arr->element_type == VAL_FUNCTION) {
@@ -1261,24 +1261,66 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     return v;
 }
 
+static void struct_carrier_allocation_failure(void) {
+    fputs("I could not allocate an interpreter record.\n", stderr);
+    abort();
+}
+
+/* I allocate owned names separately from each caller's value-copy policy. */
+StructValue *allocate_struct_carrier(const char *name, char **fields, int field_count) {
+    if (!name || field_count < 0 || (field_count && !fields))
+        struct_carrier_allocation_failure();
+    size_t count = (size_t)field_count;
+    if (count > SIZE_MAX / sizeof(char *) || count > SIZE_MAX / sizeof(Value))
+        struct_carrier_allocation_failure();
+    size_t pointers = count * sizeof(char *);
+    size_t bytes = pointers;
+    size_t length = strlen(name);
+    if (length >= SIZE_MAX - bytes) struct_carrier_allocation_failure();
+    bytes += length + 1;
+    for (size_t i = 0; i < count; ++i) {
+        if (!fields[i]) struct_carrier_allocation_failure();
+        length = strlen(fields[i]);
+        if (length >= SIZE_MAX - bytes) struct_carrier_allocation_failure();
+        bytes += length + 1;
+    }
+    StructValue *record = malloc(sizeof *record);
+    char *storage = malloc(bytes);
+    Value *values = malloc(count ? count * sizeof(Value) : 1);
+    if (!record || !storage || !values) struct_carrier_allocation_failure();
+    record->field_names = (char **)storage;
+    record->field_values = values;
+    record->field_count = field_count;
+    record->packed_names = true;
+    char *next = storage + pointers;
+    length = strlen(name) + 1;
+    record->struct_name = next;
+    memcpy(next, name, length);
+    next += length;
+    for (size_t i = 0; i < count; ++i) {
+        length = strlen(fields[i]) + 1;
+        record->field_names[i] = next;
+        memcpy(next, fields[i], length);
+        next += length;
+    }
+    return record;
+}
+
+void release_struct_carrier_names(StructValue *record) {
+    if (!record->packed_names) {
+        free(record->struct_name);
+        for (int i = 0; i < record->field_count; ++i) free(record->field_names[i]);
+    }
+    free(record->field_names);
+}
+
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
     Value v;
     v.type = VAL_STRUCT;
     v.is_return = false;
     v.is_break = false;
     v.is_continue = false;
-    v.as.struct_val = malloc(sizeof(StructValue));
-    v.as.struct_val->struct_name = strdup(struct_name);
-    v.as.struct_val->field_count = field_count;
-    
-    /* Allocate and copy field names */
-    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_names[i] = strdup(field_names[i]);
-    }
-    
-    /* Allocate and copy field values */
-    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
+    v.as.struct_val = allocate_struct_carrier(struct_name, field_names, field_count);
     for (int i = 0; i < field_count; i++) {
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";

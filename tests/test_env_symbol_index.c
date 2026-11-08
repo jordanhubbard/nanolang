@@ -224,6 +224,55 @@ static void check_builtin_registry_selection(void) {
     free_environment(env);
 }
 
+/* I keep metadata detached and retain both carrier storage/cleanup forms. */
+static void check_record_carriers(void) {
+    GCStats before = gc_get_stats();
+    char name[] = "é";
+    char field[] = "茶";
+    char *fields[] = {field};
+    Value text = create_string("detached");
+    Value record = create_struct(name, fields, &text, 1);
+    name[0] = 'x'; field[0] = 'x';
+    gc_release(text.as.string_val);
+    assert(!strcmp(record.as.struct_val->struct_name, "é"));
+    assert(!strcmp(record.as.struct_val->field_names[0], "茶"));
+    assert(!strcmp(record.as.struct_val->field_values[0].as.string_val, "detached"));
+    env_free_value(record);
+    env_free_value(create_struct("", NULL, NULL, 0));
+
+    char *nested_names[] = {"inner"};
+    Value source = create_string("nested");
+    Value inner = create_struct("Inner", nested_names, &source, 1);
+    Value outer = create_struct("Outer", nested_names, &inner, 1);
+    Value held = outer.as.struct_val->field_values[0];
+    assert(held.as.struct_val != inner.as.struct_val);
+    gc_release(source.as.string_val);
+    env_free_value(inner);
+    assert(!strcmp(held.as.struct_val->field_values[0].as.string_val, "nested"));
+    /* I retain the existing explicit nested-carrier cleanup boundary. */
+    env_free_value(held);
+    env_free_value(outer);
+
+    Value array = create_array(VAL_STRUCT, 2, 2);
+    StructValue **items = array.as.array_val->data;
+    Value value = create_string("packed");
+    items[0] = create_struct("Packed", nested_names, &value, 1).as.struct_val;
+    gc_release(value.as.string_val);
+    /* I also accept caller-created, separately allocated metadata. */
+    items[1] = calloc(1, sizeof *items[1]);
+    items[1]->struct_name = strdup("Legacy");
+    items[1]->field_count = 1;
+    items[1]->field_names = malloc(sizeof(char *));
+    items[1]->field_names[0] = strdup("held");
+    items[1]->field_values = malloc(sizeof(Value));
+    items[1]->field_values[0] = create_string("legacy");
+    EnvArrayReclaim reclaim = {0};
+    env_release_array(&reclaim, array.as.array_val);
+    free(reclaim.freed);
+    GCStats after = gc_get_stats();
+    assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
+}
+
 static void check_fresh_string_copy(void) {
     Environment *env = create_environment();
     Value caller = create_string("caller storage");
@@ -292,6 +341,7 @@ static void check_string_self_assignment(void) {
 int main(void) {
     gc_init();
     check_function_index();
+    check_record_carriers();
     check_builtin_registry_selection();
     check_string_self_assignment();
     check_fresh_string_copy();
