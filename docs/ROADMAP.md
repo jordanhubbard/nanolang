@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1087 I retain the [measured VM runner correction](evidence/vm-runner-stack-20261107/corrected-4adda/README.md): identical selected Clang O1 ASan/UBSan flags measure 130,930,392 bytes before and 24 bytes after, and fresh GCC/Clang each execute all 274,654 original VM assertions with zero failures. Every original fixture invocation remains; complete units, platform gates and general VM stack safety remain separate.
+
 - [ ] Under #1088 I preserve NanoVM's required guest-argument separator in both direct native checker qualification and comprehensive VM invocation. At b7e4bf366 the actual C-seed native helper passes all four CLI contracts; the VM correctly refuses arguments without --. I retain that exact transport failure and require corrected actual native/VM outcomes with unchanged expected statuses and source.
 
 - [ ] Under #1046/#1053 I retain the next exact GCC restrict refusal in object slot extension, use overlap-safe copying of the same fixed-width selector, and run the existing full ordinary/instrumented compiler profile audit to collect remaining diagnostics together. I preserve all strict flags, source/test/private profiles and the required fast budget; the separate measured profile tier is not release or fast-gate acceptance.
