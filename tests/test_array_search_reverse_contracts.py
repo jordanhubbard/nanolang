@@ -41,6 +41,24 @@ class ArraySearchReverseContracts(unittest.TestCase):
 shadow main{assert (== (main) 0)}
 ''')
 
+    def test_byte_elements_and_empty_storage(self):
+        self.exercise('''fn main()->int{
+ let bytes:array<u8> = [255,0]
+ let reversed:array<u8> = (array_reverse bytes)
+ assert (!= bytes reversed)
+ assert (== (cast_int (at reversed 0)) 0)
+ assert (== (cast_int (at reversed 1)) 255)
+ assert (== (array_index_of bytes (at bytes 0)) 0)
+ assert (array_contains bytes (at bytes 1))
+ let empty:array<u8> = []
+ let copied:array<u8> = (array_reverse empty)
+ assert (== (array_length copied) 0)
+ assert (!= empty copied)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''')
+
     def test_lexical_bindings_keep_their_signatures(self):
         self.exercise('''fn kept(value:int)->int{return (+ value 1)}
 shadow kept{assert (== (kept 2) 3)}
