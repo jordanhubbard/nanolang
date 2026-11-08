@@ -930,9 +930,9 @@ static int try_eval_bool_const(ASTNode *expr) {
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
 /* I bind arguments in source order before entering an ordinary C call. */
-static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
+static unsigned build_ordered_call_args_with_callee(WorkList *list, ASTNode **args,
                                         int arg_count, Environment *env,
-                                        const char *callee_value) {
+                                        const char *callee_value, ASTNode *callee_expr) {
     static _Thread_local unsigned next_call_id;
     unsigned call_id;
     bool available;
@@ -947,7 +947,11 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
             if (env && env_get_var(env, name)) available = false;
         }
     } while (!available);
-    if (callee_value) {
+    if (callee_expr) {
+        emit_formatted(list, "__auto_type __nl_callee_%u = ", call_id);
+        build_expr(list, callee_expr, env);
+        emit_literal(list, "; ");
+    } else if (callee_value) {
         emit_formatted(list, "__auto_type __nl_callee_%u = %s; ", call_id, callee_value);
     }
     for (int i = 0; i < arg_count; ++i) {
@@ -956,6 +960,13 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
         emit_literal(list, "; ");
     }
     return call_id;
+}
+
+static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
+                                        int arg_count, Environment *env,
+                                        const char *callee_value) {
+    return build_ordered_call_args_with_callee(list, args, arg_count, env,
+                                              callee_value, NULL);
 }
 
 /* I preserve the source-level zero spelling for an opaque null after call
@@ -1781,13 +1792,16 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (!func_name) {
                 /* This is a function pointer call - use func_expr */
                 if (expr->as.call.func_expr) {
-                    build_expr(list, expr->as.call.func_expr, env);
-                    emit_literal(list, "(");
+                    emit_literal(list, "({ ");
+                    unsigned call_id = build_ordered_call_args_with_callee(list,
+                        expr->as.call.args, expr->as.call.arg_count, env,
+                        NULL, expr->as.call.func_expr);
+                    emit_formatted(list, "__nl_callee_%u(", call_id);
                     for (int i = 0; i < expr->as.call.arg_count; i++) {
                         if (i > 0) emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                     }
-                    emit_literal(list, ")");
+                    emit_literal(list, "); })");
                 }
                 break;
             }

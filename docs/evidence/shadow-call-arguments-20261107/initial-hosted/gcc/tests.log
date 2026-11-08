@@ -1,0 +1,75 @@
+test_actual_carrier_inline_heap_cleanup_and_denial (tests.test_eval_call_arguments.EvalCallArguments.test_actual_carrier_inline_heap_cleanup_and_denial) ... ok
+test_failed_large_call_shadow_preserves_prior_output (tests.test_eval_call_arguments.EvalCallArguments.test_failed_large_call_shadow_preserves_prior_output) ... ok
+test_large_call_propagates_handler_return_before_later_arguments (tests.test_eval_call_arguments.EvalCallArguments.test_large_call_propagates_handler_return_before_later_arguments) ... 
+  test_large_call_propagates_handler_return_before_later_arguments (tests.test_eval_call_arguments.EvalCallArguments.test_large_call_propagates_handler_return_before_later_arguments) (mode='computed') ... FAIL
+test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) ... 
+  test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=16, mode='computed') ... FAIL
+  test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=17, mode='computed') ... FAIL
+  test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=64, mode='computed') ... FAIL
+test_computed_callee_precedes_arguments (tests.test_callee_snapshots.CalleeSnapshots.test_computed_callee_precedes_arguments) ... ok
+test_mutated_function_binding (tests.test_callee_snapshots.CalleeSnapshots.test_mutated_function_binding) ... ok
+I exercise source compiler providers: nanoc_c, nano_virt
+test_known_wrong_string_operands_preserve_prior_output (tests.test_builtin_string_operands.BuiltinStringOperands.test_known_wrong_string_operands_preserve_prior_output) ... ok
+test_lexical_function_binding_keeps_its_signature (tests.test_builtin_string_operands.BuiltinStringOperands.test_lexical_function_binding_keeps_its_signature) ... ok
+test_qualified_module_function_keeps_its_signature (tests.test_builtin_string_operands.BuiltinStringOperands.test_qualified_module_function_keeps_its_signature) ... ok
+test_real_declaration_keeps_its_parameter_and_result (tests.test_builtin_string_operands.BuiltinStringOperands.test_real_declaration_keeps_its_parameter_and_result) ... ok
+test_valid_empty_whitespace_utf8_and_nested_strings (tests.test_builtin_string_operands.BuiltinStringOperands.test_valid_empty_whitespace_utf8_and_nested_strings) ... ok
+test_wrong_arities_preserve_prior_output (tests.test_builtin_string_operands.BuiltinStringOperands.test_wrong_arities_preserve_prior_output) ... ok
+test_declared_cast_names_keep_their_function_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_declared_cast_names_keep_their_function_results) ... ok
+test_direct_cast_returns_and_single_interpolation_execute_once (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_direct_cast_returns_and_single_interpolation_execute_once) ... ok
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... ok
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... ok
+test_original_complete_fstring_fixture (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_original_complete_fstring_fixture) ... ok
+test_raw_cast_string_retains_its_reference_format (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_raw_cast_string_retains_its_reference_format) ... ok
+test_source_float_text_and_once_only_arguments (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_source_float_text_and_once_only_arguments) ... ok
+test_wrong_cast_arities_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_cast_arities_preserve_output) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... ok
+
+======================================================================
+FAIL: test_large_call_propagates_handler_return_before_later_arguments (tests.test_eval_call_arguments.EvalCallArguments.test_large_call_propagates_handler_return_before_later_arguments) (mode='computed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 112, in test_large_call_propagates_handler_return_before_later_arguments
+    self.command([Path(tmp) / 'native'])
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 56, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Contract violation at line 23: (== calls 0)
+
+
+======================================================================
+FAIL: test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=16, mode='computed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 69, in test_valid_inline_boundary_and_large_direct_lexical_computed_calls
+    self.command([directory / 'native'])
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 56, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Contract violation at line 4: (== calls value)
+
+
+======================================================================
+FAIL: test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=17, mode='computed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 69, in test_valid_inline_boundary_and_large_direct_lexical_computed_calls
+    self.command([directory / 'native'])
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 56, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Contract violation at line 4: (== calls value)
+
+
+======================================================================
+FAIL: test_valid_inline_boundary_and_large_direct_lexical_computed_calls (tests.test_eval_call_arguments.EvalCallArguments.test_valid_inline_boundary_and_large_direct_lexical_computed_calls) (count=64, mode='computed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 69, in test_valid_inline_boundary_and_large_direct_lexical_computed_calls
+    self.command([directory / 'native'])
+  File "/home/runner/work/nanolang/nanolang/tests/test_eval_call_arguments.py", line 56, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Contract violation at line 4: (== calls value)
+
+
+----------------------------------------------------------------------
+Ran 21 tests in 37.205s
+
+FAILED (failures=4)

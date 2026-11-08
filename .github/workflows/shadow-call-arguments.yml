@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/shadow-call-arguments.yml'
       - 'src/eval.c'
+      - 'src/transpiler_iterative_v3_twopass.c'
       - 'src/eval/call_arguments.h'
       - 'tests/test_eval_call_arguments.py'
       - 'Makefile.gnu'
@@ -73,7 +74,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_eval_call_arguments tests.test_callee_snapshots tests.test_builtin_string_operands tests.test_canonical_string_builtins \
+          python3 -m unittest -v tests.test_eval_call_arguments tests.test_native_call_argument_order tests.test_callee_snapshots tests.test_builtin_string_operands tests.test_canonical_string_builtins \
             2>&1 | tee .test_output/shadow-call-arguments/tests.log
       - name: Execute the complete original interpreter unit suite
         if: always() && steps.providers.outcome == 'success'
