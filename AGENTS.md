@@ -1,5 +1,24 @@
 # Agent Instructions
 
+## Worktree Location
+
+I keep my primary checkout at `~/Src/nanolang`. I create all additional linked
+worktrees under `~/.worktrees/nanolang/<name>`, including detached checkouts
+for qualification. I do not create sibling worktrees under `~/Src` or put
+scratch worktrees in another source repository. An explicit user-supplied
+location takes precedence.
+
+```bash
+mkdir -p ~/.worktrees/nanolang
+git worktree add ~/.worktrees/nanolang/<name> <branch-or-commit>
+```
+
+I use `git worktree move` to relocate an existing worktree after checking for
+active processes and container mounts. I preserve its revision, local changes,
+untracked files and retained evidence, then verify its Git registration and
+status. I reconfigure path-dependent build environments before reusing them;
+relocation does not qualify old build outputs at the new path.
+
 ## Skills — Tool-Neutral, Read Them First
 
 Portable [Agent Skills](https://code.claude.com/docs/en/skills) live in

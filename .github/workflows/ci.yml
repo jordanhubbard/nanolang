@@ -84,7 +84,7 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     needs: fast-gate
     if: needs.fast-gate.outputs.code == 'true'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
     # I budget bootstrap and both service generations separately from the general suite. Hosted run
     # 38394591256 cancelled both Linux jobs at exactly 240 minutes: setup about 18, bootstrap about 70,
@@ -105,6 +105,7 @@ jobs:
             allow_failure: true
           - os: macos-14
             arch: arm64
+            runner: xcode-27
       fail-fast: false
 
     steps:
@@ -333,7 +334,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x64
-          - os: macos-14
+          - os: xcode-27
             arch: arm64
 
     steps:
