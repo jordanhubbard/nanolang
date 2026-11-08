@@ -1,0 +1,7 @@
+# My pinned scalar byte arithmetic component checkpoint
+
+I qualify source `cd0a4aa0a2df7fd28159523a0efc87458dde7406` in [run 42483191713](https://github.com/jordanhubbard/nanolang/actions/runs/42483191713). GCC and Clang both pass all 101 component methods, original C parser/typechecker tests, both six-method array alias suites, 2443 translator assertions and 3866 shape constraints. My production-main scalar arithmetic control checks mixed U8/INT operations, evaluation order and computed narrowing; the negative control preserves other operand types and prior output.
+
+I independently verify each full artifact ZIP by CRC, inventory every file by SHA-256 and retain all UTF-8 text in deterministic compressed records. The embedded translator archives match their manifests but contain zero entries after cleanup; they do not establish original translator product custody. Artifacts are 13618826224 (GCC) and 13618536314 (Clang); exact ZIP hashes and private locations follow the archive records and audit directory `~/.worktrees/nanolang/audits/2026-11-07/arithmetic-cd0/`.
+
+I separately verify the actual sanitized native arithmetic ELF in each ZIP, its seven zero-exit commands, exact source hash and unchanged provider hashes. `arithmetic-native-products.json` records these products. This component uses the C-created bytecode compiler; it does not qualify my corrected self-hosted source result query. Fresh Stage 1/2, whole original-route budget, Apple and integrated release acceptance remain open under #1105/#1102.

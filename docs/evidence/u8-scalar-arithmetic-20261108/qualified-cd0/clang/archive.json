@@ -1,0 +1,15 @@
+{
+  "size": 52591939,
+  "sha256": "b22cf7acd865029950a45bc3a013273303dd89020eac7d22c9be9aafe017088f",
+  "files": 2311,
+  "text_files": 2124,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-9wx_zp0i.tar.gz",
+      "sha256": "cd1f03c997d63f4a1f40febc11edccf866af9b39f92fc822bb1409b805525f58",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
