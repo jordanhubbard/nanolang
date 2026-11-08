@@ -5642,7 +5642,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_builtin_function fn_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
-        if (and (is_float_math_builtin fn_name) (>= (env_lookup symbols fn_name) 0)) {
+        if (and (or (is_float_math_builtin fn_name) (== fn_name "str_trim")) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (and (or (== fn_name "abs") (or (== fn_name "min") (== fn_name "max"))) (>= (env_lookup symbols fn_name) 0)) {
@@ -6003,6 +6003,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 
 shadow check_expr_node {
     (mb_reset [])
+    let trim_parser: Parser = (resource_test_parser "fn main()->bool{return (str_trim 7)}")
+    let trim_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let declared_trim: array<Symbol> = [(symbol_new "str_trim" (type_bool) false true 1 [(type_int)] (type_bool))]
+    assert (== (check_expr_node trim_parser 0 ParseNodeType.PNODE_CALL declared_trim trim_diags "trim.nano").kind TypeKind.TYPE_BOOL)
+    assert (== (list_CompilerDiagnostic_length trim_diags) 0)
     let map_parser: Parser = (resource_test_parser "fn main()->int{let values:HashMap<int,int> = (map_new) return 0}")
     let map_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let empty_map: NSType = (check_expr_node map_parser 0 ParseNodeType.PNODE_CALL [] map_diags "map.nano")

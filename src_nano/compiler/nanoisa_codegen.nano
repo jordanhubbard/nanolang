@@ -4816,6 +4816,27 @@ shadow nisa_array_value_matches {
 }
 
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (!= (nisa_map_value_type expected) "") {
+        if (== node_type ParseNodeType.PNODE_BLOCK) {
+            let block: ASTBlock = (parser_get_block parser node_id)
+            if (!= (list_ASTStmtRef_length block.statements) 1) { return (nisa_fail "I require one map value in each conditional branch") }
+            let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+            return (nisa_emit_expected_expr parser value.node_id value.node_type expected)
+        }
+        if (== node_type ParseNodeType.PNODE_IF) {
+            let choice: ASTIf = (parser_get_if parser node_id)
+            if (or (< choice.else_body 0) (!= (nisa_expr_type parser choice.condition choice.condition_type) "bool")) {
+                return (nisa_fail "I require a boolean condition and both map branches")
+            }
+            let alternate: string = (nisa_fresh)
+            let end: string = (nisa_fresh)
+            let condition: string = (nisa_emit_expr parser choice.condition choice.condition_type)
+            let left: string = (nisa_emit_expected_expr parser choice.then_body ParseNodeType.PNODE_BLOCK expected)
+            let right: string = (nisa_emit_expected_expr parser choice.else_body ParseNodeType.PNODE_BLOCK expected)
+            if (not nisa_ok) { return "" }
+            return (+ condition (+ (nisa_line_imm "JMP_FALSE" alternate) (+ left (+ (nisa_line_imm "JMP" end) (+ (nisa_label_line alternate) (+ right (nisa_label_line end)))))))
+        }
+    }
     if (and (== expected "int") (== (nisa_expr_type parser node_id node_type) "u8")) {
         return (+ (nisa_emit_expr parser node_id node_type) (nisa_line "CAST_INT"))
     }
@@ -4974,6 +4995,25 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    for key in ["int", "string"] {
+        for value in ["int", "string"] {
+            let pair: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
+            let source: string = (+ "fn choose(flag:bool)->" (+ pair (+ "{return (cond (flag (map_new)) (else (map_new)))} fn main()->int{let values:" (+ pair "=(choose true) return (map_size values)}"))))
+            let text: string = (nanoisa_emit_nasm source)
+            assert nisa_ok
+            let mut tags: string = "1"
+            if (== key "string") { set tags "5" }
+            set tags (+ tags " ")
+            if (== value "string") { set tags (+ tags "5") }
+            else { set tags (+ tags "1") }
+            let opcode: string = (+ "HM_NEW " tags)
+            assert (>= (str_index_of text opcode) 0)
+            assert (> (str_last_index_of text opcode) (str_index_of text opcode))
+        }
+    }
+    assert (== (nanoisa_emit_nasm "fn choose(flag:bool)->HashMap<int,int>{return (cond (flag (map_new)) (else 7))} fn main()->int{let values:HashMap<int,int>=(choose true) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn choose()->HashMap<int,int>{return (cond (1 (map_new)) (else (map_new)))} fn main()->int{let values:HashMap<int,int>=(choose) return 0}") "")
+    let reset_context: int = (nisa_reset)
     let map_tokens: List<LexerToken> = (tokenize_string "fn fresh()->HashMap<int,int>{return (map_new)}" "maps.nano" (diag_list_new))
     let map_parser: Parser = (parse_program map_tokens (list_LexerToken_length map_tokens) "maps.nano")
     assert (== (nisa_emit_expected_expr map_parser 0 ParseNodeType.PNODE_CALL "HashMap<int,int>") "  HM_NEW 1 1\n")
@@ -6591,6 +6631,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                 if (!= call.arg_count 3) {
                                     return (nisa_fail "str_substring needs 3 arguments")
                                 } else {
+                                    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                                    let start: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                                    let count: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+                                    if (or (!= (nisa_expr_type parser source.node_id source.node_type) "string")
+                                        (or (!= (nisa_expr_type parser start.node_id start.node_type) "int")
+                                            (!= (nisa_expr_type parser count.node_id count.node_type) "int"))) {
+                                        return (nisa_fail "I require a string and two integer bounds for str_substring")
+                                    }
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SUBSTR"))
                                 }
                             } else {
@@ -6639,6 +6687,12 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
 }
 
 shadow nisa_emit_call {
+    let slice: string = (nanoisa_emit_nasm "fn main()->string{return (str_substring \"abc\" 1 1)}")
+    assert nisa_ok
+    assert (str_contains slice "STR_SUBSTR")
+    assert (== (nanoisa_emit_nasm "fn main()->string{return (str_substring 7 0 1)}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->string{return (str_substring \"abc\" true 1)}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->string{return (str_substring \"abc\" 0 false)}") "")
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let src: string = (+ "f" "n len3() -> int { let xs: array<int> = [1, 2, 3] return (array_length xs) } shadow len3 { assert true }")
@@ -7703,6 +7757,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         # a tail call cannot replace a pending change of result tag.
         if (and (== nisa_return_type "u8") (!= (nisa_expr_type parser r.value r.value_type) "u8")) {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type "u8") (nisa_line "RET"))
+        }
+        if (and (!= (nisa_map_value_type nisa_return_type) "")
+                (or (== r.value_type ParseNodeType.PNODE_IF) (== r.value_type ParseNodeType.PNODE_BLOCK))) {
+            return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
         }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
                 (and (not (nisa_is_map_constructor parser r.value r.value_type))

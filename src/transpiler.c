@@ -1831,7 +1831,16 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
         sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
         sb_append(sb, "        if (e->state != 1) continue;\n");
-        sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        if (strcmp(key, "string") == 0) {
+            sb_append(sb, "        const char *source = e->key ? e->key : \"\";\n");
+            sb_append(sb, "        size_t length = strlen(source);\n");
+            sb_append(sb, "        char *copy = gc_alloc_string(length);\n");
+            sb_append(sb, "        if (!copy) { fputs(\"I cannot allocate a native map snapshot string.\\n\", stderr); abort(); }\n");
+            sb_append(sb, "        memcpy(copy, source, length + 1);\n");
+            sb_append(sb, "        dyn_array_push_string(out, copy);\n");
+        } else {
+            sb_appendf(sb, "        dyn_array_push_%s(out, e->key);\n", keys_push);
+        }
         sb_append(sb, "    }\n");
         sb_append(sb, "    return out;\n");
         sb_append(sb, "}\n\n");
@@ -1842,7 +1851,16 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    for (int64_t i2 = 0; i2 < hm->capacity; i2++) {\n");
         sb_appendf(sb, "        %s_Entry *e = &hm->entries[i2];\n", struct_name);
         sb_append(sb, "        if (e->state != 1) continue;\n");
-        sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        if (strcmp(val, "string") == 0) {
+            sb_append(sb, "        const char *source = e->value ? e->value : \"\";\n");
+            sb_append(sb, "        size_t length = strlen(source);\n");
+            sb_append(sb, "        char *copy = gc_alloc_string(length);\n");
+            sb_append(sb, "        if (!copy) { fputs(\"I cannot allocate a native map snapshot string.\\n\", stderr); abort(); }\n");
+            sb_append(sb, "        memcpy(copy, source, length + 1);\n");
+            sb_append(sb, "        dyn_array_push_string(out, copy);\n");
+        } else {
+            sb_appendf(sb, "        dyn_array_push_%s(out, e->value);\n", values_push);
+        }
         sb_append(sb, "    }\n");
         sb_append(sb, "    return out;\n");
         sb_append(sb, "}\n\n");

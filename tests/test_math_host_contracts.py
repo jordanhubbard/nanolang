@@ -97,8 +97,15 @@ shadow main{assert (== (main) 0)}
             'fn main()->int{unsafe{assert (== (foreign.exp 1.0) 42.0)} return 0}\n'
             'shadow main{assert (== (main) 0)}\n')
         self.command(work, 'source-build', [ROOT/'bin/nano_virt',source,'--emit-nvm','-o',module], build=True)
+        libraries = sorted({p.resolve() for p in provider.rglob('*')
+            if p.is_file() and p.suffix in ('.so', '.dylib')})
+        self.assertTrue(libraries, 'I require my actual selected provider bytes.')
+        before = {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries}
         self.command(work, 'verify', [ROOT/'bin/nano_vm','--verify-only',module])
         self.command(work, 'vm', [ROOT/'bin/nano_vm',module])
+        after = {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries}
+        (work/'libraries.json').write_text(json.dumps({'before':before,'after':after},indent=2)+'\n')
+        self.assertEqual(before, after)
         dump = self.command(work, 'dump', [ROOT/'bin/nanoisa','dump',module]).stdout
         self.assertRegex(dump, r'(?m)^\.import_kind [0-9]+ artifact$')
         self.assertNotIn('.import "" "exp"', dump)

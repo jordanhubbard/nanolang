@@ -146,7 +146,7 @@ shadow cleaned { assert (str_equals (cleaned " x ") "x") }
                         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                         self.assertEqual(output.read_bytes(), b'I retain prior output.\n')
                         if diagnostic is not None:
-                            self.assertIn(diagnostic, result.stderr)
+                            self.assertIn(diagnostic, result.stdout + result.stderr)
 
     def test_known_wrong_string_operands_preserve_prior_output(self):
         self.refuse(['(str_trim 1)', '(str_trim true)', '(str_length 1)',

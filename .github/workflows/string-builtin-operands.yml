@@ -2,7 +2,7 @@ name: Cached string builtin operand diagnosis
 
 on:
   push:
-    branches: [fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-legacy-print-statements, fix/5.1-empty-record-array-context, fix/5.1-numeric-selection, fix/5.1-math-host-contracts]
+    branches: [fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-legacy-print-statements, fix/5.1-empty-record-array-context, fix/5.1-numeric-selection, fix/5.1-math-host-contracts, fix/5.1-stage-source-contracts]
     paths:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
@@ -15,6 +15,8 @@ on:
       - 'tests/test_empty_record_array_contexts.py'
       - 'tests/test_numeric_builtin_selection.py'
       - 'tests/test_math_host_contracts.py'
+      - 'tests/test_map_constructor_contexts.py'
+      - 'tests/unit/test_map_constructor_contexts.nano'
       - 'src/typechecker.c'
       - 'src/nanoisa/nvm2c.c'
       - 'src/nanoisa/nvm2c_callables.c'
@@ -47,6 +49,7 @@ jobs:
       NANO_PRINT_STATEMENT_COMPILERS: nanoc_c,nano_virt
       NANO_EMPTY_RECORD_PROVIDERS: nanoc_c,nano_virt
       NANO_NUMERIC_PROVIDERS: nano_virt
+      NANO_MAP_CONTEXT_PROVIDERS: nanoc_c,nano_virt
       NANOLANG_SELFHOST_COMPILER: ${{ github.workspace }}/bin/nano_virt
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +93,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_map_constructor_contexts \
             2>&1 | tee .test_output/string-builtin-operands/tests.log
       - name: Retain complete original array alias regression routes
         if: always() && steps.providers.outcome == 'success'
@@ -129,4 +132,6 @@ jobs:
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
+            .test_output/map-constructor-contexts/
+          include-hidden-files: true
           if-no-files-found: error

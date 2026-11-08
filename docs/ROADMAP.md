@@ -1,5 +1,17 @@
 # My Roadmap
 
+- [x] Under #1081/#1083/#1084 I retain my [complete 2df source checkpoint](evidence/junit-route-checkpoints-20261107/2df/README.md): both bootstrap generations and all canonical string routes pass; original corpus totals remain 237/235/175/175 with zero skips. Exact map and string failure logs distinguish optional storage, map return context, native legacy snapshots, declared function typing and the harness's stderr-only premise.
+
+- [ ] Under #1084 I preserve actual string diagnostic text from either documented compiler stream, keep every refusal/status/prior-output assertion, reject the invalid substring receiver through self-hosted lowering, and retain a real declared str_trim result instead of substituting builtin STRING metadata. I qualify the unchanged runtime controls through fresh stages.
+
+- [ ] Under #1083 I propagate concrete map return context through conditional branches with genuine empty constructors, retaining boolean conditions, exact map pairs, declaration identity and mismatched branch refusals. The full 2df fixture now fails at the declared map return boundary; I keep its original source and assertions.
+
+- [ ] Under #1083 I detach map-owned strings in existing legacy C-native key/value snapshots using managed copies. My interpreter already duplicates its strings; the full 2df native product instead fails after replacement/clear. I preserve all four pairs and original snapshot assertions without turning a separate legacy extension into a new release gate.
+
+- [ ] Under #1083 I retain the full constructor and detached-snapshot matrix sources, commands, modules, generated C and failures under an owned diagnostic root, select actual C-frontend providers explicitly for bounded diagnosis, and trace the scalar-to-optional shape obligation without weakening exact map payloads, typed-array rules or the private STRING-key proof.
+
+- [ ] Under #1092 I include my owned fixture's hidden provider build in artifact custody and retain shared-library hashes before/after VM execution. The dfbb program proves selected artifact behavior; its original ZIP omits that hidden library.
+
 - [x] Under #1092 I retain my [corrected scalar math C-frontend/native checkpoint](evidence/math-host-contracts-20261107/dfbb/README.md): GCC and Clang each pass 38 methods, unchanged original math/vector/complex files, production execution of all 36 math symbols, selected artifact identity and source/import refusals. Hidden provider-library bytes were absent from that upload; their custody, later source visibility fixes and fresh-stage/platform acceptance remain open.
 
 - [ ] Under #1091 I retain the b7bcf56f6 Stage 1 lowering refusal: my new checker shadow uses unbound diag_list_new from its own module, although C-seed interpretation completed it. I use the checker module's existing list_CompilerDiagnostic_new constructor, preserve every numeric assertion, and require the same shadow through fresh self-hosted lowering.

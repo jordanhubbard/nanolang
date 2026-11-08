@@ -3,7 +3,7 @@ name: Complete JUnit producer-route diagnosis
 on:
   workflow_dispatch:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots, fix/5.1-legacy-print-statements, fix/5.1-numeric-selection, fix/5.1-math-host-contracts]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots, fix/5.1-legacy-print-statements, fix/5.1-numeric-selection, fix/5.1-math-host-contracts, fix/5.1-stage-source-contracts]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
@@ -169,6 +169,7 @@ jobs:
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
+            .test_output/map-constructor-contexts/
             .test_output/cli-run-contract-native/
             obj/bootstrap-nanoisa/**/manifest.json
             obj/bootstrap-nanoisa/**/*.log
