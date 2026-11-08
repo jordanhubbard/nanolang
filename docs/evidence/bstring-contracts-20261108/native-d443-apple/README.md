@@ -1,0 +1,5 @@
+# My d443 apple native scalar checkpoint
+
+I retain early artifact 13631644234 from [run 42517092994](https://github.com/jordanhubbard/nanolang/actions/runs/42517092994) at d4433627e94c98756e7f4bfebcb7600fc6683e53. My actual native binary-string adapter step succeeds. I inspect sixteen actual sanitized O0/O2 native products: six retained reference-boundary observations, the unchanged whole binary-string fixture and typed owner identity/snapshot/extreme-bound controls. Every recorded build/verify/run succeeds; before/after input hashes remain equal and actual product bytes match both execution-boundary hashes.
+
+I CRC-check the early ZIP in memory, retain every entry hash and exact UTF-8 text, and do not save the ZIP. This early receipt establishes these native scalar cases, including the twelve closed builtin operations. It does not establish full job success: subsequent source-emitter creation reaches the unchanged shadow deadline. Native array/higher-order, explicit generated collector/refusal, source/fresh/integration and release acceptance remain separate. I do not claim NativeSDK admission or TAR/mode custody.
