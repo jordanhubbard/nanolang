@@ -1,0 +1,192 @@
+{
+  "source": "85a64b36d4716b5bb59a69dafb7b0b5d178bce84",
+  "native_lifecycle_admitted": false,
+  "phase_breakdown_observed": false,
+  "routes": [
+    {
+      "provider": "nano_virt",
+      "compile_command": [
+        "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+        "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-tlorvm91/checker.nvm",
+        "--emit-nvm"
+      ],
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 4.246646161999706
+      },
+      "inputs_unchanged": true,
+      "outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "provider": "nanoc_c",
+      "compile_command": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+        "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-khba7wia/checker"
+      ],
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 36.81199650100007
+      },
+      "inputs_unchanged": true,
+      "outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "provider": "nanoc_stage1",
+      "compile_command": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_stage1",
+        "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage1-69db_1vl/checker"
+      ],
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 472.2477810419996
+      },
+      "inputs_unchanged": true,
+      "outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "provider": "nanoc_stage2",
+      "compile_command": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_stage2",
+        "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_stage2-uqg0ex7v/checker"
+      ],
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 474.80302102099995
+      },
+      "inputs_unchanged": true,
+      "outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ]
+    }
+  ]
+}

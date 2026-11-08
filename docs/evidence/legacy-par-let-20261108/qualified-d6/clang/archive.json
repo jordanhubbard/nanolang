@@ -1,0 +1,15 @@
+{
+  "size": 40089036,
+  "sha256": "5bf4e69012e1f2cfe196dc3a0c33cd29357362f6ad53dd8e87339a47596fe2db",
+  "files": 1594,
+  "text_files": 1449,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-1qbfp5m5.tar.gz",
+      "sha256": "d489eaeb059d14f9419ad02de1c1480ce19b1e2e3ee630015a77fcb5e69f7c9e",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
