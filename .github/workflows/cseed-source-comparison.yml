@@ -1,0 +1,65 @@
+name: Diagnostic alternating C-seed source creation
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: I require the complete baseline commit SHA.
+        type: string
+        default: 9baeba459e6ea4c7ebd6c0694cb05fef4d36f401
+        required: true
+      compiler:
+        description: I select the Linux compiler; Apple uses its qualified cc wrapper.
+        type: choice
+        options: [clang, gcc]
+        default: clang
+      native_darwin:
+        description: I compare on the existing qualified Apple toolchain.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Diagnostic only — fixed alternating source creations
+    runs-on: ${{ inputs.native_darwin && 'xcode-27' || 'ubuntu-latest' }}
+    timeout-minutes: 120
+    env:
+      CC: ${{ inputs.native_darwin && 'cc' || inputs.compiler }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require worker headroom before provisioning
+        run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/cseed-source-comparison
+      - name: Install my existing Linux native prerequisites
+        if: runner.os == 'Linux'
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
+      - name: Install my existing Darwin native prerequisites
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: ./scripts/ci-brew-install.sh pkg-config openssl libffi
+      - name: Select the existing qualified Apple compiler and SDK
+        if: runner.os == 'macOS'
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Retain all six planned actual factory attempts
+        env:
+          BASELINE_SHA: ${{ inputs.baseline }}
+        run: |
+          ulimit -c 0
+          python3 scripts/compare_cseed_source_creation.py run \
+            --baseline "$BASELINE_SHA" --output .test_output/cseed-source-comparison
+      - name: Retain diagnostic evidence even when creation fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cseed-source-comparison-${{ runner.os }}-${{ env.CC }}-${{ github.sha }}
+          path: |
+            .test_output/cseed-source-comparison/
+            .test_output/retirement/capture-toolchain.json
+            .test_output/retirement/selected-tools/
+          include-hidden-files: true
+          if-no-files-found: error
