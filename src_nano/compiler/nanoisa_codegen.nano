@@ -5173,7 +5173,11 @@ fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
 }
 
 shadow nisa_emit_call_args {
-    assert true
+    let directed: string = (nanoisa_emit_nasm "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 return (take value)}")
+    assert nisa_ok
+    assert (str_contains directed "CAST_INT\n")
+    assert (str_contains directed "CALL take")
+    let reset: int = (nisa_reset)
 }
 
 fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
@@ -6459,7 +6463,8 @@ fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
         let expected: string = (at parts i)
         let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
-        let mut contextual: bool = (and (== expected "u8") (== argument.node_type ParseNodeType.PNODE_NUMBER))
+        let mut contextual: bool = (and (== expected "u8") (== actual "int"))
+        if (and (== expected "int") (== actual "u8")) { set contextual true }
         if (str_starts_with (nisa_compact_type expected) "fn(") { set contextual true }
         if (and (== argument.node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected)) { set contextual true }
         if (and (str_starts_with expected "array<") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
@@ -6480,6 +6485,14 @@ fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
     return (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string call.arg_count) (+ " " results))))
 }
 shadow nisa_emit_indirect_call {
+    let directed: string = (nanoisa_emit_nasm "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 let call:fn(int)->int=take return (call value)}")
+    assert nisa_ok
+    assert (str_contains directed "CAST_INT\n")
+    assert (str_contains directed "CALL_INDIRECT 1 1")
+    let narrowed: string = (nanoisa_emit_nasm "fn keep(value:u8)->u8{return value} fn main()->int{let call:fn(u8)->u8=keep let value:u8=(call (+ 255 2)) return 0}")
+    assert nisa_ok
+    assert (str_contains narrowed "CAST_U8\n")
+    let directed_reset: int = (nisa_reset)
     let text: string = (nanoisa_emit_nasm "fn identity(n:int)->int{return n} fn choose()->fn(int)->int{return identity} fn main()->int{return ((choose) 42)}")
     assert nisa_ok
     assert (str_contains text "FUNCREF identity")

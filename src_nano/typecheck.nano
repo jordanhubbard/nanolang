@@ -5407,6 +5407,22 @@ shadow check_map_call {
     assert (== (list_CompilerDiagnostic_length diags) 0)
 }
 
+# I convert scalar arguments at typed calls without changing type equality.
+fn check_call_argument_context(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== expected.kind TypeKind.TYPE_INT) (== (type_to_string actual) "u8")) { return expected }
+    let hinted: NSType = (apply_value_type_hint parser node_id node_type actual expected)
+    return (check_constructor_argument parser node_id node_type hinted expected symbols diags file_name)
+}
+shadow check_call_argument_context {
+    let good: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 let call:fn(int)->int=take return (call value)}")
+    assert (not good.has_error)
+    assert (not (typecheck_phase good "argument.nano").had_error)
+    let bad: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{return (take true)}")
+    assert (typecheck_phase bad "argument.nano").had_error
+    assert (not (types_equal (type_from_string "u8") (type_int)))
+    assert (not (types_equal (type_from_string "array<u8>") (type_from_string "array<int>")))
+}
+
 fn check_callable_value_call(parser: Parser, signature: string, name: string, arg_start: int, arg_count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let params: array<NSType> = (fn_type_params_with_parser parser signature)
     if (!= arg_count (array_length params)) {
@@ -5421,7 +5437,7 @@ fn check_callable_value_call(parser: Parser, signature: string, name: string, ar
             let expected: NSType = (at params argument_index)
             let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
             let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
-            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
+            let actual: NSType = (check_call_argument_context parser argument.node_id argument.node_type hinted expected symbols diags file_name)
             if (not (types_equal actual expected)) {
                 let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
                 (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name line column)))
@@ -5432,6 +5448,8 @@ fn check_callable_value_call(parser: Parser, signature: string, name: string, ar
     return (type_from_string_with_parser parser (type_to_string (fn_type_return_type signature)))
 }
 shadow check_callable_value_call {
+    let directed: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{let byte_value:u8=7 let call:fn(int)->int=take return (call byte_value)}")
+    assert (not (typecheck_phase directed "argument.nano").had_error)
     let parser: Parser = (resource_test_parser "fn main()->int{return (first.apply 7)}")
     let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser 0)
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
@@ -5785,7 +5803,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 let arg_raw: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
                 if (< j param_count) {
                     let param_type: NSType = (at param_types j)
-                    let arg_type: NSType = (check_constructor_argument parser arg_ref.node_id arg_ref.node_type arg_raw param_type symbols diags file_name)
+                    let arg_type: NSType = (check_call_argument_context parser arg_ref.node_id arg_ref.node_type arg_raw param_type symbols diags file_name)
                     if (not (types_equal arg_type param_type)) {
                         let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to the function expression: expected " (+ (type_to_string param_type) (+ ", got " (type_to_string arg_type))))))
                         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
@@ -5999,7 +6017,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             let param_t: NSType = (at sym.param_types j)
                             let arg_raw2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
                             let arg_hint2: NSType = (apply_value_type_hint parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t)
-                            let arg_t2: NSType = (check_constructor_argument parser arg_ref2.node_id arg_ref2.node_type arg_hint2 param_t symbols diags file_name)
+                            let arg_t2: NSType = (check_call_argument_context parser arg_ref2.node_id arg_ref2.node_type arg_hint2 param_t symbols diags file_name)
                             let opaque_param: bool = (tc_is_opaque_name parser param_t.name)
                             let mut opaque_null: bool = false
                             if (and opaque_param (== arg_ref2.node_type ParseNodeType.PNODE_NUMBER)) {
@@ -6307,6 +6325,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    let directed_argument: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{let byte_value:u8=7 return (take byte_value)}")
+    assert (not (typecheck_phase directed_argument "argument.nano").had_error)
     let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=same assert (== (is_digit \"ok\") \"ok\") return 0}")
     assert (not character_binding.has_error)
     assert (not (typecheck_phase character_binding "character.nano").had_error)

@@ -7400,3 +7400,7 @@ test-byte-alias-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c
 .PHONY: test-character-builtin-contracts
 test-character-builtin-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_character_builtin_contracts
+
+.PHONY: test-u8-argument-contracts
+test-u8-argument-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_u8_argument_contracts

@@ -137,7 +137,8 @@ fn check_u8_argument_contracts() -> void {
         "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 let call:fn(int)->int=take return (call value)}",
         "fn keep(value:u8)->u8{return value} fn main()->int{let call:fn(u8)->u8=keep let value:u8=(call (+ 255 2)) return 0}",
         "fn take(value:int)->int{return value} fn main()->int{return (take true)}",
-        "fn take(values:array<int>)->int{return (array_length values)} fn main()->int{let values:array<u8> = [7] return (take values)}"
+        "fn take(values:array<int>)->int{return (array_length values)} fn main()->int{let values:array<u8> = [7] return (take values)}",
+        "fn keep(value:u8)->u8{return value} fn main()->int{let value:u8=(keep 256) return 0}"
     ]
     for index in (range 0 (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-u8-argument.nano" (list_CompilerDiagnostic_new))

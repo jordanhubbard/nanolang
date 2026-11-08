@@ -3020,8 +3020,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
             for (int i = 0; i < argc; i++) {
-                if (!cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i)))
-                    compile_expr(cg, node->as.call.args[i]);
+                if (!cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i))) {
+                    /* I retain directed integer conversions at the saved callee's boundary. */
+                    FunctionSignature *signature = node->as.call.checked_signature;
+                    uint8_t expected_tag = TAG_COUNT;
+                    if (signature && signature->param_types && i < signature->param_count) {
+                        Type expected = signature->param_types[i];
+                        if (expected == TYPE_INT) expected_tag = TAG_INT;
+                        else if (expected == TYPE_U8) expected_tag = TAG_U8;
+                    }
+                    compile_expected_tag(cg, node->as.call.args[i], expected_tag);
+                }
             }
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
