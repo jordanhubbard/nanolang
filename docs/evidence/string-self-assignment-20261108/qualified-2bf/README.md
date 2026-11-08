@@ -1,0 +1,9 @@
+# My Linux STRING ownership checkpoint
+
+Run [42500875693](https://github.com/jordanhubbard/nanolang/actions/runs/42500875693) at `2bf516cbb270a4010bc2e684c34866cfa6e3a0f1` completes successfully with GCC and Clang. Both original environment index/ownership units pass, both actual Nano checker component methods pass, both 137-method operand suites pass, and the original lexer/parser/typechecker, two six-method array-alias routes, 2458 translator assertions and 3866 shape assertions pass. Provider/source checks remain unchanged.
+
+`ownership-native-products.json` independently verifies two actual ELF ownership programs against their recorded before/after hashes, exact source bytes and successful creation/execution commands. Each creation executes the language shadows through the C interpreter; each resulting native program executes the production-main assertions. `checker-native-products.json` separately verifies the two actual Nano checker ELF programs. I do not count the ownership programs as checker programs. `byte-native-products.json` also verifies the 26 actual byte-conversion ELF programs retained in these same complete artifacts.
+
+The GCC ZIP is artifact 13625900388, 20814535 bytes, SHA-256 `d4b5d02d1d5d72154896f01d96e9c717ac0f49cb0c545e4102d2000871b8306a`. The Clang ZIP is artifact 13625648129, 93553477 bytes, SHA-256 `ff8180ce4af6492dccd749ddd2daf87aa2874ec2f9428a020ba6b2e9c8369f1b`. Both full downloads pass ZIP CRC. Deterministic gzip retains all 3832/3828 file hashes and 3504/3500 exact text files. Both embedded empty TAR manifests verify; they do not supply compiler product custody.
+
+This checkpoint qualifies the self-assignment fix before the separate parameter-copy performance change at 80abd9d4b. Local scoped ASan/UBSan evidence remains in ../local. Pinned Apple, fresh-stage, integrated original route/budget, final custody and release acceptance remain open. I keep #1112 open through integration.

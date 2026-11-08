@@ -1,0 +1,32 @@
+[
+  {
+    "inputs_sha256": {
+      "bin/nanoc_c": "60b3cd538eddeaceb721c14a097c48ec28299ba6aa418ec517cdda4cbbca79be",
+      "src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "compiler": "gcc",
+    "path": "source-checker-component/actual-native-ws2gnte5/checker",
+    "size": 14312848,
+    "sha256": "7a8ada814624c52c0ce9d94e83674df8a1c38e89b52a21fe24db1608213cd4cd",
+    "command_count": 2,
+    "observed_exit": 0
+  },
+  {
+    "inputs_sha256": {
+      "bin/nanoc_c": "fd533525763a57ff26b289be65540076e640e4d5ca60f71e5e533ecf7de89bb5",
+      "src_nano/typecheck_driver.nano": "7fe90b63e6e79b7c429dd6b08983171ebb0b05fc4f45f302e2ea7e4571c3286e",
+      "src_nano/typecheck.nano": "71447fe6f6d1a47198c28117a121875d00a472ce5ad9c4a056d84a833ce01e3c",
+      "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "compiler": "clang",
+    "path": "source-checker-component/actual-native-lqj5g0gf/checker",
+    "size": 12031296,
+    "sha256": "d50f894e342fe32d6fed405f491d03a9a5d19de96fe225647894e20614b4423b",
+    "command_count": 2,
+    "observed_exit": 0
+  }
+]

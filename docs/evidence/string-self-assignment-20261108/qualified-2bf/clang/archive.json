@@ -1,0 +1,15 @@
+{
+  "size": 93553477,
+  "sha256": "ff8180ce4af6492dccd749ddd2daf87aa2874ec2f9428a020ba6b2e9c8369f1b",
+  "files": 3828,
+  "text_files": 3500,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-bk75wqsf.tar.gz",
+      "sha256": "f63ab7f2da59364f51d875594b835fa30135bdcd9498a24340425e5194ac8f45",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

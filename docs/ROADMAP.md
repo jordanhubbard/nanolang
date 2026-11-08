@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1112 I retain my [qualified 2bf Linux ownership checkpoint](evidence/string-self-assignment-20261108/qualified-2bf/README.md): both original environment units, actual Nano checker and ownership language components, 137-method suites and original C/alias/translator/shape gates pass. I independently verify two ownership ELF programs, two checker ELF programs and 26 byte-conversion ELF programs. The later parameter-copy optimization, Apple, fresh stages and final integration remain separately qualified.
+
 
 - [x] Under #1065 I evaluate and discard a named-call lookup cache: both unchanged 690-shadow local attempts pass, but recorded body times are 3.929629 and 3.951272 seconds. I retain both actual Native products, exact inputs, the candidate patch and complete traces, restore the exact baseline source and make no improvement claim from this single pair.
 
