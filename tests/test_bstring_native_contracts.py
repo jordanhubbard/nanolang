@@ -18,7 +18,7 @@ ROOT = binary.ROOT
 class BstringNativeContracts(unittest.TestCase):
     command = binary.BstringVmContracts.command
 
-    def exercise(self, source, expected, *, source_path=None):
+    def exercise(self, source, expected='', *, source_path=None):
         output = ROOT/'.test_output/bstring-native-contracts'
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix=self._testMethodName+'-', dir=output))
@@ -104,3 +104,40 @@ fn main()->int{
 }
 shadow main{assert (== (main) 0)}
 ''', '')
+
+    def test_typed_owner_array_aliases(self):
+        binary.BstringVmContracts.test_typed_functions_arrays_aliases_and_useful_shadows(self)
+
+    def test_owner_array_mutation_and_higher_order_operations(self):
+        self.exercise('''fn identity(value:bstring)->bstring{return value}
+shadow identity{let v:bstring=(bstr_new "x") assert (== (identity v) v) (bstr_free v)}
+fn present(value:bstring)->bool{return (> (bstr_length value) 0)}
+shadow present{let v:bstring=(bstr_new "x") assert (present v) (bstr_free v)}
+fn count(total:int,value:bstring)->int{return (+ total (bstr_length value))}
+shadow count{let v:bstring=(bstr_new "x") assert (== (count 2 v) 3) (bstr_free v)}
+fn main()->int{
+ let first:bstring=(bstr_new "left")
+ let second:bstring=(bstr_new "right")
+ let mut values:array<bstring> = []
+ (array_push values first)
+ let alias:array<bstring> = values
+ (array_push values second)
+ assert (== (array_length alias) 2)
+ (array_set values 0 second)
+ assert (== (at alias 0) second)
+ let slice:array<bstring> = (array_slice values 0 1)
+ assert (== (at slice 0) second)
+ let mapped:array<bstring> = (map values identity)
+ assert (== (at mapped 1) second)
+ let filtered:array<bstring> = (filter mapped present)
+ assert (== (array_length filtered) 2)
+ assert (== (reduce filtered 0 count) 10)
+ let filled:array<bstring> = (array_new 2 first)
+ assert (== (at filled 1) first)
+ assert (== (array_pop values) second)
+ assert (== (array_length alias) 1)
+ (bstr_free first) (bstr_free second)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''')
