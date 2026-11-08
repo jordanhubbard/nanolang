@@ -1,6 +1,6 @@
 from "src_nano/compiler/native_product.nano" import native_phase_marker
 from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup, field_write_fact_lookup
-from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin, character_builtin_result, string_stdlib_result, string_stdlib_arity, array_sort_type_supported, byte_conversion_result
+from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin, character_builtin_result, string_stdlib_result, string_stdlib_arity, array_sort_type_supported, byte_conversion_result, bstring_builtin_result, bstring_builtin_arity, bstring_builtin_parameter
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
@@ -1305,6 +1305,7 @@ shadow nisa_map_value_type {
 }
 
 fn nisa_local_type_ok(t: string) -> bool {
+    if (== t "bstring") { return true }
     if (== t "array<u8>") { return true }
     if (== t "float") { return true }
     if (== t "u8") { return true }
@@ -1332,6 +1333,7 @@ fn nisa_local_type_ok(t: string) -> bool {
 }
 
 shadow nisa_local_type_ok {
+    assert (nisa_local_type_ok "bstring")
     assert (nisa_local_type_ok "float")
     assert (nisa_local_type_ok "int")
     assert (nisa_local_type_ok "u8")
@@ -2897,7 +2899,7 @@ fn nisa_type_ok_seen(parser: Parser, t: string, signatures: array<string>) -> bo
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
         if (str_starts_with element "array<") { return (nisa_type_ok_seen parser element signatures) }
-        if (or (== element "float") (== element "u8")) { return true }
+        if (or (== element "bstring") (or (== element "float") (== element "u8"))) { return true }
         if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
         if (nisa_union_supported_seen parser element signatures) { return true }
         return (or (>= (nisa_enum_index parser element) 0) (or (nisa_function_type_ok_seen parser element signatures) (nisa_record_shape_supported_seen parser element [] signatures)))
@@ -3400,8 +3402,23 @@ shadow nisa_math_arity {
     assert (== (nisa_math_arity "min") -1)
 }
 
+fn nisa_bstring_source(name: string) -> string {
+    if (not (str_starts_with name "vm_bstring_")) { return "" }
+    let source: string = (+ "bstr_" (str_substring name 11 (- (str_length name) 11)))
+    if (== (bstring_builtin_result source) "") { return "" }
+    return source
+}
+shadow nisa_bstring_source {
+    assert (== (nisa_bstring_source "vm_bstring_new") "bstr_new")
+    assert (== (nisa_bstring_source "vm_bstring_substring") "bstr_substring")
+    assert (== (nisa_bstring_source "vm_bstring_missing") "")
+    assert (== (nisa_bstring_source "vm_bstr_utf8_length") "")
+    assert (== (nisa_bstring_source "other_vm_bstring_new") "")
+}
+
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (str_starts_with name "vm_bstring_") { return (bstring_builtin_result (nisa_bstring_source name)) }
     if (or (== name "nl_os_setenv") (== name "nl_os_unsetenv")) { return "int" }
     if (== name "getenv") { return "string" }
     if (== name "vm_bytes_from_string") { return "array<u8>" }
@@ -3437,6 +3454,10 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "vm_bstring_new") "bstring")
+    assert (== (nisa_host_result "vm_bstring_to_cstr") "string")
+    assert (== (nisa_host_result "vm_bstring_free") "void")
+    assert (== (nisa_host_result "vm_bstring_missing") "")
     assert (== (nisa_host_result "nl_os_setenv") "int")
     assert (== (nisa_host_result "nl_os_unsetenv") "int")
     assert (== (nisa_host_result "getenv") "string")
@@ -3468,6 +3489,7 @@ shadow nisa_host_result {
 }
 
 fn nisa_host_arity(name: string) -> int {
+    if (str_starts_with name "vm_bstring_") { return (bstring_builtin_arity (nisa_bstring_source name)) }
     if (== name "nl_os_setenv") { return 3 }
     if (== name "vm_str_join") { return 2 }
     if (>= (nisa_math_arity name) 0) { return (nisa_math_arity name) }
@@ -3481,6 +3503,10 @@ fn nisa_host_arity(name: string) -> int {
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "vm_bstring_substring") 3)
+    assert (== (nisa_host_arity "vm_bstring_concat") 2)
+    assert (== (nisa_host_arity "vm_bstring_new") 1)
+    assert (== (nisa_host_arity "vm_bstring_missing") -1)
     assert (== (nisa_host_arity "nl_os_setenv") 3)
     assert (== (nisa_host_arity "nl_os_unsetenv") 1)
     assert (== (nisa_host_arity "getenv") 1)
@@ -3502,6 +3528,7 @@ shadow nisa_host_arity {
 }
 
 fn nisa_host_parameter_at(name: string, index: int) -> string {
+    if (str_starts_with name "vm_bstring_") { return (bstring_builtin_parameter (nisa_bstring_source name) index) }
     if (== name "nl_os_setenv") {
         if (== index 2) { return "int" }
         if (or (== index 0) (== index 1)) { return "string" }
@@ -3512,6 +3539,9 @@ fn nisa_host_parameter_at(name: string, index: int) -> string {
     return (nisa_host_parameter name)
 }
 shadow nisa_host_parameter_at {
+    assert (== (nisa_host_parameter_at "vm_bstring_substring" 0) "bstring")
+    assert (== (nisa_host_parameter_at "vm_bstring_substring" 1) "int")
+    assert (== (nisa_host_parameter_at "vm_bstring_new_binary" 0) "array")
     assert (== (nisa_host_parameter_at "nl_os_setenv" 0) "string")
     assert (== (nisa_host_parameter_at "nl_os_setenv" 1) "string")
     assert (== (nisa_host_parameter_at "nl_os_setenv" 2) "int")
@@ -3525,6 +3555,7 @@ shadow nisa_host_parameter_at {
 }
 
 fn nisa_host_parameter(name: string) -> string {
+    if (str_starts_with name "vm_bstring_") { return (bstring_builtin_parameter (nisa_bstring_source name) 0) }
     if (== name "vm_string_from_bytes") { return "array<u8>" }
     if (== name "vm_array_sort") { return "array" }
     if (str_starts_with name "vm_") {
@@ -3554,6 +3585,9 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
+    if (str_starts_with name "bstr_") {
+        if (!= (bstring_builtin_result name) "") { return (+ "vm_bstring_" (str_substring name 5 (- (str_length name) 5))) }
+    }
     if (!= (byte_conversion_result name) "") { return (+ "vm_" name) }
     if (== name "array_sort") { return "vm_array_sort" }
     if (!= (character_builtin_result name) "") { return (+ "vm_" name) }
@@ -3567,6 +3601,8 @@ fn nisa_builtin_host_symbol(name: string) -> string {
     return ""
 }
 shadow nisa_builtin_host_symbol {
+    assert (== (nisa_builtin_host_symbol "bstr_concat") "vm_bstring_concat")
+    assert (== (nisa_builtin_host_symbol "bstr_missing") "")
     assert (== (nisa_builtin_host_symbol "bytes_from_string") "vm_bytes_from_string")
     assert (== (nisa_builtin_host_symbol "string_from_bytes") "vm_string_from_bytes")
     assert (== (nisa_builtin_host_symbol "array_sort") "vm_array_sort")
@@ -3594,6 +3630,9 @@ fn nisa_call_host_symbol(parser: Parser, name: string) -> string {
         let function: ASTFunction = (parser_get_function parser index)
         if (>= function.body 0) { return "" }
         # I do not rename an explicit foreign declaration into a character builtin.
+        if (str_starts_with name "bstr_") {
+            if (!= (bstring_builtin_result name) "") { return "" }
+        }
         if (!= (byte_conversion_result name) "") { return "" }
         if (or (== name "array_sort") (or (!= (character_builtin_result name) "") (!= (string_stdlib_result name) ""))) { return "" }
     }
@@ -3677,6 +3716,9 @@ fn nisa_import_add(symbol: string) -> int {
     return index
 }
 shadow nisa_import_add {
+    let binary_reset: int = (nisa_reset)
+    assert (== (nisa_import_add "vm_bstring_substring") 0)
+    assert (== nisa_import_text ".import \"\" \"vm_bstring_substring\" bstring bstring int int\n")
     let byte_reset: int = (nisa_reset)
     assert (== (nisa_import_add "vm_bytes_from_string") 0)
     assert (== (nisa_import_add "vm_string_from_bytes") 1)
@@ -4189,7 +4231,44 @@ shadow nisa_register_extern {
     let _: int = (nisa_reset)
 }
 
+fn nisa_emit_bstring_call(parser: Parser, call: ASTCall, symbol: string) -> string {
+    let name: string = (nisa_bstring_source symbol)
+    if (or (== name "") (!= call.arg_count (bstring_builtin_arity name))) {
+        return (nisa_fail "I require the exact binary-string builtin arity.")
+    }
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        let expected: string = (bstring_builtin_parameter name i)
+        let integer_conversion: bool = (and (== expected "int")
+            (or (== actual "u8") (>= (nisa_enum_index parser actual) 0)))
+        let array_operand: bool = (and (== expected "array")
+            (and (str_starts_with actual "array<") (nisa_type_ok parser actual)))
+        if (not (or (== actual expected) (or integer_conversion array_operand))) {
+            return (nisa_fail "I require the exact binary-string operand type.")
+        }
+        set output (+ output (nisa_emit_expr parser argument.node_id argument.node_type))
+        if integer_conversion { set output (+ output (nisa_line "CAST_INT")) }
+        set i (+ i 1)
+    }
+    if (not nisa_ok) { return "" }
+    let mut index: int = (nisa_import_find symbol)
+    if (< index 0) { set index (nisa_import_add symbol) }
+    return (+ output (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
+}
+shadow nisa_emit_bstring_call {
+    let text: string = (nanoisa_emit_nasm "fn main()->int{let value:bstring=(bstr_new \"hi\") (bstr_free value) return 0}")
+    assert (str_contains text ".import \"\" \"vm_bstring_new\" bstring string")
+    assert (str_contains text ".import \"\" \"vm_bstring_free\" void bstring")
+    assert (== (nanoisa_emit_nasm "fn main()->int{(bstr_length \"wrong\") return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let value:bstring=(bstr_new \"x\") (bstr_byte_at value true) return 0}") "")
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string {
+    if (str_starts_with symbol "vm_bstring_") { return (nisa_emit_bstring_call parser call symbol) }
     if (!= call.arg_count (nisa_host_arity symbol)) { return (nisa_fail "host call arity mismatch") }
     let mut i: int = 0
     while (< i call.arg_count) {
@@ -5226,6 +5305,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let mut tag: string = "1"
         let element: string = (nisa_element_type parser expected)
         if (== element "string") { set tag "5" }
+        if (== element "bstring") { set tag "6" }
         if (== element "bool") { set tag "4" }
         if (== element "float") { set tag "3" }
         if (== element "u8") { set tag "2" }
@@ -5999,6 +6079,7 @@ fn nisa_emit_filled_array(parser: Parser, call: ASTCall) -> string {
     if (not (nisa_type_ok parser result_type)) { return (nisa_fail "I require a supported array fill type") }
     let mut tag: string = "1"
     if (== element "string") { set tag "5" }
+    if (== element "bstring") { set tag "6" }
     if (== element "bool") { set tag "4" }
     if (== element "float") { set tag "3" }
     if (str_starts_with element "array<") { set tag "7" }
@@ -6551,6 +6632,7 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
         if (== output_element "float") { set tag "3" }
         if (== output_element "bool") { set tag "4" }
         if (== output_element "string") { set tag "5" }
+        if (== output_element "bstring") { set tag "6" }
         if (== output_element "u8") { set tag "2" }
         if (nisa_function_type_ok parser output_element) { set tag "11" }
         if (nisa_is_pin_record parser output_element) { set tag "8" }
@@ -8641,6 +8723,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (== t "bstring") { return "bstring" }
     if (>= (nisa_opaque_index parser t) 0) { return "opaque" }
     if (nisa_function_type_ok parser t) { return "function" }
     if (nisa_union_supported parser t) { return "union" }
@@ -8667,6 +8750,9 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 }
 
 shadow nisa_result_tag {
+    let binary_parser: Parser = (parse_program (tokenize_string "" "binary.nano" (diag_list_new)) 0 "binary.nano")
+    assert (== (nisa_result_tag binary_parser "bstring") "bstring")
+    assert (nisa_type_ok binary_parser "array<bstring>")
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let src: string = (+ "struct Tok { t: int, s: string, flag: bool } struct Box { p: Tok } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
@@ -8751,7 +8837,8 @@ fn nisa_emit_function_effects(parser: Parser, func: ASTFunction, advisory: int) 
         let mut exact_parameters: bool = (or nisa_has_par (> (array_length nisa_generic_variables) 0))
         let mut exact_parameter: int = 0
         while (< exact_parameter func.param_count) {
-            if (or (== (nisa_generic_type (parser_get_let parser (+ func.param_start exact_parameter)).var_type) "u8") (>= (nisa_opaque_index parser (nisa_generic_type (parser_get_let parser (+ func.param_start exact_parameter)).var_type)) 0)) {
+            let exact_type: string = (nisa_generic_type (parser_get_let parser (+ func.param_start exact_parameter)).var_type)
+            if (or (or (== exact_type "u8") (== exact_type "bstring")) (>= (nisa_opaque_index parser exact_type) 0)) {
                 set exact_parameters true
             }
             set exact_parameter (+ exact_parameter 1)
@@ -8770,6 +8857,7 @@ fn nisa_emit_function_effects(parser: Parser, func: ASTFunction, advisory: int) 
                 if (== t "float") { set tag 3 }
                 if (== t "bool") { set tag 4 }
                 if (== t "string") { set tag 5 }
+                if (== t "bstring") { set tag 6 }
                 if (> tag 0) {
                     set guards (+ guards (nisa_line_imm "LOAD_LOCAL" (int_to_string parameter)))
                     set guards (+ guards (nisa_line_imm "TYPE_CHECK" (int_to_string tag)))

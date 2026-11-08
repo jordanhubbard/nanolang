@@ -13,15 +13,18 @@ ROOT = numeric.ROOT
 
 class BstringVmContracts(unittest.TestCase):
     command = numeric.NumericBuiltinSelection.command
+    compiler = ROOT/'bin/nano_virt'
+    artifact_directory = 'bstring-vm-contracts'
+    scope = 'I test C-seed NanoISA emission and VM execution only.'
 
     def exercise(self, source, expected='', *, source_path=None, refused=False):
-        output = ROOT/'.test_output/bstring-vm-contracts'
+        output = ROOT/'.test_output'/self.artifact_directory
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix=self._testMethodName+'-', dir=output))
         path = work/'main.nano' if source_path is None else source_path
         if source_path is None:
             path.write_text(source)
-        compiler, vm = ROOT/'bin/nano_virt', ROOT/'bin/nano_vm'
+        compiler, vm = self.compiler, ROOT/'bin/nano_vm'
         before = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in [path, compiler, vm]}
         module = work/'program.nvm'
         prior = b'I retain my previous binary-string program.\n'
@@ -43,7 +46,7 @@ class BstringVmContracts(unittest.TestCase):
         finally:
             after = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in [path, compiler, vm]}
             product_after = hashlib.sha256(module.read_bytes()).hexdigest() if module.exists() else None
-            (work/'inputs.json').write_text(json.dumps({'scope': 'I test C-seed NanoISA emission and VM execution only.',
+            (work/'inputs.json').write_text(json.dumps({'scope': self.scope,
                 'before': before, 'after': after, 'product_before_run': product_before,
                 'product_after_run': product_after}, indent=2)+'\n')
             self.assertEqual(before, after)

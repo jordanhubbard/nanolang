@@ -3529,6 +3529,40 @@ shadow bstring_builtin_result {
     assert (== TypeKind.TYPE_BSTRING 18)
 }
 
+pub fn bstring_builtin_arity(name: string) -> int {
+    if (== (bstring_builtin_result name) "") { return -1 }
+    if (== name "bstr_substring") { return 3 }
+    if (or (or (== name "bstr_concat") (== name "bstr_equals"))
+           (or (== name "bstr_byte_at") (== name "bstr_utf8_char_at"))) { return 2 }
+    return 1
+}
+shadow bstring_builtin_arity {
+    assert (== (bstring_builtin_arity "bstr_new") 1)
+    assert (== (bstring_builtin_arity "bstr_substring") 3)
+    assert (== (bstring_builtin_arity "bstr_equals") 2)
+    assert (== (bstring_builtin_arity "bstr_utf8_char_at") 2)
+    assert (== (bstring_builtin_arity "bstr_missing") -1)
+}
+
+pub fn bstring_builtin_parameter(name: string, index: int) -> string {
+    let count: int = (bstring_builtin_arity name)
+    if (or (< index 0) (>= index count)) { return "" }
+    if (== name "bstr_new") { return "string" }
+    if (== name "bstr_new_binary") { return "array" }
+    if (or (== index 0) (or (== name "bstr_concat") (== name "bstr_equals"))) { return "bstring" }
+    return "int"
+}
+shadow bstring_builtin_parameter {
+    assert (== (bstring_builtin_parameter "bstr_new" 0) "string")
+    assert (== (bstring_builtin_parameter "bstr_new_binary" 0) "array")
+    assert (== (bstring_builtin_parameter "bstr_concat" 1) "bstring")
+    assert (== (bstring_builtin_parameter "bstr_substring" 1) "int")
+    assert (== (bstring_builtin_parameter "bstr_substring" 2) "int")
+    assert (== (bstring_builtin_parameter "bstr_free" 0) "bstring")
+    assert (== (bstring_builtin_parameter "bstr_length" 1) "")
+    assert (== (bstring_builtin_parameter "bstr_missing" 0) "")
+}
+
 fn check_builtin_function(fn_name: string) -> NSType {
     if (!= (string_stdlib_result fn_name) "") { return (type_from_string (string_stdlib_result fn_name)) }
     if (str_starts_with fn_name "bstr_") {
