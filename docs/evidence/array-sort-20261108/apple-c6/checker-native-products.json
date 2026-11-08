@@ -1,0 +1,17 @@
+[
+  {
+    "inputs_sha256": {
+      "bin/nanoc_c": "92102417f808f44c5da53a332d27c335e5370156863c6a2d1a9374a36a5bf3b8",
+      "src_nano/typecheck_driver.nano": "a1d16b7ca5d7fe6d665afface2aaf0c230a3feb3f0df057759a5c297b938c838",
+      "src_nano/typecheck.nano": "db59e9b73a0ae8bbc395ce942e188b10df0ddebca51eac44a763e95896570657",
+      "src_nano/parser.nano": "0374cc9feb43d05c5349501e08982ff386ff542155d517c1604fc3b8e7818cb4",
+      "src_nano/compiler/lexer.nano": "24187a5baf028ff0ec6fce4aecbdd5984a896b965e08becd0c550af8ea353bbc"
+    },
+    "compiler": "cc",
+    "path": "source-checker-component/actual-native-p1kvqz32/checker",
+    "size": 11091896,
+    "sha256": "acaebf6bb24a04e6522400deffeed6299001bbb67f4b772e7a0f9a6be6083720",
+    "command_count": 2,
+    "observed_exit": 0
+  }
+]

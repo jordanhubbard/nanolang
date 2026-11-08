@@ -1,0 +1,15 @@
+{
+  "size": 14130367,
+  "sha256": "8e8b59dbb9bfff5dc5b66fe8ef6c9e35be5a8cca1568cf085f08c0bda3fdcabf",
+  "files": 3423,
+  "text_files": 3133,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-2dd81_pv.tar.gz",
+      "sha256": "de54c1d5cb605a9b0b07053261cdfc6d3c27fe10d2c1775eb98824538520078a",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 # My Roadmap
 
 
+- [x] Under #1109/#1106/#1107/#1108 I retain my [qualified Apple 128-method component checkpoint](evidence/array-sort-20261108/apple-c6/README.md): actual Nano checker, original C lexer/parser/typechecker/alias gates and all translator/shape gates pass with my pinned compiler/SDK. Twenty-two sorting Mach-O products and one checker product independently verify. The earlier shadow timeout remains retained and its margin concern open; fresh stages, original corpus budget, native SDK lifecycle and release acceptance remain separate.
+
+
 - [x] Under #1110 I retain my [actual older C/VM byte-conversion boundary probes](evidence/byte-conversion-20261108/boundary-probes/README.md): seven cases agree on invalid UTF-8 preservation and embedded-NUL visible truncation, with seven independently verified actual Mach-O products and unchanged provider hashes. A fourth production control passes VM assertions then refuses the missing native decoding ABI. Changed-source/translator/fresh/platform qualification remains open.
 
 - [x] Under #1065 I retain the [traced Apple checker attempt](evidence/source-checker-apple-20261108/traced-c6/README.md): all 687 shadows complete, summing 9.714615 seconds of recorded body time, followed by native checker execution and all 128 integration methods. The earlier timeout remains unexplained; I preserve the unchanged deadline and all assertions. Original translator, actual product-byte custody and complete platform acceptance remain pending at this early checkpoint.
