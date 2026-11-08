@@ -156,8 +156,9 @@
       "--help"
     ],
     "returncode": 2,
-    "observed_error_code": "cli.usage",
-    "note": "I used an unsupported component subcommand before running checks. The eight actual lock --check commands are retained separately above."
+    "stdout": "",
+    "stderr": "{\"command\":\"component\",\"error\":{\"code\":\"cli.usage\",\"message\":\"argument component_command: invalid choice: 'check' (choose from 'migrate')\"},\"ok\":false,\"schema\":\"literate-ai/cli-error@1\"}\n",
+    "note": "I retain the actual unsupported-subcommand response. The correct eight lock --check operations above all execute and pass."
   },
   "framework": {
     "argv": [
@@ -217,5 +218,17 @@
     "returncode": 2,
     "stdout": "",
     "stderr": "{\"command\":\"project.test-receipt\",\"error\":{\"code\":\"project.test_receipt_policy_unconfigured\",\"message\":\"project definition does not configure test_receipt_policy; no receipt can be accepted or current\"},\"ok\":false,\"schema\":\"literate-ai/cli-error@1\"}\n"
+  },
+  "synchronization": {
+    "first_attempt": [
+      "git",
+      "pull",
+      "--rebase"
+    ],
+    "outcome": "I abort the attempted inherited-history replay at step 2/370, preserve merge e07772c724ee08ccbf3cf5ec094f31baa853e2f0 and both exact parents, fetch origin, verify remote ancestry and push fast-forward. I do not flatten or rewrite inherited component commits.",
+    "parents": [
+      "043b52d1ade7023b18917737a0d299b6c431ee98",
+      "7c4c015b4c3214dd659236958cb3a50fc05b1e0a"
+    ]
   }
 }

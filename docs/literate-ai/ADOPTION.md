@@ -272,3 +272,13 @@ I retain original-source release authority, the historical framework adoption
 binding, empty native implementation selections and the absent native lifecycle
 receipt. The eight integration Components and four delegates remain metadata;
 they do not complete the native producer graph or authorize native cutover.
+
+My [committed source-contract custody report](source-preservation-source-contracts-20261108.json)
+at `e07772c724ee08ccbf3cf5ec094f31baa853e2f0` preserves all 92,816 reviewed entries,
+with no changed or dirty original paths. My [metadata checks](source-contract-metadata-checks-20261108.json)
+retain the real Git controls, all eight current integration locks, four current
+delegates, supported authority review and canonical validation. The native receipt
+guard still refuses `project.test_receipt_policy_unconfigured`, as required.
+I preserve every inherited component commit and all 67 original scope rows.
+These facts establish Git custody and initial integration metadata, not native
+execution admission or release qualification.
