@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1091/#1081 I restore genuine numeric min/max calls in my self-hosted NanoISA producer, preserving typed int/float operands, exactly-once source order and selection of original values. I retain numeric abs result metadata, ordinary bound-function identity, meaningful shadows, prior-output refusals and the unchanged original numeric fixtures; fresh compiler stages and complete routes remain required.
+
 - [x] Under #1081/#1053 I retain the [terminal b7e4/f512 route and bd913 instrumented failures](evidence/terminal-route-followups-20261107/README.md). Both route runs preserve the complete original 237-case selection; the older sanitizer job stops at known separator and stale map-refusal/output premises. Their later corrections remain subject to their own exact-source jobs.
 
 - [x] Under #1088/#1081 I retain my [complete 4620 route checkpoint](evidence/junit-route-checkpoints-20261107/4620/README.md): all four routes execute the same original 237 ordered testcase identities with zero skips; C native passes all 237, C NanoVM fails three, and each fresh stage fails 62. Both bootstrap generations pass. The later separator, print and record-array corrections still require their own complete-route acceptance.

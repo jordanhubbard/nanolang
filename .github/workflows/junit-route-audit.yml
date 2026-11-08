@@ -3,7 +3,7 @@ name: Complete JUnit producer-route diagnosis
 on:
   workflow_dispatch:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots, fix/5.1-legacy-print-statements]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots, fix/5.1-legacy-print-statements, fix/5.1-numeric-selection]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
@@ -28,6 +28,7 @@ on:
       - 'tests/test_builtin_string_operands.py'
       - 'tests/test_legacy_print_statements.py'
       - 'tests/test_empty_record_array_contexts.py'
+      - 'tests/test_numeric_builtin_selection.py'
       - 'src/typechecker.c'
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'
@@ -124,7 +125,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection \
             2>&1 | tee .test_output/junit-route-audit/string-operands.log
 
       - name: Exercise the unchanged complete four-pair map constructor contract
@@ -154,6 +155,7 @@ jobs:
             .test_output/junit-route-audit/
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
+            .test_output/numeric-builtin-selection/
             obj/bootstrap-nanoisa/**/manifest.json
             obj/bootstrap-nanoisa/**/*.log
           include-hidden-files: true

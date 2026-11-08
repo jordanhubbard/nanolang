@@ -224,7 +224,7 @@ jobs:
 
       - name: Check cached string operands and declaration identity
         timeout-minutes: 45
-        run: python3 -m unittest -v tests.test_builtin_string_operands tests.test_legacy_print_statements tests.test_empty_record_array_contexts
+        run: python3 -m unittest -v tests.test_builtin_string_operands tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection
 
       - name: Check C File source drivers
         timeout-minutes: 15

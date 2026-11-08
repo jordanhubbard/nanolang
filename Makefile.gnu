@@ -7351,3 +7351,7 @@ check-fast test-units: test-comprehensive-run-contract
 .PHONY: test-comprehensive-run-contract-native
 test-comprehensive-run-contract-native: bootstrap3 nano_virt nano_vm
 	python3 -m unittest -v tests.test_test_run_contract_native
+
+.PHONY: test-numeric-builtin-selection
+test-numeric-builtin-selection: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_numeric_builtin_selection

@@ -5374,6 +5374,36 @@ shadow tc_generic_call {
     }
 }
 
+fn check_numeric_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut count: int = 2
+    if (== name "abs") { set count 1 }
+    let mut valid: bool = (== call.arg_count count)
+    let mut result: NSType = (type_unknown_named name)
+    if valid {
+        let first: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        set result (check_expr_node parser first.node_id first.node_type symbols diags file_name)
+        set valid (or (== result.kind TypeKind.TYPE_INT) (== result.kind TypeKind.TYPE_FLOAT))
+        if (== count 2) {
+            let second: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            let other: NSType = (check_expr_node parser second.node_id second.node_type symbols diags file_name)
+            set valid (and valid (== result.kind other.kind))
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared arity and matching int or float operands for this numeric builtin." (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named name)
+    }
+    return result
+}
+shadow check_numeric_builtin {
+    let sources: array<string> = ["fn main()->float{return (min -2.0 7.0)}", "fn main()->float{return (max 2.0 7.0)}", "fn main()->float{return (abs -2.0)}", "fn main()->int{return (min -2 7)}", "fn main()->int{return (max 1)}", "fn main()->int{return (min true false)}", "fn main()->float{return (min 2.0 7)}"]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "numeric.nano" (diag_list_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "numeric.nano")
+        assert (== (typecheck_phase parser "numeric.nano").had_error (>= index 4))
+    }
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (== node_type ParseNodeType.PNODE_EFFECT_OP) { return (tc_effect_perform parser (at parser.performs node_id) symbols diags file_name) }
     if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) { return (tc_effect_handle parser (at parser.handlers node_id) symbols diags file_name) }
@@ -5475,6 +5505,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         (check_lambda_creation parser fn_id_node symbols diags file_name)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (or (== fn_name "abs") (or (== fn_name "min") (== fn_name "max"))) (< (env_lookup symbols fn_name) 0)) {
+            return (check_numeric_builtin parser call_node fn_name symbols diags file_name)
+        }
         if (and (< (env_lookup symbols fn_name) 0) (!= (mb_header_value fn_id_node.name) "")) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function value for a bound call." (Diagnostics.diag_location file_name call_node.line call_node.column)))
             return (type_unknown_named fn_name)
@@ -5588,6 +5621,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_builtin_function fn_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (or (== fn_name "abs") (or (== fn_name "min") (== fn_name "max"))) (>= (env_lookup symbols fn_name) 0)) {
+            set builtin_type (type_unknown_named fn_name)
+        }
         if (and (or (== fn_name "string_to_float") (or (== fn_name "float_from_bits") (== fn_name "float_to_bits"))) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
