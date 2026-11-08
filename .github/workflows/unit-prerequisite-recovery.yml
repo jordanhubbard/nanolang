@@ -2,13 +2,14 @@ name: Instrumented complete unit prerequisite recovery
 
 on:
   push:
-    branches: [fix/5.1-unit-module-prerequisite, fix/5.1-junit-run-contract]
+    branches: [fix/5.1-unit-module-prerequisite, fix/5.1-junit-run-contract, fix/5.1-map-refusal-expectations]
     paths:
       - '.github/workflows/unit-prerequisite-recovery.yml'
       - 'src/eval.c'
       - 'src/transpiler_iterative_v3_twopass.c'
       - 'src/eval/call_arguments.h'
       - 'tests/test_eval_call_arguments.py'
+      - 'tests/test_nanoisa_flat_records.py'
       - 'Makefile.gnu'
       - 'tests/nanovm/test_vm.c'
       - 'src/ml/ml.c'

@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1083/#1053 I replace two obsolete INT-key map refusal premises with positive producer/VM/C AOT execution while preserving every genuinely malformed map/record refusal. I isolate each refusal output so a preceding admitted program cannot create cascading stale-output failures; existing-output preservation remains a separate checked contract.
+
 - [ ] Under #980/#1049 I preserve original failed assembler fixture roots and raw linker records, add opt-in bounded refusal observations without changing source admission, and diagnose the exact 24 common-placement xassembler failures alongside neighbor controls on the qualified Xcode toolchain. A focused diagnostic does not replace the complete unchanged retirement corpus.
 
 - [x] Under #1087 I retain the [measured VM runner correction](evidence/vm-runner-stack-20261107/corrected-4adda/README.md): identical selected Clang O1 ASan/UBSan flags measure 130,930,392 bytes before and 24 bytes after, and fresh GCC/Clang each execute all 274,654 original VM assertions with zero failures. Every original fixture invocation remains; complete units, platform gates and general VM stack safety remain separate.

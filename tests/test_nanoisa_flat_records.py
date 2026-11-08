@@ -448,8 +448,8 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { let xs: List<string> = (list_string_new) return (list_int_get xs 0) }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-array-access-refusal-") as tmp:
-            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
-            for program in programs:
+            for index, program in enumerate(programs):
+                source, output = Path(tmp) / f"input{index}.nano", Path(tmp) / f"output{index}.nasm"
                 with self.subTest(program=program):
                     source.write_text(program + "\n")
                     result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
@@ -1355,9 +1355,42 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_integer_map_constructor_and_record_fields_match_and_execute(self):
+        # I preserve the two formerly refused programs as admitted source.
+        programs = [
+            'fn bad() -> HashMap<int,int> { return (map_new) }\n'
+            'shadow bad { assert (== (map_size (bad)) 0) }\n'
+            'fn main() -> int { let values: HashMap<int,int> = (bad) '
+            '(map_put values 7 42) assert (== (map_get values 7) 42) return 0 }\n',
+            'struct MapField { values: HashMap<int,int> } '
+            'fn bad(value: MapField) -> MapField { return value }\n'
+            'shadow bad { let values: HashMap<int,int> = (map_new) '
+            '(map_put values 7 42) let result: MapField = (bad MapField { values: values }) '
+            'assert (== (map_get result.values 7) 42) }\n'
+            'fn main() -> int { let values: HashMap<int,int> = (map_new) '
+            '(map_put values 7 42) let result: MapField = (bad MapField { values: values }) '
+            'assert (== (map_get result.values 7) 42) return 0 }\n',
+        ]
+        for index, program in enumerate(programs):
+            with self.subTest(program=index), tempfile.TemporaryDirectory(prefix="nano-int-map-admission-") as tmp:
+                work = Path(tmp)
+                source, seed, assembly, emitted = (work/name for name in
+                    ("input.nano", "seed.nvm", "self.nasm", "self.nvm"))
+                source.write_text(program + 'shadow main { assert (== (main) 0) }\n')
+                self.run_checked(ROOT/"bin/nano_virt", source, "--emit-nvm", "--strip-debug", "-o", seed)
+                self.run_checked(ROOT/"bin/nanoisa_emit", source, "-o", assembly)
+                self.run_checked(ROOT/"tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "bad", "main")
+                self.run_checked(ROOT/"bin/nanoisa", "asm", assembly, "-o", emitted)
+                for module in (seed, emitted):
+                    self.run_checked(ROOT/"bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT/"bin/nano_vm", module)
+                    native, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                    self.run_checked(ROOT/"bin/nvm2c", module, "-o", native)
+                    self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+                    self.run_checked(binary)
+
     def test_unsupported_map_shapes_and_arguments_are_refused(self):
         programs = [
-            'fn bad() -> HashMap<int,int> { return (map_new) }',
             'fn bad(m: HashMap<string,string>) -> void { (map_put m "key" 42) }',
             'fn bad(m: HashMap<string,int>) -> HashMap<string,string> { return m }',
             'fn ints() -> HashMap<string,int> { return (map_new) } '
@@ -1636,7 +1669,6 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_recursive_and_malformed_nested_records_are_refused(self):
         programs = [
-            'struct MapField { values: HashMap<int,int> } fn bad(value: MapField) -> MapField { return value }',
             'struct MapField { values: HashMap<string,int> } fn bad() -> MapField { return MapField { values: 7 } }',
             'struct Cycle { next: Cycle } fn identity(value: Cycle) -> Cycle { return value }',
             'struct Cycle { next: List<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',
