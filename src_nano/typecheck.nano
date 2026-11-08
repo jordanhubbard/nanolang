@@ -6307,7 +6307,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
-    let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->string{let is_digit:fn(string)->string=same return (is_digit \"ok\")}")
+    let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=same assert (== (is_digit \"ok\") \"ok\") return 0}")
     assert (not character_binding.has_error)
     assert (not (typecheck_phase character_binding "character.nano").had_error)
     let fixed_operand_invalid: Parser = (resource_test_parser "fn main()->int{return (str_length 1)}")

@@ -141,7 +141,7 @@ void test_tc_character_contracts(void) {
             ASSERT(tc_passes(source) == (j == 0));
         }
     }
-    ASSERT(tc_passes("fn kept(value:string)->string{return value} fn main()->string{let is_digit:fn(string)->string=kept return (is_digit \"ok\")}"));
+    ASSERT(tc_passes("fn kept(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=kept assert (== (is_digit \"ok\") \"ok\") return 0}"));
     ASSERT(tc_passes("extern fn is_digit(value:string)->string fn main()->int{return 0}"));
 }
 
