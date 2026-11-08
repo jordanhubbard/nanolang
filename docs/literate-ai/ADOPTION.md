@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:602b4ff60ac88fd0d48a9483e6aebdcf48c9777bbdcda0e781f5b88dca820267 -->
+<!-- literate-ai:authority-reviewed sha256:66f4fd22ce614cad9ea2dafa43f0f5f68426118dbf69534f0d595d575eecd977 -->
 
 ## My first metadata checkpoint
 
@@ -282,3 +282,8 @@ guard still refuses `project.test_receipt_policy_unconfigured`, as required.
 I preserve every inherited component commit and all 67 original scope rows.
 These facts establish Git custody and initial integration metadata, not native
 execution admission or release qualification.
+
+My [merge-tree audit](source-contract-merge-tree-check-20261108.json) checks every
+reviewed pre-merge entry against the staged merge tree, permitting only the five
+prior content-only metadata exemptions. I retain unchanged path/type/mode checks
+and the exact staged tree identity separately from native lifecycle admission.
