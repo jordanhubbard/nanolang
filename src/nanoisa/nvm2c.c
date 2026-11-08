@@ -5340,9 +5340,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                             idx, start, b->shape_outputs[idx][start], kind);
                     for (NvmShapeId id = 1; id <= limit; ++id) {
                         NvmShapeId root = nvm_shape_root(&b->shapes, id);
+                        NvmShapeKind node_kind = nvm_shape_kind(&b->shapes, id);
+                        int open = node_kind == NVM_SHAPE_UNKNOWN || node_kind == NVM_SHAPE_RECORD;
+                        NvmShapeId child0 = (open || node_kind == NVM_SHAPE_MAP ||
+                            node_kind == NVM_SHAPE_ARRAY || node_kind == NVM_SHAPE_OPTIONAL)
+                            ? nvm_shape_lookup(&b->shapes, id, 0) : 0;
+                        NvmShapeId child1 = (open || node_kind == NVM_SHAPE_MAP)
+                            ? nvm_shape_lookup(&b->shapes, id, 1) : 0;
                         fprintf(stderr, "shape %u root %u kind %u child0 %u child1 %u\n",
-                            id, root, (unsigned)nvm_shape_kind(&b->shapes, id),
-                            nvm_shape_lookup(&b->shapes, id, 0), nvm_shape_lookup(&b->shapes, id, 1));
+                            id, root, (unsigned)node_kind, child0, child1);
                     }
                     size_t conversions = b->shapes.conversion_count < 4096 ? b->shapes.conversion_count : 4096;
                     for (size_t i = 0; i < conversions; ++i) {
