@@ -105,6 +105,15 @@ jobs:
           set -o pipefail
           python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts tests.test_map_constructor_contexts \
             2>&1 | tee .test_output/string-builtin-operands/tests.log
+      - name: Execute the complete original translator regression gate
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 scripts/ci_qualification_storage.py run \
+            --output .test_output/string-builtin-operands/translator-storage --label complete-translator -- \
+            make -f Makefile.gnu CC="$CC" test-nvm2c \
+            2>&1 | tee .test_output/string-builtin-operands/translator.log
       - name: Retain complete original array alias regression routes
         if: always() && steps.providers.outcome == 'success'
         timeout-minutes: 30

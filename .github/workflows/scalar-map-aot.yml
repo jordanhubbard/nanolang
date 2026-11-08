@@ -2,10 +2,12 @@ name: Exact scalar map AOT diagnosis
 
 on:
   push:
-    branches: [fix/5.1-map-aot-parity, fix/5.1-map-aot-allocation, fix/5.1-map-tagged-snapshots]
+    branches: [fix/5.1-map-aot-parity, fix/5.1-map-aot-allocation, fix/5.1-map-tagged-snapshots, fix/5.1-stage-source-contracts]
     paths:
       - '.github/workflows/scalar-map-aot.yml'
       - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/nvm2c_shape.c'
+      - 'src/nanoisa/nvm2c_shape.h'
       - 'src/nanoisa/nvm2c_map_runtime.inc'
       - 'tests/test_scalar_map_aot.py'
       - 'tests/test_map_scalar_runtime.py'
