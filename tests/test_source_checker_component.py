@@ -18,7 +18,8 @@ class SourceCheckerComponent(unittest.TestCase):
         compiler = ROOT/'bin/nanoc_c'
         self.assertTrue(compiler.is_file(), 'I require my actual C seed.')
         source = ROOT/'src_nano/typecheck_driver.nano'
-        inputs = [compiler, source, ROOT/'src_nano/typecheck.nano', ROOT/'src_nano/parser.nano']
+        inputs = [compiler, source, ROOT/'src_nano/typecheck.nano', ROOT/'src_nano/parser.nano',
+                  ROOT/'src_nano/compiler/lexer.nano']
         before = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                   for path in inputs}
         output = ROOT/'.test_output/source-checker-component'

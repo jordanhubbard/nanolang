@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1107/#1108 I execute dedicated compiled Nano checker-main cases for all five uppercase statement heads and the bang token/AST identity, including token positions and all four unary spellings. I keep the existing shared controls, retain the direct lexer input hash, watch lexer-only changes in both jobs and run my existing C lexer fixture controls. I require actual native product/hash custody, complete component gates and separate fresh-stage acceptance.
+
 - [x] Under #1107 I retain the [pinned GCC/Clang uppercase condition component checkpoint](evidence/uppercase-conditions-20261108/qualified-de27/README.md): both 115-method suites, mandatory parser shadows, native checker and original C/alias/translator/shape gates pass. Four actual positive-program ELFs and command/source/provider hashes independently verify. The programs use the C frontend; dedicated native source-parser and fresh-stage/platform qualification remain open.
 
 - [ ] Under #1105 I retain the fresh cd0 92-method result: whole byte/arithmetic and anonymous-record controls pass, but two wrong-string arithmetic cases fail only the existing diagnostic regex after correct refusal. I state the string operand requirement in my diagnostic, preserve the assertions and prior-output checks, and require corrected fresh qualification.

@@ -207,6 +207,52 @@ fn check_string_stdlib_contracts() -> void {
 }
 shadow check_string_stdlib_contracts { (check_string_stdlib_contracts) }
 
+fn check_uppercase_parser_contracts() -> void {
+    let bodies: array<string> = ["return 1", "let value:int=1 return value", "if true {return 1}", "while false {}", "for index in (range 0 1) {}"]
+    for body in bodies {
+        let source: string = (+ "fn choose(FLAG:bool)->int{if FLAG {" (+ body "} return 0} fn main()->int{return 0}"))
+        let tokens: List<LexerToken> = (tokenize_string source "native-condition.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-condition.nano")
+        assert (not parsed.has_error)
+        let condition: ASTIf = (parser_get_if parsed (- (parser_get_if_count parsed) 1))
+        assert (== condition.condition_type ParseNodeType.PNODE_IDENTIFIER)
+        assert (== (parser_get_identifier parsed condition.condition).name "FLAG")
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-condition.nano")
+        assert (not checked.had_error) assert (== checked.environment.error_count 0)
+        assert (== (list_CompilerDiagnostic_length checked.diagnostics) 0)
+    }
+}
+shadow check_uppercase_parser_contracts { (check_uppercase_parser_contracts) }
+
+fn check_legacy_bang_contracts() -> void {
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string "!\n!= !true not false" "native-bang.nano" diags)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    assert (== (list_LexerToken_length tokens) 7)
+    let bang: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== bang.token_type LexerTokenType.TOKEN_NOT) assert (== bang.value "!")
+    assert (== bang.line 1) assert (== bang.column 1)
+    let unequal: LexerToken = (list_LexerToken_get tokens 1)
+    assert (== unequal.token_type LexerTokenType.TOKEN_NE)
+    assert (== unequal.line 2) assert (== unequal.column 1)
+    let adjacent: LexerToken = (list_LexerToken_get tokens 2)
+    assert (== adjacent.token_type LexerTokenType.TOKEN_NOT) assert (== adjacent.column 4)
+    assert (== (list_LexerToken_get tokens 6).token_type LexerTokenType.TOKEN_EOF)
+    for expression in ["(! true)", "!true", "(not true)", "not true"] {
+        let source: string = (+ "fn invert()->bool{return " (+ expression "} fn main()->int{return 0}"))
+        let stream: List<LexerToken> = (tokenize_string source "native-bang.nano" diags)
+        let parsed: Parser = (parse_program stream (list_LexerToken_length stream) "native-bang.nano")
+        assert (not parsed.has_error)
+        let call: ASTCall = (parser_get_call parsed 0)
+        assert (== call.arg_count 1)
+        assert (== (parser_get_identifier parsed call.function).name "not")
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-bang.nano")
+        assert (not checked.had_error) assert (== checked.environment.error_count 0)
+        assert (== (list_CompilerDiagnostic_length checked.diagnostics) 0)
+    }
+}
+shadow check_legacy_bang_contracts { (check_legacy_bang_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -235,6 +281,8 @@ fn main() -> int {
     (check_character_contracts)
     (check_u8_argument_contracts)
     (check_string_stdlib_contracts)
+    (check_uppercase_parser_contracts)
+    (check_legacy_bang_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

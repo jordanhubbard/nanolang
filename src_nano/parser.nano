@@ -3170,7 +3170,7 @@ fn parse_primary(p: Parser) -> Parser {
                                     /* Unary call: (not expr) */
                                     if (== tok2.token_type (token_not)) {
                                         let p_op: Parser = (parser_advance p1)
-                                        let p_id: Parser = (parser_store_identifier p_op tok2.value tok2.line tok2.column)
+                                        let p_id: Parser = (parser_store_identifier p_op "not" tok2.line tok2.column)
                                         let func_id: int = p_id.last_expr_node_id
                                         let p_arg: Parser = (parse_expression p_id)
                                         if (parser_has_error p_arg) {
@@ -3480,6 +3480,15 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
+    for source in ["(! true)", "!true", "(not true)", "not true"] {
+        let tokens: List<LexerToken> = (tokenize_string source "unary-bang.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "unary-bang.nano"))
+        assert (not parsed.has_error) assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_CALL)
+        let call: ASTCall = (parser_get_call parsed parsed.last_expr_node_id)
+        assert (== call.arg_count 1)
+        assert (== (parser_get_identifier parsed call.function).name "not")
+    }
     let anonymous_sources: array<string> = ["{}", "{x:7,y:9}", "{child:{x:7}}"]
     for source in anonymous_sources {
         let tokens: List<LexerToken> = (tokenize_string source "anonymous.nano" (list_CompilerDiagnostic_new))
