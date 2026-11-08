@@ -1,0 +1,1221 @@
+{
+  "platform": "darwin",
+  "compiler": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc",
+  "cases": [
+    {
+      "case": "plain",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "single_quotes",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "with space.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "with space.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "double_quotes",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "with space.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "with space.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "embedded_quotes",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "escaped_space",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "with space.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "with space.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "quoted_backslash",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "back\\slash.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "back\\slash.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "comma",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "comma,name.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "comma,name.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "vertical_tab",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "-lm"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a\u000b-lm"
+      ],
+      "captured_arguments": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\u000b-lm in 'selected.a\u000b-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": false,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "form_feed",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "-lm"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a\f-lm"
+      ],
+      "captured_arguments": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\f-lm in 'selected.a\f-lm'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": false,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "nested_cwd_relative",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "repeated_response",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "selected.a"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/inner.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/captured, cache with space/.build/.nano-link-response-3f2090c1ac1eb957.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": null,
+      "materialization_decline": "repeated resolved response",
+      "materialized_arguments": null,
+      "captured_arguments": null,
+      "argument_identity_rejection": true,
+      "argument_capture_status": 1,
+      "argument_capture_errno": 62,
+      "argument_capture_error": "I could not capture linker arguments: errno=62\n",
+      "equivalent": false,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": false,
+      "argument_equivalent": true
+    },
+    {
+      "case": "distinct_equal_responses",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a",
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": false,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "aliased_response_spelling",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "selected.a"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/inner.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/captured, cache with space/.build/.nano-link-response-3f2090c1ac1eb957.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": null,
+      "materialization_decline": "repeated resolved response",
+      "materialized_arguments": null,
+      "captured_arguments": null,
+      "argument_identity_rejection": true,
+      "argument_capture_status": 1,
+      "argument_capture_errno": 62,
+      "argument_capture_error": "I could not capture linker arguments: errno=62\n",
+      "equivalent": false,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": false,
+      "argument_equivalent": true
+    },
+    {
+      "case": "symlink_response_alias",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "selected.a"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/inner.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/captured, cache with space/.build/.nano-link-response-3f2090c1ac1eb957.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": null,
+      "materialization_decline": "repeated resolved response",
+      "materialized_arguments": null,
+      "captured_arguments": null,
+      "argument_identity_rejection": true,
+      "argument_capture_status": 1,
+      "argument_capture_errno": 62,
+      "argument_capture_error": "I could not capture linker arguments: errno=62\n",
+      "equivalent": false,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": false,
+      "argument_equivalent": true
+    },
+    {
+      "case": "hardlink_response_alias",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "selected.a",
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: recursively loading /private/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/retained, cache with space/nested-0.rsp\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a",
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": "ld: warning: ignoring duplicate libraries: 'selected.a'\n"
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": false,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "unterminated_quote",
+      "driver_decoder_admitted": false,
+      "decoded_words": [
+        "@/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/responses/outer.rsp"
+      ],
+      "native": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "candidate": null,
+      "retained": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "collapsed": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "captured": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialized": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a\n"
+      ],
+      "captured_arguments": {
+        "status": 1,
+        "answer": null,
+        "error": "ld: file cannot be open()ed, errno=2 (No such file or directory) path=selected.a\n in 'selected.a\n'\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n"
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "unterminated_quote_without_newline",
+      "driver_decoder_admitted": false,
+      "decoded_words": [
+        "@/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/responses/outer.rsp"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": null,
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "trailing_backslash",
+      "driver_decoder_admitted": false,
+      "decoded_words": [
+        "@/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/responses/outer.rsp"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": null,
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "empty_quoted_argument",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "",
+        "selected.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "",
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "quoted_crlf",
+      "driver_decoder_admitted": true,
+      "decoded_words": [
+        "with\r\nline.a"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "with\r\nline.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "nested_unterminated_quote",
+      "driver_decoder_admitted": false,
+      "decoded_words": [
+        "@/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/responses/outer.rsp"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": null,
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    },
+    {
+      "case": "nested_trailing_backslash",
+      "driver_decoder_admitted": false,
+      "decoded_words": [
+        "@/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-linker-grammar-serdq6wv/responses/outer.rsp"
+      ],
+      "native": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "candidate": null,
+      "retained": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "collapsed": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "captured": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialized": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "materialization_decline": null,
+      "materialized_arguments": [
+        "-Xlinker",
+        "selected.a"
+      ],
+      "captured_arguments": {
+        "status": 0,
+        "answer": 42,
+        "error": ""
+      },
+      "argument_identity_rejection": false,
+      "argument_capture_status": 0,
+      "argument_capture_errno": null,
+      "argument_capture_error": "",
+      "equivalent": true,
+      "retained_equivalent": true,
+      "collapsed_equivalent": true,
+      "captured_equivalent": true,
+      "materialized_equivalent": true,
+      "argument_equivalent": true
+    }
+  ]
+}

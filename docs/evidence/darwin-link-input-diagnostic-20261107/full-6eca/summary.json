@@ -1,0 +1,20 @@
+{
+  "methods": [
+    "test_xassembler",
+    "test_split_xassembler",
+    "test_raw_assembler",
+    "test_preprocessed_assembler",
+    "test_shared_raw_assembler",
+    "test_shared_preprocessed_assembler"
+  ],
+  "selected_configurations": 30,
+  "targeted_historical_failures": 24,
+  "neighbor_controls": 6,
+  "methods_run": 6,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "roots": [],
+  "full_source_snapshot_corpus": false,
+  "native_lifecycle_admitted": false
+}
