@@ -1,0 +1,14 @@
+{
+  "stage1": {
+    "cleared": [
+      "test_stdlib_arrays"
+    ],
+    "new_failures": []
+  },
+  "stage2": {
+    "cleared": [
+      "test_stdlib_arrays"
+    ],
+    "new_failures": []
+  }
+}

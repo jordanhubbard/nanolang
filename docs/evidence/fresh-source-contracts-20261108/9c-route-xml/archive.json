@@ -1,0 +1,9 @@
+{
+  "artifact": 13626800155,
+  "size": 51308067,
+  "sha256": "372f50559e28427dcb2533acb081419c6925e9e2c7c82141fff3bea877eb3dc6",
+  "entries": 8450,
+  "crc_verified": true,
+  "original_zip_retained_locally": false,
+  "scope": "I inspected complete hosted ZIP bytes in memory and retained exact route XML only; other entries and product bytes are not retained or independently checked by this receipt."
+}

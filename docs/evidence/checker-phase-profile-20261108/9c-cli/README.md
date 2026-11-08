@@ -1,6 +1,6 @@
 # My fresh checked-emission phase checkpoint
 
-Run [42492701660](https://github.com/jordanhubbard/nanolang/actions/runs/42492701660) at `9c6312a3d6ab42e65b43d34385a34052a38c8e42` finishes the original CLI step successfully and continues into the complete corpus. Every original C-seed, VM, Stage 1 and Stage 2 CLI route produces the unchanged 2/0/1/2 outcomes, without timeout, under the existing 1800-second compilation bound. I do not report the still-running corpus as passed.
+Run [42492701660](https://github.com/jordanhubbard/nanolang/actions/runs/42492701660) at `9c6312a3d6ab42e65b43d34385a34052a38c8e42` finishes the original CLI step successfully and continues into the complete corpus. Every original C-seed, VM, Stage 1 and Stage 2 CLI route produces the unchanged 2/0/1/2 outcomes, without timeout, under the existing 1800-second compilation bound. My later [terminal route receipt](../../fresh-source-contracts-20261108/9c-route-xml/README.md) records 207/237 per fresh stage, with 30 failures and no skips; I do not report the complete corpus as passed.
 
 My two fresh stage compilations take 584.716050 and 579.634008 seconds. All 22 markers per stage are present exactly once and ordered by the same monotonic clock; all 18 observed tool calls per stage complete successfully with unchanged tool/input hashes. I retain every original metadata record in deterministic gzip and derive `observations.json` from those records.
 
