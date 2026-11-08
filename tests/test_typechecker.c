@@ -126,6 +126,21 @@ void test_tc_distinct_record_fields(void) {
     ASSERT(!tc_passes("struct Point{x:u8,y:int} fn main()->int{let p:Point=Point{x:7,x:9} return 0}"));
 }
 
+void test_tc_character_contracts(void) {
+    const char *names[] = {"is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper",
+        "is_lower", "digit_value", "char_to_lower", "char_to_upper"};
+    const char *arguments[] = {"48", "true", "", "48 49", "\"wrong\""};
+    char source[256];
+    for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+        for (size_t j = 0; j < sizeof(arguments) / sizeof(arguments[0]); ++j) {
+            snprintf(source, sizeof(source), "fn main()->int{(%s %s) return 0}", names[i], arguments[j]);
+            ASSERT(tc_passes(source) == (j == 0));
+        }
+    }
+    ASSERT(tc_passes("fn kept(value:string)->string{return value} fn main()->string{let is_digit:fn(string)->string=kept return (is_digit \"ok\")}"));
+    ASSERT(tc_passes("extern fn is_digit(value:string)->string fn main()->int{return 0}"));
+}
+
 void test_tc_format_template(void) {
     ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
@@ -1051,6 +1066,7 @@ int main(void) {
     TEST(tc_minimal_main);
     TEST(tc_format_template);
     TEST(tc_distinct_record_fields);
+    TEST(tc_character_contracts);
     TEST(tc_reserved_definition_policy);
     TEST(tc_array_index_contract);
     TEST(tc_arithmetic);

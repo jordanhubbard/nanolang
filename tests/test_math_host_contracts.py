@@ -123,21 +123,25 @@ shadow main{assert (== (main) 0)}
             ('libm.so', 'sqrt', 'float', 'float', 'PUSH_F64 4.0'),
             ('', 'sqrt_other', 'float', 'float', 'PUSH_F64 4.0'),
         ]
-        output = ROOT/'.test_output/numeric-builtin-selection'
-        output.mkdir(parents=True, exist_ok=True)
-        for library, name, result_type, parameters, body in cases:
-            with self.subTest(library=library, symbol=name, parameters=parameters):
-                work = Path(tempfile.mkdtemp(prefix='math-import-refusal-', dir=output))
-                assembly, module, source = work/'main.nasm', work/'module.nvm', work/'prior.c'
-                assembly.write_text('.entry main\n.import "'+library+'" "'+name+'" '+
-                    result_type+' '+parameters+'\n.function main 0 0 0 int 1\n'+body+
-                    '\nCALL_EXTERN 0\nPOP\nPUSH_I64 0\nRET\n.end\n')
-                self.command(work, 'assemble', [ROOT/'bin/nanoisa', 'asm', assembly, '-o', module])
-                self.command(work, 'verify', [ROOT/'bin/nano_vm', '--verify-only', module])
-                prior = b'I preserve my prior math translation.\n'
-                source.write_bytes(prior)
-                result = self.command(work, 'refusal', [ROOT/'bin/nvm2c', module,
-                    '-o', source], accepted=False)
-                self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
-                self.assertTrue(result.stderr, 'I require the actual refusal diagnostic.')
-                self.assertEqual(source.read_bytes(), prior)
+        refuse_host_imports(self, cases, 'math-import-refusal-')
+
+
+def refuse_host_imports(test, cases, prefix):
+    output = ROOT/'.test_output/numeric-builtin-selection'
+    output.mkdir(parents=True, exist_ok=True)
+    for library, name, result_type, parameters, body in cases:
+        with test.subTest(library=library, symbol=name, parameters=parameters):
+            work = Path(tempfile.mkdtemp(prefix=prefix, dir=output))
+            assembly, module, source = work/'main.nasm', work/'module.nvm', work/'prior.c'
+            assembly.write_text('.entry main\n.import "'+library+'" "'+name+'" '+
+                result_type+' '+parameters+'\n.function main 0 0 0 int 1\n'+body+
+                '\nCALL_EXTERN 0\nPOP\nPUSH_I64 0\nRET\n.end\n')
+            test.command(work, 'assemble', [ROOT/'bin/nanoisa', 'asm', assembly, '-o', module])
+            test.command(work, 'verify', [ROOT/'bin/nano_vm', '--verify-only', module])
+            prior = b'I preserve my prior math translation.\n'
+            source.write_bytes(prior)
+            result = test.command(work, 'refusal', [ROOT/'bin/nvm2c', module,
+                '-o', source], accepted=False)
+            test.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+            test.assertTrue(result.stderr, 'I require the actual refusal diagnostic.')
+            test.assertEqual(source.read_bytes(), prior)

@@ -5518,6 +5518,42 @@ shadow tc_generic_call {
     }
 }
 
+# I share my existing public character result contracts with the producer.
+pub fn character_builtin_result(name: string) -> string {
+    let predicates: array<string> = ["is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower"]
+    for predicate in predicates { if (== name predicate) { return "bool" } }
+    if (or (== name "digit_value") (or (== name "char_to_lower") (== name "char_to_upper"))) { return "int" }
+    return ""
+}
+shadow character_builtin_result {
+    for name in ["is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower"] {
+        assert (== (character_builtin_result name) "bool")
+    }
+    for name in ["digit_value", "char_to_lower", "char_to_upper"] { assert (== (character_builtin_result name) "int") }
+    assert (== (character_builtin_result "unrelated") "")
+}
+
+fn check_character_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut valid: bool = (== call.arg_count 1)
+    if valid {
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        set valid (== (check_expr_node parser argument.node_id argument.node_type symbols diags file_name).kind TypeKind.TYPE_INT)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one INT character operand." (Diagnostics.diag_location file_name call.line call.column)))
+    }
+    return (type_from_string (character_builtin_result name))
+}
+shadow check_character_builtin {
+    let good: Parser = (resource_test_parser "fn main()->int{assert (is_digit 48) return (char_to_lower 65)}")
+    assert (not (typecheck_phase good "character.nano").had_error)
+    for source in ["fn main()->int{assert (is_digit true) return 0}", "fn main()->int{return (digit_value)}", "fn main()->int{return (char_to_upper 65 66)}"] {
+        let bad: Parser = (resource_test_parser source)
+        assert (not bad.has_error)
+        assert (typecheck_phase bad "character.nano").had_error
+    }
+}
+
 fn check_fixed_string_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let mut count: int = 1
     if (== name "str_contains") { set count 2 }
@@ -5885,6 +5921,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             return (check_builtin_function fn_name)
         }
+        let character: bool = (!= (character_builtin_result fn_name) "")
+        if (and character (< (env_lookup symbols fn_name) 0)) {
+            return (check_character_builtin parser call_node fn_name symbols diags file_name)
+        }
         let fixed_string: bool = (or (== fn_name "str_length") (== fn_name "str_contains"))
         if (and fixed_string (< (env_lookup symbols fn_name) 0)) {
             return (check_fixed_string_builtin parser call_node fn_name symbols diags file_name)
@@ -5901,6 +5941,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and character (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and fixed_string (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (== fn_name "cast_float") (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
@@ -6266,6 +6307,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->string{let is_digit:fn(string)->string=same return (is_digit \"ok\")}")
+    assert (not character_binding.has_error)
+    assert (not (typecheck_phase character_binding "character.nano").had_error)
     let fixed_operand_invalid: Parser = (resource_test_parser "fn main()->int{return (str_length 1)}")
     assert (typecheck_phase fixed_operand_invalid "string-expression.nano").had_error
     let fixed_operand_valid: Parser = (resource_test_parser "fn main()->int{return (str_length \"x\")}")

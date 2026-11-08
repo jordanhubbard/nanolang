@@ -28,6 +28,8 @@ on:
       - 'tests/test_map_constructor_contexts.py'
       - 'tests/unit/test_map_constructor_contexts.nano'
       - 'src/typechecker.c'
+      - 'src/parser.c'
+      - 'tests/test_parser.c'
       - 'src/nanoisa/nvm2c.c'
       - 'src/nanoisa/nvm2c_shape.c'
       - 'src/nanoisa/nvm2c_shape.h'

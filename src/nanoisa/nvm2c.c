@@ -452,6 +452,8 @@ static const Nvm2cHost host_adapters[] = {
     {"vm_is_lower", "nhost_is_lower", 1, TAG_INT, TAG_BOOL},
     {"vm_is_whitespace", "nhost_is_whitespace", 1, TAG_INT, TAG_BOOL},
     {"vm_digit_value", "nhost_digit_value", 1, TAG_INT, TAG_INT},
+    {"vm_char_to_lower", "nhost_char_to_lower", 1, TAG_INT, TAG_INT},
+    {"vm_char_to_upper", "nhost_char_to_upper", 1, TAG_INT, TAG_INT},
     {"vm_string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"vm_mktemp_dir", "nhost_mktemp_dir", 1, TAG_STRING, TAG_STRING},
@@ -8537,6 +8539,11 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
                 "static inline int64_t nhost_is_whitespace(int64_t code) { return code == ' ' || code == 9 || code == 10 || code == 13; }\n");
             if (module_uses_host(mod, "nhost_digit_value")) nvm2c_puts(&b,
                 "static inline int64_t nhost_digit_value(int64_t code) { return code >= '0' && code <= '9' ? code - '0' : -1; }\n");
+            /* I preserve the complete INT value outside the ASCII case range. */
+            if (module_uses_host(mod, "nhost_char_to_lower")) nvm2c_puts(&b,
+                "static inline int64_t nhost_char_to_lower(int64_t code) { return code >= 'A' && code <= 'Z' ? code + 32 : code; }\n");
+            if (module_uses_host(mod, "nhost_char_to_upper")) nvm2c_puts(&b,
+                "static inline int64_t nhost_char_to_upper(int64_t code) { return code >= 'a' && code <= 'z' ? code - 32 : code; }\n");
             if (module_uses_host(mod, "nhost_from_char")) nvm2c_puts(&b,
                 "static char *nstr_allocate(size_t n);\n"
                 "static inline const char *nhost_from_char(int64_t code) {\n"

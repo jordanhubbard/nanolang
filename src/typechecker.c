@@ -3028,6 +3028,32 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
+            /* I keep character host operands exact after lexical values resolve. */
+            {
+                static const char *predicates[] = {"is_digit", "is_alpha", "is_alnum",
+                    "is_whitespace", "is_upper", "is_lower"};
+                static const char *integers[] = {"digit_value", "char_to_lower", "char_to_upper"};
+                Type result = TYPE_UNKNOWN;
+                for (size_t i = 0; i < sizeof(predicates) / sizeof(predicates[0]); ++i)
+                    if (!strcmp(expr->as.call.name, predicates[i])) result = TYPE_BOOL;
+                for (size_t i = 0; i < sizeof(integers) / sizeof(integers[0]); ++i)
+                    if (!strcmp(expr->as.call.name, integers[i])) result = TYPE_INT;
+                Function *character_definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                bool character_builtin = !character_definition ||
+                    (!character_definition->body && !character_definition->is_extern);
+                if (result != TYPE_UNKNOWN && character_builtin) {
+                    if (expr->as.call.arg_count != 1 ||
+                        check_expression(expr->as.call.args[0], env) != TYPE_INT) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require one INT character operand.",
+                            "Pass one integer character code.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return result;
+                }
+            }
+
             /* I check the variadic builtin after bound function values resolve. */
             if (strcmp(expr->as.call.name, "format") == 0) {
                 if (expr->as.call.arg_count < 1) {

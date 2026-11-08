@@ -113,6 +113,24 @@ fn check_byte_alias_contracts() -> void {
 }
 shadow check_byte_alias_contracts { (check_byte_alias_contracts) }
 
+fn check_character_contracts() -> void {
+    let names: array<string> = ["is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower", "digit_value", "char_to_lower", "char_to_upper"]
+    for name in names {
+        let calls: array<string> = [(+ name " 48"), (+ name " true"), name, (+ name " 48 49")]
+        for index in (range 0 (array_length calls)) {
+            let source: string = (+ "fn main()->int{(" (+ (at calls index) ") return 0}"))
+            let tokens: List<LexerToken> = (tokenize_string source "component-character.nano" (list_CompilerDiagnostic_new))
+            let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-character.nano")
+            assert (not parsed.has_error)
+            let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-character.nano")
+            assert (== checked.had_error (> index 0))
+            assert (== (> checked.environment.error_count 0) (> index 0))
+            assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (> index 0))
+        }
+    }
+}
+shadow check_character_contracts { (check_character_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -138,6 +156,7 @@ fn main() -> int {
     (check_reserved_definition_contracts)
     (check_anonymous_record_contracts)
     (check_byte_alias_contracts)
+    (check_character_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

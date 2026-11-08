@@ -50,6 +50,8 @@ on:
       - 'tests/test_character_builtin_contracts.py'
       - 'tests/test_typechecker.c'
       - 'src/typechecker.c'
+      - 'src/parser.c'
+      - 'tests/test_parser.c'
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'
 
