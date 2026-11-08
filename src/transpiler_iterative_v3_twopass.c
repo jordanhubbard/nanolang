@@ -2141,7 +2141,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                      array_arg->as.array_literal.element_count == 0;
                 if (empty_literal) {
                     Type input = filter_predicate_element_type(fn_arg, env);
-                    if (input == TYPE_INT || input == TYPE_FLOAT ||
+                    if (input == TYPE_INT || input == TYPE_U8 || input == TYPE_FLOAT ||
                         input == TYPE_BOOL || input == TYPE_STRING) elem_type = input;
                 }
 
@@ -2149,7 +2149,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *type_suffix = "int";
                 const char *c_type = "int64_t";
 
-                if (elem_type == TYPE_FLOAT) {
+                if (elem_type == TYPE_U8) {
+                    elem_enum = "ELEM_U8";
+                    type_suffix = "u8";
+                    c_type = "uint8_t";
+                } else if (elem_type == TYPE_FLOAT) {
                     elem_enum = "ELEM_FLOAT";
                     type_suffix = "float";
                     c_type = "double";
@@ -2236,7 +2240,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *type_suffix = "int";
                 const char *c_type = "int64_t";
 
-                if (elem_type == TYPE_FLOAT) {
+                if (elem_type == TYPE_U8) {
+                    elem_enum = "ELEM_U8";
+                    type_suffix = "u8";
+                    c_type = "uint8_t";
+                } else if (elem_type == TYPE_FLOAT) {
                     elem_enum = "ELEM_FLOAT";
                     type_suffix = "float";
                     c_type = "double";
@@ -2262,7 +2270,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 build_expr(list, fn_arg, env);
                 Type result_type = map_transform_result_type(fn_arg, env);
                 const char *result_suffix = type_suffix;
-                if (result_type == TYPE_INT) { elem_enum = "ELEM_INT"; result_suffix = "int"; }
+                if (result_type == TYPE_U8) { elem_enum = "ELEM_U8"; result_suffix = "u8"; }
+                else if (result_type == TYPE_INT) { elem_enum = "ELEM_INT"; result_suffix = "int"; }
                 else if (result_type == TYPE_FLOAT) { elem_enum = "ELEM_FLOAT"; result_suffix = "float"; }
                 else if (result_type == TYPE_BOOL) { elem_enum = "ELEM_BOOL"; result_suffix = "bool"; }
                 else if (result_type == TYPE_STRING) { elem_enum = "ELEM_STRING"; result_suffix = "string"; }
@@ -2322,7 +2331,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 const char *elem_suffix = "int";
                 const char *elem_c_type = "int64_t";
-                if (elem_type == TYPE_FLOAT) {
+                if (elem_type == TYPE_U8) {
+                    elem_suffix = "u8";
+                    elem_c_type = "uint8_t";
+                } else if (elem_type == TYPE_FLOAT) {
                     elem_suffix = "float";
                     elem_c_type = "double";
                 } else if (elem_type == TYPE_STRING) {
@@ -4474,7 +4486,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                      */
                     const char *get_fn;
                     const char *c_elem_type;
-                    if (dyn_elem_type == TYPE_FLOAT) {
+                    if (dyn_elem_type == TYPE_U8) {
+                        get_fn = "dyn_array_get_u8";
+                        c_elem_type = "uint8_t";
+                    } else if (dyn_elem_type == TYPE_FLOAT) {
                         get_fn = "dyn_array_get_float";
                         c_elem_type = "double";
                     } else if (dyn_elem_type == TYPE_STRING) {

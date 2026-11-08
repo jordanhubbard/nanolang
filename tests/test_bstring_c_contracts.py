@@ -85,6 +85,8 @@ fn echo_octet(value:u8)->u8{return value}
 shadow echo_octet{let value:u8=65 assert (== (echo_octet value) 65)}
 fn keep_octet(value:u8)->bool{return (>= value 65)}
 shadow keep_octet{let value:u8=65 assert (keep_octet value)}
+fn sum_octet(acc:int,value:u8)->int{return (+ acc value)}
+shadow sum_octet{let value:u8=65 assert (== (sum_octet 1 value) 66)}
 fn keep_owner(value:bstring)->bstring{return value}
 shadow keep_owner{
  let value:bstring=(bstr_new "owner")
@@ -142,6 +144,7 @@ fn exercise()->int{
  let mut total:int=0
  for octet in converted {set total (+ total octet)}
  assert (== total 141)
+ assert (== (reduce converted 0 sum_octet) 141)
  let reversed:array<u8> = (array_reverse converted)
  let reversed_owner:bstring=(bstr_new_binary reversed)
  assert (== (bstr_to_cstr reversed_owner) "KB")
