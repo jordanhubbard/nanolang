@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1065/#1088 I retain my [9c fresh 22-marker checkpoint](evidence/checker-phase-profile-20261108/9c-cli/README.md): every original CLI route passes 2/0/1/2; both stages expose typecheck 55.474/54.313 seconds, program lowering 93.081/92.001 and shadow lowering 161.238/160.286, distinct from shadow execution 1.064/1.053. All marker/tool metadata verifies; the full corpus is still running, actual product byte custody awaits the full artifact, and inner cause/optimization remain open.
+
 - [x] Under #1112 I retain my [qualified 2bf Linux ownership checkpoint](evidence/string-self-assignment-20261108/qualified-2bf/README.md): both original environment units, actual Nano checker and ownership language components, 137-method suites and original C/alias/translator/shape gates pass. I independently verify two ownership ELF programs, two checker ELF programs and 26 byte-conversion ELF programs. The later parameter-copy optimization, Apple, fresh stages and final integration remain separately qualified.
 
 
