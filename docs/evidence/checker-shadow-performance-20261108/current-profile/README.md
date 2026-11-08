@@ -1,0 +1,11 @@
+# My current C-seed shadow CPU sample
+
+I build the current C provider with the normal Makefile flags and two build processes, after three worker samples show about 41 GiB free, 28 percent free/inactive/speculative RAM and no sustained CPU saturation. The build fits the remaining headroom; I keep full bootstraps hosted. The private build record preserves the prior provider, source pin, command and complete output.
+
+I launch a separate bounded checker creation with the original ten-second deadline and existing shadow trace. After its first actual shadow event, I identify only its own C-seed child in the same process group and run `/usr/bin/sample` for three seconds at one-millisecond intervals. The recorded target is PID 36290, parent/group 20094. Sampling exits zero. All 690 shadows complete, and the actual generated checker runs successfully with unchanged source/provider hashes and matching before/after product hashes.
+
+The sample has 2083 stack observations. Its leaf summary attributes 691 to `env_define_var_with_type_info`, 222 to `env_set_var`, and 311 to string comparison. The call tree associates 515 inclusive environment-definition observations with function-parameter binding and 470 with declaration handling. These inclusive counts overlap leaf counts and must not be added to them. The profile identifies binding/alias management as a useful next target; it does not demonstrate that every sampled binding is redundant or attribute the historical Apple run's full duration.
+
+I inspect the existing parameter path: it always allocates a new STRING copy, then the generic environment binder searches all existing bindings for an alias to that new allocation. An optimization must preserve that copy, metadata and ordinary borrowed-value retention. I also confirm the separate self-assignment lifetime defect under #1112 before changing this path.
+
+The private ZIP passes CRC and retains ten file hashes, nine exact texts, the complete CPU report, exact commands/inputs and one actual checker Mach-O program. Sampling perturbs execution, so this is attribution evidence, not an uninstrumented timing baseline. The local SDK/profile differs from the pinned hosted Apple profile; final component/platform and fresh-stage acceptance remain separate.

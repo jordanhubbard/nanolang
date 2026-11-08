@@ -960,6 +960,12 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        /* I keep the binding's ownership when its STRING pointer is unchanged. */
+        if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
+            value.as.string_val == sym->value.as.string_val) {
+            sym->value = value;
+            return;
+        }
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
         if (value.type == VAL_STRUCT && value.as.struct_val) {

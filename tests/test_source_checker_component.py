@@ -1,4 +1,4 @@
-"""I execute my actual Nano checker component through the C creation path."""
+"""I execute my Nano checker and STRING ownership controls through my C creation path."""
 import hashlib
 import json
 from pathlib import Path
@@ -53,6 +53,61 @@ class SourceCheckerComponent(unittest.TestCase):
                 'product_magic_hex': product.read_bytes()[:4].hex() if product.is_file() else None,
                 'before': before, 'after': after, 'product_before_run': product_before,
                 'product_after_run': product_after}, indent=2)+'\n')
+            self.assertEqual(before, after)
+            if product_before is not None:
+                self.assertEqual(product_before, product_after)
+
+    def test_string_self_assignment_language_contract(self):
+        compiler = ROOT/'bin/nanoc_c'
+        output = ROOT/'.test_output/source-checker-component'
+        output.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix='language-string-self-', dir=output))
+        source = work/'main.nano'
+        source.write_text('''fn keep(value:string)->string{
+ let mut held:string=value
+ set held held
+ set held (str_concat held "!")
+ return held
+}
+shadow keep{assert (== (keep "call") "call!")}
+fn main()->int{
+ let mut lone:string=(str_concat "ret" "ained")
+ set lone lone
+ assert (== lone "retained")
+ let mut alias:string=lone
+ set lone "changed"
+ assert (== alias "retained")
+ set alias alias
+ assert (== alias "retained")
+ assert (== (keep alias) "retained!")
+ assert (== alias "retained")
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''')
+        product = work/'native'
+        before = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in [compiler, source]}
+        product_before = None
+        try:
+            self.command(work, 'source-build', [compiler, source, '--keep-c', '-o', product], build=True)
+            magic = product.read_bytes()[:4]
+            if sys.platform.startswith('linux'):
+                self.assertEqual(magic, b'\x7fELF')
+            elif sys.platform == 'darwin':
+                self.assertIn(magic, (bytes.fromhex('cffaedfe'), bytes.fromhex('feedfacf'),
+                    bytes.fromhex('cafebabe'), bytes.fromhex('bebafeca'),
+                    bytes.fromhex('cafebabf'), bytes.fromhex('bfbafeca')))
+            product_before = hashlib.sha256(product.read_bytes()).hexdigest()
+            result = self.command(work, 'native-run', [product])
+            self.assertEqual(result.stdout, '')
+        finally:
+            after = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                     for path in [compiler, source]}
+            product_after = hashlib.sha256(product.read_bytes()).hexdigest() if product.is_file() else None
+            (work/'inputs.json').write_text(json.dumps({'scope': 'C interpreter shadows and generated native STRING self-assignment',
+                'before': before, 'after': after,
+                'product_before_run': product_before, 'product_after_run': product_after}, indent=2)+'\n')
             self.assertEqual(before, after)
             if product_before is not None:
                 self.assertEqual(product_before, product_after)

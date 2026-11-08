@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
+      - 'tests/test_env_symbol_index.c'
       - 'src/eval.c'
       - 'src/transpiler.c'
       - 'src/transpiler_iterative_v3_twopass.c'
@@ -174,6 +175,11 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu CC="$CC" test-typechecker \
             2>&1 | tee .test_output/string-builtin-operands/typechecker.log
+      - name: Execute my existing environment index and STRING ownership controls
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-env-symbol-index \
+            2>&1 | tee .test_output/string-builtin-operands/environment.log
       - name: Execute my actual source checker native component through the C seed
         id: checker_component
         env:
@@ -199,6 +205,7 @@ jobs:
             .test_output/string-builtin-operands/build.log
             .test_output/string-builtin-operands/parser.log
             .test_output/string-builtin-operands/typechecker.log
+            .test_output/string-builtin-operands/environment.log
             .test_output/string-builtin-operands/tests.log
             .test_output/source-checker-component/**/*.json
             .test_output/source-checker-component/**/*.jsonl

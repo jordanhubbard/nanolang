@@ -197,9 +197,50 @@ static void check_function_index(void) {
     free_environment(env);
 }
 
+static void check_string_self_assignment(void) {
+    Environment *env = create_environment();
+    env_define_var(env, "text", TYPE_STRING, true, create_string("retained"));
+    Value original = env_get_var(env, "text")->value;
+    char *pointer = original.as.string_val;
+    assert(gc_is_managed(pointer));
+    assert(gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", original);
+    assert(gc_is_managed(pointer));
+    assert(gc_get_header(pointer)->ref_count == 1);
+    assert(!strcmp(env_get_var(env, "text")->value.as.string_val, "retained"));
+
+    char target;
+    Value flagged = original;
+    flagged.is_return = true;
+    flagged.return_target = &target;
+    env_set_var(env, "text", flagged);
+    assert(env_get_var(env, "text")->value.is_return);
+    assert(env_get_var(env, "text")->value.return_target == &target);
+    assert(gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", original);
+    env_define_var(env, "alias", TYPE_STRING, true, original);
+    assert(gc_get_header(pointer)->ref_count == 2);
+    env_set_var(env, "text", original);
+    assert(gc_get_header(pointer)->ref_count == 2);
+    env_set_var(env, "alias", create_string("new alias"));
+    assert(gc_is_managed(pointer) && gc_get_header(pointer)->ref_count == 1);
+    env_set_var(env, "text", create_string("replacement"));
+    assert(!gc_is_managed(pointer));
+
+    Value plain = create_void();
+    plain.type = VAL_STRING;
+    plain.as.string_val = strdup("ordinary allocation");
+    assert(plain.as.string_val);
+    env_define_var(env, "plain", TYPE_STRING, true, plain);
+    env_set_var(env, "plain", plain);
+    assert(!strcmp(env_get_var(env, "plain")->value.as.string_val, "ordinary allocation"));
+    free_environment(env);
+}
+
 int main(void) {
     gc_init();
     check_function_index();
+    check_string_self_assignment();
     Environment *env = create_environment();
     assert(!env_get_var(env, "absent"));
     for (int i = 0; i < 4096; ++i) {
