@@ -118,6 +118,10 @@ void test_tc_reserved_definition_policy(void) {
 }
 
 void test_tc_distinct_record_fields(void) {
+    ASSERT(tc_passes("struct Point{x:int} struct Outer{child:Point} fn make()->Outer{return {child:{x:7}}} fn main()->int{return 0}"));
+    ASSERT(tc_passes("struct Point{x:int} fn main()->int{let values:array<Point> = [{x:7},{x:9}] return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int} struct Other{x:int} fn main()->int{let values:array<Point> = [Point{x:7},Other{x:9}] return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int} struct Outer{child:Point} fn make()->Outer{return {child:{x:true}}} fn main()->int{return 0}"));
     ASSERT(tc_passes("struct Empty{} fn make()->Empty{return {}} fn main()->int{return 0}"));
     ASSERT(tc_passes("struct Point{x:int,y:int} fn make()->Point{return {y:9,x:7}} fn main()->int{return 0}"));
     ASSERT(!tc_passes("struct Point{x:int,y:int} fn make()->Point{return {x:7,x:9}} fn main()->int{return 0}"));

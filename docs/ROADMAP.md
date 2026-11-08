@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1101/#1090 I repair the retained C nested-field and record-array anonymous context refusals after empty parsing is corrected. I bind only anonymous literals to declared records, check every array element nominal identity, retain incompatible named-element refusal and preserve the existing whole positive assertion.
+
 - [x] Under #1101 I retain [both anonymous-record component attempts](evidence/anonymous-records-20261108/README.md): the first refusal-shadow failure has no native product; the corrected actual C-seed-created Nano checker executes eight production cases under GCC/Clang with verified ELF custody. All 83 source methods retain the duplicate acceptance and empty-literal parser refusal; I preserve those assertions and keep fresh-stage/platform acceptance open.
 
 - [ ] Under #1101 I repair the retained canonical VM parse refusal for an empty anonymous record in a declared expression context, preserving empty statement blocks. I keep the original nested/empty positive assertion and require original C parser units plus source/native acceptance.

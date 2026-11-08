@@ -78,3 +78,19 @@ shadow make{assert true}
 fn main()->int{return 0}
 shadow main{assert (== (main) 0)}
 ''', refused=True)
+
+    def test_nested_wrong_types_and_later_nominal_elements_refuse(self):
+        sources = [
+            '''struct Point{x:int} struct Outer{child:Point}
+fn make()->Outer{return {child:{x:true}}}
+shadow make{assert true}
+fn main()->int{return 0}
+shadow main{assert (== (main) 0)}
+''',
+            '''struct Point{x:int} struct Other{x:int}
+fn main()->int{let values:array<Point> = [Point{x:7},Other{x:9}] return 0}
+shadow main{assert (== (main) 0)}
+''']
+        for source in sources:
+            with self.subTest(source=source):
+                self.exercise(source, refused=True)

@@ -713,13 +713,41 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
     return NULL;
 }
 
+/* I supply a declared context only to an anonymous record expression. */
+static bool retain_anonymous_record_context(Environment *env, const char *name, ASTNode *value) {
+    if (!value || value->type != AST_STRUCT_LITERAL || value->as.struct_literal.struct_name ||
+        value->as.struct_literal.spread_source || !name) return true;
+    StructDef *record = env_get_struct(env, name);
+    if (!record) return true;
+    char *identity = strdup(record->name);
+    if (!identity) {
+        emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+            "I could not retain the declared anonymous record identity.",
+            "Provide enough memory to retain the checked context.");
+        return false;
+    }
+    value->as.struct_literal.struct_name = identity;
+    return true;
+}
+
 /* I compare declarations, including their module identity, at array boundaries. */
 static bool check_record_array_contract(Environment *env, Type type, Type element,
                                          const char *name, ASTNode *value) {
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
-    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) {
+    if (value->type == AST_ARRAY_LITERAL) {
+        for (int i = 0; i < value->as.array_literal.element_count; ++i) {
+            ASTNode *child = value->as.array_literal.elements[i];
+            if (!retain_anonymous_record_context(env, name, child)) return false;
+            const char *child_name = get_struct_type_name(child, env);
+            if (!child_name || env_get_struct(env, child_name) != expected) {
+                emit_context_error("E001 TYPE MISMATCH", child->line, child->column, 1,
+                    "I require every record array element to retain its declared nominal identity.",
+                    "Match the array element declaration, including its module identity.");
+                return false;
+            }
+        }
         value->as.array_literal.element_type = TYPE_STRUCT;
         value->as.array_literal.has_element_annotation = true;
         return true;
@@ -968,6 +996,11 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
                 free_payload_type_info(wanted);
             }
         }
+        return;
+    }
+    if (expected->base_type == TYPE_STRUCT && expected->generic_name &&
+        env_get_struct(env, expected->generic_name)) {
+        retain_anonymous_record_context(env, expected->generic_name, value);
         return;
     }
     if (!expected->generic_name) return;
