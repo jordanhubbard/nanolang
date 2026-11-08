@@ -307,6 +307,53 @@ static void check_record_literal_cleanup(void) {
     assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
 }
 
+/* I preserve borrowed aliases and metadata beside constructor-only elision. */
+static void check_evaluated_string_bindings(void) {
+    Environment *env = create_environment();
+    TypeInfo info = {.base_type = TYPE_STRING};
+    ASTNode literal = {.type = AST_STRING};
+    ASTNode identifier = {.type = AST_IDENTIFIER};
+    ASTNode call = {.type = AST_CALL};
+    call.as.call.name = "str_concat";
+    ASTNode addition = {.type = AST_PREFIX_OP};
+    addition.as.prefix_op.op = TOKEN_PLUS;
+    addition.as.prefix_op.arg_count = 2;
+    Value original = create_string("held");
+    char *pointer = original.as.string_val;
+    env_define_evaluated_var(env, "source", TYPE_STRING, TYPE_UNKNOWN, &info, true, original, &literal);
+    Symbol *source = env_get_var(env, "source");
+    assert(source->type == TYPE_STRING && source->element_type == TYPE_UNKNOWN);
+    assert(source->type_info == &info && source->is_mut);
+    assert(source->value.as.string_val == pointer && gc_get_header(pointer)->ref_count == 1);
+    env_define_evaluated_var(env, "alias", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &identifier);
+    env_define_evaluated_var(env, "call_alias", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &call);
+    assert(gc_get_header(pointer)->ref_count == 3);
+    Value target = create_string("replaced");
+    char *old_target = target.as.string_val;
+    env_define_evaluated_var(env, "target", TYPE_STRING, TYPE_UNKNOWN, &info, true, target, &literal);
+    env_set_evaluated_var(env, "target", original, &call);
+    assert(!gc_is_managed(old_target) && gc_get_header(pointer)->ref_count == 4);
+    env_set_evaluated_var(env, "source", create_string("replacement"), &addition);
+    assert(gc_get_header(pointer)->ref_count == 3);
+    assert(!strcmp(env_get_var(env, "source")->value.as.string_val, "replacement"));
+    assert(!strcmp(env_get_var(env, "alias")->value.as.string_val, "held"));
+    char boundary;
+    Value returned = original;
+    returned.is_return = true; returned.return_target = &boundary;
+    env_define_evaluated_var(env, "signal", TYPE_STRING, TYPE_UNKNOWN, &info, false, returned, &addition);
+    assert(gc_get_header(pointer)->ref_count == 4);
+    assert(env_get_var(env, "signal")->value.return_target == &boundary);
+    addition.as.prefix_op.arg_count = 1;
+    env_define_evaluated_var(env, "unary", TYPE_STRING, TYPE_UNKNOWN, &info, false, original, &addition);
+    assert(gc_get_header(pointer)->ref_count == 5);
+    env_set_evaluated_var(env, "target", returned, &identifier);
+    assert(gc_get_header(pointer)->ref_count == 5);
+    assert(env_get_var(env, "target")->value.is_return);
+    assert(env_get_var(env, "target")->value.return_target == &boundary);
+    free_environment(env);
+    assert(!gc_is_managed(pointer));
+}
+
 static void check_fresh_string_copy(void) {
     Environment *env = create_environment();
     Value caller = create_string("caller storage");
@@ -375,6 +422,7 @@ static void check_string_self_assignment(void) {
 int main(void) {
     gc_init();
     check_function_index();
+    check_evaluated_string_bindings();
     check_record_carriers();
     check_record_literal_cleanup();
     check_builtin_registry_selection();

@@ -63,7 +63,24 @@ class SourceCheckerComponent(unittest.TestCase):
         output.mkdir(parents=True, exist_ok=True)
         work = Path(tempfile.mkdtemp(prefix='language-string-self-', dir=output))
         source = work/'main.nano'
-        source.write_text('''fn keep(value:string)->string{
+        source.write_text('''fn borrowed(value:string)->string{return value}
+shadow borrowed{assert (== (borrowed "held") "held")}
+fn constructors()->string{
+ let mut text:string="literal"
+ let saved:string=(borrowed text)
+ set text (+ text " plus")
+ assert (== saved "literal")
+ let joined:string=(+ text " result")
+ let mut alias:string=joined
+ set alias (borrowed saved)
+ set text "replacement"
+ assert (== joined "literal plus result")
+ assert (== alias "literal")
+ set alias alias
+ return (+ alias " kept")
+}
+shadow constructors{assert (== (constructors) "literal kept")}
+fn keep(value:string)->string{
  let mut held:string=value
  set held held
  set held (str_concat held "!")
@@ -71,6 +88,7 @@ class SourceCheckerComponent(unittest.TestCase):
 }
 shadow keep{assert (== (keep "call") "call!")}
 fn main()->int{
+ assert (== (constructors) "literal kept")
  let mut lone:string=(str_concat "ret" "ained")
  set lone lone
  assert (== lone "retained")

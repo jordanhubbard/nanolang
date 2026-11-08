@@ -6160,13 +6160,13 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (value.type == VAL_ARRAY && stmt->as.let.element_type == TYPE_U8)
                 value.as.array_val->is_byte_array = true;
             value = own_function_identifier(stmt->as.let.value, env, value);
-            env_define_var_with_type_info(env,
+            env_define_evaluated_var(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,
                                          stmt->as.let.element_type,
                                          stmt->as.let.type_info,
                                          stmt->as.let.is_mut,
-                                         value);
+                                         value, stmt->as.let.value);
             
             /* Trace variable declaration */
 #ifdef TRACING_ENABLED
@@ -6200,7 +6200,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             value = own_function_identifier(stmt->as.set.value, env, value);
-            env_set_var(env, stmt->as.set.name, value);
+            env_set_evaluated_var(env, stmt->as.set.name, value, stmt->as.set.value);
             
             /* Trace variable assignment */
 #ifdef TRACING_ENABLED

@@ -1033,6 +1033,10 @@ void env_reclaim_static_arrays(Environment *env);
 size_t env_static_array_reclaim_count(void);
 Symbol *env_get_var(Environment *env, const char *name);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
+/* I accept the value just evaluated from this exact expression. */
+void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
+                              TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression);
+void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);

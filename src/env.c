@@ -782,8 +782,23 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
     env->symbols[env->symbol_count++] = sym;
 }
 
+/* I elide alias scans only for completed STRING constructors in my evaluator. */
+static bool evaluated_string_is_fresh(ASTNode *expression, Value value) {
+    if (!expression || value.type != VAL_STRING || value.is_return || value.is_break || value.is_continue)
+        return false;
+    if (expression->type == AST_STRING) return true;
+    return expression->type == AST_PREFIX_OP && expression->as.prefix_op.op == TOKEN_PLUS &&
+           expression->as.prefix_op.arg_count == 2;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     env_define_var_impl(env, name, type, element_type, type_info, is_mut, value, true);
+}
+
+void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
+                              TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression) {
+    env_define_var_impl(env, name, type, element_type, type_info, is_mut, value,
+                        !evaluated_string_is_fresh(expression, value));
 }
 
 /* I construct a fresh allocation here; an existing binding cannot alias it. */
@@ -966,7 +981,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 }
 
 /* Set variable value */
-void env_set_var(Environment *env, const char *name, Value value) {
+static void env_set_var_impl(Environment *env, const char *name, Value value, bool retain_string_aliases) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
         /* I keep the binding's ownership when its STRING pointer is unchanged. */
@@ -987,7 +1002,7 @@ void env_set_var(Environment *env, const char *name, Value value) {
         /* GC refcount fix: If the new string value is already referenced by
          * another variable, increment refcount to prevent use-after-free.
          * Handles: set x y where y is a string variable */
-        if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
             for (int i = 0; i < env->symbol_count; i++) {
                 if (&env->symbols[i] != sym &&
                     env->symbols[i].value.type == VAL_STRING &&
@@ -998,6 +1013,14 @@ void env_set_var(Environment *env, const char *name, Value value) {
             }
         }
     }
+}
+
+void env_set_var(Environment *env, const char *name, Value value) {
+    env_set_var_impl(env, name, value, true);
+}
+
+void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression) {
+    env_set_var_impl(env, name, value, !evaluated_string_is_fresh(expression, value));
 }
 
 /* Check if a name is a built-in function (known to the typechecker) */
