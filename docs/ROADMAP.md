@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1065/#1110/#1112 I retain my [complete pinned Apple 80 checkpoint](evidence/checker-shadow-performance-20261108/apple-80/README.md): original C/environment/alias gates, all 137 methods, 2458 translator and 3866 shape assertions pass. All 690 selected checker shadows complete in 9.637191 recorded body seconds under the unchanged ten-second deadline. I independently verify the actual checker and STRING ownership Mach-O bytes; the small margin, later bstring/environment candidates and final integration/budget/release acceptance remain separate.
+
 - [ ] Under #1114/#1081 I preserve a distinct source bstring identity rather than normalizing it to string. My retained 9c original XML shows both C/VM fixtures pass while fresh stages reject constructors as STRING. I append a dedicated TypeKind without shifting existing values, cover conversion/array/type-query round trips and lexical bindings with useful shadows and actual checker-main controls, and require exact hosted component qualification before marking this source foundation complete.
 
 - [ ] Under #1114 I retain complete unchanged C/VM bstring fixture output and production binary-NUL, UTF-8, byte/bounds and valid ownership baselines before runtime changes. I record every build/verify/run failure and exact bytes, distinguish diagnostic retention from semantic acceptance, and keep existing original assertions and deadlines unchanged.
