@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1084/#1100/#1081 I retain the [c003 fresh source contract checkpoint](evidence/fresh-source-contracts-20261108/c003/README.md): fresh bootstrap, all 69 selected source methods, all nine canonical STRING methods through three producers and all six map methods pass. The original invalid STRING and reserved-print diagnostic assertions remain unchanged. Provider hashes are retained without claiming binary custody, complete original corpus/budget or later-source qualification.
+
 - [x] Under #1104 I retain the [pinned Apple directed argument component checkpoint](evidence/u8-arguments-20261108/apple-298e/README.md): all 96 methods, original C units/aliases and complete translator suites pass, with exact source/toolchain custody and an independently verified arm64 Mach-O checker product executing the production cases. Fresh self-hosted, original route/budget and full native lifecycle acceptance remain open.
 
 - [x] Under #1104 I retain the [directed argument checker baseline](evidence/u8-arguments-20261108/first-ffca/README.md) and [qualified GCC/Clang component checkpoint](evidence/u8-arguments-20261108/qualified-75e/README.md): actual native checker products execute six production cases; all 96 source methods and complete units/aliases/translator gates pass. I retain the original refusals, explicit conversions and evaluation order, while keeping fresh-stage, Darwin, complete module and native lifecycle acceptance separate.
