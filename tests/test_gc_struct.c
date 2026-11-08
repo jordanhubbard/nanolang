@@ -256,6 +256,39 @@ static void test_shutdown_statistics(void) {
     PASS(test_name);
 }
 
+static void test_allocation_size_boundary(void) {
+    const char *test_name = "gc_allocation_size_boundary";
+    gc_init();
+    GCStats before = gc_get_stats();
+    ASSERT(gc_alloc(SIZE_MAX, GC_TYPE_OPAQUE) == NULL, "I accepted an overflowing allocation.");
+    ASSERT(gc_alloc(SIZE_MAX - sizeof(GCHeader) + 1, GC_TYPE_OPAQUE) == NULL,
+           "I accepted the first overflowing header size.");
+    GCStats refused = gc_get_stats();
+    ASSERT_EQ(refused.total_allocated, before.total_allocated, "I changed allocated bytes on refusal.");
+    ASSERT_EQ(refused.total_freed, before.total_freed, "I changed freed bytes on refusal.");
+    ASSERT_EQ(refused.current_usage, before.current_usage, "I changed live bytes on refusal.");
+    ASSERT_EQ(refused.num_objects, before.num_objects, "I registered an object on refusal.");
+    size_t sizes[] = {0, 1, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 4095, 4096, 4097};
+    for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i) {
+        void *value = gc_alloc(sizes[i], GC_TYPE_OPAQUE);
+        ASSERT(value != NULL && gc_is_managed(value), "I did not register a valid allocation.");
+        ASSERT_EQ(gc_get_header(value)->size, sizeof(GCHeader) + sizes[i], "I changed the logical allocation size.");
+        gc_retain(value);
+        ASSERT_EQ(gc_get_header(value)->ref_count, 2, "I changed the retained reference count.");
+        gc_release(value);
+        ASSERT(gc_is_managed(value), "I lost a retained value.");
+        gc_release(value);
+        ASSERT(!gc_is_managed(value), "I kept a released value registered.");
+    }
+    int foreign = 7;
+    gc_release(&foreign);
+    ASSERT(!gc_is_managed(&foreign), "I registered a foreign pointer.");
+    ASSERT_EQ(gc_get_stats().current_usage, 0, "I retain managed bytes after my boundary controls.");
+    ASSERT_EQ(gc_get_stats().num_objects, 0, "I retain managed objects after my boundary controls.");
+    gc_shutdown();
+    PASS(test_name);
+}
+
 /* ── main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -272,6 +305,7 @@ int main(void) {
     test_gc_object_field_retain_release();
     test_field_types();
     test_shutdown_statistics();
+    test_allocation_size_boundary();
 
     printf("\n");
     if (g_fail == 0) {

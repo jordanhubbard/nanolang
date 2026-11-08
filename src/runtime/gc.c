@@ -215,6 +215,10 @@ void* gc_alloc(size_t size, GCObjectType type) {
     }
     
     /* Allocate space for header + object */
+    if (size > SIZE_MAX - sizeof(GCHeader)) {
+        fprintf(stderr, "I cannot allocate a managed object whose header and payload size overflow.\n");
+        return NULL;
+    }
     size_t total_size = sizeof(GCHeader) + size;
     GCHeader* header = (GCHeader*)malloc(total_size);
     
