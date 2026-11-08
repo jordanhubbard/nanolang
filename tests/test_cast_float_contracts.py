@@ -70,4 +70,4 @@ shadow main{assert (== (main) 0)}
     def test_wrong_arity_preserves_prior_output(self):
         for expression in ['(cast_float)', '(cast_float 1 2)']:
             with self.subTest(expression=expression):
-                self.exercise('fn main()->float{return '+expression+'}', refused=True)
+                self.exercise('fn main()->int{let result:float='+expression+' return 0}', refused=True)

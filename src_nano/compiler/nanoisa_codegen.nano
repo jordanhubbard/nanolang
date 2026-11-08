@@ -4688,6 +4688,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let cast_start: int = (nisa_reset)
     let cast_tokens: List<LexerToken> = (tokenize_string "fn convert()->float{return (cast_float true)}" "cast.nano" (diag_list_new))
     let cast_parser: Parser = (parse_program cast_tokens (list_LexerToken_length cast_tokens) "cast.nano")
     assert (== (nisa_expr_type cast_parser 0 ParseNodeType.PNODE_CALL) "float")
@@ -6852,8 +6853,8 @@ shadow nisa_emit_call {
     let cast_text: string = (nanoisa_emit_nasm "fn convert()->float{return (cast_float true)} fn main()->int{return (cast_int (convert))}")
     assert nisa_ok
     assert (str_contains cast_text "CAST_FLOAT")
-    assert (== (nanoisa_emit_nasm "fn main()->float{return (cast_float)}") "")
-    assert (== (nanoisa_emit_nasm "fn main()->float{return (cast_float 1 2)}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let result:float=(cast_float) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{let result:float=(cast_float 1 2) return 0}") "")
     let cast_reset: int = (nisa_reset)
     let slice: string = (nanoisa_emit_nasm "fn main()->string{return (str_substring \"abc\" 1 1)}")
     assert nisa_ok
