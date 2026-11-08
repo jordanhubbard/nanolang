@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #1093 I preserve the complete original array reverse/search fixture and retain receiver element kinds through checking, then lower reverse and first-match search with existing operations, once-only source order, independent storage and exact empty/results. I require malformed/bound-function controls, meaningful shadows, unchanged source VM/native execution through both frontends/fresh stages and complete integration acceptance.
+
+- [x] Under #1053 I retain the [terminal f040 instrumented-unit deadlines](evidence/instrumented-units-f040-20261108/README.md): both existing 120-minute steps expire in original bootstrap prerequisites, GCC at Stage 1 compilation and Clang at Stage 2 after successful Stage 1 native/hello execution. I preserve all four artifacts and logs, keep the full unit gate unqualified, and do not infer infrastructure causation or introduce full sanitizer bootstrap as a new release requirement.
+
 - [x] Under #1081/#1090 I retain my [complete 78d checkpoint](evidence/junit-route-checkpoints-20261107/78d/README.md): fresh bootstrap passes; C native and C NanoVM each pass all 237 unchanged cases, both stages pass 180 with 57 failures, zero skips and identical ordered selection. I preserve every remaining failure and keep full stage/platform acceptance open.
 
 - [ ] Under #1083 I test the deferred array-read/map operand constraint: an unresolved snapshot read must acquire its optional producer storage independently of the checked exact map key/value payload. I retain ordinary exact map conversions and mismatched-pair refusals, test scalar/optional and late-resolution cases, then rerun every unchanged full map source pair through VM/native AOT before acceptance.
