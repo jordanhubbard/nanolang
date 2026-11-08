@@ -1895,6 +1895,24 @@ test-unicode-ffi:
 	rm -f tests/test_unicode_ffi
 
 .PHONY: test-nl-string
+.PHONY: test-gc-shutdown-sanitizers
+test-gc-shutdown-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_struct.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o $(OBJ_DIR)/test_gc_shutdown $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_shutdown
+
+test-units: test-gc-shutdown-sanitizers
+
+.PHONY: test-eval-bstring-sanitizers
+test-eval-bstring-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -ffunction-sections -fdata-sections -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_eval_bstring.c src/env.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/utf8.c \
+		-o $(OBJ_DIR)/test_eval_bstring -Xlinker $(if $(filter Darwin,$(UNAME_S)),-dead_strip,--gc-sections) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_eval_bstring
+
+test-units: test-eval-bstring-sanitizers
+
 .PHONY: test-nl-string-bounds-sanitizers
 test-nl-string-bounds-sanitizers: | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \

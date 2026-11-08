@@ -1,0 +1,13 @@
+{
+  "command": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-eval-bstring-sanitizers"
+  ],
+  "returncode": 0,
+  "product_sha256": "c4ce89b45ea49c5155d39913b9e65d1e67bfe9b63e1b8057107b66a63851f1c0",
+  "product_size": 8844656,
+  "native_bytes_retained": false,
+  "scope": "I execute the actual interpreted builtin dispatcher, value factories and GC under ASan/UBSan. This is not a complete C-seed CLI or SDK qualification."
+}

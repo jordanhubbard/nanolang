@@ -49,7 +49,8 @@ typedef enum {
     VAL_FUNCTION,   /* Function values (for first-class functions) */
     VAL_TUPLE,      /* Tuple values: (1, "hello", true) */
     VAL_COROUTINE,  /* Coroutine handle (int_val = scheduler id) */
-    VAL_VOID
+    VAL_VOID,
+    VAL_BSTRING  /* I keep binary strings distinct from STRING and opaque integers. */
 } ValueType;
 
 /* Array structure */
@@ -58,6 +59,7 @@ typedef struct {
     int length;              /* Number of elements */
     int capacity;            /* Allocated capacity */
     void *data;              /* Pointer to array data */
+    bool is_byte_array;       /* I preserve U8 identity while retaining INT-sized slots. */
 } Array;
 
 /* Struct value structure */
@@ -173,6 +175,7 @@ struct Value {
         double float_val;
         bool bool_val;
         char *string_val;
+        void *bstring_val;     /* Managed interpreter binary-string owner shell. */
         Array *array_val;
         DynArray *dyn_array_val;    /* Dynamic array (GC-managed) */
         StructValue *struct_val;    /* Struct values (stack) */

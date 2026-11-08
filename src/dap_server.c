@@ -359,6 +359,9 @@ static void format_value(Value val, char *buf, size_t bufsz) {
         case VAL_STRING:
             snprintf(buf, bufsz, "\"%s\"", val.as.string_val ? val.as.string_val : "");
             break;
+        case VAL_BSTRING:
+            snprintf(buf, bufsz, "<bstring>");
+            break;
         case VAL_VOID:
             snprintf(buf, bufsz, "void");
             break;

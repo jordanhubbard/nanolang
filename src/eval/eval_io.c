@@ -57,9 +57,9 @@ Value builtin_bytes_from_string(Value *args) {
 
     const char *s = args[0].as.string_val;
     size_t len = strlen(s);
-    DynArray *out = dyn_array_new(ELEM_INT);
+    DynArray *out = dyn_array_new(ELEM_U8);
     for (size_t i = 0; i < len; i++) {
-        dyn_array_push_int(out, (int64_t)(unsigned char)s[i]);
+        dyn_array_push_u8(out, (uint8_t)(unsigned char)s[i]);
     }
     return create_dyn_array(out);
 }

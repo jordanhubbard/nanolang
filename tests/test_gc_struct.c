@@ -222,6 +222,40 @@ static void test_field_types(void) {
     PASS(test_name);
 }
 
+static int shutdown_finalizations;
+
+static void count_shutdown_finalizer(void *object) {
+    (void)object;
+    shutdown_finalizations++;
+}
+
+static void test_shutdown_statistics(void) {
+    const char *test_name = "gc_shutdown_statistics_and_finalization";
+    gc_init();
+    char *transient = gc_alloc_string(3);
+    ASSERT(transient != NULL, "transient allocation failed");
+    gc_release(transient);
+    ASSERT(gc_alloc_string(8) != NULL, "live string allocation failed");
+    ASSERT(gc_alloc_opaque(1, count_shutdown_finalizer) != NULL, "live owner allocation failed");
+    GCStats before = gc_get_stats();
+    ASSERT(before.num_objects == 2, "live object setup mismatch");
+    gc_shutdown();
+    GCStats after = gc_get_stats();
+    ASSERT_EQ(after.current_usage, 0, "shutdown retains current bytes");
+    ASSERT_EQ(after.num_objects, 0, "shutdown retains live objects");
+    ASSERT_EQ(after.total_allocated, before.total_allocated, "shutdown changed allocated total");
+    ASSERT_EQ(after.total_freed, after.total_allocated, "shutdown omitted reclaimed bytes");
+    ASSERT_EQ(shutdown_finalizations, 1, "shutdown finalizer count mismatch");
+    gc_shutdown();
+    GCStats twice = gc_get_stats();
+    ASSERT_EQ(twice.total_freed, after.total_freed, "repeated shutdown double-counted bytes");
+    ASSERT_EQ(shutdown_finalizations, 1, "repeated shutdown finalized twice");
+    gc_init();
+    ASSERT_EQ(gc_get_stats().total_allocated, 0, "new GC lifetime kept old allocated total");
+    gc_shutdown();
+    PASS(test_name);
+}
+
 /* ── main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -237,6 +271,7 @@ int main(void) {
     test_clone_primitive();
     test_gc_object_field_retain_release();
     test_field_types();
+    test_shutdown_statistics();
 
     printf("\n");
     if (g_fail == 0) {

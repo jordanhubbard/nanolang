@@ -1240,6 +1240,7 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     v.is_continue = false;
     v.as.array_val = malloc(sizeof(Array));
     v.as.array_val->element_type = elem_type;
+    v.as.array_val->is_byte_array = false;
     v.as.array_val->length = length;
     v.as.array_val->capacity = capacity > length ? capacity : length;
     

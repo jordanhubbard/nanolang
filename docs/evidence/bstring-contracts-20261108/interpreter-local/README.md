@@ -1,0 +1,11 @@
+# My interpreted binary-string dispatcher checkpoint
+
+I compile a small standalone sanitizer harness against my actual shared builtin contract table, interpreter dispatcher, value factories, GC, dynamic arrays and C string payload routines. I do not rebuild the full local providers while disk space remains below 2%.
+
+My first Make driver spelling error is refused before compilation. After correcting its linker-driver spelling, my original harness reaches shutdown and aborts on the unchanged zero-live-object/current-usage assertion. I retain that execution's stdout/stderr, actual product hash and exact source snapshot. Source inspection confirms that GC shutdown freed the list but did not update current usage, object count or remaining freed bytes; I track that correction in #1115.
+
+With shutdown accounting corrected, the harness passes under ASan/UBSan: all twelve binary-string operations, binary NULs, explicit UTF-8 validation state, independent conversion storage, wrong scalar tags, forged/unrelated managed owners, absent arguments, ignored shadow-failure accounting, explicit free and live-payload finalization at shutdown. I retain the original zero-count assertion and add cumulative-total and idempotent-shutdown assertions. The original GC-struct suite plus the new live-finalizer/statistics control passes all eleven tests under ASan/UBSan. Darwin leak detection is disabled as in existing sanitizer targets; Linux hosted execution remains required.
+
+My interpreter uses a distinct appended BSTRING value and a managed owner shell. Explicit free clears its payload; aliases retain that shell until interpreter GC shutdown. This is not per-scope shell collection. Generic foreign BSTRING ownership remains refused by the existing FFI type/argument checks.
+
+I retain both source snapshots and the corrected build/run transcript, without another full native archive. Actual complete C-seed source shadow/native execution, byte-storage propagation, lexical/order and prior-output controls, fresh source/native adapters and current platform/integration/release gates remain separate acceptance work. The new source methods and higher-order byte/container changes have syntax/fixture checks locally and require the hosted providers.

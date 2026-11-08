@@ -1,0 +1,13 @@
+{
+  "scope": "I execute the original failing managed shutdown assertion before changing GC accounting.",
+  "argv": [
+    "/Users/jkh/Src/nanolang/obj/test_eval_bstring"
+  ],
+  "returncode": -6,
+  "product_before": "240f894e585d1425773185e450156040635f67aeda4fc8c98fb4380730f86b94",
+  "product_after": "240f894e585d1425773185e450156040635f67aeda4fc8c98fb4380730f86b94",
+  "product_size": 8843600,
+  "native_bytes_retained": false,
+  "asan_options": "detect_leaks=0",
+  "earlier_build_error": "My first Make recipe expanded a missing comma variable into -Wl-dead_strip and was refused before compilation. I corrected the driver spelling to -Xlinker -dead_strip before this build and execution."
+}

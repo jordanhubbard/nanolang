@@ -201,6 +201,10 @@ void gc_shutdown(void) {
     gc_hash_clear();
     
     gc_state.all_objects = NULL;
+    /* I retain cumulative totals while accounting for every shutdown reclaim. */
+    gc_state.stats.total_freed += gc_state.stats.current_usage;
+    gc_state.stats.current_usage = 0;
+    gc_state.stats.num_objects = 0;
     gc_state.initialized = false;
 }
 

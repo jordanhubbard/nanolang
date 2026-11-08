@@ -120,6 +120,8 @@ static Value eval_foreign_call(Function *func, Value *args, int arg_count,
     return result;
 }
 
+#include "eval/bstring_intrinsics.inc"
+
 static void shadow_json_escape(FILE *out, const char *s) {
     if (!s) return;
     for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
@@ -592,6 +594,9 @@ static void print_value(Value val) {
             for (int64_t i = 0; i < len; i++) {
                 if (i > 0) printf(", ");
                 switch (elem_type) {
+                    case ELEM_U8:
+                        printf("%u", dyn_array_get_u8(arr, i));
+                        break;
                     case ELEM_INT:
                         printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
@@ -659,6 +664,9 @@ static void print_value(Value val) {
         }
         case VAL_COROUTINE:
             printf("<coroutine:%lld>", val.as.int_val);
+            break;
+        case VAL_BSTRING:
+            printf("<bstring>");
             break;
         case VAL_VOID:
             printf("void");
@@ -805,6 +813,12 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
     for (int64_t i = 0; i < len; i++) {
         if (i > 0) eval_sb_append_cstr(sb, ", ");
         switch (elem_type) {
+            case ELEM_U8: {
+                char tmp[8];
+                snprintf(tmp, sizeof(tmp), "%u", dyn_array_get_u8(arr, i));
+                eval_sb_append_cstr(sb, tmp);
+                break;
+            }
             case ELEM_INT: {
                 char tmp[64];
                 snprintf(tmp, sizeof(tmp), "%lld", (long long)dyn_array_get_int(arr, i));
@@ -958,6 +972,9 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
             eval_sb_append_cstr(sb, coro_buf);
             break;
         }
+        case VAL_BSTRING:
+            eval_sb_append_cstr(sb, "<bstring>");
+            break;
         case VAL_VOID:
             eval_sb_append_cstr(sb, "void");
             break;
@@ -1031,6 +1048,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_BSTRING:
+                return eval_bstring_borrow(((void **)arr->data)[index]);
             case VAL_FUNCTION:
                 return copy_array_callable(((Value *)arr->data)[index]);
             case VAL_ARRAY:
@@ -1128,6 +1147,9 @@ static Value builtin_array_new(Value *args) {
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
         switch (elem_type) {
+            case VAL_BSTRING:
+                ((void **)arr.as.array_val->data)[i] = args[1].as.bstring_val;
+                break;
             case VAL_FUNCTION:
                 ((Value *)arr.as.array_val->data)[i] = copy_array_callable(args[1]);
                 break;
@@ -1180,12 +1202,17 @@ static Value builtin_array_set(Value *args) {
                     index, (long long)dyn_array_length(arr));
             exit(1);
         }
-        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
+        bool byte_value = dyn_array_get_elem_type(arr) == ELEM_U8 && args[2].type == VAL_INT &&
+                          args[2].as.int_val >= 0 && args[2].as.int_val <= UINT8_MAX;
+        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr) && !byte_value) {
             fprintf(stderr, "I cannot assign a different element type to this array.\n");
             exit(1);
         }
         switch (args[2].type) {
-            case VAL_INT: dyn_array_set_int(arr, index, args[2].as.int_val); break;
+            case VAL_INT:
+                if (byte_value) dyn_array_set_u8(arr, index, (uint8_t)args[2].as.int_val);
+                else dyn_array_set_int(arr, index, args[2].as.int_val);
+                break;
             case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
             case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
             case VAL_STRING: {
@@ -1221,6 +1248,13 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_BSTRING:
+            if (args[2].type != VAL_BSTRING) {
+                fprintf(stderr, "I require a binary-string array element.\n");
+                return create_void();
+            }
+            ((void **)arr->data)[index] = args[2].as.bstring_val;
+            break;
         case VAL_FUNCTION: {
             if (args[2].type != VAL_FUNCTION) {
                 fprintf(stderr, "I require a callable array element.\n");
@@ -1313,7 +1347,11 @@ static Value builtin_array_slice(Value *args) {
         int64_t out_len = end - start;
 
         Value out = create_array(arr->element_type, out_len, out_len);
+        out.as.array_val->is_byte_array = arr->is_byte_array;
         switch (arr->element_type) {
+            case VAL_BSTRING:
+                if (out_len) memcpy(out.as.array_val->data, (void **)arr->data + start, (size_t)out_len * sizeof(void *));
+                break;
             case VAL_FUNCTION:
                 for (int64_t i = 0; i < out_len; ++i)
                     ((Value *)out.as.array_val->data)[i] = copy_array_callable(((Value *)arr->data)[start + i]);
@@ -1437,6 +1475,7 @@ static size_t static_array_element_width(ValueType type) {
         case VAL_BOOL: return sizeof(bool);
         case VAL_STRING: return sizeof(char*);
         case VAL_STRUCT: return sizeof(StructValue*);
+        case VAL_BSTRING: return sizeof(void*);
         default:
             fprintf(stderr, "I cannot mutate this array element representation.\n");
             exit(1);
@@ -1510,7 +1549,9 @@ static Value builtin_array_push(Value *args) {
     ElementType expected_type = dyn_array_get_elem_type(arr);
     ValueType value_type = args[1].type;
     
-    if (value_type_to_elem_type(value_type) != expected_type) {
+    bool byte_value = expected_type == ELEM_U8 && value_type == VAL_INT &&
+                      args[1].as.int_val >= 0 && args[1].as.int_val <= UINT8_MAX;
+    if (value_type_to_elem_type(value_type) != expected_type && !byte_value) {
         fprintf(stderr, "Error: Type mismatch in array_push\n");
         return create_void();
     }
@@ -1518,7 +1559,8 @@ static Value builtin_array_push(Value *args) {
     /* Push element */
     switch (value_type) {
         case VAL_INT:
-            dyn_array_push_int(arr, args[1].as.int_val);
+            if (byte_value) dyn_array_push_u8(arr, (uint8_t)args[1].as.int_val);
+            else dyn_array_push_int(arr, args[1].as.int_val);
             break;
         case VAL_FLOAT:
             dyn_array_push_float(arr, args[1].as.float_val);
@@ -1579,6 +1621,10 @@ static Value builtin_array_pop(Value *args) {
     bool success = false;
     ElementType elem_type = dyn_array_get_elem_type(arr);
     switch (elem_type) {
+        case ELEM_U8: {
+            uint8_t val = dyn_array_pop_u8(arr, &success);
+            return success ? create_int(val) : create_void();
+        }
         case ELEM_INT: {
             int64_t val = dyn_array_pop_int(arr, &success);
             return success ? create_int(val) : create_void();
@@ -1659,7 +1705,7 @@ static DynArray *builtin_scalar_array(Value value) {
     if (source->length < 0 || (source->length && !source->data)) return NULL;
     ElementType type;
     switch (source->element_type) {
-        case VAL_INT: type = ELEM_INT; break;
+        case VAL_INT: type = source->is_byte_array ? ELEM_U8 : ELEM_INT; break;
         case VAL_FLOAT: type = ELEM_FLOAT; break;
         case VAL_BOOL: type = ELEM_BOOL; break;
         case VAL_STRING: type = ELEM_STRING; break;
@@ -1669,7 +1715,10 @@ static DynArray *builtin_scalar_array(Value value) {
     if (!result) return NULL;
     for (int i = 0; i < source->length; i++) {
         switch (source->element_type) {
-            case VAL_INT: dyn_array_push_int(result, ((long long *)source->data)[i]); break;
+            case VAL_INT:
+                if (source->is_byte_array) dyn_array_push_u8(result, (uint8_t)((long long *)source->data)[i]);
+                else dyn_array_push_int(result, ((long long *)source->data)[i]);
+                break;
             case VAL_FLOAT: dyn_array_push_float(result, ((double *)source->data)[i]); break;
             case VAL_BOOL: dyn_array_push_bool(result, ((bool *)source->data)[i]); break;
             case VAL_STRING: dyn_array_push_string(result, ((char **)source->data)[i]); break;
@@ -1707,6 +1756,7 @@ static Value builtin_array_reverse(Value *args) {
     if (!out) return create_void();
     for (int64_t i = len - 1; i >= 0; i--) {
         switch (t) {
+            case ELEM_U8:     dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;
             case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
             case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
             case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
@@ -1730,6 +1780,10 @@ static Value builtin_array_contains(Value *args) {
         switch (t) {
             case ELEM_INT:
                 if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_bool(true);
+                break;
+            case ELEM_U8:
+                if (args[1].type == VAL_INT && dyn_array_get_u8(arr, i) == args[1].as.int_val)
                     return create_bool(true);
                 break;
             case ELEM_FLOAT:
@@ -1763,6 +1817,10 @@ static Value builtin_array_index_of(Value *args) {
         switch (t) {
             case ELEM_INT:
                 if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_int(i);
+                break;
+            case ELEM_U8:
+                if (args[1].type == VAL_INT && dyn_array_get_u8(arr, i) == args[1].as.int_val)
                     return create_int(i);
                 break;
             case ELEM_FLOAT:
@@ -1974,9 +2032,12 @@ static Value builtin_map(Value *args, Environment *env) {
     const char *transform_fn_name = args[1].as.function_val.function_name;
     Function *transform = env_get_function(env, transform_fn_name);
     ValueType result_type = VAL_VOID;
+    bool byte_result = false;
     if (transform) {
         FunctionSignature *signature = args[1].as.function_val.signature;
         switch (signature ? signature->return_type : transform->return_type) {
+            case TYPE_U8: result_type = VAL_INT; byte_result = true; break;
+            case TYPE_BSTRING: result_type = VAL_BSTRING; break;
             case TYPE_INT: result_type = VAL_INT; break;
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
@@ -1995,6 +2056,7 @@ static Value builtin_map(Value *args, Environment *env) {
         /* I retain declared scalar output types even when no callback runs. */
         Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
+        output_arr->is_byte_array = byte_result;
         
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -2006,6 +2068,9 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Get element from input array */
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)input_arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)input_arr->data)[i];
                     break;
@@ -2049,6 +2114,14 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
+                case VAL_BSTRING:
+                    if (transformed.type != VAL_BSTRING) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a binary-string result in map.\n");
+                        return create_void();
+                    }
+                    ((void **)output_arr->data)[i] = transformed.as.bstring_val;
+                    break;
                 case VAL_FUNCTION:
                     if (transformed.type != VAL_FUNCTION) {
                         discard_partial_owned_array(output_arr, (int)i);
@@ -2141,8 +2214,14 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
 
-        ElementType output_type = result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
-        DynArray *output_arr = dyn_array_new(output_type);
+        ElementType output_type = byte_result ? ELEM_U8 : result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
+        bool binary_output = result_type == VAL_BSTRING;
+        if (binary_output && len > INT_MAX) {
+            fprintf(stderr, "I cannot represent this interpreted binary-string array length.\n");
+            return create_void();
+        }
+        Value binary_array = binary_output ? create_array(VAL_BSTRING, (int)len, (int)len) : create_void();
+        DynArray *output_arr = binary_output ? NULL : dyn_array_new(output_type);
 
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -2153,6 +2232,9 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Get element from input array */
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(input_arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(input_arr, i);
@@ -2189,12 +2271,29 @@ static Value builtin_map(Value *args, Environment *env) {
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
             if (transformed.is_return) {
-                gc_release(output_arr);
+                if (binary_output) discard_partial_owned_array(binary_array.as.array_val, (int)i);
+                else gc_release(output_arr);
                 return transformed;
             }
             
+            if (binary_output) {
+                if (transformed.type != VAL_BSTRING) {
+                    discard_partial_owned_array(binary_array.as.array_val, (int)i);
+                    fprintf(stderr, "I require a binary-string result in map.\n");
+                    return create_void();
+                }
+                ((void **)binary_array.as.array_val->data)[i] = transformed.as.bstring_val;
+                continue;
+            }
             /* Push transformed value to output array */
             switch (output_type) {
+                case ELEM_U8:
+                    if (transformed.type != VAL_INT || transformed.as.int_val < 0 || transformed.as.int_val > UINT8_MAX) {
+                        fprintf(stderr, "I require a byte result in map.\n");
+                        return create_void();
+                    }
+                    dyn_array_push_u8(output_arr, (uint8_t)transformed.as.int_val);
+                    break;
                 case ELEM_INT:
                     if (transformed.type != VAL_INT) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2247,7 +2346,7 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
         
-        return create_dyn_array(output_arr);
+        return binary_output ? binary_array : create_dyn_array(output_arr);
     }
     
     fprintf(stderr, "Error: map() requires an array as first argument\n");
@@ -2312,6 +2411,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             elem.is_continue = false;
 
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)input_arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)input_arr->data)[i];
                     break;
@@ -2354,12 +2456,16 @@ static Value builtin_filter(Value *args, Environment *env) {
 
         Value result = create_array(input_arr->element_type, out_len, out_len);
         Array *output_arr = result.as.array_val;
+        output_arr->is_byte_array = input_arr->is_byte_array;
 
         int64_t out_i = 0;
         for (int64_t i = 0; i < len; i++) {
             if (!keep[i]) continue;
 
             switch (input_arr->element_type) {
+                case VAL_BSTRING:
+                    ((void **)output_arr->data)[out_i] = ((void **)input_arr->data)[i];
+                    break;
                 case VAL_INT:
                     ((long long*)output_arr->data)[out_i] = ((long long*)input_arr->data)[i];
                     break;
@@ -2403,6 +2509,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             elem.is_continue = false;
 
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(input_arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(input_arr, i);
@@ -2449,6 +2558,9 @@ static Value builtin_filter(Value *args, Environment *env) {
             if (!pred.as.bool_val) continue;
 
             switch (elem_type) {
+                case ELEM_U8:
+                    dyn_array_push_u8(output_arr, (uint8_t)elem.as.int_val);
+                    break;
                 case ELEM_INT:
                     dyn_array_push_int(output_arr, elem.as.int_val);
                     break;
@@ -2509,6 +2621,9 @@ static Value builtin_reduce(Value *args, Environment *env) {
             
             /* Get element */
             switch (arr->element_type) {
+                case VAL_BSTRING:
+                    elem = eval_bstring_borrow(((void **)arr->data)[i]);
+                    break;
                 case VAL_INT:
                     elem.as.int_val = ((long long*)arr->data)[i];
                     break;
@@ -2599,6 +2714,9 @@ static Value builtin_reduce(Value *args, Environment *env) {
 
             /* Get element */
             switch (elem_type) {
+                case ELEM_U8:
+                    elem = create_int(dyn_array_get_u8(arr, i));
+                    break;
                 case ELEM_INT:
                     elem.type = VAL_INT;
                     elem.as.int_val = dyn_array_get_int(arr, i);
@@ -3132,6 +3250,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     }
                     break;
                 }
+                case VAL_BSTRING: equal = left.as.bstring_val == right.as.bstring_val; break;
                 case VAL_VOID: equal = true; break;  /* void == void */
                 case VAL_ARRAY: {
                     /* Arrays are equal if they have same length and all elements equal */
@@ -3241,6 +3360,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
 static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *name,
                                  EvalCallName call_name, Value *args) {
     Function *named_func = env_get_function(env, name);
+    if (call_name == EVAL_CALL_unknown && !named_func && !strncmp(name, "bstr_", 5)) {
+        const NanoBstringContract *contract = nano_bstring_source_contract(name);
+        if (contract) return eval_bstring_intrinsic(node, contract, args);
+    }
     /* File operations */
     if (call_name == EVAL_CALL_file_read) return builtin_file_read(args);
     if (call_name == EVAL_CALL_file_read_bytes) return builtin_file_read_bytes(args);
@@ -5310,6 +5433,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (count == 0) {
                 ValueType element = VAL_INT;
                 switch (expr->as.array_literal.element_type) {
+                    case TYPE_BSTRING: element = VAL_BSTRING; break;
                     case TYPE_FUNCTION: element = VAL_FUNCTION; break;
                     case TYPE_FLOAT: element = VAL_FLOAT; break;
                     case TYPE_BOOL: element = VAL_BOOL; break;
@@ -5318,7 +5442,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case TYPE_STRUCT: element = VAL_STRUCT; break;
                     default: break;
                 }
-                return create_array(element, 0, 0);
+                Value empty = create_array(element, 0, 0);
+                empty.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
+                return empty;
             }
             
             /* Evaluate first element to determine type */
@@ -5329,6 +5455,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Create array */
             Value arr = create_array(elem_type, count, count);
+            arr.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
@@ -5340,6 +5467,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_BSTRING:
+                        ((void **)arr.as.array_val->data)[i] = elem.as.bstring_val;
+                        break;
                     case VAL_FUNCTION: {
                         ASTNode *element = expr->as.array_literal.elements[i];
                         ((Value *)arr.as.array_val->data)[i] = element->type == AST_IDENTIFIER
@@ -6053,6 +6183,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (value.is_return || value.is_break || value.is_continue) {
                 return value;
             }
+            if (value.type == VAL_ARRAY && stmt->as.let.element_type == TYPE_U8)
+                value.as.array_val->is_byte_array = true;
             value = own_function_identifier(stmt->as.let.value, env, value);
             env_define_var_with_type_info(env,
                                          stmt->as.let.name,
@@ -6195,6 +6327,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     for (int idx = 0; idx < arr->length; idx++) {
                         Value elem = create_void();
                         switch (arr->element_type) {
+                            case VAL_BSTRING: elem = eval_bstring_borrow(((void **)arr->data)[idx]); break;
                             case VAL_INT:    elem = create_int(((long long*)arr->data)[idx]); break;
                             case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
                             case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
@@ -6231,6 +6364,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     for (int64_t idx = 0; idx < len; idx++) {
                         Value elem = create_void();
                         switch (et) {
+                            case ELEM_U8:     elem = create_int(dyn_array_get_u8(arr, idx)); break;
                             case ELEM_INT:    elem = create_int(dyn_array_get_int(arr, idx)); break;
                             case ELEM_FLOAT:  elem = create_float(dyn_array_get_float(arr, idx)); break;
                             case ELEM_BOOL:   elem = create_bool(dyn_array_get_bool(arr, idx)); break;

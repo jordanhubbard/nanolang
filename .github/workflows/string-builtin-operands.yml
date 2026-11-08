@@ -7,7 +7,13 @@ on:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
       - 'tests/test_env_symbol_index.c'
+      - 'src/runtime/gc.c'
+      - 'tests/test_gc_struct.c'
       - 'src/eval.c'
+      - 'src/eval/bstring_intrinsics.inc'
+      - 'tests/test_eval_bstring.c'
+      - 'src/eval/eval_io.c'
+      - 'src/nanolang.h'
       - 'src/transpiler.c'
       - 'src/stdlib_runtime.c'
       - 'src/stdlib_runtime.h'
@@ -200,7 +206,7 @@ jobs:
       - name: Execute my binary-string ownership and VM semantic gates
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-nanovm test-nl-string-bounds-sanitizers \
+          make -f Makefile.gnu CC="$CC" test-nanovm test-nl-string-bounds-sanitizers test-eval-bstring-sanitizers test-gc-shutdown-sanitizers \
             2>&1 | tee .test_output/string-builtin-operands/bstring-ownership.log
           python3 -m unittest -v tests.test_record_map_heap tests.test_record_map_string_heap tests.test_record_map_ordinary_heap \
             2>&1 | tee .test_output/string-builtin-operands/bstring-private-heap.log
