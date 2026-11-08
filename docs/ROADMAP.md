@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [x] Under #1088 I retain my [actual corrected seed CLI checkpoint](evidence/comprehensive-cli-contract-20261107/corrected-f92/README.md): GCC and Clang each pass all four exact statuses and diagnostics through native and NanoVM with the required guest separator. Fresh-stage routes and complete integrated acceptance remain open.
+
+- [ ] Under #1083 I retain the [fresh 304 checkpoint](evidence/fresh-stage-304-20261107/README.md): both bootstrap generations pass, but my unchanged full map fixture still exposes contextual union constructor refusal and unresolved C AOT snapshot element storage. I repair those paths while retaining all four pairs, generic union fields and original assertions.
+
 - [ ] Under #980/#1049 I retain verified tar archives of failed diagnostic roots without removing their originals. Direct artifact uploads preserve useful file bytes but do not prove original executable modes or symlink identity; I use the existing inventory/archive verifier with explicit retention for that custody boundary.
 
 - [ ] Under #980/#1049 I retain the e510 Darwin diagnostic: all 24 historical configurations fail with empty linker inventories, six neighbor controls pass, and no raw linker record is created. I trace the preceding forwarded-response grammar selection and capture refusal before changing admission; I retain bounded original tool output to distinguish unsupported identity from argument/query failure.

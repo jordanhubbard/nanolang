@@ -1,0 +1,6 @@
+[
+  "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+  "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+  "-o",
+  "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-3uw8j49w/checker"
+]

@@ -1,0 +1,7 @@
+[
+  "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+  "/home/runner/work/nanolang/nanolang/tests/test_resource_effect_checker.nano",
+  "-o",
+  "/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nano_virt-t5wz_yc9/checker.nvm",
+  "--emit-nvm"
+]

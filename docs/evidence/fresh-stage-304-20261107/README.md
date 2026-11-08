@@ -1,0 +1,5 @@
+# My fresh 304 compiler checkpoint
+
+I retain terminal [run 42449949410](https://github.com/jordanhubbard/nanolang/actions/runs/42449949410) at `304779f6b5ce2a868c6b98893bc4218872bdcbb7`. Both fresh bootstrap generations succeed. Each unchanged original route selects 237 tests with zero skips: seed native passes 236, seed VM 234, stage 1 175 and stage 2 175. The overall run fails; my complete reports and focused failures remain evidence, not acceptance.
+
+My complete map constructor fixture exposes self-hosted contextual union-field refusal and unresolved C AOT snapshot element storage. I retain every original assertion and all four scalar pairs. Later runner/CLI corrections are not part of this source pin. My full source tree, provider hashes, bootstrap logs, original reports and diagnostics remain compressed without modifying their bytes. Original artifact ZIPs 13607053004 and 13606443792 pass CRC checks and remain in my private audit directory; their complete byte inventory identifies native programs retained there.

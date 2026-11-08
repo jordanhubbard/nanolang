@@ -1,0 +1,194 @@
+[
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/checker.nvm",
+    "bytes": 727164,
+    "sha256": "aad1ea5d85268d3bb2a366f7c4b1dad64cfe103562765e19795063669f70f5d3"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/compile-status.json",
+    "bytes": 38,
+    "sha256": "f8b4ed342fcd725399ed3d473d83155f64f0b4957d942b080315c0eb4a3bbee6"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/compile-command.json",
+    "bytes": 272,
+    "sha256": "838308a7e0a66045ffeda8961c163d9e7e69e679ef7276e4c6d87b44d4e1207c"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/compile.log",
+    "bytes": 782,
+    "sha256": "9c535078f148073fe3561d25bb96bdaa34d585640a8854c1ec0f7df6ccdd505d"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/compile.stderr",
+    "bytes": 781,
+    "sha256": "911fd5f2ded131b10bb17e880db4504cd8d9f8144e8b7a93e3bf3c764e12563f"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/inputs.json",
+    "bytes": 1170,
+    "sha256": "7970f7075d8aa8e6fe2450cda1a02f654ae6fda0118146724a07ec8070e5c861"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/compile.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nano_virt-t5wz_yc9/run.log",
+    "bytes": 1460,
+    "sha256": "a6797ae60a173292e6bbb0a621f8489da6c58152e26fe84e46d2797b54f70c39"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/checker",
+    "bytes": 14144112,
+    "sha256": "f6d5a479becdba59ff1dd9c1a50ac212786c9391c1e174d76179602c7fc469f1"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/compile-command.json",
+    "bytes": 248,
+    "sha256": "7e124bc291f6cb82788a6775cfff22f06b8f1aaa84f4fa5d3be2bdb61636589d"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/compile-status.json",
+    "bytes": 38,
+    "sha256": "f8b4ed342fcd725399ed3d473d83155f64f0b4957d942b080315c0eb4a3bbee6"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/compile.log",
+    "bytes": 451,
+    "sha256": "4750b5028e4b3172fb40a7e89f1016607e8adc29fa2a63ca774487030763a3b7"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/compile.stderr",
+    "bytes": 450,
+    "sha256": "667a9ef4bc790f9f4eb42556f1611432b9253d863433c2c58724b0bbee299755"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/compile.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/inputs.json",
+    "bytes": 1166,
+    "sha256": "93c2e5a063e5ba10edc2e0437063f353b7bb2174c9eb19f7792ec06028791523"
+  },
+  {
+    "compiler": "gcc",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-8lkkahwx/run.log",
+    "bytes": 1208,
+    "sha256": "a56666bdbc1d7eef7500941e785a51b31176259db07b8239820fb06216a8890d"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/checker.nvm",
+    "bytes": 727164,
+    "sha256": "5e5f870c1c6624ac46859b1e22ced64ac67625d737cfdd96077bfe45f2648ac8"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/compile-status.json",
+    "bytes": 38,
+    "sha256": "f8b4ed342fcd725399ed3d473d83155f64f0b4957d942b080315c0eb4a3bbee6"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/compile-command.json",
+    "bytes": 272,
+    "sha256": "3bc0b88e4a967637fbe7ef62e37c1c4c46b5835b34d82b3b669ff5156ac6e5d5"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/compile.log",
+    "bytes": 1741,
+    "sha256": "fde770122277f515d70bfbce6dfcb6628107879d0259f017d2e4d888b59672cd"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/compile.stderr",
+    "bytes": 1740,
+    "sha256": "8059265d22ac92c9b20f095d45ec9d8a7611de15442b80956b27b9c6e462d177"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/inputs.json",
+    "bytes": 1170,
+    "sha256": "41f5416d1901483018bace408afe8aec6fcb978b2c0c1da5cd4882533758c2ff"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/compile.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nano_virt-7b3jz5br/run.log",
+    "bytes": 2409,
+    "sha256": "11d38e4754aee4cc946fa5a8fdaa75fdb05ffb1e64cb722b9c6d17f698afc385"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/checker",
+    "bytes": 11930424,
+    "sha256": "0d75860262cad67f184dad2a88c258b621af9dfba03a524e136ba819b9dd3789"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/compile-command.json",
+    "bytes": 248,
+    "sha256": "1c3d65cc8aacf30c0d96657ea656b4d54f580bfd396dbbebb27106cb7e4e12e2"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/compile-status.json",
+    "bytes": 38,
+    "sha256": "f8b4ed342fcd725399ed3d473d83155f64f0b4957d942b080315c0eb4a3bbee6"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/compile.log",
+    "bytes": 451,
+    "sha256": "4750b5028e4b3172fb40a7e89f1016607e8adc29fa2a63ca774487030763a3b7"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/compile.stderr",
+    "bytes": 450,
+    "sha256": "667a9ef4bc790f9f4eb42556f1611432b9253d863433c2c58724b0bbee299755"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/compile.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/inputs.json",
+    "bytes": 1166,
+    "sha256": "32a5d160cb48fff14767465496e7ff97a47df549ce5dc8f1baf6f679a1b1cfd5"
+  },
+  {
+    "compiler": "clang",
+    "path": ".test_output/cli-run-contract-native/nanoc_c-3uw8j49w/run.log",
+    "bytes": 1208,
+    "sha256": "3bf9209c24eaf34de736df84ec6642c16c92bc33380d8a8e759e2d52c88ac9ee"
+  }
+]
