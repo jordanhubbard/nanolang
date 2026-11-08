@@ -1,0 +1,20 @@
+[
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_c-4i2gxcji/checker",
+    "size": 14261944,
+    "sha256": "239ea2f7e894b109132e1556c57888faefca36a7d7b103a265242a6a2cad3b20",
+    "magic": "7f454c46"
+  },
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-5rsymcby/checker",
+    "size": 14464560,
+    "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9",
+    "magic": "7f454c46"
+  },
+  {
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-cmhg20e2/checker",
+    "size": 14464560,
+    "sha256": "240501e5c6a192c5b09dad8bec2f996f21da7616346078195d62a8d6040979a9",
+    "magic": "7f454c46"
+  }
+]

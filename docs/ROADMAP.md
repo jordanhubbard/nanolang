@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1081/#1065/#1088 I retain the [terminal f496 original-route checkpoint](evidence/fresh-source-contracts-20261108/f496-full/README.md): both seeds pass 237/237 and both fresh stages pass 202/237, clearing four earlier failures without changing selection, skips or deadlines. I verify actual byte custody for both CLI NVM/C/runtime/native products and twelve fresh character ELF products. The original 35 failures, later runtime/source changes and integrated release gates remain open.
+
 - [ ] Under #1109 I repair the first 0848 native sorting attempt: my final fact pass rejects an unresolved array parameter before the later whole-program shape solver supplies its caller facts. I retain the failed enum-array function control, defer unknown storage to final emission, keep the exact allowed-family check there and add typed function/result controls for every supported storage family.
 
 - [x] Under #1065/#1088 I retain the [f496 fresh driver phase checkpoint](evidence/fresh-source-contracts-20261108/f496-cli/README.md): both stages report all sixteen markers within measured outer bounds and exact original CLI outcomes. Checked emission takes about 269 seconds; imports about 62, lexing 54, parsing 23 and native publication 102-106. After driver return is about 0.6 seconds. I preserve instrumented/source-pin limitations and original flags, shadows and deadlines; finer checked-emission attribution remains open.
