@@ -27,6 +27,8 @@ on:
       - 'src/transpiler_iterative_v3_twopass.c'
       - 'tests/test_builtin_string_operands.py'
       - 'tests/test_legacy_print_statements.py'
+      - 'tests/test_empty_record_array_contexts.py'
+      - 'src/typechecker.c'
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'
 
@@ -122,7 +124,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts \
             2>&1 | tee .test_output/junit-route-audit/string-operands.log
 
       - name: Exercise the unchanged complete four-pair map constructor contract
@@ -151,6 +153,7 @@ jobs:
           path: |
             .test_output/junit-route-audit/
             .test_output/legacy-print-statements/
+            .test_output/empty-record-array-contexts/
             obj/bootstrap-nanoisa/**/manifest.json
             obj/bootstrap-nanoisa/**/*.log
           include-hidden-files: true

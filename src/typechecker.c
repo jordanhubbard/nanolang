@@ -719,7 +719,11 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
-    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) return true;
+    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) {
+        value->as.array_literal.element_type = TYPE_STRUCT;
+        value->as.array_literal.has_element_annotation = true;
+        return true;
+    }
     const char *actual_name = array_record_name(value, env);
     StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
     if (actual == expected) return true;

@@ -4822,6 +4822,10 @@ test-builtin-string-operands: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
 
 test-units: test-builtin-string-operands
 
+.PHONY: test-empty-record-array-contexts
+test-empty-record-array-contexts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_empty_record_array_contexts
+
 .PHONY: test-legacy-print-statements
 test-legacy-print-statements: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_legacy_print_statements

@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1090/#1081 I retain the resolved nominal record element on checked empty array literals. The complete 4620 report passes both original generic-context fixtures through both fresh stages, but the C NanoISA producer emits integer storage and fails the field read after empty-array growth. I preserve both whole fixtures and their assertions, require VM/sanitized-C-AOT execution and nominal/scalar mismatch output integrity, then rerun fresh compiler/route qualification.
+
 - [x] Under #1081 I retain the [focused seed print checkpoint and all preceding failures](evidence/legacy-print-statements-20261107/README.md): GCC and Clang each pass 19 methods plus original array-alias routes at 7971d6345. Canonical captures retain their original assertions; the documented AST-to-C compatibility gap remains opt-in #1089. The separate missing-operand parser correction and fresh stages remain unqualified.
 
 - [ ] Under #1081 I preserve the failing b8 mandatory parser shadow at `parse_statement`: a bare print at EOF has no operand, but generic expression parsing returns without an error. I explicitly require operand presence and parser progress before storing a print node, retain the exact assertion, and require a fresh bootstrap rather than weakening the refusal control.
