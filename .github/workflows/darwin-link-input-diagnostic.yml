@@ -10,6 +10,11 @@ on:
       - 'src/module_builder.c'
       - 'tests/test_link_response_query.py'
   workflow_dispatch:
+    inputs:
+      full_snapshots:
+        description: I execute every original source-snapshot method after the focused controls.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -17,7 +22,7 @@ permissions:
 jobs:
   exact-link-inputs:
     runs-on: xcode-27
-    timeout-minutes: 90
+    timeout-minutes: 300
     env:
       NANO_TRACE_BUILD: '1'
     steps:
@@ -90,6 +95,16 @@ jobs:
             --output .test_output/darwin-link-diagnostic/storage --label exact-assembler-link-inputs -- \
             python3 scripts/ci_darwin_link_diagnostic.py \
             2>&1 | tee .test_output/darwin-link-diagnostic/diagnostic.log
+      - name: Execute every original source-snapshot method
+        if: success() && inputs.full_snapshots == true
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          python3 scripts/ci_qualification_storage.py run \
+            --output .test_output/darwin-link-diagnostic/full-storage --label complete-original-source-snapshots -- \
+            python3 scripts/ci_darwin_link_diagnostic.py --full-corpus \
+              --output .test_output/darwin-link-diagnostic/full-corpus \
+            2>&1 | tee .test_output/darwin-link-diagnostic/full-corpus.log
       - name: Verify unchanged original assertions and production probe
         if: always()
         run: |

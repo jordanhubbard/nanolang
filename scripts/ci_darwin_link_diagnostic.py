@@ -102,6 +102,8 @@ def inspect_records(roots):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('.test_output/darwin-link-diagnostic'))
+    parser.add_argument('--full-corpus', action='store_true',
+        help='I execute every original source-snapshot method with exact failure retention.')
     args = parser.parse_args()
     if sys.platform != 'darwin':
         raise SystemExit('I require actual Darwin execution for this diagnostic.')
@@ -113,7 +115,11 @@ def main():
     methods = ['test_xassembler', 'test_split_xassembler', 'test_raw_assembler',
                'test_preprocessed_assembler', 'test_shared_raw_assembler',
                'test_shared_preprocessed_assembler']
-    suite = unittest.TestSuite(FocusedLinkInputs(name) for name in methods)
+    if args.full_corpus:
+        methods = unittest.defaultTestLoader.getTestCaseNames(SourceSnapshots)
+        suite = unittest.TestSuite(SourceSnapshots(name) for name in methods)
+    else:
+        suite = unittest.TestSuite(FocusedLinkInputs(name) for name in methods)
     with patch('tempfile.TemporaryDirectory', partial(PreserveFailedDirectory, journal=journal)):
         result = unittest.TextTestRunner(verbosity=2).run(suite)
     roots = [json.loads(line)['root'] for line in journal.read_text().splitlines()] if journal.exists() else []
@@ -123,11 +129,12 @@ def main():
     for root in roots:
         selected = Path(root)
         archive_success(selected, archives/(selected.name+'.tar.gz'), remove=False)
-    summary = {'methods': methods, 'selected_configurations': 30,
-        'targeted_historical_failures': 24, 'neighbor_controls': 6,
+    summary = {'methods': methods, 'selected_configurations': None if args.full_corpus else 30,
+        'targeted_historical_failures': None if args.full_corpus else 24,
+        'neighbor_controls': None if args.full_corpus else 6,
         'methods_run': result.testsRun, 'failures': len(result.failures),
         'errors': len(result.errors), 'skipped': len(result.skipped), 'roots': roots,
-        'full_source_snapshot_corpus': False, 'native_lifecycle_admitted': False}
+        'full_source_snapshot_corpus': args.full_corpus, 'native_lifecycle_admitted': False}
     (output/'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
     return int(not result.wasSuccessful())
 

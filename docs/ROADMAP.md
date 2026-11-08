@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #980/#1049 I rerun every original Darwin source-snapshot method after qualifying the observed linker identity. I reuse the exact failure-retention harness and original assertions, record the full method selection and platform skips, verify failed-root archives without deleting originals, and keep this component result separate from full integrated release qualification.
+
 - [ ] Under #1083 I preserve exact map key/value payload facts across tagged global loads and checked map uses without changing tagged producer storage. I require original full-map source contexts and new raw all-pair global/call snapshots with VM and sanitized C AOT; conflicting/dynamic global payloads must not acquire guessed element types.
 
 - [ ] Under #980/#1049 I qualify the actual pinned Xcode linker report `27106.1`, which my e3ae diagnostic shows is rejected by my older `1267`/`27037.1` identity allowlist. I retain vendor/architecture and unknown-version refusals, require the existing real response grammar/graph/argument corpus and all 30 original assembler configurations, and rerun the complete retirement corpus before calling platform admission green.
