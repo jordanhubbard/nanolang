@@ -12,6 +12,7 @@ on:
       - 'Makefile.gnu'
       - 'tests/nanovm/test_vm.c'
       - 'src/ml/ml.c'
+      - 'src/object/object.c'
       - 'src/nanoisa/nvm2c.c'
       - 'tests/nanoisa/test_nvm2c.c'
       - 'tests/test_dispatch_equivalence.sh'

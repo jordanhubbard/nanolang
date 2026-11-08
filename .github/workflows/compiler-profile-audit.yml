@@ -2,10 +2,12 @@ name: Compiler profile audit
 
 on:
   push:
-    branches: [fix/5.1-compile-profile-audit, fix/5.1-binding-compile-profiles, fix/5.1-binding-neighbor-profiles]
+    branches: [fix/5.1-compile-profile-audit, fix/5.1-binding-compile-profiles, fix/5.1-binding-neighbor-profiles, fix/5.1-junit-run-contract]
     paths:
       - '.github/workflows/compiler-profile-audit.yml'
       - 'Makefile.gnu'
+      - 'src/object/object.c'
+      - 'src/ml/ml.c'
       - 'scripts/fast_gate.py'
       - 'tests/test_fast_gate.py'
       - 'tests/test_fast_gate_preparation.py'
@@ -47,9 +49,9 @@ jobs:
           output = Path('.test_output/compiler-profile-audit')
           output.mkdir(parents=True, exist_ok=True)
           (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
-          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+          if disk.free < 20 * 1024**3 or disk.free / disk.total < 0.10:
               raise SystemExit('I hold this measurement because the worker disk is critical.')
-          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.10:
               raise SystemExit('I hold this measurement because available worker memory is critical.')
           PY
       - name: Install the existing fast-gate dependencies

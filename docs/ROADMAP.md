@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1046/#1053 I retain the next exact GCC restrict refusal in object slot extension, use overlap-safe copying of the same fixed-width selector, and run the existing full ordinary/instrumented compiler profile audit to collect remaining diagnostics together. I preserve all strict flags, source/test/private profiles and the required fast budget; the separate measured profile tier is not release or fast-gate acceptance.
+
 - [ ] Under #1046/#1053 I retain exact instrumented GCC restrict diagnostics in the ML compiler's constructor and inferred-type name copies, preserve the same bounded labels without overlapping snprintf operands, and require the original ML suite and complete strict unit/platform checks.
 - [ ] Under #1083/#1053 I preserve map-type refusal diagnostics for known mismatched keys and retain all original invalid-map assertions. I reclassify the now-supported HM_KEYS/HM_VALUES fixtures as malformed supported-opcode underflow controls while keeping the remaining unsupported-opcode assertions unchanged; complete raw C AOT and source-map acceptance remain required.
 

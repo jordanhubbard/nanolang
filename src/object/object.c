@@ -998,7 +998,8 @@ static int run_rt(Cc *cc, NvmModule *mod, int64_t *out) {
             if (cls < 0) { vm_destroy(&rt.vm); return sys_fail(cc, "I do not know class %s", s->cls); }
             c = &cc->classes[cls];
             if (c->nslot >= OB_SLOT) { vm_destroy(&rt.vm); return sys_fail(cc, "I refuse more than eight slots"); }
-            snprintf(c->slots[c->nslot], OB_NAME, "%s", s->sel);
+            memmove(c->slots[c->nslot], s->sel, OB_NAME);
+            c->slots[c->nslot][OB_NAME - 1] = '\0';
             c->nslot++;
             continue;
         }
