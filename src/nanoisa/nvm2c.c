@@ -5333,7 +5333,26 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t kind = resolved_shape_kind(b, b->shape_outputs[idx][start]);
             char expression[80];
             if (kind != NVM2C_VK_ARR && kind != NVM2C_VK_SARR) {
-                nvm2c_fail(b, "I require an exact integer/string hashmap snapshot element type"); goto done;
+                const char *trace = getenv("NANO_NVM2C_SHAPE_TRACE");
+                if (trace && strcmp(trace, "1") == 0) {
+                    size_t limit = b->shapes.count < 4096 ? b->shapes.count : 4096;
+                    fprintf(stderr, "I trace snapshot function %u offset %zu output %u kind %u\n",
+                            idx, start, b->shape_outputs[idx][start], kind);
+                    for (NvmShapeId id = 1; id <= limit; ++id) {
+                        NvmShapeId root = nvm_shape_root(&b->shapes, id);
+                        fprintf(stderr, "shape %u root %u kind %u child0 %u child1 %u\n",
+                            id, root, (unsigned)nvm_shape_kind(&b->shapes, id),
+                            nvm_shape_lookup(&b->shapes, id, 0), nvm_shape_lookup(&b->shapes, id, 1));
+                    }
+                    size_t conversions = b->shapes.conversion_count < 4096 ? b->shapes.conversion_count : 4096;
+                    for (size_t i = 0; i < conversions; ++i) {
+                        NvmShapeConversion flow = b->shapes.conversions[i];
+                        fprintf(stderr, "conversion %u %u alias %d checked %d\n",
+                            flow.source, flow.target, flow.alias_view, flow.checked_payload);
+                    }
+                }
+                nvm2c_fail(b, "I require an exact integer/string hashmap snapshot element type in function %u at offset %zu (shape %u, representation %u)",
+                           idx, start, b->shape_outputs[idx][start], kind); goto done;
             }
             snprintf(expression, sizeof expression, "nmap_snapshot_%s(m[%d], %d)",
                      kind == NVM2C_VK_SARR ? "strings" : "integers", map, ins.opcode == OP_HM_VALUES);

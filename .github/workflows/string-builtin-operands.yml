@@ -53,6 +53,7 @@ jobs:
       NANO_EMPTY_RECORD_PROVIDERS: nanoc_c,nano_virt
       NANO_NUMERIC_PROVIDERS: nano_virt
       NANO_MAP_CONTEXT_PROVIDERS: nanoc_c,nano_virt
+      NANO_NVM2C_SHAPE_TRACE: 1
       NANOLANG_SELFHOST_COMPILER: ${{ github.workspace }}/bin/nano_virt
     steps:
       - uses: actions/checkout@v4

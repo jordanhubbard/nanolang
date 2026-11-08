@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1083 I retain the ba4 deferred-payload checkpoint: original full constructor contexts now pass, while four detached-snapshot native translations reach an unresolved snapshot element refusal. I collect bounded opt-in graph roots, edges, conversions and instruction-output identities at that refusal before changing propagation; I preserve exact snapshot admission.
+
 - [ ] Under #1093 I preserve the complete original array reverse/search fixture and retain receiver element kinds through checking, then lower reverse and first-match search with existing operations, once-only source order, independent storage and exact empty/results. I require malformed/bound-function controls, meaningful shadows, unchanged source VM/native execution through both frontends/fresh stages and complete integration acceptance.
 
 - [x] Under #1053 I retain the [terminal f040 instrumented-unit deadlines](evidence/instrumented-units-f040-20261108/README.md): both existing 120-minute steps expire in original bootstrap prerequisites, GCC at Stage 1 compilation and Clang at Stage 2 after successful Stage 1 native/hello execution. I preserve all four artifacts and logs, keep the full unit gate unqualified, and do not infer infrastructure causation or introduce full sanitizer bootstrap as a new release requirement.
