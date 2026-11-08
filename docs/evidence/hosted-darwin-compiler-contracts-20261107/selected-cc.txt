@@ -1,0 +1,4 @@
+#!/opt/homebrew/opt/python@3.15/bin/python3.15
+import os,sys
+compiler='/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+os.execv(compiler, [compiler, *sys.argv[1:]])

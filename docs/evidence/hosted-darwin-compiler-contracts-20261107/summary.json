@@ -1,0 +1,139 @@
+{
+  "run": 42397278317,
+  "job": 128477253106,
+  "artifact": 13591427882,
+  "artifact_name": "qualification-compiler-contracts-xcode-27",
+  "archive_bytes": 2056163,
+  "archive_sha256": "a6c7646583f7a302ea733bc7c5c2c564c342ba8e56b9a145828c287eb14637e5",
+  "crc_check": "passed",
+  "members": 30,
+  "run_head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "actual_checkout": "a6ba0d210667fcc65d91778fcfcccaa8b2cfb917",
+  "source_tree_sha256": "edc673951004a7275803ae75fc14a30c75be5992b3797995e2cbb5f59d0a9e6c",
+  "source_tree_matches_both_git_trees": true,
+  "requested_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "actual_checkout_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "unchanged_provider_count": 9,
+  "batches": [
+    {
+      "methods": 28,
+      "seconds": 77.308
+    },
+    {
+      "methods": 8,
+      "seconds": 21.919
+    },
+    {
+      "methods": 7,
+      "seconds": 6.665
+    },
+    {
+      "methods": 111,
+      "seconds": 2777.361
+    },
+    {
+      "methods": 3,
+      "seconds": 1.207
+    },
+    {
+      "methods": 2,
+      "seconds": 3.265
+    },
+    {
+      "methods": 5,
+      "seconds": 46.292
+    },
+    {
+      "methods": 16,
+      "seconds": 50.239
+    },
+    {
+      "methods": 16,
+      "seconds": 9.727
+    },
+    {
+      "methods": 4,
+      "seconds": 78.402
+    },
+    {
+      "methods": 9,
+      "seconds": 8.838
+    },
+    {
+      "methods": 2,
+      "seconds": 1.892
+    },
+    {
+      "methods": 13,
+      "seconds": 38.687
+    },
+    {
+      "methods": 4,
+      "seconds": 17.043
+    },
+    {
+      "methods": 1,
+      "seconds": 287.398
+    },
+    {
+      "methods": 1,
+      "seconds": 26.731
+    },
+    {
+      "methods": 3,
+      "seconds": 44.72
+    },
+    {
+      "methods": 2,
+      "seconds": 36.747
+    },
+    {
+      "methods": 2,
+      "seconds": 37.99
+    },
+    {
+      "methods": 2,
+      "seconds": 133.352
+    },
+    {
+      "methods": 2,
+      "seconds": 255.888
+    },
+    {
+      "methods": 1,
+      "seconds": 2.153
+    },
+    {
+      "methods": 1,
+      "seconds": 1.706
+    },
+    {
+      "methods": 1,
+      "seconds": 6.924
+    },
+    {
+      "methods": 1,
+      "seconds": 7.314
+    },
+    {
+      "methods": 1,
+      "seconds": 7.085
+    },
+    {
+      "methods": 1,
+      "seconds": 15.978
+    },
+    {
+      "methods": 2,
+      "seconds": 24.88
+    },
+    {
+      "methods": 1,
+      "seconds": 7.383
+    }
+  ],
+  "reported_skips": [
+    "OK (skipped=1)"
+  ],
+  "boundaries": "I retain compiler-contracts only; other Darwin legs, integration, JUnit, security and native lifecycle admission remain separate."
+}
