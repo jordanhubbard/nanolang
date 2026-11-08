@@ -1,0 +1,15 @@
+{
+  "size": 11507965,
+  "sha256": "f7dae9b628e11d22eb4c0f6c35190395933f1a2898424dd573b7dc36748a731e",
+  "files": 1607,
+  "text_files": 1461,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-fxq2hjif.tar.gz",
+      "sha256": "9e183fad01ecf379c9fda9df5122812f10abb01273410f85424b7449449437d8",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

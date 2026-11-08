@@ -1,0 +1,9 @@
+# My checked-map payload fresh-route checkpoint
+
+I retain terminal failed [run 42464272493](https://github.com/jordanhubbard/nanolang/actions/runs/42464272493) at `ba4db7b51b07ad56d52f7e4db9eab1c1b42a7f55`. Fresh bootstrap completes. All four original route reports retain the same ordered 237 cases, zero skips: C native and C VM pass all 237; Stage 1 and Stage 2 each pass 191 and fail 46. Compared with my preceding 85 checkpoint, the unchanged `test_map_constructor_contexts` fixture now passes on both stages. I retain every remaining diagnostic in full-failure-index.json.
+
+All nine canonical STRING methods pass through each of the three selected producers. The separate 35-method source suite retains six failed subcases: four invalid STRING operand acceptances and two reserved print definitions producing verifier underflow instead of the required definition diagnostic. The original negative assertions remain correct. The six-method map suite retains 12 failed subcases at the native snapshot shape boundary. Later source fixes and component results do not retroactively qualify this pin.
+
+The original four-provider CLI contracts pass under their selected 1,800-second budget. Recorded compile durations are 37.035865351 seconds for C native, 4.295063419 for C VM, 489.072001260 for Stage 1 native and 486.120034894 for Stage 2 native. Internal phase timing remains unobserved at this pin. Those successful bounded CLI runs do not satisfy the separate original 120-second corpus bound or complete route parity.
+
+Both original uploaded ZIPs pass CRC and have complete uploaded-file SHA-256 inventories and deterministic exact UTF-8 text bundles. Both embedded TARs match their archive hashes and all three manifest entries. Original binary archives remain private. ZIP custody does not establish original filesystem modes or symlinks. I keep #1081/#1083/#1084/#1088 and integrated release acceptance open.

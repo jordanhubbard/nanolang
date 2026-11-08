@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [x] Under #1100 I retain the [shared reserved-definition native component checkpoint](evidence/reserved-builtins-20261108/qualified-ca/README.md): actual C-seed-created Nano checker execution under GCC/Clang, unchanged effective policy, all 78 focused methods and full units/translator gates pass, with ELF/generated C custody. Fresh stages and integrated platform acceptance remain open.
+
+- [x] Under #1081/#1083 I retain the [ba4 fresh-route checkpoint](evidence/junit-route-checkpoints-20261107/ba4/README.md): identical original 237-case selection, C routes 237/237 and both stages 191/237, including the unchanged map-constructor fixture newly passing. I preserve all remaining failures and do not turn the 1,800-second CLI passes into 120-second corpus acceptance.
+
 - [ ] Under #1065/#1088 I measure the actual self-hosted native publisher's translator and C-compiler subprocesses through transparent test-owned wrappers. I retain exact argv/tool/input/output hashes, generated C/NVM and native bytes, wall timing and incomplete records on interruption; preserve all selected flags, source/shadow policy, 1800-second CLI and 120-second corpus deadlines; and keep unobserved time unattributed before optimization.
 
 - [x] Under #1084 I retain my [actual source-checker native component checkpoint](evidence/source-checker-component-20261108/README.md): GCC/Clang execute the actual Nano checker through the C seed, with seven STRING cases in production, retained ELF/generated C, matching input/product hashes, all 78 focused methods and complete translator/units gates. I retain both earlier unknown-short-option failures without source acceptance, all four ZIPs and embedded TAR inventories. This C-creation-path evidence leaves fresh stages and full native lifecycle acceptance open.

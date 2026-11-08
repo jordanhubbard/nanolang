@@ -1,0 +1,38 @@
+{
+  "creation_path": "C-seed-to-native",
+  "native_lifecycle_admitted": false,
+  "fresh_stages_qualified": false,
+  "product": {
+    "path": "source-checker-component/actual-native-wvrt1nwh/checker",
+    "size": 14257720,
+    "sha256": "62b0ccb305e755a373de8bf9c2907aee221e617d6aae8a23371b7ddb61bf8939",
+    "elf": true
+  },
+  "generated_c": {
+    "path": "source-checker-component/actual-native-wvrt1nwh/checker.c",
+    "size": 274086,
+    "sha256": "33d972cfa5f81a01e932d8cd814a5f7104c291c7a71adb3624221b0b05315fff"
+  },
+  "inputs_unchanged": true,
+  "commands": [
+    {
+      "label": "source-build",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+        "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+        "--verbose",
+        "--keep-c",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-wvrt1nwh/checker"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "native-run",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/source-checker-component/actual-native-wvrt1nwh/checker"
+      ],
+      "returncode": 0
+    }
+  ]
+}

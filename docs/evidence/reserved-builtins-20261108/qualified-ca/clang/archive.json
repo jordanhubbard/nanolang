@@ -1,0 +1,15 @@
+{
+  "size": 41337067,
+  "sha256": "dda3784010734b9b3e49b7b3cccaca72f3e9b1c98840606e834e86e784773dae",
+  "files": 1603,
+  "text_files": 1457,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-74y_bg3a.tar.gz",
+      "sha256": "9fbb675cdc05e747d4dc3893d4860abc1e328a985ccb9b052243e0b6cec3574e",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
