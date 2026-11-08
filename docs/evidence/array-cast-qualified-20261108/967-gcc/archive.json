@@ -1,0 +1,15 @@
+{
+  "size": 8095894,
+  "sha256": "0dbf2d8f19d3614d5df5130922052f68aa912f5d49a348f20156605a9385654f",
+  "files": 1208,
+  "text_files": 1097,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-pbpw9m5t.tar.gz",
+      "sha256": "51909ef3e208c857db14efed5bb99693cecdd55bb3385cccbb4c39fd0db62a99",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

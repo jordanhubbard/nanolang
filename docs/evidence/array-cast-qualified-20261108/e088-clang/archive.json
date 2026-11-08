@@ -1,0 +1,15 @@
+{
+  "size": 31352417,
+  "sha256": "7871fc418f0291c894944aebdaf6d5a9050c60d024641d4da5acc3806c30495f",
+  "files": 1274,
+  "text_files": 1157,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-k0cbpmdw.tar.gz",
+      "sha256": "bd3b949c92f4b72efd508ad506f01cbc38e542dfb404ca21100457e3ece1bdd6",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

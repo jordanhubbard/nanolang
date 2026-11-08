@@ -1,0 +1,15 @@
+{
+  "size": 29490138,
+  "sha256": "9891dd4435e1588c388d2b863ec90173d457016b820a05d6c58393fd92c59059",
+  "files": 1204,
+  "text_files": 1093,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-cpj5wu29.tar.gz",
+      "sha256": "c5281d40c4143555817322a017dcd1fd008da2751245de34d3ff1385773a5629",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

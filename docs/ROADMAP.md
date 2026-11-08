@@ -1,8 +1,10 @@
 # My Roadmap
 
+- [x] Under #1094/#1095 I retain my [arithmetic/casting C-frontend checkpoint](evidence/array-cast-qualified-20261108/README.md): paired GCC/Clang pass all 57 corrected arithmetic methods at 967 and all 61 casting-inclusive methods at e088, original C units and full translator gates. All seven original raw refusal controls execute. Six original artifacts retain both earlier seven-error failures and later successes; fresh self-hosted and integrated acceptance remain open.
+
 - [ ] Under #1095 I preserve the complete original casting fixture and repair self-hosted cast_float result metadata, inline selection and one-argument emission. I retain legal lexical binding identity and the existing ANY operand/consumer semantics, test scalar bits, byte/bool/string/array fallback and once-only execution in production main, preserve arity/prior output and meaningful shadows, and require fresh stages and full platform acceptance.
 
-- [ ] Under #1094 I retain the 6d first arithmetic run: GCC passes the original whole fixture, fixed-bit/order sources, O0/O2 integer/float/STRING/empty/lifetime controls and source refusals, but seven raw refusal subcases stop before tool invocation with missing Python Path. I import Path and require all seven unchanged tool/refusal/output assertions to execute; this harness error is not native acceptance.
+- [x] Under #1094 I retain the 6d first arithmetic run: GCC passes the original whole fixture, fixed-bit/order sources, O0/O2 integer/float/STRING/empty/lifetime controls and source refusals, but seven raw refusal subcases stop before tool invocation with missing Python Path. I import Path and require all seven unchanged tool/refusal/output assertions to execute; this harness error is not native acceptance.
 
 - [x] Under #1094 I retain the [8127 native baseline](evidence/array-arithmetic-20261108/baseline-8127/README.md): both GCC/Clang execute the unchanged whole fixture in NanoVM, then actual native translation refuses ARRAY_ADD at function 0 offset 74. Both copied fixtures match tracked bytes. I record my [native flat-array contract](NATIVE_ARRAY_ARITHMETIC.md) before implementation; the historical bounded aggregate policy explicitly left this target unqualified.
 
