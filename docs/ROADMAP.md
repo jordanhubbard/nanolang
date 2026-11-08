@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1049/#1101/#1102/#1103 I run the same complete C-seed/VM/native component qualification on my existing pinned xcode-27 Apple toolchain through an explicit manual profile. I preserve Linux GCC/Clang defaults, all original parser/typechecker/translator/alias tests, source acceptance assertions, instrumentation and budgets; actual native checker products and tool/SDK custody remain required. This does not substitute for fresh self-hosted or full native lifecycle acceptance.
+
 - [ ] Under #1065/#1088 I retain direct compiler file inputs, including the linked runtime object, in my phase observer. I verify the bytes with a real C object needed by the native product, and leave transitive headers/linker-selected libraries outside this observer scope.
 
 - [x] Under #1102/#1103 I retain the [original whole character baseline and byte component checkpoint](evidence/character-builtins-20261108/first-69e/README.md): actual native Nano checker products execute six byte-alias production cases under GCC/Clang, all three byte source methods pass, and the unchanged full character fixture passes VM execution then refuses the missing native vm_char_to_lower ABI. I preserve all 87 methods and three old failed subcases; fresh-stage/platform acceptance remains open.

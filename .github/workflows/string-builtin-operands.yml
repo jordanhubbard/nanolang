@@ -50,6 +50,11 @@ on:
       - 'src/nanovirt/shadow_runner.c'
       - 'src/math_host_contracts.def'
   workflow_dispatch:
+    inputs:
+      native_darwin:
+        description: I execute the same component gates on my existing qualified Apple toolchain.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -57,11 +62,11 @@ permissions:
 jobs:
   string-builtin-operands:
     name: Seed string operands, VM and C AOT (${{ matrix.compiler }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.native_darwin && 'xcode-27' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang]
+        compiler: ${{ fromJSON(inputs.native_darwin && '["cc"]' || '["gcc","clang"]') }}
     timeout-minutes: 90
     env:
       CC: ${{ matrix.compiler }}
@@ -78,17 +83,31 @@ jobs:
       - name: Require worker headroom before provisioning or building
         run: |
           python3 - <<'PY'
-          import json, os, shutil, tempfile
+          import json, os, shutil, subprocess, sys, tempfile
           from pathlib import Path
           output = Path('.test_output/string-builtin-operands')
           output.mkdir(parents=True)
           disks = []
-          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP'], '/var/cache/apt']:
-              usage = shutil.disk_usage(location)
+          cache = str(Path.home()/'Library/Caches/Homebrew') if sys.platform == 'darwin' else '/var/cache/apt'
+          for location in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP'], cache]:
+              existing = Path(location)
+              while not existing.exists():
+                  existing = existing.parent
+              usage = shutil.disk_usage(existing)
               disks.append({'path': location, 'free': usage.free, 'total': usage.total})
-          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
-                    for line in Path('/proc/meminfo').read_text().splitlines()
-                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          if sys.platform == 'darwin':
+              page_output = subprocess.check_output(['vm_stat'], text=True)
+              pages = {line.split(':')[0]: int(line.split(':')[1].strip().rstrip('.'))
+                       for line in page_output.splitlines()[1:] if ':' in line}
+              page_size = int(subprocess.check_output(['sysctl', '-n', 'hw.pagesize'], text=True))
+              total = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True))
+              available = page_size * sum(pages.get(name, 0) for name in
+                  ['Pages free', 'Pages inactive', 'Pages speculative'])
+              memory = {'MemTotal': total, 'MemAvailable': available}
+          else:
+              memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                        for line in Path('/proc/meminfo').read_text().splitlines()
+                        if line.startswith(('MemTotal:', 'MemAvailable:'))}
           report = {'cpus': os.cpu_count(), 'disks': disks, 'memory': memory}
           (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
           print(json.dumps(report, indent=2))
@@ -97,9 +116,17 @@ jobs:
           if memory['MemAvailable'] / memory['MemTotal'] <= .10:
               raise SystemExit('I hold native compilation for memory pressure.')
           PY
-      - name: Install my existing native compiler prerequisites
+      - name: Install my existing Linux native compiler prerequisites
+        if: runner.os == 'Linux'
         timeout-minutes: 20
         run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
+      - name: Install my existing Darwin native compiler prerequisites
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: ./scripts/ci-brew-install.sh pkg-config openssl libffi
+      - name: Select my existing qualified Apple compiler and SDK without drift
+        if: runner.os == 'macOS'
+        run: python3 scripts/ci_select_capture_clang.py
       - name: Verify my shared reserved-definition tables
         run: python3 scripts/gen_reserved_builtins.py --check
       - name: Build actual fresh VM and C AOT providers
@@ -111,7 +138,13 @@ jobs:
             2>&1 | tee .test_output/string-builtin-operands/build.log
           git rev-parse HEAD > .test_output/string-builtin-operands/revision.txt
           git ls-tree -r HEAD > .test_output/string-builtin-operands/source-tree.txt
-          sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano_aot_runtime.o > .test_output/string-builtin-operands/providers.sha256
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          paths = ['bin/nanoisa', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoc_c', 'bin/nano_virt', 'bin/nano_aot_runtime.o']
+          manifest = ''.join(hashlib.sha256(Path(path).read_bytes()).hexdigest()+'  '+path+'\n' for path in paths)
+          Path('.test_output/string-builtin-operands/providers.sha256').write_text(manifest)
+          PY
           "$CC" --version > .test_output/string-builtin-operands/compiler.txt
       - name: Execute the complete original C parser unit suite
         run: |
@@ -191,8 +224,18 @@ jobs:
         run: |
           git diff --exit-code
           if test -f .test_output/string-builtin-operands/providers.sha256; then
-            sha256sum --check .test_output/string-builtin-operands/providers.sha256 \
-              > .test_output/string-builtin-operands/providers-after.log
+            python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          report = []
+          for row in Path('.test_output/string-builtin-operands/providers.sha256').read_text().splitlines():
+              expected, path = row.split('  ', 1)
+              actual = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              if actual != expected:
+                  raise SystemExit('I refuse a changed provider: '+path)
+              report.append(path+': OK')
+          Path('.test_output/string-builtin-operands/providers-after.log').write_text('\n'.join(report)+'\n')
+          PY
           fi
       - name: Retain original build and diagnostic results
         if: always()
@@ -202,6 +245,8 @@ jobs:
           path: |
             .test_output/string-builtin-operands/
             .test_output/source-checker-component/
+            .test_output/retirement/capture-toolchain.json
+            .test_output/retirement/selected-tools/
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
