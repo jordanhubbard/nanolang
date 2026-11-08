@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] Under #1097 I retain a complete original runtime-format native baseline before adding source admission. I repair self-hosted result/checker/lowering and any demonstrated C-frontend native gap while retaining current %s/%d/%f/%g substitution, raw conversion policy, Unicode/empty/long and missing/extra argument semantics, once-only source order, lexical identity, prior output and useful shadows. I require both fresh stages, full translator/units and integrated acceptance; I do not widen raw foreign-array ABI admission.
+- [x] Under #1096 I retain the [eb680 C-frontend/native checkpoint](evidence/dynamic-array-20261108/eb680/README.md): paired GCC/Clang pass all 68 methods, original C units/aliases and complete translator gates, including the whole original dynamic-array fixture and all seven new method contracts. Both full artifact ZIPs and embedded TAR inventories independently verify. Self-hosted and integrated acceptance stay open.
+
+- [ ] Under #1097 I record my [source format contract](SOURCE_FORMAT_CONTRACT.md) and retain a complete original runtime-format native baseline before adding source admission. I repair self-hosted result/checker/lowering and any demonstrated C-frontend native gap while retaining current %s/%d/%f/%g substitution, raw conversion policy, Unicode/empty/long and missing/extra argument semantics, once-only source order, lexical identity, prior output and useful shadows. I require both fresh stages, full translator/units and integrated acceptance; I do not widen raw foreign-array ABI admission.
 
 - [x] Under #1081 I retain the [historical d054 terminal](evidence/junit-route-checkpoints-20261107/d054/README.md): all four routes select 237 original cases with zero skips, with 237/235/180/180 passes. Three ZIPs pass CRC and the embedded temporary TAR verifies all three entries. Later corrections remain separately pinned; this old failure is not current stage acceptance.
 

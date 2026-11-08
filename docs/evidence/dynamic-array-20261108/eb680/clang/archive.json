@@ -1,0 +1,15 @@
+{
+  "size": 35092490,
+  "sha256": "a18952deaff10604e29851d0fe83898d1a17d901b9170d3a5371168fa610fb2a",
+  "files": 1428,
+  "text_files": 1299,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-38v6sp_u.tar.gz",
+      "sha256": "646cbfcffed4399d5cbe7e76c7f087a21663a523a47d0536cbcae611573c6761",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

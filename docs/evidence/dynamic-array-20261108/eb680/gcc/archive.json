@@ -1,0 +1,15 @@
+{
+  "size": 8961478,
+  "sha256": "36f25b2f31675ec5b1fba73f46fb0e360f66f9238605e6f493a6d4f8defa54b1",
+  "files": 1432,
+  "text_files": 1303,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-dyvv6dc6.tar.gz",
+      "sha256": "2ccc86a34d441b3520d1c1b813e7dc813f53b5545d58306e4a13f456a8685a72",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
