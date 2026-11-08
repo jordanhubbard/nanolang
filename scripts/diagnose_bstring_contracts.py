@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -75,7 +76,32 @@ def main():
               ROOT/'src/nanovm/vm_builtins.c', Path(__file__).resolve()]
     before = {str(p): digest(p) for p in inputs}
     cases = [('whole-fixture', ROOT/'tests/test_bstring.nano')]
-    for label, text in probes().items():
+    measured = probes()
+    measured['useful-function-shadow'] = '''fn byte_count(value:bstring)->int{return (bstr_length value)}
+shadow byte_count {
+ let value:bstring=(bstr_new "shadow")
+ assert (== (byte_count value) 6)
+ (bstr_free value)
+}
+fn main()->int{
+ let value:bstring=(bstr_new "production")
+ assert (== (byte_count value) 10)
+ (bstr_free value)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+'''
+    measured['substring-overflow-sanitized'] = '''fn main()->int{
+ let value:bstring=(bstr_new "abc")
+ let tail:bstring=(bstr_substring value 1 9223372036854775807)
+ assert (== (bstr_length tail) 2)
+ assert (== (bstr_to_cstr tail) "bc")
+ (bstr_free tail) (bstr_free value)
+ return 0
+}
+shadow main{assert true}
+'''
+    for label, text in measured.items():
         source = out/(label+'.nano')
         source.write_text(text)
         cases.append((label, source))
@@ -88,9 +114,12 @@ def main():
                 product = work/('program' if provider == 'nanoc_c' else 'program.nvm')
                 source_before = digest(source)
                 commands = []
+                environment = os.environ.copy()
+                if label == 'substring-overflow-sanitized' and provider == 'nanoc_c':
+                    environment['NANO_CFLAGS'] = environment.get('NANO_CFLAGS', '') + ' -fsanitize=address,undefined -fno-sanitize-recover=all'
                 def command(name, argv, build=False):
                     argv = list(map(str, argv))
-                    result = run_captured(argv, cwd=ROOT, timeout=60, build=build)
+                    result = run_captured(argv, cwd=ROOT, timeout=60, build=build, env=environment)
                     (work/(name+'.stdout')).write_bytes(result.stdout)
                     (work/(name+'.stderr')).write_bytes(result.stderr)
                     commands.append({'label': name, 'argv': argv, 'returncode': result.returncode})
@@ -116,6 +145,7 @@ def main():
                           'source': str(source), 'source_before': source_before,
                           'source_after': digest(source), 'product_magic': magic,
                           'product_before_run': product_before, 'product_after_run': product_after,
+                          'native_build_cflags': environment.get('NANO_CFLAGS', ''),
                           'scope': 'I retain observations; boundary failures are not semantic acceptance.'}
                 (work/'record.json').write_text(json.dumps(record, indent=2)+'\n')
                 records.append(record)

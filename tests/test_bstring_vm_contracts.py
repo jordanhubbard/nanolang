@@ -74,7 +74,7 @@ shadow size {
 fn main()->int{
  let first:bstring=(bstr_new "Aé茶")
  let second:bstring=(bstr_new "other")
- let values:array<bstring>=[first,second]
+ let values:array<bstring> = [first,second]
  let alias:bstring=(at values 0)
  assert (== (size alias) 6)
  assert (bstr_equals first alias)

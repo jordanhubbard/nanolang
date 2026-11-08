@@ -196,7 +196,7 @@ jobs:
       - name: Execute my binary-string ownership and VM semantic gates
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-vm-bstring-contracts \
+          make -f Makefile.gnu CC="$CC" test-nanovm \
             2>&1 | tee .test_output/string-builtin-operands/bstring-ownership.log
           python3 -m unittest -v tests.test_bstring_vm_contracts \
             2>&1 | tee .test_output/string-builtin-operands/bstring-vm.log
