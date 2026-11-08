@@ -1,0 +1,13 @@
+{"case": "invalid_arity", "argv": ["/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-knz7ktlv/checker"]}
+
+{"case": "invalid_arity", "returncode": 2, "expected": 2, "timed_out": false, "accepted": true}
+{"case": "accepted_source", "argv": ["/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-knz7ktlv/checker", "/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/valid.nano"]}
+
+{"case": "accepted_source", "returncode": 0, "expected": 0, "timed_out": false, "accepted": true}
+{"case": "ownership_refusal", "argv": ["/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-knz7ktlv/checker", "/home/runner/work/nanolang/nanolang/tests/fixtures/resource-checker/unconsumed.nano"]}
+I cannot verify ownership: resource remains live at scope exit: owned
+
+{"case": "ownership_refusal", "returncode": 1, "expected": 1, "timed_out": false, "accepted": true}
+{"case": "extra_argument", "argv": ["/home/runner/work/nanolang/nanolang/.test_output/cli-run-contract-native/nanoc_c-knz7ktlv/checker", "unused", "extra"]}
+
+{"case": "extra_argument", "returncode": 2, "expected": 2, "timed_out": false, "accepted": true}

@@ -1,0 +1,141 @@
+{
+  "artifact": 13606133873,
+  "run": 42453097157,
+  "archive_bytes": 3912178,
+  "sha256": "dc0ecf00089eaa4fb0b5fde69cac5e49643a6a2be12804b91661414754b1c568",
+  "zip_crc_error": null,
+  "source_tree_verified": "b7e4bf3667f0850f1318b1105b5955273239cae4",
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/cli-b7e4/gcc.zip",
+  "members": [
+    {
+      "name": ".test_output/cli-run-contract-native/nano_virt-eitbwzhk/checker.nvm",
+      "bytes": 727164,
+      "sha256": "768bffbf7502968018008541a38a04b615c83d6e7d22ef2a5d72fbdb79123237"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nano_virt-eitbwzhk/compile.log",
+      "bytes": 781,
+      "sha256": "911fd5f2ded131b10bb17e880db4504cd8d9f8144e8b7a93e3bf3c764e12563f"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nano_virt-eitbwzhk/compile-command.json",
+      "bytes": 272,
+      "sha256": "1d06d2efb8f1f369cfed01b9a48636d29041e83b6586e584ca005e0a962ad92e"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nano_virt-eitbwzhk/run.log",
+      "bytes": 1543,
+      "sha256": "3430f6416dca67cc9831ecab08b1ddfeecddc6936c356dea2ead3fe272aba79d"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nanoc_c-knz7ktlv/checker",
+      "bytes": 14144112,
+      "sha256": "ec4bf81761af674ea244e00add28073212217e1093681e74a2a1e8e0a51652a1"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nanoc_c-knz7ktlv/compile-command.json",
+      "bytes": 248,
+      "sha256": "c262404c4c1fa82bc48dc1576b243a43f5065e9bd36d55b363d8d689d23afc45"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nanoc_c-knz7ktlv/compile.log",
+      "bytes": 450,
+      "sha256": "667a9ef4bc790f9f4eb42556f1611432b9253d863433c2c58724b0bbee299755"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nanoc_c-knz7ktlv/inputs.json",
+      "bytes": 1166,
+      "sha256": "93c2e5a063e5ba10edc2e0437063f353b7bb2174c9eb19f7792ec06028791523"
+    },
+    {
+      "name": ".test_output/cli-run-contract-native/nanoc_c-knz7ktlv/run.log",
+      "bytes": 1208,
+      "sha256": "c7c832a05552581ddc33cf8d7599fe8a4d022e27dac1f8bcb72ad834bab9044d"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/array-alias-results.json",
+      "bytes": 433,
+      "sha256": "7ca4dd991f7b83c16ebf66e95077c468d333ccdba60fdd1bd75a0ac580e1cbde"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/build.log",
+      "bytes": 57985,
+      "sha256": "a462b39cdb7054e0dca8bec864997c38f743afd0610a717648cf396b8dfd9abb"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/checker-cli.log",
+      "bytes": 2519,
+      "sha256": "2084b15c98b7f91e545cfa3f9b67201c34dd2060edf19962348ac22525650891"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/compiler.txt",
+      "bytes": 246,
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/eval.log",
+      "bytes": 8029,
+      "sha256": "585ca62282dee298e31d5edda2f5e25f4d1d5afc81969b1c4c6aeaa88135944d"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/module.log",
+      "bytes": 893,
+      "sha256": "a5f83dfa2f47209bdd66c7eb4ba036608b2f987130e7841f34ceee0e8d0239e7"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/nano_virt-array-aliases.log",
+      "bytes": 754,
+      "sha256": "9ea1c5fb12805ba4d14db950d10af6fe3ba898f32069defda4bdf38ce27e2afc"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/nanoc_c-array-aliases.log",
+      "bytes": 755,
+      "sha256": "e901cf5073c1a7e7cf5d0a772985787608ac5acf26bf76b3c94708d3be7e910e"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/negative.log",
+      "bytes": 2669,
+      "sha256": "bd94d338d697eab4f56dfc99c1485a11a3e30aeb4b95c6847771cd71a8e287d0"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/providers-after.log",
+      "bytes": 120,
+      "sha256": "23027a8b651628f0a54f13b361dd052f4f807a01424243aa4cdc5f4c563f573d"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/providers.sha256",
+      "bytes": 554,
+      "sha256": "bd847e41de41bb3a46b5995b914be76fc630d518d8fd1896e22c70540cbdf706"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/revision.txt",
+      "bytes": 41,
+      "sha256": "41293dfc4c915eeefcc19d30adc5c47528288a8707dbec87fb66f00699986d64"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/source-tree.txt",
+      "bytes": 14349507,
+      "sha256": "b5a7623a33b11afb25b66c7fc0503d6a00f0524a22ba7d72e1f93a928b176f9f"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/storage/nano-qualification-wlbdr1e1.jsonl",
+      "bytes": 9925,
+      "sha256": "1864002e8ec2e1a956fc733881e0d61d8233432aa319d0aad4ac2d495d7b685b"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/tests.log",
+      "bytes": 4581,
+      "sha256": "706374cdb6c59435c991cee5db7d788fafae8b99b041403c8a04de1e43646f5a"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/units.log",
+      "bytes": 301494,
+      "sha256": "185d8af02bded9fb6c486e903e37e0f36010f32c75b71b577b7bf2fe401f3f02"
+    },
+    {
+      "name": ".test_output/shadow-call-arguments/worker.json",
+      "bytes": 499,
+      "sha256": "47b59d82d974ffab3c10cd8a963c0bd2db07d1856d693d37d1165ad273d46dfe"
+    }
+  ]
+}

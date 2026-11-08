@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1088 I preserve NanoVM's required guest-argument separator in both direct native checker qualification and comprehensive VM invocation. At b7e4bf366 the actual C-seed native helper passes all four CLI contracts; the VM correctly refuses arguments without --. I retain that exact transport failure and require corrected actual native/VM outcomes with unchanged expected statuses and source.
+
 - [ ] Under #1046/#1053 I retain the next exact GCC restrict refusal in object slot extension, use overlap-safe copying of the same fixed-width selector, and run the existing full ordinary/instrumented compiler profile audit to collect remaining diagnostics together. I preserve all strict flags, source/test/private profiles and the required fast budget; the separate measured profile tier is not release or fast-gate acceptance.
 
 - [ ] Under #1046/#1053 I retain exact instrumented GCC restrict diagnostics in the ML compiler's constructor and inferred-type name copies, preserve the same bounded labels without overlapping snprintf operands, and require the original ML suite and complete strict unit/platform checks.

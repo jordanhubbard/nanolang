@@ -120,7 +120,7 @@ class TestRunContract(unittest.TestCase):
                     process.send_signal(signal.SIGTERM)
                     process.wait(timeout=5)
 
-    def runner(self, mode, prior=False, contract=False):
+    def runner(self, mode, prior=False, contract=False, backend="c"):
         with tempfile.TemporaryDirectory(prefix='nano-comprehensive-contract-') as tmp:
             root = Path(tmp)
             (root/'tests/unit').mkdir(parents=True)
@@ -146,6 +146,14 @@ class TestRunContract(unittest.TestCase):
                 'output=pathlib.Path(sys.argv[sys.argv.index("-o")+1])\n'+
                 'output.write_text('+repr(runtime)+');output.chmod(0o700)\n')
             compiler.chmod(0o700)
+            if backend == 'vm':
+                shutil.copy(compiler,root/'bin/nano_virt')
+                (root/'bin/nano_virt').chmod(0o700)
+                vm=root/'bin/nano_vm'
+                vm.write_text('#!'+sys.executable+'\nimport subprocess,sys\n'
+                    'if len(sys.argv)<3 or sys.argv[2]!="--":sys.exit(99)\n'
+                    'sys.exit(subprocess.call([sys.executable,sys.argv[1],*sys.argv[3:]]))\n')
+                vm.chmod(0o700)
             stale_marker=root/'stale-executed'
             old=('#!'+sys.executable+'\nfrom pathlib import Path\nPath('+repr(str(stale_marker))+').touch()\nraise SystemExit(0)\n').encode()
             if prior:
@@ -154,7 +162,7 @@ class TestRunContract(unittest.TestCase):
                 (root/'.test_output/nl_nl_syntax_fixture.nano.out').chmod(0o700)
             report=root/'results.xml'
             result=subprocess.run(['bash',root/'tests/run_all_tests.sh','--lang','--format=junit',f'--output={report}'],
-                cwd=root,env=dict(os.environ,NANOLANG_COMPILER=str(compiler),NANOLANG_BACKEND='c'),
+                cwd=root,env=dict(os.environ,NANOLANG_COMPILER=str(compiler),NANOLANG_BACKEND=backend),
                 capture_output=True,text=True,timeout=15)
             xml=ET.parse(report).getroot()
             self.assertEqual(int(xml.attrib['tests']),1,result.stdout+result.stderr)
@@ -202,3 +210,8 @@ class TestRunContract(unittest.TestCase):
             result,log=self.execute(root,f'from pathlib import Path;Path({str(marker)!r}).touch()')
             self.assertEqual(result.returncode,1,log)
             self.assertFalse(marker.exists())
+
+    def test_comprehensive_vm_transport_separates_guest_arguments(self):
+        result,report=self.runner('success',contract=True,backend='vm')
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertEqual(report.attrib['failures'],'0')

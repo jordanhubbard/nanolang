@@ -254,11 +254,11 @@ run_test() {
             ;;
         vm|nanovm)
             run_artifact="${out_file}.nvm"
-            run_cmd=(./bin/nano_vm "${out_file}.nvm")
+            run_cmd=(./bin/nano_vm "${out_file}.nvm" --)
             ;;
         daemon)
             run_artifact="${out_file}.nvm"
-            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm")
+            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm" --)
             ;;
     esac
 

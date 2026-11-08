@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 from scripts.test_run_contract import execute
+from tests.native_process import native_compile_timeout, run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'tests/test_resource_effect_checker.nano'
@@ -35,11 +36,21 @@ class NativeTestRunContract(unittest.TestCase):
                 if route == 'vm':
                     command.append('--emit-nvm')
                 (work/'compile-command.json').write_text(json.dumps(command, indent=2)+'\n')
-                with (work/'compile.log').open('wb') as log:
-                    result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
-                        timeout=float(os.environ.get('NANOLANG_TEST_COMPILE_TIMEOUT','120')))
+                try:
+                    result = run_captured(command, cwd=ROOT, timeout=native_compile_timeout())
+                except subprocess.TimeoutExpired as error:
+                    (work/'compile.stdout').write_bytes(error.stdout or b'')
+                    (work/'compile.stderr').write_bytes(error.stderr or b'')
+                    (work/'compile-status.json').write_text(json.dumps({'timed_out':True,
+                        'partial_output':True,'timeout':error.timeout})+'\n')
+                    raise
+                (work/'compile.stdout').write_bytes(result.stdout)
+                (work/'compile.stderr').write_bytes(result.stderr)
+                (work/'compile.log').write_bytes(result.stdout+b'\n'+result.stderr)
+                (work/'compile-status.json').write_text(json.dumps({'returncode':result.returncode,
+                    'timed_out':False})+'\n')
                 self.assertEqual(result.returncode,0,(work/'compile.log').read_text(errors='replace'))
-                invocation = [str(ROOT/'bin/nano_vm'),str(artifact)] if route == 'vm' else [str(artifact)]
+                invocation = [str(ROOT/'bin/nano_vm'),str(artifact),'--'] if route == 'vm' else [str(artifact)]
                 status = execute(SOURCE,invocation,60,work/'run.log')
                 text=(work/'run.log').read_text(errors='replace')
                 self.assertEqual(status,0,text)
