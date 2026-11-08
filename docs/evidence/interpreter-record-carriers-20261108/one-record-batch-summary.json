@@ -1,0 +1,39 @@
+{
+  "scope": "I observe the actual installed C-seed interpreter through a real Darwin allocator-statistics module; this does not prove post-teardown leaks or source-deadline causation.",
+  "attempt": "one-record-batch",
+  "result": {
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/main.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/shadows.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/native"
+    ],
+    "returncode": 0,
+    "elapsed": 1.5931134160491638,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/main.nano": "bcbd9f98c44796bf79e12e2186234ddb6b81847b232621219fd262ecffb6401d",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/heap.c": "cd394d9c48832618900d55eceb6e3364a5fa0622ebf8cd201a86caebc073a23e",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/heap.nano": "9b58d3ef80b9347d69f9a1e5e73f94634e85a7200d5894397f24a0ad89329a0a",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/module.json": "4a3941aceba1cd82ac7323103933b97195d4d95e021381bd429fbf1c4fd9a72e"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/main.nano": "bcbd9f98c44796bf79e12e2186234ddb6b81847b232621219fd262ecffb6401d",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/heap.c": "cd394d9c48832618900d55eceb6e3364a5fa0622ebf8cd201a86caebc073a23e",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/heap.nano": "9b58d3ef80b9347d69f9a1e5e73f94634e85a7200d5894397f24a0ad89329a0a",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-8swbfpsv/heap/module.json": "4a3941aceba1cd82ac7323103933b97195d4d95e021381bd429fbf1c4fd9a72e"
+    }
+  },
+  "shadow_report": {
+    "tool": "nanoc_c",
+    "success": true,
+    "completed": true,
+    "test_count": 4,
+    "failures": []
+  },
+  "heap_observations": "1 32\n2 1205728\n"
+}

@@ -1,0 +1,33 @@
+{
+  "scope": "I observe the actual installed C-seed interpreter through a real Darwin allocator-statistics module; this does not prove post-teardown leaks or source-deadline causation.",
+  "attempt": "first-private",
+  "result": {
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/main.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/shadows.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/native"
+    ],
+    "returncode": 1,
+    "elapsed": 0.004732083005364984,
+    "before": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/main.nano": "d02ed53930de9391e7b0dfeacdcc631465c26a9e62a45f49683d6b9c417fdcf3",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/heap.c": "48ea08b84c87ca038d92096dadf37e83851a689405ac6beda2b90c7858c7ecab",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/heap.nano": "a56317d1b1a06e998143bc189e44852e27de3e28ffea1740ce4c3a22950fae94",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/module.json": "4a3941aceba1cd82ac7323103933b97195d4d95e021381bd429fbf1c4fd9a72e"
+    },
+    "after": {
+      "/Users/jkh/Src/nanolang/bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/main.nano": "d02ed53930de9391e7b0dfeacdcc631465c26a9e62a45f49683d6b9c417fdcf3",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/heap.c": "48ea08b84c87ca038d92096dadf37e83851a689405ac6beda2b90c7858c7ecab",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/heap.nano": "a56317d1b1a06e998143bc189e44852e27de3e28ffea1740ce4c3a22950fae94",
+      "/Users/jkh/Src/nanolang/.test_output/record-carrier-observe-806eunme/heap/module.json": "4a3941aceba1cd82ac7323103933b97195d4d95e021381bd429fbf1c4fd9a72e"
+    }
+  },
+  "shadow_report": null,
+  "heap_observations": null
+}
