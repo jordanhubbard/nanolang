@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1083/#1092 I retain the 1d seed shadow refusal and 33 Stage 1 undefined math-query refusal. I separate the closing generic type from assignment in my new conditional-map shadow sources so they do not tokenize as >=, explicitly import the already-public math query in its caller module, preserve all positive/refusal assertions and require fresh bootstrap.
+
 - [x] Under #1081/#1083/#1084 I retain my [complete 2df source checkpoint](evidence/junit-route-checkpoints-20261107/2df/README.md): both bootstrap generations and all canonical string routes pass; original corpus totals remain 237/235/175/175 with zero skips. Exact map and string failure logs distinguish optional storage, map return context, native legacy snapshots, declared function typing and the harness's stderr-only premise.
 
 - [ ] Under #1084 I preserve actual string diagnostic text from either documented compiler stream, keep every refusal/status/prior-output assertion, reject the invalid substring receiver through self-hosted lowering, and retain a real declared str_trim result instead of substituting builtin STRING metadata. I qualify the unchanged runtime controls through fresh stages.

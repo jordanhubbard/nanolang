@@ -1,5 +1,5 @@
 from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup, field_write_fact_lookup
-from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission
+from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
@@ -4998,7 +4998,7 @@ shadow nisa_emit_expected_expr {
     for key in ["int", "string"] {
         for value in ["int", "string"] {
             let pair: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
-            let source: string = (+ "fn choose(flag:bool)->" (+ pair (+ "{return (cond (flag (map_new)) (else (map_new)))} fn main()->int{let values:" (+ pair "=(choose true) return (map_size values)}"))))
+            let source: string = (+ "fn choose(flag:bool)->" (+ pair (+ "{return (cond (flag (map_new)) (else (map_new)))} fn main()->int{let values:" (+ pair " = (choose true) return (map_size values)}"))))
             let text: string = (nanoisa_emit_nasm source)
             assert nisa_ok
             let mut tags: string = "1"
@@ -5011,8 +5011,8 @@ shadow nisa_emit_expected_expr {
             assert (> (str_last_index_of text opcode) (str_index_of text opcode))
         }
     }
-    assert (== (nanoisa_emit_nasm "fn choose(flag:bool)->HashMap<int,int>{return (cond (flag (map_new)) (else 7))} fn main()->int{let values:HashMap<int,int>=(choose true) return 0}") "")
-    assert (== (nanoisa_emit_nasm "fn choose()->HashMap<int,int>{return (cond (1 (map_new)) (else (map_new)))} fn main()->int{let values:HashMap<int,int>=(choose) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn choose(flag:bool)->HashMap<int,int>{return (cond (flag (map_new)) (else 7))} fn main()->int{let values:HashMap<int,int> = (choose true) return 0}") "")
+    assert (== (nanoisa_emit_nasm "fn choose()->HashMap<int,int>{return (cond (1 (map_new)) (else (map_new)))} fn main()->int{let values:HashMap<int,int> = (choose) return 0}") "")
     let reset_context: int = (nisa_reset)
     let map_tokens: List<LexerToken> = (tokenize_string "fn fresh()->HashMap<int,int>{return (map_new)}" "maps.nano" (diag_list_new))
     let map_parser: Parser = (parse_program map_tokens (list_LexerToken_length map_tokens) "maps.nano")

@@ -1,0 +1,9 @@
+# My stage-source contract observations
+
+I retain terminal [focused run 42463274516](https://github.com/jordanhubbard/nanolang/actions/runs/42463274516) at `1d746434982aa68316ce4a6227cde8d6ed8f251a`. GCC and Clang each pass all 38 existing string, print, empty-record-array, numeric and math methods. Among six full map methods, eight NanoVirt C-AOT subcases still fail scalar-to-optional storage conversion: all four pairs in constructor contexts and detached snapshots. Their preceding module verification and NanoVM execution pass. Existing C-native snapshots now pass after managed string copies. My retained full logs and owned map roots preserve every actual failure, source, module, dump, command and prior-output observation.
+
+The selected same-name math artifact now retains its hidden shared-library bytes and before/after execution hashes in both compiler artifacts. My inventories identify those bytes; original binary files remain in the private ZIPs.
+
+My [1d complete-route attempt](https://github.com/jordanhubbard/nanolang/actions/runs/42463274471) stops at the mandatory `nisa_emit_expected_expr` seed shadow assertion. Its new generated source joins the closing generic bracket to assignment as `>=`; I correct that fixture syntax while retaining all assertions. My earlier [33 complete-route attempt](https://github.com/jordanhubbard/nanolang/actions/runs/42461840340) completes seed shadows but stops in Stage 1 lowering with undefined `is_float_math_builtin`: exporting the query alone does not import it into its explicit caller module. I retain both logs and complete manifests before correcting that import. Fresh stages remain required.
+
+All four ZIPs pass CRC checks. Deterministic exact-text bundles restore UTF-8 bytes and record SHA-256; inventories cover every uploaded binary. Direct ZIP custody does not establish original modes or symlinks. #1083, #1084 and #1092 remain open for fresh-stage and integrated acceptance.
