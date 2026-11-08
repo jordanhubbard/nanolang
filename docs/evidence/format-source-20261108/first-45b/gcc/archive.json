@@ -1,0 +1,15 @@
+{
+  "size": 2006753,
+  "sha256": "e4af314109d77551fe7183744701b2aeeaf7c9f621af53f1f5960118bff52628",
+  "files": 15,
+  "text_files": 14,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-dtjwa_a7.tar.gz",
+      "sha256": "c7a67c630c0ec79714cf1cfae8eb7e0ba8aba3a3640292371576900b6a15ae34",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

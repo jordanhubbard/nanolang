@@ -1,0 +1,15 @@
+{
+  "size": 2006823,
+  "sha256": "8553b52cef74dc14a65e115dcf31c23e7e5a4d25cd8e2ede785d2ff2fc9665fe",
+  "files": 15,
+  "text_files": 14,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-zoo1d1jm.tar.gz",
+      "sha256": "f35a94af744aaa8e7c3be22d5553578d16de7466d3c2003db5b01a42b6792603",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}
