@@ -31,8 +31,9 @@ typedef struct {
  * ============================================================================ */
 
 /**
- * Create string from C string (null-terminated)
- * Copies the data and validates UTF-8.
+ * I copy a NUL-terminated C string into length-aware storage.
+ * I leave UTF-8 status unvalidated; call nl_string_validate_utf8 before
+ * querying UTF-8 length or characters.
  */
 nl_string_t* nl_string_new(const char *cstr);
 
