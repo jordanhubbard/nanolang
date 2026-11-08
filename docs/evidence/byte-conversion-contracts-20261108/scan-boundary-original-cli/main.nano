@@ -1,0 +1,20 @@
+fn grow(rounds:int)->string{
+ let mut text:string="A"
+ let mut i:int=0
+ while (< i rounds){set text (str_concat text text) set i (+ i 1)}
+ return text
+}
+shadow grow{assert (== (grow 0) "A") assert (== (grow 3) "AAAAAAAA")}
+fn main()->int{
+ let prefix:string=(grow 26)
+ let text:string=(str_concat prefix "AAAAAAAAAAAAAAAAZ")
+ let bytes:array<u8> =(bytes_from_string text)
+ assert (== (array_length bytes) 67108881)
+ assert (== (at bytes 0) 65)
+ assert (== (at bytes 67108863) 65)
+ assert (== (at bytes 67108864) 65)
+ assert (== (at bytes 67108880) 90)
+ return 0
+}
+# I execute the large production body separately; my useful helper shadow stays small.
+shadow main{assert true}

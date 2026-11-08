@@ -465,7 +465,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    if (!out) return NULL;\n");
     sb_append(sb, "    if (!s) return out;\n");
-    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t len = strlen(s);\n");
     sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
     sb_append(sb, "        dyn_array_push_u8(out, (uint8_t)(unsigned char)s[i]);\n");
     sb_append(sb, "    }\n");
