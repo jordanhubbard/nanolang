@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1081/#1090 I retain my [complete 78d checkpoint](evidence/junit-route-checkpoints-20261107/78d/README.md): fresh bootstrap passes; C native and C NanoVM each pass all 237 unchanged cases, both stages pass 180 with 57 failures, zero skips and identical ordered selection. I preserve every remaining failure and keep full stage/platform acceptance open.
+
 - [ ] Under #1083 I test the deferred array-read/map operand constraint: an unresolved snapshot read must acquire its optional producer storage independently of the checked exact map key/value payload. I retain ordinary exact map conversions and mismatched-pair refusals, test scalar/optional and late-resolution cases, then rerun every unchanged full map source pair through VM/native AOT before acceptance.
 
 - [ ] Under #1083/#1092 I retain the 1d seed shadow refusal and 33 Stage 1 undefined math-query refusal. I separate the closing generic type from assignment in my new conditional-map shadow sources so they do not tokenize as >=, explicitly import the already-public math query in its caller module, preserve all positive/refusal assertions and require fresh bootstrap.
