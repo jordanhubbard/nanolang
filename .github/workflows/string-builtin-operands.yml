@@ -45,6 +45,7 @@ on:
       - 'tests/nanovm/test_bstring_contracts.c'
       - 'tests/test_bstring_vm_contracts.py'
       - 'tests/test_bstring_c_contracts.py'
+      - 'tests/test_nl_string.c'
       - 'Makefile.gnu'
       - 'scripts/diagnose_bstring_contracts.py'
       - 'tests/test_compiler_phase_marker_contracts.py'
@@ -199,7 +200,7 @@ jobs:
       - name: Execute my binary-string ownership and VM semantic gates
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-nanovm \
+          make -f Makefile.gnu CC="$CC" test-nanovm test-nl-string-bounds-sanitizers \
             2>&1 | tee .test_output/string-builtin-operands/bstring-ownership.log
           python3 -m unittest -v tests.test_record_map_heap tests.test_record_map_string_heap tests.test_record_map_ordinary_heap \
             2>&1 | tee .test_output/string-builtin-operands/bstring-private-heap.log

@@ -1895,6 +1895,14 @@ test-unicode-ffi:
 	rm -f tests/test_unicode_ffi
 
 .PHONY: test-nl-string
+.PHONY: test-nl-string-bounds-sanitizers
+test-nl-string-bounds-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_nl_string.c src/runtime/nl_string.c src/utf8.c -o $(OBJ_DIR)/test_nl_string_bounds $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_nl_string_bounds
+
+test-units: test-nl-string-bounds-sanitizers
+
 test-nl-string: $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o
 	@echo "Running nl_string unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nl_string tests/test_nl_string.c $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o $(LDFLAGS)

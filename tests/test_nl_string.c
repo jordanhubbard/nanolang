@@ -55,6 +55,21 @@ void test_substring() {
     ASSERT(nl_string_length(sub) == 5);
     ASSERT(memcmp(sub->data, "World", 5) == 0);
     
+    nl_string_t *tail = nl_string_substring(str, 6, SIZE_MAX);
+    ASSERT(tail != NULL);
+    ASSERT(tail->length == 5);
+    ASSERT(memcmp(tail->data, "World", 5) == 0);
+    nl_string_t *beyond = nl_string_substring(str, SIZE_MAX, SIZE_MAX);
+    ASSERT(beyond != NULL && beyond->length == 0);
+    nl_string_t *empty = nl_string_substring(str, str->length, SIZE_MAX);
+    ASSERT(empty != NULL && empty->length == 0);
+    nl_string_t *zero = nl_string_substring(str, 1, 0);
+    ASSERT(zero != NULL && zero->length == 0);
+    nl_string_free(tail);
+    nl_string_free(beyond);
+    nl_string_free(empty);
+    nl_string_free(zero);
+
     nl_string_free(str);
     nl_string_free(sub);
 }

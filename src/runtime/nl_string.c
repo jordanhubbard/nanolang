@@ -151,7 +151,7 @@ nl_string_t* nl_string_substring(const nl_string_t *str, size_t start, size_t le
         return nl_string_with_capacity(0);
     }
     
-    if (start + length > str->length) {
+    if (length > str->length - start) {
         length = str->length - start;
     }
     
