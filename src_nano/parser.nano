@@ -6577,8 +6577,11 @@ fn parse_statement(p: Parser) -> Parser {
         
         # I reserve only the bare statement spelling; prefix calls keep their binding.
         if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (or (== tok.value "print") (== tok.value "println"))) {
-            let value: Parser = (parse_expression (parser_advance p))
+            let operand: Parser = (parser_advance p)
+            if (parser_is_at_end operand) { return (parser_with_error operand true) }
+            let value: Parser = (parse_expression operand)
             if (parser_has_error value) { return value }
+            if (or (<= value.position operand.position) (< value.last_expr_node_id 0)) { return (parser_with_error value true) }
             return (parser_store_print value value.last_expr_node_id value.last_expr_node_type (== tok.value "println") tok.line tok.column)
         }
 

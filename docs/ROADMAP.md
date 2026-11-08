@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1081 I preserve the failing b8 mandatory parser shadow at `parse_statement`: a bare print at EOF has no operand, but generic expression parsing returns without an error. I explicitly require operand presence and parser progress before storing a print node, retain the exact assertion, and require a fresh bootstrap rather than weakening the refusal control.
+
 - [ ] Under #1081 I preserve lexical print/println function-value calls in the legacy C emitter. Exact 4cea GCC/Clang checks pass C shadow execution and canonical NanoVirt execution, but AST-to-C incorrectly emits void print helpers for those typed function-value calls. I reuse ordinary ordered callable emission, retain bare statement semantics and exact output, and keep the separate unsupported C-native capture extension under #1089 outside the One IR release scope.
 
 - [ ] Under #1081 I qualify the unchanged print-capture assertion through the C NanoISA frontend and both self-hosted stages, each with VM/native-C execution. I retain the b8 legacy AST-to-C failure as opt-in #1089 compatibility evidence: the existing named-lexical compatibility row and `RELEASE_5.1_SCOPE.md`/`NANOISA_ONLY.md` explicitly exclude that AST-to-C extension from 5.1 release requirements. I do not add that separate compatibility gate to the One IR release.
