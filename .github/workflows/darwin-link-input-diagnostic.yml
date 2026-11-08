@@ -2,12 +2,13 @@ name: Darwin assembler link-input diagnosis
 
 on:
   push:
-    branches: [fix/5.1-darwin-link-input-trace, fix/5.1-darwin-link-grammar-trace]
+    branches: [fix/5.1-darwin-link-input-trace, fix/5.1-darwin-link-grammar-trace, fix/5.1-darwin-ld27106]
     paths:
       - '.github/workflows/darwin-link-input-diagnostic.yml'
       - 'scripts/ci_darwin_link_diagnostic.py'
       - 'tests/test_ci_darwin_link_diagnostic.py'
       - 'src/module_builder.c'
+      - 'tests/test_link_response_query.py'
   workflow_dispatch:
 
 permissions:
@@ -55,6 +56,7 @@ jobs:
       - name: Validate exact failure retention through public directory APIs
         run: python3 -m unittest -v tests.test_ci_darwin_link_diagnostic
       - name: Build only the actual production module-generation probe
+        id: native-probe
         run: |
           set -o pipefail
           prefix="$(brew --prefix openssl)"
@@ -67,7 +69,20 @@ jobs:
           shasum -a 256 obj/test_module_generation_probe src/module_builder.c \
             tests/test_source_snapshots.py > .test_output/darwin-link-diagnostic/inputs.sha256
           cc --version > .test_output/darwin-link-diagnostic/compiler.txt
+      - name: Qualify actual linker grammar, captured graphs and literal argument behavior
+        timeout-minutes: 30
+        run: |
+          set -o pipefail
+          python3 -m tests.characterize_linker_response_grammar cc \
+            --require-captured-equivalent --require-argument-equivalent \
+            > .test_output/darwin-link-diagnostic/actual-response-grammar.json
+          python3 scripts/ci_qualification_storage.py run \
+            --output .test_output/darwin-link-diagnostic/response-storage --label original-linker-response-corpus -- \
+            python3 -m unittest -v tests.test_link_response_query \
+              tests.test_link_response_graph tests.test_link_argument_transport \
+            2>&1 | tee .test_output/darwin-link-diagnostic/response-corpus.log
       - name: Execute the exact failing configurations and neighbor controls
+        if: always() && !cancelled() && steps.native-probe.outcome == 'success'
         timeout-minutes: 50
         run: |
           set -o pipefail

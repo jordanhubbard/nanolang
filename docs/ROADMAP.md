@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #980/#1049 I qualify the actual pinned Xcode linker report `27106.1`, which my e3ae diagnostic shows is rejected by my older `1267`/`27037.1` identity allowlist. I retain vendor/architecture and unknown-version refusals, require the existing real response grammar/graph/argument corpus and all 30 original assembler configurations, and rerun the complete retirement corpus before calling platform admission green.
+
 - [x] Under #1088 I retain my [actual corrected seed CLI checkpoint](evidence/comprehensive-cli-contract-20261107/corrected-f92/README.md): GCC and Clang each pass all four exact statuses and diagnostics through native and NanoVM with the required guest separator. Fresh-stage routes and complete integrated acceptance remain open.
 
 - [ ] Under #1083 I retain the [fresh 304 checkpoint](evidence/fresh-stage-304-20261107/README.md): both bootstrap generations pass, but my unchanged full map fixture still exposes contextual union constructor refusal and unresolved C AOT snapshot element storage. I repair those paths while retaining all four pairs, generic union fields and original assertions.

@@ -1,0 +1,122 @@
+[
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-050ef1sc.tar.gz",
+    "archive_sha256": "97ba182a3fb57d2f5efc95a1375483589461a2bb8eae05fe736a54510827475e",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-0x3ffl_u.tar.gz",
+    "archive_sha256": "781e0974ac9f6b629a526b0413c2a89fe251beb3403f7750657eea49fe2f4151",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-4xgyx3qt.tar.gz",
+    "archive_sha256": "dd44c07dd8d4b14ef11ec108fe7b0759c77d41d6b3617c63afb5f2b425cd9d05",
+    "entries": 28
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-5n7ra1zw.tar.gz",
+    "archive_sha256": "193b5f104608835872d39c1b6fc8f5eb5155e78b710fe9e6103b5d3a8dba5bd1",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-6b7znw9m.tar.gz",
+    "archive_sha256": "20a67e2007fdd27f3df9bdfb791b59590e4afcf371eaf64202e9e1e090907da1",
+    "entries": 26
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-6mhwdaho.tar.gz",
+    "archive_sha256": "eda42e62a7cc7e6d592c4a15f90320985c7773076ef0ca1a21447daf770330f2",
+    "entries": 26
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-86rllrgr.tar.gz",
+    "archive_sha256": "215e6ad41cd8c0cda665d9b82e63a3e54ac7e2fd621e7f9b817d9211444e49e7",
+    "entries": 26
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-8eqgcbmz.tar.gz",
+    "archive_sha256": "32e1a9b05d38c4ab7c30914a92d08bb6eca643b438d0d74a031959699581e2e3",
+    "entries": 23
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-8p_wxa9q.tar.gz",
+    "archive_sha256": "19d46cce8ecfccac596746fdf6e25db86b788d31010f137e4089b5525b064bd5",
+    "entries": 22
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-8w3uo6l8.tar.gz",
+    "archive_sha256": "6102f898f7962303ceefe4bb8b993ced9003b726a63ed342a9e2e9a18e4d475b",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-_1ab4cx6.tar.gz",
+    "archive_sha256": "d1b54399cf6fa0f23bf93c01ff78a09e0d5d536134a13966adbdf1376c774501",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-_bqq_1yi.tar.gz",
+    "archive_sha256": "3219b06ac35b20aaab1c8174232cd4a399a654d80f5aba0aca98e56ac9f68887",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-f14saujr.tar.gz",
+    "archive_sha256": "5034d44509d1223ed1e1a6e1767ac06c3ef3153e56148f0ea4b4bfd3eb681935",
+    "entries": 23
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-fn0095wo.tar.gz",
+    "archive_sha256": "600b2739f2e16f50adb84dc6ed33e22a59ea81ffc99bbf62a30b4090d59a48d9",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-i4pqfbxl.tar.gz",
+    "archive_sha256": "2ab39fa90f7838fc4778b211201d2e7491dbb3daa6158c3c5da519ec8f831179",
+    "entries": 24
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-kph6jxpw.tar.gz",
+    "archive_sha256": "882099fea2c4c10fc1b24d231059b3de89b309313877c9cf114f211101d1086d",
+    "entries": 28
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-ks1q10ji.tar.gz",
+    "archive_sha256": "e0f2c7c286f5168d0ffe306fa09edf80a45420319ee7d5e7550e4de1402d324c",
+    "entries": 26
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-osery3id.tar.gz",
+    "archive_sha256": "c6c9e4cfaa501c6c760ebeddfb7878fc9880d62b5b9260077e64a8cb0ac2d6c8",
+    "entries": 27
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-qgjghd03.tar.gz",
+    "archive_sha256": "5acb6ca1a46525e9b26cf0475f38bce1ef95499a0ed75615fa73377ded2388b4",
+    "entries": 28
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-tnv5oiou.tar.gz",
+    "archive_sha256": "db63a06ad84fce27a4a2f899d200947c0271261ef44fedf4fd540e6332cc18eb",
+    "entries": 26
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-v8fu8p43.tar.gz",
+    "archive_sha256": "d4b22655fe974a697e353fb6e8d263a4407f2db2e5ba7d8c079f334827b681de",
+    "entries": 22
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-w6kodzif.tar.gz",
+    "archive_sha256": "f8fb94052fe0e33c4a69a98a541c14874fbb7b2d40f70ed14c75fa2ff078d237",
+    "entries": 23
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-w70q2iat.tar.gz",
+    "archive_sha256": "be26a7f962c6a34002b4e00bf17eeb9e555547a5fef3c7fd3e9597ba6d0c4244",
+    "entries": 28
+  },
+  {
+    "archive": "darwin-link-diagnostic/failed-root-archives/nano-as-search-z44emsmz.tar.gz",
+    "archive_sha256": "3e77c5bd76ff1b31336990d027141616b1c5f2f6b0b372348ddc62610bb0a376",
+    "entries": 27
+  }
+]

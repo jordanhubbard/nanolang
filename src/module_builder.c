@@ -3482,7 +3482,8 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
                 /* I admit the installed Apple implementation covered by my
                  * identity/grammar corpus, not every JSON-speaking linker. */
                 if (cJSON_IsString(version) &&
-                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1")) &&
+                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1") ||
+                     !strcmp(version->valuestring, "27106.1")) &&
                     cJSON_IsArray(architectures) && cJSON_GetArraySize(architectures) > 0 &&
                     cJSON_IsString(vendor) && !strncmp(vendor->valuestring, "Apple TAPI version ", 19))
                     grammar = MODULE_LINK_RESPONSE_APPLE;

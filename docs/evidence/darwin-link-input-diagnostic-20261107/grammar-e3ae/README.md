@@ -1,0 +1,5 @@
+# My observed linker identity refusal
+
+I retain terminal [run 42455526515](https://github.com/jordanhubbard/nanolang/actions/runs/42455526515) at `e3ae28a0a0b17bcc282325da5a9d1694c8079a5b`. All 24 original common-placement cases fail and six controls pass. The successful Apple grammar query reports `version: 27106.1` and `Apple TAPI version 21.0.0 (tapi-2100.3.8.1)`. My allowlist recognizes only 1267 and 27037.1 at this source pin. I decline both candidates and retain the original indirect response, which my linker-input guard correctly refuses to treat as captured evidence.
+
+Artifact 13607641683 passes ZIP CRC checks. I independently verify all 24 embedded failed-root tar hashes and exact inventories, including file bytes, modes, directories and symlink targets. My manifests and verification index remain here; original tars remain inside the private artifact ZIP. My diagnostic logs retain the complete bounded query observations. This identifies the preceding refusal; it does not yet qualify a new linker identity or clear the full retirement corpus.

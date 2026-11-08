@@ -1,0 +1,21 @@
+{
+  "disks": [
+    {
+      "path": ".",
+      "free": 32087924736,
+      "total": 192749240320
+    },
+    {
+      "path": "/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T",
+      "free": 32087924736,
+      "total": 192749240320
+    },
+    {
+      "path": "/Users/runner/work/_temp",
+      "free": 32087924736,
+      "total": 192749240320
+    }
+  ],
+  "memory_total": 7516192768,
+  "memory_available": 2981134336
+}

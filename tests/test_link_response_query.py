@@ -278,7 +278,9 @@ class LinkResponseQuery(unittest.TestCase):
             supported = {"version": "1267", "architectures": ["arm64"],
                          "tapi": {"version_string": "Apple TAPI version 21.0.0"}}
             for report, expected in ((supported, 2), ({**supported, "version": "27037.1"}, 2),
+                                     ({**supported, "version": "27106.1"}, 2),
                                      ({**supported, "version": "27037.2"}, 0),
+                                     ({**supported, "version": "27106.2"}, 0),
                                      ({**supported, "version": "unknown"}, 0),
                                      ({**supported, "architectures": []}, 0),
                                      ({**supported, "tapi": {}}, 0)):
