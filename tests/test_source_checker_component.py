@@ -30,9 +30,15 @@ class SourceCheckerComponent(unittest.TestCase):
         try:
             self.command(work, 'source-build', [compiler, source, '--verbose', '--keep-c', '-o', product], build=True)
             self.assertTrue(product.is_file())
+            with product.open('rb') as stream:
+                magic = stream.read(4)
             if sys.platform.startswith('linux'):
-                with product.open('rb') as stream:
-                    self.assertEqual(stream.read(4), b'\x7fELF', 'I require an actual native ELF product.')
+                self.assertEqual(magic, b'\x7fELF', 'I require an actual native ELF product.')
+            elif sys.platform == 'darwin':
+                self.assertIn(magic, (bytes.fromhex('cffaedfe'), bytes.fromhex('feedfacf'),
+                    bytes.fromhex('cafebabe'), bytes.fromhex('bebafeca'),
+                    bytes.fromhex('cafebabf'), bytes.fromhex('bfbafeca')),
+                    'I require an actual native Mach-O product.')
             product_before = hashlib.sha256(product.read_bytes()).hexdigest()
             result = self.command(work, 'native-run', [product])
             self.assertIn('I passed my checker entry assertions.\n', result.stdout)
@@ -42,6 +48,8 @@ class SourceCheckerComponent(unittest.TestCase):
             product_after = hashlib.sha256(product.read_bytes()).hexdigest() if product.is_file() else None
             (work/'inputs.json').write_text(json.dumps({'creation_path': 'C-seed-to-native',
                 'native_lifecycle_admitted': False, 'fresh_stages_qualified': False,
+                'platform': sys.platform,
+                'product_magic_hex': product.read_bytes()[:4].hex() if product.is_file() else None,
                 'before': before, 'after': after, 'product_before_run': product_before,
                 'product_after_run': product_after}, indent=2)+'\n')
             self.assertEqual(before, after)
