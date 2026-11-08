@@ -1940,6 +1940,19 @@ shadow type_string {
     assert (== t.kind TypeKind.TYPE_STRING)
 }
 
+fn type_bstring() -> NSType {
+    return NSType {
+        kind: TypeKind.TYPE_BSTRING,
+        name: "",
+        element_type_kind: TypeKind.TYPE_UNKNOWN,
+        element_type_name: ""
+    }
+}
+shadow type_bstring {
+    assert (== (type_bstring).kind TypeKind.TYPE_BSTRING)
+    assert (not (types_equal (type_bstring) (type_string)))
+}
+
 pub fn type_void() -> NSType {
     return NSType {
         kind: TypeKind.TYPE_VOID,
@@ -2948,6 +2961,7 @@ fn type_from_string(s: string) -> NSType {
     if (== s "float") { return (type_float) }
     if (== s "bool") { return (type_bool) }
     if (== s "string") { return (type_string) }
+    if (== s "bstring") { return (type_bstring) }
     if (== s "void") { return (type_void) }
     if (tc_str_starts_with s "List<") {
         return (type_list_generic (extract_list_element_type s))
@@ -3484,8 +3498,38 @@ shadow type_u8_array {
     assert (== (type_to_string (type_u8_array)) "array<u8>")
 }
 
+pub fn bstring_builtin_result(name: string) -> string {
+    if (or (or (== name "bstr_new") (== name "bstr_new_binary"))
+           (or (== name "bstr_concat") (== name "bstr_substring"))) { return "bstring" }
+    if (or (or (== name "bstr_length") (== name "bstr_byte_at"))
+           (or (== name "bstr_utf8_length") (== name "bstr_utf8_char_at"))) { return "int" }
+    if (or (== name "bstr_equals") (== name "bstr_validate_utf8")) { return "bool" }
+    if (== name "bstr_to_cstr") { return "string" }
+    if (== name "bstr_free") { return "void" }
+    return ""
+}
+shadow bstring_builtin_result {
+    let names: array<string> = ["bstr_new", "bstr_new_binary", "bstr_concat", "bstr_substring",
+        "bstr_length", "bstr_byte_at", "bstr_utf8_length", "bstr_utf8_char_at",
+        "bstr_equals", "bstr_validate_utf8", "bstr_to_cstr", "bstr_free"]
+    let results: array<string> = ["bstring", "bstring", "bstring", "bstring",
+        "int", "int", "int", "int", "bool", "bool", "string", "void"]
+    for i in (range 0 (array_length names)) {
+        assert (== (bstring_builtin_result (at names i)) (at results i))
+        assert (== (type_to_string (check_builtin_function (at names i))) (at results i))
+    }
+    assert (== (bstring_builtin_result "bstr_missing") "")
+    assert (== (type_to_string (type_from_string "bstring")) "bstring")
+    assert (== (type_from_string "bstring").kind TypeKind.TYPE_BSTRING)
+    assert (== (type_to_string (type_from_string "array<bstring>")) "array<bstring>")
+    assert (not (types_equal (type_from_string "array<bstring>") (type_from_string "array<string>")))
+    assert (== TypeKind.TYPE_UNKNOWN 17)
+    assert (== TypeKind.TYPE_BSTRING 18)
+}
+
 fn check_builtin_function(fn_name: string) -> NSType {
     if (!= (string_stdlib_result fn_name) "") { return (type_from_string (string_stdlib_result fn_name)) }
+    if (!= (bstring_builtin_result fn_name) "") { return (type_from_string (bstring_builtin_result fn_name)) }
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
     if (== fn_name "println") { return (type_void) } else { (print "") }
@@ -3626,20 +3670,6 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "char_to_lower") { return (type_int) } else { (print "") }
     if (== fn_name "char_to_upper") { return (type_int) } else { (print "") }
     
-    /* Binary string operations */
-    if (== fn_name "bstr_new") { return (type_string) } else { (print "") }
-    if (== fn_name "bstr_new_binary") { return (type_string) } else { (print "") }
-    if (== fn_name "bstr_length") { return (type_int) } else { (print "") }
-    if (== fn_name "bstr_concat") { return (type_string) } else { (print "") }
-    if (== fn_name "bstr_substring") { return (type_string) } else { (print "") }
-    if (== fn_name "bstr_equals") { return (type_bool) } else { (print "") }
-    if (== fn_name "bstr_byte_at") { return (type_int) } else { (print "") }
-    if (== fn_name "bstr_validate_utf8") { return (type_bool) } else { (print "") }
-    if (== fn_name "bstr_utf8_length") { return (type_int) } else { (print "") }
-    if (== fn_name "bstr_utf8_char_at") { return (type_int) } else { (print "") }
-    if (== fn_name "bstr_to_cstr") { return (type_string) } else { (print "") }
-    if (== fn_name "bstr_free") { return (type_void) } else { (print "") }
-    
     /* Bytes operations */
     if (== fn_name "bytes_from_string") { return (type_u8_array) } else { (print "") }
     if (== fn_name "string_from_bytes") { return (type_string) } else { (print "") }
@@ -3779,6 +3809,7 @@ shadow type_from_string {
 
 /* NSType to string for error messages */
 fn type_to_string(t: NSType) -> string {
+    if (== t.kind TypeKind.TYPE_BSTRING) { return "bstring" }
     if (== t.kind TypeKind.TYPE_ENUM) { return t.name }
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
@@ -3839,6 +3870,7 @@ fn type_to_string(t: NSType) -> string {
 
 /* Convert type kind to string */
 fn type_kind_to_string(kind: int, name: string) -> string {
+    if (== kind TypeKind.TYPE_BSTRING) { return "bstring" }
     if (or (or (== kind TypeKind.TYPE_ARRAY) (== kind TypeKind.TYPE_ENUM)) (or (== kind TypeKind.TYPE_FUNCTION) (== kind TypeKind.TYPE_TUPLE))) {
         if (!= name "") { return name }
         return "unknown"
@@ -6122,6 +6154,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (!= (bstring_builtin_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (!= (byte_conversion_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (== fn_name "array_sort") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (!= (string_stdlib_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }

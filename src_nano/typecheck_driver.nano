@@ -305,6 +305,30 @@ fn check_byte_conversion_contracts() -> void {
 }
 shadow check_byte_conversion_contracts { (check_byte_conversion_contracts) }
 
+fn check_bstring_type_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let first:bstring=(bstr_new \"Hi\") let octet:u8=65 let bytes:array<u8> = [octet] let second:bstring=(bstr_new_binary bytes) let joined:bstring=(bstr_concat first second) let part:bstring=(bstr_substring joined 0 1) let text:string=(bstr_to_cstr part) return 0}",
+        "fn hold(value:bstring)->bstring{return value} fn main()->int{let held:bstring=(hold (bstr_new \"Hi\")) return 0}",
+        "fn length(value:string)->int{return (str_length value)} fn main()->int{let bstr_new:fn(string)->int=length let bstr_to_cstr:fn(string)->int=length let result:int=(bstr_new \"Hi\") let other:int=(bstr_to_cstr \"Hi\") return 0}",
+        "fn main()->int{let value:bstring=(bstr_new \"Hi\") let values:array<bstring> = [value] let kept:bstring=(at values 0) return 0}",
+        "fn main()->int{let value:bstring=\"Hi\" return 0}",
+        "fn main()->int{let value:string=(bstr_new \"Hi\") return 0}",
+        "fn need(value:bstring)->int{return 0} fn main()->int{let result:int=(need \"Hi\") return 0}",
+        "fn main()->int{let values:array<bstring> = [\"Hi\"] return 0}",
+        "fn length(value:string)->int{return (str_length value)} fn main()->int{let bstr_new:fn(string)->int=length let result:int=(bstr_new true) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-bstring-types.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-bstring-types.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-bstring-types.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_bstring_type_contracts { (check_bstring_type_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -337,6 +361,7 @@ fn main() -> int {
     (check_legacy_bang_contracts)
     (check_array_sort_contracts)
     (check_byte_conversion_contracts)
+    (check_bstring_type_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }
