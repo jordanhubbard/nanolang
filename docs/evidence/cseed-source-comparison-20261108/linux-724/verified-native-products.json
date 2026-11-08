@@ -1,0 +1,45 @@
+{
+  "scope": "I independently match actual bytes of two C providers and six native source compilers to their production execution records; full SDK/runtime closure and release admission remain separate.",
+  "products": [
+    {
+      "path": "cseed-source-comparison/providers/original/nanoc_c",
+      "size": 21148312,
+      "sha256": "2172a2c2ad8c0d1ed759509ec4366591ba3845a409086fc7966eff3c6d3501e4"
+    },
+    {
+      "path": "cseed-source-comparison/providers/modified/nanoc_c",
+      "size": 21147304,
+      "sha256": "5c5371b3bcd6d87ead8f9d3d76f58bd95097ac07a6b874cf0f509c468182da21"
+    },
+    {
+      "path": "cseed-source-comparison/samples/01-original/compiler",
+      "size": 17985624,
+      "sha256": "b0a0699233db6288cac527a914081ab4b225ea8a8660398f338e7f57802e8b15"
+    },
+    {
+      "path": "cseed-source-comparison/samples/02-modified/compiler",
+      "size": 17985624,
+      "sha256": "8368c1583e0bf346834b5830bb785b5ebe85204b6651b4c3029f5851fff86c27"
+    },
+    {
+      "path": "cseed-source-comparison/samples/03-modified/compiler",
+      "size": 17985624,
+      "sha256": "8368c1583e0bf346834b5830bb785b5ebe85204b6651b4c3029f5851fff86c27"
+    },
+    {
+      "path": "cseed-source-comparison/samples/04-original/compiler",
+      "size": 17985624,
+      "sha256": "b0a0699233db6288cac527a914081ab4b225ea8a8660398f338e7f57802e8b15"
+    },
+    {
+      "path": "cseed-source-comparison/samples/05-original/compiler",
+      "size": 17985624,
+      "sha256": "b0a0699233db6288cac527a914081ab4b225ea8a8660398f338e7f57802e8b15"
+    },
+    {
+      "path": "cseed-source-comparison/samples/06-modified/compiler",
+      "size": 17985624,
+      "sha256": "8368c1583e0bf346834b5830bb785b5ebe85204b6651b4c3029f5851fff86c27"
+    }
+  ]
+}
