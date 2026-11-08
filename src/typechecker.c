@@ -4087,6 +4087,34 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_ARRAY;
             }
             
+            /* I check cached generic array operands after lexical calls resolve. */
+            if (!func->body && !func->is_extern && !func->params &&
+                (strcmp(expr->as.call.name, "array_reverse") == 0 ||
+                 strcmp(expr->as.call.name, "array_contains") == 0 ||
+                 strcmp(expr->as.call.name, "array_index_of") == 0)) {
+                ASTNode *source = expr->as.call.args[0];
+                bool valid = check_expression(source, env) == TYPE_ARRAY;
+                if (expr->as.call.arg_count == 2) {
+                    ASTNode *needle = expr->as.call.args[1];
+                    Type actual = check_expression(needle, env);
+                    Type element = infer_array_element_type(source, env);
+                    if (element != TYPE_UNKNOWN && actual != element) valid = false;
+                    TypeInfo *container = valid ? copy_generic_argument_info(source, env, 0) : NULL;
+                    TypeInfo *argument = valid ? copy_generic_argument_info(needle, env, 0) : NULL;
+                    if (container && container->element_type && argument &&
+                        !type_infos_equal(container->element_type, argument)) valid = false;
+                    free_payload_type_info(container);
+                    free_payload_type_info(argument);
+                }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require an array and its exact needle element type for this builtin.",
+                        "Use matching array and element operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return func->return_type;
+            }
+
             /* I keep one numeric result kind, after lexical calls have resolved. */
             if (!func->body && !func->is_extern && !func->params &&
                 (strcmp(expr->as.call.name, "abs") == 0 ||

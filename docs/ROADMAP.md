@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1093 I retain the 832 C-frontend results: the whole original fixture, float-bit/independence and lexical binding controls pass VM/native, but five invalid receiver/needle programs compile successfully. I check cached builtin array/search operands after binding resolution, preserve original arity/output assertions and require both frontend/fresh-stage refusal qualification.
+
 - [ ] Under #1083 I retain the corrected 354 trace: the snapshot after receiver() has array node 103 with unknown child 105, shared with map-return node 100, while the tagged global payload has exact scalar children. RET checks the outer map tag but drops its payload conversion. I preserve that checked map return conversion, require all four raw global-map-return/snapshot pairs and unchanged full source/native fixtures, and retain conflicting map refusals and private authority unchanged.
 
 - [ ] Under #1083 I retain the first da17 trace limitation: querying a nonexistent second optional edge poisons its diagnostic graph. I limit edge queries to the existing shape-kind projection contract and rerun the same failure without changing product admission.
