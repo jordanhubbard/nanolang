@@ -88,3 +88,9 @@ fn main()->int{
 }
 shadow main{assert (== (main) 0)}
 ''')
+
+    def test_binary_owner_operators_refuse_mixed_or_ordered_operands(self):
+        for expression in ['(< value value)', '(+ value value)', '(== value "x")']:
+            with self.subTest(expression=expression):
+                self.exercise('fn main()->int{let value:bstring=(bstr_new "x") '
+                              +expression+' return 0}\nshadow main{assert true}\n', refused=True)
