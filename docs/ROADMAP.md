@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1088/#1081 I retain my [complete 4620 route checkpoint](evidence/junit-route-checkpoints-20261107/4620/README.md): all four routes execute the same original 237 ordered testcase identities with zero skips; C native passes all 237, C NanoVM fails three, and each fresh stage fails 62. Both bootstrap generations pass. The later separator, print and record-array corrections still require their own complete-route acceptance.
+
 - [x] Under #1090/#1081 I retain my [focused empty record-array checkpoint](evidence/empty-record-array-context-20261107/README.md): fresh GCC and Clang each pass 23 selected methods, including both complete original generic-context fixtures through VM and sanitized C AOT, record-storage metadata and unchanged nominal/scalar refusals. Fresh bootstrap, resulting stages and complete-route acceptance remain open.
 
 - [ ] Under #1090/#1081 I retain the resolved nominal record element on checked empty array literals. The complete 4620 report passes both original generic-context fixtures through both fresh stages, but the C NanoISA producer emits integer storage and fails the field read after empty-array growth. I preserve both whole fixtures and their assertions, require VM/sanitized-C-AOT execution and nominal/scalar mismatch output integrity, then rerun fresh compiler/route qualification.
