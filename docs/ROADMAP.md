@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #1088 I retain the f92 complete-route result: the resource checker now passes through C native and C NanoVM, but both fresh-stage compilations hit the existing 120-second runner alarm with empty compiler logs. I measure the existing native CLI contract through all four fresh providers using its already explicit CMD_TIMEOUT build budget, retaining selected deadline and elapsed time without changing the original comprehensive 120-second bound or any assertion. I do not label the unobserved compiler phase as infrastructure.
+
+- [ ] Under #1091 I retain b7bcf56f6 GCC/Clang failures: source numeric VM execution succeeds, but C AOT refuses PICK in scalar classification and callable stack analysis. I preserve the original min/max source and lower the verified indexed copy through ordinary classification/emission and callable/constant facts, checking depth and preserving complete copied slot metadata. My C checker also accepts a mixed-kind numeric call despite its first-operand result declaration; I require one numeric result kind across both frontends and retain all existing positive/value/order assertions.
+
 - [ ] Under #1091/#1081 I restore genuine numeric min/max calls in my self-hosted NanoISA producer, preserving typed int/float operands, exactly-once source order and selection of original values. I retain numeric abs result metadata, ordinary bound-function identity, meaningful shadows, prior-output refusals and the unchanged original numeric fixtures; fresh compiler stages and complete routes remain required.
 
 - [x] Under #1081/#1053 I retain the [terminal b7e4/f512 route and bd913 instrumented failures](evidence/terminal-route-followups-20261107/README.md). Both route runs preserve the complete original 237-case selection; the older sanitizer job stops at known separator and stale map-refusal/output premises. Their later corrections remain subject to their own exact-source jobs.

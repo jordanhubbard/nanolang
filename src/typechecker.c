@@ -4087,20 +4087,25 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_ARRAY;
             }
             
-            /* Special handling for polymorphic built-in functions (abs, min, max) */
-            /* These functions return the same type as their input arguments */
-            if (strcmp(expr->as.call.name, "abs") == 0 ||
+            /* I keep one numeric result kind, after lexical calls have resolved. */
+            if (!func->body && !func->is_extern && !func->params &&
+                (strcmp(expr->as.call.name, "abs") == 0 ||
                 strcmp(expr->as.call.name, "min") == 0 ||
-                strcmp(expr->as.call.name, "max") == 0) {
-                /* Check the type of the first argument */
-                if (expr->as.call.arg_count >= 1) {
-                    Type arg_type = check_expression(expr->as.call.args[0], env);
-                    if (arg_type == TYPE_FLOAT) {
-                        return TYPE_FLOAT;
+                strcmp(expr->as.call.name, "max") == 0)) {
+                Type result = check_expression(expr->as.call.args[0], env);
+                bool valid = result == TYPE_INT || result == TYPE_FLOAT;
+                for (int i = 1; i < expr->as.call.arg_count; ++i) {
+                    if (check_expression(expr->as.call.args[i], env) != result) {
+                        valid = false;
                     }
-                    /* For int or other types, return int */
-                    return TYPE_INT;
                 }
+                if (!valid) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require matching int or float operands for this numeric builtin.",
+                        "Use one numeric kind for all operands.");
+                    return TYPE_UNKNOWN;
+                }
+                return result;
             }
 
             /* Check if function returns a function type */

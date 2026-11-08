@@ -1754,12 +1754,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_PUSH_STR:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
-        case OP_DUP: {
-            if (sp <= 0) {
-                nvm2c_fail(b, "function %u: DUP on empty stack", idx);
+        case OP_DUP: case OP_PICK: {
+            uint32_t depth = ins.opcode == OP_PICK ? ins.operands[0].u16 : 0;
+            if (sp <= 0 || depth >= (uint32_t)sp) {
+                nvm2c_fail(b, "function %u: indexed copy exceeds my stack", idx);
                 return 0;
             }
-            if (!sim_push_slot(b, idx, stk, &sp, stk[sp - 1])) return 0;
+            if (!sim_push_slot(b, idx, stk, &sp, stk[sp - 1 - (int)depth])) return 0;
             break;
         }
         case OP_POP: {
@@ -4555,14 +4556,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
-        case OP_DUP: {
-            if (st.sp <= 0) {
-                nvm2c_fail(b, "function %u: DUP on empty stack", idx);
+        case OP_DUP: case OP_PICK: {
+            uint32_t depth = ins.opcode == OP_PICK ? ins.operands[0].u16 : 0;
+            if (st.sp <= 0 || depth >= (uint32_t)st.sp) {
+                nvm2c_fail(b, "function %u: indexed copy exceeds my stack", idx);
                 goto done;
             }
             {
-                int src = st.slots[st.sp - 1];
-                uint8_t k = st.kinds[st.sp - 1];
+                int src = st.slots[st.sp - 1 - (int)depth];
+                uint8_t k = st.kinds[st.sp - 1 - (int)depth];
                 char rhs[32];
                 if (k == NVM2C_VK_STR) {
                     snprintf(rhs, sizeof rhs, "s[%d]", src);

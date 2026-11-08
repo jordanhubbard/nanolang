@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import time
 import unittest
 
 from scripts.test_run_contract import execute
@@ -36,19 +37,23 @@ class NativeTestRunContract(unittest.TestCase):
                 if route == 'vm':
                     command.append('--emit-nvm')
                 (work/'compile-command.json').write_text(json.dumps(command, indent=2)+'\n')
+                budget = native_compile_timeout()
+                started = time.monotonic()
                 try:
-                    result = run_captured(command, cwd=ROOT, timeout=native_compile_timeout())
+                    result = run_captured(command, cwd=ROOT, timeout=budget)
                 except subprocess.TimeoutExpired as error:
                     (work/'compile.stdout').write_bytes(error.stdout or b'')
                     (work/'compile.stderr').write_bytes(error.stderr or b'')
                     (work/'compile-status.json').write_text(json.dumps({'timed_out':True,
-                        'partial_output':True,'timeout':error.timeout})+'\n')
+                        'partial_output':True,'timeout':error.timeout,
+                        'elapsed_seconds':time.monotonic()-started})+'\n')
                     raise
                 (work/'compile.stdout').write_bytes(result.stdout)
                 (work/'compile.stderr').write_bytes(result.stderr)
                 (work/'compile.log').write_bytes(result.stdout+b'\n'+result.stderr)
                 (work/'compile-status.json').write_text(json.dumps({'returncode':result.returncode,
-                    'timed_out':False})+'\n')
+                    'timed_out':False,'timeout':budget,
+                    'elapsed_seconds':time.monotonic()-started})+'\n')
                 self.assertEqual(result.returncode,0,(work/'compile.log').read_text(errors='replace'))
                 invocation = [str(ROOT/'bin/nano_vm'),str(artifact),'--'] if route == 'vm' else [str(artifact)]
                 status = execute(SOURCE,invocation,60,work/'run.log')

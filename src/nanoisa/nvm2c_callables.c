@@ -127,6 +127,7 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_AGG_PACK: pop = in->operands[3].u16; push = 1; break;
         case OP_ARR_LITERAL: pop = in->operands[1].u16; push = 1; break;
         case OP_PERFORM: pop = in->operands[1].u16; push = 1; break;
+        case OP_PICK: pop = 0; push = 1; break;
         case OP_RET: pop = fn->result_count; push = 0; break;
         default: break;
         }
@@ -134,6 +135,9 @@ static int collect_function(Analysis *a, uint32_t function) {
             fail(a, "I require an explicit stack contract for callable analysis"); goto done;
         }
         size_t before = frames[at].count;
+        if (in->opcode == OP_PICK && in->operands[0].u16 >= before) {
+            fail(a, "I require an existing stack slot for callable PICK"); goto done;
+        }
         if ((size_t)pop > before) {
             snprintf(error, sizeof error, "I found callable-analysis stack underflow in function %u at %u (%s: %zu available, %d required)",
                      function, decoded_instruction->byte_offset, info->name, before, pop);
@@ -202,6 +206,7 @@ static int collect_function(Analysis *a, uint32_t function) {
             else if (!flow(a, stack[base], a->globals[target])) goto done;
             break;
         case OP_DUP: output[0] = output[1] = stack[base]; break;
+        case OP_PICK: output[0] = stack[before - 1 - in->operands[0].u16]; break;
         case OP_SWAP: output[0] = stack[base + 1]; output[1] = stack[base]; break;
         case OP_ROT3: output[0] = stack[base + 2]; output[1] = stack[base]; output[2] = stack[base + 1]; break;
         case OP_AGG_PACK:

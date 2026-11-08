@@ -9,6 +9,7 @@ on:
       - 'scripts/junit_route_audit.py'
       - 'scripts/test_run_contract.py'
       - 'tests/test_test_run_contract.py'
+      - 'tests/test_test_run_contract_native.py'
       - 'tests/run_all_tests.sh'
       - 'tests/test_resource_effect_checker.cases.json'
       - 'tests/fixtures/resource-checker/**'
@@ -136,6 +137,14 @@ jobs:
           python3 -m unittest -v tests.test_map_constructor_contexts \
             2>&1 | tee .test_output/junit-route-audit/map-contexts.log
 
+      - name: Measure and execute the original CLI through every fresh provider
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 90
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_test_run_contract_native \
+            2>&1 | tee .test_output/junit-route-audit/checker-cli.log
+
       - name: Retain the complete original corpus across seed native, VM and both stages
         if: always() && steps.bootstrap.outcome == 'success'
         timeout-minutes: 180
@@ -156,6 +165,7 @@ jobs:
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
+            .test_output/cli-run-contract-native/
             obj/bootstrap-nanoisa/**/manifest.json
             obj/bootstrap-nanoisa/**/*.log
           include-hidden-files: true

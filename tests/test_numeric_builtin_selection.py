@@ -123,9 +123,59 @@ fn main()->int{
 shadow main{assert (== (main) 0)}
 ''')
 
+    def test_raw_pick_retains_scalar_record_and_callable_slots(self):
+        cases = {
+            'scalars': ('.string "hello"\n', 'PUSH_I64 7\nPUSH_F64 2.5\nPUSH_STR 0\nPUSH_BOOL 1\n'
+                'PICK 3\nPUSH_I64 7\nI64_EQ\nASSERT\n'
+                'PICK 2\nPUSH_F64 2.5\nF64_EQ\nASSERT\n'
+                'PICK 1\nPUSH_STR 0\nSTR_EQ\nASSERT\nPICK 0\nASSERT\nPOP\nPOP\nPOP\nPOP\n', ''),
+            'record': ('', 'PUSH_I64 7\nAGG_PACK 0 0 0 1\nPUSH_I64 99\nPICK 1\n'
+                'AGG_GET 0\nPUSH_I64 7\nI64_EQ\nASSERT\nPOP\n'
+                'AGG_GET 0\nPUSH_I64 7\nI64_EQ\nASSERT\n', ''),
+            'callable': ('', 'FUNCREF identity\nPUSH_I64 99\nPICK 1\nPUSH_I64 7\nSWAP\n'
+                'CALL_INDIRECT 1 1\nPUSH_I64 7\nI64_EQ\nASSERT\nPOP\nPOP\n',
+                '.function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n.parameters identity int\n'),
+        }
+        output = ROOT/'.test_output/numeric-builtin-selection'
+        output.mkdir(parents=True, exist_ok=True)
+        for label, (constants, body, helpers) in cases.items():
+            with self.subTest(case=label):
+                work = Path(tempfile.mkdtemp(prefix='raw-pick-'+label+'-', dir=output))
+                assembly, module, generated, native = [work/name for name in
+                    ['main.nasm', 'module.nvm', 'native.c', 'native']]
+                assembly.write_text('.entry main\n'+constants+'.function main 0 0 0 int 1\n'+body+
+                    'PUSH_I64 0\nRET\n.end\n'+helpers)
+                self.command(work, 'assemble', [ROOT/'bin/nanoisa', 'asm', assembly, '-o', module])
+                self.command(work, 'verify', [ROOT/'bin/nano_vm', '--verify-only', module])
+                self.command(work, 'vm', [ROOT/'bin/nano_vm', module])
+                self.command(work, 'aot', [ROOT/'bin/nvm2c', module, '-o', generated], build=True)
+                self.command(work, 'native-build', [
+                    *shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')),
+                    '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
+                    '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                    generated, ROOT/'bin/nano_aot_runtime.o', '-lm', *native_link_flags(),
+                    *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                    '-o', native], build=True)
+                self.command(work, 'native', [native])
+
+    def test_pick_invalid_depth_preserves_prior_output(self):
+        output = ROOT/'.test_output/numeric-builtin-selection'
+        output.mkdir(parents=True, exist_ok=True)
+        for body in ['PICK 0', 'PUSH_I64 7\nPICK 1', 'PUSH_I64 7\nPICK 65535']:
+            with self.subTest(body=body):
+                work = Path(tempfile.mkdtemp(prefix='invalid-pick-', dir=output))
+                assembly, module = work/'main.nasm', work/'prior.nvm'
+                assembly.write_text('.entry main\n.function main 0 0 0 int 1\n'+body+'\nRET\n.end\n')
+                module.write_bytes(b'I retain prior output.\n')
+                result = self.command(work, 'refusal', [ROOT/'bin/nanoisa', 'asm', assembly,
+                    '-o', module], accepted=False)
+                self.assertGreater(result.returncode, 0)
+                self.assertIn('underflow', result.stderr)
+                self.assertEqual(module.read_bytes(), b'I retain prior output.\n')
+
     def test_numeric_refusals_preserve_output(self):
         for expression in ['(min)', '(max 1)', '(min 1 2 3)', '(min true false)',
                            '(max "one" "two")', '(min 2.0 7)', '(abs true)']:
             with self.subTest(expression=expression):
-                self.exercise('fn main()->int{let result:float = '+expression+
+                self.exercise('fn main()->int{let result = '+expression+
                     ' return 0} shadow main{assert true}', refused=True)
