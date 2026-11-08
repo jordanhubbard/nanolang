@@ -53,6 +53,7 @@ on:
       - 'src/nanovm/heap.c'
       - 'src/nanovm/heap.h'
       - 'src/nanovm/value.h'
+      - 'src/nanovm/value.c'
       - 'src/nanovm/vm_ffi.c'
       - 'tests/nanovm/test_bstring_contracts.c'
       - 'tests/test_bstring_vm_contracts.py'

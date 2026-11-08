@@ -4779,6 +4779,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    else if (v[%d].kind == 3) nf64_print(nvalue_require_float(v[%d]));\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 4) fputs(v[%d].integer ? \"true\" : \"false\", stdout);\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 5) fputs(v[%d].text, stdout);\n", slot, slot);
+                nvm2c_printf(b, "    else if (v[%d].kind == 6) fputs(\"<bstring>\", stdout);\n", slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 7) nvalue_array_print(v[%d]);\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 9) printf(\"enum(%%lld)\", (long long)v[%d].integer);\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 11 || v[%d].kind == 15) printf(\"%%s(%%u)\", v[%d].kind == 15 ? \"closure\" : \"fn\", (unsigned)v[%d].integer);\n", slot, slot, slot, slot);
@@ -7651,6 +7652,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "        if (v.kind == 1) printf(\"%lld\", (long long)v.integer);\n"
         "        else if (v.kind == 3) nf64_print(nvalue_require_float(v));\n"
         "        else if (v.kind == 4) fputs(v.integer ? \"true\" : \"false\", stdout);\n"
+        "        else if (v.kind == 6) fputs(\"<bstring>\", stdout);\n"
         "        else if (v.kind == 11 || v.kind == 15) printf(\"%s(%u)\", v.kind == 15 ? \"closure\" : \"fn\", (unsigned)v.integer);\n"
         "        else fputs(v.text, stdout);\n"
         "    }\n    fputc(']', stdout);\n}\n");

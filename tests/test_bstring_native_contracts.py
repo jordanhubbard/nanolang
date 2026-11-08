@@ -231,3 +231,15 @@ int main(int argc, char **argv) {
                 'I exercise the actual generated private owner/collector boundary, not generic foreign or NativeSDK admission.',
                 'before': before, 'after': after, 'native_products': products}, indent=2)+'\n')
             self.assertEqual(before, after)
+
+    def test_nominal_live_and_freed_owner_display(self):
+        self.exercise('''fn main()->int{
+ let value:bstring=(bstr_new "private payload")
+ let values:array<bstring> = [value,value]
+ (println value) (println values)
+ (bstr_free value)
+ (println value) (println values)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''', '<bstring>\n[<bstring>, <bstring>]\n<bstring>\n[<bstring>, <bstring>]\n')
