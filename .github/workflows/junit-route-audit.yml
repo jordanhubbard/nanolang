@@ -37,6 +37,7 @@ on:
       - 'tests/test_empty_record_array_contexts.py'
       - 'tests/test_numeric_builtin_selection.py'
       - 'tests/test_math_host_contracts.py'
+      - 'tests/test_array_search_reverse_contracts.py'
       - 'src/typechecker.c'
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'
@@ -133,7 +134,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_declared_array_push_identity tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts \
             2>&1 | tee .test_output/junit-route-audit/string-operands.log
 
       - name: Exercise the unchanged complete four-pair map constructor contract

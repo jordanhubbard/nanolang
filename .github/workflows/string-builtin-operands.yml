@@ -15,6 +15,7 @@ on:
       - 'tests/test_empty_record_array_contexts.py'
       - 'tests/test_numeric_builtin_selection.py'
       - 'tests/test_math_host_contracts.py'
+      - 'tests/test_array_search_reverse_contracts.py'
       - 'tests/test_map_constructor_contexts.py'
       - 'tests/unit/test_map_constructor_contexts.nano'
       - 'src/typechecker.c'
@@ -102,7 +103,7 @@ jobs:
         timeout-minutes: 45
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_map_constructor_contexts \
+          python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins tests.test_legacy_print_statements tests.test_empty_record_array_contexts tests.test_numeric_builtin_selection tests.test_math_host_contracts tests.test_array_search_reverse_contracts tests.test_map_constructor_contexts \
             2>&1 | tee .test_output/string-builtin-operands/tests.log
       - name: Retain complete original array alias regression routes
         if: always() && steps.providers.outcome == 'success'

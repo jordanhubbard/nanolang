@@ -7359,3 +7359,7 @@ test-numeric-builtin-selection: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump 
 .PHONY: test-math-host-contracts
 test-math-host-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_math_host_contracts
+
+.PHONY: test-array-search-reverse-contracts
+test-array-search-reverse-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_array_search_reverse_contracts

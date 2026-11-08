@@ -5395,6 +5395,38 @@ shadow tc_generic_call {
     }
 }
 
+fn check_array_search_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut count: int = 2
+    if (== name "array_reverse") { set count 1 }
+    let mut valid: bool = (== call.arg_count count)
+    let mut container: NSType = (type_unknown_named name)
+    if valid {
+        let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        set container (check_expr_node parser source.node_id source.node_type symbols diags file_name)
+        set valid (== container.kind TypeKind.TYPE_ARRAY)
+        if (== count 2) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            let needle: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+            set valid (and valid (types_equal container (type_array_of needle)))
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared arity, an array and its exact needle element type." (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named name)
+    }
+    if (== name "array_reverse") { return container }
+    if (== name "array_contains") { return (type_bool) }
+    return (type_int)
+}
+shadow check_array_search_builtin {
+    let sources: array<string> = ["fn main()->array<string>{return (array_reverse [\"a\",\"b\"])}", "fn main()->bool{return (array_contains [1.5,2.5] 1.5)}", "fn main()->int{return (array_index_of [true,false] false)}", "fn main()->int{return (array_reverse 1)}", "fn main()->bool{return (array_contains [1] true)}", "fn main()->int{return (array_index_of [1])}"]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "search.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "search.nano")
+        assert (== (typecheck_phase parser "search.nano").had_error (>= index 3))
+    }
+}
+
 fn check_numeric_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let mut count: int = 2
     if (== name "abs") { set count 1 }
@@ -5641,7 +5673,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             return (check_builtin_function fn_name)
         }
+        let array_search: bool = (or (== fn_name "array_reverse") (or (== fn_name "array_contains") (== fn_name "array_index_of")))
+        if (and array_search (< (env_lookup symbols fn_name) 0)) {
+            return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
+        }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and array_search (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (or (is_float_math_builtin fn_name) (== fn_name "str_trim")) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
