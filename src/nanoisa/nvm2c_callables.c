@@ -227,6 +227,10 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_ARR_NEW:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
             break;
+        case OP_STR_SPLIT:
+            if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                !nvm_shape_tags_add(&a->out->shapes, field(a, output[0], 0), 1u << TAG_STRING)) goto done;
+            break;
         case OP_ARR_LITERAL:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
             for (int i = 0; i < pop; ++i)
@@ -311,7 +315,7 @@ static int collect_function(Analysis *a, uint32_t function) {
             }
             break;
         }
-        if (push && (in->opcode == OP_ARR_NEW || in->opcode == OP_ARR_LITERAL || in->opcode == OP_ARR_SLICE))
+        if (push && (in->opcode == OP_ARR_NEW || in->opcode == OP_ARR_LITERAL || in->opcode == OP_ARR_SLICE || in->opcode == OP_STR_SPLIT))
             if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
         if (push && (in->opcode == OP_FUNCREF || in->opcode == OP_CLOSURE_NEW))
             if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_FUNCTION)) goto done;

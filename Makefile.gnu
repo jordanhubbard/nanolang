@@ -552,10 +552,10 @@ test-nvm2c-sanitizers:
 
 # I provide the native host ABI required by artifact-backed array operations.
 # A relocatable object retains exports even when only a dlopened module uses them.
-AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/utf8.o
 .PHONY: nvm2c-runtime
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
-$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
+$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) Makefile.gnu | $(BIN_DIR)
 	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
 
 test-compiler-phases: $(COMPILER_C) nano_virt nano_vm nvm2c

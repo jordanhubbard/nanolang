@@ -1,0 +1,7 @@
+# My string helper implementation checkpoint
+
+I retain the exact failed hosted baseline log at source `7b03370e290465b2adaf9285479aef0e288e6b03`, run [42484410886](https://github.com/jordanhubbard/nanolang/actions/runs/42484410886). Both GCC and Clang complete 106 methods with four failures: the new positive source methods reach unsupported case opcodes or absent exact trim/join host adapters. The original component assertions remain in the record.
+
+I execute the actual emitted C helper fragments with ASan and UBSan at `-O0` and `-O2`, linked to my aggregate runtime containing the existing UTF-8 validator. Both executions pass byte-case goldens for bytes 1–255, replacement, detached split storage, trimming, join mutation independence and scalar separator byte 255. Both invalid UTF-8 array-element controls terminate with SIGABRT. These are helper component checks, not complete translator, generated-root lifecycle or fresh compiler acceptance. The initial strict unused-helper compile failure remains in my evidence.
+
+I record commands, source/helper/runtime hashes and native binary hashes in `helper-components.json`. My deterministic compressed text archive retains 18 text files; the inventory and custody file cover the private ZIP containing actual native products. ZIP CRC and file hashes verify. My local disk pressure prevents a complete source build here; hosted component and fresh-stage jobs remain required. My existing whole string fixture is unchanged.

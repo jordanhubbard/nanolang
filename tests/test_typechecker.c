@@ -145,6 +145,50 @@ void test_tc_character_contracts(void) {
     ASSERT(tc_passes("extern fn is_digit(value:string)->string fn main()->int{return 0}"));
 }
 
+void test_tc_string_stdlib_contracts(void) {
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_trim_left \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_trim_left true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_left) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_left \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_trim_left:fn(int)->int=identity return (str_trim_left 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_trim_right \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_trim_right true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_right) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_trim_right \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_trim_right:fn(int)->int=identity return (str_trim_right 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_to_lower \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_to_lower true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_lower) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_lower \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_to_lower:fn(int)->int=identity return (str_to_lower 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_to_upper \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_to_upper true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_upper) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_to_upper \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_to_upper:fn(int)->int=identity return (str_to_upper 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_replace \"a\" \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace true \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace \"a\" true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_replace \"a\" \"a\" true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_replace) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_replace \"a\" \"a\" \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_replace:fn(int)->int=identity return (str_replace 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:array<string> = (str_split \"a\" \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:array<string> = (str_split true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:array<string> = (str_split \"a\" true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_split) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_split \"a\" \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_split:fn(int)->int=identity return (str_split 7)}"));
+    ASSERT(tc_passes("fn main()->int{let value:string = (str_join [\"a\"] \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_join true \"a\") return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let value:string = (str_join [\"a\"] true) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_join) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{(str_join [\"a\"] \"a\" \"extra\") return 0}"));
+    ASSERT(tc_passes("fn identity(value:int)->int{return value} fn main()->int{let str_join:fn(int)->int=identity return (str_join 7)}"));
+    ASSERT(tc_passes("fn main()->int{let parts=(str_split \"a,b\" \",\") let text:string=(str_join parts \"-\") return 0}"));
+    ASSERT(tc_passes("fn main()->int{let text:string=(str_join [] \",\") return 0}"));
+}
+
 void test_tc_format_template(void) {
     ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
@@ -1071,6 +1115,7 @@ int main(void) {
     TEST(tc_format_template);
     TEST(tc_distinct_record_fields);
     TEST(tc_character_contracts);
+    TEST(tc_string_stdlib_contracts);
     TEST(tc_reserved_definition_policy);
     TEST(tc_array_index_contract);
     TEST(tc_arithmetic);

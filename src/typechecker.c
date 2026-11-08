@@ -1379,6 +1379,14 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "str_split") &&
+        array_expr->as.call.arg_count == 2 &&
+        !env_get_var_visible_at(env, array_expr->as.call.name, array_expr->line, array_expr->column)) {
+        Function *definition = env_get_function_at(env, array_expr->as.call.name,
+            array_expr->line, array_expr->column);
+        if (!definition || (!definition->body && !definition->is_extern)) return TYPE_STRING;
+    }
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
         array_expr->as.call.arg_count == 2)
         return check_expression(array_expr->as.call.args[1], env);
@@ -3060,6 +3068,39 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* I validate the callback as one exact accumulator/element contract. */
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
+
+            /* I keep these existing string builtins exact after lexical binding. */
+            {
+                static const char *names[] = {"str_trim_left", "str_trim_right", "str_to_lower",
+                    "str_to_upper", "str_replace", "str_split", "str_join"};
+                int expected = -1;
+                for (size_t i = 0; i < sizeof names / sizeof names[0]; ++i)
+                    if (!strcmp(expr->as.call.name, names[i])) expected = i < 4 ? 1 : i == 4 ? 3 : 2;
+                Function *definition = env_get_function_at(env, expr->as.call.name,
+                    expr->line, expr->column);
+                bool builtin = !definition || (!definition->body && !definition->is_extern);
+                if (expected >= 0 && builtin) {
+                    bool valid = expr->as.call.arg_count == expected;
+                    for (int i = 0; i < expr->as.call.arg_count; ++i) {
+                        ASTNode *argument = expr->as.call.args[i];
+                        bool array = i == 0 && !strcmp(expr->as.call.name, "str_join");
+                        if (array && argument->type == AST_ARRAY_LITERAL &&
+                            argument->as.array_literal.element_count == 0)
+                            argument->as.array_literal.element_type = TYPE_STRING;
+                        Type actual = check_expression(argument, env);
+                        if (array) valid = valid && actual == TYPE_ARRAY &&
+                            infer_array_element_type(argument, env) == TYPE_STRING;
+                        else valid = valid && actual == TYPE_STRING;
+                    }
+                    if (!valid) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require exact string stdlib arity and STRING operands, with ARRAY<STRING> for the join receiver.",
+                            "Use the declared builtin argument types and count.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return !strcmp(expr->as.call.name, "str_split") ? TYPE_ARRAY : TYPE_STRING;
+                }
+            }
 
             /* I keep character host operands exact after lexical values resolve. */
             {

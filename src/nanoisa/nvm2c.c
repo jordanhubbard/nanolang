@@ -413,6 +413,9 @@ static const Nvm2cHost host_adapters[] = {
 #undef NANO_MATH_HOST
     {"vm_getcwd", "nhost_getcwd", 0, TAG_VOID, TAG_STRING},
     {"vm_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
+    {"vm_str_trim_left", "nhost_trim_left", 1, TAG_STRING, TAG_STRING},
+    {"vm_str_trim_right", "nhost_trim_right", 1, TAG_STRING, TAG_STRING},
+    {"vm_str_join", "nhost_join", 2, TAG_ARRAY, TAG_STRING},
     {"nl_os_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
     {"vm_tmp_dir", "nhost_tmp_dir", 0, TAG_VOID, TAG_STRING},
     {"get_argc", "nhost_argc", 0, TAG_VOID, TAG_INT},
@@ -601,6 +604,7 @@ static bool typed_artifact_adapter(const Nvm2cHost *host) {
          !strcmp(host->c_name, "nhost_file_catalog") || !strcmp(host->c_name, "nhost_file_product")));
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
+    if (host && !strcmp(host->c_name, "nhost_join") && index == 1) return TAG_STRING;
     if (typed_artifact_adapter(host)) {
         for (size_t i = 0; i < sizeof typed_artifact_adapters / sizeof typed_artifact_adapters[0]; ++i)
             if (host == &typed_artifact_adapters[i].host)
@@ -651,7 +655,7 @@ static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
             imp->return_type != host->result) continue;
         if (host->argc && (!mod->import_param_types || !mod->import_param_types[index])) return NULL;
         for (uint8_t p = 0; p < host->argc; ++p)
-            if (mod->import_param_types[index][p] != host->parameter) return NULL;
+            if (mod->import_param_types[index][p] != host_parameter(host, p)) return NULL;
         return host;
     }
     return NULL;
@@ -2161,11 +2165,25 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_TO_LOWER:
+        case OP_STR_TO_UPPER:
         case OP_STR_TRIM: {
             Nvm2cSimSlot value;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
             if (!mark_string_operand(b, local_kind, nloc, value)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
+        case OP_STR_REPLACE:
+        case OP_STR_SPLIT: {
+            Nvm2cSimSlot argument;
+            unsigned count = ins.opcode == OP_STR_REPLACE ? 3u : 2u;
+            for (unsigned argument_index = 0; argument_index < count; ++argument_index) {
+                if (!sim_pop(b, idx, stk, &sp, &argument) ||
+                    !mark_string_operand(b, local_kind, nloc, argument)) return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp,
+                    ins.opcode == OP_STR_SPLIT ? NVM2C_VK_SARR : NVM2C_VK_STR, -1)) return 0;
             break;
         }
         case OP_STR_SUBSTR: {
@@ -3051,6 +3069,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 uint8_t parameter = host_parameter(host, host->argc - p - 1);
+                if (!strcmp(host->c_name, "nhost_join") && parameter == TAG_ARRAY) {
+                    if (arg.kind != NVM2C_VK_SARR && arg.kind != NVM2C_VK_VALUE && arg.kind != NVM2C_VK_UNK) {
+                        nvm2c_fail(b, "I require STRING-array join storage"); return 0;
+                    }
+                    NvmShapeId payload = checked_array_payload(b, &arg);
+                    if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
+                        !shape_type(b, shape_child(b, payload, 0), NVM_SHAPE_STRING)) return 0;
+                    mark_origin(local_kind, nloc, arg.origin, NVM2C_VK_SARR);
+                    continue;
+                }
                 uint8_t expected = parameter == TAG_STRING ? NVM2C_VK_STR :
                     parameter == TAG_OPAQUE ? NVM2C_VK_VALUE :
                     parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
@@ -5204,6 +5232,34 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_STR_TO_LOWER:
+        case OP_STR_TO_UPPER: {
+            int value = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TO_LOWER/UPPER");
+            if (b->failed) goto done;
+            char expr[96];
+            snprintf(expr, sizeof expr, "nstr_case(s[%d], %d)", value, ins.opcode == OP_STR_TO_LOWER);
+            stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_REPLACE: {
+            int replacement = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE new");
+            int needle = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE old");
+            int source = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE source");
+            if (b->failed) goto done;
+            char expr[128];
+            snprintf(expr, sizeof expr, "nstr_replace(s[%d], s[%d], s[%d])", source, needle, replacement);
+            stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_SPLIT: {
+            int delimiter = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_SPLIT delimiter");
+            int source = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_SPLIT source");
+            if (b->failed) goto done;
+            char expr[96];
+            snprintf(expr, sizeof expr, "nstr_split(s[%d], s[%d])", source, delimiter);
+            stack_push_sarr(b, &st, expr);
+            break;
+        }
         case OP_STR_TRIM: {
             int value = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TRIM");
             if (b->failed) goto done;
@@ -6489,6 +6545,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 else if (host->argc) snprintf(expression, sizeof expression, "nhost_artifact_%u(s[%d])",
                                              ins.operands[0].u32, args[0]);
                 else snprintf(expression, sizeof expression, "nhost_artifact_%u()", ins.operands[0].u32);
+            } else if (!strcmp(host->c_name, "nhost_join")) {
+                int separator = stack_pop_expect(b, &st, NVM2C_VK_STR, "STRING-array join separator");
+                int receiver = stack_pop_expect(b, &st, NVM2C_VK_SARR, "STRING-array join receiver");
+                if (b->failed) goto done;
+                snprintf(expression, sizeof expression, "nhost_join(sa[%d], s[%d])", receiver, separator);
             } else if (host->argc == 2) {
                 uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR :
                     host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
@@ -6819,18 +6880,143 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "}\n\n");
 }
 
-static void emit_nstr_trim(Nvm2cBuf *b) {
+static void emit_nstr_case(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static const char *nstr_trim(const char *s) {\n"
+        "static const char *nstr_case(const char *source, int lower) {\n"
+        "    const char *src = source ? source : \"\";\n"
+        "    size_t length = strlen(src);\n"
+        "    char *result = nstr_allocate(length);\n"
+        "    for (size_t i = 0; i < length; ++i) {\n"
+        "        unsigned char value = (unsigned char)src[i];\n"
+        "        if (lower && value >= 'A' && value <= 'Z') value = (unsigned char)(value + 32);\n"
+        "        if (!lower && value >= 'a' && value <= 'z') value = (unsigned char)(value - 32);\n"
+        "        result[i] = (char)value;\n"
+        "    }\n"
+        "    return result;\n"
+        "}\n"
+    );
+}
+
+static void emit_nstr_replace(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_replace(const char *source, const char *old, const char *replacement) {\n"
+        "    const char *src = source ? source : \"\";\n"
+        "    const char *needle = old ? old : \"\";\n"
+        "    const char *value = replacement ? replacement : \"\";\n"
+        "    size_t length = strlen(src), needle_size = strlen(needle), value_size = strlen(value);\n"
+        "    if (!needle_size) return nstr_copy(src);\n"
+        "    size_t count = 0;\n"
+        "    const char *cursor = src, *found;\n"
+        "    while ((found = strstr(cursor, needle)) != NULL) {\n"
+        "        ++count; cursor = found + needle_size;\n"
+        "    }\n"
+        "    size_t result_size = length;\n"
+        "    if (value_size > needle_size) {\n"
+        "        size_t growth = value_size - needle_size;\n"
+        "        if (length == SIZE_MAX || count > (SIZE_MAX - 1 - length) / growth) NVM2C_ABORT();\n"
+        "        result_size += count * growth;\n"
+        "    } else {\n"
+        "        size_t shrink = needle_size - value_size;\n"
+        "        if (shrink && count > length / shrink) NVM2C_ABORT();\n"
+        "        result_size -= count * shrink;\n"
+        "    }\n"
+        "    char *result = nstr_allocate(result_size), *out = result;\n"
+        "    cursor = src;\n"
+        "    while ((found = strstr(cursor, needle)) != NULL) {\n"
+        "        size_t segment = (size_t)(found - cursor);\n"
+        "        memcpy(out, cursor, segment); out += segment;\n"
+        "        memcpy(out, value, value_size); out += value_size;\n"
+        "        cursor = found + needle_size;\n"
+        "    }\n"
+        "    size_t rest = strlen(cursor);\n"
+        "    memcpy(out, cursor, rest);\n"
+        "    return result;\n"
+        "}\n"
+    );
+}
+
+static void emit_nstr_split(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static nsarr_t nstr_split(const char *source, const char *delimiter) {\n"
+        "    const char *src = source ? source : \"\";\n"
+        "    const char *separator = delimiter ? delimiter : \"\";\n"
+        "    size_t width = strlen(separator);\n"
+        "    nsarr_t result = nsarr_new();\n"
+        "    if (!width) {\n"
+        "        for (const char *cursor = src; *cursor; ++cursor) {\n"
+        "            char *part = nstr_allocate(1); part[0] = *cursor;\n"
+        "            nsarr_push(result, part);\n"
+        "        }\n"
+        "        return result;\n"
+        "    }\n"
+        "    const char *cursor = src, *found;\n"
+        "    while ((found = strstr(cursor, separator)) != NULL) {\n"
+        "        size_t length = (size_t)(found - cursor);\n"
+        "        char *part = nstr_allocate(length);\n"
+        "        memcpy(part, cursor, length);\n"
+        "        nsarr_push(result, part);\n"
+        "        cursor = found + width;\n"
+        "    }\n"
+        "    nsarr_push(result, nstr_copy(cursor));\n"
+        "    return result;\n"
+        "}\n"
+    );
+}
+
+static void emit_nstr_trim(Nvm2cBuf *b, int both, int left, int right) {
+    nvm2c_puts(b,
+        "static const char *nstr_trim_sides(const char *s, int left, int right) {\n"
         "    const char *src = s ? s : \"\";\n"
         "    size_t start = 0, end = strlen(src);\n"
-        "    while (start < end && (src[start] == ' ' || src[start] == '\\t' ||\n"
+        "    if (left) while (start < end && (src[start] == ' ' || src[start] == '\\t' ||\n"
         "           src[start] == '\\n' || src[start] == '\\r')) start++;\n"
-        "    while (end > start && (src[end-1] == ' ' || src[end-1] == '\\t' ||\n"
+        "    if (right) while (end > start && (src[end-1] == ' ' || src[end-1] == '\\t' ||\n"
         "           src[end-1] == '\\n' || src[end-1] == '\\r')) end--;\n"
         "    char *result = nstr_allocate(end - start);\n"
         "    memcpy(result, src + start, end - start);\n"
-        "    return result;\n}\n\n");
+        "    return result;\n"
+        "}\n"
+    );
+    if (both) nvm2c_puts(b, "static inline const char *nstr_trim(const char *s) { return nstr_trim_sides(s, 1, 1); }\n");
+    if (left) nvm2c_puts(b, "static inline const char *nhost_trim_left(const char *s) { return nstr_trim_sides(s, 1, 0); }\n");
+    if (right) nvm2c_puts(b, "static inline const char *nhost_trim_right(const char *s) { return nstr_trim_sides(s, 0, 1); }\n");
+}
+
+static void emit_nstr_join(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "#include <stdbool.h>\n"
+        "#ifdef __cplusplus\n"
+        "extern \"C\" {\n"
+        "#endif\n"
+        "extern bool nl_utf8_validate(const char *, size_t, size_t *);\n"
+        "#ifdef __cplusplus\n"
+        "}\n"
+        "#endif\n"
+        "static const char *nhost_join(nsarr_t parts, const char *separator) {\n"
+        "    if (!parts || !separator || (parts->len && !parts->data)) NVM2C_ABORT();\n"
+        "    if (parts->owner && (parts->owner->data != parts->data || parts->len > parts->owner->cap)) NVM2C_ABORT();\n"
+        "    size_t length = 0, separator_size = strlen(separator);\n"
+        "    for (size_t i = 0; i < parts->len; ++i) {\n"
+        "        const char *part = parts->data[i];\n"
+        "        if (!part) NVM2C_ABORT();\n"
+        "        size_t size = strlen(part);\n"
+        "        if (!nl_utf8_validate(part, size, NULL)) NVM2C_ABORT();\n"
+        "        if (i) {\n"
+        "            if (separator_size > SIZE_MAX - 1 - length) NVM2C_ABORT();\n"
+        "            length += separator_size;\n"
+        "        }\n"
+        "        if (size > SIZE_MAX - 1 - length) NVM2C_ABORT();\n"
+        "        length += size;\n"
+        "    }\n"
+        "    char *result = nstr_allocate(length), *out = result;\n"
+        "    for (size_t i = 0; i < parts->len; ++i) {\n"
+        "        if (i) { memcpy(out, separator, separator_size); out += separator_size; }\n"
+        "        size_t size = strlen(parts->data[i]);\n"
+        "        memcpy(out, parts->data[i], size); out += size;\n"
+        "    }\n"
+        "    return result;\n"
+        "}\n"
+    );
 }
 
 static void emit_nstr_substr(Nvm2cBuf *b) {
@@ -7983,7 +8169,9 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         module_has_opcode(mod, OP_HANDLER_POP) || module_has_opcode(mod, OP_EFFECT_RESUME) ||
         module_has_opcode(mod, OP_HALT);
     if (b.has_unwind) b.has_maps = 1;
-    b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
+    b.has_owned_strings = module_has_opcode(mod, OP_STR_TO_LOWER) ||
+        module_has_opcode(mod, OP_STR_TO_UPPER) || module_has_opcode(mod, OP_STR_REPLACE) ||
+        module_has_opcode(mod, OP_STR_SPLIT) || module_has_opcode(mod, OP_STR_CONCAT) ||
         module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_STR_TRIM) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
     /* I reserve string roots for explicit artifact cleanup companions too;
@@ -8359,8 +8547,14 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
         int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
         int need_trim = module_has_opcode(mod, OP_STR_TRIM);
+        int need_trim_left = module_uses_host(mod, "nhost_trim_left");
+        int need_trim_right = module_uses_host(mod, "nhost_trim_right");
+        int need_join = module_uses_host(mod, "nhost_join");
+        int need_case = module_has_opcode(mod, OP_STR_TO_LOWER) || module_has_opcode(mod, OP_STR_TO_UPPER);
+        int need_replace = module_has_opcode(mod, OP_STR_REPLACE);
+        int need_split = module_has_opcode(mod, OP_STR_SPLIT);
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
-        int need_string = need_concat || need_cast || need_contains || need_substr || need_trim ||
+        int need_string = need_case || need_replace || need_split || need_concat || need_cast || need_contains || need_substr || need_trim ||
             need_starts || need_ends ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
@@ -8376,7 +8570,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_U8ARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_NARR) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_ARRAY);
-        int need_sarr_new = module_has_array_constructor(&b, mod, kinds, NVM2C_VK_SARR);
+        int need_sarr_new = need_split || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_SARR);
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_U8) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_BOOL) ||
@@ -8392,7 +8586,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_FNARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_U8ARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_NARR);
-        int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
+        int need_sarr = need_join || need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             (b.array_shape_kinds & (1u << NVM2C_VK_SARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_SARR);
         /* I emit retained adapters even when no instruction calls them. */
@@ -8408,7 +8602,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
-        int need_sarr_push = (need_arr_push || array_string_add) && need_sarr;
+        int need_sarr_push = (need_split || need_arr_push || array_string_add) && need_sarr;
         int need_agg_get = module_has_opcode(mod, OP_AGG_GET) || module_has_opcode(mod, OP_AGG_TAG);
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);
@@ -8899,7 +9093,10 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         }
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
-        if (need_trim) emit_nstr_trim(&b);
+        if (need_trim || need_trim_left || need_trim_right) emit_nstr_trim(&b, need_trim, need_trim_left, need_trim_right);
+        if (need_join) emit_nstr_join(&b);
+        if (need_case) emit_nstr_case(&b);
+        if (need_replace) emit_nstr_replace(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_starts) emit_nstr_starts_with(&b);
         if (need_ends) emit_nstr_ends_with(&b);
@@ -8910,6 +9107,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
+        if (need_split) emit_nstr_split(&b);
         if (module_has_opcode(mod, OP_HM_KEYS) || module_has_opcode(mod, OP_HM_VALUES))
             emit_map_snapshots(&b, need_iarr, need_sarr);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
@@ -8977,6 +9175,9 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             else nvm2c_puts(&b, "    (void)argv;\n");
         } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_uses_host(mod, "nhost_trim_left")) nvm2c_puts(&b, "    (void)nhost_trim_left;\n");
+        if (module_uses_host(mod, "nhost_trim_right")) nvm2c_puts(&b, "    (void)nhost_trim_right;\n");
+        if (module_uses_host(mod, "nhost_join")) nvm2c_puts(&b, "    (void)nhost_join;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
         if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop; (void)nrecord_array_pop; (void)nvalue_require_record;\n");

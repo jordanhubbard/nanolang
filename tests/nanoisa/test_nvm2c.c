@@ -1472,7 +1472,7 @@ static void test_call_extern_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_str_to_upper_is_refused(void) {
+static void test_str_to_upper_runs(void) {
     const char *src =
         ".string s \"hi\"\n"
         ".entry 0\n"
@@ -1488,10 +1488,52 @@ static void test_str_to_upper_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "STR_TO_UPPER stays outside the closed subset");
-    CHECK(strstr(err, "STR_TO_UPPER") != NULL, "error names STR_TO_UPPER");
+    CHECK(c != NULL, "I admit the original valid STR_TO_UPPER module");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I execute the original uppercase module without NanoVM");
+    }
     free(c);
     nvm_module_free(m);
+}
+
+
+static void test_string_case_replace_and_split(void) {
+    const char *sources[] = {
+        ".string input \"Az-123\"\n.string expected \"az-123\"\n"
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_STR input\nSTR_TO_LOWER\nPUSH_STR expected\nSTR_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string input \"aZ-123\"\n.string expected \"AZ-123\"\n"
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_STR input\nSTR_TO_UPPER\nPUSH_STR expected\nSTR_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string input \"aaaaa\"\n.string old \"aa\"\n.string new \"b\"\n.string expected \"bba\"\n"
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_STR input\nPUSH_STR old\nPUSH_STR new\nSTR_REPLACE\nPUSH_STR expected\nSTR_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string input \"--a----b--\"\n.string delimiter \"--\"\n.string empty \"\"\n"
+        ".entry main\n.function main 0 1 0 int 1\n"
+        "PUSH_STR input\nPUSH_STR delimiter\nSTR_SPLIT\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 5\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 4\nARR_GET\nPUSH_STR empty\nSTR_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string input \"ab\"\n.string delimiter \"\"\n.string a \"a\"\n.string b \"b\"\n"
+        ".entry main\n.function main 0 1 0 int 1\n"
+        "PUSH_STR input\nPUSH_STR delimiter\nSTR_SPLIT\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR a\nSTR_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nPUSH_STR b\nSTR_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (size_t i = 0; i < sizeof sources / sizeof sources[0]; ++i) {
+        NvmModule *m = assemble_ok(sources[i], "string stdlib native opcode");
+        CHECK(m != NULL, "I assemble each existing string opcode fixture");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I emit the existing string stdlib opcode");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I execute string case/replacement/split assertions in native C");
+        }
+        free(c);
+        nvm_module_free(m);
+    }
 }
 
 /* I run the dedicated STR_EQ opcode, which the self-hosted codegen emits for
@@ -3353,9 +3395,9 @@ static void test_unsupported_classifier_instructions(void) {
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
         const InstructionInfo *info = isa_get_info(opcodes[i]);
-        if (opcodes[i] == OP_HM_KEYS || opcodes[i] == OP_HM_VALUES) {
+        if (opcodes[i] == OP_HM_KEYS || opcodes[i] == OP_HM_VALUES || opcodes[i] == OP_STR_TO_UPPER) {
             CHECK(c == NULL && strstr(error, "underflow") && strstr(error, "function"),
-                  "I reject a supported map snapshot without its receiver");
+                  "I reject a supported operation without its required operand");
         } else {
             CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
                   strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
@@ -6731,7 +6773,8 @@ int main(int argc, char **argv) {
     test_owned_artifact_execution();
     test_real_walk_artifact();
     test_call_extern_is_refused();
-    test_str_to_upper_is_refused();
+    test_str_to_upper_runs();
+    test_string_case_replace_and_split();
     test_str_eq_runs_without_nano_vm();
     test_str_eq_rejects_non_strings();
     test_push_str_len_runs_without_nano_vm();

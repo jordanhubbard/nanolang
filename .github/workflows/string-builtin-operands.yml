@@ -38,6 +38,7 @@ on:
       - 'src/parser.c'
       - 'tests/test_parser.c'
       - 'src/nanoisa/nvm2c.c'
+      - 'tests/nanoisa/test_nvm2c_callables.c'
       - 'src/nanoisa/nvm2c_shape.c'
       - 'src/nanoisa/nvm2c_shape.h'
       - 'tests/nanoisa/test_nvm2c_shape.c'

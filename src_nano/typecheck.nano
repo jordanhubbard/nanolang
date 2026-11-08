@@ -3311,6 +3311,7 @@ shadow is_float_math_builtin {
 }
 
 fn is_builtin_function(fn_name: string) -> bool {
+    if (!= (string_stdlib_result fn_name) "") { return true }
     if (== fn_name "format") { return true }
     if (or (== fn_name "array_pop") (== fn_name "array_remove_at")) { return true }
     /* Core */
@@ -3459,6 +3460,8 @@ fn is_builtin_function(fn_name: string) -> bool {
 }
 
 shadow is_builtin_function {
+    assert (is_builtin_function "str_split")
+    assert (is_builtin_function "str_join")
     assert (is_builtin_function "format")
     assert (is_builtin_function "array_pop")
     assert (is_builtin_function "array_remove_at")
@@ -3482,6 +3485,7 @@ shadow type_u8_array {
 }
 
 fn check_builtin_function(fn_name: string) -> NSType {
+    if (!= (string_stdlib_result fn_name) "") { return (type_from_string (string_stdlib_result fn_name)) }
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
     if (== fn_name "println") { return (type_void) } else { (print "") }
@@ -3680,6 +3684,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (type_to_string (check_builtin_function "str_split")) "array<string>")
+    assert (== (check_builtin_function "str_join").kind TypeKind.TYPE_STRING)
     assert (== (check_builtin_function "str_trim").kind TypeKind.TYPE_STRING)
     assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
     assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
@@ -5537,6 +5543,66 @@ shadow tc_generic_call {
 }
 
 # I share my existing public character result contracts with the producer.
+
+pub fn string_stdlib_result(name: string) -> string {
+    if (== name "str_split") { return "array<string>" }
+    for scalar in ["str_trim_left", "str_trim_right", "str_to_lower", "str_to_upper", "str_replace", "str_join"] {
+        if (== name scalar) { return "string" }
+    }
+    return ""
+}
+shadow string_stdlib_result {
+    assert (== (string_stdlib_result "str_split") "array<string>")
+    for name in ["str_trim_left", "str_trim_right", "str_to_lower", "str_to_upper", "str_replace", "str_join"] {
+        assert (== (string_stdlib_result name) "string")
+    }
+    assert (== (string_stdlib_result "unrelated") "")
+}
+
+pub fn string_stdlib_arity(name: string) -> int {
+    if (== (string_stdlib_result name) "") { return -1 }
+    if (== name "str_replace") { return 3 }
+    if (or (== name "str_split") (== name "str_join")) { return 2 }
+    return 1
+}
+shadow string_stdlib_arity {
+    for name in ["str_trim_left", "str_trim_right", "str_to_lower", "str_to_upper"] {
+        assert (== (string_stdlib_arity name) 1)
+    }
+    assert (== (string_stdlib_arity "str_replace") 3)
+    assert (== (string_stdlib_arity "str_split") 2)
+    assert (== (string_stdlib_arity "str_join") 2)
+    assert (== (string_stdlib_arity "unrelated") -1)
+}
+
+fn check_string_stdlib(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut valid: bool = (== call.arg_count (string_stdlib_arity name))
+    for index in (range 0 call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start index))
+        let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        if (and (== name "str_join") (== index 0)) {
+            let expected: NSType = (type_from_string "array<string>")
+            let checked: NSType = (check_constructor_argument parser argument.node_id argument.node_type actual expected symbols diags file_name)
+            if (or (!= checked.kind TypeKind.TYPE_ARRAY) (!= (type_to_string checked) "array<string>")) { set valid false }
+        } else {
+            if (!= actual.kind TypeKind.TYPE_STRING) { set valid false }
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require exact string stdlib arity and STRING operands, with ARRAY<STRING> for the join receiver." (Diagnostics.diag_location file_name call.line call.column)))
+    }
+    return (type_from_string (string_stdlib_result name))
+}
+shadow check_string_stdlib {
+    let good: Parser = (resource_test_parser "fn main()->int{let parts:array<string> = (str_split \"a,b\" \",\") let text:string=(str_join parts \"--\") return 0}")
+    assert (not (typecheck_phase good "string-stdlib.nano").had_error)
+    for source in ["fn main()->int{let text:string=(str_trim_left true) return 0}", "fn main()->int{let text:string=(str_replace \"a\" \"b\") return 0}", "fn main()->int{let text:string=(str_join [1] \",\") return 0}"] {
+        let bad: Parser = (resource_test_parser source)
+        assert (not bad.has_error)
+        assert (typecheck_phase bad "string-stdlib.nano").had_error
+    }
+}
+
 pub fn character_builtin_result(name: string) -> string {
     let predicates: array<string> = ["is_digit", "is_alpha", "is_alnum", "is_whitespace", "is_upper", "is_lower"]
     for predicate in predicates { if (== name predicate) { return "bool" } }
@@ -5938,6 +6004,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one exactly typed operand for binary64 bit transport." (Diagnostics.diag_location file_name call_node.line call_node.column)))
             }
             return (check_builtin_function fn_name)
+        }
+        if (and (!= (string_stdlib_result fn_name) "") (< (env_lookup symbols fn_name) 0)) {
+            return (check_string_stdlib parser call_node fn_name symbols diags file_name)
         }
         let character: bool = (!= (character_builtin_result fn_name) "")
         if (and character (< (env_lookup symbols fn_name) 0)) {

@@ -1,5 +1,13 @@
 # My Roadmap
 
+- [x] Under #1106 I retain the [failed hosted baseline and local emitted-helper checkpoint](evidence/string-stdlib-20261108/local-implementation/README.md): both hosted baselines report four failures in 106 methods; actual helper fragments linked to the shared runtime pass ASan/UBSan at O0/O2, including UTF-8 refusal. Full translator, source checker, fresh-stage and platform qualification remain open.
+
+- [ ] Under #1106 I make my aggregate native runtime depend on its Makefile rule as well as member objects, so changing the member list cannot reuse an older aggregate whose object timestamps happen to predate it. I verify the shared UTF-8 export and real linked helper execution; clean hosted runtime/source custody remains separate.
+
+- [ ] Under #1106 I admit only the existing vm_str_join ARRAY/STRING-to-STRING builtin identity, constrain its receiver to STRING-array shape and retain exact runtime unboxing and UTF-8 refusal. I reuse the existing shared UTF-8 validator in my native runtime object rather than adding a second decoder, and retain this changed runtime closure in fresh source/tool/product qualification. Trim-side adapters retain exact STRING-to-STRING identities and four-byte whitespace policy.
+
+- [ ] Under #1106 I reconcile the historical valid STR_TO_UPPER closed-subset refusal with my required original string fixture. I preserve its old source/pin, qualify the same valid module with actual native execution when admitting the opcode, and retain wrong-type/empty-stack and unrelated unsupported-opcode refusals. I add scalar case/replace and STRING split admission through their existing opcodes with owned output and overflow checks; exact join/trim host boundaries remain separately qualified.
+
 - [ ] Under #1106/#1081 I retain the unchanged whole string stdlib fixture and current source/VM/native baseline, then record exact trim/case/replace/split/join semantics before implementation. I preserve byte-wise ASCII conversion, four-byte trimming, UTF-8 bytes, empty delimiters/elements, once-only effects, lexical identity and prior-output refusals. I require existing opcodes and exact builtin contracts with proven ARRAY<STRING> storage, useful source shadows, full original C/translator gates and separate fresh-stage/platform acceptance; no generic extern or SDK descriptor fallback is admitted.
 
 - [ ] Under #1088 I retain the marker helper recorder files alongside its actual native programs: the first qualified 99-method component upload preserves programs/commands but omits the separate compiler-phase-markers directory. I preserve that custody limit, add the directory to both final artifact selections, and require actual upload verification without changing executed tests.
