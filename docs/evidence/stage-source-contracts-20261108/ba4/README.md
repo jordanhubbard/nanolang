@@ -1,0 +1,5 @@
+# My first deferred map payload checkpoint
+
+I retain terminal [run 42464272483](https://github.com/jordanhubbard/nanolang/actions/runs/42464272483) at `ba4db7b51b07ad56d52f7e4db9eab1c1b42a7f55`. GCC and Clang each pass all 38 existing non-map methods, all four complete original constructor-context pairs through NanoVM and sanitized C AOT, the original shape suite including 3,866 assertions, and the original array-alias routes. Existing C-native detached snapshots also pass. My four canonical detached-snapshot pairs pass NanoVM but C AOT reaches a later exact snapshot-element refusal. I retain that failure rather than relaxing the snapshot element guard.
+
+Complete logs and exact-text bundles retain all observations, owned source roots and module/command output, with SHA-256 inventories for every uploaded binary. Both ZIPs pass CRC; original binary bytes remain private. Direct ZIP custody does not establish original modes or symlinks. Bounded opt-in diagnostics at the next pin will trace the remaining unresolved snapshot element; full #1083 source/platform acceptance stays open.
