@@ -1,0 +1,26 @@
+[
+  {
+    "path": "source-checker-component/actual-native-6fh2_hz5/source-build.stderr",
+    "started": 693,
+    "completed": 693,
+    "failures": 0,
+    "body_seconds": 8.455578000000001,
+    "last_started": {
+      "event": "shadow-start",
+      "name": "main",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+      "line": 369,
+      "elapsed_seconds": 0.0,
+      "failures": 0
+    },
+    "last_completed": {
+      "event": "shadow-complete",
+      "name": "main",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/typecheck_driver.nano",
+      "line": 369,
+      "elapsed_seconds": 1.436711,
+      "failures": 0
+    },
+    "tail": "ating 0 functions\nError: No functions found\nPASSED\nTesting typecheck... === NSType Checking (Count-based) ===\nValidating 1 functions\nNSType checking complete!\nPASSED\nTesting check_let_statement... PASSED\nTesting tc_effect_error... PASSED\nTesting tc_effect_row_known... PASSED\nTesting tc_effect_type_known... PASSED\nTesting tc_effect_declarations... PASSED\nTesting tc_effect_types_equal... PASSED\nTesting tc_effect_perform... PASSED\nTesting tc_effect_handle... PASSED\nTesting resource_flow_block_context... PASSED\nTesting resource_flow_value_context... PASSED\nTesting resource_flow_node_context... PASSED\nTesting resource_check_function_context... PASSED\nTesting check_legacy_global_declarations... PASSED\nTesting check_fixed_string_contracts... PASSED\nTesting check_reserved_definition_contracts... PASSED\nTesting check_anonymous_record_contracts... PASSED\nTesting check_byte_alias_contracts... PASSED\nTesting check_character_contracts... PASSED\nTesting check_u8_argument_contracts... PASSED\nTesting check_string_stdlib_contracts... PASSED\nTesting check_uppercase_parser_contracts... PASSED\nTesting check_legacy_bang_contracts... PASSED\nTesting check_array_sort_contracts... PASSED\nTesting check_byte_conversion_contracts... PASSED\nTesting check_bstring_type_contracts... PASSED\nTesting main... I passed my checker entry assertions.\nPASSED\nAll shadow tests passed! (693 tests)\n[ffi_loader] Shut down\n"
+  }
+]

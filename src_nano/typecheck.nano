@@ -3519,6 +3519,8 @@ shadow bstring_builtin_result {
         assert (== (type_to_string (check_builtin_function (at names i))) (at results i))
     }
     assert (== (bstring_builtin_result "bstr_missing") "")
+    assert (== (check_builtin_function "bstr_missing").kind TypeKind.TYPE_UNKNOWN)
+    assert (== (check_builtin_function "+").kind TypeKind.TYPE_INT)
     assert (== (type_to_string (type_from_string "bstring")) "bstring")
     assert (== (type_from_string "bstring").kind TypeKind.TYPE_BSTRING)
     assert (== (type_to_string (type_from_string "array<bstring>")) "array<bstring>")
@@ -3529,7 +3531,10 @@ shadow bstring_builtin_result {
 
 fn check_builtin_function(fn_name: string) -> NSType {
     if (!= (string_stdlib_result fn_name) "") { return (type_from_string (string_stdlib_result fn_name)) }
-    if (!= (bstring_builtin_result fn_name) "") { return (type_from_string (bstring_builtin_result fn_name)) }
+    if (str_starts_with fn_name "bstr_") {
+        let result: string = (bstring_builtin_result fn_name)
+        if (!= result "") { return (type_from_string result) }
+    }
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
     if (== fn_name "println") { return (type_void) } else { (print "") }
@@ -3809,7 +3814,6 @@ shadow type_from_string {
 
 /* NSType to string for error messages */
 fn type_to_string(t: NSType) -> string {
-    if (== t.kind TypeKind.TYPE_BSTRING) { return "bstring" }
     if (== t.kind TypeKind.TYPE_ENUM) { return t.name }
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
@@ -3854,6 +3858,7 @@ fn type_to_string(t: NSType) -> string {
                                                 return "fn"
                                             }
                                         } else {
+                                            if (== t.kind TypeKind.TYPE_BSTRING) { return "bstring" }
                                             return "unknown"
                                         }
                                     }
@@ -3870,7 +3875,6 @@ fn type_to_string(t: NSType) -> string {
 
 /* Convert type kind to string */
 fn type_kind_to_string(kind: int, name: string) -> string {
-    if (== kind TypeKind.TYPE_BSTRING) { return "bstring" }
     if (or (or (== kind TypeKind.TYPE_ARRAY) (== kind TypeKind.TYPE_ENUM)) (or (== kind TypeKind.TYPE_FUNCTION) (== kind TypeKind.TYPE_TUPLE))) {
         if (!= name "") { return name }
         return "unknown"
@@ -3883,7 +3887,7 @@ fn type_kind_to_string(kind: int, name: string) -> string {
     else { if (== kind TypeKind.TYPE_UNION) { return name }
     else { if (== kind TypeKind.TYPE_TUPLE) { return "tuple" }
     else { if (== kind TypeKind.TYPE_FUNCTION) { return "fn" }
-    else { return "unknown" } } } } } } } }
+    else { if (== kind TypeKind.TYPE_BSTRING) { return "bstring" } return "unknown" } } } } } } } }
 }
 
 shadow type_kind_to_string {
@@ -6154,7 +6158,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
-        if (and (!= (bstring_builtin_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
+        if (str_starts_with fn_name "bstr_") {
+            if (and (!= (bstring_builtin_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
+        }
         if (and (!= (byte_conversion_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (== fn_name "array_sort") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (!= (string_stdlib_result fn_name) "") (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
