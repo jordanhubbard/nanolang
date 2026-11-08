@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:a12230c681226e61ed0daa54190912b77b42036cae19fabc1c5e95c8139ec4e1 -->
+<!-- literate-ai:authority-reviewed sha256:904cbb373616cfcb35d5b18090144b2a5fbc8843a7a6665071c42b3f48fb5914 -->
 
 ## My first metadata checkpoint
 
@@ -292,3 +292,28 @@ I freeze my catalog reports before the final documentation-authority review.
 I retain post-freeze validation logs outside this catalog, under
 `docs/evidence/source-contract-custody-20261108/`, so saving those logs cannot
 change the authority inputs they just checked.
+
+
+## My GC-entry retirement checkpoint, 2026-11-08
+
+I retire private GC-entry tail storage because my fixed Linux and Apple
+comparisons do not establish a reliable source-creation benefit. I preserve
+all candidate measurements and retain both allocation-overflow corrections
+and shutdown registry retirement. My local sanitizer receipt in
+`docs/evidence/gc-pointer-entry-20261108/retired/` passes all thirteen GC controls and the existing interpreted BSTRING and
+STRING bounds gates; hosted source/platform acceptance remains open.
+
+My reviewed original-source baseline is `91735dabca36439915c02f58848bd1197bb1ad90`.
+This is a real code-only descendant of my previous `043b52d1a` baseline,
+changing exactly `src/runtime/gc.c` and `tests/test_gc_struct.c` to their
+`9baeba459` correctness-checkpoint bytes. I merge it with real ancestry into
+my source-contract branch. Its other 92,814 reviewed entries remain unchanged.
+I retain my five content-only metadata exceptions without widening them.
+This checkpoint contains the complete original source tree; my temporary
+sparse working view is not an omitted-input qualification.
+
+I retain custody and post-review logs outside my documentation catalog under
+`docs/evidence/gc-pointer-entry-20261108/retired/`. Original-source authority,
+empty native implementation selections and the absent native lifecycle
+receipt remain unchanged. The original source-creation failures, full corpus,
+compiler budget, GitGuardian and release requirements remain open.

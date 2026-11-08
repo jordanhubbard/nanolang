@@ -23,3 +23,17 @@ I hold full local provider builds while disk headroom is below policy.
 
 Source-creation reliability, the frozen compiler budget, record-frame lifetime,
 full corpus, hosted platform gates and native lifecycle admission remain open.
+
+My source checkpoint `91735dabc` is a real descendant of the previous
+`043b52d1a` source baseline with exactly the two reviewed GC files changed.
+Merge `3857fdf8a` retains its ancestry without further implementation changes.
+My [custody check](custody-precommit.json) preserves all 92,816 reviewed
+entries. My [metadata commands](metadata-checks.json) pass the two real Git
+controls, eight integration locks, four delegates, supported authority review
+and canonical validation. The native receipt guard still refuses
+`project.test_receipt_policy_unconfigured`; no native receipt is created.
+
+I preserve the [initial authority refusal](first-authority-refusal.json): a
+new Markdown link pointed outside the declared documentation catalog. I use
+a plain retained-evidence path in my adoption record and leave the catalog
+boundary unchanged. I freeze catalog inputs before recording authority.

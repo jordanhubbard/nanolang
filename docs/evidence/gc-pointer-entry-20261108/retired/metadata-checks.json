@@ -1,0 +1,191 @@
+{
+  "timestamp": "2026-11-08T23:56:03.455292+00:00",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_litai_source_preservation"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-00.stdout",
+      "stderr": "metadata-00.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/bootstrap",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-01.stdout",
+      "stderr": "metadata-01.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/distribution",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-02.stdout",
+      "stderr": "metadata-02.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/frontend",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-03.stdout",
+      "stderr": "metadata-03.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/isa",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-04.stdout",
+      "stderr": "metadata-04.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/libraries",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-05.stdout",
+      "stderr": "metadata-05.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/native",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-06.stdout",
+      "stderr": "metadata-06.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/qualification",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-07.stdout",
+      "stderr": "metadata-07.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/vm",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-08.stdout",
+      "stderr": "metadata-08.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "agent-entrypoints",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-09.stdout",
+      "stderr": "metadata-09.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "--record",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-10.stdout",
+      "stderr": "metadata-10.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-11.stdout",
+      "stderr": "metadata-11.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "validate",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "metadata-12.stdout",
+      "stderr": "metadata-12.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "test-receipt",
+        "require-current",
+        "--project",
+        "."
+      ],
+      "returncode": 2,
+      "expected": 2,
+      "stdout": "metadata-13.stdout",
+      "stderr": "metadata-13.stderr"
+    }
+  ],
+  "native_lifecycle_admitted": false
+}
