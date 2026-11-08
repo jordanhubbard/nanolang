@@ -2,11 +2,13 @@
 import hashlib
 import json
 import os
+import signal
 from pathlib import Path
 import shlex
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 from scripts.native_phase_trace import configure, summarize
@@ -60,6 +62,40 @@ class NativePhaseTrace(unittest.TestCase):
         self.assertIn('I retain this real compiler refusal', result.stderr)
         self.assertFalse(product.exists())
         self.assertEqual(phase['outputs'], [])
+
+    def test_interrupted_real_compiler_keeps_an_incomplete_record(self):
+        # I hold this test-owned real preprocessor on stdin, then stop its group.
+        command = shlex.split(self.environment['NANO_CC'])+['-E', '-']
+        process = subprocess.Popen(command, cwd=ROOT, env=self.environment,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True)
+        try:
+            deadline = time.monotonic()+5
+            observed = None
+            while time.monotonic() < deadline:
+                records = list((self.work/'native-phase-trace').glob('phase-*/phase.json'))
+                if records:
+                    record = json.loads(records[0].read_text())
+                    if 'tool_pid' in record:
+                        observed = record
+                        break
+                self.assertIsNone(process.poll(), 'I require a real waiting compiler.')
+                time.sleep(0.01)
+            self.assertIsNotNone(observed, 'I require a retained actual tool launch.')
+            self.assertFalse(observed['completed'])
+            os.killpg(process.pid, signal.SIGTERM)
+            process.communicate(timeout=5)
+            summary = summarize(self.work)
+            self.assertEqual(summary['phase_count'], 1)
+            retained = summary['phases'][0]
+            self.assertFalse(retained['completed'])
+            self.assertEqual(retained['tool_pid'], observed['tool_pid'])
+            self.assertNotIn('returncode', retained)
+            self.assertNotEqual(process.returncode, 0)
+        finally:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.communicate(timeout=5)
 
     def test_configuration_preserves_existing_tool_flags(self):
         cc = json.loads((self.work/'native-phase-trace/cc.json').read_text())
