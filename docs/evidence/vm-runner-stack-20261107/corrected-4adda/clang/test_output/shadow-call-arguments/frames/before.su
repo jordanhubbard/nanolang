@@ -1,0 +1,9 @@
+.test_output/shadow-call-arguments/frames/before.c:5908:main	130930392	static
+.test_output/shadow-call-arguments/frames/before.c:100:emit	344	dynamic
+.test_output/shadow-call-arguments/frames/before.c:141:make_module	120	dynamic
+.test_output/shadow-call-arguments/frames/before.c:175:add_fn	120	dynamic
+.test_output/shadow-call-arguments/frames/before.c:615:emit_local_field_program	56	static
+.test_output/shadow-call-arguments/frames/before.c:4585:invoke_vm_callback_worker	184	dynamic
+.test_output/shadow-call-arguments/frames/before.c:5509:make_verifiable_int_module	120	dynamic
+.test_output/shadow-call-arguments/frames/before.c:asan.module_ctor	8	static
+.test_output/shadow-call-arguments/frames/before.c:asan.module_dtor	8	static

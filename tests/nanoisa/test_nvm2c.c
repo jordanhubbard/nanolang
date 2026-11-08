@@ -3353,9 +3353,14 @@ static void test_unsupported_classifier_instructions(void) {
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
         const InstructionInfo *info = isa_get_info(opcodes[i]);
-        CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
-              strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
-              "I reject unsupported stack effects at their own instruction");
+        if (opcodes[i] == OP_HM_KEYS || opcodes[i] == OP_HM_VALUES) {
+            CHECK(c == NULL && strstr(error, "underflow") && strstr(error, "function"),
+                  "I reject a supported map snapshot without its receiver");
+        } else {
+            CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
+                  strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
+                  "I reject unsupported stack effects at their own instruction");
+        }
         free(c);
         nvm_module_free(m);
     }

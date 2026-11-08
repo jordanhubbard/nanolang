@@ -1,0 +1,7 @@
+# My measured VM runner correction
+
+Run 42451801025 at exact 4adda508c2343cc74b83de408dd9ccb9776a9fd6 compiles the prior and corrected VM test source with the same selected Clang O1 ASan/UBSan flags. Original main uses 130,930,392 bytes of stack; corrected main uses 24 bytes. I retain both exact source/assembly/stack-usage reports and their hashes. Both compiler families execute the unchanged complete VM suite through the non-inlined fixture boundary, retaining every original assertion and all 179 fixture invocations in order.
+
+Both jobs pass all 27 focused methods and the independent original interpreter/negative/array alias checks with unchanged providers. Full units remain failed: GCC next reports overlapping snprintf operands in ML constructor/type-name copies; Clang reaches three C AOT map/classifier assertions. I retain complete original logs and source/provider identity. The bounded runner-frame correction does not establish complete unit/platform or general VM stack safety.
+
+I preserve all original invalid-map assertions. I add a precise known-mismatched-key refusal before generic shape unification, and test now-supported HM_KEYS/HM_VALUES as missing-receiver underflows while retaining the other unsupported-opcode assertions. The ML correction preserves exact bounded labels with overlap-safe fixed-width copies and terminators. These follow-up fixes require fresh complete native qualification.

@@ -1,0 +1,9 @@
+{
+  "artifact": 13605988992,
+  "run": 42451801025,
+  "archive_bytes": 4496580,
+  "sha256": "75aad4eb179cb1619f3ac1006afb3d8620ff4ead64ec8ba5f31f304c45954151",
+  "zip_crc_error": null,
+  "source_tree_verified": "4adda508c2343cc74b83de408dd9ccb9776a9fd6",
+  "instrumentation": "Explicit ASan/UBSan flags and actual provider/VM instrumentation checks."
+}

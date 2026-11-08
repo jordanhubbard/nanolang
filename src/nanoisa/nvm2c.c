@@ -2237,6 +2237,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (key.kind != NVM2C_VK_INT && key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require an integer or string hashmap key"); return 0;
                 }
+                if (map.kind == NVM2C_VK_MAP && map.rec_k[0] != NVM2C_VK_UNK &&
+                    key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE && map.rec_k[0] != key.kind) {
+                    nvm2c_fail(b, "I found conflicting hashmap key representations"); return 0;
+                }
                 if (key.kind == NVM2C_VK_STR && !mark_string_operand(b, local_kind, nloc, key)) return 0;
                 if (key.kind == NVM2C_VK_INT) mark_origin(local_kind, nloc, key.origin, NVM2C_VK_INT);
                 NvmShapeId key_shape = key.shape;
