@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
+/* I begin my mechanically shared native binary-string payload. */
 /* ============================================================================
  * UTF-8 Helper Functions
  * ============================================================================ */
@@ -364,6 +365,8 @@ nl_string_t* nl_string_clone(const nl_string_t *str) {
 
     return clone;
 }
+
+/* I end my mechanically shared native binary-string payload. */
 
 /* ============================================================================
  * C String Convenience Wrappers

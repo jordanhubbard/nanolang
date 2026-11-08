@@ -1,0 +1,16 @@
+/Users/jkh/Src/nanolang/.test_output/bstring-native-payload-jubirjsf/original-unit.c:236:28: error: unused function 'nbpayload_from_utf8' [-Werror,-Wunused-function]
+  236 | static inline nbpayload_t* nbpayload_from_utf8(const char *utf8_data, size_t length) {
+      |                            ^~~~~~~~~~~~~~~~~~~
+/Users/jkh/Src/nanolang/.test_output/bstring-native-payload-jubirjsf/original-unit.c:282:20: error: unused function 'nbpayload_byte_at_safe' [-Werror,-Wunused-function]
+  282 | static inline bool nbpayload_byte_at_safe(const nbpayload_t *str, size_t index, char *out) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/Src/nanolang/.test_output/bstring-native-payload-jubirjsf/original-unit.c:448:27: error: unused function 'nbpayload_to_binary' [-Werror,-Wunused-function]
+  448 | static inline const void* nbpayload_to_binary(const nbpayload_t *str, size_t *out_length) {
+      |                           ^~~~~~~~~~~~~~~~~~~
+/Users/jkh/Src/nanolang/.test_output/bstring-native-payload-jubirjsf/original-unit.c:478:20: error: unused function 'nbpayload_reserve' [-Werror,-Wunused-function]
+  478 | static inline void nbpayload_reserve(nbpayload_t *str, size_t new_capacity) {
+      |                    ^~~~~~~~~~~~~~~~~
+/Users/jkh/Src/nanolang/.test_output/bstring-native-payload-jubirjsf/original-unit.c:488:20: error: unused function 'nbpayload_shrink_to_fit' [-Werror,-Wunused-function]
+  488 | static inline void nbpayload_shrink_to_fit(nbpayload_t *str) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+5 errors generated.

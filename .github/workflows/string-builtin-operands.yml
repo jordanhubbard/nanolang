@@ -44,6 +44,9 @@ on:
       - 'src/nanovm/bstring_intrinsics.inc'
       - 'src/runtime/nl_string.c'
       - 'src/runtime/nl_string.h'
+      - 'scripts/gen_nvm2c_bstring_payload.py'
+      - 'src/nanoisa/nvm2c_bstring_payload.inc'
+      - 'tests/test_nvm2c_bstring_payload.py'
       - 'src/nanovm/heap.c'
       - 'src/nanovm/heap.h'
       - 'src/nanovm/value.h'
@@ -166,7 +169,9 @@ jobs:
         if: runner.os == 'macOS'
         run: python3 scripts/ci_select_capture_clang.py
       - name: Verify my shared reserved-definition tables
-        run: python3 scripts/gen_reserved_builtins.py --check
+        run: |
+          python3 scripts/gen_reserved_builtins.py --check
+          python3 scripts/gen_nvm2c_bstring_payload.py --check
       - name: Build actual fresh VM and C AOT providers
         id: providers
         timeout-minutes: 25
@@ -211,7 +216,7 @@ jobs:
             2>&1 | tee .test_output/string-builtin-operands/bstring-ownership.log
           python3 -m unittest -v tests.test_record_map_heap tests.test_record_map_string_heap tests.test_record_map_ordinary_heap \
             2>&1 | tee .test_output/string-builtin-operands/bstring-private-heap.log
-          python3 -m unittest -v tests.test_bstring_vm_contracts tests.test_bstring_c_contracts \
+          python3 -m unittest -v tests.test_bstring_vm_contracts tests.test_bstring_c_contracts tests.test_nvm2c_bstring_payload \
             2>&1 | tee .test_output/string-builtin-operands/bstring-vm.log
       - name: Retain current C and VM bstring boundary baselines
         run: |
@@ -258,6 +263,7 @@ jobs:
             .test_output/source-checker-component/**/*.jsonl
             .test_output/source-checker-component/**/*.stdout
             .test_output/source-checker-component/**/*.stderr
+            .test_output/bstring-native-payload/
             .test_output/bstring-c-contracts/
             .test_output/bstring-vm-contracts/
             .test_output/bstring-source-compiler/
@@ -332,6 +338,7 @@ jobs:
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
             .test_output/bstring-contract-baselines/
+            .test_output/bstring-native-payload/
             .test_output/bstring-c-contracts/
             .test_output/bstring-vm-contracts/
             .test_output/bstring-source-compiler/

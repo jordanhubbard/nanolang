@@ -1,0 +1,27 @@
+Running nl_string tests:
+
+Basic Operations:
+  Testing creation... ✓
+  Testing binary_data... ✓
+  Testing concatenation... ✓
+  Testing substring... ✓
+  Testing equality... ✓
+
+UTF-8 Operations:
+  Testing utf8_validation... ✓
+  Testing utf8_overlong_and_surrogate... ✓
+  Testing utf8_length... ✓
+  Testing utf8_char_at... ✓
+  Testing utf8_substring... ✓
+
+Memory Management:
+  Testing clone... ✓
+  Testing null_termination... ✓
+
+Capacity-Boundary Regressions:
+  Testing binary_zero_length_null_termination... ✓
+  Testing binary_exact_capacity_null_termination... ✓
+  Testing binary_embedded_nul_one_over_capacity_null_termination... ✓
+  Testing binary_ensure_null_terminated_idempotent... ✓
+
+✓ All tests passed!

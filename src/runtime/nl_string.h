@@ -19,6 +19,7 @@
 /**
  * String structure with explicit length
  */
+/* I begin my mechanically shared native binary-string payload. */
 typedef struct {
     char *data;         // Raw byte data (may contain nulls)
     size_t length;      // Byte length (not including null terminator if present)
@@ -177,6 +178,8 @@ void nl_string_shrink_to_fit(nl_string_t *str);
  * Clone string (deep copy)
  */
 nl_string_t* nl_string_clone(const nl_string_t *str);
+
+/* I end my mechanically shared native binary-string payload. */
 
 /* ============================================================================
  * C String Convenience Wrappers
