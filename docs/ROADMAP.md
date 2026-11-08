@@ -1,6 +1,9 @@
 # My Roadmap
 
 
+- [ ] Under #1110 I retain the first hosted 12247c717 C prerequisite failure: my new positive unit fixture incorrectly uses byte as a variable name, which the current C lexer reserves as the U8 type alias. I rename the fixture binding to octet in C and Nano entry controls, preserve the lexer/arity/refusal assertions and require the complete original C units and actual native checker before claiming qualification.
+
+
 - [ ] Under #1110 I preserve the unchanged whole byte fixture's existing vm_mktemp dependency. I retain a production-main tempfile baseline before adding only its exact STRING-to-STRING native builtin adapter, keep TMPDIR/default-prefix/1024-byte template/failure-empty and descriptor-close behavior, and require actual created-file/write/read/delete plus malformed import controls. I do not substitute a rewritten fixture or generic SDK host access.
 
 

@@ -147,7 +147,7 @@ void test_tc_character_contracts(void) {
 
 void test_tc_byte_conversion_contracts(void) {
     ASSERT(tc_passes("fn main()->int{let bytes:array<u8> = (bytes_from_string \"Hi\") return 0}"));
-    ASSERT(tc_passes("fn main()->int{let byte:u8=65 let bytes:array<u8> = [byte] let text:string=(string_from_bytes bytes) return 0}"));
+    ASSERT(tc_passes("fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] let text:string=(string_from_bytes bytes) return 0}"));
     ASSERT(tc_passes("fn main()->int{let text:string=(string_from_bytes []) return 0}"));
     ASSERT(tc_passes("fn keep(value:string)->string{return value} fn main()->int{let bytes_from_string:fn(string)->string=keep let string_from_bytes:fn(string)->string=keep assert (== (bytes_from_string \"Hi\") \"Hi\") assert (== (string_from_bytes \"Hi\") \"Hi\") return 0}"));
     ASSERT(!tc_passes("fn main()->int{(bytes_from_string) return 0}"));
@@ -156,7 +156,7 @@ void test_tc_byte_conversion_contracts(void) {
     ASSERT(!tc_passes("fn main()->int{(string_from_bytes) return 0}"));
     ASSERT(!tc_passes("fn main()->int{(string_from_bytes [1]) return 0}"));
     ASSERT(!tc_passes("fn main()->int{(string_from_bytes [true]) return 0}"));
-    ASSERT(!tc_passes("fn main()->int{let byte:u8=65 let bytes:array<u8> = [byte] (string_from_bytes bytes bytes) return 0}"));
+    ASSERT(!tc_passes("fn main()->int{let octet:u8=65 let bytes:array<u8> = [octet] (string_from_bytes bytes bytes) return 0}"));
 }
 
 void test_tc_string_stdlib_contracts(void) {
