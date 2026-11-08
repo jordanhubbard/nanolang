@@ -4554,15 +4554,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             bool byte_fields = false;
             for (int i = 0; i < sdef->field_count; ++i)
                 if (sdef->field_types[i] == TYPE_U8) byte_fields = true;
-            if (byte_fields) {
-                for (int i = 0; i < expr->as.struct_literal.field_count; ++i)
-                    for (int j = 0; j < i; ++j)
-                        if (!strcmp(expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_names[j])) {
-                            emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
-                                "I require distinct byte record fields.", "Supply each field at most once.");
-                            return TYPE_UNKNOWN;
-                        }
-            }
+            for (int i = 0; i < expr->as.struct_literal.field_count; ++i)
+                for (int j = 0; j < i; ++j)
+                    if (!strcmp(expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_names[j])) {
+                        emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
+                            byte_fields ? "I require distinct byte record fields." :
+                                          "I require distinct record fields.",
+                            "Supply each field at most once.");
+                        return TYPE_UNKNOWN;
+                    }
             /* Check each field */
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                 const char *field_name = expr->as.struct_literal.field_names[i];

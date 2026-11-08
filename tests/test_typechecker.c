@@ -117,6 +117,14 @@ void test_tc_reserved_definition_policy(void) {
     ASSERT(tc_passes("extern fn print(value:int)->int fn main()->int{return 0}"));
 }
 
+void test_tc_distinct_record_fields(void) {
+    ASSERT(tc_passes("struct Point{x:int,y:int} fn make()->Point{return {y:9,x:7}} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn make()->Point{return {x:7,x:9}} fn main()->int{return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn main()->int{let p:Point=Point{x:7,x:9} return 0}"));
+    ASSERT(!tc_passes("struct Point{x:int,y:int} fn main()->int{let p:Point=Point{x:7,x:9,y:11} return 0}"));
+    ASSERT(!tc_passes("struct Point{x:u8,y:int} fn main()->int{let p:Point=Point{x:7,x:9} return 0}"));
+}
+
 void test_tc_format_template(void) {
     ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
@@ -1041,6 +1049,7 @@ int main(void) {
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
     TEST(tc_format_template);
+    TEST(tc_distinct_record_fields);
     TEST(tc_reserved_definition_policy);
     TEST(tc_array_index_contract);
     TEST(tc_arithmetic);
