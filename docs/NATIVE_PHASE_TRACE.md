@@ -1,0 +1,9 @@
+# My native publisher phase measurements
+
+I enable `NANOLANG_NATIVE_PHASE_TRACE=1` in my fresh-route audit to observe the Stage 1 and Stage 2 native CLI helper builds. I keep the publisher's selected translator, C compiler and arguments. My default `-O1`, shadow execution, 1,800-second CLI build budget and separate 120-second corpus budget remain unchanged.
+
+I record each actual subprocess argument vector, executable hash, process identifiers, elapsed tool time and exit status. Before execution, I retain the generated NVM or C input bytes. After execution, I retain the generated C or native output bytes and check the original inputs and tool hashes again. The final CLI artifact contains these copies; the early metadata artifact contains their records. An interrupted observation can retain an incomplete record. I do not treat it as a completed tool call.
+
+My observer adds Python startup, hashing and copy overhead. `tool_elapsed_seconds` covers the subprocess launch and wait; `observer_elapsed_seconds` also includes the measured input/output custody work. The outer compile duration includes observation overhead. I do not use that outer duration as an uninstrumented baseline, and I leave time outside the observed tool calls unattributed. These measurements alone do not establish the full native lifecycle or satisfy the original corpus deadline.
+
+I test the observer with a real C compiler: one native execution, one original compiler refusal and argument/configuration preservation. The translator setting in that configuration-only unit is not a translator qualification. Fresh audit execution must observe both actual publisher tools and pass the existing CLI contracts before I accept its records.

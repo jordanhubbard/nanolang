@@ -9,6 +9,7 @@ import time
 import unittest
 
 from scripts.test_run_contract import execute
+from scripts.native_phase_trace import configure as configure_phase_trace, summarize as summarize_phase_trace
 from tests.native_process import native_compile_timeout, run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,8 @@ class NativeTestRunContract(unittest.TestCase):
     def test_original_checker_cli_contracts(self):
         output = ROOT / '.test_output/cli-run-contract-native'
         output.mkdir(parents=True, exist_ok=True)
+        trace_selection = os.environ.get('NANOLANG_NATIVE_PHASE_TRACE', '0')
+        self.assertIn(trace_selection, ('0', '1'))
         for selector in ROUTES:
             provider, route = selector.split(':')
             self.assertIn(provider, ('nanoc_c', 'nano_virt', 'nanoc_stage1', 'nanoc_stage2'))
@@ -38,10 +41,12 @@ class NativeTestRunContract(unittest.TestCase):
                 if route == 'vm':
                     command.append('--emit-nvm')
                 (work/'compile-command.json').write_text(json.dumps(command, indent=2)+'\n')
+                traced = trace_selection == '1' and route == 'native' and provider in ('nanoc_stage1', 'nanoc_stage2')
+                build_environment = configure_phase_trace(work, os.environ) if traced else None
                 budget = native_compile_timeout()
                 started = time.monotonic()
                 try:
-                    result = run_captured(command, cwd=ROOT, timeout=budget)
+                    result = run_captured(command, cwd=ROOT, timeout=budget, env=build_environment)
                 except subprocess.TimeoutExpired as error:
                     (work/'compile.stdout').write_bytes(error.stdout or b'')
                     (work/'compile.stderr').write_bytes(error.stderr or b'')
@@ -49,6 +54,9 @@ class NativeTestRunContract(unittest.TestCase):
                         'partial_output':True,'timeout':error.timeout,
                         'elapsed_seconds':time.monotonic()-started})+'\n')
                     raise
+                finally:
+                    if traced:
+                        phase_summary = summarize_phase_trace(work)
                 (work/'compile.stdout').write_bytes(result.stdout)
                 (work/'compile.stderr').write_bytes(result.stderr)
                 (work/'compile.log').write_bytes(result.stdout+b'\n'+result.stderr)
@@ -56,6 +64,17 @@ class NativeTestRunContract(unittest.TestCase):
                     'timed_out':False,'timeout':budget,
                     'elapsed_seconds':time.monotonic()-started})+'\n')
                 self.assertEqual(result.returncode,0,(work/'compile.log').read_text(errors='replace'))
+                if traced:
+                    phases = phase_summary['phases']
+                    self.assertTrue(any(row['role'] == 'cc' for row in phases), phase_summary)
+                    self.assertTrue(any(row['role'] == 'nvm2c' for row in phases), phase_summary)
+                    for phase in phases:
+                        self.assertTrue(phase['completed'], phase)
+                        self.assertEqual(phase['returncode'], 0, phase)
+                        self.assertTrue(phase['inputs_unchanged'], phase)
+                        self.assertIsNotNone(phase['tool'], phase)
+                        self.assertIsNotNone(phase['tool_after'], phase)
+                        self.assertEqual(phase['tool']['sha256'], phase['tool_after']['sha256'])
                 invocation = [str(ROOT/'bin/nano_vm'),str(artifact),'--'] if route == 'vm' else [str(artifact)]
                 status = execute(SOURCE,invocation,60,work/'run.log')
                 text=(work/'run.log').read_text(errors='replace')

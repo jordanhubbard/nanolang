@@ -10,6 +10,8 @@ on:
       - 'scripts/test_run_contract.py'
       - 'tests/test_test_run_contract.py'
       - 'tests/test_test_run_contract_native.py'
+      - 'scripts/native_phase_trace.py'
+      - 'tests/test_native_phase_trace.py'
       - 'tests/run_all_tests.sh'
       - 'tests/test_resource_effect_checker.cases.json'
       - 'tests/fixtures/resource-checker/**'
@@ -61,6 +63,7 @@ jobs:
       BOOTSTRAP_NANOISA_TIMEOUT: '5400'
       NANO_SHADOW_TIMEOUT_SECONDS: '120'
       NANO_SHADOW_TRACE: '1'
+      NANOLANG_NATIVE_PHASE_TRACE: '1'
     steps:
       - uses: actions/checkout@v4
       - name: Require worker headroom before installation or bootstrap
@@ -97,7 +100,7 @@ jobs:
       - name: Run the actual default fast gate and report integrity controls
         run: |
           make -f Makefile.gnu check-fast
-          python3 -m unittest -v tests.test_junit_route_audit tests.test_test_run_contract tests.test_ci_qualification_storage
+          python3 -m unittest -v tests.test_junit_route_audit tests.test_test_run_contract tests.test_ci_qualification_storage tests.test_native_phase_trace
       - name: Build and verify fresh compiler generations
         id: bootstrap
         timeout-minutes: 150
@@ -190,6 +193,8 @@ jobs:
             .test_output/cli-run-contract-native/**/compile.log
             .test_output/cli-run-contract-native/**/run.log
             .test_output/cli-run-contract-native/**/inputs*.json
+            .test_output/cli-run-contract-native/**/native-phase-summary.json
+            .test_output/cli-run-contract-native/**/native-phase-trace/**/*.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30

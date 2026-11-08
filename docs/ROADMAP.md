@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1065/#1088 I measure the actual self-hosted native publisher's translator and C-compiler subprocesses through transparent test-owned wrappers. I retain exact argv/tool/input/output hashes, generated C/NVM and native bytes, wall timing and incomplete records on interruption; preserve all selected flags, source/shadow policy, 1800-second CLI and 120-second corpus deadlines; and keep unobserved time unattributed before optimization.
+
 - [x] Under #1084 I retain my [actual source-checker native component checkpoint](evidence/source-checker-component-20261108/README.md): GCC/Clang execute the actual Nano checker through the C seed, with seven STRING cases in production, retained ELF/generated C, matching input/product hashes, all 78 focused methods and complete translator/units gates. I retain both earlier unknown-short-option failures without source acceptance, all four ZIPs and embedded TAR inventories. This C-creation-path evidence leaves fresh stages and full native lifecycle acceptance open.
 
 - [ ] Under #1100 I preserve my exact effective C reserved-definition set (144 table entries minus existing map/reduce exceptions), share it through checked generated tables and reject matching non-extern source definitions before emission. I retain legal ordinary names, bound values, extern/module identities and the original print diagnostic/prior-output assertions; actual source-component, fresh-stage, full translator and integrated/platform evidence remain required.
