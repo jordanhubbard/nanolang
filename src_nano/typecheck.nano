@@ -2973,36 +2973,42 @@ fn split_tuple_type_names(type_str: string) -> array<string> {
     let mut parts: array<string> = []
     let len: int = (str_length type_str)
     let mut i: int = 1
-    let mut current: string = ""
+    let mut field_start: int = 1
     let mut depth_angle: int = 0
     let mut depth_paren: int = 0
     let mut depth_brace: int = 0
-
     while (< i (- len 1)) {
-        let ch: string = (str_substring type_str i 1)
-        if (== ch "<") { set depth_angle (+ depth_angle 1) }
-        if (and (== ch ">") (!= (str_substring type_str (- i 1) 1) "-")) { set depth_angle (- depth_angle 1) }
-        if (== ch "{") { set depth_brace (+ depth_brace 1) }
-        if (== ch "}") { set depth_brace (- depth_brace 1) }
-        if (== ch "(") { set depth_paren (+ depth_paren 1) }
-        if (== ch ")") { set depth_paren (- depth_paren 1) }
-
-        if (and (== ch ",") (and (== depth_brace 0) (and (== depth_angle 0) (== depth_paren 0)))) {
-            set parts (array_push parts current)
-            set current ""
-        } else {
-            set current (+ current ch)
+        let ch: int = (char_at type_str i)
+        if (== ch 60) { set depth_angle (+ depth_angle 1) }
+        if (and (== ch 62) (!= (char_at type_str (- i 1)) 45)) { set depth_angle (- depth_angle 1) }
+        if (== ch 123) { set depth_brace (+ depth_brace 1) }
+        if (== ch 125) { set depth_brace (- depth_brace 1) }
+        if (== ch 40) { set depth_paren (+ depth_paren 1) }
+        if (== ch 41) { set depth_paren (- depth_paren 1) }
+        if (and (== ch 44) (and (== depth_brace 0) (and (== depth_angle 0) (== depth_paren 0)))) {
+            set parts (array_push parts (str_substring type_str field_start (- i field_start)))
+            set field_start (+ i 1)
         }
         set i (+ i 1)
     }
-
-    if (!= current "") {
-        set parts (array_push parts current)
-    } else { (print "") }
+    if (< field_start (- len 1)) {
+        set parts (array_push parts (str_substring type_str field_start (- (- len 1) field_start)))
+    }
     return parts
 }
 
 shadow split_tuple_type_names {
+    let unicode: array<string> = (split_tuple_type_names "(é,茶)")
+    assert (== (at unicode 0) "é")
+    assert (== (at unicode 1) "茶")
+    let empty_fields: array<string> = (split_tuple_type_names "(,int,,)")
+    assert (== (array_length empty_fields) 3)
+    assert (== (at empty_fields 0) "")
+    assert (== (at empty_fields 1) "int")
+    assert (== (at empty_fields 2) "")
+    assert (== (at (split_tuple_type_names "abc") 0) "b")
+    assert (== (array_length (split_tuple_type_names "")) 0)
+    assert (== (at (split_tuple_type_names "( int ,array< string >)") 0) " int ")
     let parts: array<string> = (split_tuple_type_names "(int,string)")
     assert (== (array_length parts) 2)
     assert (== (at parts 0) "int")
