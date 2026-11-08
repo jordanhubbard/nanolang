@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1102/#1103 I retain the [original whole character baseline and byte component checkpoint](evidence/character-builtins-20261108/first-69e/README.md): actual native Nano checker products execute six byte-alias production cases under GCC/Clang, all three byte source methods pass, and the unchanged full character fixture passes VM execution then refuses the missing native vm_char_to_lower ABI. I preserve all 87 methods and three old failed subcases; fresh-stage/platform acceptance remains open.
+
 - [ ] Under #1101/#1090 I repair the retained C nested-field and record-array anonymous context refusals after empty parsing is corrected. I bind only anonymous literals to declared records, check every array element nominal identity, retain incompatible named-element refusal and preserve the existing whole positive assertion.
 
 - [x] Under #1101 I retain [both anonymous-record component attempts](evidence/anonymous-records-20261108/README.md): the first refusal-shadow failure has no native product; the corrected actual C-seed-created Nano checker executes eight production cases under GCC/Clang with verified ELF custody. All 83 source methods retain the duplicate acceptance and empty-literal parser refusal; I preserve those assertions and keep fresh-stage/platform acceptance open.
