@@ -68,3 +68,27 @@ fn main()->int{
 }
 shadow main{let old:int=trace assert (== (main) 0) set trace old}
 ''', native_optimizations=('-O0', '-O2'))
+
+    def test_existing_nul_and_non_utf8_byte_boundaries(self):
+        self.exercise('''fn main()->int{
+ let letter:u8=65 let zero:u8=0 let tail:u8=66
+ let nul_bytes:array<u8> = [letter,zero,tail]
+ let visible:string=(string_from_bytes nul_bytes)
+ assert (== visible "A") assert (== (str_length visible) 1)
+ assert (== (array_length nul_bytes) 3)
+ let encoded:array<u8> = (bytes_from_string visible)
+ assert (== (array_length encoded) 1) assert (== (at encoded 0) 65)
+ let invalid:u8=255 let first:u8=192 let second:u8=128
+ let raw:array<u8> = [invalid]
+ let raw_text:string=(string_from_bytes raw)
+ assert (== (str_length raw_text) 1) assert (== (char_at raw_text 0) 255)
+ let roundtrip:array<u8> = (bytes_from_string raw_text)
+ assert (== (array_length roundtrip) 1) assert (== (at roundtrip 0) 255)
+ let overlong:array<u8> = [first,second]
+ let overlong_text:string=(string_from_bytes overlong)
+ assert (== (str_length overlong_text) 2)
+ assert (== (char_at overlong_text 0) 192) assert (== (char_at overlong_text 1) 128)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''', native_optimizations=('-O0', '-O2'))

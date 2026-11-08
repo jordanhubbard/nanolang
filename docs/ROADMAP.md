@@ -1,6 +1,11 @@
 # My Roadmap
 
 
+- [x] Under #1110 I retain my [actual older C/VM byte-conversion boundary probes](evidence/byte-conversion-20261108/boundary-probes/README.md): seven cases agree on invalid UTF-8 preservation and embedded-NUL visible truncation, with seven independently verified actual Mach-O products and unchanged provider hashes. A fourth production control passes VM assertions then refuses the missing native decoding ABI. Changed-source/translator/fresh/platform qualification remains open.
+
+- [x] Under #1065 I retain the [traced Apple checker attempt](evidence/source-checker-apple-20261108/traced-c6/README.md): all 687 shadows complete, summing 9.714615 seconds of recorded body time, followed by native checker execution and all 128 integration methods. The earlier timeout remains unexplained; I preserve the unchanged deadline and all assertions. Original translator, actual product-byte custody and complete platform acceptance remain pending at this early checkpoint.
+
+
 - [ ] Under #1110/#1081 I retain the unchanged whole byte-conversion fixture and actual C/interpreter/VM baseline before implementation, then preserve STRING-to-array<u8> and array<u8>-to-STRING identity, byte order, empty/Unicode behavior, detached owners, typed calls, once-only and lexical evaluation. I document UTF-8/NUL/size and historical VM INT-storage boundaries, preserve exact source/import/storage refusals and prior output, require useful shadows plus actual checker/VM/sanitized-native/original gates and fresh/platform evidence, and keep generic host/SDK admission closed.
 
 
