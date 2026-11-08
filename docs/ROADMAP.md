@@ -1,4 +1,4 @@
-- [ ] Under #1048/#1035 I retain the actual cancelled strict-example job 128855619486 at fecbe44ad: GitHub refuses the macos-14-arm64-us-default configuration before allocating a runner or executing a step. I select my existing xcode-27 Apple worker for only that strict-example matrix entry, preserve all build/example commands and deadlines, and require exact-candidate hosted checks before merging this worktree-policy change.
+- [ ] Under #1048/#1035 I retain the actual cancelled strict-example job 128855619486 at fecbe44ad: GitHub refuses the macos-14-arm64-us-default configuration before allocating a runner or executing a step. I select my existing xcode-27 Apple worker for that strict-example matrix entry. The workflow change selects the full build matrix too, so I route its same unsupported Apple configuration through xcode-27 while preserving the required Build and Test (macos-14, arm64) context name. I preserve all build/example commands and deadlines and require exact-candidate hosted checks before merging this worktree-policy change.
 
 # My Roadmap
 
