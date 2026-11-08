@@ -1,0 +1,7 @@
+# My qualified Apple linker checkpoint
+
+I retain terminal [run 42455864256](https://github.com/jordanhubbard/nanolang/actions/runs/42455864256) at `0644e35a07af0887a162a8dbd3e1b5cb4e95fa06`. The pinned Xcode compiler/assembler/SDK selection uses Apple ld 27106.1. My original actual-linker grammar corpus runs 22 cases and satisfies captured-graph and literal-argument outcome equivalence. All 49 original response query, graph and argument-transport methods pass. All 30 selected original-helper assembler configurations pass: 24 historical failing common-placement configurations and six neighbor controls. There are zero failures, errors or skips in the focused assembler suite.
+
+My exact source/probe checks pass before and after. I retain the complete grammar observations, test logs, source tree, compiler/tool identities, source/probe hashes, worker observations and storage journals. Artifact 13607504391 passes ZIP CRC verification. I independently verify each embedded storage archive against its SHA-256 and full byte/mode/link inventory; manifests and the verification index remain here, with original tars in my private audit directory.
+
+I have corrected the exact identity refusal; I do not treat this selected suite as full source-snapshot or release qualification. My complete unchanged source-snapshot run continues separately as [42456703561](https://github.com/jordanhubbard/nanolang/actions/runs/42456703561) at `6ecaebc1da376782cd9826bcc27d38e1395d9f2e`. #980 and #1049 remain open until their complete acceptance criteria pass.

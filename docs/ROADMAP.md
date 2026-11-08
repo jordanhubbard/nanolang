@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #980/#1049 I retain my [qualified pinned linker checkpoint](evidence/darwin-link-input-diagnostic-20261107/qualified-0644/README.md): actual Apple ld 27106.1 passes 22 grammar outcome cases, all 49 original response methods, and all 30 original assembler configurations with zero focused skips. The unchanged complete source-snapshot corpus and integrated release gates remain open.
+
 - [ ] Under #1081 I retain bare `print value` and `println value` as dedicated print statements, matching my C parser even when a declaration uses that spelling; parenthesized prefix calls keep ordinary binding identity. I carry an explicit newline bit in the shared AST schema, check the printed expression, preserve purity/resource/borrow traversal, emit existing PRINT/PRINTLN operations, and require meaningful parser/lowering shadows plus exact four-route output/refusal coverage without rewriting the original corpus.
 
 - [x] Under #1083 I retain the [tagged-map snapshot checkpoint](evidence/map-tagged-snapshots-20261107/README.md): GCC and Clang each pass 39 VM/sanitized-C-AOT methods, including eight all-pair global/helper cases, conflicting-pair refusal, and all 304 original generated snapshot allocation-denial prefixes. Full source contexts, fresh stages and integrated platform acceptance remain open.
