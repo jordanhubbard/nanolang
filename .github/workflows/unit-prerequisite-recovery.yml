@@ -67,8 +67,17 @@ jobs:
         timeout-minutes: 25
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j2 CC="$CC" nanoisa_dump nano_vm nvm2c bin/nanoisa bin/nanoc_c nano_virt nvm2c-runtime bin/nano \
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" nanoisa_dump nano_vm nvm2c bin/nanoisa bin/nanoc_c nano_virt nvm2c-runtime bin/nano \
             2>&1 | tee .test_output/shadow-call-arguments/build.log
+          python3 - <<'PYCODE'
+          import subprocess
+          from pathlib import Path
+          for name in ['nanoc_c', 'nano', 'nano_virt', 'nano_vm', 'nvm2c']:
+              result = subprocess.run(['nm', str(Path('bin', name))], capture_output=True, check=True)
+              if b'__asan_init' not in result.stdout:
+                  raise SystemExit('I require actual ASan instrumentation in ' + name)
+          print('I verify actual ASan instrumentation in every selected source/interpreter/VM/AOT provider.')
+          PYCODE
           git rev-parse HEAD > .test_output/shadow-call-arguments/revision.txt
           git ls-tree -r HEAD > .test_output/shadow-call-arguments/source-tree.txt
           sha256sum bin/nanoisa bin/nano_vm bin/nvm2c bin/nanoc_c bin/nano_virt bin/nano bin/nano_aot_runtime.o > .test_output/shadow-call-arguments/providers.sha256
@@ -84,9 +93,9 @@ jobs:
         timeout-minutes: 120
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j2 CC="$CC" test-nanoisa-module \
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-nanoisa-module \
             2>&1 | tee .test_output/shadow-call-arguments/module.log
-          make -f Makefile.gnu -j2 CC="$CC" test-units \
+          make -f Makefile.gnu CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-units \
             2>&1 | tee .test_output/shadow-call-arguments/units.log
       - name: Execute my unchanged negative corpus with instrumentation
         if: always() && steps.providers.outcome == 'success'
@@ -100,7 +109,7 @@ jobs:
         if: always() && steps.providers.outcome == 'success'
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j2 CC="$CC" test-eval \
+          make -f Makefile.gnu -j2 CC="$CC" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" test-eval \
             2>&1 | tee .test_output/shadow-call-arguments/eval.log
       - name: Retain complete original array alias regression routes
         if: always() && steps.providers.outcome == 'success'
