@@ -1,3 +1,4 @@
+from "src_nano/compiler/native_product.nano" import native_phase_marker
 from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup, field_write_fact_lookup
 from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission, is_float_math_builtin, character_builtin_result, string_stdlib_result, string_stdlib_arity, array_sort_type_supported
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
@@ -9156,22 +9157,28 @@ fn nisa_immediate_effect(parser: Parser, function: ASTFunction, index: int, cont
 
 # I own checking and consume its facts synchronously; callers cannot supply facts.
 pub fn nanoisa_check_and_emit(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool) -> NanoisaCheckedText {
+    (native_phase_marker "typecheck-start")
     let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser file_name first_shadow)
+    (native_phase_marker "typecheck-done")
     if checked.phase.had_error {
         return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0 }
     }
     let context: array<CheckedAdvisoryOutput> = [checked]
+    (native_phase_marker "program-lowering-start")
     let program: string = (nisa_emit_module_context parser true true context)
+    (native_phase_marker "program-lowering-done")
     if (== program "") {
         return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1 }
     }
     let mut shadows: string = ""
+    (native_phase_marker "shadow-lowering-start")
     if emit_shadows {
         set shadows (nisa_emit_shadows_context parser first_shadow true context)
         if (== shadows "") {
             return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2 }
         }
     }
+    (native_phase_marker "shadow-lowering-done")
     return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0 }
 }
 

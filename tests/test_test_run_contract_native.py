@@ -74,7 +74,9 @@ class NativeTestRunContract(unittest.TestCase):
                     markers = phase_summary['driver_markers']
                     self.assertEqual([row['phase'] for row in markers], [
                         'inputs-start', 'imports-done', 'lex-done', 'parse-done',
-                        'checked-emit-start', 'checked-emit-done',
+                        'checked-emit-start', 'typecheck-start', 'typecheck-done',
+                        'program-lowering-start', 'program-lowering-done',
+                        'shadow-lowering-start', 'shadow-lowering-done', 'checked-emit-done',
                         'shadow-assembly-start', 'shadow-assembly-done',
                         'shadow-execution-start', 'shadow-execution-done',
                         'product-assembly-start', 'product-assembly-done',
