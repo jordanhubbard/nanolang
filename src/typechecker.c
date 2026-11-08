@@ -3033,7 +3033,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 ? env_get_function_at(env, "format", expr->line, expr->column) : NULL;
             if (strcmp(expr->as.call.name, "format") == 0 &&
                 (!format_definition || (!format_definition->body &&
-                 !format_definition->is_extern && !format_definition->params))) {
+                 !format_definition->is_extern))) {
                 if (expr->as.call.arg_count < 1) {
                     emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
                         "I require a string template argument for format.",

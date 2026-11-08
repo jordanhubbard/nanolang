@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1097 I retain the first 45b C-unit refusal before focused format execution. My new declared-function guard incorrectly assumes a synthetic builtin has no parameters; the actual cached format builtin retains a fixed STRING parameter. I distinguish executable bodies/extern declarations from that cached metadata, preserve every original unit assertion and require corrected paired execution.
+
 - [x] Under #1097 I retain my [a44 native baseline](evidence/format-source-20261108/baseline-a44/README.md): both C frontends execute the unchanged whole format fixture in NanoVM, then nvm2c refuses vm_format's exact host ABI. Both jobs retain one failed method among 69 and pass the full original units/translator/alias gates. I preserve both full artifacts before adding source lowering; the foreign-array consumer refusal remains intact.
 
 - [x] Under #1096 I retain the [eb680 C-frontend/native checkpoint](evidence/dynamic-array-20261108/eb680/README.md): paired GCC/Clang pass all 68 methods, original C units/aliases and complete translator gates, including the whole original dynamic-array fixture and all seven new method contracts. Both full artifact ZIPs and embedded TAR inventories independently verify. Self-hosted and integrated acceptance stay open.
