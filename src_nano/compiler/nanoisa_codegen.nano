@@ -4721,12 +4721,27 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
         if (and (== left "float") (== right "float")) { return "float" }
-        if (and (nisa_value_type_matches parser left "int") (nisa_value_type_matches parser right "int")) { return "int" }
+        if (and (or (== left "u8") (nisa_value_type_matches parser left "int"))
+                (or (== right "u8") (nisa_value_type_matches parser right "int"))) { return "int" }
     }
     return ""
 }
 
 shadow nisa_expr_type {
+    let scalar_reset: int = (nisa_reset)
+    let scalar_tokens: List<LexerToken> = (tokenize_string "fn add(left:u8,right:u8)->int{return (+ left right)}" "byte-arithmetic.nano" (diag_list_new))
+    let scalar_parser: Parser = (parse_program scalar_tokens (list_LexerToken_length scalar_tokens) "byte-arithmetic.nano")
+    for left in ["int", "u8"] {
+        for right in ["int", "u8"] {
+            set nisa_names ["left", "right"]
+            set nisa_types [left, right]
+            assert (== (nisa_expr_type scalar_parser 0 ParseNodeType.PNODE_BINARY_OP) "int")
+        }
+    }
+    set nisa_types ["u8", "bool"]
+    assert (== (nisa_expr_type scalar_parser 0 ParseNodeType.PNODE_BINARY_OP) "")
+    set nisa_types ["array<u8>", "int"]
+    assert (== (nisa_expr_type scalar_parser 0 ParseNodeType.PNODE_BINARY_OP) "")
     let print_reset: int = (nisa_reset)
     let print_tokens: List<LexerToken> = (tokenize_string "fn main()->int{(print 1) (println 2) return 0}" "print-result.nano" (diag_list_new))
     let print_parser: Parser = (parse_program print_tokens (list_LexerToken_length print_tokens) "print-result.nano")
@@ -7431,6 +7446,11 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_emit_expr {
+    let byte_math: string = (nanoisa_emit_nasm "fn main()->int{let value:u8=255 let result:u8=(+ value 2) assert (== result 1) return 0}")
+    assert nisa_ok
+    assert (str_contains byte_math "CAST_INT")
+    assert (str_contains byte_math "I64_ADD")
+    assert (str_contains byte_math "CAST_U8")
     let _: int = (nisa_reset)
     (mb_reset [1])
     (mb_header_add 0 "HEADER_VALUE" "41")

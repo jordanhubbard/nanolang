@@ -37,7 +37,8 @@ class NumericBuiltinSelection(unittest.TestCase):
         return result
 
     def exercise(self, source, expected='', *, refused=False, source_path=None,
-                 native_optimizations=('-O1',), native_flags=(), expected_opcodes=()):
+                 native_optimizations=('-O1',), native_flags=(), expected_opcodes=(),
+                 refusal_pattern=r'(?i)(type|operand|argument|arity)'):
         output = ROOT/'.test_output/numeric-builtin-selection'
         output.mkdir(parents=True, exist_ok=True)
         for provider in PROVIDERS:
@@ -57,7 +58,7 @@ class NumericBuiltinSelection(unittest.TestCase):
                     module.write_bytes(original)
                     result = self.command(work, 'refusal', argv, build=True, accepted=False)
                     self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
-                    self.assertRegex(result.stdout+result.stderr, r'(?i)(type|operand|argument|arity)')
+                    self.assertRegex(result.stdout+result.stderr, refusal_pattern)
                     self.assertEqual(module.read_bytes(), original)
                 else:
                     self.command(work, 'source-build', argv, build=True)

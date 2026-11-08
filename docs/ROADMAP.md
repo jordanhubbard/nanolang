@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] Under #1105/#1102 I repair the [366 fresh byte arithmetic refusal](evidence/fresh-source-contracts-20261108/366/README.md): my scalar binary result query omits U8/INT promotion even though checked arithmetic accepts it. I preserve exact general/array identity, use the existing explicit operand conversion and computed byte narrowing, add useful query/emitter shadows and actual source controls, and require unchanged whole byte fixture plus fresh integrated acceptance.
+- [ ] Under #1105/#1102 I repair the [366 fresh byte arithmetic refusal](evidence/fresh-source-contracts-20261108/366/README.md): my scalar binary result query omits U8/INT promotion even though checked arithmetic accepts it. I preserve exact general/array identity, use the existing explicit operand conversion and computed byte narrowing, add useful query/emitter shadows and actual source controls, and require unchanged whole byte fixture plus fresh integrated acceptance. My [local smoke](evidence/u8-scalar-arithmetic-20261108/local/README.md) checks arithmetic/order/refusals with older tools; it does not qualify the changed source query.
 
 - [ ] Under #1101 I retain the [366 original literal-fixture opcode assertion failure](evidence/fresh-source-contracts-20261108/366/README.md). Its main only prints; record work belongs to selected shadows. I keep that whole fixture and every shadow assertion unchanged, and apply the AGG_PACK/AGG_GET product-opcode assertion to the separate production-main record fixture that executes those operations.
 

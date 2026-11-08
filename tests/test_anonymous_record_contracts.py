@@ -20,7 +20,7 @@ class AnonymousRecordContracts(unittest.TestCase):
         before = hashlib.sha256(path.read_bytes()).hexdigest()
         try:
             self.exercise(path.read_text(), '✅ All anonymous struct literal tests passed!\n',
-                          source_path=path, expected_opcodes=('AGG_PACK', 'AGG_GET'))
+                          source_path=path)
         finally:
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), before)
 
@@ -50,7 +50,7 @@ fn main()->int{
  return 0
 }
 shadow main{assert (== (main) 0)}
-''')
+''', expected_opcodes=('AGG_PACK', 'AGG_GET'))
 
     def test_separate_declared_nominal_contexts(self):
         self.exercise('''struct First{value:int}
