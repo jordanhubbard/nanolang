@@ -47,6 +47,7 @@ class NativeTestRunContract(unittest.TestCase):
                 started = time.monotonic()
                 try:
                     result = run_captured(command, cwd=ROOT, timeout=budget, env=build_environment)
+                    compiler_returned = time.monotonic()
                 except subprocess.TimeoutExpired as error:
                     (work/'compile.stdout').write_bytes(error.stdout or b'')
                     (work/'compile.stderr').write_bytes(error.stderr or b'')
@@ -62,7 +63,9 @@ class NativeTestRunContract(unittest.TestCase):
                 (work/'compile.log').write_bytes(result.stdout+b'\n'+result.stderr)
                 (work/'compile-status.json').write_text(json.dumps({'returncode':result.returncode,
                     'timed_out':False,'timeout':budget,
-                    'elapsed_seconds':time.monotonic()-started})+'\n')
+                    'elapsed_seconds':time.monotonic()-started,
+                    'compiler_started_monotonic': started,
+                    'compiler_returned_monotonic': compiler_returned})+'\n')
                 self.assertEqual(result.returncode,0,(work/'compile.log').read_text(errors='replace'))
                 if traced:
                     phases = phase_summary['phases']
@@ -77,6 +80,8 @@ class NativeTestRunContract(unittest.TestCase):
                         'product-assembly-start', 'product-assembly-done',
                         'native-publication-start', 'native-publication-done',
                         'inputs-return', 'driver-return'], phase_summary)
+                    self.assertGreaterEqual(markers[0]['monotonic_seconds'], started)
+                    self.assertLessEqual(markers[-1]['monotonic_seconds'], compiler_returned)
                     for phase in phases:
                         self.assertTrue(phase['completed'], phase)
                         self.assertEqual(phase['returncode'], 0, phase)
