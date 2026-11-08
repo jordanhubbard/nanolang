@@ -1,0 +1,5 @@
+# My strict-example runner selection
+
+At fecbe44adff365bad26644b78b4a41fdd77fda5a, CI run 42384206471 attempt 2 cancels strict-example job 128855619486 before runner allocation and before any step. GitHub records: The configuration 'macos-14-arm64-us-default' is not supported. I retain the exact job and annotation responses. This is a stated runner-configuration refusal, not evidence about compiler or example behavior.
+
+I select the existing xcode-27 Apple worker for only the arm64 strict-example matrix entry. I compare parsed workflows with the existing Ruby YAML parser after the local Python parser import reports a missing yaml module; no Python validation passes from that first attempt. My first sparse-pattern add uses an unsupported option, then succeeds using the checkout's already configured non-cone mode. Build/example commands, dependencies, architectures and all deadlines remain unchanged. Exact corrected hosted execution remains required; I do not treat the unsupported job as a passing example gate or substitute a documentation context for execution.

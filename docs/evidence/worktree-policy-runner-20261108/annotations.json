@@ -1,0 +1,14 @@
+[
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/jordanhubbard/nanolang/blob/fecbe44adff365bad26644b78b4a41fdd77fda5a/.github",
+    "start_line": 1,
+    "start_column": null,
+    "end_line": 1,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "The configuration 'macos-14-arm64-us-default' is not supported",
+    "raw_details": ""
+  }
+]

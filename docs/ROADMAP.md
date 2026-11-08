@@ -1,3 +1,5 @@
+- [ ] Under #1048/#1035 I retain the actual cancelled strict-example job 128855619486 at fecbe44ad: GitHub refuses the macos-14-arm64-us-default configuration before allocating a runner or executing a step. I select my existing xcode-27 Apple worker for only that strict-example matrix entry, preserve all build/example commands and deadlines, and require exact-candidate hosted checks before merging this worktree-policy change.
+
 # My Roadmap
 
 - [x] Under #976 I retire my inactive clean `nanolang-51-harness` checkout after PR #995 integrated its branch. I verify origin archive tag `archive/worktrees/2026-11-07/empty-record-push` at aa56744ec, retain all 2,100 ignored files (118,286,538 bytes, including five symlinks) in a 21,503,830-byte archive with verified bytes/modes/link targets, and verify no active process or container mount before removal. My local branch remains intact, Git registration is removed, and my manifest is `~/.worktrees/nanolang/audits/2026-11-07/prune/nanolang-51-harness.json`. Free space still reports 25 GiB; I claim no physical-space recovery.

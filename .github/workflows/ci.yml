@@ -333,7 +333,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x64
-          - os: macos-14
+          - os: xcode-27
             arch: arm64
 
     steps:
