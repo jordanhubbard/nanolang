@@ -1,0 +1,10 @@
+{
+  "artifact": 13626979549,
+  "size": 22901389,
+  "sha256": "0716fb63119d1a36ca1f74e7aafe1bc1c6d3bbc9d35530f73d276e338c37bc75",
+  "files": 4220,
+  "text_files": 3852,
+  "crc_verified": true,
+  "original_zip_retained_locally": false,
+  "scope": "I inspect hosted bytes in memory and retain file hashes/exact text. I do not retain another local full ZIP or claim embedded TAR/mode verification."
+}

@@ -1,0 +1,506 @@
+[
+  {
+    "case": "binary-nul",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+      "size": 1196,
+      "sha256": "68a6a665c2b8b0a70f19ff196c4bc0da12d648fd8555067573c3f889cb46c1fe"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nano_virt/program.nvm"
+        ],
+        "returncode": 1
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "binary-nul",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/binary-nul-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "b662ee919b761fd20b6e2d213e128905c255d3632df08ea89c10aaf95564ec6a"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/binary-nul-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "byte-beyond",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+      "size": 812,
+      "sha256": "361990e473d45b70191ccf194656f52657a4ce50716fe5915c6f551f9ad5f87c"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "byte-beyond",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "c4cdbd79eee07eaf8754743be3fc1c9764720e5ee3b0ba0e89c211ae948f5554"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-beyond-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "byte-negative",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+      "size": 816,
+      "sha256": "f237df4629e3ec62284346e47f01bc130a36f1c87fbf38a28b2d767fc220ca27"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "byte-negative",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/byte-negative-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "34febd1752161e47ffa1f79055b387c794feb83b94d11ee3b55ff5b84fd05b5b"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/byte-negative-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "invalid-utf8",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+      "size": 1272,
+      "sha256": "55993daeb7603c2b359cfdd3fc7eaf579d5b102d62708ab951a9f9af08d7915d"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "invalid-utf8",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "26019523fb51b9dc843f8a360d9496f21ac157e38bdd4b13f7d42ed56978eb58"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/invalid-utf8-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "substring-bounds",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+      "size": 1152,
+      "sha256": "751205b130d558f174fb2686f0eebaf4d992144e60c27cd1918f56aac5d0345e"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "substring-bounds",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "4285b245bdead43c8c473bf1e0838373244c902c50bf7e4bcb33754d9f7c2099"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/substring-bounds-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "unicode-and-ownership",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+      "size": 1356,
+      "sha256": "b03fceab2f24f27062ad376905a56e2c3a88f8b05c10d15152fe5e5878f45f52"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "unicode-and-ownership",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "749643554ee92cfc1fd922e2500fe7ef27df9f4ba33731ea570b582cc3ed2e9d"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/unicode-and-ownership-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "whole-fixture",
+    "provider": "nano_virt",
+    "actual_product": {
+      "path": "bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+      "size": 2424,
+      "sha256": "5d3d1a04c4ac089499744f2d9dcf946954c52879a2a8e154052dc89b582b72e7"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+          "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+          "--emit-nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "verify",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nano_virt/program.nvm"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "4e564d02",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  },
+  {
+    "case": "whole-fixture",
+    "provider": "nanoc_c",
+    "actual_product": {
+      "path": "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+      "size": 8722552,
+      "sha256": "35829781786863e9b929f8865c9ac774e75a02778b9e8e84f0476b83188710c3"
+    },
+    "commands": [
+      {
+        "label": "build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program",
+          "--keep-c"
+        ],
+        "returncode": 0
+      },
+      {
+        "label": "run",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-contract-baselines/whole-fixture-nanoc_c/program"
+        ],
+        "returncode": 0
+      }
+    ],
+    "creator_observed_magic": "7f454c46",
+    "scope": "I compare the product SHA computed from actual hosted bytes in memory with both recorded execution-boundary hashes."
+  }
+]
