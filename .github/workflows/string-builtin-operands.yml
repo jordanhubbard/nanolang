@@ -46,6 +46,9 @@ on:
       - 'src/runtime/nl_string.h'
       - 'scripts/gen_nvm2c_bstring_payload.py'
       - 'src/nanoisa/nvm2c_bstring_payload.inc'
+      - 'src/nanoisa/nvm2c_bstring_runtime.inc'
+      - 'src/nanoisa/nvm2c_map_roots.inc'
+      - 'tests/test_bstring_native_contracts.py'
       - 'tests/test_nvm2c_bstring_payload.py'
       - 'src/nanovm/heap.c'
       - 'src/nanovm/heap.h'
@@ -218,6 +221,11 @@ jobs:
             2>&1 | tee .test_output/string-builtin-operands/bstring-private-heap.log
           python3 -m unittest -v tests.test_bstring_vm_contracts tests.test_bstring_c_contracts tests.test_nvm2c_bstring_payload \
             2>&1 | tee .test_output/string-builtin-operands/bstring-vm.log
+      - name: Execute actual native binary-string adapters with sanitizers
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_bstring_native_contracts \
+            2>&1 | tee .test_output/string-builtin-operands/bstring-native.log
       - name: Retain current C and VM bstring boundary baselines
         run: |
           python3 scripts/diagnose_bstring_contracts.py --output .test_output/bstring-contract-baselines
@@ -256,6 +264,7 @@ jobs:
             .test_output/string-builtin-operands/bstring-private-heap.log
             .test_output/string-builtin-operands/bstring-ownership.log
             .test_output/string-builtin-operands/bstring-vm.log
+            .test_output/string-builtin-operands/bstring-native.log
             .test_output/string-builtin-operands/bstring-source-vm.log
             .test_output/string-builtin-operands/environment.log
             .test_output/string-builtin-operands/tests.log
@@ -263,6 +272,7 @@ jobs:
             .test_output/source-checker-component/**/*.jsonl
             .test_output/source-checker-component/**/*.stdout
             .test_output/source-checker-component/**/*.stderr
+            .test_output/bstring-native-contracts/
             .test_output/bstring-native-payload/
             .test_output/bstring-c-contracts/
             .test_output/bstring-vm-contracts/
@@ -338,6 +348,7 @@ jobs:
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
             .test_output/bstring-contract-baselines/
+            .test_output/bstring-native-contracts/
             .test_output/bstring-native-payload/
             .test_output/bstring-c-contracts/
             .test_output/bstring-vm-contracts/
