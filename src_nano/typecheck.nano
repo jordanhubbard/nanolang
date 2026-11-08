@@ -5716,6 +5716,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (== fn_name "cast_float") (>= (env_lookup symbols fn_name) 0)) {
+            set builtin_type (type_unknown_named fn_name)
+        }
         if (and array_search (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (or (is_float_math_builtin fn_name) (== fn_name "str_trim")) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
@@ -6077,6 +6080,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    let cast_tokens: List<LexerToken> = (tokenize_string "fn word(value:int)->string{return \"kept\"} fn main()->string{let cast_float:fn(int)->string=word return (cast_float 7)}" "bound-cast.nano" (list_CompilerDiagnostic_new))
+    let cast_parser: Parser = (parse_program cast_tokens (list_LexerToken_length cast_tokens) "bound-cast.nano")
+    assert (not (typecheck_phase cast_parser "bound-cast.nano").had_error)
     (mb_reset [])
     let trim_parser: Parser = (resource_test_parser "fn main()->bool{return (str_trim 7)}")
     let trim_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
