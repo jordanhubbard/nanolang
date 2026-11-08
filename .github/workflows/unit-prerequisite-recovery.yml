@@ -15,6 +15,10 @@ on:
       - 'src/nanoisa/nvm2c.c'
       - 'tests/nanoisa/test_nvm2c.c'
       - 'tests/test_dispatch_equivalence.sh'
+      - 'tests/test_test_run_contract_native.py'
+      - 'scripts/test_run_contract.py'
+      - 'tests/test_resource_effect_checker.cases.json'
+      - 'tests/fixtures/resource-checker/**'
   workflow_dispatch:
 
 permissions:
@@ -100,6 +104,15 @@ jobs:
           set -o pipefail
           python3 -m unittest -v tests.test_eval_call_arguments tests.test_native_call_argument_order tests.test_callee_snapshots tests.test_builtin_string_operands tests.test_canonical_string_builtins \
             2>&1 | tee .test_output/shadow-call-arguments/tests.log
+      - name: Execute original checker CLI through actual seed-native and seed-VM routes
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 30
+        env:
+          NANOLANG_RUN_CONTRACT_ROUTES: nanoc_c:native,nano_virt:vm
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_test_run_contract_native \
+            2>&1 | tee .test_output/shadow-call-arguments/checker-cli.log
       - name: Measure original and corrected Clang VM runner frames
         if: matrix.compiler == 'clang' && steps.providers.outcome == 'success'
         run: |
@@ -191,6 +204,7 @@ jobs:
           name: shadow-call-arguments-${{ matrix.compiler }}-${{ github.sha }}
           path: |
             .test_output/shadow-call-arguments/
+            .test_output/cli-run-contract-native/
             .test_output/*.log
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json

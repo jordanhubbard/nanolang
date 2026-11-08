@@ -7339,3 +7339,7 @@ test-comprehensive-run-contract:
 	python3 -m unittest -v tests.test_test_run_contract tests.test_junit_route_audit
 
 check-fast test-units: test-comprehensive-run-contract
+
+.PHONY: test-comprehensive-run-contract-native
+test-comprehensive-run-contract-native: bootstrap3 nano_virt nano_vm
+	python3 -m unittest -v tests.test_test_run_contract_native
