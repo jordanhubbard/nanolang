@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1103 I retain the original whole standard-library fixture before repairing exact character classification/digit/case source and native host contracts, preserving ASCII behavior, lexical identity, arity/type refusals and full translator gates. I require actual byte-range/boundary execution and separate fresh-stage/platform evidence.
+
 - [ ] Under #1102 I normalize the existing bare byte alias to u8 through parser/checker type contexts, preserve qualified names, exact storage and existing narrowing policy, and retain the unchanged original u8 fixture plus useful production/component/fresh-stage evidence. I leave the separate std/binary u8-to-int argument mismatch open under #1081.
 
 - [ ] Under #1101 I parse anonymous record literals and retain their declared nominal let/return/argument context only after exact field validation, preserving named values, spreads and existing aggregate lowering. I require unchanged whole fixtures, valid/invalid production checker controls, original negative prior-output checks, full component gates and separate fresh-stage/platform acceptance.

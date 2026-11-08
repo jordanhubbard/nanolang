@@ -7396,3 +7396,7 @@ test-anonymous-record-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump
 .PHONY: test-byte-alias-contracts
 test-byte-alias-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_byte_alias_contracts
+
+.PHONY: test-character-builtin-contracts
+test-character-builtin-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_character_builtin_contracts
