@@ -664,7 +664,9 @@ test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_frontend_contract
 
 .PHONY: test-nanoisa-module
-test-nanoisa-module: build
+# I compile this module with my C seed; legacy component entry binaries are
+# separate build qualification and are not inputs to this module fixture.
+test-nanoisa-module: schema modules-index $(COMPILER_C)
 	@mkdir -p build/module_self_tests
 	@$(TIMEOUT_CMD) ./bin/nanoc_c modules/nanoisa/mvp.nano \
 		-o build/module_self_tests/nanoisa
