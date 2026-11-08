@@ -1,0 +1,32 @@
+[
+  {
+    "compiler": "cc",
+    "path": "compiler-phase-markers/marker ' literal 5wyik6n4/marker-6a8gtlk6.json",
+    "size": 169,
+    "sha256": "42271dcf45b358855e10f563f26c9524402672ebcd75522e4210b13a36bc17f1"
+  },
+  {
+    "compiler": "cc",
+    "path": "compiler-phase-markers/marker ' literal 5wyik6n4/marker-kv1pupkp.json",
+    "size": 168,
+    "sha256": "9c8c877dc93fde7f2634187492cad621966b1ddb6e9e0fb965a56d2589df1234"
+  },
+  {
+    "compiler": "cc",
+    "path": "compiler-phase-markers/marker ' literal 5wyik6n4/marker-tel5ys6s.json",
+    "size": 167,
+    "sha256": "fc6d16a52227cb5f620b66a8b98e75aaa610ab39698a634e4f7c187f98ddbd97"
+  },
+  {
+    "compiler": "cc",
+    "path": "compiler-phase-markers/marker ' literal 5wyik6n4/recorder ' literal",
+    "size": 256,
+    "sha256": "fddb11acb2fb12a385f3fa48cd658fa6666d5f7eb7a82b8042cc828d4b792afd"
+  },
+  {
+    "compiler": "cc",
+    "path": "compiler-phase-markers/marker-refusal-j_bfyhf9/refusing-recorder",
+    "size": 17,
+    "sha256": "4d8fe24768718d56bd8c282eb86ad8c8411b2d3d4f8cc99d84fc37f55f7d3780"
+  }
+]

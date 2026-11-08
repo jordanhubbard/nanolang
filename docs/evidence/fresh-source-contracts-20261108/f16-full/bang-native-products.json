@@ -1,0 +1,134 @@
+[
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+      "provider_before": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+      "provider_after": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+      "source_sha256": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "actual_source": "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-v3io3hvg/main.nano",
+      "source_before": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "source_after": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-v3io3hvg/native",
+    "size": 8529312,
+    "sha256": "55d5f8e26fb9245b9731043aed89c9c815b2ea5c0e13c6148fcbf3e71cb07e83",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-v3io3hvg/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 7
+  },
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nanoc_stage1",
+      "provider_before": "f49479fc6133c4191c8515fb0c51759806045dbef97a1fef0721ce80b6af88a2",
+      "provider_after": "f49479fc6133c4191c8515fb0c51759806045dbef97a1fef0721ce80b6af88a2",
+      "source_sha256": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "actual_source": "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage1-tfjh5gfd/main.nano",
+      "source_before": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "source_after": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage1-tfjh5gfd/native",
+    "size": 8529312,
+    "sha256": "db5d72562cce6c5d959d7f4c1062ede59aabff2715fcfa3b4140b67068ff06f7",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage1-tfjh5gfd/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 7
+  },
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nanoc_stage2",
+      "provider_before": "97b3bf877c2d2e18db194355d714645c0b3c392bca09441b93932016407be108",
+      "provider_after": "97b3bf877c2d2e18db194355d714645c0b3c392bca09441b93932016407be108",
+      "source_sha256": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "actual_source": "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage2-m8f2c7m8/main.nano",
+      "source_before": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b",
+      "source_after": "4932caeaff933fd928c23a738c90bae135ebd6c3e2e5d2dc225455d5c903e87b"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage2-m8f2c7m8/native",
+    "size": 8529312,
+    "sha256": "532278110b90b010e20365c6931ca156d1dbab688f7c9eb5992bdf47731dcbfd",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nanoc_stage2-m8f2c7m8/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 7
+  },
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nano_virt",
+      "provider_before": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+      "provider_after": "fb596d8eda9f1881917f0618a448519ef1e29ce9ab4475bc8c36d21e98b3856e",
+      "source_sha256": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "actual_source": "/home/runner/work/nanolang/nanolang/tests/test_symbol_scoping.nano",
+      "source_before": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "source_after": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nano_virt-olefw2wm/native",
+    "size": 8615640,
+    "sha256": "8d15ffb1c143c71539edfe4620f70882ebea9892b7f8625c2b40ec58e1318c65",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nano_virt-olefw2wm/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 6
+  },
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nanoc_stage1",
+      "provider_before": "f49479fc6133c4191c8515fb0c51759806045dbef97a1fef0721ce80b6af88a2",
+      "provider_after": "f49479fc6133c4191c8515fb0c51759806045dbef97a1fef0721ce80b6af88a2",
+      "source_sha256": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "actual_source": "/home/runner/work/nanolang/nanolang/tests/test_symbol_scoping.nano",
+      "source_before": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "source_after": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nanoc_stage1-jrsh0pof/native",
+    "size": 8615680,
+    "sha256": "7246355074dd7f0365136205154522c7f63297506221079efcd575b42f312852",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nanoc_stage1-jrsh0pof/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 6
+  },
+  {
+    "inputs": {
+      "provider": "/home/runner/work/nanolang/nanolang/bin/nanoc_stage2",
+      "provider_before": "97b3bf877c2d2e18db194355d714645c0b3c392bca09441b93932016407be108",
+      "provider_after": "97b3bf877c2d2e18db194355d714645c0b3c392bca09441b93932016407be108",
+      "source_sha256": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "actual_source": "/home/runner/work/nanolang/nanolang/tests/test_symbol_scoping.nano",
+      "source_before": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c",
+      "source_after": "9091092184e01a76b209e430e8d8be952f91a4be14fe864b3a30988eb9c64a3c"
+    },
+    "path": ".test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nanoc_stage2-mnw8mopb/native",
+    "size": 8615680,
+    "sha256": "90df259516b824a96396caabdf6a1e5b1d63cbe82a2e70c1ebc820fb1bec1657",
+    "execution": {
+      "label": "native",
+      "argv": [
+        "/home/runner/work/nanolang/nanolang/.test_output/numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nanoc_stage2-mnw8mopb/native"
+      ],
+      "returncode": 0
+    },
+    "commands_verified": 6
+  }
+]

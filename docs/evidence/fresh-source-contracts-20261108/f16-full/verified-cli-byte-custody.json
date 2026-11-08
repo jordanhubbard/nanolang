@@ -1,0 +1,50 @@
+[
+  {
+    "role": "NVM input",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-kwwgo0f3/native-phase-trace/phase-52696ox7/input-1.nvm",
+    "size": 443972,
+    "sha256": "b33f7c27e94a0d715611321fe3e889606f128971370ed83cdfce6a2e41931484"
+  },
+  {
+    "role": "generated C",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-kwwgo0f3/native-phase-trace/phase-dk1fcl1_/input-1.c",
+    "size": 9847420,
+    "sha256": "8c3790ef90e484b8a8708202d7506081f942f75cb00ffd5011565f4b81c778a9"
+  },
+  {
+    "role": "runtime object",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-kwwgo0f3/native-phase-trace/phase-dk1fcl1_/input-2.o",
+    "size": 8552256,
+    "sha256": "bcdf6c232de5d00cfaaa3885b83589160bf3e8569edef700315b45958cd2b079"
+  },
+  {
+    "role": "native program",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage1-kwwgo0f3/native-phase-trace/phase-dk1fcl1_/output",
+    "size": 14513576,
+    "sha256": "16ef596aa623da863fe7655eaab3e3ec421650df6e09a4562f391cd934fd105a"
+  },
+  {
+    "role": "NVM input",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-2g07vaoc/native-phase-trace/phase-5huwbler/input-1.nvm",
+    "size": 443972,
+    "sha256": "b33f7c27e94a0d715611321fe3e889606f128971370ed83cdfce6a2e41931484"
+  },
+  {
+    "role": "generated C",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-2g07vaoc/native-phase-trace/phase-5s5st263/input-1.c",
+    "size": 9847420,
+    "sha256": "8c3790ef90e484b8a8708202d7506081f942f75cb00ffd5011565f4b81c778a9"
+  },
+  {
+    "role": "runtime object",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-2g07vaoc/native-phase-trace/phase-5s5st263/input-2.o",
+    "size": 8552256,
+    "sha256": "bcdf6c232de5d00cfaaa3885b83589160bf3e8569edef700315b45958cd2b079"
+  },
+  {
+    "role": "native program",
+    "path": ".test_output/cli-run-contract-native/nanoc_stage2-2g07vaoc/native-phase-trace/phase-5s5st263/output",
+    "size": 14513576,
+    "sha256": "16ef596aa623da863fe7655eaab3e3ec421650df6e09a4562f391cd934fd105a"
+  }
+]

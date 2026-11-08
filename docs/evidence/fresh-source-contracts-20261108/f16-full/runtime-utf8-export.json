@@ -1,0 +1,12 @@
+{
+  "scope": "actual ELF relocatable bytes copied by the fresh CLI tool observer; not compiler executable custody",
+  "runtime_size": 8552256,
+  "runtime_sha256": "bcdf6c232de5d00cfaaa3885b83589160bf3e8569edef700315b45958cd2b079",
+  "command": [
+    "objdump",
+    "--syms",
+    "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/f16-full/observed-runtime.o"
+  ],
+  "exit": 0,
+  "defined_utf8_validator_symbol": "0000000000002a20 g     F .text\t000000000000012c nl_utf8_validate"
+}

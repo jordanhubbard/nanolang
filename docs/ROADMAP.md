@@ -1,6 +1,13 @@
 # My Roadmap
 
 
+- [x] Under #1081/#1105/#1106/#1107/#1108 I retain my [terminal f16 fresh checkpoint](evidence/fresh-source-contracts-20261108/f16-full/README.md): all 109 selected source methods, nine canonical STRING methods through three producers, six map methods and original CLI outcomes pass. Both seeds pass 237/237; both fresh stages pass 206/237 with the same 31 failures and no skips. String stdlib, symbol scoping and top-level constants clear cd0 with no new failures. Seventy-five actual sanitized ELF programs, eight CLI input/product copies and the actual UTF-8 runtime export independently verify; 23 separately pinned Apple string Mach-O programs also verify. Full route/budget, current candidate, native SDK and release acceptance remain open.
+
+- [x] Under #976/#1081 I expose the accumulated source-contract work as draft [PR #1111](https://github.com/jordanhubbard/nanolang/pull/1111), above #1080. I retain its reviewed-code branch point f0b99facb and explicit pending gates; a mergeable Git tree does not establish updated native custody or release qualification.
+
+- [ ] Under #976/#1039/#1081 I reconcile and merge source review #1111 with the profile/custody integration #1080, refresh custody only after reviewed source integration, and repeat exact-candidate native/platform/CI and original-route gates before merging the parent stack or publishing. Earlier component/fresh pins do not qualify that final tree.
+
+
 - [ ] Under #1110 I retain the first hosted 12247c717 C prerequisite failure: my new positive unit fixture incorrectly uses byte as a variable name, which the current C lexer reserves as the U8 type alias. I rename the fixture binding to octet in C and Nano entry controls, preserve the lexer/arity/refusal assertions and require the complete original C units and actual native checker before claiming qualification.
 
 
@@ -51,7 +58,7 @@
 
 - [x] Under #1107 I retain the [pinned GCC/Clang uppercase condition component checkpoint](evidence/uppercase-conditions-20261108/qualified-de27/README.md): both 115-method suites, mandatory parser shadows, native checker and original C/alias/translator/shape gates pass. Four actual positive-program ELFs and command/source/provider hashes independently verify. The programs use the C frontend; dedicated native source-parser and fresh-stage/platform qualification remain open.
 
-- [ ] Under #1105 I retain the fresh cd0 92-method result: whole byte/arithmetic and anonymous-record controls pass, but two wrong-string arithmetic cases fail only the existing diagnostic regex after correct refusal. I state the string operand requirement in my diagnostic, preserve the assertions and prior-output checks, and require corrected fresh qualification.
+- [x] Under #1105 I retain the fresh cd0 92-method result: whole byte/arithmetic and anonymous-record controls pass, but two wrong-string arithmetic cases fail only the existing diagnostic regex after correct refusal. I state the string operand requirement in my diagnostic, preserve the assertions and prior-output checks, and require corrected fresh qualification. My [f16 fresh checkpoint](evidence/fresh-source-contracts-20261108/f16-full/README.md) passes all 109 methods, including both original negative assertions, through the corrected fresh producers.
 
 - [ ] Under #1108/#1081 I restore my existing standalone bang spelling in the source lexer: retain TOKEN_NOT/value `!`, preserve `!=` and token positions, and normalize the parenthesized unary AST call to my canonical `not` identity. The unchanged symbol-scoping fixture currently stops during tokenization, before symbol lookup; I require useful lexer/parser shadows, whole-fixture and wrong-operand controls, complete component gates and fresh-stage acceptance rather than rewriting the fixture.
 
