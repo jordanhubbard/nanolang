@@ -1,0 +1,10 @@
+{
+  "artifact": 13628833618,
+  "size": 159203,
+  "sha256": "3586a55818013bf53054dd8b54d424e9bb679d750ca08c04c261ea3e2dd011db",
+  "files": 356,
+  "crc_verified": true,
+  "original_zip_retained_locally": false,
+  "recorder_correction": "My first recorder assumed every ZIP entry was UTF-8 text and failed decoding a VM module. I preserve that error and now retain binary hashes separately; no completed receipt came from the first invocation.",
+  "scope": "I retain exact text and hashes of actual bytes inspected in memory; native-product custody remains separate."
+}
