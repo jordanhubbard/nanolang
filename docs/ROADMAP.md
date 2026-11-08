@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1114 I correct my public nl_string_new header claim that construction validates UTF-8. The implementation sets is_utf8 false, and all three retained C-native probes return -1 for Unicode queries before explicit validation. I document the required validation call without changing constructor/query behavior; full runtime parity remains in the binary-string item.
+
 - [ ] Under #1114/#1065 I retain the first b65 Apple checker deadline failure: 693 shadows start, 692 complete without assertion failure in 9.370052 recorded body seconds, then the unchanged ten-second limit stops the final main shadow. Both Linux checkers complete all 693 in 8.825130/8.455578 seconds. I remove the newly introduced unconditional binary-string result lookups and hot-path type-format checks from unrelated queries, preserve all assertions/selection and existing enum identities, and require corrected exact platform runs before qualification.
 
 - [x] Under #1065/#1110/#1112 I retain my [complete pinned Apple 80 checkpoint](evidence/checker-shadow-performance-20261108/apple-80/README.md): original C/environment/alias gates, all 137 methods, 2458 translator and 3866 shape assertions pass. All 690 selected checker shadows complete in 9.637191 recorded body seconds under the unchanged ten-second deadline. I independently verify the actual checker and STRING ownership Mach-O bytes; the small margin, later bstring/environment candidates and final integration/budget/release acceptance remain separate.
