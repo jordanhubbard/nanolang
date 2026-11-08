@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1088 I retain C-seed checker and focused-source metadata immediately after those attempts, before the independent translator gate finishes, preserving failed attempts and final binary custody without changing test selection or deadlines.
+
 - [ ] Under #1101 I repair the discovered C checker gap that rejects duplicate record fields only for byte-bearing records. I retain byte diagnostics and require distinct field names for other records, with positive reordered fields and invalid anonymous/named controls; original assertions and full gates remain selected.
 
 - [ ] Under #1103 I retain the original whole standard-library fixture before repairing exact character classification/digit/case source and native host contracts, preserving ASCII behavior, lexical identity, arity/type refusals and full translator gates. I require actual byte-range/boundary execution and separate fresh-stage/platform evidence.
