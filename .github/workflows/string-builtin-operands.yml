@@ -256,6 +256,7 @@ jobs:
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/
+            .test_output/compiler-phase-markers/
             .test_output/map-constructor-contexts/
           include-hidden-files: true
           if-no-files-found: error
