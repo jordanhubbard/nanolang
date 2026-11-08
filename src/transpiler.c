@@ -3,6 +3,7 @@
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
+#include "builtins_registry.h"
 #include <stdarg.h>
 #include <libgen.h>
 
@@ -986,8 +987,11 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
         return buffer;
     }
 
-    /* I keep an allowed declaration separate from my retained builtin helper. */
-    if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
+    /* I keep allowed global declarations separate from retained runtime helpers. */
+    if (builtin_is_known(nano_name)) {
+        snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
+        return buffer;
+    }
 
     /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);

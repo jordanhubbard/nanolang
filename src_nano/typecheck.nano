@@ -4723,7 +4723,16 @@ shadow check_constructor_argument {
         for value in scalars {
             let map_type: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
             let source: string = (+ "union Box<T>{Some{value:T}} fn main()->int{let wrapped:Box<" (+ map_type "> = Box.Some{value:(map_new)} return 0} shadow main{assert true}"))
-            assert (not (typecheck_phase (resource_test_parser source) "map-payload.nano").had_error)
+            let context_parser: Parser = (resource_test_parser source)
+            assert (not (parser_has_error context_parser))
+            let context_result: TypecheckPhaseOutput = (typecheck_phase context_parser "map-payload.nano")
+            if context_result.had_error {
+                (println (+ "I failed the concrete map payload: " map_type))
+                for diagnostic_index in (range 0 (Diagnostics.diag_list_count context_result.diagnostics)) {
+                    (println (Diagnostics.diag_list_get context_result.diagnostics diagnostic_index).message)
+                }
+            }
+            assert (not context_result.had_error)
         }
     }
     let wrong_map: Parser = (resource_test_parser "union Box<T>{Some{value:T}} fn main()->int{let values:HashMap<string,int> = (map_new) let wrapped:Box<HashMap<string,string>> = Box.Some{value:values} return 0} shadow main{assert true}")
@@ -5585,6 +5594,13 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (and (or (== fn_name "array_set") (== fn_name "array_push")) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
+        # I retain the empty constructor sentinel until a concrete context checks it.
+        if (and (== fn_name "map_new") (< (env_lookup symbols fn_name) 0)) {
+            if (!= call_node.arg_count 0) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require zero arguments for the empty map constructor." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            }
+            return builtin_type
+        }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else {
@@ -5925,6 +5941,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    (mb_reset [])
+    let map_parser: Parser = (resource_test_parser "fn main()->int{let values:HashMap<int,int> = (map_new) return 0}")
+    let map_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let empty_map: NSType = (check_expr_node map_parser 0 ParseNodeType.PNODE_CALL [] map_diags "map.nano")
+    assert (== empty_map.kind TypeKind.TYPE_UNKNOWN)
+    assert (== empty_map.name "HashMap")
+    assert (== (list_CompilerDiagnostic_length map_diags) 0)
+    let declared_map: array<Symbol> = [(symbol_new "map_new" (type_bool) false true 0 (empty_param_types) (type_bool))]
+    assert (== (check_expr_node map_parser 0 ParseNodeType.PNODE_CALL declared_map map_diags "map.nano").kind TypeKind.TYPE_BOOL)
+    let wrong_map_arity: Parser = (resource_test_parser "fn main()->int{let values:HashMap<int,int> = (map_new 1) return 0}")
+    let rejected_map: NSType = (check_expr_node wrong_map_arity 0 ParseNodeType.PNODE_CALL [] map_diags "map.nano")
+    assert (== rejected_map.kind TypeKind.TYPE_UNKNOWN)
+    assert (> (list_CompilerDiagnostic_length map_diags) 0)
     (mb_reset [1])
     (mb_header_add 0 "HEADER_VALUE" "41")
     let header_parser: Parser = (resource_test_parser "fn main()->int { return HEADER_VALUE }")

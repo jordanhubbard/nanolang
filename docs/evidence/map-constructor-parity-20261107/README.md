@@ -170,3 +170,19 @@ these allocation sweeps require fresh hosted execution; their presence is not
 acceptance. The same checkpoint also repeats the latest standalone runtime on
 Linux GCC/Clang and macOS, since the checked key-kind helper postdates the first
 passing Darwin runtime revision.
+
+## My expression-boundary correction
+
+My [three exact context bootstrap failures](context-bootstrap-failures/artifacts.json)
+reach the mandatory four-pair constructor shadow and fail its positive assertion.
+I retain their full seed/bootstrap logs, manifests and exact jobs. My expression
+checker computes the genuine empty constructor's named unknown `HashMap`, then
+falls through to an unresolved-function path which relabels it `map_new`.
+The contextual helper therefore cannot recognize its declared sentinel.
+
+I preserve that sentinel only for an unbound empty-map builtin, check zero
+arguments explicitly and keep bound functions on their existing symbol path.
+New mandatory expression shadows check the exact sentinel, real declaration
+identity and wrong arity. The original four-pair constructor assertion remains;
+I add parser-validity and diagnostic reporting before it so any next failure
+identifies the actual typecheck reason. Fresh complete execution remains required.

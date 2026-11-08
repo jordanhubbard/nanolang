@@ -2,11 +2,13 @@ name: Cached string builtin operand diagnosis
 
 on:
   push:
-    branches: [fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch]
+    branches: [fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c]
     paths:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
       - 'src/eval.c'
+      - 'src/transpiler.c'
+      - 'src/transpiler_iterative_v3_twopass.c'
       - 'tests/test_builtin_string_operands.py'
       - 'tests/test_canonical_string_builtins.py'
   workflow_dispatch:
@@ -56,6 +58,7 @@ jobs:
         timeout-minutes: 20
         run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev
       - name: Build actual fresh VM and C AOT providers
+        id: providers
         timeout-minutes: 25
         run: |
           set -o pipefail
@@ -71,6 +74,25 @@ jobs:
           set -o pipefail
           python3 -m unittest -v tests.test_builtin_string_operands tests.test_canonical_string_builtins \
             2>&1 | tee .test_output/string-builtin-operands/tests.log
+      - name: Retain complete original array alias regression routes
+        if: always() && steps.providers.outcome == 'success'
+        timeout-minutes: 30
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          output = Path('.test_output/string-builtin-operands')
+          results = []
+          for provider, route in [('nanoc_c', 'source-native'), ('nano_virt', 'canonical')]:
+              command = [sys.executable, '-m', 'unittest', '-v', 'tests.test_array_builtin_aliases']
+              with (output / (provider + '-array-aliases.log')).open('w') as log:
+                  result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                      env=dict(os.environ, NANOLANG_ARRAY_ALIAS_COMPILERS=str(Path('bin', provider).resolve()),
+                               NANOLANG_ARRAY_ALIAS_ROUTE=route))
+              results.append({'provider': provider, 'route': route, 'argv': command, 'returncode': result.returncode})
+              (output / 'array-alias-results.json').write_text(json.dumps(results, indent=2) + '\n')
+          raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
+          PYCODE
       - name: Verify unchanged sources and providers
         if: always()
         run: |

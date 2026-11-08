@@ -98,6 +98,8 @@ fn main() -> int {
  set calls 0
  assert (str_trim (next))
  assert (== calls 1)
+ let chosen: fn(int)->bool = str_trim
+ assert (chosen 7)
  assert (not (str_trim 8))
  return 0
 }

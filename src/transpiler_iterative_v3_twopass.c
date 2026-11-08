@@ -588,14 +588,12 @@ static const char *map_function_name(const char *name, Environment *env) {
         name = dot + 1;
     }
     
-    /* I retain the selected declaration instead of its registry spelling. */
-    if (strcmp(name, "array_push") == 0 || builtin_is_array_operation(name)) {
-        Function *selected = env_get_function(env, name);
-        if (selected && selected->body && !selected->is_extern) {
-            extern const char *get_c_func_name_with_module(const char *, const char *, bool);
-            return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
-                                               selected->module_name, false);
-        }
+    /* I retain a real declaration for calls and function values before registry aliases. */
+    Function *selected = env ? env_get_function(env, name) : NULL;
+    if (selected && selected->body && !selected->is_extern) {
+        extern const char *get_c_func_name_with_module(const char *, const char *, bool);
+        return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
+                                           selected->module_name, false);
     }
 
     /* Check unified builtin registry */
@@ -605,7 +603,7 @@ static const char *map_function_name(const char *name, Environment *env) {
     }
     
     /* User-defined function? Look up to get module context */
-    Function *func = env_get_function(env, name);
+    Function *func = selected;
     
     if (func) {
         /* Use get_c_func_name_with_module for namespace mangling */

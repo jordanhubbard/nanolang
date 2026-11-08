@@ -62,3 +62,19 @@ sixteen-value argument buffer. I file #1085 and add its own roadmap work before
 continuing. A valid seventeen-argument source program compiles and executes in
 my existing NanoVirt/VM; this separate defect does not complete from the string
 dispatch repair or from that unqualified local provider observation.
+
+## My declaration naming correction
+
+The [next exact GCC/Clang failures](37-failures/summary.json) pass shadow
+interpretation and reach C compilation. My global `str_trim` declaration then
+collides with retained helper `nl_str_trim`, while a real `bool_to_string` is
+declared with `nl_` but called through the registry's unprefixed spelling.
+I retain both failures and preserve every original declaration assertion.
+
+I now give real global builtin-named declarations a distinct private C symbol
+and select real bodies before registry aliases when emitting calls/function
+values. The existing declared array-push spelling remains distinct. My source
+control also exercises a typed reference to the real trim declaration. I add
+the complete original array-alias routes and fresh declared-push suite to the
+related diagnostic gates. Local strict C99 syntax, Python AST, actual lexer and
+workflow checks pass; complete fresh compiler/native/stage acceptance is pending.
