@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #1109 I preserve the existing integer storage of enum arrays after my actual C-created VM baseline sorts them successfully. I retain nominal array<Enum> result identity, add source/native and checker controls, and keep unrelated array element equality unchanged. I use module-qualified helper imports so my sorting suite does not rediscover the imported string TestCase.
+
+- [ ] Under #1109/#1102 I repair the direct array-literal result query that omits U8 although typed U8 arrays already lower. I retain homogeneous array<u8> identity for direct sorting operands, add a useful query shadow and production control, and preserve mixed/other element refusals without changing general type equality.
+
 - [x] Under #1108 I retain the [qualified GCC/Clang bang component checkpoint](evidence/legacy-bang-20261108/qualified-f16/README.md): both 118-method suites, C lexer controls, original C/parser/alias/translator/shape gates and native Nano checkers pass. Six actual ELF products and source/provider/lexer hashes independently verify. Fresh stages, Apple and integrated budget/release acceptance remain open.
 
 - [ ] Under #1109/#1081 I retain the unchanged whole array stdlib fixture and array_sort baseline before implementation, then preserve exact INT/U8/FLOAT/BOOL/STRING argument/result identity, detached storage, once-only receiver evaluation, typed empties, lexical identity and malformed/prior-output refusals. I follow the existing extrema/NaN/signed-zero/byte-string comparison contract without assuming stable equal-element order; require proven flat native storage, actual Nano checker/VM/sanitized-native and fresh-stage/platform gates, and keep generic host/SDK admission closed.

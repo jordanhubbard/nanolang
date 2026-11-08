@@ -1,6 +1,6 @@
 # My existing scalar array sort contract
 
-I preserve `tests/test_stdlib_arrays.nano` unchanged. My existing C/runtime builtin clones its input storage before sorting and returns the same scalar element kind. `dyn_array_sorted` supports INT, U8, FLOAT, BOOL and STRING; other families return no sorted array. Source/native admission must establish the flat element storage and retain it in the result rather than accepting an arbitrary ARRAY tag.
+I preserve `tests/test_stdlib_arrays.nano` unchanged. My existing C/runtime builtin clones its input storage before sorting and returns the same scalar element kind. `dyn_array_sorted` supports INT, U8, FLOAT, BOOL and STRING; other runtime families return no sorted array. My C-created VM also stores enum arrays as integers and sorts them successfully; source lowering must retain their nominal enum result identity. Source/native admission must establish the flat element storage and retain it in the result rather than accepting an arbitrary ARRAY tag.
 
 I compare integers and bytes without subtraction overflow, put false before true, and compare string bytes with `strcmp`. My float comparator puts numbers before NaNs and compares ordinary numbers by numeric order. Positive and negative zero compare equal; NaNs compare equal to other NaNs. I preserve their stored payload bits but do not promise stable order among equal comparisons. A different signed-zero or NaN payload order is not by itself a sorting defect.
 

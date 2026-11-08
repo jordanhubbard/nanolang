@@ -122,6 +122,11 @@ static int word_array_storage(uint8_t kind) {
     return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR || kind == NVM2C_VK_FNARR || kind == NVM2C_VK_U8ARR || kind == NVM2C_VK_NARR;
 }
 
+static int sortable_array_storage(uint8_t kind) {
+    return kind == NVM2C_VK_ARR || kind == NVM2C_VK_U8ARR ||
+           kind == NVM2C_VK_FARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_SARR;
+}
+
 static int record_array_unboxes(uint8_t destination, uint8_t source) {
     return source == NVM2C_VK_VALUE &&
         (word_array_storage(destination) || destination == NVM2C_VK_SARR);
@@ -416,6 +421,7 @@ static const Nvm2cHost host_adapters[] = {
     {"vm_str_trim_left", "nhost_trim_left", 1, TAG_STRING, TAG_STRING},
     {"vm_str_trim_right", "nhost_trim_right", 1, TAG_STRING, TAG_STRING},
     {"vm_str_join", "nhost_join", 2, TAG_ARRAY, TAG_STRING},
+    {"vm_array_sort", "nhost_array_sort", 1, TAG_ARRAY, TAG_ARRAY},
     {"nl_os_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
     {"vm_tmp_dir", "nhost_tmp_dir", 0, TAG_VOID, TAG_STRING},
     {"get_argc", "nhost_argc", 0, TAG_VOID, TAG_INT},
@@ -3065,6 +3071,26 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             if (context_artifact_adapter(host)) b->has_maps = 1;
+            if (!strcmp(host->c_name, "nhost_array_sort")) {
+                Nvm2cSimSlot array;
+                if (!sim_pop(b, idx, stk, &sp, &array)) return 0;
+                NvmShapeId original = checked_array_payload(b, &array);
+                if (!shape_type(b, original, NVM_SHAPE_ARRAY)) return 0;
+                uint8_t kind = resolved_shape_kind(b, original);
+                if ((kind != NVM2C_VK_UNK && !sortable_array_storage(kind)) ||
+                    (facts->final && !sortable_array_storage(kind))) {
+                    nvm2c_fail(b, "I require proven flat scalar array_sort storage"); return 0;
+                }
+                if (kind != NVM2C_VK_UNK) mark_origin(local_kind, nloc, array.origin, kind);
+                array.kind = kind;
+                array.origin = -1;
+                array.scalar_tags = 0;
+                array.shape = shape_variable(b, b->shape_current);
+                if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_equal(b, shape_child(b, array.shape, 0), shape_child(b, original, 0)) ||
+                    !sim_push_slot(b, idx, stk, &sp, array)) return 0;
+                break;
+            }
             for (uint8_t p = 0; p < host->argc; ++p) {
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
@@ -6513,7 +6539,20 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             char expression[256];
-            if (typed_artifact_adapter(host)) {
+            uint8_t sort_kind = NVM2C_VK_UNK;
+            if (!strcmp(host->c_name, "nhost_array_sort")) {
+                sort_kind = resolved_shape_kind(b, b->shape_outputs[idx][start]);
+                if (!sortable_array_storage(sort_kind)) {
+                    nvm2c_fail(b, "I require proven flat scalar array_sort result storage"); goto done;
+                }
+                int receiver = stack_pop_expect(b, &st, sort_kind, "scalar array_sort receiver");
+                if (b->failed) goto done;
+                unsigned selector = sort_kind == NVM2C_VK_SARR ? 4 : sort_kind == NVM2C_VK_BARR ? 3 :
+                    sort_kind == NVM2C_VK_FARR ? 2 : sort_kind == NVM2C_VK_U8ARR ? 1 : 0;
+                snprintf(expression, sizeof expression, "(%s)nhost_array_sort(%u, %s[%d])",
+                    sort_kind == NVM2C_VK_SARR ? "nsarr_t" : "narr_t", selector,
+                    stack_array_name(sort_kind), receiver);
+            } else if (typed_artifact_adapter(host)) {
                 char arguments[160] = "";
                 int slots[sizeof typed_artifact_adapters[0].parameters] = {0};
                 if (host->argc > sizeof slots / sizeof slots[0]) {
@@ -6577,6 +6616,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (host->result == TAG_VOID) nvm2c_printf(b, "    %s;\n", expression);
             else if (host->result == TAG_OPAQUE) stack_push_value(b, &st, expression);
             else if (byte_read_adapter(host)) stack_push_iarray(b, &st, expression, NVM2C_VK_U8ARR);
+            else if (sort_kind != NVM2C_VK_UNK) {
+                if (sort_kind == NVM2C_VK_SARR) stack_push_sarr(b, &st, expression);
+                else stack_push_iarray(b, &st, expression, sort_kind);
+            }
             else if (host->result == TAG_ARRAY) stack_push_sarr(b, &st, expression);
             else if (host->result == TAG_STRING) stack_push_str(b, &st, expression);
             else if (host->result == TAG_BOOL) stack_push_bool(b, &st, expression);
@@ -7014,6 +7057,63 @@ static void emit_nstr_join(Nvm2cBuf *b) {
         "        size_t size = strlen(parts->data[i]);\n"
         "        memcpy(out, parts->data[i], size); out += size;\n"
         "    }\n"
+        "    return result;\n"
+        "}\n"
+    );
+}
+
+static void emit_array_sort(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "#include <stdbool.h>\n"
+        "#include <math.h>\n"
+        "#ifdef __cplusplus\n"
+        "extern \"C\" {\n"
+        "#endif\n"
+        "extern bool nl_utf8_validate(const char *, size_t, size_t *);\n"
+        "#ifdef __cplusplus\n"
+        "}\n"
+        "#endif\n"
+        "static int nsort_int_compare(const void *left, const void *right) {\n"
+        "    int64_t a, z; memcpy(&a, left, sizeof a); memcpy(&z, right, sizeof z);\n"
+        "    return (a > z) - (a < z);\n"
+        "}\n"
+        "static int nsort_float_compare(const void *left, const void *right) {\n"
+        "    double a, z; memcpy(&a, left, sizeof a); memcpy(&z, right, sizeof z);\n"
+        "    if (isnan(a) || isnan(z)) return isnan(a) ? (isnan(z) ? 0 : 1) : -1;\n"
+        "    return (a > z) - (a < z);\n"
+        "}\n"
+        "static int nsort_string_compare(const void *left, const void *right) {\n"
+        "    return strcmp(*(const char *const *)left, *(const char *const *)right);\n"
+        "}\n"
+        "static void *nhost_array_sort(unsigned kind, void *raw) {\n"
+        "    if (!raw || kind > 4) NVM2C_ABORT();\n"
+        "    if (kind == 4) {\n"
+        "        nsarr_t source = raw;\n"
+        "        if (source->len > INT64_MAX || (source->len && !source->data) ||\n"
+        "            (source->owner && (source->owner->data != source->data || source->len > source->owner->cap))) NVM2C_ABORT();\n"
+        "        for (size_t i = 0; i < source->len; ++i)\n"
+        "            if (!source->data[i] || !nl_utf8_validate(source->data[i], strlen(source->data[i]), NULL)) NVM2C_ABORT();\n"
+        "        nsarr_t result = nsarr_new();\n"
+        "        nsarr_reserve(result, source->len);\n"
+        "        if (source->len) memcpy(result->data, source->data, source->len * sizeof *source->data);\n"
+        "        result->len = source->len;\n"
+        "        if (result->len > 1) qsort(result->data, result->len, sizeof *result->data, nsort_string_compare);\n"
+        "        return result;\n"
+        "    }\n"
+        "    narr_t source = raw;\n"
+        "    if (source->len > INT64_MAX || (source->len && !source->data) ||\n"
+        "        (source->owner && (source->owner->data != source->data || source->len > source->owner->cap))) NVM2C_ABORT();\n"
+        "    if (kind == 1 || kind == 3) {\n"
+        "        int64_t limit = kind == 1 ? 255 : 1;\n"
+        "        for (size_t i = 0; i < source->len; ++i)\n"
+        "            if (source->data[i] < 0 || source->data[i] > limit) NVM2C_ABORT();\n"
+        "    }\n"
+        "    narr_t result = narr_new();\n"
+        "    narr_reserve(result, source->len);\n"
+        "    if (source->len) memcpy(result->data, source->data, source->len * sizeof *source->data);\n"
+        "    result->len = source->len;\n"
+        "    if (result->len > 1) qsort(result->data, result->len, sizeof *result->data,\n"
+        "        kind == 2 ? nsort_float_compare : nsort_int_compare);\n"
         "    return result;\n"
         "}\n"
     );
@@ -8190,7 +8290,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
         module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
-        module_uses_host(mod, "nhost_walk");
+        module_uses_host(mod, "nhost_walk") || module_uses_host(mod, "nhost_array_sort");
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
         if (mod->function_param_types && mod->function_param_types[f])
@@ -8550,6 +8650,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_trim_left = module_uses_host(mod, "nhost_trim_left");
         int need_trim_right = module_uses_host(mod, "nhost_trim_right");
         int need_join = module_uses_host(mod, "nhost_join");
+        int need_sort = module_uses_host(mod, "nhost_array_sort");
         int need_case = module_has_opcode(mod, OP_STR_TO_LOWER) || module_has_opcode(mod, OP_STR_TO_UPPER);
         int need_replace = module_has_opcode(mod, OP_STR_REPLACE);
         int need_split = module_has_opcode(mod, OP_STR_SPLIT);
@@ -8563,14 +8664,14 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         int need_arr_slice = module_has_opcode(mod, OP_ARR_SLICE);
         int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
         int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
-        int need_iarr_new = module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
+        int need_iarr_new = need_sort || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_BARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FNARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_U8ARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_NARR) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_ARRAY);
-        int need_sarr_new = need_split || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_SARR);
+        int need_sarr_new = need_sort || need_split || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_SARR);
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_U8) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_BOOL) ||
@@ -9108,6 +9209,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
         if (need_split) emit_nstr_split(&b);
+        if (need_sort) emit_array_sort(&b);
         if (module_has_opcode(mod, OP_HM_KEYS) || module_has_opcode(mod, OP_HM_VALUES))
             emit_map_snapshots(&b, need_iarr, need_sarr);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
@@ -9178,6 +9280,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (module_uses_host(mod, "nhost_trim_left")) nvm2c_puts(&b, "    (void)nhost_trim_left;\n");
         if (module_uses_host(mod, "nhost_trim_right")) nvm2c_puts(&b, "    (void)nhost_trim_right;\n");
         if (module_uses_host(mod, "nhost_join")) nvm2c_puts(&b, "    (void)nhost_join;\n");
+        if (module_uses_host(mod, "nhost_array_sort")) nvm2c_puts(&b, "    (void)nhost_array_sort;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
         if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop; (void)nrecord_array_pop; (void)nvalue_require_record;\n");

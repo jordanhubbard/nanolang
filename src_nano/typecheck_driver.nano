@@ -253,6 +253,32 @@ fn check_legacy_bang_contracts() -> void {
 }
 shadow check_legacy_bang_contracts { (check_legacy_bang_contracts) }
 
+fn check_array_sort_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let result:array<int> = (array_sort [2,1]) return 0}",
+        "fn main()->int{let byte:u8=7 let result:array<u8> = (array_sort [byte]) return 0}",
+        "fn main()->int{let result:array<float> = (array_sort [2.5,1.5]) return 0}",
+        "fn main()->int{let result:array<bool> = (array_sort [true,false]) return 0}",
+        "fn main()->int{let result:array<string> = (array_sort [\"z\",\"a\"]) return 0}",
+        "fn keep(value:int)->int{return value} fn main()->int{let array_sort:fn(int)->int=keep return (array_sort 7)}",
+        "enum Rank{Low=1,High=9} fn main()->int{let sorted:array<Rank> = (array_sort [Rank.High,Rank.Low]) return 0}",
+        "fn main()->int{(array_sort) return 0}",
+        "fn main()->int{(array_sort [1] [2]) return 0}",
+        "fn main()->int{(array_sort true) return 0}",
+        "fn main()->int{(array_sort [[1]]) return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "native-sort.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "native-sort.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "native-sort.nano")
+        assert (== checked.had_error (>= index 7))
+        assert (== (> checked.environment.error_count 0) (>= index 7))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 7))
+    }
+}
+shadow check_array_sort_contracts { (check_array_sort_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -283,6 +309,7 @@ fn main() -> int {
     (check_string_stdlib_contracts)
     (check_uppercase_parser_contracts)
     (check_legacy_bang_contracts)
+    (check_array_sort_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

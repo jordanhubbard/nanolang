@@ -24,10 +24,11 @@ class StringStdlibContracts(unittest.TestCase):
     def setUpClass(cls):
         numeric.NumericBuiltinSelection.setUpClass()
 
-    def exercise_raw(self, text, *, invalid_utf8=False):
+    def exercise_raw(self, text, *, invalid_utf8=False, utf8_invariant='nhost_join',
+                     work_prefix='string-stdlib-raw-'):
         output = ROOT/'.test_output/numeric-builtin-selection'
         output.mkdir(parents=True, exist_ok=True)
-        work = Path(tempfile.mkdtemp(prefix='string-stdlib-raw-', dir=output))
+        work = Path(tempfile.mkdtemp(prefix=work_prefix, dir=output))
         inputs = [ROOT/'bin/nanoisa', ROOT/'bin/nano_vm', ROOT/'bin/nvm2c', ROOT/'bin/nano_aot_runtime.o']
         before = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in inputs}
         assembly, module, generated = work/'main.nasm', work/'module.nvm', work/'native.c'
@@ -52,7 +53,7 @@ class StringStdlibContracts(unittest.TestCase):
                 result = self.command(work, 'native'+optimization, [native], accepted=not invalid_utf8)
                 if invalid_utf8:
                     self.assertEqual(result.returncode, -signal.SIGABRT, result.stdout+result.stderr)
-                    self.assertIn('nhost_join', result.stderr)
+                    self.assertIn(utf8_invariant, result.stderr)
         finally:
             after = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in inputs}
             (work/'inputs.json').write_text(json.dumps({'before': before, 'after': after}, indent=2)+'\n')

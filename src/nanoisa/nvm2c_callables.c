@@ -227,6 +227,23 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_ARR_NEW:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
             break;
+        case OP_CALL_EXTERN: {
+            const NvmImportEntry *import = &a->module->imports[target];
+            const char *library = nvm_get_string(a->module, import->module_name_idx);
+            const char *symbol = nvm_get_string(a->module, import->function_name_idx);
+            if (library && !*library && symbol && !strcmp(symbol, "vm_array_sort") &&
+                pop == 1 && push == 1 && import->return_type == TAG_ARRAY &&
+                a->module->import_param_types && a->module->import_param_types[target] &&
+                a->module->import_param_types[target][0] == TAG_ARRAY) {
+                if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                    !flow(a, field(a, stack[base], 0), field(a, output[0], 0)) ||
+                    !nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
+            } else {
+                for (int i = 0; i < push; ++i)
+                    if (!nvm_shape_tags_add(&a->out->shapes, output[i], NVM_CALLABLE_TAG_UNKNOWN)) goto done;
+            }
+            break;
+        }
         case OP_STR_SPLIT:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
                 !nvm_shape_tags_add(&a->out->shapes, field(a, output[0], 0), 1u << TAG_STRING)) goto done;
