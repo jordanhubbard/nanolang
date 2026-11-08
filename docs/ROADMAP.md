@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1081 I retain the [focused seed print checkpoint and all preceding failures](evidence/legacy-print-statements-20261107/README.md): GCC and Clang each pass 19 methods plus original array-alias routes at 7971d6345. Canonical captures retain their original assertions; the documented AST-to-C compatibility gap remains opt-in #1089. The separate missing-operand parser correction and fresh stages remain unqualified.
+
 - [ ] Under #1081 I preserve the failing b8 mandatory parser shadow at `parse_statement`: a bare print at EOF has no operand, but generic expression parsing returns without an error. I explicitly require operand presence and parser progress before storing a print node, retain the exact assertion, and require a fresh bootstrap rather than weakening the refusal control.
 
 - [ ] Under #1081 I preserve lexical print/println function-value calls in the legacy C emitter. Exact 4cea GCC/Clang checks pass C shadow execution and canonical NanoVirt execution, but AST-to-C incorrectly emits void print helpers for those typed function-value calls. I reuse ordinary ordered callable emission, retain bare statement semantics and exact output, and keep the separate unsupported C-native capture extension under #1089 outside the One IR release scope.
