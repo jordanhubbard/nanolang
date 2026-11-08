@@ -131,6 +131,26 @@ fn check_character_contracts() -> void {
 }
 shadow check_character_contracts { (check_character_contracts) }
 
+fn check_u8_argument_contracts() -> void {
+    let sources: array<string> = [
+        "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 return (take value)}",
+        "fn take(value:int)->int{return value} fn main()->int{let value:u8=255 let call:fn(int)->int=take return (call value)}",
+        "fn keep(value:u8)->u8{return value} fn main()->int{let call:fn(u8)->u8=keep let value:u8=(call (+ 255 2)) return 0}",
+        "fn take(value:int)->int{return value} fn main()->int{return (take true)}",
+        "fn take(values:array<int>)->int{return (array_length values)} fn main()->int{let values:array<u8> = [7] return (take values)}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-u8-argument.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-u8-argument.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-u8-argument.nano")
+        assert (== checked.had_error (>= index 3))
+        assert (== (> checked.environment.error_count 0) (>= index 3))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 3))
+    }
+}
+shadow check_u8_argument_contracts { (check_u8_argument_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -157,6 +177,7 @@ fn main() -> int {
     (check_anonymous_record_contracts)
     (check_byte_alias_contracts)
     (check_character_contracts)
+    (check_u8_argument_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

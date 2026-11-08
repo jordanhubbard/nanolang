@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1104 I retain directed scalar U8-to-INT conversion at typed source-function call boundaries, including indirect calls, with one evaluation and explicit CAST_INT. I preserve U8 destination policy, exact array storage and native host guards; require actual checker production controls, VM/native positives, original negative prior-output checks, full component gates and separate fresh-stage/platform acceptance.
+
 - [x] Under #1101/#1102/#1103 I retain the [qualified GCC/Clang source component checkpoint](evidence/source-contracts-20261108/qualified-5d/README.md): all 92 methods, original parser/typechecker/alias suites and complete translator gates pass; actual C-seed-created Nano checker ELF products execute the production controls with exact custody. I retain the preceding context refusals and invalid-main control failure, keep fresh-stage/platform admission open, and preserve the original 120-second corpus bound.
 
 - [x] Under #1103 I retain my [invalid character positive-control failure](evidence/character-builtins-20261108/first-e590/README.md), correct main to the required INT signature while preserving the bound STRING assertion, and execute the corrected control in the later qualified component run.
