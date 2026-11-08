@@ -5447,7 +5447,7 @@ fn check_format_builtin(parser: Parser, call: ASTCall, symbols: array<Symbol>, d
     return (type_string)
 }
 shadow check_format_builtin {
-    let sources: array<string> = ["fn main()->string{return (format \"%s %d\" true 7)}", "fn main()->int{(format) return 0}", "fn main()->int{(format 7) return 0}", "fn format(value:int)->bool{return true} fn main()->bool{return (format 7)}"]
+    let sources: array<string> = ["fn main()->string{return (format \"%s %d\" true 7)}", "fn main()->int{(format) return 0}", "fn main()->int{(format 7) return 0}", "fn truth(value:int)->bool{return true} fn main()->bool{let format:fn(int)->bool=truth return (format 7)}"]
     for index in (range 0 (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources index) "format.nano" (list_CompilerDiagnostic_new))
         let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "format.nano")

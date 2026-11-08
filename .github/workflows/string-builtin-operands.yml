@@ -20,6 +20,7 @@ on:
       - 'tests/test_cast_float_contracts.py'
       - 'tests/test_dynamic_array_contracts.py'
       - 'tests/test_format_source_contracts.py'
+      - 'tests/test_typechecker.c'
       - 'tests/test_map_constructor_contexts.py'
       - 'tests/unit/test_map_constructor_contexts.nano'
       - 'src/typechecker.c'

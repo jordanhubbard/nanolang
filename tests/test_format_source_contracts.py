@@ -75,10 +75,10 @@ fn main()->int{
 shadow main{assert (== (main) 0)}
 ''')
 
-    def test_declared_function_keeps_its_signature(self):
-        self.exercise('''fn format(value:int)->bool{return (== value 7)}
-shadow format{assert (format 7)}
-fn main()->int{assert (format 7) return 0}
+    def test_declared_result_preserves_string_metadata(self):
+        self.exercise('''fn render(value:int)->string{return (format "%d" value)}
+shadow render{assert (== (render 7) "7")}
+fn main()->int{assert (== (render 7) "7") return 0}
 shadow main{assert (== (main) 0)}
 ''')
 

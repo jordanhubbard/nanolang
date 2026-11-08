@@ -1,0 +1,11 @@
+# My first format runtime checkpoint and invalid positive
+
+I retain failed [run 42470865531](https://github.com/jordanhubbard/nanolang/actions/runs/42470865531) at `3b73f255274576b31a0c8e3090c26982a5d21fe3`. Both complete original C typechecker unit suites pass after correcting the earlier cached-parameter premise. GCC and Clang each run all 74 methods and retain one failed method.
+
+The complete unchanged original format fixture now passes C-frontend NanoISA, NanoVM and sanitized native execution with exact output. Four further format methods pass: runtime template and ordered once-only/extra argument effects; raw conversion spelling and Unicode/long/missing/unknown/trailing marker controls; legal bound function values; and malformed template/arity prior-output refusals. Original source/provider hashes, modules, generated C, native binaries and commands remain in my uploaded artifacts.
+
+The remaining positive declares `fn format(value:int)->bool`. My C frontend deliberately refuses redefining this reserved builtin. I introduced an invalid positive while planning the feature; this is not evidence of a runtime format defect or a reason to widen the language. I replace it with a legal wrapper directly returning formatted STRING text, retain the legal bound-function control, add a C-unit assertion for the existing reserved-definition refusal and correct my contract/issue wording. The original failed assertion and all diagnostics remain retained here. I remove the unnecessary C declaration guard rather than adding a redefinition exception.
+
+Both jobs pass original array-alias routes and the complete translator gate: 2,443 execution, 3,866 shape and 464 callable checks, zero failures, plus adjacent suites. Both ZIPs pass CRC. Complete uploaded-file SHA-256 inventories and deterministic exact-text bundles retain their contents; original uploaded binaries remain private. Both embedded translator TAR hashes and inventories independently verify, empty after normal successful cleanup. I do not claim custody of every cleaned product or filesystem modes/symlinks from direct ZIP custody.
+
+This whole job remains failed. The corrected complete paired suite, both fresh self-hosted generations and integrated original-route/platform acceptance remain open under #1097.

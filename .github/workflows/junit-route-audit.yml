@@ -42,6 +42,7 @@ on:
       - 'tests/test_cast_float_contracts.py'
       - 'tests/test_dynamic_array_contracts.py'
       - 'tests/test_format_source_contracts.py'
+      - 'tests/test_typechecker.c'
       - 'src/typechecker.c'
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'

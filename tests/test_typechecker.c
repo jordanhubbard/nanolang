@@ -103,6 +103,7 @@ void test_tc_minimal_main(void) {
 }
 
 void test_tc_format_template(void) {
+    ASSERT(!tc_passes("fn format(value:int)->bool{return true} fn main()->int{assert (format 7) return 0}"));
     ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
     ASSERT(tc_passes("fn main() -> int { let template = \"plain\" let s = (format template) return 0 }"));
     ASSERT(!tc_passes("fn main() -> int { let s = (format 42) return 0 }"));

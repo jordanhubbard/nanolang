@@ -3028,12 +3028,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
-            /* I retain a declared function's own signature before builtin format. */
-            Function *format_definition = strcmp(expr->as.call.name, "format") == 0
-                ? env_get_function_at(env, "format", expr->line, expr->column) : NULL;
-            if (strcmp(expr->as.call.name, "format") == 0 &&
-                (!format_definition || (!format_definition->body &&
-                 !format_definition->is_extern))) {
+            /* I check the variadic builtin after bound function values resolve. */
+            if (strcmp(expr->as.call.name, "format") == 0) {
                 if (expr->as.call.arg_count < 1) {
                     emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
                         "I require a string template argument for format.",

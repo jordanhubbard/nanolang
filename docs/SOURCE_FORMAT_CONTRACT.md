@@ -13,8 +13,9 @@ recognized markers after arguments run out. Thus `%%s` with `"value"` becomes
 `%value`; I do not add printf escaping, width or precision rules. Unicode bytes
 and empty strings retain their current values.
 
-I require a string template and at least one argument. Bound or declared
-functions named `format` retain their own signatures. The existing variadic
+I require a string template and at least one argument. Bound function values named `format` retain their own signatures. My C
+frontend keeps its existing refusal of a direct function definition named
+`format`. I test a legal wrapper that directly returns formatted text. The existing variadic
 operand signature does not imply native acceptance for every raw value:
 `CAST_STRING` keeps its consumer's checked capability boundary.
 
