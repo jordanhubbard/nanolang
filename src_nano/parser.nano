@@ -1181,6 +1181,9 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                 } else { set qualified false }
             }
 
+            # I normalize only my bare primitive alias after retaining qualifiers.
+            if (== type_name "byte") { set type_name "u8" }
+
             /* Parse optional generic args: NSType<Arg1,Arg2> */
             if (not (parser_is_at_end cur)) {
                 let tgen: LexerToken = (parser_current cur)
@@ -1234,6 +1237,15 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
 }
 
 shadow parse_type_string {
+    let aliases: array<string> = ["byte", "array<byte>", "fn(byte)->byte", "api.byte"]
+    let canonical: array<string> = ["u8", "array<u8>", "fn(u8)->u8", "api.byte"]
+    for index in (range 0 (array_length aliases)) {
+        let tokens: List<LexerToken> = (tokenize_string (at aliases index) "byte-type.nano" (list_CompilerDiagnostic_new))
+        let parsed: TypeParseResult = (parse_type_string (parser_new tokens (list_LexerToken_length tokens) "byte-type.nano"))
+        assert parsed.ok
+        assert (parser_is_at_end parsed.p)
+        assert (== parsed.type_name (at canonical index))
+    }
     for spelling in ["opaque", "array<opaque>", "fn(opaque)->opaque"] {
         let opaque_tokens: List<LexerToken> = (tokenize_string spelling "opaque-type.nano" (list_CompilerDiagnostic_new))
         let opaque_parser: Parser = (parser_new opaque_tokens (list_LexerToken_length opaque_tokens) "opaque-type.nano")

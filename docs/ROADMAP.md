@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1102 I normalize the existing bare byte alias to u8 through parser/checker type contexts, preserve qualified names, exact storage and existing narrowing policy, and retain the unchanged original u8 fixture plus useful production/component/fresh-stage evidence. I leave the separate std/binary u8-to-int argument mismatch open under #1081.
+
 - [ ] Under #1101 I parse anonymous record literals and retain their declared nominal let/return/argument context only after exact field validation, preserving named values, spreads and existing aggregate lowering. I require unchanged whole fixtures, valid/invalid production checker controls, original negative prior-output checks, full component gates and separate fresh-stage/platform acceptance.
 
 - [x] Under #1081/#1083/#1093/#1094 I retain the [967 fresh-route checkpoint](evidence/junit-route-checkpoints-20261107/967/README.md): original selection remains 237 cases, C routes pass all, stages each pass 193 with unchanged array arithmetic/reverse fixtures newly passing, and all six map contract methods pass. I preserve the remaining 44 failures per stage and separate CLI/corpus budgets.

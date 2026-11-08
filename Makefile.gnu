@@ -7392,3 +7392,7 @@ test-source-checker-component: stage1
 .PHONY: test-anonymous-record-contracts
 test-anonymous-record-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_anonymous_record_contracts
+
+.PHONY: test-byte-alias-contracts
+test-byte-alias-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_byte_alias_contracts

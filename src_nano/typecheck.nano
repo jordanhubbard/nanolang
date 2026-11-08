@@ -2932,6 +2932,7 @@ shadow fn_type_param_types {
 
 /* Create type from string representation */
 fn type_from_string(s: string) -> NSType {
+    if (== s "byte") { return (type_from_string "u8") }
     if (== s "unknown") { return (type_unknown_named "unknown") }
     if (tc_str_starts_with s "array<") {
         let element: string = (array_elem_type_from_array_decl s)
@@ -3753,6 +3754,10 @@ shadow type_from_element_name {
 }
 
 shadow type_from_string {
+    assert (types_equal (type_from_string "byte") (type_from_string "u8"))
+    assert (== (type_to_string (type_from_string "array<byte>")) "array<u8>")
+    assert (== (type_to_string (type_from_string "api.byte")) "api.byte")
+    assert (not (types_equal (type_from_string "byte") (type_int)))
     assert (== (type_to_string (type_from_string "array<array<int>>")) "array<array<int>>")
     assert (== (type_to_string (type_from_string "array<fn(array<int>)->int>")) "array<fn(array<int>)->int>")
     let nominal: NSType = (type_from_string "Box<array<int>>")

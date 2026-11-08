@@ -92,6 +92,27 @@ fn check_anonymous_record_contracts() -> void {
 }
 shadow check_anonymous_record_contracts { (check_anonymous_record_contracts) }
 
+fn check_byte_alias_contracts() -> void {
+    let sources: array<string> = [
+        "fn main()->int{let value:byte=7 assert (== value 7) return 0}",
+        "fn keep(value:byte)->byte{return value} fn main()->int{let value:u8=7 let callback:fn(byte)->byte=keep let result:byte=(callback value) return 0}",
+        "fn main()->int{let values:array<byte> = [7,255] let value:byte=(at values 1) return 0}",
+        "fn main()->int{let value:byte=true return 0}",
+        "fn main()->int{let value:byte=256 return 0}",
+        "fn main()->int{let value:byte=\"wrong\" return 0}"
+    ]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-byte.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-byte.nano")
+        assert (not parsed.has_error)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-byte.nano")
+        assert (== checked.had_error (>= index 3))
+        assert (== (> checked.environment.error_count 0) (>= index 3))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 3))
+    }
+}
+shadow check_byte_alias_contracts { (check_byte_alias_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -116,6 +137,7 @@ fn main() -> int {
     (check_fixed_string_contracts)
     (check_reserved_definition_contracts)
     (check_anonymous_record_contracts)
+    (check_byte_alias_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }
