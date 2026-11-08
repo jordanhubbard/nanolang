@@ -6950,10 +6950,15 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             if (or (== function_name "array_push") (and (nisa_is_list_call function_name) (str_ends_with function_name "_push"))) {
                 return (nisa_emit_push_call parser call function_name)
             } else {
-                if (== function_name "str_contains") {
+                if (and (== function_name "str_contains") (< declared_index 0)) {
                     if (!= call.arg_count 2) {
-                        return (nisa_fail "str_contains needs 2 arguments")
+                        return (nisa_fail "I require two string operands for str_contains")
                     } else {
+                        let left: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                        let right: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                        if (or (!= (nisa_expr_type parser left.node_id left.node_type) "string") (!= (nisa_expr_type parser right.node_id right.node_type) "string")) {
+                            return (nisa_fail "I require two string operands for str_contains")
+                        }
                         return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONTAINS"))
                     }
                 } else {
@@ -6964,10 +6969,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
                         }
                     } else {
-                        if (== function_name "str_length") {
+                        if (and (== function_name "str_length") (< declared_index 0)) {
                             if (!= call.arg_count 1) {
-                                return (nisa_fail "str_length needs 1 argument")
+                                return (nisa_fail "I require one string operand for str_length")
                             } else {
+                                let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                                if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+                                    return (nisa_fail "I require one string operand for str_length")
+                                }
                                 return (+ (nisa_emit_call_args parser call) (nisa_line "STR_LEN"))
                             }
                         } else {
@@ -7031,6 +7040,8 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
 }
 
 shadow nisa_emit_call {
+    assert (== (nanoisa_emit_nasm "fn main()->int{return (str_length 1)}") "")
+    assert (== (nanoisa_emit_nasm "fn main()->int{(str_contains \"x\" false) return 0}") "")
     let cast_text: string = (nanoisa_emit_nasm "fn convert()->float{return (cast_float true)} fn main()->int{return (cast_int (convert))}")
     assert nisa_ok
     assert (str_contains cast_text "CAST_FLOAT")

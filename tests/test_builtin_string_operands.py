@@ -88,6 +88,22 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_bound_length_and_contains_keep_their_signatures(self):
+        self.run_program('''fn count(value:int)->int{return (+ value 100)}
+shadow count{assert (== (count 7) 107)}
+fn same(left:int,right:int)->bool{return (== left right)}
+shadow same{assert (same 7 7) assert (not (same 7 8))}
+fn main()->int{
+ let str_length:fn(int)->int=count
+ let str_contains:fn(int,int)->bool=same
+ assert (== (str_length 7) 107)
+ assert (str_contains 7 7)
+ assert (not (str_contains 7 8))
+ return 0
+}
+shadow main{assert (== (main) 0)}
+''')
+
     def test_real_declaration_keeps_its_parameter_and_result(self):
         self.run_program('''let mut calls: int = 0
 fn next() -> int { set calls (+ calls 1) return 7 }

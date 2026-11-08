@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1084 I execute the actual Nano source checker component through the C seed in focused CI, including production invalid/valid/bound STRING checks, before waiting for full self-hosted bootstrap. I retain source/tool/native hashes and compile/run logs, publish source-contract metadata before CLI/corpus collection, and keep this C-creation-path component evidence separate from fresh Stage 1/2 and full native lifecycle acceptance.
+
 - [x] Under #1097/#1099 I retain paired [format 8d](evidence/format-source-20261108/qualified-8d/README.md) and [par-let d6](evidence/legacy-par-let-20261108/qualified-d6/README.md) C-frontend/native checkpoints: all 74 and 77 methods pass respectively, with original C units/aliases and full translator gates. Four full artifact ZIPs and embedded TAR inventories verify. Both unchanged whole fixtures execute with exact output; fresh self-hosted and integrated acceptance remain open.
 
 - [x] Under #1081/#1088/#1065 I retain the [complete 85a checkpoint](evidence/junit-route-checkpoints-20261107/85/README.md): both C routes pass all 237, both stages pass 190 with 47 failures, zero skips and identical ordered selection. All four original CLI routes produce exact 2/0/1/2 outcomes under the existing 1800-second budget, with stage compiles measured at 472.248/474.803 seconds. The original 120-second corpus limit still fails; internal phase timing remains unobserved. Both full artifacts and embedded TAR inventories verify. Later source edits remain separately qualified.

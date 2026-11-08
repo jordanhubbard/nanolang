@@ -5432,6 +5432,32 @@ shadow tc_generic_call {
     }
 }
 
+fn check_fixed_string_builtin(parser: Parser, call: ASTCall, name: string, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut count: int = 1
+    if (== name "str_contains") { set count 2 }
+    let mut valid: bool = (== call.arg_count count)
+    let mut index: int = 0
+    while (< index call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start index))
+        let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        set valid (and valid (== actual.kind TypeKind.TYPE_STRING))
+        set index (+ index 1)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared arity and string operands for this builtin." (Diagnostics.diag_location file_name call.line call.column)))
+    }
+    if (== name "str_contains") { return (type_bool) }
+    return (type_int)
+}
+shadow check_fixed_string_builtin {
+    let sources: array<string> = ["fn main()->int{return (str_length \"x\")}", "fn main()->int{assert (str_contains \"x\" \"x\") return 0}", "fn main()->int{return (str_length 1)}", "fn main()->int{(str_contains \"x\" false) return 0}", "fn main()->int{return (str_length)}", "fn main()->int{(str_contains \"x\") return 0}"]
+    for index in (range 0 (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "string-operand.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "string-operand.nano")
+        assert (== (typecheck_phase parser "string-operand.nano").had_error (>= index 2))
+    }
+}
+
 fn check_format_builtin(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let mut valid: bool = (> call.arg_count 0)
     let mut index: int = 0
@@ -5773,6 +5799,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             return (check_builtin_function fn_name)
         }
+        let fixed_string: bool = (or (== fn_name "str_length") (== fn_name "str_contains"))
+        if (and fixed_string (< (env_lookup symbols fn_name) 0)) {
+            return (check_fixed_string_builtin parser call_node fn_name symbols diags file_name)
+        }
         if (and (== fn_name "format") (< (env_lookup symbols fn_name) 0)) {
             return (check_format_builtin parser call_node symbols diags file_name)
         }
@@ -5785,6 +5815,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return (check_array_search_builtin parser call_node fn_name symbols diags file_name)
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and fixed_string (>= (env_lookup symbols fn_name) 0)) { set builtin_type (type_unknown_named fn_name) }
         if (and (== fn_name "cast_float") (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }

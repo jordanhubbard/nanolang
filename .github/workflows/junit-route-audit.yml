@@ -151,6 +151,21 @@ jobs:
           python3 -m unittest -v tests.test_map_constructor_contexts \
             2>&1 | tee .test_output/junit-route-audit/map-contexts.log
 
+      - name: Retain source-contract metadata before CLI and full corpus collection
+        if: always() && steps.bootstrap.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-contract-metadata-${{ github.sha }}
+          path: |
+            .test_output/junit-route-audit/revision.txt
+            .test_output/junit-route-audit/providers-before.sha256
+            .test_output/junit-route-audit/focused-results.json
+            .test_output/junit-route-audit/string-operands.log
+            .test_output/junit-route-audit/map-contexts.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Measure and execute the original CLI through every fresh provider
         if: always() && steps.bootstrap.outcome == 'success'
         timeout-minutes: 90

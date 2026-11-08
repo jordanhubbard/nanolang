@@ -7383,3 +7383,7 @@ test-format-source-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nv
 .PHONY: test-legacy-par-let-contracts
 test-legacy-par-let-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_legacy_par_let_contracts
+
+.PHONY: test-source-checker-component
+test-source-checker-component: stage1
+	python3 -m unittest -v tests.test_source_checker_component

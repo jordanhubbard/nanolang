@@ -34,6 +34,8 @@ on:
       - 'schema/compiler_schema.json'
       - 'src_nano/parser.nano'
       - 'src_nano/typecheck.nano'
+      - 'src_nano/typecheck_driver.nano'
+      - 'tests/test_source_checker_component.py'
       - 'src_nano/compiler/nanoisa_codegen.nano'
       - 'src/math_host_contracts.h'
       - 'src/nanovirt/shadow_runner.c'
@@ -105,6 +107,8 @@ jobs:
           set -o pipefail
           make -f Makefile.gnu CC="$CC" test-typechecker \
             2>&1 | tee .test_output/string-builtin-operands/typechecker.log
+      - name: Execute my actual source checker native component through the C seed
+        run: python3 -m unittest -v tests.test_source_checker_component
       - name: Verify exact and deferred aggregate shape constraints
         run: |
           set -o pipefail
@@ -159,6 +163,7 @@ jobs:
           name: string-builtin-operands-${{ matrix.compiler }}-${{ github.sha }}
           path: |
             .test_output/string-builtin-operands/
+            .test_output/source-checker-component/
             .test_output/legacy-print-statements/
             .test_output/empty-record-array-contexts/
             .test_output/numeric-builtin-selection/

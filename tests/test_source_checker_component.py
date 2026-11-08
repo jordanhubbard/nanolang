@@ -1,0 +1,49 @@
+"""I execute my actual Nano checker component through the C creation path."""
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+from tests import test_numeric_builtin_selection as numeric
+
+ROOT = numeric.ROOT
+
+
+class SourceCheckerComponent(unittest.TestCase):
+    command = numeric.NumericBuiltinSelection.command
+
+    def test_actual_source_checker_native_component(self):
+        compiler = ROOT/'bin/nanoc_c'
+        self.assertTrue(compiler.is_file(), 'I require my actual C seed.')
+        source = ROOT/'src_nano/typecheck_driver.nano'
+        inputs = [compiler, source, ROOT/'src_nano/typecheck.nano', ROOT/'src_nano/parser.nano']
+        before = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in inputs}
+        output = ROOT/'.test_output/source-checker-component'
+        output.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix='actual-native-', dir=output))
+        (work/'inputs-before.json').write_text(json.dumps(before, indent=2)+'\n')
+        product = work/'checker'
+        product_before = None
+        try:
+            self.command(work, 'source-build', [compiler, source, '-v', '-k', '-o', product], build=True)
+            self.assertTrue(product.is_file())
+            if sys.platform.startswith('linux'):
+                with product.open('rb') as stream:
+                    self.assertEqual(stream.read(4), b'\x7fELF', 'I require an actual native ELF product.')
+            product_before = hashlib.sha256(product.read_bytes()).hexdigest()
+            result = self.command(work, 'native-run', [product])
+            self.assertIn('I passed my checker entry assertions.\n', result.stdout)
+        finally:
+            after = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                     for path in inputs}
+            product_after = hashlib.sha256(product.read_bytes()).hexdigest() if product.is_file() else None
+            (work/'inputs.json').write_text(json.dumps({'creation_path': 'C-seed-to-native',
+                'native_lifecycle_admitted': False, 'fresh_stages_qualified': False,
+                'before': before, 'after': after, 'product_before_run': product_before,
+                'product_after_run': product_after}, indent=2)+'\n')
+            self.assertEqual(before, after)
+            if product_before is not None:
+                self.assertEqual(product_before, product_after)
