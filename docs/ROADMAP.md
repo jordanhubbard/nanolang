@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1084 I retain the first source-component transport failure before execution: I passed the self-hosted -v/-k spellings to the C seed, whose actual src/main.c parser accepts --verbose/--keep-c. I correct only those harness options, preserve the failed artifacts and require the actual native component and complete source suites to execute before acceptance.
+
 - [ ] Under #1084 I execute the actual Nano source checker component through the C seed in focused CI, including production invalid/valid/bound STRING checks, before waiting for full self-hosted bootstrap. I retain source/tool/native hashes and compile/run logs, publish source-contract metadata before CLI/corpus collection, and keep this C-creation-path component evidence separate from fresh Stage 1/2 and full native lifecycle acceptance.
 
 - [x] Under #1097/#1099 I retain paired [format 8d](evidence/format-source-20261108/qualified-8d/README.md) and [par-let d6](evidence/legacy-par-let-20261108/qualified-d6/README.md) C-frontend/native checkpoints: all 74 and 77 methods pass respectively, with original C units/aliases and full translator gates. Four full artifact ZIPs and embedded TAR inventories verify. Both unchanged whole fixtures execute with exact output; fresh self-hosted and integrated acceptance remain open.

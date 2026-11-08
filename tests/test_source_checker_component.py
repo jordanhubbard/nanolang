@@ -28,7 +28,7 @@ class SourceCheckerComponent(unittest.TestCase):
         product = work/'checker'
         product_before = None
         try:
-            self.command(work, 'source-build', [compiler, source, '-v', '-k', '-o', product], build=True)
+            self.command(work, 'source-build', [compiler, source, '--verbose', '--keep-c', '-o', product], build=True)
             self.assertTrue(product.is_file())
             if sys.platform.startswith('linux'):
                 with product.open('rb') as stream:
