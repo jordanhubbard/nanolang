@@ -3287,7 +3287,7 @@ shadow check_list_function_call {
 /* Check if a function name is a built-in function
  * Returns true if the function is a built-in (e.g., array_push, at, str_concat)
  */
-fn is_float_math_builtin(name: string) -> bool {
+pub fn is_float_math_builtin(name: string) -> bool {
     if (== name "sqrt") { return true }
     if (== name "pow") { return true }
     if (== name "floor") { return true }
@@ -5419,7 +5419,7 @@ fn check_numeric_builtin(parser: Parser, call: ASTCall, name: string, symbols: a
 shadow check_numeric_builtin {
     let sources: array<string> = ["fn main()->float{return (min -2.0 7.0)}", "fn main()->float{return (max 2.0 7.0)}", "fn main()->float{return (abs -2.0)}", "fn main()->int{return (min -2 7)}", "fn main()->int{return (max 1)}", "fn main()->int{return (min true false)}", "fn main()->float{return (min 2.0 7)}"]
     for index in (range 0 (array_length sources)) {
-        let tokens: List<LexerToken> = (tokenize_string (at sources index) "numeric.nano" (diag_list_new))
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "numeric.nano" (list_CompilerDiagnostic_new))
         let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "numeric.nano")
         assert (== (typecheck_phase parser "numeric.nano").had_error (>= index 4))
     }

@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] Under #1091 I retain the b7bcf56f6 Stage 1 lowering refusal: my new checker shadow uses unbound diag_list_new from its own module, although C-seed interpretation completed it. I use the checker module's existing list_CompilerDiagnostic_new constructor, preserve every numeric assertion, and require the same shadow through fresh self-hosted lowering.
+
+- [ ] Under #1092 I retain the 78bfd94a9 seed refusal: my emitter cannot call the private is_float_math_builtin query in the typechecker module. I explicitly export that shared internal query, retain its meaningful shadow and require actual fresh bootstrap; I do not weaken module visibility checking.
+
 - [ ] Under #1092 I retain 78bfd94a9 math failures: imported C-frontend math declarations retain a logical source-module namespace instead of the known scalar host namespace, and cached fixed-float builtin parameters are lost. I share the exact native math name/arity table between C lowering and C AOT, bind only its matching all-float declaration signatures to the host namespace, preserve raw named-library refusals and real function bodies, and retain fixed FLOAT cache operands alongside existing STRING contracts. Every original math assertion stays selected.
 
 - [x] Under #1091 I retain my [corrected numeric C-frontend/native checkpoint](evidence/numeric-selection-20261107/62d/README.md): GCC and Clang each pass all 29 selected methods, original builtin fixture, numeric bit/order/binding controls, raw scalar/record/callable PICK and prior-output refusals. The new self-hosted lowering, mandatory bootstrap shadows, both resulting stages and complete integrated routes remain open.
