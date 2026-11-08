@@ -2,7 +2,7 @@ name: Complete JUnit producer-route diagnosis
 
 on:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity, fix/5.1-map-producer-operations, fix/5.1-map-shadow-parser, fix/5.1-map-aot-parity, fix/5.1-string-builtin-operands, fix/5.1-declared-string-dispatch, fix/5.1-map-context-and-declared-c, fix/5.1-junit-run-contract, fix/5.1-map-tagged-snapshots]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
@@ -17,6 +17,7 @@ on:
       - 'tests/unit/test_map_constructor_contexts.nano'
       - 'Makefile.gnu'
       - 'src_nano/compiler/nanoisa_codegen.nano'
+      - 'src/nanoisa/nvm2c.c'
       - 'src/nanovirt/codegen.c'
       - 'src_nano/typecheck.nano'
       - 'src/env.c'

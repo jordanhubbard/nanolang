@@ -2,7 +2,7 @@ name: Exact scalar map AOT diagnosis
 
 on:
   push:
-    branches: [fix/5.1-map-aot-parity, fix/5.1-map-aot-allocation]
+    branches: [fix/5.1-map-aot-parity, fix/5.1-map-aot-allocation, fix/5.1-map-tagged-snapshots]
     paths:
       - '.github/workflows/scalar-map-aot.yml'
       - 'src/nanoisa/nvm2c.c'

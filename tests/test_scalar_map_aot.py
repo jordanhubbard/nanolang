@@ -63,6 +63,50 @@ class ScalarMapAot(unittest.TestCase):
                                '.function values 1 1 0 array 1\nLOAD_LOCAL 0\nHM_VALUES\nRET\n.end\n')
                     self.paired(HEADER + '.function main 0 3 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n' + helpers + CHURN)
 
+    def test_tagged_global_snapshots_keep_exact_pairs_through_calls(self):
+        for key in (1, 5):
+            for value in (1, 5):
+                for through_call in (False, True):
+                    with self.subTest(key=key, value=value, through_call=through_call):
+                        push_key = 'PUSH_I64 -9223372036854775808\n' if key == 1 else 'PUSH_STR first\n'
+                        push_value = 'PUSH_I64 -7\n' if value == 1 else 'PUSH_STR kept\n'
+                        body = f'HM_NEW {key} {value}\nSTORE_GLOBAL 0\n'
+                        for operation in ('keys', 'values'):
+                            snapshot = 'CALL '+operation if through_call else 'HM_'+operation.upper()
+                            body += 'LOAD_GLOBAL 0\n'+snapshot+'\nARR_LEN\nPUSH_I64 0\nEQ\nASSERT\n'
+                        body += 'LOAD_GLOBAL 0\n'+push_key+push_value+'HM_SET\nPOP\n'
+                        for slot, operation in enumerate(('keys', 'values')):
+                            snapshot = 'CALL '+operation if through_call else 'HM_'+operation.upper()
+                            body += 'LOAD_GLOBAL 0\n'+snapshot+f'\nSTORE_LOCAL {slot}\n'
+                        body += f'HM_NEW {key} {value}\nSTORE_GLOBAL 0\nCALL churn\n'
+                        for slot, tag, push in ((0, key, push_key), (1, value, push_value)):
+                            body += f'LOAD_LOCAL {slot}\nDUP\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\n'
+                            body += 'PUSH_I64 0\nARR_GET\nDUP\n'+f'TYPE_CHECK {tag}\nASSERT\n'+push+'EQ\nASSERT\n'
+                        helpers = ''
+                        if through_call:
+                            helpers = ('.function keys 1 1 0 array 1\nLOAD_LOCAL 0\nHM_KEYS\nRET\n.end\n'
+                                       '.function values 1 1 0 array 1\nLOAD_LOCAL 0\nHM_VALUES\nRET\n.end\n')
+                        self.paired(HEADER+'.function main 0 2 0 int 1\n'+body+
+                            'PUSH_I64 0\nRET\n.end\n'+helpers+CHURN)
+
+    def test_conflicting_global_map_pairs_do_not_guess_snapshot_storage(self):
+        text = (HEADER+'.function main 0 0 0 int 1\nHM_NEW 1 1\nSTORE_GLOBAL 0\n'
+                'HM_NEW 5 5\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nHM_KEYS\nARR_LEN\nPOP\n'
+                'PUSH_I64 0\nRET\n.end\n')
+        with tempfile.TemporaryDirectory(prefix='nano-global-map-refusal-') as folder:
+            work = Path(folder)
+            assembly, module, output = (work/name for name in ('input.nasm', 'input.nvm', 'prior.c'))
+            assembly.write_text(text)
+            self.checked([ROOT/'bin/nanoisa', 'asm', assembly, '-o', module])
+            self.checked([ROOT/'bin/nano_vm', '--verify-only', module])
+            self.checked([ROOT/'bin/nano_vm', module])
+            output.write_bytes(b'I preserve the prior native output.\n')
+            result = subprocess.run([ROOT/'bin/nvm2c', module, '-o', output],
+                cwd=ROOT, capture_output=True, text=True, timeout=60)
+            self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+            self.assertIn('snapshot element type', result.stderr)
+            self.assertEqual(output.read_bytes(), b'I preserve the prior native output.\n')
+
     def test_snapshot_allocation_prefixes_and_successful_teardown(self):
         evidence = Path(os.environ.get('NANO_SCALAR_MAP_AOT_EVIDENCE', ROOT / '.test_output/scalar-map-aot-prefixes'))
         evidence.mkdir(parents=True, exist_ok=True)

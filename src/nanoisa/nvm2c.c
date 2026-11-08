@@ -864,6 +864,26 @@ static int merge_global_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint32_t slot,
     return 1;
 }
 
+/* I retain a map payload hint only when every observed store agrees. A
+ * disagreement removes the hint; it does not change tagged global storage. */
+static void merge_global_map_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint32_t slot,
+                                    const uint8_t *fields) {
+    uint8_t *dest = facts->global_fields + (size_t)slot * b->record_width;
+    for (size_t i = 0; i < 2; ++i) {
+        if (fields[i] == NVM2C_VK_UNK || dest[i] == fields[i] || dest[i] == NVM2C_VK_VALUE) continue;
+        dest[i] = dest[i] == NVM2C_VK_UNK ? fields[i] : NVM2C_VK_VALUE;
+        facts->changed = 1;
+    }
+}
+
+static int exact_global_map_pair(const Nvm2cBuf *b, const Nvm2cFacts *facts, uint32_t slot) {
+    const uint8_t *fields = facts->global_fields + (size_t)slot * b->record_width;
+    return facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
+        facts->global_kinds[slot] == NVM2C_VK_MAP &&
+        (fields[0] == NVM2C_VK_INT || fields[0] == NVM2C_VK_STR) &&
+        (fields[1] == NVM2C_VK_INT || fields[1] == NVM2C_VK_STR);
+}
+
 static int shape_ok(Nvm2cBuf *b) {
     if (b->shapes.error) {
         const InstructionInfo *info = isa_get_info(b->shape_opcode);
@@ -1818,6 +1838,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
                     (word_array_storage(kind) || kind == NVM2C_VK_SARR))
                     stk[sp - 1].array_payload_kind = kind;
+                if (b->track_shapes && !facts->discover_globals && exact_global_map_pair(b, facts, slot)) {
+                    NvmShapeId payload = shape_child(b, stk[sp - 1].shape, 0);
+                    if (!shape_equal(b, payload, shape_variable(b, &b->shape_globals[slot]))) return 0;
+                }
             }
             break;
         }
@@ -1835,6 +1859,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 facts->changed = 1;
             }
             if (!merge_global_kind(b, facts, slot, stored_kind)) return 0;
+            if (value.kind == NVM2C_VK_MAP) {
+                merge_global_map_fields(b, facts, slot, value.rec_k);
+                if (exact_global_map_pair(b, facts, slot)) {
+                    NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
+                    if (!shape_equal(b, value.shape, global)) return 0;
+                }
+            }
             if (value.kind == NVM2C_VK_RARR) {
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
                 NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
@@ -2230,7 +2261,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
              * operation validates its map tag and value kind independently. */
             if (map.kind == NVM2C_VK_VALUE) {
                 NvmShapeId checked = 0;
+                NvmShapeId payload = shape_child(b, map.shape, 0);
                 map.shape = shape_variable(b, &checked);
+                if (b->track_shapes &&
+                    (!nvm_shape_convert(&b->shapes, payload, map.shape) || !shape_ok(b))) return 0;
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
             if (ins.opcode != OP_HM_LEN) {
@@ -2293,7 +2327,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "I require a map for a hashmap snapshot"); return 0;
             }
             if (map.kind == NVM2C_VK_VALUE) {
-                NvmShapeId checked = 0; map.shape = shape_variable(b, &checked);
+                NvmShapeId checked = 0;
+                NvmShapeId payload = shape_child(b, map.shape, 0);
+                map.shape = shape_variable(b, &checked);
+                if (b->track_shapes &&
+                    (!nvm_shape_convert(&b->shapes, payload, map.shape) || !shape_ok(b))) return 0;
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
             array.origin = -1; array.shape = shape_variable(b, b->shape_current);
