@@ -1,0 +1,47 @@
+[
+  {
+    "path": "cseed-source-comparison/health/before-build-modified.json",
+    "minimum_free_gib": 28.447269439697266,
+    "available_memory": 2998599680
+  },
+  {
+    "path": "cseed-source-comparison/health/before-build-original.json",
+    "minimum_free_gib": 28.545848846435547,
+    "available_memory": 3581132800
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-01.json",
+    "minimum_free_gib": 28.341495513916016,
+    "available_memory": 2876293120
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-02.json",
+    "minimum_free_gib": 28.255393981933594,
+    "available_memory": 3933503488
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-03.json",
+    "minimum_free_gib": 28.031509399414062,
+    "available_memory": 4157259776
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-04.json",
+    "minimum_free_gib": 27.99878692626953,
+    "available_memory": 4160651264
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-06.json",
+    "minimum_free_gib": 27.962825775146484,
+    "available_memory": 4135714816
+  },
+  {
+    "path": "cseed-source-comparison/health/preflight.json",
+    "minimum_free_gib": 28.660526275634766,
+    "available_memory": 3030040576
+  },
+  {
+    "path": "cseed-source-comparison/health/before-sample-05.json",
+    "minimum_free_gib": 27.96530532836914,
+    "available_memory": 4160651264
+  }
+]
