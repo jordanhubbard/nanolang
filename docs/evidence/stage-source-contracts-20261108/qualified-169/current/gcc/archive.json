@@ -1,0 +1,15 @@
+{
+  "size": 6703562,
+  "sha256": "ffb746211d7ef7f5d078b80d305b44d1ca2ee0df0d8305832b90afc2869516d3",
+  "files": 956,
+  "text_files": 870,
+  "crc_verified": true,
+  "verified_archives": [
+    {
+      "path": "string-builtin-operands/translator-storage/nano-qualification-xvleew81.tar.gz",
+      "sha256": "5bf7f85a95aa2df508f496dd36d4ff5d5e0cb269f47aa0574ffbbe7aa870a323",
+      "entries": 0,
+      "verified": true
+    }
+  ]
+}

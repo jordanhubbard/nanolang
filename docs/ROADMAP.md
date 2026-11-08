@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #1083/#1084/#1091/#1092/#1093 I retain my [corrected 169 source/native checkpoint](evidence/stage-source-contracts-20261108/qualified-169/README.md): GCC/Clang each pass all 49 methods, full original C typechecker units, complete source map pairs, corrected array refusals and original fixtures, plus 2,443 translator execution, 3,866 shape and 464 callable checks. Earlier five array failures remain retained. Fresh stages, full original routes and integrated acceptance stay open.
+
 - [ ] Under #1094 I retain the complete original array-arithmetic fixture through current frontend, VM and C AOT before implementation. I then preserve exact numeric policy, qualify matching STRING-array PLUS/broadcast metadata and canonical array opcodes, retain once-only ordering/independent storage and malformed/output boundaries, and require both frontends/fresh stages, sanitized native and complete translator/platform gates.
 
 - [x] Under #1083 I retain my [checked map-return regression checkpoint](evidence/stage-source-contracts-20261108/map-return-b21/README.md): fresh GCC/Clang each pass 40 methods, every original scalar-map/storage/lifetime control, all four tagged-global map-return/snapshot pairs and all 304 generated snapshot allocation-denial prefixes. Full source, fresh-stage and integrated acceptance remain open.
