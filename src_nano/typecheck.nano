@@ -4668,7 +4668,81 @@ shadow check_empty_map_context {
     assert (== (check_empty_map_context invalid 0 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
 }
 
+# I bind an anonymous literal only to its declared nominal context.
+fn check_anonymous_record_context(parser: Parser, node_id: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+    if (!= literal.struct_name "") { return actual }
+    if (and (> literal.field_count 0) (== (at literal.field_names 0) "..")) { return actual }
+    let identity: string = (resource_type_identity parser expected.name literal.line)
+    let mut selected: int = -1
+    let mut r: int = 0
+    while (< r (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser r)
+        if (== (resource_type_identity parser definition.name definition.line) identity) { set selected r }
+        set r (+ r 1)
+    }
+    if (< selected 0) { return actual }
+    let definition: ASTStruct = (parser_get_struct_def parser selected)
+    let mut valid: bool = (== literal.field_count definition.field_count)
+    let mut i: int = 0
+    while (< i literal.field_count) {
+        let name: string = (at literal.field_names i)
+        let mut slot: int = -1
+        let mut j: int = 0
+        while (< j definition.field_count) {
+            if (== name (at definition.field_names j)) { set slot j }
+            set j (+ j 1)
+        }
+        set j 0
+        while (< j i) {
+            if (== name (at literal.field_names j)) { set valid false }
+            set j (+ j 1)
+        }
+        if (< slot 0) { set valid false } else {
+            let id: int = (at literal.field_value_ids i)
+            let kind: int = (at literal.field_value_types i)
+            let wanted: NSType = (type_from_string_with_parser parser (at definition.field_types slot))
+            let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
+            let hinted: NSType = (apply_value_type_hint parser id kind raw wanted)
+            let checked: NSType = (check_constructor_argument parser id kind hinted wanted symbols diags file_name)
+            if (or (== checked.kind TypeKind.TYPE_UNKNOWN) (not (types_equal checked wanted))) { set valid false }
+        }
+        set i (+ i 1)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require each declared anonymous record field exactly once with its declared type." (Diagnostics.diag_location file_name literal.line literal.column)))
+        return actual
+    }
+    let resolved: ASTStructLiteral = ASTStructLiteral {
+        node_type: literal.node_type, line: literal.line, column: literal.column,
+        struct_name: expected.name, field_names: literal.field_names,
+        field_value_ids: literal.field_value_ids, field_value_types: literal.field_value_types,
+        field_count: literal.field_count
+    }
+    (list_ASTStructLiteral_set parser.struct_literals node_id resolved)
+    return expected
+}
+shadow check_anonymous_record_context {
+    let good: Parser = (resource_test_parser "struct Point{x:int,y:int} fn make()->Point{return {y:9,x:7}}")
+    assert (not good.has_error)
+    let literal: ASTStructLiteral = (parser_get_struct_literal good 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let expected: NSType = (type_from_string_with_parser good "Point")
+    let checked: NSType = (check_anonymous_record_context good 0 (type_unknown_named "anonymous") expected [] diags "anonymous.nano")
+    assert (types_equal checked expected)
+    assert (== (parser_get_struct_literal good 0).struct_name "Point")
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let bad: Parser = (resource_test_parser "struct Point{x:int,y:int} fn make()->Point{return {x:7,x:9}}")
+    let rejected: NSType = (check_anonymous_record_context bad 0 (type_unknown_named "anonymous") expected [] diags "anonymous.nano")
+    assert (not (types_equal rejected expected))
+    assert (== (parser_get_struct_literal bad 0).struct_name "")
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+}
+
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== expected.kind TypeKind.TYPE_STRUCT) (== node_type ParseNodeType.PNODE_STRUCT_LITERAL)) {
+        return (check_anonymous_record_context parser node_id actual expected symbols diags file_name)
+    }
     if (and (== actual.kind TypeKind.TYPE_UNKNOWN) (== actual.name "HashMap")) {
         let contextual: NSType = (check_empty_map_context parser node_id node_type actual expected)
         if (!= contextual.kind TypeKind.TYPE_UNKNOWN) { return contextual }
@@ -4778,6 +4852,13 @@ fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actu
     return expected
 }
 shadow check_constructor_argument {
+    let anonymous: Parser = (resource_test_parser "struct Point{x:int} fn make()->Point{return {x:7}}")
+    let anonymous_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let point: NSType = (type_from_string_with_parser anonymous "Point")
+    let contextual: NSType = (check_constructor_argument anonymous 0 ParseNodeType.PNODE_STRUCT_LITERAL (type_unknown_named "anonymous") point [] anonymous_diags "anonymous.nano")
+    assert (types_equal contextual point)
+    assert (== (parser_get_struct_literal anonymous 0).struct_name "Point")
+    assert (== (list_CompilerDiagnostic_length anonymous_diags) 0)
     let scalars: array<string> = ["int", "string"]
     for key in scalars {
         for value in scalars {
@@ -6468,7 +6549,7 @@ fn check_let_statement_named(parser: Parser, let_node: ASTLet, node_id: int, sym
         let init_context: NSType = (check_array_literal_context parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
         let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_context declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
-        if (or (== declared_type.kind TypeKind.TYPE_UNION) (or (== declared_type.kind TypeKind.TYPE_FUNCTION) (== declared_type.kind TypeKind.TYPE_TUPLE))) {
+        if (or (== declared_type.kind TypeKind.TYPE_STRUCT) (or (== declared_type.kind TypeKind.TYPE_UNION) (or (== declared_type.kind TypeKind.TYPE_FUNCTION) (== declared_type.kind TypeKind.TYPE_TUPLE)))) {
             set init_type (check_constructor_argument parser let_node.value let_node.value_type init_type_hint declared_type symbols diags file_name)
         }
         # I accept only literal zero as a declared opaque null, as at call sites.
@@ -6528,6 +6609,10 @@ shadow check_let_statement_named {
 }
 
 shadow check_let_statement {
+    let anonymous: Parser = (resource_test_parser "struct Point{x:int} fn main()->int{let p:Point={x:7} return p.x}")
+    assert (not anonymous.has_error)
+    assert (not (typecheck_phase anonymous "anonymous.nano").had_error)
+    assert (== (parser_get_struct_literal anonymous 0).struct_name "Point")
     let stored: Parser = (resource_test_parser "union Choice {Some {callback:fn(int)->int}} fn unused()->void {let c:Choice=Choice.Some {callback:true}}")
     let storage_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (check_let_statement stored (parser_get_let stored 0) 0 [] storage_diags "union.nano")
@@ -6585,7 +6670,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         let expr_context: NSType = (check_array_literal_context parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
         let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_context expected_type)
         let mut expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
-        if (or (== expected_type.kind TypeKind.TYPE_UNION) (or (== expected_type.kind TypeKind.TYPE_FUNCTION) (== expected_type.kind TypeKind.TYPE_TUPLE))) {
+        if (or (== expected_type.kind TypeKind.TYPE_STRUCT) (or (== expected_type.kind TypeKind.TYPE_UNION) (or (== expected_type.kind TypeKind.TYPE_FUNCTION) (== expected_type.kind TypeKind.TYPE_TUPLE)))) {
             set expr_t (check_constructor_argument parser ret_node.value ret_node.value_type expr_t_hint expected_type symbols diags file_name)
         }
         if (and (tc_is_opaque_name parser (type_to_string expected_type)) (== ret_node.value_type ParseNodeType.PNODE_NUMBER)) {
@@ -6604,6 +6689,10 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
 }
 
 shadow check_return_statement {
+    let anonymous: Parser = (resource_test_parser "struct Point{x:int} fn make()->Point{return {x:7}}")
+    assert (not anonymous.has_error)
+    assert (not (typecheck_phase anonymous "anonymous.nano").had_error)
+    assert (== (parser_get_struct_literal anonymous 0).struct_name "Point")
     let valid: Parser = (resource_test_parser "opaque type Handle fn empty()->Handle { return 0 }")
     let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     assert (check_return_statement valid (parser_get_return valid 0) (type_from_string_with_parser valid "Handle") [] accepted "opaque.nano" "empty")

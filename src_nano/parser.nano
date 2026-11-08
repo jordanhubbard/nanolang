@@ -2856,6 +2856,8 @@ fn parse_primary(p: Parser) -> Parser {
         let tok: LexerToken = (parser_current p)
 
         if (and (== tok.token_type (token_lbrace)) (and (== (parser_peek p 1) (token_dot)) (== (parser_peek p 2) (token_dot)))) { return (parse_record_spread p) }
+        # I leave the nominal name empty until a declared record context checks it.
+        if (== tok.token_type (token_lbrace)) { return (parse_struct_literal (parser_advance p) "" tok.line tok.column) }
         if (== tok.token_type LexerTokenType.TOKEN_HANDLE) { return (parse_effect_handle p) }
         if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== tok.value "perform")) { return (parse_effect_perform p false) }
         if (and (== tok.token_type LexerTokenType.TOKEN_LPAREN) (== (parser_peek p 1) LexerTokenType.TOKEN_IDENTIFIER)) {
@@ -3451,6 +3453,15 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
+    let anonymous_sources: array<string> = ["{}", "{x:7,y:9}", "{child:{x:7}}"]
+    for source in anonymous_sources {
+        let tokens: List<LexerToken> = (tokenize_string source "anonymous.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "anonymous.nano"))
+        assert (not parsed.has_error)
+        assert (parser_is_at_end parsed)
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_STRUCT_LITERAL)
+        assert (== (parser_get_struct_literal parsed parsed.last_expr_node_id).struct_name "")
+    }
     let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }", "api.Box<int>.Some { value: 7 }", "api.Box<array<int>>.None {}"]
     let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>", "api.Box<int>", "api.Box<array<int>>"]
     let mut explicit_index: int = 0

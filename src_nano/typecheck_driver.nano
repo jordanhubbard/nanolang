@@ -68,6 +68,30 @@ fn check_reserved_definition_contracts() -> void {
 }
 shadow check_reserved_definition_contracts { (check_reserved_definition_contracts) }
 
+fn check_anonymous_record_contracts() -> void {
+    let prefix: string = "struct Point{x:int,y:int} "
+    let bodies: array<string> = [
+        "fn make()->Point{return {y:9,x:7}} fn main()->int{let p:Point=(make) return p.x}",
+        "fn take(p:Point)->int{return p.x} fn main()->int{let p:Point={x:7,y:9} return (take {y:p.y,x:p.x})}",
+        "struct Outer{child:Point} fn make()->Outer{return {child:{x:7,y:9}}} fn main()->int{return 0}",
+        "struct Empty{} fn make()->Empty{return {}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7,y:9,z:11}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:7,x:9}} fn main()->int{return 0}",
+        "fn make()->Point{return {x:true,y:9}} fn main()->int{return 0}"
+    ]
+    for index in (range 0 (array_length bodies)) {
+        let tokens: List<LexerToken> = (tokenize_string (+ prefix (at bodies index)) "component-anonymous.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-anonymous.nano")
+        assert (not (parser_has_error parsed))
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-anonymous.nano")
+        assert (== checked.had_error (>= index 4))
+        assert (== (> checked.environment.error_count 0) (>= index 4))
+        assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (>= index 4))
+    }
+}
+shadow check_anonymous_record_contracts { (check_anonymous_record_contracts) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -91,6 +115,7 @@ fn main() -> int {
     (check_legacy_global_declarations)
     (check_fixed_string_contracts)
     (check_reserved_definition_contracts)
+    (check_anonymous_record_contracts)
     (println "I passed my checker entry assertions.")
     return 0
 }

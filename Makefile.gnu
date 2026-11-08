@@ -7388,3 +7388,7 @@ test-legacy-par-let-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump n
 .PHONY: test-source-checker-component
 test-source-checker-component: stage1
 	python3 -m unittest -v tests.test_source_checker_component
+
+.PHONY: test-anonymous-record-contracts
+test-anonymous-record-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_anonymous_record_contracts
