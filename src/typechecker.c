@@ -1365,8 +1365,12 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
         const char *name = array_expr->as.call.name;
+        Function *function = env_get_function_at(env, name, array_expr->line, array_expr->column);
+        bool builtin_reverse = !strcmp(name, "array_reverse") && array_expr->as.call.arg_count == 1 &&
+            !env_get_var_visible_at(env, name, array_expr->line, array_expr->column) &&
+            function && !function->body && !function->is_extern && !function->params;
         bool keeps_source = (!strcmp(env_array_operation(env, array_expr), "filter") && array_expr->as.call.arg_count == 2) ||
-                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
+                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2) || builtin_reverse;
         if (keeps_source)
             return infer_array_element_type(array_expr->as.call.args[0], env);
     }

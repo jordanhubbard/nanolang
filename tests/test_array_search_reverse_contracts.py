@@ -78,6 +78,7 @@ shadow main{assert (== (main) 0)}
         for expression in ['(array_reverse)', '(array_reverse 1)',
                            '(array_reverse [1] [2])', '(array_index_of [1])',
                            '(array_index_of [1] true)', '(array_contains ["a"] 1)',
-                           '(array_contains [1.0] 1)', '(array_contains true false)']:
+                           '(array_contains [1.0] 1)', '(array_contains true false)',
+                           '(array_contains (array_reverse ["a"]) 1)']:
             with self.subTest(expression=expression):
                 self.exercise('fn main()->int{let result='+expression+' return 0}', refused=True)
