@@ -175,6 +175,8 @@ jobs:
             2>&1 | tee .test_output/string-builtin-operands/typechecker.log
       - name: Execute my actual source checker native component through the C seed
         id: checker_component
+        env:
+          NANO_SHADOW_TRACE: '1'
         run: python3 -m unittest -v tests.test_source_checker_component
       - name: Verify exact and deferred aggregate shape constraints
         run: |
