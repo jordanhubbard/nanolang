@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #1094 I retain the 6d first arithmetic run: GCC passes the original whole fixture, fixed-bit/order sources, O0/O2 integer/float/STRING/empty/lifetime controls and source refusals, but seven raw refusal subcases stop before tool invocation with missing Python Path. I import Path and require all seven unchanged tool/refusal/output assertions to execute; this harness error is not native acceptance.
+
 - [x] Under #1094 I retain the [8127 native baseline](evidence/array-arithmetic-20261108/baseline-8127/README.md): both GCC/Clang execute the unchanged whole fixture in NanoVM, then actual native translation refuses ARRAY_ADD at function 0 offset 74. Both copied fixtures match tracked bytes. I record my [native flat-array contract](NATIVE_ARRAY_ARITHMETIC.md) before implementation; the historical bounded aggregate policy explicitly left this target unqualified.
 
 - [x] Under #1083/#1084/#1091/#1092/#1093 I retain my [corrected 169 source/native checkpoint](evidence/stage-source-contracts-20261108/qualified-169/README.md): GCC/Clang each pass all 49 methods, full original C typechecker units, complete source map pairs, corrected array refusals and original fixtures, plus 2,443 translator execution, 3,866 shape and 464 callable checks. Earlier five array failures remain retained. Fresh stages, full original routes and integrated acceptance stay open.

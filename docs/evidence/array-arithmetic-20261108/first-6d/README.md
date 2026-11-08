@@ -1,0 +1,5 @@
+# My first explicit array arithmetic observation
+
+I retain the actual GCC job log from [run 42467695936](https://github.com/jordanhubbard/nanolang/actions/runs/42467695936), source `6d1ad3eed1e9c8db72572813b804ce3c79764407`. My whole unchanged array fixture, original fixed-bit oracle and ordered alias-growth source pass NanoVM and sanitized native O0/O2. New integer boundaries, empty independent storage, STRING broadcasts/shorter lengths and 2,000-call lifetime control also pass. Known source mismatches preserve prior output.
+
+Seven raw-profile subcases stop before assembly/tool invocation with `NameError: name 'Path' is not defined`. I retain all seven errors and add the missing import; no refusal or prior-output assertion is removed. This is a harness failure and does not establish raw refusal acceptance. This receipt retains the complete observed job log as deterministic gzip with its byte hash; it does not claim independent binary artifact custody or a passing whole job. Fresh corrected paired jobs and self-hosted stages remain required under #1094.
