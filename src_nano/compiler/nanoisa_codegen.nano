@@ -1354,6 +1354,7 @@ shadow nisa_local_type_ok {
 
 # I compare tuple types by structure, not by incidental source whitespace.
 fn nisa_compact_type(t: string) -> string {
+    if (not (or (str_contains t " ") (or (str_contains t "\t") (or (str_contains t "\n") (str_contains t "\r"))))) { return t }
     let mut output: string = ""
     let mut i: int = 0
     while (< i (str_length t)) {
@@ -1367,6 +1368,13 @@ fn nisa_compact_type(t: string) -> string {
 }
 
 shadow nisa_compact_type {
+    assert (== (nisa_compact_type "array<int>") "array<int>")
+    assert (== (nisa_compact_type "") "")
+    assert (== (nisa_compact_type " \t\n\r") "")
+    assert (== (nisa_compact_type "é < 茶 >") "é<茶>")
+    let vertical: string = (string_from_char 11)
+    assert (== (nisa_compact_type (str_concat vertical "int")) (str_concat vertical "int"))
+    assert (== (nisa_compact_type (str_concat vertical " int")) (str_concat vertical "int"))
     assert (== (nisa_compact_type "(int, string,\tbool)") "(int,string,bool)")
 }
 
