@@ -1,0 +1,53 @@
+test_deferred_read_does_not_change_returned_array_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_deferred_read_does_not_change_returned_array_storage) ... ok
+test_mixed_record_argument_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_mixed_record_argument_storage) ... ok
+test_nested_record_present_scalar_projection (tests.test_native_optional_array_reads.OptionalArrayReads.test_nested_record_present_scalar_projection) ... ok
+test_present_and_missing_branch_join (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_and_missing_branch_join) ... ok
+test_present_values_feed_typed_writes_and_records (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_values_feed_typed_writes_and_records) ... ok
+test_projected_scalar_locals_calls_and_returns (tests.test_native_optional_array_reads.OptionalArrayReads.test_projected_scalar_locals_calls_and_returns) ... ok
+test_tags_bounds_locals_and_calls (tests.test_native_optional_array_reads.OptionalArrayReads.test_tags_bounds_locals_and_calls) ... ok
+test_all_pairs_empty_growth_optional_writes_and_detached_snapshots (tests.test_scalar_map_aot.ScalarMapAot.test_all_pairs_empty_growth_optional_writes_and_detached_snapshots) ... ok
+test_forward_map_parameters_and_returned_snapshot_arrays (tests.test_scalar_map_aot.ScalarMapAot.test_forward_map_parameters_and_returned_snapshot_arrays) ... ok
+test_known_wrong_pairs_and_nonmap_snapshots_preserve_output (tests.test_scalar_map_aot.ScalarMapAot.test_known_wrong_pairs_and_nonmap_snapshots_preserve_output) ... ok
+test_snapshot_allocation_prefixes_and_successful_teardown (tests.test_scalar_map_aot.ScalarMapAot.test_snapshot_allocation_prefixes_and_successful_teardown) ... I retain generated snapshot allocation evidence at /home/runner/work/nanolang/nanolang/.test_output/scalar-map-aot-prefixes/snapshot-prefixes-a1x9g4rp
+I measured every generated scalar snapshot allocation prefix: {'pair-1-1-O0': 16, 'pair-1-1-O2': 16, 'pair-1-5-O0': 19, 'pair-1-5-O2': 19, 'pair-5-1-O0': 19, 'pair-5-1-O2': 19, 'pair-5-5-O0': 22, 'pair-5-5-O2': 22}
+ok
+test_complete_original_string_runtime_fixture (tests.test_map_scalar_runtime.MapScalarRuntime.test_complete_original_string_runtime_fixture) ... ok
+test_every_allocation_prefix_refuses_for_each_pair (tests.test_map_scalar_runtime.MapScalarRuntime.test_every_allocation_prefix_refuses_for_each_pair) ... ok
+test_four_pairs_ownership_growth_and_existing_string_api (tests.test_map_scalar_runtime.MapScalarRuntime.test_four_pairs_ownership_growth_and_existing_string_api) ... ok
+test_wrong_tags_null_inputs_and_growth_overflow_refuse (tests.test_map_scalar_runtime.MapScalarRuntime.test_wrong_tags_null_inputs_and_growth_overflow_refuse) ... ok
+test_array_map_and_projected_keys_preserve_aliases (tests.test_native_map_key_storage.NativeMapKeyStorage.test_array_map_and_projected_keys_preserve_aliases) ... ok
+test_branch_and_call_keys (tests.test_native_map_key_storage.NativeMapKeyStorage.test_branch_and_call_keys) ... ok
+test_known_nonstring_keys_preserve_previous_output (tests.test_native_map_key_storage.NativeMapKeyStorage.test_known_nonstring_keys_preserve_previous_output) ... ok
+test_caller_owned_map (tests.test_native_map_lifetimes.NativeMapLifetimes.test_caller_owned_map) ... ok
+test_mutable_array_roots_and_backward_conditional (tests.test_native_map_lifetimes.NativeMapLifetimes.test_mutable_array_roots_and_backward_conditional) ... ok
+test_non_self_tail_unregisters_root_frame (tests.test_native_map_lifetimes.NativeMapLifetimes.test_non_self_tail_unregisters_root_frame) ... ok
+test_reachable_values_and_bounded_churn (tests.test_native_map_lifetimes.NativeMapLifetimes.test_reachable_values_and_bounded_churn) ... ok
+test_self_tail_reclamation (tests.test_native_map_lifetimes.NativeMapLifetimes.test_self_tail_reclamation) ... ok
+test_accounting_rejects_wrap_and_underflow (tests.test_native_map_byte_debt.NativeMapByteDebt.test_accounting_rejects_wrap_and_underflow) ... ok
+test_combined_string_map_and_record_debt_preserves_aliases (tests.test_native_map_byte_debt.NativeMapByteDebt.test_combined_string_map_and_record_debt_preserves_aliases) ... ok
+test_copied_reads_batch_large_live_graph (tests.test_native_map_byte_debt.NativeMapByteDebt.test_copied_reads_batch_large_live_graph) ... ok
+test_map_storage_growth_replacement_and_forced_release (tests.test_native_map_byte_debt.NativeMapByteDebt.test_map_storage_growth_replacement_and_forced_release) ... ok
+test_small_map_debt_amortizes_over_retained_aggregates (tests.test_native_map_byte_debt.NativeMapByteDebt.test_small_map_debt_amortizes_over_retained_aggregates) ... ok
+test_allocation_free_loops_and_new_owner_debt (tests.test_native_collection_debt.NativeCollectionDebt.test_allocation_free_loops_and_new_owner_debt) ... ok
+test_forced_drops_and_current_mutable_edges (tests.test_native_collection_debt.NativeCollectionDebt.test_forced_drops_and_current_mutable_edges) ... ok
+test_deferred_read_does_not_change_returned_array_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_deferred_read_does_not_change_returned_array_storage) ... ok
+test_mixed_record_argument_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_mixed_record_argument_storage) ... ok
+test_nested_record_present_scalar_projection (tests.test_native_optional_array_reads.OptionalArrayReads.test_nested_record_present_scalar_projection) ... ok
+test_present_and_missing_branch_join (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_and_missing_branch_join) ... ok
+test_present_values_feed_typed_writes_and_records (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_values_feed_typed_writes_and_records) ... ok
+test_projected_scalar_locals_calls_and_returns (tests.test_native_optional_array_reads.OptionalArrayReads.test_projected_scalar_locals_calls_and_returns) ... ok
+test_tags_bounds_locals_and_calls (tests.test_native_optional_array_reads.OptionalArrayReads.test_tags_bounds_locals_and_calls) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 100.809s
+
+OK
+I refuse all 15 allocation prefixes for map pair 1/1.
+I refuse all 41 allocation prefixes for map pair 1/5.
+I refuse all 27 allocation prefixes for map pair 5/1.
+I refuse all 53 allocation prefixes for map pair 5/5.
+I retain all four exact scalar pairs, aliases, growth, copies, extremes and zero live allocations.
+all families scans=1 visits=10004 retained=2097484 allocated=4196113
+scans=0 visits=0 map_peak_bytes=230288
+mixed scans=2 visits=20008 retained=2097504 allocated=4195016 peak=2097796
+scans=0 peak=3

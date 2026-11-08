@@ -1,0 +1,39 @@
+{
+  "artifact": 13593018247,
+  "archive_bytes": 1679,
+  "archive_sha256": "089729e553e9c2fae55d9c344bc322c371172b9daca5c96f741eb041e7733a29",
+  "zip_crc_error": null,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/map-runtime-7a320/darwin.zip",
+  "members": [
+    {
+      "name": "compiler.txt",
+      "bytes": 206,
+      "sha256": "df12815703ce3452ab4bd51ecbea4cf8155246b94b5b15113a580ff6aec2befd"
+    },
+    {
+      "name": "inputs.json",
+      "bytes": 428,
+      "sha256": "82f753e26b60fc1ae4ba011749438e5cb5ff05b35e5fc696c36b2f45f588d85a"
+    },
+    {
+      "name": "python.txt",
+      "bytes": 14,
+      "sha256": "b01b5da7ac6a0ecc5ff1aee7998c4ad10df616dc53585c5e44d3c6b916cfaf11"
+    },
+    {
+      "name": "revision.txt",
+      "bytes": 41,
+      "sha256": "8f2ab59e6c40bf163f3825ae8f72bbe33825c6d43c5c7109c896103500cd8c93"
+    },
+    {
+      "name": "runtime.log",
+      "bytes": 1055,
+      "sha256": "1954039584fab12423c79f0841ecbcbb8853ec58be192b7f9beeb78c08405663"
+    },
+    {
+      "name": "worker.json",
+      "bytes": 364,
+      "sha256": "6ed6648daceb510a38917d1a225ca4b5a2f4d54d4b54971f82e6507f15f20347"
+    }
+  ]
+}

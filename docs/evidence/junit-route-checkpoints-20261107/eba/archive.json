@@ -1,0 +1,894 @@
+{
+  "artifact": 13593285941,
+  "archive_bytes": 4059781,
+  "archive_sha256": "ece6c2f4e6adbae16b81f9bcc14309027a626a8f0648f421f43c64285f6e64db",
+  "zip_crc_error": null,
+  "private_archive": "/Users/jkh/.worktrees/nanolang/audits/2026-11-07/junit-routes/eba.zip",
+  "members": [
+    {
+      "name": ".test_output/junit-route-audit/bootstrap.log",
+      "bytes": 51340,
+      "sha256": "7788765a14f28102bd0bce36340c8a65d59efdab63c12aa11c903cb10325cd58"
+    },
+    {
+      "name": ".test_output/junit-route-audit/focused-results.json",
+      "bytes": 585,
+      "sha256": "3935e14b2aad16a1bab00d4937cb5e531c3345ad94b5e2d0b209d8cd8c8a5c0f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/compiler.txt",
+      "bytes": 245,
+      "sha256": "3e8cc208c40f60832f67377aa1b03c3e7e858f20cd5d365464944700c0bd7ad1"
+    },
+    {
+      "name": ".test_output/junit-route-audit/nano_virt-focused.log",
+      "bytes": 2551,
+      "sha256": "7febd3b430e9ece20c8405f79bc1025833a168aed543d13db11721211e82471b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/nanoc_stage1-focused.log",
+      "bytes": 1526,
+      "sha256": "a9a7296ea3862a1c7b7322ba842e0ce89bbc6d34ea1eafe8be1d4299aa8ed9af"
+    },
+    {
+      "name": ".test_output/junit-route-audit/nanoc_stage2-focused.log",
+      "bytes": 1526,
+      "sha256": "0604f63a28339ac876e7972e3429906c3e1776394b509f53917e86c53b7b7635"
+    },
+    {
+      "name": ".test_output/junit-route-audit/providers-after.log",
+      "bytes": 199,
+      "sha256": "b2dc66a61889a43be042326b6e0082472820995356f13476ba955758692ffb03"
+    },
+    {
+      "name": ".test_output/junit-route-audit/providers-before.sha256",
+      "bytes": 819,
+      "sha256": "146fa070ff56b38eeca3768ec3556d2b487b040cb68e26488a5ac5548db4efc2"
+    },
+    {
+      "name": ".test_output/junit-route-audit/revision.txt",
+      "bytes": 41,
+      "sha256": "e626d7aa6cab30b9103bcfb398af2e9e12d1978537d1b7ce10c99140624009d8"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-native/results.xml",
+      "bytes": 28161,
+      "sha256": "841c75bc6d717b664a6cbebf449c16a38ee0e5ee2ab2fbd95805eaecbec17177"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-native/retained-output/app_test_resource_effect_checker.nano.compile.log",
+      "bytes": 234733,
+      "sha256": "367bf4a35d0bc7f40132487f926162a354d6ff374f061737e7007045f23762a5"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-native/retained-output/app_test_resource_effect_checker.nano.out",
+      "bytes": 14139992,
+      "sha256": "f545083fa28e9ca01fb10dfea3c45f16017e788131e0cc520618f7c2f5fe594a"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-native/retained-output/app_test_resource_effect_checker.nano.run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-native/runner.log",
+      "bytes": 11253,
+      "sha256": "bb0fa34e760195f1cd4be5b5475d2cac528da27cc262461074f7b01b4195ba3a"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/results.xml",
+      "bytes": 28679,
+      "sha256": "1fd24487aec94be5ae0225c1509c43b431a5d98bf76c31e59bc302d57cb76bb6"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/retained-output/app_test_resource_effect_checker.nano.compile.log",
+      "bytes": 33949,
+      "sha256": "7d6bf0af23e0573db0387ae7786f121d3bf834aa034bbc05b13a84d7068cddb1"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/retained-output/app_test_resource_effect_checker.nano.out.nvm",
+      "bytes": 724920,
+      "sha256": "ada1e923241e4f5733e4a971f181705c700ccccfcfac08b0012055520cf824bd"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/retained-output/app_test_resource_effect_checker.nano.run.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/retained-output/unit_test_native_generic_contexts.nano.compile.log",
+      "bytes": 526,
+      "sha256": "b308212fa07651f7c822d673c0eed17b6f03ae62643b5a8a227bbbfeff3576c7"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/retained-output/unit_test_selfhost_generic_contexts.nano.compile.log",
+      "bytes": 532,
+      "sha256": "e78f8c5cf7f95ed7e2a9ef441d002bf02d427765cd3e24843c67916b4796e2aa"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/seed-vm/runner.log",
+      "bytes": 12303,
+      "sha256": "b86bba782771d3bccc10432559e33d4d2b6d00a1a6249ce3a0af748773047f29"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_algebraic_effects.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/results.xml",
+      "bytes": 51236,
+      "sha256": "9496aeb06bee4939df9352269c7a8fd472f82718e7e398ac76fb1dd8697d36bc"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_all_imports.nano.compile.log",
+      "bytes": 177,
+      "sha256": "349e1d6be941f0e97ac8482b62ab2f2419611a9767e85deec5f55836ce538d19"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_anonymous_struct_function_args.nano.compile.log",
+      "bytes": 133,
+      "sha256": "e9411bf50d46f478ab7203064de39b36aa3d1566d0c820d1a645d040255c5aba"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_anonymous_struct_literal.nano.compile.log",
+      "bytes": 127,
+      "sha256": "d2a5cf240698e347545de4143f1fb8817b49eed233ab6183e3d4393507157d9f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_array_operators.nano.compile.log",
+      "bytes": 115,
+      "sha256": "91767b95bef764cd5b29b6ee3840ff0ec28f97fde3817e0d424caca5f0f7cf5e"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_array_search_reverse.nano.compile.log",
+      "bytes": 748,
+      "sha256": "af2dd3fcc455725b2e0af88cabf6afc23a3257e9c4692cc53072cbc908ac4b9c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_async.nano.compile.log",
+      "bytes": 111,
+      "sha256": "d79ba8471ce6da56450d4dbbba6bdc6f6b3e8be0c9bcbb28af3d337c740bda81"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_bstring.nano.compile.log",
+      "bytes": 1085,
+      "sha256": "e063755b51f1d1c63710287de8e6ef003cb0d42b9473f69e0d75eaaa5d53c38f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_builtins_phase1.nano.compile.log",
+      "bytes": 60,
+      "sha256": "90927966190fa0dd5e92bed15b84d8f0340b255a019f20a1e0e2ea197fac045e"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_bytes_conversion.nano.compile.log",
+      "bytes": 121,
+      "sha256": "1c01e480037487909a2e618e0728aad40349127eea807fa109d5d62f421615e0"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_casting.nano.compile.log",
+      "bytes": 78,
+      "sha256": "d28e0f60a19846c89fb7b33d26a6ffce71a2fac4f5d5055e4c3d13627dbd5f8f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_complex.nano.compile.log",
+      "bytes": 147,
+      "sha256": "bb70829da94bdc37527ef1e6155c9e02cadae48f27bfa7bc213b261c60c4df27"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_dynamic_arrays.nano.compile.log",
+      "bytes": 66,
+      "sha256": "29a3f3e460250c42040ebbed51a5dacc5808a6cc2d485a6b5319cf844b7b2dac"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_env.nano.compile.log",
+      "bytes": 86,
+      "sha256": "70ec12c0fe07b616d53924861acde3058e6db28de1f46163531ea80d2097f9d6"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_format.nano.compile.log",
+      "bytes": 69,
+      "sha256": "b6176ee216870ccd29cf5d62f0448c5b0bdf88491ca51ed22ca82b7de99e9226"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_generic_result.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_hashmap_generic_core.nano.compile.log",
+      "bytes": 65,
+      "sha256": "3256944b66b86b0e8f053f8209d90adb290fba55373988e3dd2afae90a821eb9"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_hashmap_set_advanced.nano.compile.log",
+      "bytes": 134,
+      "sha256": "b7ed7db302ab21981fc3ad72f1119238cd6c9db01e8a746c5779b7fe41f7a9b3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_hm_inference.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_matrix4.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_import_aliasing.nano.compile.log",
+      "bytes": 74,
+      "sha256": "cc54d83f3d64bad240be05c4eca1324b67a43cddb7e3d12ec6ec91aa68f6570d"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_module_introspection.nano.compile.log",
+      "bytes": 490,
+      "sha256": "eb3c2be046bdd3e814a05f7b33ff9c0d451476425d68c06c6c3cb0f96dd2f7d3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_module_struct_qualification.nano.compile.log",
+      "bytes": 146,
+      "sha256": "89d4db69f14b86890b77b0dcfdde984ede211b2235e5c49aa62515bff09cf9b1"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_opaque_basic.nano.compile.log",
+      "bytes": 120,
+      "sha256": "9d975fe4f96115506f2a4e4538c9bd31eb792cdf13958d22f678d14256ce207c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_opl_cases_runner.nano.compile.log",
+      "bytes": 75,
+      "sha256": "d38bdea2f990a1fdd744cdeee3124e952268709a82635c064e4ee77cd8c196f3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_opl_compile_golden.nano.compile.log",
+      "bytes": 75,
+      "sha256": "d38bdea2f990a1fdd744cdeee3124e952268709a82635c064e4ee77cd8c196f3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_par_let.nano.compile.log",
+      "bytes": 138,
+      "sha256": "16a2d2720eebfd1bed872ea07d469df9216836002f035e07682a3e5d899e9725"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_process.nano.compile.log",
+      "bytes": 85,
+      "sha256": "135fa07d91e908c8095ab447056e79869e1757ed6f977faa15306f3ea8aaa163"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_pybridge_full.nano.compile.log",
+      "bytes": 90,
+      "sha256": "606d455425d536bf946c5c89acf56853ea492545c9fc6070e11d6354a67badcf"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_pybridge_matplotlib_smoke.nano.compile.log",
+      "bytes": 82,
+      "sha256": "d927d2e208d1a929f8a6813038bcf6cfb1079654f73d48fc34258b88baae33ef"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_pybridge_smoke.nano.compile.log",
+      "bytes": 90,
+      "sha256": "606d455425d536bf946c5c89acf56853ea492545c9fc6070e11d6354a67badcf"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_quaternion.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_repl_history.nano.compile.log",
+      "bytes": 99,
+      "sha256": "b970ddb81027f77855ad2d1ff882702543cf7e26c43edb5da724b87d9e9c17c2"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_resource_effect_checker.nano.compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_result_syntax.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_row_poly.nano.compile.log",
+      "bytes": 786,
+      "sha256": "e800963cd9a000d90ec926281a53af3f26f07ec807d1e43cd5a94ac77cd087fa"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_setenv_shadow.nano.compile.log",
+      "bytes": 151,
+      "sha256": "9bd623f6bfa2cf7c17a234d6b21487c85aebd2a875905c9a324cc594e9ae19f2"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_split2.nano.compile.log",
+      "bytes": 973,
+      "sha256": "dc6f8d566f7287ffc6cf9ae862c19a1533ecc0b80c582eb33a7fb32fe03066f4"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_collections.nano.compile.log",
+      "bytes": 138,
+      "sha256": "5e48935ff7429066d514bdd8a6945dfcc21fdaeaf768ddc83da36b72dfccd09c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_lib_collections.nano.compile.log",
+      "bytes": 195,
+      "sha256": "6ddedba7adfef117ee4e42907e2084fd57191b46a4703e8151eb3447aaa56bad"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_math_extended.nano.compile.log",
+      "bytes": 139,
+      "sha256": "f835f7fdf7671bf956ad1cc5f66f8778b679f756de246e9e7d9dc7ed95b34c73"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_math_extended_full.nano.compile.log",
+      "bytes": 138,
+      "sha256": "f23f36ac51327d9cbbd4ae8fa4f77d345ed64baae69daf18fe5c86260acfc802"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_modules_env_process_fs_binary.nano.compile.log",
+      "bytes": 177,
+      "sha256": "349e1d6be941f0e97ac8482b62ab2f2419611a9767e85deec5f55836ce538d19"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_modules_simple.nano.compile.log",
+      "bytes": 86,
+      "sha256": "70ec12c0fe07b616d53924861acde3058e6db28de1f46163531ea80d2097f9d6"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_std_peg.nano.compile.log",
+      "bytes": 148,
+      "sha256": "df8f0e1411c87ee39cde3602631fc325c197584a7d6022f4c2b21e7477669f39"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_stdlib_arrays.nano.compile.log",
+      "bytes": 1234,
+      "sha256": "263eef484bbe78534c1bb7f69c74b138f4b67cf1a7aebc1e24ffcc2f93f7fb8b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_stdlib_result.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_stdlib_strings.nano.compile.log",
+      "bytes": 70,
+      "sha256": "fde548a15186928e81428a6540e3b1a8431af4f67804137c9f0be14b27976240"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_symbol_scoping.nano.compile.log",
+      "bytes": 37,
+      "sha256": "50bae03d7a25506547a7a2f61b27a36dc884955047656a06b7ec906251e4d682"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_top_level_constants.nano.compile.log",
+      "bytes": 127,
+      "sha256": "6025214db1bb8777de79d4e0e70dcf92ca3277faac5ad097a387a08717547c40"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_u8_basic.nano.compile.log",
+      "bytes": 178,
+      "sha256": "b50d1681a39112673d3b8a01f52205dfe3247678f3f86a9e149fdc2d6b5e7d29"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_unsafe_basic.nano.compile.log",
+      "bytes": 80,
+      "sha256": "13a6dccd8de1917200268e2554b3a20b60afe4fb8713770d53a4925439d2ee3d"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_vector2d.nano.compile.log",
+      "bytes": 147,
+      "sha256": "8c0a1115a4dea4f6024957e95ae79f6ff0118d169612e50776918ac7a7a6eaa8"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_vector3d.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/app_test_vector4d.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_c_backend.nano.compile.log",
+      "bytes": 116,
+      "sha256": "d3099ff8c578631373bd162b1420ef97fea99d40cf592d69f922b0c368fe7027"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_enums_comprehensive.nano.compile.log",
+      "bytes": 68,
+      "sha256": "447adac28daf4296467a3a1aa8df15c2f752a26325d61d091b4b877a0100ac3a"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_launcher_capture.nano.compile.log",
+      "bytes": 93,
+      "sha256": "87e44092f2e3b2ad422db467c418c4cf2e07461811900f74c6a70adf755a19be"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_mac_exec_once.nano.compile.log",
+      "bytes": 66,
+      "sha256": "d863d6a0910bd2288899f5874fc869be70e5fa86326425373d5ab209444497b3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_mac_exec_once_vm.nano.compile.log",
+      "bytes": 91,
+      "sha256": "a405f2fefa61e7687b6077eeef4508474e6e506e6eae42e8dc0374887824d926"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_map_constructor_contexts.nano.compile.log",
+      "bytes": 237,
+      "sha256": "c59f11bd2327ff888d40b804cfb97f6c87a4c6f9a6c364902d41438ba3729d02"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_match_orpatterns.nano.compile.log",
+      "bytes": 124,
+      "sha256": "b122b8d725e4d46be94a81264656154c2e575dad4d2ec6aadb75171e7a3d84e3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/runner.log",
+      "bytes": 24910,
+      "sha256": "6317f5d252363341e9b5490b7cb567c366057d7c1cbdda6e44b254887c1c0712"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage1/retained-output/unit_test_stdlib_comprehensive.nano.compile.log",
+      "bytes": 110,
+      "sha256": "b388114adc1473e5a166c058849da0e479d9c292c4e756681913aa87c21ecefe"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/results.xml",
+      "bytes": 51236,
+      "sha256": "de008f462fd56a95503c8087828fcdb1eb677ab903aad94a64f68808d2fe8b65"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_algebraic_effects.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_all_imports.nano.compile.log",
+      "bytes": 177,
+      "sha256": "349e1d6be941f0e97ac8482b62ab2f2419611a9767e85deec5f55836ce538d19"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_anonymous_struct_function_args.nano.compile.log",
+      "bytes": 133,
+      "sha256": "e9411bf50d46f478ab7203064de39b36aa3d1566d0c820d1a645d040255c5aba"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_anonymous_struct_literal.nano.compile.log",
+      "bytes": 127,
+      "sha256": "d2a5cf240698e347545de4143f1fb8817b49eed233ab6183e3d4393507157d9f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_array_operators.nano.compile.log",
+      "bytes": 115,
+      "sha256": "91767b95bef764cd5b29b6ee3840ff0ec28f97fde3817e0d424caca5f0f7cf5e"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_array_search_reverse.nano.compile.log",
+      "bytes": 748,
+      "sha256": "af2dd3fcc455725b2e0af88cabf6afc23a3257e9c4692cc53072cbc908ac4b9c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_async.nano.compile.log",
+      "bytes": 111,
+      "sha256": "d79ba8471ce6da56450d4dbbba6bdc6f6b3e8be0c9bcbb28af3d337c740bda81"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_bstring.nano.compile.log",
+      "bytes": 1085,
+      "sha256": "e063755b51f1d1c63710287de8e6ef003cb0d42b9473f69e0d75eaaa5d53c38f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_builtins_phase1.nano.compile.log",
+      "bytes": 60,
+      "sha256": "90927966190fa0dd5e92bed15b84d8f0340b255a019f20a1e0e2ea197fac045e"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_bytes_conversion.nano.compile.log",
+      "bytes": 121,
+      "sha256": "1c01e480037487909a2e618e0728aad40349127eea807fa109d5d62f421615e0"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_casting.nano.compile.log",
+      "bytes": 78,
+      "sha256": "d28e0f60a19846c89fb7b33d26a6ffce71a2fac4f5d5055e4c3d13627dbd5f8f"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_complex.nano.compile.log",
+      "bytes": 147,
+      "sha256": "bb70829da94bdc37527ef1e6155c9e02cadae48f27bfa7bc213b261c60c4df27"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_dynamic_arrays.nano.compile.log",
+      "bytes": 66,
+      "sha256": "29a3f3e460250c42040ebbed51a5dacc5808a6cc2d485a6b5319cf844b7b2dac"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_env.nano.compile.log",
+      "bytes": 86,
+      "sha256": "70ec12c0fe07b616d53924861acde3058e6db28de1f46163531ea80d2097f9d6"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_format.nano.compile.log",
+      "bytes": 69,
+      "sha256": "b6176ee216870ccd29cf5d62f0448c5b0bdf88491ca51ed22ca82b7de99e9226"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_generic_result.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_hashmap_generic_core.nano.compile.log",
+      "bytes": 65,
+      "sha256": "3256944b66b86b0e8f053f8209d90adb290fba55373988e3dd2afae90a821eb9"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_hashmap_set_advanced.nano.compile.log",
+      "bytes": 134,
+      "sha256": "b7ed7db302ab21981fc3ad72f1119238cd6c9db01e8a746c5779b7fe41f7a9b3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_hm_inference.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_import_aliasing.nano.compile.log",
+      "bytes": 74,
+      "sha256": "cc54d83f3d64bad240be05c4eca1324b67a43cddb7e3d12ec6ec91aa68f6570d"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_matrix4.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_module_introspection.nano.compile.log",
+      "bytes": 490,
+      "sha256": "eb3c2be046bdd3e814a05f7b33ff9c0d451476425d68c06c6c3cb0f96dd2f7d3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_module_struct_qualification.nano.compile.log",
+      "bytes": 146,
+      "sha256": "89d4db69f14b86890b77b0dcfdde984ede211b2235e5c49aa62515bff09cf9b1"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_opaque_basic.nano.compile.log",
+      "bytes": 120,
+      "sha256": "9d975fe4f96115506f2a4e4538c9bd31eb792cdf13958d22f678d14256ce207c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_opl_cases_runner.nano.compile.log",
+      "bytes": 75,
+      "sha256": "d38bdea2f990a1fdd744cdeee3124e952268709a82635c064e4ee77cd8c196f3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_opl_compile_golden.nano.compile.log",
+      "bytes": 75,
+      "sha256": "d38bdea2f990a1fdd744cdeee3124e952268709a82635c064e4ee77cd8c196f3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_par_let.nano.compile.log",
+      "bytes": 138,
+      "sha256": "16a2d2720eebfd1bed872ea07d469df9216836002f035e07682a3e5d899e9725"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_process.nano.compile.log",
+      "bytes": 85,
+      "sha256": "135fa07d91e908c8095ab447056e79869e1757ed6f977faa15306f3ea8aaa163"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_pybridge_full.nano.compile.log",
+      "bytes": 90,
+      "sha256": "606d455425d536bf946c5c89acf56853ea492545c9fc6070e11d6354a67badcf"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_pybridge_matplotlib_smoke.nano.compile.log",
+      "bytes": 82,
+      "sha256": "d927d2e208d1a929f8a6813038bcf6cfb1079654f73d48fc34258b88baae33ef"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_pybridge_smoke.nano.compile.log",
+      "bytes": 90,
+      "sha256": "606d455425d536bf946c5c89acf56853ea492545c9fc6070e11d6354a67badcf"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_quaternion.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_repl_history.nano.compile.log",
+      "bytes": 99,
+      "sha256": "b970ddb81027f77855ad2d1ff882702543cf7e26c43edb5da724b87d9e9c17c2"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_resource_effect_checker.nano.compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_result_syntax.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_row_poly.nano.compile.log",
+      "bytes": 786,
+      "sha256": "e800963cd9a000d90ec926281a53af3f26f07ec807d1e43cd5a94ac77cd087fa"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_setenv_shadow.nano.compile.log",
+      "bytes": 151,
+      "sha256": "9bd623f6bfa2cf7c17a234d6b21487c85aebd2a875905c9a324cc594e9ae19f2"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_split2.nano.compile.log",
+      "bytes": 973,
+      "sha256": "f6b57b24a658951a073562051863ced4f64cb97dec152b597db6726d5e785b7c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_collections.nano.compile.log",
+      "bytes": 138,
+      "sha256": "5e48935ff7429066d514bdd8a6945dfcc21fdaeaf768ddc83da36b72dfccd09c"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_lib_collections.nano.compile.log",
+      "bytes": 195,
+      "sha256": "6ddedba7adfef117ee4e42907e2084fd57191b46a4703e8151eb3447aaa56bad"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_math_extended.nano.compile.log",
+      "bytes": 139,
+      "sha256": "f835f7fdf7671bf956ad1cc5f66f8778b679f756de246e9e7d9dc7ed95b34c73"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_math_extended_full.nano.compile.log",
+      "bytes": 138,
+      "sha256": "f23f36ac51327d9cbbd4ae8fa4f77d345ed64baae69daf18fe5c86260acfc802"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_modules_env_process_fs_binary.nano.compile.log",
+      "bytes": 177,
+      "sha256": "349e1d6be941f0e97ac8482b62ab2f2419611a9767e85deec5f55836ce538d19"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_modules_simple.nano.compile.log",
+      "bytes": 86,
+      "sha256": "70ec12c0fe07b616d53924861acde3058e6db28de1f46163531ea80d2097f9d6"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_std_peg.nano.compile.log",
+      "bytes": 148,
+      "sha256": "df8f0e1411c87ee39cde3602631fc325c197584a7d6022f4c2b21e7477669f39"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_stdlib_arrays.nano.compile.log",
+      "bytes": 1234,
+      "sha256": "263eef484bbe78534c1bb7f69c74b138f4b67cf1a7aebc1e24ffcc2f93f7fb8b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_stdlib_result.nano.compile.log",
+      "bytes": 63,
+      "sha256": "450450e12aa14eacbd85f8602768c616791389588793a98c3b0c8f6e48bc670b"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_stdlib_strings.nano.compile.log",
+      "bytes": 70,
+      "sha256": "fde548a15186928e81428a6540e3b1a8431af4f67804137c9f0be14b27976240"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_symbol_scoping.nano.compile.log",
+      "bytes": 37,
+      "sha256": "50bae03d7a25506547a7a2f61b27a36dc884955047656a06b7ec906251e4d682"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_top_level_constants.nano.compile.log",
+      "bytes": 127,
+      "sha256": "6025214db1bb8777de79d4e0e70dcf92ca3277faac5ad097a387a08717547c40"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_u8_basic.nano.compile.log",
+      "bytes": 178,
+      "sha256": "b50d1681a39112673d3b8a01f52205dfe3247678f3f86a9e149fdc2d6b5e7d29"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_unsafe_basic.nano.compile.log",
+      "bytes": 80,
+      "sha256": "13a6dccd8de1917200268e2554b3a20b60afe4fb8713770d53a4925439d2ee3d"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_vector2d.nano.compile.log",
+      "bytes": 147,
+      "sha256": "8c0a1115a4dea4f6024957e95ae79f6ff0118d169612e50776918ac7a7a6eaa8"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_vector3d.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/app_test_vector4d.nano.compile.log",
+      "bytes": 148,
+      "sha256": "9823bc7415b040e370503b7013835fc90ea5856abd457d1093a75b78dbd1edec"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_c_backend.nano.compile.log",
+      "bytes": 116,
+      "sha256": "d3099ff8c578631373bd162b1420ef97fea99d40cf592d69f922b0c368fe7027"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_enums_comprehensive.nano.compile.log",
+      "bytes": 68,
+      "sha256": "447adac28daf4296467a3a1aa8df15c2f752a26325d61d091b4b877a0100ac3a"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_launcher_capture.nano.compile.log",
+      "bytes": 93,
+      "sha256": "87e44092f2e3b2ad422db467c418c4cf2e07461811900f74c6a70adf755a19be"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_mac_exec_once.nano.compile.log",
+      "bytes": 66,
+      "sha256": "d863d6a0910bd2288899f5874fc869be70e5fa86326425373d5ab209444497b3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_mac_exec_once_vm.nano.compile.log",
+      "bytes": 91,
+      "sha256": "a405f2fefa61e7687b6077eeef4508474e6e506e6eae42e8dc0374887824d926"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_map_constructor_contexts.nano.compile.log",
+      "bytes": 237,
+      "sha256": "c59f11bd2327ff888d40b804cfb97f6c87a4c6f9a6c364902d41438ba3729d02"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_match_orpatterns.nano.compile.log",
+      "bytes": 124,
+      "sha256": "b122b8d725e4d46be94a81264656154c2e575dad4d2ec6aadb75171e7a3d84e3"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/retained-output/unit_test_stdlib_comprehensive.nano.compile.log",
+      "bytes": 110,
+      "sha256": "b388114adc1473e5a166c058849da0e479d9c292c4e756681913aa87c21ecefe"
+    },
+    {
+      "name": ".test_output/junit-route-audit/routes/stage2/runner.log",
+      "bytes": 24911,
+      "sha256": "2a6b47beaebf1554988f9bcac3d7043c95fb70c635006af4cda642fd347c81b1"
+    },
+    {
+      "name": ".test_output/junit-route-audit/source-tree.txt",
+      "bytes": 14184562,
+      "sha256": "812a7e9de8ffc5ff361630efb621fd7dbef409b61188b1a071f60a740775d823"
+    },
+    {
+      "name": ".test_output/junit-route-audit/storage/nano-qualification-6g1mg68z.jsonl",
+      "bytes": 11778,
+      "sha256": "44bb882eed49fc8cd28dad409eec38385291194a1fe5842e003b36d0bb54a1c9"
+    },
+    {
+      "name": ".test_output/junit-route-audit/storage/nano-qualification-85df3zkm.jsonl",
+      "bytes": 3567,
+      "sha256": "5a22bff6273d2bc652db49f0e4050b824ce5f090ce8c2be29cc8c513d4581edc"
+    },
+    {
+      "name": ".test_output/junit-route-audit/storage/nano-qualification-aohkbt8b.jsonl",
+      "bytes": 16997,
+      "sha256": "2395bf15a9d4d47191534f7a3e414b5542b46d3ca93a4807f48ae388795ae2ea"
+    },
+    {
+      "name": ".test_output/junit-route-audit/storage/nano-qualification-jye2ph5g.jsonl",
+      "bytes": 11778,
+      "sha256": "6e210cd671fb8b0b0b40ff1426fa7636081318b920f50cbe4d8b52c5385a43e0"
+    },
+    {
+      "name": ".test_output/junit-route-audit/summary.json",
+      "bytes": 207023,
+      "sha256": "d4d26a6e8aca86e4be735763cc67f439d956d5b924b311b55804f97168b661ba"
+    },
+    {
+      "name": ".test_output/junit-route-audit/worker.json",
+      "bytes": 564,
+      "sha256": "c93b65be862cfbffca921a3cd0277856ffe9f5f7715abaaae7078333e1d4cd8d"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/00-seed.log",
+      "bytes": 65926,
+      "sha256": "c278de17c679f19f9476a8ccecaeb60e3d3d567923452c4a7758e22453d019b4"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/01-seed-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/02-stage1.log",
+      "bytes": 72428,
+      "sha256": "ff13c29b26ee8bd58b6a38ece953bd813442ad989a845baadc08e41525bac263"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/03-stage1-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/04-stage1-translate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/05-stage1-native.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/06-stage1-hello-compile.log",
+      "bytes": 46,
+      "sha256": "bd9c7eeb6fa10eaaf11bc13abd4fffc0f308b5f4c45a46c91bfe4a4050ebbcd8"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/07-stage1-hello-execute.log",
+      "bytes": 21,
+      "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/08-stage2.log",
+      "bytes": 72428,
+      "sha256": "008c7f0992602c4b779e66b676aacfeb4eed890bd10e2b79114016b24c2bb4a2"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/09-stage2-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/10-stage2-translate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/11-stage2-native.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/12-stage2-hello-compile.log",
+      "bytes": 46,
+      "sha256": "bd9c7eeb6fa10eaaf11bc13abd4fffc0f308b5f4c45a46c91bfe4a4050ebbcd8"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/13-stage2-hello-execute.log",
+      "bytes": 21,
+      "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/14-seed-final-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/15-stage1-final-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/16-stage2-final-verify.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/host-cache-probes.log",
+      "bytes": 48108,
+      "sha256": "89d138b60253dfed8feeb2e8215f3158ba287d9eed9bc362febb3d01640d580a"
+    },
+    {
+      "name": "obj/bootstrap-nanoisa/run-6a6hiqpz/manifest.json",
+      "bytes": 148854,
+      "sha256": "9b0a9d52f9854402a1c499655ca123edae0eb09382fbaa72918b5564cf1f34f2"
+    }
+  ]
+}

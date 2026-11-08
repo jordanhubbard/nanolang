@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/nvm2c_map_runtime.inc": "4fbcfc8fd40d821ef104baeff0129a565f8e8dda3ee43ee1a2411d3cb214a744",
+  "tests/test_map_scalar_runtime.py": "8e687222d0e4edbafe1f0bb0d56bd586bcac276c646d4810adc8e0b8e09eb782",
+  "tests/nanoisa/native_map_alloc_probe.h": "94ab7150ab6c4b2d74cf7540b272da715b942aefd34c863591c5c540ff73aa00",
+  "tests/nanoisa/test_nvm2c.c": "3c8cafa935e2fdf5efb870a717e5cb30a93beff6485ef7efe4339fe4b8ef3191"
+}
