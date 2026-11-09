@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:89e6eec72043fc274107fdf14d6297a5b6c991e46e7975d75411e2a278d9c342 -->
+<!-- literate-ai:authority-reviewed sha256:23cc1e88462f6a3d28d07ab4f2896d46cdfd45fec4648a4fcad7703f666d0555 -->
 
 ## My first metadata checkpoint
 
@@ -367,3 +367,29 @@ source authority, empty native implementation selections and the absent native
 lifecycle receipt. These custody checks do not complete native SDK, original
 corpus, budget, security or release acceptance. I freeze catalog inputs before
 supported authority review and retain its validation logs outside the catalog.
+
+
+## My grouped statement-block correction
+
+My exact 328 Apple source compiler completes all 1,286 selected shadows and
+passes 32 of 33 component methods. The unchanged original grouped-pattern
+fixture exposes an incorrect block-arm tag in my new parser branch. I store
+PNODE_BLOCK explicitly for a block arm and retain direct parser/emitter shadows,
+the unchanged original fixture and all expression-arm controls. I also require
+the resource refusal's observed E0036 ownership diagnostic explicitly.
+
+My original-source baseline is `1883b7373cba3a7c64815d6a770a51cae39d72f9`, a real
+code-only descendant of `65b33feeb` changing the parser, emitter shadow and actual
+route control file. I retain all 92,818 original entries, their complete Git
+ancestry and the same five content-only metadata exceptions. I retain exact
+hosted source/product/command audits and local checker controls under
+`docs/evidence/match-or-source-contracts-20261109/`. Linux's source-creation
+deadlines remain separate failures. The corrected source candidate still needs
+hosted execution and fresh/original-corpus acceptance.
+
+I retain bounded local profiling setup failures separately under
+`docs/evidence/source-shadow-profile-20261109/`. No CPU sample was taken and no
+source compiler was produced by those diagnostics. Original source authority,
+empty native implementation selections and the absent native lifecycle receipt
+remain unchanged. I freeze this catalog before supported authority review and
+retain final validation logs outside it.
