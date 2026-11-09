@@ -61,6 +61,7 @@ on:
       - 'tests/test_bstring_source_vm.py'
       - 'tests/test_bstring_source_native.py'
       - 'tests/test_async_source_contracts.py'
+      - 'tests/test_match_or_source_contracts.py'
       - 'tests/test_byte_conversion_scan_boundary.py'
       - 'tests/test_bstring_c_contracts.py'
       - 'tests/test_nl_string.c'
@@ -244,7 +245,7 @@ jobs:
           NANO_SHADOW_TRACE: '1'
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_bstring_source_vm tests.test_bstring_source_native tests.test_byte_conversion_scan_boundary tests.test_async_source_contracts \
+          python3 -m unittest -v tests.test_bstring_source_vm tests.test_bstring_source_native tests.test_byte_conversion_scan_boundary tests.test_async_source_contracts tests.test_match_or_source_contracts \
             2>&1 | tee .test_output/string-builtin-operands/bstring-source-vm.log
       - name: Verify exact and deferred aggregate shape constraints
         run: |
@@ -286,6 +287,8 @@ jobs:
             .test_output/bstring-source-native-contracts/
             .test_output/async-cseed-contracts/
             .test_output/async-source-contracts/
+            .test_output/match-or-cseed-contracts/
+            .test_output/match-or-source-contracts/
             .test_output/byte-conversion-scan-boundary/
             .test_output/byte-conversion-source-scan-boundary/
             .test_output/bstring-contract-baselines/**/*.json
@@ -367,6 +370,8 @@ jobs:
             .test_output/bstring-source-native-contracts/
             .test_output/async-cseed-contracts/
             .test_output/async-source-contracts/
+            .test_output/match-or-cseed-contracts/
+            .test_output/match-or-source-contracts/
             .test_output/byte-conversion-scan-boundary/
             .test_output/byte-conversion-source-scan-boundary/
             .test_output/compiler-phase-markers/
