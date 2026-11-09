@@ -1,0 +1,12 @@
+{
+  "exception": "UnicodeDecodeError: byte0xcf is not UTF-8",
+  "cause": "I attempted to read retained dSYM debug information as text.",
+  "debug_files": [
+    {
+      "path": "actual-native-control.dSYM/Contents/Resources/DWARF/actual-native-control",
+      "mach_o_filetype": 10
+    }
+  ],
+  "correction": "I select only explicit text-output extensions and retain the actual native executable separately.",
+  "product_defect_established": false
+}

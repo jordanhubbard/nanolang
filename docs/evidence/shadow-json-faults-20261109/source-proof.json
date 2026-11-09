@@ -1,0 +1,64 @@
+{
+  "source_pin": "ddd1854773977001db7d217911a2699bf8976d9a",
+  "recorded_source_entries": 11,
+  "unique_git_matched_sources": 8,
+  "reference_helpers_match_pinned_runtime": true,
+  "records": [
+    {
+      "report": "first",
+      "path": "docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "first",
+      "path": "docs/evidence/shadow-json-faults-20261109/run-faults.py",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "first",
+      "path": "docs/evidence/shadow-json-span-comparison-20261109/original.inc",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "first",
+      "path": "docs/evidence/shadow-json-span-comparison-20261109/candidate.inc",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "first",
+      "path": "src/eval.c",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "docs/evidence/shadow-json-faults-20261109/run-faults.py",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "docs/evidence/shadow-json-faults-20261109/fallback-candidate/original.inc",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "docs/evidence/shadow-json-faults-20261109/fallback-candidate/candidate.inc",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "src/eval.c",
+      "git_matches_reported_before_after": true
+    },
+    {
+      "report": "fallback",
+      "path": "docs/evidence/shadow-json-faults-20261109/run-fallback-faults.py",
+      "git_matches_reported_before_after": true
+    }
+  ],
+  "native_tool_sdk_closure_qualified": false
+}

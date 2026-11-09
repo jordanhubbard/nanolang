@@ -901,6 +901,12 @@ test-collection-snapshot-release:
 
 test-units: test-collection-snapshot-release
 
+.PHONY: test-collection-aot
+test-collection-aot: $(BIN_DIR)/nanoisa nano_vm nvm2c
+	python3 -m unittest -v tests.test_collection_aot
+
+test-units: test-collection-aot
+
 .PHONY: test-collection-handles
 test-collection-handles:
 	python3 -m unittest tests.test_collection_handles
@@ -6306,6 +6312,12 @@ test-cseed-shadow-trace: bin/nanoc_c
 	python3 -m unittest -v tests.test_cseed_shadow_trace
 
 test-units: test-cseed-shadow-trace
+
+.PHONY: test-shadow-completion-observation
+test-shadow-completion-observation: bin/nanoc_c
+	python3 -m unittest -v tests.test_shadow_completion_observation tests.test_cseed_shadow_trace
+
+test-units: test-shadow-completion-observation
 
 .PHONY: test-native-record-globals test-selfhost-native-link-flags
 test-native-record-globals: nano_vm nanoisa_dump nvm2c

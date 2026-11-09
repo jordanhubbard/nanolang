@@ -7,6 +7,7 @@ on:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
       - 'tests/test_env_symbol_index.c'
+      - 'tests/test_eval.c'
       - 'tests/test_eval_record_fields.c'
       - 'src/eval/record_fields.inc'
       - 'src/runtime/gc.c'
@@ -213,6 +214,11 @@ jobs:
           set -o pipefail
           python3 -m unittest -v tests.test_ffi_result_release \
             2>&1 | tee .test_output/string-builtin-operands/snapshot-vm.log
+      - name: Execute actual native collection adapters and snapshot refusals
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-collection-aot test-artifact-string-release \
+            2>&1 | tee .test_output/string-builtin-operands/collection-aot.log
       - name: Execute my existing C lexer fixture controls
         run: |
           set -o pipefail
@@ -231,7 +237,7 @@ jobs:
       - name: Execute my existing environment index and STRING ownership controls
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-env-symbol-index test-eval-record-fields-sanitizers \
+          make -f Makefile.gnu CC="$CC" test-env-symbol-index test-eval test-eval-record-fields-sanitizers \
             2>&1 | tee .test_output/string-builtin-operands/environment.log
       - name: Execute my binary-string ownership and VM semantic gates
         run: |
@@ -373,6 +379,7 @@ jobs:
             .test_output/collection-snapshots-*/
             .test_output/ffi-array-results-*/
             .test_output/ffi-result-release-*/
+            .test_output/collection-aot-*/
             .test_output/source-checker-component/
             .test_output/retirement/capture-toolchain.json
             .test_output/retirement/selected-tools/

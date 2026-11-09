@@ -1,0 +1,151 @@
+{
+  "root": "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9",
+  "products": {
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/copy-control-O0": {
+      "sha256": "ce8c29f9561ffc02cffbeb86c61b346f8b41d07aca4f6aa35e6bb7837f1402aa",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/copy-control-O2": {
+      "sha256": "486734ab2e048e6e4266de178047b92de696f1e6543ff912f3141c40ec7cb3b2",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/both-dependency-dependency.dylib": {
+      "sha256": "2dcef6f5f24640e6ca1e24511ab8998643c74546727e5aed18cadcb86b8e218f",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/both-dependency-origin.dylib": {
+      "sha256": "ec27999b16518c904ce1a221076629223a32207b4e0ee77ce15cf09c0588deb2",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/both-dependency-O0": {
+      "sha256": "470d1b21a92613d1afa736ef10a277e1da92d9ed2e9e3edac227702c19600000",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/both-dependency-O2": {
+      "sha256": "9a753da954a47f9be4729d1b7cf194a3abb9db374b78fde38099cf95e9c3c54a",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/companion-dependency-dependency.dylib": {
+      "sha256": "9e447cb1a2e31974a7fb3a58decf147bfd0f9d772a2f8ca29a7699fa1220b5ba",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/companion-dependency-origin.dylib": {
+      "sha256": "ef04fcec774f31692c31ba584971d349d253ae1c2d80f0ca0bae53b073996325",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/companion-dependency-O0": {
+      "sha256": "557221ca15e79b590470d821556aeb1030bebf8097646eaad7152db7bff1ce97",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/companion-dependency-O2": {
+      "sha256": "df31b9d2c07b1e924ae560cc8fe37b37ef5cf90f1f138f776c01cee6606730b6",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/marker-dependency-dependency.dylib": {
+      "sha256": "ebe11c2e0d78f8b1c53d4e371523d316b6e534b2e4890ae605282a2ac6a3a032",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/marker-dependency-origin.dylib": {
+      "sha256": "db6c711bed6f08a5122551e0a503ccabbcc5ab1af95a12f3d66bf0a84dee842b",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/marker-dependency-O0": {
+      "sha256": "250ecaf452ebe4e64cef9cb62b18c700eb62050893d85155533edcbc35427545",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/marker-dependency-O2": {
+      "sha256": "e74aea27a5eeec941e0ba16b12da4a1761c56cec990ec0f170172e255720065e",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/bad-marker-dependency.dylib": {
+      "sha256": "06d4bf7a0910b96926975876e5d29f805c6499622bfac438735b5cc863d73f08",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/bad-marker-origin.dylib": {
+      "sha256": "18b75a5dc9b09f3cb2ee8dbd7623a149a91f8363fac6b334fe34547a61e7d5ce",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/bad-marker-O0": {
+      "sha256": "b175dad6e18886ea0dbc1201719fc2ca3402c66bcc0d8a169dc7dd526558f01f",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/bad-marker-O2": {
+      "sha256": "16f2de306817cfc6ced5ab974a91352910c26719ee7151d31ede56d129dfd03e",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-companion-dependency.dylib": {
+      "sha256": "5ff3dd10970be295dd9b739334d71bae1c679f5b30bdb8d7bef9d29910102d23",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-companion-origin.dylib": {
+      "sha256": "2940c1d672d1a13411867367ae0e17925dd6cab28f2faaca0c69aec96991d7be",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-companion-O0": {
+      "sha256": "a6278e755442d7c3c80273602a0edfae5f631ac46875de0d839245cfbb6ae3aa",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-companion-O2": {
+      "sha256": "120e21c38f5ba0adfe2f7010320e4f43e8b23b79c7bbb9ab8c7b3cb975181d4e",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-marker-dependency.dylib": {
+      "sha256": "b12e6da21b883a37a1373c94d1a0de4e930ae3e869c26c3732cf6f50b7812b25",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-marker-origin.dylib": {
+      "sha256": "db0070a738c097e65bf9dde8c91b6ecf499648d4e8affe212c27b1d98f3792eb",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-marker-O0": {
+      "sha256": "dcd40db7e9a07e9205b899389441bff7f784a7e63feafdaf4acdcc8d2faf2ad7",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/missing-marker-O2": {
+      "sha256": "50c132026c1cad8693a40f7011c5e64d99ebb18ed455788c0cfeaad4d806a53e",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/collections-plain.dylib": {
+      "sha256": "db6fdec652a0da55700bbe4753bb8fc7b5eafdb51c9c9a199abb6bae89a6b50b",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/collections-sanitized.dylib": {
+      "sha256": "910ef6effe064cc06ef66f146cad800c0f0b1bbdcd6e9685cf84e1f2ef636f45",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/all-native-O0": {
+      "sha256": "76fc42bfa7997b9f2b657f94260f69fa39463ab043aa8aed8fdf581310663d6b",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/all-native-O2": {
+      "sha256": "a841d94fdaa1a42eb171e748902e36e99638feeb48e27026086756447257532b",
+      "shared": false
+    }
+  },
+  "inputs_tools_before_after": {
+    "tools": {
+      "/Users/jkh/Src/nanolang/bin/nanoisa": "79e811cb6f454f12b69bfa21e05ec285e94f5d60899fb9e7d9967e3a078e56c6",
+      "/Users/jkh/Src/nanolang/bin/nano_vm": "a22e98eacd920db2d8bb7145d8f5bdf14b17c3b27a3143a46ef2456200c17052",
+      "/Users/jkh/Src/nanolang/bin/nvm2c": "89d0a67d6a01d1acd885795c97f1ce1223372b3b64e866fd87a437235cac7cc5",
+      "/usr/bin/cc": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+    },
+    "inputs": {
+      "tests/test_collection_aot.py": "5a9a29c529e09d3fc2f0810282ba603f90c908e140db38430a87f599dc88f99c",
+      "tests/nanoisa/test_collection_snapshot_aot.c": "45c590ce9e5774e6ad0fff819aa61d2121f9d9b57ddae5192dc335d1a5965334",
+      "src/nanoisa/nvm2c.c": "141ea4e3c50eed38cbc299dbbb421ad45df759bba3c36c3973dd8574a7dbf29d",
+      "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+      "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+      "src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+      "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+      "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+    }
+  },
+  "native_executables": 16,
+  "shared_images": 14,
+  "native_runs": {
+    "success": 4,
+    "expected_SIGABRT": 12
+  },
+  "scope": "I execute the actual18 map/set ABIs and allocation/cleanup/origin controls. Four native successes and twelve expected invariant refusals pass at O0/O2;52 malformed signatures preserve prior output. The real collection provider is instrumented for native runs; the VM uses its separately built plain image. Shared images match their recorded build hashes after the completed run. Native executable/tool/source before-after checks pass. Selected inputs and launcher identity do not establish complete headers, SDK/toolchain or final release closure. Canonical source admission and fresh-stage coverage remain open."
+}

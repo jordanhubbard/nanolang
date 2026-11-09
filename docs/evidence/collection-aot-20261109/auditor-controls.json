@@ -1,0 +1,30 @@
+{
+  "actual_archive_controls": [
+    {
+      "case": "native-bytes",
+      "refused": true,
+      "assertion": "assert digest(data) == report['sha256']"
+    },
+    {
+      "case": "source-input",
+      "refused": true,
+      "assertion": "assert digest(subprocess.check_output(['git', 'show', PIN+':'+path])) == expected, path"
+    },
+    {
+      "case": "operation-status",
+      "refused": true,
+      "assertion": "assert op['returncode'] == (-6 if label in refusals else 1 if label in malformed_labels else 0), label"
+    },
+    {
+      "case": "missing-refusal",
+      "refused": true,
+      "assertion": "assert stdout == b'' and b'I stopped at a native invariant' in stderr"
+    },
+    {
+      "case": "prior-output",
+      "refused": true,
+      "assertion": "assert z.read(target) == b'I retain the prior product.\\n'"
+    }
+  ],
+  "all_passed": true
+}

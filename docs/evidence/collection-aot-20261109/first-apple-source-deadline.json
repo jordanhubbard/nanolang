@@ -1,0 +1,184 @@
+{
+  "run": 42573404011,
+  "source_pin": "669da64cd3e375815c0dcc703eea2b16c92dfdff",
+  "artifact": 13655205396,
+  "archive_sha256": "d7b1a2a3315c83ebf346ffb7c59b524b4abc2db3bf3eddbef0c74d709f45789c",
+  "entries_crc_hashed": 1985,
+  "aot_native_images_retained": [
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/all-native-O0",
+      "sha256": "539c433e183c713506d6822e4b29876453b6c1ce144c11ab3f09c0fb13335da2",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/all-native-O2",
+      "sha256": "f0f981a8dad5ae992c3e85d3d946943e7afd66a8615823099d7a2d127614c252",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/bad-marker-O0",
+      "sha256": "63d03515e676204aee137cecce63393125485313637ba4d6b6d090e274cff93e",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/bad-marker-O2",
+      "sha256": "c8338637e37bb5f4f544178c57dffd8a478b16b99c5fb31d23503590c8650b52",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/bad-marker-dependency.dylib",
+      "sha256": "4baaa49d0fbbfa4fc8139b0c268ae7e1b7b99e4117c06a3f59cf53df3f89ad12",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/bad-marker-origin.dylib",
+      "sha256": "c75ed5abcb3bc732fd4b09d3b475e208de95f63984545a8431f8ab90963f5b76",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/both-dependency-O0",
+      "sha256": "de6fd53742beb0b21e7f54202f3d0df50d1ebae33c4a82acabf909a7b5bb9058",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/both-dependency-O2",
+      "sha256": "a2815f5c3990a0e242262b887fb72d37533fafb751325691bd54b347065e7ff1",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/both-dependency-dependency.dylib",
+      "sha256": "b4123a86c2d5862791e56288152a96f19973cecdedae77cd379345c492e8a2a3",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/both-dependency-origin.dylib",
+      "sha256": "8c9f6c202c15f207ef91ad30b10d2109dbd854ed9be843428979743c757e77c8",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/collections-plain.dylib",
+      "sha256": "f50289464512924565276a48e67cb9c1433b649cd1e826ddc91d5f7f2f82e1f4",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/collections-sanitized.dylib",
+      "sha256": "c14f121a261a9b27474a3e6194aa15205f466da641c3fc2f33a19fe568d1d06b",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/companion-dependency-O0",
+      "sha256": "38f09fda5b3e9f6f5e512209505cbfbc30a5615e2f632bfe5a95c71ccd1a7d12",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/companion-dependency-O2",
+      "sha256": "cb50dccc4ed2e47616b54377a5740c910b12b146bffb52d3b7803ee248fd53a6",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/companion-dependency-dependency.dylib",
+      "sha256": "a84cd8ba28b71a3ae37a1001ca8c9ad0d9ce80054c2870363b6df70099eb8606",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/companion-dependency-origin.dylib",
+      "sha256": "ef1956660358991451820a93bff57a62a241f4a5babc6ad3fad284b01f53b1a1",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/copy-control-O0",
+      "sha256": "3b5da050b61d5714d958d02a0b101650a584903ae1fe72312d5720e07384634b",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/copy-control-O2",
+      "sha256": "e452c14f1586a956055dba4eefd3fc8fb7404c5bf260199b5a70aaa9fd18774f",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/marker-dependency-O0",
+      "sha256": "e5abb9147dd147249605cd4fa2e8234c8623b8fb7983039fdcf3b6cafb9d6f1c",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/marker-dependency-O2",
+      "sha256": "75206a2ab9ddead14a443699f6b822ccaf6a4c10c78fec5b31041487c2760655",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/marker-dependency-dependency.dylib",
+      "sha256": "d73abbadb2ce7350ad134ccee31c076e50902cf580e6209ad52eac8b3b6e6e16",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/marker-dependency-origin.dylib",
+      "sha256": "ba40f33a7048d5de4f9e6b7595e42cdb61b292d89cb56485bdff49dadf97a87b",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-companion-O0",
+      "sha256": "9f92bca7ee59bed0a8a88b4625ea2bec7b62725bd8860ca45b8cf1f1c732d13c",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-companion-O2",
+      "sha256": "cc11be97a5a61c60e3c938d0f3baa9f59b70616c84b4ec0fe2d5fd4eaefdc6e2",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-companion-dependency.dylib",
+      "sha256": "2bc3d537c4faf582f7a72bf5947a4a003a62d697b996d85750b8712511d6c154",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-companion-origin.dylib",
+      "sha256": "eadeaa5a8b9581c70eea7db590b834efa498a4a3384d69aae2cb2a28681d441a",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-marker-O0",
+      "sha256": "3249a780b7e6afb2c60642a0ba11f644b86dbe8910e5696c36e93a10f5698df3",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-marker-O2",
+      "sha256": "5655175ca107eac5f52f0c8890dd0290bf12d14af05c58e1b241d95b93f5e127",
+      "macho_type": 2
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-marker-dependency.dylib",
+      "sha256": "017e4e87f009665f721f33378f357a52e234b47252a92e59e1099d306e1dd15f",
+      "macho_type": 6
+    },
+    {
+      "path": ".test_output/collection-aot-first-apple-audited/collection-aot-6ktqf8gr/missing-marker-origin.dylib",
+      "sha256": "008b1ea6308ae0385f5399eff67fade12888a457cde3f84643a4c9a126c9c524",
+      "macho_type": 6
+    }
+  ],
+  "checked_selected_inputs": {
+    "tests/test_collection_aot.py": "5a9a29c529e09d3fc2f0810282ba603f90c908e140db38430a87f599dc88f99c",
+    "tests/nanoisa/test_collection_snapshot_aot.c": "45c590ce9e5774e6ad0fff819aa61d2121f9d9b57ddae5192dc335d1a5965334",
+    "src/nanoisa/nvm2c.c": "141ea4e3c50eed38cbc299dbbb421ad45df759bba3c36c3973dd8574a7dbf29d",
+    "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+    "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+    "src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "trace": {
+    "starts": 1026,
+    "completes": 1025,
+    "recorded_failure_total": 0,
+    "last_event": {
+      "event": "shadow-start",
+      "name": "nisa_emit_list_free",
+      "source": "/Users/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 6848,
+      "elapsed_seconds": 0.0,
+      "failures": 0
+    }
+  },
+  "scope": "I retain an actual unchanged10-second source-creation shadow deadline. No completed-shadow assertion failure is recorded; five classes fail setup and their semantic methods do not run. I do not attribute this deadline to infrastructure or the separate C type defect. AOT control success at this old source does not qualify the corrected public-type implementation."
+}

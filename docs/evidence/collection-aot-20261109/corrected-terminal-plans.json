@@ -1,0 +1,747 @@
+{
+  "linux": {
+    "conclusion": "failure",
+    "headSha": "b897da5d404d6b148d2734b3e4673ebcc8d81b3f",
+    "jobs": [
+      {
+        "completedAt": "2026-11-09T06:57:16Z",
+        "conclusion": "failure",
+        "databaseId": 129020543032,
+        "name": "Seed string operands, VM and C AOT (gcc)",
+        "startedAt": "2026-11-09T06:45:11Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-09T06:45:12Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-09T06:45:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:44Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-11-09T06:45:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:45Z",
+            "conclusion": "success",
+            "name": "Require worker headroom before provisioning or building",
+            "number": 3,
+            "startedAt": "2026-11-09T06:45:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:57Z",
+            "conclusion": "success",
+            "name": "Install my existing Linux native compiler prerequisites",
+            "number": 4,
+            "startedAt": "2026-11-09T06:45:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:57Z",
+            "conclusion": "skipped",
+            "name": "Install my existing Darwin native compiler prerequisites",
+            "number": 5,
+            "startedAt": "2026-11-09T06:45:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:57Z",
+            "conclusion": "skipped",
+            "name": "Select my existing qualified Apple compiler and SDK without drift",
+            "number": 6,
+            "startedAt": "2026-11-09T06:45:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:57Z",
+            "conclusion": "success",
+            "name": "Verify my shared reserved-definition tables",
+            "number": 7,
+            "startedAt": "2026-11-09T06:45:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:11Z",
+            "conclusion": "success",
+            "name": "Execute my checked collection lifetimes and original array exports",
+            "number": 8,
+            "startedAt": "2026-11-09T06:45:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:12Z",
+            "conclusion": "success",
+            "name": "Build actual fresh VM and C AOT providers",
+            "number": 9,
+            "startedAt": "2026-11-09T06:46:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:15Z",
+            "conclusion": "success",
+            "name": "Execute actual VM snapshot cleanup and ownership refusals",
+            "number": 10,
+            "startedAt": "2026-11-09T06:47:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:13Z",
+            "conclusion": "success",
+            "name": "Execute actual native collection adapters and snapshot refusals",
+            "number": 11,
+            "startedAt": "2026-11-09T06:47:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:18Z",
+            "conclusion": "success",
+            "name": "Execute my existing C lexer fixture controls",
+            "number": 12,
+            "startedAt": "2026-11-09T06:48:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:19Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C parser unit suite",
+            "number": 13,
+            "startedAt": "2026-11-09T06:48:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:20Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C typechecker unit suite",
+            "number": 14,
+            "startedAt": "2026-11-09T06:48:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:28Z",
+            "conclusion": "success",
+            "name": "Execute my existing environment index and STRING ownership controls",
+            "number": 15,
+            "startedAt": "2026-11-09T06:48:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:39Z",
+            "conclusion": "success",
+            "name": "Execute my binary-string ownership and VM semantic gates",
+            "number": 16,
+            "startedAt": "2026-11-09T06:48:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:55Z",
+            "conclusion": "success",
+            "name": "Execute actual native binary-string adapters with sanitizers",
+            "number": 17,
+            "startedAt": "2026-11-09T06:49:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:50:15Z",
+            "conclusion": "success",
+            "name": "Retain current C and VM bstring boundary baselines",
+            "number": 18,
+            "startedAt": "2026-11-09T06:49:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:50:54Z",
+            "conclusion": "success",
+            "name": "Execute my actual source checker native component through the C seed",
+            "number": 19,
+            "startedAt": "2026-11-09T06:50:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:54:03Z",
+            "conclusion": "failure",
+            "name": "Execute binary-string VM and native contracts through my actual source emitter",
+            "number": 20,
+            "startedAt": "2026-11-09T06:50:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:54:03Z",
+            "conclusion": "skipped",
+            "name": "Verify exact and deferred aggregate shape constraints",
+            "number": 21,
+            "startedAt": "2026-11-09T06:54:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:54:03Z",
+            "conclusion": "skipped",
+            "name": "Execute all operand methods and the complete canonical string suite",
+            "number": 22,
+            "startedAt": "2026-11-09T06:54:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:54:08Z",
+            "conclusion": "success",
+            "name": "Retain checker and focused-source attempt metadata before the translator gate",
+            "number": 23,
+            "startedAt": "2026-11-09T06:54:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:56:50Z",
+            "conclusion": "success",
+            "name": "Execute the complete original translator regression gate",
+            "number": 24,
+            "startedAt": "2026-11-09T06:54:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:04Z",
+            "conclusion": "success",
+            "name": "Retain complete original array alias regression routes",
+            "number": 25,
+            "startedAt": "2026-11-09T06:56:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:05Z",
+            "conclusion": "success",
+            "name": "Verify unchanged sources and providers",
+            "number": 26,
+            "startedAt": "2026-11-09T06:57:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:13Z",
+            "conclusion": "success",
+            "name": "Retain original build and diagnostic results",
+            "number": 27,
+            "startedAt": "2026-11-09T06:57:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:13Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 54,
+            "startedAt": "2026-11-09T06:57:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:13Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 55,
+            "startedAt": "2026-11-09T06:57:13Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42574975446/job/129020543032"
+      },
+      {
+        "completedAt": "2026-11-09T07:00:22Z",
+        "conclusion": "success",
+        "databaseId": 129020543410,
+        "name": "Seed string operands, VM and C AOT (clang)",
+        "startedAt": "2026-11-09T06:45:10Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-09T06:45:12Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-09T06:45:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:42Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-11-09T06:45:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:43Z",
+            "conclusion": "success",
+            "name": "Require worker headroom before provisioning or building",
+            "number": 3,
+            "startedAt": "2026-11-09T06:45:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:59Z",
+            "conclusion": "success",
+            "name": "Install my existing Linux native compiler prerequisites",
+            "number": 4,
+            "startedAt": "2026-11-09T06:45:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:59Z",
+            "conclusion": "skipped",
+            "name": "Install my existing Darwin native compiler prerequisites",
+            "number": 5,
+            "startedAt": "2026-11-09T06:45:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:59Z",
+            "conclusion": "skipped",
+            "name": "Select my existing qualified Apple compiler and SDK without drift",
+            "number": 6,
+            "startedAt": "2026-11-09T06:45:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:45:59Z",
+            "conclusion": "success",
+            "name": "Verify my shared reserved-definition tables",
+            "number": 7,
+            "startedAt": "2026-11-09T06:45:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:20Z",
+            "conclusion": "success",
+            "name": "Execute my checked collection lifetimes and original array exports",
+            "number": 8,
+            "startedAt": "2026-11-09T06:45:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:10Z",
+            "conclusion": "success",
+            "name": "Build actual fresh VM and C AOT providers",
+            "number": 9,
+            "startedAt": "2026-11-09T06:46:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:14Z",
+            "conclusion": "success",
+            "name": "Execute actual VM snapshot cleanup and ownership refusals",
+            "number": 10,
+            "startedAt": "2026-11-09T06:47:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:00Z",
+            "conclusion": "success",
+            "name": "Execute actual native collection adapters and snapshot refusals",
+            "number": 11,
+            "startedAt": "2026-11-09T06:47:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:05Z",
+            "conclusion": "success",
+            "name": "Execute my existing C lexer fixture controls",
+            "number": 12,
+            "startedAt": "2026-11-09T06:48:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:06Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C parser unit suite",
+            "number": 13,
+            "startedAt": "2026-11-09T06:48:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:07Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C typechecker unit suite",
+            "number": 14,
+            "startedAt": "2026-11-09T06:48:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:14Z",
+            "conclusion": "success",
+            "name": "Execute my existing environment index and STRING ownership controls",
+            "number": 15,
+            "startedAt": "2026-11-09T06:48:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:12Z",
+            "conclusion": "success",
+            "name": "Execute my binary-string ownership and VM semantic gates",
+            "number": 16,
+            "startedAt": "2026-11-09T06:48:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:28Z",
+            "conclusion": "success",
+            "name": "Execute actual native binary-string adapters with sanitizers",
+            "number": 17,
+            "startedAt": "2026-11-09T06:49:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:49Z",
+            "conclusion": "success",
+            "name": "Retain current C and VM bstring boundary baselines",
+            "number": 18,
+            "startedAt": "2026-11-09T06:49:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:50:24Z",
+            "conclusion": "success",
+            "name": "Execute my actual source checker native component through the C seed",
+            "number": 19,
+            "startedAt": "2026-11-09T06:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:53:21Z",
+            "conclusion": "success",
+            "name": "Execute binary-string VM and native contracts through my actual source emitter",
+            "number": 20,
+            "startedAt": "2026-11-09T06:50:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:53:22Z",
+            "conclusion": "success",
+            "name": "Verify exact and deferred aggregate shape constraints",
+            "number": 21,
+            "startedAt": "2026-11-09T06:53:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:56:11Z",
+            "conclusion": "success",
+            "name": "Execute all operand methods and the complete canonical string suite",
+            "number": 22,
+            "startedAt": "2026-11-09T06:53:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:56:25Z",
+            "conclusion": "success",
+            "name": "Retain checker and focused-source attempt metadata before the translator gate",
+            "number": 23,
+            "startedAt": "2026-11-09T06:56:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:59:29Z",
+            "conclusion": "success",
+            "name": "Execute the complete original translator regression gate",
+            "number": 24,
+            "startedAt": "2026-11-09T06:56:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:59:44Z",
+            "conclusion": "success",
+            "name": "Retain complete original array alias regression routes",
+            "number": 25,
+            "startedAt": "2026-11-09T06:59:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:59:45Z",
+            "conclusion": "success",
+            "name": "Verify unchanged sources and providers",
+            "number": 26,
+            "startedAt": "2026-11-09T06:59:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T07:00:20Z",
+            "conclusion": "success",
+            "name": "Retain original build and diagnostic results",
+            "number": 27,
+            "startedAt": "2026-11-09T06:59:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T07:00:20Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 54,
+            "startedAt": "2026-11-09T07:00:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T07:00:20Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 55,
+            "startedAt": "2026-11-09T07:00:20Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42574975446/job/129020543410"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42574975446"
+  },
+  "apple": {
+    "conclusion": "success",
+    "headSha": "b897da5d404d6b148d2734b3e4673ebcc8d81b3f",
+    "jobs": [
+      {
+        "completedAt": "2026-11-09T06:57:49Z",
+        "conclusion": "success",
+        "databaseId": 129020551788,
+        "name": "Seed string operands, VM and C AOT (cc)",
+        "startedAt": "2026-11-09T06:45:12Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-11-09T06:45:14Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-11-09T06:45:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:11Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-11-09T06:45:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:11Z",
+            "conclusion": "success",
+            "name": "Require worker headroom before provisioning or building",
+            "number": 3,
+            "startedAt": "2026-11-09T06:46:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:11Z",
+            "conclusion": "skipped",
+            "name": "Install my existing Linux native compiler prerequisites",
+            "number": 4,
+            "startedAt": "2026-11-09T06:46:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:19Z",
+            "conclusion": "success",
+            "name": "Install my existing Darwin native compiler prerequisites",
+            "number": 5,
+            "startedAt": "2026-11-09T06:46:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:22Z",
+            "conclusion": "success",
+            "name": "Select my existing qualified Apple compiler and SDK without drift",
+            "number": 6,
+            "startedAt": "2026-11-09T06:46:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:22Z",
+            "conclusion": "success",
+            "name": "Verify my shared reserved-definition tables",
+            "number": 7,
+            "startedAt": "2026-11-09T06:46:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:46:35Z",
+            "conclusion": "success",
+            "name": "Execute my checked collection lifetimes and original array exports",
+            "number": 8,
+            "startedAt": "2026-11-09T06:46:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:04Z",
+            "conclusion": "success",
+            "name": "Build actual fresh VM and C AOT providers",
+            "number": 9,
+            "startedAt": "2026-11-09T06:46:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:07Z",
+            "conclusion": "success",
+            "name": "Execute actual VM snapshot cleanup and ownership refusals",
+            "number": 10,
+            "startedAt": "2026-11-09T06:47:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:38Z",
+            "conclusion": "success",
+            "name": "Execute actual native collection adapters and snapshot refusals",
+            "number": 11,
+            "startedAt": "2026-11-09T06:47:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:50Z",
+            "conclusion": "success",
+            "name": "Execute my existing C lexer fixture controls",
+            "number": 12,
+            "startedAt": "2026-11-09T06:47:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:51Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C parser unit suite",
+            "number": 13,
+            "startedAt": "2026-11-09T06:47:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:51Z",
+            "conclusion": "success",
+            "name": "Execute the complete original C typechecker unit suite",
+            "number": 14,
+            "startedAt": "2026-11-09T06:47:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:47:55Z",
+            "conclusion": "success",
+            "name": "Execute my existing environment index and STRING ownership controls",
+            "number": 15,
+            "startedAt": "2026-11-09T06:47:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:29Z",
+            "conclusion": "success",
+            "name": "Execute my binary-string ownership and VM semantic gates",
+            "number": 16,
+            "startedAt": "2026-11-09T06:47:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:39Z",
+            "conclusion": "success",
+            "name": "Execute actual native binary-string adapters with sanitizers",
+            "number": 17,
+            "startedAt": "2026-11-09T06:48:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:48:52Z",
+            "conclusion": "success",
+            "name": "Retain current C and VM bstring boundary baselines",
+            "number": 18,
+            "startedAt": "2026-11-09T06:48:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:49:57Z",
+            "conclusion": "success",
+            "name": "Execute my actual source checker native component through the C seed",
+            "number": 19,
+            "startedAt": "2026-11-09T06:48:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:53:44Z",
+            "conclusion": "success",
+            "name": "Execute binary-string VM and native contracts through my actual source emitter",
+            "number": 20,
+            "startedAt": "2026-11-09T06:49:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:53:45Z",
+            "conclusion": "success",
+            "name": "Verify exact and deferred aggregate shape constraints",
+            "number": 21,
+            "startedAt": "2026-11-09T06:53:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:55:21Z",
+            "conclusion": "success",
+            "name": "Execute all operand methods and the complete canonical string suite",
+            "number": 22,
+            "startedAt": "2026-11-09T06:53:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:55:28Z",
+            "conclusion": "success",
+            "name": "Retain checker and focused-source attempt metadata before the translator gate",
+            "number": 23,
+            "startedAt": "2026-11-09T06:55:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:19Z",
+            "conclusion": "success",
+            "name": "Execute the complete original translator regression gate",
+            "number": 24,
+            "startedAt": "2026-11-09T06:55:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:29Z",
+            "conclusion": "success",
+            "name": "Retain complete original array alias regression routes",
+            "number": 25,
+            "startedAt": "2026-11-09T06:57:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:30Z",
+            "conclusion": "success",
+            "name": "Verify unchanged sources and providers",
+            "number": 26,
+            "startedAt": "2026-11-09T06:57:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:46Z",
+            "conclusion": "success",
+            "name": "Retain original build and diagnostic results",
+            "number": 27,
+            "startedAt": "2026-11-09T06:57:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:46Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 54,
+            "startedAt": "2026-11-09T06:57:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-11-09T06:57:48Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 55,
+            "startedAt": "2026-11-09T06:57:46Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42574978584/job/129020551788"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42574978584"
+  }
+}

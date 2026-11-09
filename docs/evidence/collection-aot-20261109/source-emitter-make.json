@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-nanoisa-src-nano"
+  ],
+  "returncode": 0,
+  "methods": 96,
+  "comparison_assertions": 86,
+  "log_sha256": "53f21254c8d41f0ba84f7dfa8d13b168348e5cb1df1314c1c30619e8126ac316",
+  "scope": "I run the authoritative unchanged comparator/source-emitter recipe. All96 original methods and86 comparator assertions pass. This corrects the two absent-comparator setup errors; it does not create or qualify the absent fresh Stage1/2 JSON producers."
+}

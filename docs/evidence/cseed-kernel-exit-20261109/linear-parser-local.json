@@ -1,0 +1,53 @@
+{
+  "work": "/Users/jkh/Src/nanolang/.test_output/kernel-exit-controls-qa596rhh",
+  "methods_passed": 9,
+  "native_control_validation": {
+    "source_inputs_before_after": {
+      "/Users/jkh/Src/nanolang/scripts/observe_cseed_kernel_exit.py": "f6046fc14ef21a516a71a19ff0ad9a63489318c68f0dbc998cdcf062b2c69d7d",
+      "/Users/jkh/Src/nanolang/tests/nanoisa/test_cseed_exit_observer.c": "4488cfab779c949ca00c0bd7d338ba02c9f28425f5098fe8b29fcdbb7c20c27a",
+      "/Users/jkh/Src/nanolang/tests/test_cseed_kernel_exit.py": "2141ad9e9ecdcbddcbb1fd6a12469f5c002d099fd370358d8551d1628a8737e6",
+      "/Users/jkh/Src/nanolang/docs/evidence/cseed-kernel-exit-20261109/first-linux/texts.json.gz": "44ed2c17c85fb334bdd5aeb2fc25e6374bf1fa55f835cf4d056d382bbab6d4fa"
+    },
+    "compiler": {
+      "path": "/usr/bin/cc",
+      "sha256_before_after": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+    },
+    "native_control": {
+      "pid": 82578,
+      "child_pid": 82603,
+      "wait_status": 1792,
+      "start_ns": 322741199550000,
+      "end_ns": 322741213144000
+    },
+    "native_binary_sha256_before_after": "139a2ae180ab3ada408b9881716fe51156ba3bd435c1c0215c51aea9e9e3fc6a",
+    "build": {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "/Users/jkh/Src/nanolang/tests/nanoisa/test_cseed_exit_observer.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/kernel-exit-controls-qa596rhh/actual-native-control"
+      ],
+      "returncode": 0
+    },
+    "linux_kernel_execution_qualified": false,
+    "parser_fixture_scope": "I construct kernel records to exercise parser refusals; these are not native BPF results."
+  },
+  "retained_actual_capture_replay": {
+    "inputs_sha256_before_after": {
+      "/Users/jkh/Src/nanolang/docs/evidence/cseed-kernel-exit-20261109/corrected-linux/kernel.jsonl.gz": "b411355ccd2c006307278b980c2e89f2a32ee08c413551a09f67305afc10db0c",
+      "/Users/jkh/Src/nanolang/docs/evidence/cseed-kernel-exit-20261109/corrected-linux/factory-lifecycle.json": "fec0e02a8a9bd729d5c53d2497a808fb717c6871c9fb38c8cac89fb10c7562bd"
+    },
+    "records": 284752,
+    "wall_seconds": 0.9613020839751698,
+    "parser_timeout_seconds": 30,
+    "new_kernel_capture_performed": false
+  },
+  "new_kernel_capture_performed": false
+}

@@ -1,0 +1,59 @@
+{
+  "run": 42594984144,
+  "head": "c504dc0f125fb1d23699de4e9517f2d6926abc9b",
+  "checkout": "72f8baac1b25d1a9321bd70cd70f04d18a67a05c",
+  "artifact": 13662872498,
+  "archive_sha256": "82434c8cee9aba06d96145849e76fa5a1e3c4e343dbc0a71c53a507fa50c164d",
+  "entries": 18,
+  "native_elf_images": 1,
+  "methods": 9,
+  "replay": {
+    "inputs_sha256_before_after": {
+      "/home/runner/work/nanolang/nanolang/docs/evidence/cseed-kernel-exit-20261109/corrected-linux/kernel.jsonl.gz": "b411355ccd2c006307278b980c2e89f2a32ee08c413551a09f67305afc10db0c",
+      "/home/runner/work/nanolang/nanolang/docs/evidence/cseed-kernel-exit-20261109/corrected-linux/factory-lifecycle.json": "fec0e02a8a9bd729d5c53d2497a808fb717c6871c9fb38c8cac89fb10c7562bd"
+    },
+    "records": 284752,
+    "wall_seconds": 1.8823317429999946,
+    "parser_timeout_seconds": 30,
+    "new_kernel_capture_performed": false
+  },
+  "validation": {
+    "source_inputs_before_after": {
+      "/home/runner/work/nanolang/nanolang/scripts/observe_cseed_kernel_exit.py": "f6046fc14ef21a516a71a19ff0ad9a63489318c68f0dbc998cdcf062b2c69d7d",
+      "/home/runner/work/nanolang/nanolang/tests/nanoisa/test_cseed_exit_observer.c": "4488cfab779c949ca00c0bd7d338ba02c9f28425f5098fe8b29fcdbb7c20c27a",
+      "/home/runner/work/nanolang/nanolang/tests/test_cseed_kernel_exit.py": "2141ad9e9ecdcbddcbb1fd6a12469f5c002d099fd370358d8551d1628a8737e6",
+      "/home/runner/work/nanolang/nanolang/docs/evidence/cseed-kernel-exit-20261109/first-linux/texts.json.gz": "44ed2c17c85fb334bdd5aeb2fc25e6374bf1fa55f835cf4d056d382bbab6d4fa"
+    },
+    "compiler": {
+      "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+      "sha256_before_after": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
+    },
+    "native_control": {
+      "pid": 2845,
+      "child_pid": 2846,
+      "wait_status": 1792,
+      "start_ns": 69444740288,
+      "end_ns": 69477489971
+    },
+    "native_binary_sha256_before_after": "afed3f5a5ae6aa276c1da5bb6ca0b43114c59ef158d78961c18f9cbc140bc0b1",
+    "build": {
+      "argv": [
+        "gcc",
+        "-std=c99",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "/home/runner/work/nanolang/nanolang/tests/nanoisa/test_cseed_exit_observer.c",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/kernel-exit-controls-chfsk79z/actual-native-control"
+      ],
+      "returncode": 0
+    },
+    "linux_kernel_execution_qualified": false,
+    "parser_fixture_scope": "I construct kernel records to exercise parser refusals; these are not native BPF results."
+  },
+  "scope": "I verify actual native Linux lifecycle controls and replay the same retained physical capture. I perform no new BPF capture or source factory; constructed parser events remain constructed. I do not qualify NativeSDK closure or source reliability."
+}

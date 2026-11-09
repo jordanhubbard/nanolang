@@ -26,6 +26,7 @@
 #include "affine_bytecode.h"
 #include "verifier.h"
 #include "../nanovm/vm_decode.h"
+#include "../runtime/dyn_array.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -37,6 +38,9 @@
 
 #define NVM2C_MAX_LOCALS 1024
 #define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 32)
+
+#define NVM2C_STRINGIFY_RAW(...) #__VA_ARGS__
+#define NVM2C_STRINGIFY(...) NVM2C_STRINGIFY_RAW(__VA_ARGS__)
 
 /* I inspect my generated executable text, not literal data or comments.
  * This is an internal architecture assertion, not a C security validator. */
@@ -541,6 +545,24 @@ static const Nvm2cHost artifact_adapters[] = {
 /* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
 typedef struct { Nvm2cHost host; uint8_t parameters[6]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
+    {{"nl_hm_new", "nhost_collection", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
+    {{"nl_hm_put", "nhost_collection", 3, TAG_VOID, TAG_VOID}, {TAG_OPAQUE, TAG_STRING, TAG_STRING}},
+    {{"nl_hm_has", "nhost_collection", 2, TAG_VOID, TAG_BOOL}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_hm_get", "nhost_collection", 2, TAG_VOID, TAG_STRING}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_hm_size", "nhost_collection", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_hm_keys", "nhost_collection", 1, TAG_VOID, TAG_ARRAY}, {TAG_OPAQUE}},
+    {{"nl_hm_values", "nhost_collection", 1, TAG_VOID, TAG_ARRAY}, {TAG_OPAQUE}},
+    {{"nl_hm_remove", "nhost_collection", 2, TAG_VOID, TAG_VOID}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_hm_clear", "nhost_collection", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
+    {{"nl_hm_free", "nhost_collection", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
+    {{"nl_set_new", "nhost_collection", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
+    {{"nl_set_add", "nhost_collection", 2, TAG_VOID, TAG_VOID}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_set_has", "nhost_collection", 2, TAG_VOID, TAG_BOOL}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_set_size", "nhost_collection", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_set_values", "nhost_collection", 1, TAG_VOID, TAG_ARRAY}, {TAG_OPAQUE}},
+    {{"nl_set_remove", "nhost_collection", 2, TAG_VOID, TAG_VOID}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_set_clear", "nhost_collection", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
+    {{"nl_set_free", "nhost_collection", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_file_product_new", "nhost_file_product", 3, TAG_VOID, TAG_OPAQUE}, {TAG_STRING, TAG_STRING, TAG_INT}},
     {{"nl_file_product_websocket", "nhost_file_product", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_INT, TAG_STRING}},
     {{"nl_file_product_valid", "nhost_file_product", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
@@ -624,12 +646,15 @@ static const Nvm2cTypedHost typed_artifact_adapters[] = {
 static int json_artifact_adapter(const Nvm2cHost *host) {
     return host && !strcmp(host->c_name, "nhost_json");
 }
+static bool collection_artifact_adapter(const Nvm2cHost *host) {
+    return host && !strcmp(host->c_name, "nhost_collection");
+}
 static bool context_artifact_adapter(const Nvm2cHost *host) {
     return json_artifact_adapter(host) || (host && (!strcmp(host->c_name, "nhost_source_inputs") ||
         !strcmp(host->c_name, "nhost_file_product")));
 }
 static bool typed_artifact_adapter(const Nvm2cHost *host) {
-    return json_artifact_adapter(host) || (host &&
+    return json_artifact_adapter(host) || collection_artifact_adapter(host) || (host &&
         (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_websocket") || !strcmp(host->c_name, "nhost_source_inputs") ||
          !strcmp(host->c_name, "nhost_file_catalog") || !strcmp(host->c_name, "nhost_file_product")));
 }
@@ -3111,7 +3136,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "function %u: CALL_EXTERN has no exact builtin host ABI", idx);
                 return 0;
             }
-            if (context_artifact_adapter(host)) b->has_maps = 1;
+            if (context_artifact_adapter(host) || collection_artifact_adapter(host)) b->has_maps = 1;
             if (!strcmp(host->c_name, "nhost_array_sort")) {
                 Nvm2cSimSlot array;
                 if (!sim_pop(b, idx, stk, &sp, &array)) return 0;
@@ -7955,6 +7980,7 @@ static const char *artifact_native_type(uint8_t tag, int carrier) {
     if (tag == TAG_OPAQUE) return carrier ? "nmap_value" : "void *";
     if (tag == TAG_STRING) return "const char *";
     if (tag == TAG_FLOAT) return "double";
+    if (tag == TAG_BOOL) return "bool";
     return "int64_t";
 }
 
@@ -7977,7 +8003,7 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             snprintf(arguments + used, sizeof arguments - used, tag == TAG_OPAQUE ? "%snvalue_require_opaque(a%u)" : "%sa%u", p ? ", " : "", p);
         }
         const char *result = artifact_native_type(host->result, 0);
-        nvm2c_puts(b, "#include <dlfcn.h>\n");
+        nvm2c_puts(b, "#include <dlfcn.h>\n#include <stdbool.h>\n");
         nvm2c_printf(b, "static inline %s %s_%u(%s) {\n",
             artifact_native_type(host->result, 1), host->c_name, i, host->argc ? parameters : "void");
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n",
@@ -8008,25 +8034,73 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     }
 }
 
+/* I keep copies private until the provider consumes its unique snapshot. All
+ * fallible allocations precede publication into the native aggregate roots. */
+static void emit_collection_snapshot_copy(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "extern bool nl_utf8_validate(const char *, size_t, size_t *);\n"
+        "static inline nsarr_t nhost_collection_snapshot(DynArray *foreign, bool (*release)(void *)) {\n"
+        "    nsarr_t result = NULL; struct nsarr_owner *owner = NULL;\n"
+        "    nsarr_string *strings = NULL; size_t bytes = 0; int attempted = 0;\n"
+        "    if (!foreign || !foreign->data || foreign->elem_type != ELEM_STRING ||\n"
+        "        foreign->elem_size != sizeof(char *) || foreign->length < 0 ||\n"
+        "        foreign->capacity < foreign->length ||\n"
+        "        (uint64_t)foreign->length > (SIZE_MAX - sizeof *owner - sizeof *result) / sizeof(char *)) goto failed;\n"
+        "    result = calloc(1, sizeof *result); owner = calloc(1, sizeof *owner);\n"
+        "    if (!result || !owner) goto failed;\n"
+        "    size_t count = (size_t)foreign->length;\n"
+        "    if (count) { result->data = calloc(count, sizeof *result->data); if (!result->data) goto failed; }\n"
+        "    owner->bytes = sizeof *owner + sizeof *result + count * sizeof *result->data; bytes = owner->bytes;\n"
+        "    for (size_t j = 0; j < count; ++j) {\n"
+        "        const char *value = ((const char **)foreign->data)[j];\n"
+        "        if (!value) goto failed;\n"
+        "        size_t n = strlen(value);\n"
+        "        if (n > SIZE_MAX - sizeof(nsarr_string) - 1 || !nl_utf8_validate(value, n, NULL)) goto failed;\n"
+        "        size_t cost = sizeof(nsarr_string) + n + 1; if (cost > SIZE_MAX - bytes) goto failed;\n"
+        "        nsarr_string *copy = calloc(1, sizeof *copy); if (!copy) goto failed;\n"
+        "        copy->data = malloc(n + 1); if (!copy->data) { free(copy); goto failed; }\n"
+        "        memcpy(copy->data, value, n + 1); copy->bytes = cost; bytes += cost;\n"
+        "        copy->next = strings; strings = copy; result->data[j] = copy->data;\n"
+        "    }\n"
+        "    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) goto failed;\n"
+        "    attempted = 1; if (!release(foreign)) goto failed;\n"
+        "    result->len = count; owner->data = result->data; owner->cap = count; owner->handle = result;\n"
+        "    owner->next = nsarr_owners; nsarr_owners = owner; result->owner = owner;\n"
+        "    nagg_add(bytes);\n"
+        "    while (strings) { nsarr_string *copy = strings; strings = copy->next;\n"
+        "        copy->next = nsarr_strings; nsarr_strings = copy; }\n"
+        "    return result;\n"
+        "failed:\n"
+        "    if (!attempted) (void)release(foreign);\n"
+        "    while (strings) { nsarr_string *copy = strings; strings = copy->next; free(copy->data); free(copy); }\n"
+        "    if (result) { free(result->data); free(result); } free(owner);\n"
+        "    NVM2C_ABORT();\n}\n");
+}
+
 static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
-    int emitted = 0;
+    int emitted = 0, collection_emitted = 0;
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
         if (!host || host->result != TAG_ARRAY || byte_array_result_adapter(host)) continue;
-        if (!emitted++) nvm2c_puts(b,
-            "#include <dlfcn.h>\n#include <stdbool.h>\n"
-            "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
-            "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
-            "typedef struct { int64_t length, capacity; nh_element type;\n"
-            "    uint8_t width; void *data; } nh_array_value;\n");
-        const char *parameters = json_artifact_adapter(host) ? "nmap_value root" : host->argc == 2 ? "const char *root, const char *extension" : "const char *root";
-        const char *types = json_artifact_adapter(host) ? "void *" : host->argc == 2 ? "const char *, const char *" : "const char *";
-        const char *release_name = json_artifact_adapter(host) ? "nl_json_object_keys_release" : !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
+        if (!emitted++) {
+            nvm2c_puts(b, "#include <dlfcn.h>\n#include <stdbool.h>\n"
+                "#ifndef NANO_DYN_ARRAY_ABI_TYPES_DEFINED\n#define NANO_DYN_ARRAY_ABI_TYPES_DEFINED 1\n");
+            nvm2c_puts(b, NVM2C_STRINGIFY(NANO_DYN_ARRAY_ABI_TYPES));
+            nvm2c_puts(b, "\n#endif\n");
+        }
+        bool collection = collection_artifact_adapter(host);
+        bool opaque = collection || json_artifact_adapter(host);
+        if (collection && !collection_emitted++) emit_collection_snapshot_copy(b);
+        const char *parameters = opaque ? "nmap_value root" : host->argc == 2 ? "const char *root, const char *extension" : "const char *root";
+        const char *types = opaque ? "void *" : host->argc == 2 ? "const char *, const char *" : "const char *";
+        char collection_release[96];
+        snprintf(collection_release, sizeof collection_release, "%s__nano_array_release_v1", host->name);
+        const char *release_name = collection ? collection_release : json_artifact_adapter(host) ? "nl_json_object_keys_release" : !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
         nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(%s) {\n", i, parameters);
         nvm2c_puts(b, "    static void *library;\n");
-        nvm2c_printf(b, "    static nh_array_value *(*walk)(%s);\n", types);
+        nvm2c_printf(b, "    static DynArray *(*walk)(%s);\n", types);
+        nvm2c_printf(b, "    static bool (*release)(%s);\n", collection ? "void *" : "DynArray *");
         nvm2c_puts(b,
-            "    static bool (*release)(nh_array_value *);\n"
             "    if (!library) {\n"
             "        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
@@ -8038,9 +8112,9 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b,
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
             "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
-            "        walk = (nh_array_value *(*)(%s))dlsym(library, \"%s\");\n"
-            "        release = (bool (*)(nh_array_value *))dlsym(library, \"%s\");\n",
-            host->name, types, host->name, release_name);
+            "        walk = (DynArray *(*)(%s))dlsym(library, \"%s\");\n"
+            "        release = (bool (*)(%s))dlsym(library, \"%s\");\n",
+            host->name, types, host->name, collection ? "void *" : "DynArray *", release_name);
         nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
             "        Dl_info producer, marker, companion;\n"
@@ -8049,10 +8123,14 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "            producer.dli_fbase != marker.dli_fbase ||\n"
             "            producer.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
             "    }\n");
-        nvm2c_printf(b, "    nh_array_value *foreign = walk(%s);\n", json_artifact_adapter(host) ? "nvalue_require_opaque(root)" : host->argc == 2 ? "root, extension" : "root");
+        if (collection) {
+            nvm2c_puts(b, "    return nhost_collection_snapshot(walk(nvalue_require_opaque(root)), release);\n}\n");
+            continue;
+        }
+        nvm2c_printf(b, "    DynArray *foreign = walk(%s);\n", opaque ? "nvalue_require_opaque(root)" : host->argc == 2 ? "root, extension" : "root");
         nvm2c_puts(b,
-            "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
-            "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
+            "    if (!foreign || !foreign->data || foreign->elem_type != ELEM_STRING ||\n"
+            "        foreign->elem_size != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"
             "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) NVM2C_ABORT();\n"
             "    nsarr_t result = nsarr_new();\n"
@@ -8432,7 +8510,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         const Nvm2cHost *host = import_host(mod, i);
         if (host && host->result == TAG_STRING)
             b.has_owned_strings = 1;
-        if (context_artifact_adapter(host)) b.has_maps = 1;
+        if (context_artifact_adapter(host) || collection_artifact_adapter(host)) b.has_maps = 1;
         if (bstring_adapter_contract(host)) {
             b.has_bstrings = 1; b.has_maps = 1; b.has_owned_strings = 1;
         }

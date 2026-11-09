@@ -1,0 +1,78 @@
+[
+  {
+    "argv": [
+      "gcc-16",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-S",
+      "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/all-native.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "gcc-16",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-S",
+      "/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/all-native.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "gcc-16",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc",
+      "-DCOLLECTION_AOT_PROGRAM=\"/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/copy-observed.c\"",
+      "-S",
+      "tests/nanoisa/test_collection_snapshot_aot.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "gcc-16",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc",
+      "-DCOLLECTION_AOT_PROGRAM=\"/Users/jkh/Src/nanolang/.test_output/collection-aot-5vnxi6g9/copy-observed.c\"",
+      "-S",
+      "tests/nanoisa/test_collection_snapshot_aot.c",
+      "-o",
+      "/dev/null"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

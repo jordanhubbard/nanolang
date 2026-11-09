@@ -1,0 +1,139 @@
+{
+  "run": 42573364466,
+  "job": 129015567062,
+  "artifact": 13654112330,
+  "source_pin": "669da64cd3e375815c0dcc703eea2b16c92dfdff",
+  "archive_sha256": "1f49cc9c9ec06063a4bbd06000a922bd876708baaabcc9a3081365bd1a7650f6",
+  "entries_crc_hashed": 879,
+  "native_images": [
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/all-native-O0",
+      "sha256": "42fd67f256dc818425858a24bc080f82184e06e058dab218e98ffb393d339f75"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/bad-marker-O0",
+      "sha256": "bd7bbd4f3f83a7f5e3861a810b42800bc907b386a8b96cb0c80c33c7b903dd82"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/bad-marker-O2",
+      "sha256": "c9fbfe4dcf45217b51454a947852a32a2830e868225cd992b001b0bf7fd43cc3"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/bad-marker-dependency.so",
+      "sha256": "6b51f0b350fc4f64c174cdf7e4a547651eb70187e16adec36d75e024941fae42"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/bad-marker-origin.so",
+      "sha256": "0ee7cac47ddfcaf1e36160831e410bec67b5772442dec8d8eed4237e3c0e724f"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/both-dependency-O0",
+      "sha256": "f507c13bad5b4eb07f1a3daa37c92f50ae62a8b7a976da43320bf97848e61f77"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/both-dependency-O2",
+      "sha256": "b929d038f5efe581405669d969657ca086351e01ae8140afa924adaf9257547e"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/both-dependency-dependency.so",
+      "sha256": "1c8b8abb8519019386fb9607d1e7c317ffa85782b00e40ddd9e26b685f44be4d"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/both-dependency-origin.so",
+      "sha256": "eb3c24b656ba180094a23eff0be69190be5be4cea8b93723990f4d8e4a1fa6b3"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/collections-plain.so",
+      "sha256": "2751e60a89e0e17529f61ca2aa9bce297cc5eecbf0098e736ad965e4f77362be"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/collections-sanitized.so",
+      "sha256": "9d48ab73753fed138f74d8b44b236ae8cc8be1cb99aaed76472ff0569fa77f11"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/companion-dependency-O0",
+      "sha256": "8a82888889c0913d56927a7fafbb05625d71c4bb43c30ceb0fadcbbd36e7c383"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/companion-dependency-O2",
+      "sha256": "fdd4d5439ce587e488a11563b0ac2c829c49a6ef9c341c68e2fe45546291314e"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/companion-dependency-dependency.so",
+      "sha256": "71dddf7a9bca9068822625dd9c38f32b811007546f0ce7fa67b8ea37225ac6fe"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/companion-dependency-origin.so",
+      "sha256": "1d7119bcf740f0407a6142ebcf9525f9849e7828df8d9800551ba63a956a4d5f"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/copy-control-O0",
+      "sha256": "584647df4cba3096bd1d410aca636092a9dc8bd0ed42d801f32f6093f1ebb962"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/copy-control-O2",
+      "sha256": "4961b40c05ed64fb4abb224e6494126f1b793cc02b3d6a38782c41ff218e45a5"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/marker-dependency-O0",
+      "sha256": "1964c24a59b6e579d372dc7902b38f99ea898b8b63b27ab0b8c3b15cb5df2535"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/marker-dependency-O2",
+      "sha256": "8932f234bfdd03bebdf63837ed0703cc2dd66c0a9efcee9a7604d9dd82c4e8da"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/marker-dependency-dependency.so",
+      "sha256": "93bdddeb02769c7282d023f35d192e17cda2bf56bdee9f2a59ca4cb62e9abbbe"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/marker-dependency-origin.so",
+      "sha256": "84555d0f8ad73486403b1c5c7aaf81473a3d896c9dd1b75a78f1c99fb09c2bd4"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-companion-O0",
+      "sha256": "62f7c16c5de69f5a926b64766ee2016937c9f8d303c98db6cf84838655be202d"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-companion-O2",
+      "sha256": "efbe8a20d23065c4803d39af4801cd7c2ff19b802de86cfd1f7759e450dc096b"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-companion-dependency.so",
+      "sha256": "5bb5e900754dc0947ef9c56130d0bdbccafd955e6392f63c32ad34ed5bf1f7e8"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-companion-origin.so",
+      "sha256": "f3d96b0f98f6c2a089ac6f304321b5a6df0246963094c1d5e6e64ce3cff3b466"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-marker-O0",
+      "sha256": "58c37712024445110bc15ff08a7146d1d48913c952d31cb85cda98469f4445e9"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-marker-O2",
+      "sha256": "d98cab86e2a8ba98a8478cf009b4e80fe3609fc2490a7fa392028da36298e024"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-marker-dependency.so",
+      "sha256": "a0175584a66e1c668f07576d424264dea250a51d3e8fa4c24125be25f54f67e3"
+    },
+    {
+      "path": ".test_output/collection-aot-first-clang-audited/collection-aot-_1zi3c63/missing-marker-origin.so",
+      "sha256": "b59e8976f92340c7331f107a4eff64e94c816cbcd22ba8454a15de45a9db96cd"
+    }
+  ],
+  "matched_selected_inputs": {
+    "tests/test_collection_aot.py": "5a9a29c529e09d3fc2f0810282ba603f90c908e140db38430a87f599dc88f99c",
+    "tests/nanoisa/test_collection_snapshot_aot.c": "45c590ce9e5774e6ad0fff819aa61d2121f9d9b57ddae5192dc335d1a5965334",
+    "src/nanoisa/nvm2c.c": "141ea4e3c50eed38cbc299dbbb421ad45df759bba3c36c3973dd8574a7dbf29d",
+    "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+    "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+    "src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "diagnostic": "/home/runner/work/nanolang/nanolang/.test_output/collection-aot-_1zi3c63/all-native.c:873:38: runtime error: call to function nl_hm_keys through pointer to incorrect function type 'nh_array_value *(*)(void *)'\n/home/runner/work/nanolang/nanolang/modules/std/collections/collections.c:381: note: nl_hm_keys defined here\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /home/runner/work/nanolang/nanolang/.test_output/collection-aot-_1zi3c63/all-native.c:873:38 \n",
+  "scope": "I retain an actual UBSan wrong-function-type failure from the instrumented real collection shared library, not an infrastructure label. I hash every uploaded entry and match selected inputs to immutable Git; native bytes remain at the retained local paths. Public header/compiler closure and final qualification are separate."
+}

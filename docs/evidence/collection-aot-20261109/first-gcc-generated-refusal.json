@@ -1,0 +1,19 @@
+{
+  "source": ".test_output/collection-aot-rxzdhd_d/all-native.c",
+  "source_sha256": "9c5ffdde136038674092417e4c02e1e0f54dd87fa2fff04fa8dd68205f2d9b7b",
+  "argv": [
+    "gcc-16",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-UNDEBUG",
+    "-S",
+    ".test_output/collection-aot-rxzdhd_d/all-native.c",
+    "-o",
+    "/dev/null"
+  ],
+  "returncode": 1,
+  "scope": "I retain the actual generated C and strict GCC diagnostic before changing statement layout. This is a candidate formatting refusal, not infrastructure."
+}

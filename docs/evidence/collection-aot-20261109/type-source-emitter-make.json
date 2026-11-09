@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "test-nanoisa-src-nano"
+  ],
+  "returncode": 0,
+  "methods": 96,
+  "comparison_assertions": 86,
+  "log_sha256": "6757a27d969c346ba9ee3859e4e092a4f7d800434562ae46af92fb2903ecf8ee",
+  "scope": "I run all original comparator/source-emitter selections after the shared C type correction. All96 methods and86 assertions pass. Full fresh-stage JSON and final release-head/platform admission remain separate."
+}

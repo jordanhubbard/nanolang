@@ -1,0 +1,14 @@
+{
+  "previous": "6e326819890734095b825d44c8127447c294cfb2",
+  "checkpoint": "b106ee66ee6258fc930b0bae8107399b0fe6753b",
+  "implementation": "390a74ebeeb5eea8f34ee45e2158b89d2c7f351d",
+  "tree": "afdd58c5c5177cc7ac1c5c7828a4335f9627d5da",
+  "entries": 92829,
+  "changed_paths": [
+    "src/nanoisa/nvm2c.c",
+    "src/runtime/dyn_array.h",
+    "tests/nanoisa/test_collection_snapshot_aot.c",
+    "tests/test_collection_aot.py"
+  ],
+  "scope": "I preserve all92829 original entries and exactly four reviewed source changes in a complete independent index, with the previous AOT source checkpoint as direct parent. Actual source custody does not admit NativeSDK or release."
+}

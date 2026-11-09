@@ -1,0 +1,114 @@
+[
+  {
+    "label": "original-O0-build",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+      "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O0"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "original-O0-run",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O0"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "original-O2-build",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O2",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+      "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "original-O2-run",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "candidate-O0-build",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+      "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O0"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "candidate-O0-run",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O0"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "candidate-O2-build",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O2",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+      "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "candidate-O2-run",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O2"
+    ],
+    "returncode": 0
+  }
+]

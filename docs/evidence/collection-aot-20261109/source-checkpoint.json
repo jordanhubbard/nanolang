@@ -1,0 +1,16 @@
+{
+  "previous": "93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e",
+  "checkpoint": "6e326819890734095b825d44c8127447c294cfb2",
+  "implementation": "c7880dd8591493360cc6f98756b6a375f1a3927b",
+  "tree": "ce02b28c11b258a7ad7ab09ee4c5dacb7bbab5c7",
+  "entries": 92829,
+  "changed_paths": [
+    ".github/workflows/string-builtin-operands.yml",
+    "Makefile.gnu",
+    "src/nanoisa/nvm2c.c",
+    "tests/nanoisa/test_collection_snapshot_aot.c",
+    "tests/test_collection_aot.py"
+  ],
+  "added_tests": 2,
+  "scope": "I populate a separate complete Git index from the prior original baseline, apply exactly five reviewed source paths, verify all92829 entries and direct-parent ancestry, then retain that ancestry through an explicit ours merge. This is original Git custody, not native lifecycle or release admission."
+}

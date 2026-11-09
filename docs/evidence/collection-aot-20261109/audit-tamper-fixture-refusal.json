@@ -1,0 +1,1 @@
+{"exception":"BadZipFile: Bad magic number for file header","cause":"My tamper fixture passed source ZipInfo objects directly to writestr, which mutates header offsets in memory.","correction":"I shallow-copy ZipInfo for each destination entry; the original archive bytes are unchanged.","product_defect_established":false}

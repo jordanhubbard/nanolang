@@ -1,0 +1,24 @@
+{
+  "check_run": 129026331943,
+  "incident": 37472714,
+  "evidence_commit": "3c3f1edae92125dd44cf392ddc0f160a2868e129",
+  "source_commit": "b897da5d404d6b148d2734b3e4673ebcc8d81b3f",
+  "occurrences": [
+    {
+      "line": 50,
+      "source_path": "src_nano/compiler/token_value_bytes.nano",
+      "full_git_blob_sha256_matches": true
+    },
+    {
+      "line": 119,
+      "source_path": "src_nano/compiler/token_value_bytes.nano",
+      "full_git_blob_sha256_matches": true
+    },
+    {
+      "line": 191,
+      "source_path": "src_nano/compiler/token_value_bytes.nano",
+      "full_git_blob_sha256_matches": true
+    }
+  ],
+  "scope": "I verify these three fields as the same public Git source-content checksum. I do not classify unrelated findings, clear a security verdict, exclude a detector or perform a supported disposition."
+}
