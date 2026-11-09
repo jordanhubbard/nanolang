@@ -7,6 +7,8 @@ on:
       - '.github/workflows/string-builtin-operands.yml'
       - 'src/env.c'
       - 'tests/test_env_symbol_index.c'
+      - 'tests/test_eval_record_fields.c'
+      - 'src/eval/record_fields.inc'
       - 'src/runtime/gc.c'
       - 'tests/test_gc_struct.c'
       - 'src/eval.c'
@@ -216,7 +218,7 @@ jobs:
       - name: Execute my existing environment index and STRING ownership controls
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-env-symbol-index \
+          make -f Makefile.gnu CC="$CC" test-env-symbol-index test-eval-record-fields-sanitizers \
             2>&1 | tee .test_output/string-builtin-operands/environment.log
       - name: Execute my binary-string ownership and VM semantic gates
         run: |
