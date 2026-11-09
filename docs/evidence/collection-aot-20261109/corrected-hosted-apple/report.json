@@ -28,7 +28,14 @@
     "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "63118b21003aa9e203d3ec7e610d3f4d339fb8745f85517e870d5fa26f0c5be4",
     "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
   },
-  "tool_bytes_uploaded": false,
+  "reported_native_tool_bytes_uploaded": false,
+  "uploaded_tool_scripts": [
+    {
+      "path": "retirement/selected-tools/cc",
+      "bytes": 216,
+      "sha256": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+    }
+  ],
   "operations": [
     {
       "label": "test_actual_emitted_copy_failures-copy-control-assemble",

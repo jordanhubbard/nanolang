@@ -28,7 +28,8 @@
     "/home/runner/work/nanolang/nanolang/bin/nvm2c": "1a70c89e09caec6258edb55ae56d35be635c11b75275b72bd8991e96237a4f07",
     "/usr/lib/llvm-18/bin/clang": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45"
   },
-  "tool_bytes_uploaded": false,
+  "reported_native_tool_bytes_uploaded": false,
+  "uploaded_tool_scripts": [],
   "operations": [
     {
       "label": "test_actual_emitted_copy_failures-copy-control-assemble",

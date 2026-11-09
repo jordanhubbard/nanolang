@@ -28,7 +28,8 @@
     "/home/runner/work/nanolang/nanolang/bin/nvm2c": "b7093ad7bb80c3315087dfadc4ad92eb85b7ca80ad94cce8705c91aedf434c09",
     "/usr/bin/x86_64-linux-gnu-gcc-13": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
   },
-  "tool_bytes_uploaded": false,
+  "reported_native_tool_bytes_uploaded": false,
+  "uploaded_tool_scripts": [],
   "operations": [
     {
       "label": "test_actual_emitted_copy_failures-copy-control-assemble",

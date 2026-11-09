@@ -38,6 +38,18 @@ def audit(archive, output, retained):
         assert len(identity['inputs']) == 13 and len(identity['tools']) == 4
         for path, expected in identity['inputs'].items():
             assert digest(subprocess.check_output(['git', 'show', PIN+':'+path])) == expected, path
+        uploaded_tool_scripts = []
+        for path, expected in identity['tools'].items():
+            matches = [n for n in names if Path(n).name == Path(path).name]
+            if matches:
+                assert len(matches) == 1
+                relative = matches[0]
+                data = z.read(relative)
+                assert '/.test_output/' in path and relative == path.split('/.test_output/', 1)[1]
+                assert digest(data) == expected and data.startswith(b'#!')
+                saved[relative] = data
+                texts[relative] = data.decode()
+                uploaded_tool_scripts.append({'path':relative, 'bytes':len(data), 'sha256':expected})
         ops = json.loads(texts[root+'operations.json'])
         assert len(ops) == 238 and len({o['label'] for o in ops}) == 238
         refusals = {'test_companion_and_marker_origin_refusals-'+case+'-refuse'+opt for case in CASES for opt in ('-O0','-O2')}
@@ -111,7 +123,7 @@ def audit(archive, output, retained):
     for name, value in (('inventory',inventory), ('texts',texts)):
         with gzip.open(output/(name+'.json.gz'), 'wt') as f:
             json.dump(value, f, sort_keys=True)
-    report = {'source_pin':PIN, 'archive':{'bytes':archive.stat().st_size, 'sha256':digest(archive.read_bytes()), 'entries':len(inventory), 'all_entries_streamed_crc_checked':True}, 'root':root, 'source_inputs_git_matched':identity['inputs'], 'tools_reported_before_after':identity['tools'], 'tool_bytes_uploaded':False, 'operations':ops, 'products':products, 'retained_nvm':sum(p.endswith('.nvm') for p in saved), 'successful_native_runs':6, 'expected_native_refusals':12, 'malformed_signature_refusals':52, 'sdk_and_header_closure_qualified':False, 'historical_deadline_cause_established':False}
+    report = {'source_pin':PIN, 'archive':{'bytes':archive.stat().st_size, 'sha256':digest(archive.read_bytes()), 'entries':len(inventory), 'all_entries_streamed_crc_checked':True}, 'root':root, 'source_inputs_git_matched':identity['inputs'], 'tools_reported_before_after':identity['tools'], 'reported_native_tool_bytes_uploaded':False, 'uploaded_tool_scripts':uploaded_tool_scripts, 'operations':ops, 'products':products, 'retained_nvm':sum(p.endswith('.nvm') for p in saved), 'successful_native_runs':6, 'expected_native_refusals':12, 'malformed_signature_refusals':52, 'sdk_and_header_closure_qualified':False, 'historical_deadline_cause_established':False}
     (output/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({'output':str(output), 'images':len(products), 'ops':len(ops), 'entries':len(inventory)}))
 
