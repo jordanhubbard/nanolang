@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:d628ddddaefd5a58dd484ef1cc1744d1d1e0462ee6a94ce021a9cb37d2a07631 -->
+<!-- literate-ai:authority-reviewed sha256:2b3c3a7e56603d2f90b9c066e07a25aaa81726574c71ac0f2f1ff840a8890993 -->
 
 ## My first metadata checkpoint
 
@@ -547,3 +547,5 @@ I retain complete source checkpoint `6e326819890734095b825d44c8127447c294cfb2`, 
 I admit the eighteen existing map/set artifact signatures in my AOT consumer. I retain exact opaque and C bool transport, bind versioned snapshot cleanup to the producer image and stage native copies until cleanup succeeds. Actual producer/VM/O0/O2, allocation-denial and origin/signature refusal controls pass locally; strict generated GCC compiles and 223 product compiles each with clang/GCC pass. I retain the initial GCC formatting refusal and optional full source-regression setup failure for absent comparator/stage executables in `docs/evidence/collection-aot-20261109/`. Full component-platform plans, canonical source declaration identity, opaque field admission, fresh stages and final NativeSDK/release acceptance remain open.
 
 I retain the actual Linux Clang UBSan wrong-function-type refusal in #1133 before correcting my AOT array declarations. My direct-child complete checkpoint `b106ee66ee6258fc930b0bae8107399b0fe6753b` preserves92,829 entries and exactly four source changes from `6e326819890734095b825d44c8127447c294cfb2`. I share the existing public ElementType/DynArray declaration with generated C; preprocessed declaration tokens, remaining public API bytes and ABI version1 are unchanged. Actual collection/JSON/filesystem producer and cleanup types now agree. Five corrected local boundary methods and existing string/snapshot/frame controls pass without weakening sanitizers. I require corrected full platform plans and retain source/fresh-stage/NativeSDK/release boundaries.
+
+I retain opt-in C-seed shadow completion observation at complete source checkpoint `90b79b0e4af163b5b725988e0d0197b64d9f11bc`, a direct child of `b106ee66ee6258fc930b0bae8107399b0fe6753b`. I preserve all 92,831 entries with seven reviewed deltas and two new source paths. Actual success/failure/deadline/report/zero-exit and errno controls pass, as do original comparison controls and strict clang/GCC product compiles. The fixed six-attempt diagnostic remains measurement work under #1065, with original deadlines and selections unchanged. I do not infer whole-source reliability, NativeSDK or release admission from these controls or custody. Evidence is in `docs/evidence/shadow-completion-20261109/`.
