@@ -1,0 +1,21 @@
+{
+  "controls": [
+    {
+      "case": "shell bytes presented as native executable",
+      "rejected": true
+    },
+    {
+      "case": "dylib header presented as executable",
+      "rejected": true
+    },
+    {
+      "case": "thread sanitizer flag without actual symbol",
+      "rejected": true
+    },
+    {
+      "case": "changed fixture bound to earlier immutable input pin",
+      "rejected": true
+    }
+  ],
+  "initial_auditor_refusal": "I initially required UBSan hook symbols in tiny dependency/origin images containing no instrumented undefined operations. Actual ASan symbols and sanitizer command flags are present; I record each hook independently and still require UBSan hooks in production/driver images. No fixture or product assertion changes."
+}

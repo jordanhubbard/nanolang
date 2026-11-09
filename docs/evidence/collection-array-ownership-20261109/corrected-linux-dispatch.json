@@ -1,0 +1,8 @@
+{
+  "run": 42569250444,
+  "source_pin": "b94da11a7263874e084d229ea44fbefb1f945242",
+  "runtime_implementation": "fb0b2a64a80bd7de6f9933a92011db56407a2926",
+  "original_failed_linux": 42568329141,
+  "preserved_apple": 42568331586,
+  "scope": "I dispatch the full corrected Linux plan once after the actual fixture change. Both Linux compilers pass the actual VM CLI ownership step and continue their original component plans. The original Apple plan completes successfully; its terminal artifacts still require independent audit. No runtime, workflow, assertion, warning, sanitizer, selection or deadline changes occur in this fixture correction."
+}

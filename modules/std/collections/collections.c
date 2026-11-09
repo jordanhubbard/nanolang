@@ -286,6 +286,40 @@ static HMEntry* hm_find_slot(NLHashMap *hm, const char *key, bool *found_out) {
     }
 }
 
+/* I mark only my independently copied collection snapshots. My marker does
+ * not destroy strings during ordinary C gc_release: existing C callers retain
+ * their manual element-cleanup contract. Foreign consumers use the companion
+ * after copying every element, while the result is uniquely owned. */
+static void collection_snapshot_marker(void *value) { (void)value; }
+static DynArray *collection_snapshot_new(void) {
+    DynArray *result = dyn_array_new(ELEM_STRING);
+    if (result) gc_get_header(result)->finalizer = collection_snapshot_marker;
+    return result;
+}
+static bool collection_snapshot_release(DynArray *result) {
+    if (!result || !gc_is_managed(result)) return false;
+    GCHeader *header = gc_get_header(result);
+    if (header->type != GC_TYPE_ARRAY || header->ref_count != 1 ||
+        header->finalizer != collection_snapshot_marker ||
+        !dyn_array_has_storage(result, ELEM_STRING, sizeof(char *), 0)) return false;
+    for (int64_t i = 0; i < result->length; i++) {
+        free(((char **)result->data)[i]);
+        ((char **)result->data)[i] = NULL;
+    }
+    result->length = 0;
+    gc_release(result);
+    return true;
+}
+bool nl_hm_keys__nano_array_release_v1(void *result) {
+    return collection_snapshot_release(result);
+}
+bool nl_hm_values__nano_array_release_v1(void *result) {
+    return collection_snapshot_release(result);
+}
+bool nl_set_values__nano_array_release_v1(void *result) {
+    return collection_snapshot_release(result);
+}
+
 void* nl_hm_new(void) {
     NLHashMap *hm = hm_alloc(64);
     void *identity = collection_publish(hm, COLLECTION_MAP);
@@ -346,13 +380,15 @@ int64_t nl_hm_size(void* hm_ptr) {
 
 DynArray* nl_hm_keys(void* hm_ptr) {
     NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
-    if (!hm) return dyn_array_new(ELEM_STRING);
-    DynArray *out = dyn_array_new(ELEM_STRING);
+    if (!hm) return collection_snapshot_new();
+    DynArray *out = collection_snapshot_new();
+    if (!out) return NULL;
     for (int64_t i = 0; i < hm->capacity; i++) {
         HMEntry *e = &hm->entries[i];
         if (e->key && !e->tombstone) {
             char *k = strdup(e->key);
-            dyn_array_push_string(out, k ? k : "");
+            if (!k) { (void)collection_snapshot_release(out); return NULL; }
+            dyn_array_push_string(out, k);
         }
     }
     return out;
@@ -360,13 +396,15 @@ DynArray* nl_hm_keys(void* hm_ptr) {
 
 DynArray* nl_hm_values(void* hm_ptr) {
     NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
-    if (!hm) return dyn_array_new(ELEM_STRING);
-    DynArray *out = dyn_array_new(ELEM_STRING);
+    if (!hm) return collection_snapshot_new();
+    DynArray *out = collection_snapshot_new();
+    if (!out) return NULL;
     for (int64_t i = 0; i < hm->capacity; i++) {
         HMEntry *e = &hm->entries[i];
         if (e->key && !e->tombstone) {
             char *v = strdup(e->value ? e->value : "");
-            dyn_array_push_string(out, v ? v : "");
+            if (!v) { (void)collection_snapshot_release(out); return NULL; }
+            dyn_array_push_string(out, v);
         }
     }
     return out;
@@ -453,7 +491,7 @@ int64_t nl_set_size(void* set_ptr) {
 
 DynArray* nl_set_values(void* set_ptr) {
     NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
-    if (!s || !s->hm) return dyn_array_new(ELEM_STRING);
+    if (!s || !s->hm) return collection_snapshot_new();
     return nl_hm_keys(s->hm);
 }
 

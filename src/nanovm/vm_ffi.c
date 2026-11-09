@@ -511,6 +511,13 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
+    if (imp->kind == NVM_IMPORT_ARTIFACT && imp->return_type == TAG_ARRAY &&
+        !ffi_loader_array_release(mod_name, func_name, func_ptr,
+                                  &desc->array_release, error_msg, error_msg_size)) {
+        desc->state = NVM_CALL_FAILED;
+        return NULL;
+    }
+
     if (imp->kind == NVM_IMPORT_ARTIFACT && imp->return_type == TAG_STRING) {
         if (!ffi_loader_string_release(mod_name, func_name, func_ptr,
                                        &desc->string_release, error_msg, error_msg_size)) {
@@ -807,11 +814,14 @@ cleanup:
 }
 
 static bool finish_foreign_arrays(VmFfiArrayFrame *arrays, int64_t raw, uint8_t tag,
+                                  bool (*release)(void *),
                                   NanoValue *result, char *error, size_t size) {
     bool ok = true;
     NanoValue converted = val_void();
-    if (!(tag == TAG_ARRAY &&
-          vm_ffi_array_alias_result(arrays, (void *)(intptr_t)raw, &converted))) {
+    if (tag == TAG_ARRAY) {
+        ok = vm_ffi_array_result(arrays, (DynArray *)(intptr_t)raw, release,
+                                 &converted, error, size);
+    } else {
         converted = marshal_result(raw, tag, arrays->heap, &ok);
         if (!ok) snprintf(error, size, "I could not validate or allocate the foreign result");
     }
@@ -1034,7 +1044,7 @@ static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
         else if (imp->return_type == TAG_ARRAY || imp->return_type == TAG_STRING ||
                  imp->return_type == TAG_BSTRING || imp->return_type == TAG_OPAQUE)
             raw = (int64_t)(intptr_t)returned.pointer;
-        return finish_foreign_arrays(&arrays, raw, imp->return_type, result, error_msg, error_msg_size);
+        return finish_foreign_arrays(&arrays, raw, imp->return_type, desc->array_release, result, error_msg, error_msg_size);
     }
 
     /* Fast path: all-float signatures use properly typed dispatch so
@@ -1117,7 +1127,7 @@ static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
             return false;
     }
 
-    return finish_foreign_arrays(&arrays, raw_result, imp->return_type, result, error_msg, error_msg_size);
+    return finish_foreign_arrays(&arrays, raw_result, imp->return_type, desc->array_release, result, error_msg, error_msg_size);
 
 ffi_array_failure:
     vm_ffi_arrays_dispose(&arrays);

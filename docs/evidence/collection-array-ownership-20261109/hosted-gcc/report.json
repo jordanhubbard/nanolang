@@ -1,0 +1,1325 @@
+{
+  "source_pin": "b94da11a7263874e084d229ea44fbefb1f945242",
+  "archive": {
+    "bytes": 41185575,
+    "sha256": "15da1d98494a91c5950064238aef0ad5676109258ef877472469e403cbaf040d",
+    "entries": 5864,
+    "all_entries_crc_streamed": true
+  },
+  "products": [
+    {
+      "path": "collection-snapshots-l0a8410x/plain",
+      "bytes": 8519712,
+      "sha256_before_after": "d37a6316c34718fe03976e19c05e6cda6b8ed8f6366066117cfc4313545f32a6",
+      "kind": "ELF executable/PIE",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "collection-snapshots-l0a8410x/sanitized",
+      "bytes": 8854640,
+      "sha256_before_after": "126d30dca03edafd3907d65a3a0a468112808834c96616f31c269e714d4b3547",
+      "kind": "ELF executable/PIE",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "collection-snapshots-l0a8410x/threaded",
+      "bytes": 8553968,
+      "sha256_before_after": "27281619747771143c1effdba90cf3b2fa5d327ea836d72f8e36958f949cd771",
+      "kind": "ELF executable/PIE",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-array-results-3rrmu8di/plain",
+      "bytes": 8719216,
+      "sha256_before_after": "43ca178d63b4f11d5ce516513df8f4d1304dd786945b73a84a524bf5d197a4b5",
+      "kind": "ELF executable/PIE",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-array-results-3rrmu8di/sanitized",
+      "bytes": 9640464,
+      "sha256_before_after": "1fe161442f16cee228acb5aa2a4d7e584d126522d86a9327c7a52f7befacfe3e",
+      "kind": "ELF executable/PIE",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/plain/libdependency.so",
+      "bytes": 16720,
+      "sha256_before_after": "4697e5e055f76ca5767b282d567c3f511745a6bcf51bbf11efdffb62cb622dda",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/plain/liborigin.so",
+      "bytes": 18112,
+      "sha256_before_after": "002762cbe291bf2ed139953bcdd8e85df4b6f427abd8f81217704ca408f15f1d",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/plain/libcollections.so",
+      "bytes": 8516072,
+      "sha256_before_after": "b33f59081bfdaeeb233912e664ce4602dee697f91dc16528ecca1a8f476b7a73",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/plain/driver",
+      "bytes": 69288,
+      "sha256_before_after": "fab8c158c52d4f399a289ef91fe2b118493844b4f09731b15b658f647ecf7417",
+      "kind": "ELF executable/PIE",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/sanitized/libdependency.so",
+      "bytes": 17232,
+      "sha256_before_after": "4c4044800830aa81b2c6e4b64ac2fdc633afa95f26c9ba44c72967fa3a3d40a0",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/sanitized/liborigin.so",
+      "bytes": 18808,
+      "sha256_before_after": "8fd28fdd165a73de8c411591e35cf5a8fd388f84c814976f1e482097790e1038",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/sanitized/libcollections.so",
+      "bytes": 8822272,
+      "sha256_before_after": "e9b699d4fd153b451029892218971352e26f5d8e9110c9cd33d3d526fdee6715",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/sanitized/driver",
+      "bytes": 191536,
+      "sha256_before_after": "f0dfb2e495eb07875ff0e12536bdbe3d57362adf209d08b05e7e3ae30e3c8a8b",
+      "kind": "ELF executable/PIE",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/threaded/libdependency.so",
+      "bytes": 17136,
+      "sha256_before_after": "616ba9bbd1e1d4d681c3326c32bd1608d3ae81f146bb9d3e95cef57129e9f44e",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/threaded/liborigin.so",
+      "bytes": 18480,
+      "sha256_before_after": "c1335b970b64b49ac945f0517412e21951da04f33a1df3f196ae399726e1649b",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/threaded/libcollections.so",
+      "bytes": 8547912,
+      "sha256_before_after": "08d0bbeee536c265250669c2ecdee13103a0c5b9e8f5ba405ecc3b6fcfbd4d91",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-4c17km5h/threaded/driver",
+      "bytes": 85064,
+      "sha256_before_after": "f9c41554d673fbd79c3a99d959fcf6212c0f47f19dee6d5a574ac75d95307497",
+      "kind": "ELF executable/PIE",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/plain/libdependency.so",
+      "bytes": 16720,
+      "sha256_before_after": "1e5987fbc9cdd71dc10e08e76ea41750943e683d424e775ed4a3c1f1bfb9abab",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/plain/liborigin.so",
+      "bytes": 18112,
+      "sha256_before_after": "678936e84fd4f6d16510d5af046b1a25d26ad95e1afbfdf3f4ba1ad21e71ac9c",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/plain/libcollections.so",
+      "bytes": 8516072,
+      "sha256_before_after": "768388dc2d8f1f2be732d9afedb22f46f1dfc851fc33e133a46c953725aed9fd",
+      "kind": "ELF shared object",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/plain/driver",
+      "bytes": 69288,
+      "sha256_before_after": "fab8c158c52d4f399a289ef91fe2b118493844b4f09731b15b658f647ecf7417",
+      "kind": "ELF executable/PIE",
+      "mode": "plain",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/sanitized/libdependency.so",
+      "bytes": 17232,
+      "sha256_before_after": "2a8396f07b35388b5d1a9e3dacdfa5aee113b7168c187f87e78151c972f1aa1d",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/sanitized/liborigin.so",
+      "bytes": 18808,
+      "sha256_before_after": "9161de729cf9703dc810c19d5f4115759f21cf343dc7e28de4c2f8c97efd3aad",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": false,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/sanitized/libcollections.so",
+      "bytes": 8822272,
+      "sha256_before_after": "b83a8518276fc34fd1ed48c8a2a2cdfb07e6c9faf2b6550086c22b946c26218a",
+      "kind": "ELF shared object",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/sanitized/driver",
+      "bytes": 191536,
+      "sha256_before_after": "f0dfb2e495eb07875ff0e12536bdbe3d57362adf209d08b05e7e3ae30e3c8a8b",
+      "kind": "ELF executable/PIE",
+      "mode": "sanitized",
+      "instrumentation_symbols": {
+        "__asan_init": true,
+        "__ubsan_handle": true,
+        "__tsan_init": false
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/threaded/libdependency.so",
+      "bytes": 17136,
+      "sha256_before_after": "cbd3571788f06b5cd705a6384b023a9c3bc6b448557d26b3d3911f51229a3b4d",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/threaded/liborigin.so",
+      "bytes": 18480,
+      "sha256_before_after": "6868704fc71018175455677d9adb65ed512e6820eabbee6817075bcbfd31ee61",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/threaded/libcollections.so",
+      "bytes": 8547912,
+      "sha256_before_after": "63275a60c814e3fcc91dedf19e9f710b0b439d7ce88ad89a5ed80adb35cabd47",
+      "kind": "ELF shared object",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    },
+    {
+      "path": "ffi-result-release-bg6ymtwx/threaded/driver",
+      "bytes": 85064,
+      "sha256_before_after": "f9c41554d673fbd79c3a99d959fcf6212c0f47f19dee6d5a574ac75d95307497",
+      "kind": "ELF executable/PIE",
+      "mode": "threaded",
+      "instrumentation_symbols": {
+        "__asan_init": false,
+        "__ubsan_handle": false,
+        "__tsan_init": true
+      }
+    }
+  ],
+  "witnesses": [
+    {
+      "root": "collection-snapshots-l0a8410x/",
+      "inputs": {
+        "tests/test_collection_snapshot_release.py": "ddba7a76efb281f7ed26a2a8c6b80a48110b53580a75247aca440a6970d44276",
+        "modules/std/collections/module.json": "56e6fb88377ac9419c8e9bd87031ef9c2872d2201e122cb3eaa7a4447ae6bea0",
+        "tests/test_collection_snapshot_release.c": "17993b059a28dfc170c490320d3f069283984b58b41df69ee0b17058224a911c",
+        "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+        "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+        "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+        "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+        "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+      },
+      "operations": [
+        {
+          "label": "build-plain",
+          "command": [
+            "gcc",
+            "-std=c99",
+            "-g",
+            "-O1",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "tests/test_collection_snapshot_release.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/plain"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-plain",
+          "command": [
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/plain"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-sanitized",
+          "command": [
+            "gcc",
+            "-std=c99",
+            "-g",
+            "-O1",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-Isrc",
+            "tests/test_collection_snapshot_release.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/sanitized"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-sanitized",
+          "command": [
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/sanitized"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-threaded",
+          "command": [
+            "gcc",
+            "-std=c99",
+            "-g",
+            "-O1",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-fsanitize=thread",
+            "-Isrc",
+            "tests/test_collection_snapshot_release.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/threaded"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-threaded",
+          "command": [
+            "/home/runner/work/nanolang/nanolang/.test_output/collection-snapshots-l0a8410x/threaded"
+          ],
+          "returncode": 0
+        }
+      ],
+      "vm_cli": false
+    },
+    {
+      "root": "ffi-array-results-3rrmu8di/",
+      "inputs": {
+        "tests/nanovm/test_ffi_arrays.c": "f83c4d7588f1ac055680a9cd9ec9a606048a426d1f51beb53469889623bdd80c",
+        "src/nanovm/vm_ffi_arrays.c": "626e03026abdf2be3bc17ae11ff34385fcdf9ece5fd7fce61120bba288f9ac2a",
+        "src/nanovm/vm_ffi_arrays.h": "490b6dbb2dd3d4025fe4725a4308a4f07405f1631336cee4dd08e66ac4de5e4f",
+        "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192"
+      },
+      "operations": [
+        {
+          "label": "build-plain",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-g",
+            "-O1",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "tests/nanovm/test_ffi_arrays.c",
+            "src/nanovm/heap.c",
+            "src/nanovm/value.c",
+            "src/nanovm/heap_cycles.c",
+            "src/nanoisa/isa.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "src/utf8.c",
+            "modules/std/collections/collections.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-array-results-3rrmu8di/plain"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-plain",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-array-results-3rrmu8di/plain"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-sanitized",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-g",
+            "-O1",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "tests/nanovm/test_ffi_arrays.c",
+            "src/nanovm/heap.c",
+            "src/nanovm/value.c",
+            "src/nanovm/heap_cycles.c",
+            "src/nanoisa/isa.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "src/utf8.c",
+            "modules/std/collections/collections.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-array-results-3rrmu8di/sanitized"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-sanitized",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-array-results-3rrmu8di/sanitized"
+          ],
+          "returncode": 0
+        }
+      ],
+      "vm_cli": false
+    },
+    {
+      "root": "ffi-result-release-4c17km5h/",
+      "inputs": {
+        "/home/runner/work/nanolang/nanolang/tests/test_ffi_result_release.c": "78eadf4cd98dca9c999c7d69054b06cb35dd08e745fce98731c3bfe6ddbdb630",
+        "/home/runner/work/nanolang/nanolang/src/runtime/ffi_loader.c": "a0ec589db88af326c9e83a1c8b7cd70978ade5d441049dc914d136c0366605d6",
+        "/home/runner/work/nanolang/nanolang/src/runtime/ffi_loader.h": "3b548ce98fb615d133425d67cc2f858a050c2f35c07db97d2111bf029e8889ab",
+        "/home/runner/work/nanolang/nanolang/modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+        "/home/runner/work/nanolang/nanolang/src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+        "/home/runner/work/nanolang/nanolang/src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+        "/home/runner/work/nanolang/nanolang/src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/dependency.c": "1249be9c0c410e78fe14f50c3421a2b8c921fe1aa0a03835b12ba5302d0b396f",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/origin.c": "7f40e8388873f479ff699ebb92104158f75ed5d737be4487dd8c8aac58c88920",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/snapshot-probe.c": "eaa1cd1261c1afd1438a0f6cda2c95f005fdd83a18690e88745a790f2cceeebd"
+      },
+      "operations": [
+        {
+          "label": "plain-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-copy-assemble",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoisa",
+            "asm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/copy.nasm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/copy.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-copy-verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/copy.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-copy-execute",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/copy.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-cross-image-assemble",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoisa",
+            "asm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/cross-image.nasm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/cross-image.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-cross-image-verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/cross-image.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-cross-image-execute",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/cross-image.nvm"
+          ],
+          "returncode": 1
+        },
+        {
+          "label": "cli-input-alias-assemble",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nanoisa",
+            "asm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/input-alias.nasm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/input-alias.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-input-alias-verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/input-alias.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "cli-input-alias-execute",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/plain/input-alias.nvm"
+          ],
+          "returncode": 1
+        },
+        {
+          "label": "sanitized-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/sanitized/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-4c17km5h/threaded/liborigin.so"
+          ],
+          "returncode": 0
+        }
+      ],
+      "vm_cli": true
+    },
+    {
+      "root": "ffi-result-release-bg6ymtwx/",
+      "inputs": {
+        "/home/runner/work/nanolang/nanolang/tests/test_ffi_result_release.c": "78eadf4cd98dca9c999c7d69054b06cb35dd08e745fce98731c3bfe6ddbdb630",
+        "/home/runner/work/nanolang/nanolang/src/runtime/ffi_loader.c": "a0ec589db88af326c9e83a1c8b7cd70978ade5d441049dc914d136c0366605d6",
+        "/home/runner/work/nanolang/nanolang/src/runtime/ffi_loader.h": "3b548ce98fb615d133425d67cc2f858a050c2f35c07db97d2111bf029e8889ab",
+        "/home/runner/work/nanolang/nanolang/modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+        "/home/runner/work/nanolang/nanolang/src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+        "/home/runner/work/nanolang/nanolang/src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+        "/home/runner/work/nanolang/nanolang/src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/dependency.c": "1249be9c0c410e78fe14f50c3421a2b8c921fe1aa0a03835b12ba5302d0b396f",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/origin.c": "7f40e8388873f479ff699ebb92104158f75ed5d737be4487dd8c8aac58c88920",
+        "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/snapshot-probe.c": "eaa1cd1261c1afd1438a0f6cda2c95f005fdd83a18690e88745a790f2cceeebd"
+      },
+      "operations": [
+        {
+          "label": "plain-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "plain-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/plain/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "sanitized-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/sanitized/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-dependency",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/dependency.c",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/libdependency.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-origin",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/origin.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/libdependency.so",
+            "-Wl,-rpath,/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/liborigin.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-collections",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-shared",
+            "-fPIC",
+            "modules/std/collections/collections.c",
+            "src/runtime/dyn_array.c",
+            "src/runtime/gc.c",
+            "src/runtime/gc_struct.c",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/snapshot-probe.c",
+            "-lm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/libcollections.so"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-driver",
+          "argv": [
+            "gcc",
+            "-std=c99",
+            "-O1",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-UNDEBUG",
+            "-pthread",
+            "-Isrc",
+            "-fsanitize=thread",
+            "-D_GNU_SOURCE",
+            "tests/test_ffi_result_release.c",
+            "src/runtime/ffi_loader.c",
+            "src/runtime/module_build_dir.c",
+            "-lssl",
+            "-lcrypto",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/driver"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "threaded-run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/driver",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/libcollections.so",
+            "/home/runner/work/nanolang/nanolang/.test_output/ffi-result-release-bg6ymtwx/threaded/liborigin.so"
+          ],
+          "returncode": 0
+        }
+      ],
+      "vm_cli": false
+    }
+  ],
+  "scope": "I independently audit 11 native executables, 18 shared images and three NVM modules per platform. I match selected source and generated fixture inputs to immutable Git, check sanitizer symbols, command flags and actual success/refusal streams. The negative dependency cleanup is not called. VM/assembler hashes are reports; their binaries are absent from these archives. Header/compiler/SDK closure, source admission and release remain separate."
+}

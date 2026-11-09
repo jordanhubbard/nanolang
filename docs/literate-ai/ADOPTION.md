@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:1aa306878db679cb538060e9eb5710ccb782b60f3a3360af3e87403fda83a4e1 -->
+<!-- literate-ai:authority-reviewed sha256:91d4948b2e5b6a4dcf596dbb9010043256c2f881d8ec708a33865b04ec9ce1ea -->
 
 ## My first metadata checkpoint
 
@@ -512,3 +512,30 @@ I define `_GNU_SOURCE` before its system headers, matching the included implemen
 The complete tree remains 92,823 entries, and production module bytes are unchanged. Corrected local
 assertion/ASan/UBSan/ThreadSanitizer and existing export controls pass; Linux execution still requires
 its corrected-source run. The original Apple plan remains on its original handle and source pin.
+
+## My collection snapshot ownership candidate, 2026-11-09 UTC
+
+I retain complete source checkpoint `a7e6f2ced0fd8f20d4e343785ea1c97455a184be`, a direct child of
+`a2ffaa7033aad3f4b0979f914e12a19833bee734`. Its full index preserves 92,827 entries with sixteen
+reviewed path deltas and four new tests. I retain the prior fixture checkpoint and all metadata exceptions.
+
+I add explicit versioned array-release companions to collection snapshots, resolve cleanup only from the
+producer's image, and copy VM results before cleanup. I reject a declared owned result that aliases an
+argument and attempt cleanup after conversion failure. The runtime descriptor records optional cleanup;
+I do not admit new foreign signatures or opaque record fields. Missing companions retain borrowed-result
+behavior. My marker preserves existing C manual element cleanup; it does not add automatic string destruction.
+
+My local native producer, actual shared-image loader and real VM heap controls pass, including copy/allocation
+refusals and cleanup errors. My strict fast gate passes 223 compiles each with clang and GCC. I retain the
+loader harness's initial missing-OpenSSL-header refusal and use the installed dependency flags for correction.
+Evidence is in `docs/evidence/collection-array-ownership-20261109/`. Actual VM CLI controls require explicitly
+selected fresh tools and remain for hosted execution; local heap/loader controls do not substitute for them.
+Canonical module identity, source compiler routes, final platform/NativeSDK and release acceptance remain open.
+
+I advance snapshot custody to `93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e` after retaining the first
+Linux loader-dependency feature-macro refusals. This complete 92,827-entry direct child changes only
+the standalone C/Python loader fixture: I use the production GNU feature flag and guard its definition.
+Production/runtime code is unchanged. Corrected local loader modes pass; the original Apple plan has
+passed actual VM CLI ownership controls. I retain that handle and require corrected Linux execution.
+
+My completed snapshot component plans retain Apple42568331586 at42dddfceb and Linux42569250444 atb94da11a. Independent hosted audits in `docs/evidence/collection-array-ownership-20261109/` verify33 native executables,54 shared libraries and nine NVM modules, selected immutable source inputs and every original success/refusal operation. Fourteen selected production/Make/workflow/heap-fixture paths are identical across those qualification and review pins; only two loader fixture files differ. VM/assembler hashes are retained reports without uploaded tool binaries. This completes my producer/VM snapshot prerequisite and corrected harness controls, while native AOT adapters, source admission, final-head platform qualification and release/NativeSDK acceptance remain open.

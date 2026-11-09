@@ -1,0 +1,13 @@
+{
+  "removed_owned_worktree": "~/.worktrees/nanolang/collection-lifetime-evidence",
+  "retained_merge": "a85c864b6da01e736e1b00b8f0a7f3567a61f2a4",
+  "clean_tracked_untracked_and_ignored_checks": true,
+  "lsof_returncode": 1,
+  "lsof_stdout_empty": true,
+  "lsof_warning": "I observed a stat warning for an unrelated mounted backup filesystem; the scan reports potentially incomplete output. I omit private mount details.",
+  "execution_note": "My shell continued to the default guarded Git removal after the preflight assertion rejected that warning. I use errexit for subsequent dependent operations and independently verify Git registration, preserved native images and all three user stashes afterward.",
+  "removed_worktree_absent_from_git_registration": true,
+  "native_executable_images_retained": 9,
+  "user_stashes_preserved": 3,
+  "user_dirty_and_long_path_worktrees_preserved": true
+}

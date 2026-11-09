@@ -202,6 +202,7 @@ typedef struct {
     uint8_t return_type;      /* NanoValueTag of the return value */
     bool all_float;           /* true when return + all params are TAG_FLOAT */
     void (*string_release)(const char *); /* optional provider cleanup, after copying */
+    bool (*array_release)(void *); /* optional unique-result cleanup, after copying */
 } NvmCallDescriptor;
 
 /* ========================================================================
