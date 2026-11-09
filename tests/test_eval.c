@@ -2714,6 +2714,137 @@ void test_eval_record_alias_across_direct_calls(void) {
     run_ctx_free(&ctx);
 }
 
+/* I inspect carrier names and tags; spreads can change their storage order. */
+static Value eval_test_record_field(Value record, const char *name) {
+    ASSERT(record.type == VAL_STRUCT && record.as.struct_val != NULL);
+    StructValue *carrier = record.as.struct_val;
+    for (int i = 0; i < carrier->field_count; ++i) {
+        if (strcmp(carrier->field_names[i], name) == 0) return carrier->field_values[i];
+    }
+    ASSERT(false);
+    return create_void();
+}
+
+/* I preserve escaping fresh locals, copied callers and nested borrowed fields. */
+void test_eval_record_literal_copy_and_escape(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "struct Box { item: Item, rows: array<int> }\n"
+        "struct Empty {}\n"
+        "fn make() -> Box {\n"
+        " let rows: array<int> = [1]\n"
+        " let mut local: Box = Box { item: Item { value: 7, label: (+ \"hé\" \"llo\") }, rows: rows }\n"
+        " let copy: Box = local\n"
+        " let spread: Box = {..local, item: Item { value: 9, label: \"spread\" }}\n"
+        " set local Box { item: Item { value: 11, label: \"changed\" }, rows: [8] }\n"
+        " assert (== copy.item.value 7) assert (== copy.item.label \"héllo\")\n"
+        " (array_push rows 42) assert (== (at copy.rows 1) 42)\n"
+        " assert (== (at spread.rows 1) 42) return spread }\n"
+        "shadow make { let result: Box = (make) assert (== result.item.value 9) "
+        " assert (== result.item.label \"spread\") assert (== (at result.rows 1) 42) }\n"
+        "fn packed() -> array<Box> { let local: Box = (make) return [local] }\n"
+        "shadow packed { let rows: array<Box> = (packed) assert (== (at rows 0).item.label \"spread\") }\n"
+        "fn empty() -> Empty { let local: Empty = Empty {} return local }\n"
+        "shadow empty { let rows: array<Empty> = [(empty)] assert (== (array_length rows) 1) }\n"
+        "fn main() -> int { return 0 }\n"));
+    for (int repeat = 0; repeat < 100; ++repeat) {
+        Value result = call_function("make", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_STRUCT);
+        Value item = eval_test_record_field(result, "item");
+        Value number = eval_test_record_field(item, "value");
+        Value label = eval_test_record_field(item, "label");
+        ASSERT_EQ(number.type, VAL_INT);
+        ASSERT_EQ(number.as.int_val, 9);
+        ASSERT_EQ(label.type, VAL_STRING);
+        ASSERT(strcmp(label.as.string_val, "spread") == 0);
+        Value values = eval_test_record_field(result, "rows");
+        ASSERT_EQ(values.type, VAL_ARRAY);
+        Array *rows = values.as.array_val;
+        ASSERT_EQ(rows->element_type, VAL_INT);
+        ASSERT_EQ(rows->length, 2);
+        ASSERT_EQ(((long long *)rows->data)[1], 42);
+    }
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+/* I use the same evaluated-binding API for top-level initializers too. */
+void test_eval_record_global_reinitialization(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "let mut original: Item = Item { value: 7, label: (+ \"keep\" \"me\") }\n"
+        "let snapshot: Item = original\n"
+        "fn replace_global() -> int {\n"
+        " set original Item { value: 9, label: \"changed\" }\n"
+        " assert (== snapshot.value 7) assert (== snapshot.label \"keepme\")\n"
+        " assert (== original.label \"changed\") return original.value }\n"
+        "shadow replace_global { assert (== (replace_global) 9) }\n"
+        "fn main() -> int { return 0 }\n"));
+    Value original = env_get_var(ctx.env, "original")->value;
+    Value snapshot = env_get_var(ctx.env, "snapshot")->value;
+    ASSERT_EQ(original.type, VAL_STRUCT);
+    ASSERT_EQ(snapshot.type, VAL_STRUCT);
+    ASSERT(original.as.struct_val != snapshot.as.struct_val);
+    Value original_label = eval_test_record_field(original, "label");
+    Value snapshot_label = eval_test_record_field(snapshot, "label");
+    ASSERT_EQ(original_label.type, VAL_STRING);
+    ASSERT_EQ(snapshot_label.type, VAL_STRING);
+    ASSERT(original_label.as.string_val != snapshot_label.as.string_val);
+    for (int repeat = 0; repeat < 3; ++repeat) {
+        ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+        snapshot = env_get_var(ctx.env, "snapshot")->value;
+        snapshot_label = eval_test_record_field(snapshot, "label");
+        ASSERT_EQ(snapshot_label.type, VAL_STRING);
+        ASSERT(strcmp(snapshot_label.as.string_val, "keepme") == 0);
+    }
+    run_ctx_free(&ctx);
+}
+
+/* I keep named, first-class and generated-list consumers on their old routes. */
+void test_eval_record_call_and_list_escape(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "fn item() -> Item { let local: Item = Item { value: 7, label: (+ \"keep\" \"me\") } return local }\n"
+        "shadow item { assert (== (item).label \"keepme\") }\n"
+        "fn replace(value: Item) -> Item { let mut local: Item = value "
+        " set local Item { value: 9, label: \"new\" } return local }\n"
+        "shadow replace { assert (== (replace (item)).value 9) }\n"
+        "fn choose() -> fn(Item) -> Item { return replace }\n"
+        "shadow choose { assert (== ((choose) (item)).label \"new\") }\n"
+        "fn invoke(action: fn(Item) -> Item, value: Item) -> Item { return (action value) }\n"
+        "shadow invoke { assert (== (invoke replace (item)).value 9) }\n"
+        "fn check() -> int { let original: Item = Item { value: 7, label: (+ \"keep\" \"me\") } "
+        " let direct: Item = (replace original) let returned: Item = ((choose) original) "
+        " let callback: Item = (invoke replace original) "
+        " assert (== original.value 7) assert (== original.label \"keepme\") "
+        " assert (== direct.label \"new\") assert (== returned.label \"new\") "
+        " assert (== callback.value 9) return original.value }\n"
+        "shadow check { assert (== (check) 7) }\n"
+        "fn main() -> int { return 0 }\n"));
+    Value original = call_function("item", NULL, 0, ctx.env);
+    ASSERT_EQ(original.type, VAL_STRUCT);
+    Value list = call_function("List_Item_new", NULL, 0, ctx.env);
+    ASSERT_EQ(list.type, VAL_INT);
+    Value arguments[] = {list, original};
+    ASSERT_EQ(call_function("List_Item_push", arguments, 2, ctx.env).type, VAL_VOID);
+    arguments[1] = create_int(0);
+    Value held = call_function("List_Item_get", arguments, 2, ctx.env);
+    ASSERT_EQ(held.type, VAL_STRUCT);
+    ASSERT(held.as.struct_val == original.as.struct_val);
+    Value label = eval_test_record_field(held, "label");
+    ASSERT_EQ(label.type, VAL_STRING);
+    ASSERT(strcmp(label.as.string_val, "keepme") == 0);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    label = eval_test_record_field(held, "label");
+    ASSERT_EQ(label.type, VAL_STRING);
+    ASSERT(strcmp(label.as.string_val, "keepme") == 0);
+    gc_release((DynArray *)(intptr_t)list.as.int_val);
+    run_ctx_free(&ctx);
+}
+
 void test_eval_record_alias_reassignment(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
@@ -3210,6 +3341,9 @@ int main(void) {
     TEST(eval_static_array_alias_reclaim);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
+    TEST(eval_record_literal_copy_and_escape);
+    TEST(eval_record_global_reinitialization);
+    TEST(eval_record_call_and_list_escape);
     TEST(eval_record_alias_across_direct_calls);
     TEST(eval_epoch_milliseconds);
     TEST(eval_call_dispatch_names);
