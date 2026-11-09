@@ -1,0 +1,4830 @@
+{
+  "artifact": 13645875806,
+  "run": 42539974907,
+  "source_pin": "869f11634fea9a618416a3173e92d36e3a59aad2",
+  "zip_size": 57847944,
+  "zip_sha256": "afddbe11179b7aac622d331b3893e7d8164bb67a734317ea44ce91283af12b72",
+  "zip_saved": false,
+  "crc_checked": true,
+  "routes": {
+    ".test_output/junit-route-audit/routes/seed-native/results.xml": {
+      "case_count": 237,
+      "failed": [],
+      "skipped": [],
+      "passed": 237,
+      "cases": [
+        {
+          "name": "nl_syntax_literals",
+          "classname": "nanolang.nl.nl_syntax_literals",
+          "passed": true
+        },
+        {
+          "name": "nl_syntax_operators",
+          "classname": "nanolang.nl.nl_syntax_operators",
+          "passed": true
+        },
+        {
+          "name": "nl_types_bool_list",
+          "classname": "nanolang.nl.nl_types_bool_list",
+          "passed": true
+        },
+        {
+          "name": "nl_types_enum",
+          "classname": "nanolang.nl.nl_types_enum",
+          "passed": true
+        },
+        {
+          "name": "nl_types_struct",
+          "classname": "nanolang.nl.nl_types_struct",
+          "passed": true
+        },
+        {
+          "name": "nl_types_tuple",
+          "classname": "nanolang.nl.nl_types_tuple",
+          "passed": true
+        },
+        {
+          "name": "nl_control_array_elements",
+          "classname": "nanolang.nl.nl_control_array_elements",
+          "passed": true
+        },
+        {
+          "name": "nl_control_flow",
+          "classname": "nanolang.nl.nl_control_flow",
+          "passed": true
+        },
+        {
+          "name": "nl_control_match",
+          "classname": "nanolang.nl.nl_control_match",
+          "passed": true
+        },
+        {
+          "name": "nl_control_while",
+          "classname": "nanolang.nl.nl_control_while",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_array_param",
+          "classname": "nanolang.nl.nl_functions_array_param",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_audio_examples_default_args",
+          "classname": "nanolang.nl.nl_functions_audio_examples_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_filter",
+          "classname": "nanolang.nl.nl_functions_filter",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_map_reduce",
+          "classname": "nanolang.nl.nl_functions_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_introspection_flags",
+          "classname": "nanolang.nl.nl_functions_module_introspection_flags",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_metadata",
+          "classname": "nanolang.nl.nl_functions_module_metadata",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_nanoamp_default_args",
+          "classname": "nanolang.nl.nl_functions_nanoamp_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_relative_import",
+          "classname": "nanolang.nl.nl_functions_relative_import",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_string_edges",
+          "classname": "nanolang.nl.nl_functions_string_edges",
+          "passed": true
+        },
+        {
+          "name": "tuple_advanced",
+          "classname": "nanolang.app.tuple_advanced",
+          "passed": true
+        },
+        {
+          "name": "tuple_basic",
+          "classname": "nanolang.app.tuple_basic",
+          "passed": true
+        },
+        {
+          "name": "tuple_params",
+          "classname": "nanolang.app.tuple_params",
+          "passed": true
+        },
+        {
+          "name": "tuple_typeinfo_test",
+          "classname": "nanolang.app.tuple_typeinfo_test",
+          "passed": true
+        },
+        {
+          "name": "nested_structs",
+          "classname": "nanolang.app.nested_structs",
+          "passed": true
+        },
+        {
+          "name": "test_nested_3d",
+          "classname": "nanolang.app.test_nested_3d",
+          "passed": true
+        },
+        {
+          "name": "test_nested_array_shadows",
+          "classname": "nanolang.app.test_nested_array_shadows",
+          "passed": true
+        },
+        {
+          "name": "test_nested_complex",
+          "classname": "nanolang.app.test_nested_complex",
+          "passed": true
+        },
+        {
+          "name": "test_nested_debug_root",
+          "classname": "nanolang.app.test_nested_debug_root",
+          "passed": true
+        },
+        {
+          "name": "test_nested_gc",
+          "classname": "nanolang.app.test_nested_gc",
+          "passed": true
+        },
+        {
+          "name": "test_nested_string_concat",
+          "classname": "nanolang.app.test_nested_string_concat",
+          "passed": true
+        },
+        {
+          "name": "test_affine_integration",
+          "classname": "nanolang.app.test_affine_integration",
+          "passed": true
+        },
+        {
+          "name": "test_algebraic_effects",
+          "classname": "nanolang.app.test_algebraic_effects",
+          "passed": true
+        },
+        {
+          "name": "test_all_imports",
+          "classname": "nanolang.app.test_all_imports",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_function_args",
+          "classname": "nanolang.app.test_anonymous_struct_function_args",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_literal",
+          "classname": "nanolang.app.test_anonymous_struct_literal",
+          "passed": true
+        },
+        {
+          "name": "test_array_lit",
+          "classname": "nanolang.app.test_array_lit",
+          "passed": true
+        },
+        {
+          "name": "test_array_operators",
+          "classname": "nanolang.app.test_array_operators",
+          "passed": true
+        },
+        {
+          "name": "test_array_search_reverse",
+          "classname": "nanolang.app.test_array_search_reverse",
+          "passed": true
+        },
+        {
+          "name": "test_array_slice",
+          "classname": "nanolang.app.test_array_slice",
+          "passed": true
+        },
+        {
+          "name": "test_array_struct_comprehensive",
+          "classname": "nanolang.app.test_array_struct_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_async",
+          "classname": "nanolang.app.test_async",
+          "passed": true
+        },
+        {
+          "name": "test_boolean_precedence",
+          "classname": "nanolang.app.test_boolean_precedence",
+          "passed": true
+        },
+        {
+          "name": "test_break_continue",
+          "classname": "nanolang.app.test_break_continue",
+          "passed": true
+        },
+        {
+          "name": "test_bstring",
+          "classname": "nanolang.app.test_bstring",
+          "passed": true
+        },
+        {
+          "name": "test_builtins",
+          "classname": "nanolang.app.test_builtins",
+          "passed": true
+        },
+        {
+          "name": "test_builtins_phase1",
+          "classname": "nanolang.app.test_builtins_phase1",
+          "passed": true
+        },
+        {
+          "name": "test_bytes_conversion",
+          "classname": "nanolang.app.test_bytes_conversion",
+          "passed": true
+        },
+        {
+          "name": "test_casting",
+          "classname": "nanolang.app.test_casting",
+          "passed": true
+        },
+        {
+          "name": "test_complex",
+          "classname": "nanolang.app.test_complex",
+          "passed": true
+        },
+        {
+          "name": "test_concat",
+          "classname": "nanolang.app.test_concat",
+          "passed": true
+        },
+        {
+          "name": "test_cond",
+          "classname": "nanolang.app.test_cond",
+          "passed": true
+        },
+        {
+          "name": "test_constant_folding",
+          "classname": "nanolang.app.test_constant_folding",
+          "passed": true
+        },
+        {
+          "name": "test_debug_stacktrace",
+          "classname": "nanolang.app.test_debug_stacktrace",
+          "passed": true
+        },
+        {
+          "name": "test_driver_hello",
+          "classname": "nanolang.app.test_driver_hello",
+          "passed": true
+        },
+        {
+          "name": "test_driver_integration",
+          "classname": "nanolang.app.test_driver_integration",
+          "passed": true
+        },
+        {
+          "name": "test_dynamic_arrays",
+          "classname": "nanolang.app.test_dynamic_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_effects",
+          "classname": "nanolang.app.test_effects",
+          "passed": true
+        },
+        {
+          "name": "test_effects_pub",
+          "classname": "nanolang.app.test_effects_pub",
+          "passed": true
+        },
+        {
+          "name": "test_ensures",
+          "classname": "nanolang.app.test_ensures",
+          "passed": true
+        },
+        {
+          "name": "test_env",
+          "classname": "nanolang.app.test_env",
+          "passed": true
+        },
+        {
+          "name": "test_error_messages",
+          "classname": "nanolang.app.test_error_messages",
+          "passed": true
+        },
+        {
+          "name": "test_fn_call_assign",
+          "classname": "nanolang.app.test_fn_call_assign",
+          "passed": true
+        },
+        {
+          "name": "test_for_continue",
+          "classname": "nanolang.app.test_for_continue",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_loops",
+          "classname": "nanolang.app.test_for_in_loops",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_range_scope_bug",
+          "classname": "nanolang.app.test_for_in_range_scope_bug",
+          "passed": true
+        },
+        {
+          "name": "test_format",
+          "classname": "nanolang.app.test_format",
+          "passed": true
+        },
+        {
+          "name": "test_fs_walkdir",
+          "classname": "nanolang.app.test_fs_walkdir",
+          "passed": true
+        },
+        {
+          "name": "test_gc_string_leak",
+          "classname": "nanolang.app.test_gc_string_leak",
+          "passed": true
+        },
+        {
+          "name": "test_generic_list_struct",
+          "classname": "nanolang.app.test_generic_list_struct",
+          "passed": true
+        },
+        {
+          "name": "test_generic_result",
+          "classname": "nanolang.app.test_generic_result",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union",
+          "classname": "nanolang.app.test_generic_union",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_match",
+          "classname": "nanolang.app.test_generic_union_match",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_non_generic",
+          "classname": "nanolang.app.test_generic_union_non_generic",
+          "passed": true
+        },
+        {
+          "name": "test_graphx",
+          "classname": "nanolang.app.test_graphx",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_generic_core",
+          "classname": "nanolang.app.test_hashmap_generic_core",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "passed": true
+        },
+        {
+          "name": "test_hello",
+          "classname": "nanolang.app.test_hello",
+          "passed": true
+        },
+        {
+          "name": "test_higher_order",
+          "classname": "nanolang.app.test_higher_order",
+          "passed": true
+        },
+        {
+          "name": "test_hm_inference",
+          "classname": "nanolang.app.test_hm_inference",
+          "passed": true
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "passed": true
+        },
+        {
+          "name": "test_infix_operators",
+          "classname": "nanolang.app.test_infix_operators",
+          "passed": true
+        },
+        {
+          "name": "test_match_completeness",
+          "classname": "nanolang.app.test_match_completeness",
+          "passed": true
+        },
+        {
+          "name": "test_match_guards",
+          "classname": "nanolang.app.test_match_guards",
+          "passed": true
+        },
+        {
+          "name": "test_mathx",
+          "classname": "nanolang.app.test_mathx",
+          "passed": true
+        },
+        {
+          "name": "test_matrix4",
+          "classname": "nanolang.app.test_matrix4",
+          "passed": true
+        },
+        {
+          "name": "test_minimal",
+          "classname": "nanolang.app.test_minimal",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_exports",
+          "classname": "nanolang.app.test_module_introspection_exports",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_import",
+          "classname": "nanolang.app.test_module_introspection_import",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_comprehensive",
+          "classname": "nanolang.app.test_module_qualified_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_struct",
+          "classname": "nanolang.app.test_module_qualified_struct",
+          "passed": true
+        },
+        {
+          "name": "test_module_struct_qualification",
+          "classname": "nanolang.app.test_module_struct_qualification",
+          "passed": true
+        },
+        {
+          "name": "test_module_system",
+          "classname": "nanolang.app.test_module_system",
+          "passed": true
+        },
+        {
+          "name": "test_module_visibility",
+          "classname": "nanolang.app.test_module_visibility",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_basic",
+          "classname": "nanolang.app.test_namespace_basic",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_syntax",
+          "classname": "nanolang.app.test_namespace_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_transpiler",
+          "classname": "nanolang.app.test_namespace_transpiler",
+          "passed": true
+        },
+        {
+          "name": "test_nested",
+          "classname": "nanolang.app.test_nested",
+          "passed": true
+        },
+        {
+          "name": "test_opaque_basic",
+          "classname": "nanolang.app.test_opaque_basic",
+          "passed": true
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "passed": true
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "passed": true
+        },
+        {
+          "name": "test_par_blocks",
+          "classname": "nanolang.app.test_par_blocks",
+          "passed": true
+        },
+        {
+          "name": "test_par_let",
+          "classname": "nanolang.app.test_par_let",
+          "passed": true
+        },
+        {
+          "name": "test_path_ops_v2",
+          "classname": "nanolang.app.test_path_ops_v2",
+          "passed": true
+        },
+        {
+          "name": "test_pretty_printer",
+          "classname": "nanolang.app.test_pretty_printer",
+          "passed": true
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "passed": true
+        },
+        {
+          "name": "test_profile",
+          "classname": "nanolang.app.test_profile",
+          "passed": true
+        },
+        {
+          "name": "test_proptest",
+          "classname": "nanolang.app.test_proptest",
+          "passed": true
+        },
+        {
+          "name": "test_pub_extern_fn",
+          "classname": "nanolang.app.test_pub_extern_fn",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "passed": true
+        },
+        {
+          "name": "test_qualified_names",
+          "classname": "nanolang.app.test_qualified_names",
+          "passed": true
+        },
+        {
+          "name": "test_quaternion",
+          "classname": "nanolang.app.test_quaternion",
+          "passed": true
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "passed": true
+        },
+        {
+          "name": "test_requires",
+          "classname": "nanolang.app.test_requires",
+          "passed": true
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "passed": true
+        },
+        {
+          "name": "test_resource_syntax",
+          "classname": "nanolang.app.test_resource_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_resource_tracking",
+          "classname": "nanolang.app.test_resource_tracking",
+          "passed": true
+        },
+        {
+          "name": "test_resource_valid_use",
+          "classname": "nanolang.app.test_resource_valid_use",
+          "passed": true
+        },
+        {
+          "name": "test_result_let",
+          "classname": "nanolang.app.test_result_let",
+          "passed": true
+        },
+        {
+          "name": "test_result_syntax",
+          "classname": "nanolang.app.test_result_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "passed": true
+        },
+        {
+          "name": "test_setenv_shadow",
+          "classname": "nanolang.app.test_setenv_shadow",
+          "passed": true
+        },
+        {
+          "name": "test_shadow_scope_redefinition",
+          "classname": "nanolang.app.test_shadow_scope_redefinition",
+          "passed": true
+        },
+        {
+          "name": "test_simple_constant",
+          "classname": "nanolang.app.test_simple_constant",
+          "passed": true
+        },
+        {
+          "name": "test_simple_math_introspection",
+          "classname": "nanolang.app.test_simple_math_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "passed": true
+        },
+        {
+          "name": "test_standalone_if_comprehensive",
+          "classname": "nanolang.app.test_standalone_if_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "passed": true
+        },
+        {
+          "name": "test_std_fs",
+          "classname": "nanolang.app.test_std_fs",
+          "passed": true
+        },
+        {
+          "name": "test_std_json",
+          "classname": "nanolang.app.test_std_json",
+          "passed": true
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended",
+          "classname": "nanolang.app.test_std_math_extended",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended_full",
+          "classname": "nanolang.app.test_std_math_extended_full",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_simple",
+          "classname": "nanolang.app.test_std_modules_simple",
+          "passed": true
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "passed": true
+        },
+        {
+          "name": "test_std_regex_groups_uaf",
+          "classname": "nanolang.app.test_std_regex_groups_uaf",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_arrays",
+          "classname": "nanolang.app.test_stdlib_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_namespaces",
+          "classname": "nanolang.app.test_stdlib_namespaces",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_result",
+          "classname": "nanolang.app.test_stdlib_result",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_strings",
+          "classname": "nanolang.app.test_stdlib_strings",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus",
+          "classname": "nanolang.app.test_string_plus",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus_nested",
+          "classname": "nanolang.app.test_string_plus_nested",
+          "passed": true
+        },
+        {
+          "name": "test_struct_string_corruption",
+          "classname": "nanolang.app.test_struct_string_corruption",
+          "passed": true
+        },
+        {
+          "name": "test_symbol_scoping",
+          "classname": "nanolang.app.test_symbol_scoping",
+          "passed": true
+        },
+        {
+          "name": "test_tmp_files",
+          "classname": "nanolang.app.test_tmp_files",
+          "passed": true
+        },
+        {
+          "name": "test_top_level_constants",
+          "classname": "nanolang.app.test_top_level_constants",
+          "passed": true
+        },
+        {
+          "name": "test_types_comprehensive",
+          "classname": "nanolang.app.test_types_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_u8_basic",
+          "classname": "nanolang.app.test_u8_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unary_operators",
+          "classname": "nanolang.app.test_unary_operators",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_basic",
+          "classname": "nanolang.app.test_unsafe_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_syntax",
+          "classname": "nanolang.app.test_unsafe_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_vector2d",
+          "classname": "nanolang.app.test_vector2d",
+          "passed": true
+        },
+        {
+          "name": "test_vector3d",
+          "classname": "nanolang.app.test_vector3d",
+          "passed": true
+        },
+        {
+          "name": "test_vector4d",
+          "classname": "nanolang.app.test_vector4d",
+          "passed": true
+        },
+        {
+          "name": "test_vm_value_contracts",
+          "classname": "nanolang.app.test_vm_value_contracts",
+          "passed": true
+        },
+        {
+          "name": "test_walkdir",
+          "classname": "nanolang.app.test_walkdir",
+          "passed": true
+        },
+        {
+          "name": "refresh_getting_started_hello",
+          "classname": "nanolang.app.refresh_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "refresh_language_bindings",
+          "classname": "nanolang.app.refresh_language_bindings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_arrays",
+          "classname": "nanolang.app.ug_canonical_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_cond",
+          "classname": "nanolang.app.ug_canonical_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_enum",
+          "classname": "nanolang.app.ug_canonical_enum",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_fn",
+          "classname": "nanolang.app.ug_canonical_fn",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_for",
+          "classname": "nanolang.app.ug_canonical_for",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_if",
+          "classname": "nanolang.app.ug_canonical_if",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_prefix",
+          "classname": "nanolang.app.ug_canonical_prefix",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_strings",
+          "classname": "nanolang.app.ug_canonical_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_struct",
+          "classname": "nanolang.app.ug_canonical_struct",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_while",
+          "classname": "nanolang.app.ug_canonical_while",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_cond",
+          "classname": "nanolang.app.ug_control_flow_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_for",
+          "classname": "nanolang.app.ug_control_flow_for",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_if",
+          "classname": "nanolang.app.ug_control_flow_if",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_loops",
+          "classname": "nanolang.app.ug_control_flow_loops",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_contracts_combined",
+          "classname": "nanolang.app.ug_fn_contracts_combined",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_ensures_basic",
+          "classname": "nanolang.app.ug_fn_ensures_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_requires_basic",
+          "classname": "nanolang.app.ug_fn_requires_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_arg",
+          "classname": "nanolang.app.ug_fstring_arg",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_basic",
+          "classname": "nanolang.app.ug_fstring_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_exprs",
+          "classname": "nanolang.app.ug_fstring_exprs",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_arithmetic",
+          "classname": "nanolang.app.ug_getting_started_arithmetic",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_hello",
+          "classname": "nanolang.app.ug_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "ug_modules_std_json",
+          "classname": "nanolang.app.ug_modules_std_json",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_builtin_map_reduce",
+          "classname": "nanolang.app.ug_patterns_builtin_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_first_class",
+          "classname": "nanolang.app.ug_patterns_first_class",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_fold",
+          "classname": "nanolang.app.ug_patterns_fold",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_logging_trace_coverage",
+          "classname": "nanolang.app.ug_patterns_logging_trace_coverage",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_match_union",
+          "classname": "nanolang.app.ug_patterns_match_union",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_unsafe_extern",
+          "classname": "nanolang.app.ug_patterns_unsafe_extern",
+          "passed": true
+        },
+        {
+          "name": "ug_types_arrays",
+          "classname": "nanolang.app.ug_types_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_types_bools",
+          "classname": "nanolang.app.ug_types_bools",
+          "passed": true
+        },
+        {
+          "name": "ug_types_enums",
+          "classname": "nanolang.app.ug_types_enums",
+          "passed": true
+        },
+        {
+          "name": "ug_types_generics",
+          "classname": "nanolang.app.ug_types_generics",
+          "passed": true
+        },
+        {
+          "name": "ug_types_hashmap",
+          "classname": "nanolang.app.ug_types_hashmap",
+          "passed": true
+        },
+        {
+          "name": "ug_types_strings",
+          "classname": "nanolang.app.ug_types_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_types_structs",
+          "classname": "nanolang.app.ug_types_structs",
+          "passed": true
+        },
+        {
+          "name": "ug_types_tuples",
+          "classname": "nanolang.app.ug_types_tuples",
+          "passed": true
+        },
+        {
+          "name": "test_generics_comprehensive",
+          "classname": "nanolang.unit.test_generics_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_record_array_projection",
+          "classname": "nanolang.unit.test_record_array_projection",
+          "passed": true
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_nested_array_literals",
+          "classname": "nanolang.unit.test_cseed_nested_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_match_wildcard",
+          "classname": "nanolang.unit.test_match_wildcard",
+          "passed": true
+        },
+        {
+          "name": "test_pipe_operator",
+          "classname": "nanolang.unit.test_pipe_operator",
+          "passed": true
+        },
+        {
+          "name": "test_c_backend",
+          "classname": "nanolang.unit.test_c_backend",
+          "passed": true
+        },
+        {
+          "name": "test_unions_match_comprehensive",
+          "classname": "nanolang.unit.test_unions_match_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_type_inference",
+          "classname": "nanolang.unit.test_type_inference",
+          "passed": true
+        },
+        {
+          "name": "test_string_interpolation",
+          "classname": "nanolang.unit.test_string_interpolation",
+          "passed": true
+        },
+        {
+          "name": "test_operators_comprehensive",
+          "classname": "nanolang.unit.test_operators_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_dwarf_debug",
+          "classname": "nanolang.unit.test_dwarf_debug",
+          "passed": true
+        },
+        {
+          "name": "test_fstring_comprehensive",
+          "classname": "nanolang.unit.test_fstring_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "passed": true
+        },
+        {
+          "name": "test_empty_record_array_fields",
+          "classname": "nanolang.unit.test_empty_record_array_fields",
+          "passed": true
+        },
+        {
+          "name": "test_control_flow",
+          "classname": "nanolang.unit.test_control_flow",
+          "passed": true
+        },
+        {
+          "name": "test_native_generic_contexts",
+          "classname": "nanolang.unit.test_native_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_wasm_simd",
+          "classname": "nanolang.unit.test_wasm_simd",
+          "passed": true
+        },
+        {
+          "name": "test_map_constructor_contexts",
+          "classname": "nanolang.unit.test_map_constructor_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "passed": true
+        },
+        {
+          "name": "test_native_nested_generics",
+          "classname": "nanolang.unit.test_native_nested_generics",
+          "passed": true
+        },
+        {
+          "name": "test_match_orpatterns",
+          "classname": "nanolang.unit.test_match_orpatterns",
+          "passed": true
+        },
+        {
+          "name": "test_profile_runtime",
+          "classname": "nanolang.unit.test_profile_runtime",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_functions",
+          "classname": "nanolang.unit.test_firstclass_functions",
+          "passed": true
+        },
+        {
+          "name": "test_selfhost_generic_contexts",
+          "classname": "nanolang.unit.test_selfhost_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "passed": true
+        },
+        {
+          "name": "test_lambdas",
+          "classname": "nanolang.unit.test_lambdas",
+          "passed": true
+        },
+        {
+          "name": "03_union_multiple_fields",
+          "classname": "nanolang.unit.03_union_multiple_fields",
+          "passed": true
+        },
+        {
+          "name": "04_union_mixed_types",
+          "classname": "nanolang.unit.04_union_mixed_types",
+          "passed": true
+        },
+        {
+          "name": "02_union_with_fields",
+          "classname": "nanolang.unit.02_union_with_fields",
+          "passed": true
+        },
+        {
+          "name": "01_simple_union_def",
+          "classname": "nanolang.unit.01_simple_union_def",
+          "passed": true
+        },
+        {
+          "name": "test_for_list",
+          "classname": "nanolang.unit.test_for_list",
+          "passed": true
+        },
+        {
+          "name": "test_generics",
+          "classname": "nanolang.unit.test_generics",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_simple",
+          "classname": "nanolang.unit.test_firstclass_simple",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_record_array_literals",
+          "classname": "nanolang.unit.test_cseed_record_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_tuple_destructuring",
+          "classname": "nanolang.unit.test_tuple_destructuring",
+          "passed": true
+        },
+        {
+          "name": "test_legacy_binary64_parse",
+          "classname": "nanolang.unit.test_legacy_binary64_parse",
+          "passed": true
+        },
+        {
+          "name": "test_map_field_operations",
+          "classname": "nanolang.unit.test_map_field_operations",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_comprehensive",
+          "classname": "nanolang.unit.test_stdlib_comprehensive",
+          "passed": true
+        }
+      ]
+    },
+    ".test_output/junit-route-audit/routes/seed-vm/results.xml": {
+      "case_count": 237,
+      "failed": [],
+      "skipped": [],
+      "passed": 237,
+      "cases": [
+        {
+          "name": "nl_syntax_literals",
+          "classname": "nanolang.nl.nl_syntax_literals",
+          "passed": true
+        },
+        {
+          "name": "nl_syntax_operators",
+          "classname": "nanolang.nl.nl_syntax_operators",
+          "passed": true
+        },
+        {
+          "name": "nl_types_bool_list",
+          "classname": "nanolang.nl.nl_types_bool_list",
+          "passed": true
+        },
+        {
+          "name": "nl_types_enum",
+          "classname": "nanolang.nl.nl_types_enum",
+          "passed": true
+        },
+        {
+          "name": "nl_types_struct",
+          "classname": "nanolang.nl.nl_types_struct",
+          "passed": true
+        },
+        {
+          "name": "nl_types_tuple",
+          "classname": "nanolang.nl.nl_types_tuple",
+          "passed": true
+        },
+        {
+          "name": "nl_control_array_elements",
+          "classname": "nanolang.nl.nl_control_array_elements",
+          "passed": true
+        },
+        {
+          "name": "nl_control_flow",
+          "classname": "nanolang.nl.nl_control_flow",
+          "passed": true
+        },
+        {
+          "name": "nl_control_match",
+          "classname": "nanolang.nl.nl_control_match",
+          "passed": true
+        },
+        {
+          "name": "nl_control_while",
+          "classname": "nanolang.nl.nl_control_while",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_array_param",
+          "classname": "nanolang.nl.nl_functions_array_param",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_audio_examples_default_args",
+          "classname": "nanolang.nl.nl_functions_audio_examples_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_filter",
+          "classname": "nanolang.nl.nl_functions_filter",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_map_reduce",
+          "classname": "nanolang.nl.nl_functions_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_introspection_flags",
+          "classname": "nanolang.nl.nl_functions_module_introspection_flags",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_metadata",
+          "classname": "nanolang.nl.nl_functions_module_metadata",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_nanoamp_default_args",
+          "classname": "nanolang.nl.nl_functions_nanoamp_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_relative_import",
+          "classname": "nanolang.nl.nl_functions_relative_import",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_string_edges",
+          "classname": "nanolang.nl.nl_functions_string_edges",
+          "passed": true
+        },
+        {
+          "name": "tuple_advanced",
+          "classname": "nanolang.app.tuple_advanced",
+          "passed": true
+        },
+        {
+          "name": "tuple_basic",
+          "classname": "nanolang.app.tuple_basic",
+          "passed": true
+        },
+        {
+          "name": "tuple_params",
+          "classname": "nanolang.app.tuple_params",
+          "passed": true
+        },
+        {
+          "name": "tuple_typeinfo_test",
+          "classname": "nanolang.app.tuple_typeinfo_test",
+          "passed": true
+        },
+        {
+          "name": "nested_structs",
+          "classname": "nanolang.app.nested_structs",
+          "passed": true
+        },
+        {
+          "name": "test_nested_3d",
+          "classname": "nanolang.app.test_nested_3d",
+          "passed": true
+        },
+        {
+          "name": "test_nested_array_shadows",
+          "classname": "nanolang.app.test_nested_array_shadows",
+          "passed": true
+        },
+        {
+          "name": "test_nested_complex",
+          "classname": "nanolang.app.test_nested_complex",
+          "passed": true
+        },
+        {
+          "name": "test_nested_debug_root",
+          "classname": "nanolang.app.test_nested_debug_root",
+          "passed": true
+        },
+        {
+          "name": "test_nested_gc",
+          "classname": "nanolang.app.test_nested_gc",
+          "passed": true
+        },
+        {
+          "name": "test_nested_string_concat",
+          "classname": "nanolang.app.test_nested_string_concat",
+          "passed": true
+        },
+        {
+          "name": "test_affine_integration",
+          "classname": "nanolang.app.test_affine_integration",
+          "passed": true
+        },
+        {
+          "name": "test_algebraic_effects",
+          "classname": "nanolang.app.test_algebraic_effects",
+          "passed": true
+        },
+        {
+          "name": "test_all_imports",
+          "classname": "nanolang.app.test_all_imports",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_function_args",
+          "classname": "nanolang.app.test_anonymous_struct_function_args",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_literal",
+          "classname": "nanolang.app.test_anonymous_struct_literal",
+          "passed": true
+        },
+        {
+          "name": "test_array_lit",
+          "classname": "nanolang.app.test_array_lit",
+          "passed": true
+        },
+        {
+          "name": "test_array_operators",
+          "classname": "nanolang.app.test_array_operators",
+          "passed": true
+        },
+        {
+          "name": "test_array_search_reverse",
+          "classname": "nanolang.app.test_array_search_reverse",
+          "passed": true
+        },
+        {
+          "name": "test_array_slice",
+          "classname": "nanolang.app.test_array_slice",
+          "passed": true
+        },
+        {
+          "name": "test_array_struct_comprehensive",
+          "classname": "nanolang.app.test_array_struct_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_async",
+          "classname": "nanolang.app.test_async",
+          "passed": true
+        },
+        {
+          "name": "test_boolean_precedence",
+          "classname": "nanolang.app.test_boolean_precedence",
+          "passed": true
+        },
+        {
+          "name": "test_break_continue",
+          "classname": "nanolang.app.test_break_continue",
+          "passed": true
+        },
+        {
+          "name": "test_bstring",
+          "classname": "nanolang.app.test_bstring",
+          "passed": true
+        },
+        {
+          "name": "test_builtins",
+          "classname": "nanolang.app.test_builtins",
+          "passed": true
+        },
+        {
+          "name": "test_builtins_phase1",
+          "classname": "nanolang.app.test_builtins_phase1",
+          "passed": true
+        },
+        {
+          "name": "test_bytes_conversion",
+          "classname": "nanolang.app.test_bytes_conversion",
+          "passed": true
+        },
+        {
+          "name": "test_casting",
+          "classname": "nanolang.app.test_casting",
+          "passed": true
+        },
+        {
+          "name": "test_complex",
+          "classname": "nanolang.app.test_complex",
+          "passed": true
+        },
+        {
+          "name": "test_concat",
+          "classname": "nanolang.app.test_concat",
+          "passed": true
+        },
+        {
+          "name": "test_cond",
+          "classname": "nanolang.app.test_cond",
+          "passed": true
+        },
+        {
+          "name": "test_constant_folding",
+          "classname": "nanolang.app.test_constant_folding",
+          "passed": true
+        },
+        {
+          "name": "test_debug_stacktrace",
+          "classname": "nanolang.app.test_debug_stacktrace",
+          "passed": true
+        },
+        {
+          "name": "test_driver_hello",
+          "classname": "nanolang.app.test_driver_hello",
+          "passed": true
+        },
+        {
+          "name": "test_driver_integration",
+          "classname": "nanolang.app.test_driver_integration",
+          "passed": true
+        },
+        {
+          "name": "test_dynamic_arrays",
+          "classname": "nanolang.app.test_dynamic_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_effects",
+          "classname": "nanolang.app.test_effects",
+          "passed": true
+        },
+        {
+          "name": "test_effects_pub",
+          "classname": "nanolang.app.test_effects_pub",
+          "passed": true
+        },
+        {
+          "name": "test_ensures",
+          "classname": "nanolang.app.test_ensures",
+          "passed": true
+        },
+        {
+          "name": "test_env",
+          "classname": "nanolang.app.test_env",
+          "passed": true
+        },
+        {
+          "name": "test_error_messages",
+          "classname": "nanolang.app.test_error_messages",
+          "passed": true
+        },
+        {
+          "name": "test_fn_call_assign",
+          "classname": "nanolang.app.test_fn_call_assign",
+          "passed": true
+        },
+        {
+          "name": "test_for_continue",
+          "classname": "nanolang.app.test_for_continue",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_loops",
+          "classname": "nanolang.app.test_for_in_loops",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_range_scope_bug",
+          "classname": "nanolang.app.test_for_in_range_scope_bug",
+          "passed": true
+        },
+        {
+          "name": "test_format",
+          "classname": "nanolang.app.test_format",
+          "passed": true
+        },
+        {
+          "name": "test_fs_walkdir",
+          "classname": "nanolang.app.test_fs_walkdir",
+          "passed": true
+        },
+        {
+          "name": "test_gc_string_leak",
+          "classname": "nanolang.app.test_gc_string_leak",
+          "passed": true
+        },
+        {
+          "name": "test_generic_list_struct",
+          "classname": "nanolang.app.test_generic_list_struct",
+          "passed": true
+        },
+        {
+          "name": "test_generic_result",
+          "classname": "nanolang.app.test_generic_result",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union",
+          "classname": "nanolang.app.test_generic_union",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_match",
+          "classname": "nanolang.app.test_generic_union_match",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_non_generic",
+          "classname": "nanolang.app.test_generic_union_non_generic",
+          "passed": true
+        },
+        {
+          "name": "test_graphx",
+          "classname": "nanolang.app.test_graphx",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_generic_core",
+          "classname": "nanolang.app.test_hashmap_generic_core",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "passed": true
+        },
+        {
+          "name": "test_hello",
+          "classname": "nanolang.app.test_hello",
+          "passed": true
+        },
+        {
+          "name": "test_higher_order",
+          "classname": "nanolang.app.test_higher_order",
+          "passed": true
+        },
+        {
+          "name": "test_hm_inference",
+          "classname": "nanolang.app.test_hm_inference",
+          "passed": true
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "passed": true
+        },
+        {
+          "name": "test_infix_operators",
+          "classname": "nanolang.app.test_infix_operators",
+          "passed": true
+        },
+        {
+          "name": "test_match_completeness",
+          "classname": "nanolang.app.test_match_completeness",
+          "passed": true
+        },
+        {
+          "name": "test_match_guards",
+          "classname": "nanolang.app.test_match_guards",
+          "passed": true
+        },
+        {
+          "name": "test_mathx",
+          "classname": "nanolang.app.test_mathx",
+          "passed": true
+        },
+        {
+          "name": "test_matrix4",
+          "classname": "nanolang.app.test_matrix4",
+          "passed": true
+        },
+        {
+          "name": "test_minimal",
+          "classname": "nanolang.app.test_minimal",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_exports",
+          "classname": "nanolang.app.test_module_introspection_exports",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_import",
+          "classname": "nanolang.app.test_module_introspection_import",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_comprehensive",
+          "classname": "nanolang.app.test_module_qualified_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_struct",
+          "classname": "nanolang.app.test_module_qualified_struct",
+          "passed": true
+        },
+        {
+          "name": "test_module_struct_qualification",
+          "classname": "nanolang.app.test_module_struct_qualification",
+          "passed": true
+        },
+        {
+          "name": "test_module_system",
+          "classname": "nanolang.app.test_module_system",
+          "passed": true
+        },
+        {
+          "name": "test_module_visibility",
+          "classname": "nanolang.app.test_module_visibility",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_basic",
+          "classname": "nanolang.app.test_namespace_basic",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_syntax",
+          "classname": "nanolang.app.test_namespace_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_transpiler",
+          "classname": "nanolang.app.test_namespace_transpiler",
+          "passed": true
+        },
+        {
+          "name": "test_nested",
+          "classname": "nanolang.app.test_nested",
+          "passed": true
+        },
+        {
+          "name": "test_opaque_basic",
+          "classname": "nanolang.app.test_opaque_basic",
+          "passed": true
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "passed": true
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "passed": true
+        },
+        {
+          "name": "test_par_blocks",
+          "classname": "nanolang.app.test_par_blocks",
+          "passed": true
+        },
+        {
+          "name": "test_par_let",
+          "classname": "nanolang.app.test_par_let",
+          "passed": true
+        },
+        {
+          "name": "test_path_ops_v2",
+          "classname": "nanolang.app.test_path_ops_v2",
+          "passed": true
+        },
+        {
+          "name": "test_pretty_printer",
+          "classname": "nanolang.app.test_pretty_printer",
+          "passed": true
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "passed": true
+        },
+        {
+          "name": "test_profile",
+          "classname": "nanolang.app.test_profile",
+          "passed": true
+        },
+        {
+          "name": "test_proptest",
+          "classname": "nanolang.app.test_proptest",
+          "passed": true
+        },
+        {
+          "name": "test_pub_extern_fn",
+          "classname": "nanolang.app.test_pub_extern_fn",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "passed": true
+        },
+        {
+          "name": "test_qualified_names",
+          "classname": "nanolang.app.test_qualified_names",
+          "passed": true
+        },
+        {
+          "name": "test_quaternion",
+          "classname": "nanolang.app.test_quaternion",
+          "passed": true
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "passed": true
+        },
+        {
+          "name": "test_requires",
+          "classname": "nanolang.app.test_requires",
+          "passed": true
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "passed": true
+        },
+        {
+          "name": "test_resource_syntax",
+          "classname": "nanolang.app.test_resource_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_resource_tracking",
+          "classname": "nanolang.app.test_resource_tracking",
+          "passed": true
+        },
+        {
+          "name": "test_resource_valid_use",
+          "classname": "nanolang.app.test_resource_valid_use",
+          "passed": true
+        },
+        {
+          "name": "test_result_let",
+          "classname": "nanolang.app.test_result_let",
+          "passed": true
+        },
+        {
+          "name": "test_result_syntax",
+          "classname": "nanolang.app.test_result_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "passed": true
+        },
+        {
+          "name": "test_setenv_shadow",
+          "classname": "nanolang.app.test_setenv_shadow",
+          "passed": true
+        },
+        {
+          "name": "test_shadow_scope_redefinition",
+          "classname": "nanolang.app.test_shadow_scope_redefinition",
+          "passed": true
+        },
+        {
+          "name": "test_simple_constant",
+          "classname": "nanolang.app.test_simple_constant",
+          "passed": true
+        },
+        {
+          "name": "test_simple_math_introspection",
+          "classname": "nanolang.app.test_simple_math_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "passed": true
+        },
+        {
+          "name": "test_standalone_if_comprehensive",
+          "classname": "nanolang.app.test_standalone_if_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "passed": true
+        },
+        {
+          "name": "test_std_fs",
+          "classname": "nanolang.app.test_std_fs",
+          "passed": true
+        },
+        {
+          "name": "test_std_json",
+          "classname": "nanolang.app.test_std_json",
+          "passed": true
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended",
+          "classname": "nanolang.app.test_std_math_extended",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended_full",
+          "classname": "nanolang.app.test_std_math_extended_full",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_simple",
+          "classname": "nanolang.app.test_std_modules_simple",
+          "passed": true
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "passed": true
+        },
+        {
+          "name": "test_std_regex_groups_uaf",
+          "classname": "nanolang.app.test_std_regex_groups_uaf",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_arrays",
+          "classname": "nanolang.app.test_stdlib_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_namespaces",
+          "classname": "nanolang.app.test_stdlib_namespaces",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_result",
+          "classname": "nanolang.app.test_stdlib_result",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_strings",
+          "classname": "nanolang.app.test_stdlib_strings",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus",
+          "classname": "nanolang.app.test_string_plus",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus_nested",
+          "classname": "nanolang.app.test_string_plus_nested",
+          "passed": true
+        },
+        {
+          "name": "test_struct_string_corruption",
+          "classname": "nanolang.app.test_struct_string_corruption",
+          "passed": true
+        },
+        {
+          "name": "test_symbol_scoping",
+          "classname": "nanolang.app.test_symbol_scoping",
+          "passed": true
+        },
+        {
+          "name": "test_tmp_files",
+          "classname": "nanolang.app.test_tmp_files",
+          "passed": true
+        },
+        {
+          "name": "test_top_level_constants",
+          "classname": "nanolang.app.test_top_level_constants",
+          "passed": true
+        },
+        {
+          "name": "test_types_comprehensive",
+          "classname": "nanolang.app.test_types_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_u8_basic",
+          "classname": "nanolang.app.test_u8_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unary_operators",
+          "classname": "nanolang.app.test_unary_operators",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_basic",
+          "classname": "nanolang.app.test_unsafe_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_syntax",
+          "classname": "nanolang.app.test_unsafe_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_vector2d",
+          "classname": "nanolang.app.test_vector2d",
+          "passed": true
+        },
+        {
+          "name": "test_vector3d",
+          "classname": "nanolang.app.test_vector3d",
+          "passed": true
+        },
+        {
+          "name": "test_vector4d",
+          "classname": "nanolang.app.test_vector4d",
+          "passed": true
+        },
+        {
+          "name": "test_vm_value_contracts",
+          "classname": "nanolang.app.test_vm_value_contracts",
+          "passed": true
+        },
+        {
+          "name": "test_walkdir",
+          "classname": "nanolang.app.test_walkdir",
+          "passed": true
+        },
+        {
+          "name": "refresh_getting_started_hello",
+          "classname": "nanolang.app.refresh_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "refresh_language_bindings",
+          "classname": "nanolang.app.refresh_language_bindings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_arrays",
+          "classname": "nanolang.app.ug_canonical_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_cond",
+          "classname": "nanolang.app.ug_canonical_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_enum",
+          "classname": "nanolang.app.ug_canonical_enum",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_fn",
+          "classname": "nanolang.app.ug_canonical_fn",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_for",
+          "classname": "nanolang.app.ug_canonical_for",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_if",
+          "classname": "nanolang.app.ug_canonical_if",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_prefix",
+          "classname": "nanolang.app.ug_canonical_prefix",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_strings",
+          "classname": "nanolang.app.ug_canonical_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_struct",
+          "classname": "nanolang.app.ug_canonical_struct",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_while",
+          "classname": "nanolang.app.ug_canonical_while",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_cond",
+          "classname": "nanolang.app.ug_control_flow_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_for",
+          "classname": "nanolang.app.ug_control_flow_for",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_if",
+          "classname": "nanolang.app.ug_control_flow_if",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_loops",
+          "classname": "nanolang.app.ug_control_flow_loops",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_contracts_combined",
+          "classname": "nanolang.app.ug_fn_contracts_combined",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_ensures_basic",
+          "classname": "nanolang.app.ug_fn_ensures_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_requires_basic",
+          "classname": "nanolang.app.ug_fn_requires_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_arg",
+          "classname": "nanolang.app.ug_fstring_arg",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_basic",
+          "classname": "nanolang.app.ug_fstring_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_exprs",
+          "classname": "nanolang.app.ug_fstring_exprs",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_arithmetic",
+          "classname": "nanolang.app.ug_getting_started_arithmetic",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_hello",
+          "classname": "nanolang.app.ug_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "ug_modules_std_json",
+          "classname": "nanolang.app.ug_modules_std_json",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_builtin_map_reduce",
+          "classname": "nanolang.app.ug_patterns_builtin_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_first_class",
+          "classname": "nanolang.app.ug_patterns_first_class",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_fold",
+          "classname": "nanolang.app.ug_patterns_fold",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_logging_trace_coverage",
+          "classname": "nanolang.app.ug_patterns_logging_trace_coverage",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_match_union",
+          "classname": "nanolang.app.ug_patterns_match_union",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_unsafe_extern",
+          "classname": "nanolang.app.ug_patterns_unsafe_extern",
+          "passed": true
+        },
+        {
+          "name": "ug_types_arrays",
+          "classname": "nanolang.app.ug_types_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_types_bools",
+          "classname": "nanolang.app.ug_types_bools",
+          "passed": true
+        },
+        {
+          "name": "ug_types_enums",
+          "classname": "nanolang.app.ug_types_enums",
+          "passed": true
+        },
+        {
+          "name": "ug_types_generics",
+          "classname": "nanolang.app.ug_types_generics",
+          "passed": true
+        },
+        {
+          "name": "ug_types_hashmap",
+          "classname": "nanolang.app.ug_types_hashmap",
+          "passed": true
+        },
+        {
+          "name": "ug_types_strings",
+          "classname": "nanolang.app.ug_types_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_types_structs",
+          "classname": "nanolang.app.ug_types_structs",
+          "passed": true
+        },
+        {
+          "name": "ug_types_tuples",
+          "classname": "nanolang.app.ug_types_tuples",
+          "passed": true
+        },
+        {
+          "name": "test_generics_comprehensive",
+          "classname": "nanolang.unit.test_generics_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_record_array_projection",
+          "classname": "nanolang.unit.test_record_array_projection",
+          "passed": true
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_nested_array_literals",
+          "classname": "nanolang.unit.test_cseed_nested_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_match_wildcard",
+          "classname": "nanolang.unit.test_match_wildcard",
+          "passed": true
+        },
+        {
+          "name": "test_pipe_operator",
+          "classname": "nanolang.unit.test_pipe_operator",
+          "passed": true
+        },
+        {
+          "name": "test_c_backend",
+          "classname": "nanolang.unit.test_c_backend",
+          "passed": true
+        },
+        {
+          "name": "test_unions_match_comprehensive",
+          "classname": "nanolang.unit.test_unions_match_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_type_inference",
+          "classname": "nanolang.unit.test_type_inference",
+          "passed": true
+        },
+        {
+          "name": "test_string_interpolation",
+          "classname": "nanolang.unit.test_string_interpolation",
+          "passed": true
+        },
+        {
+          "name": "test_operators_comprehensive",
+          "classname": "nanolang.unit.test_operators_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_dwarf_debug",
+          "classname": "nanolang.unit.test_dwarf_debug",
+          "passed": true
+        },
+        {
+          "name": "test_fstring_comprehensive",
+          "classname": "nanolang.unit.test_fstring_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "passed": true
+        },
+        {
+          "name": "test_empty_record_array_fields",
+          "classname": "nanolang.unit.test_empty_record_array_fields",
+          "passed": true
+        },
+        {
+          "name": "test_control_flow",
+          "classname": "nanolang.unit.test_control_flow",
+          "passed": true
+        },
+        {
+          "name": "test_native_generic_contexts",
+          "classname": "nanolang.unit.test_native_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_wasm_simd",
+          "classname": "nanolang.unit.test_wasm_simd",
+          "passed": true
+        },
+        {
+          "name": "test_map_constructor_contexts",
+          "classname": "nanolang.unit.test_map_constructor_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "passed": true
+        },
+        {
+          "name": "test_native_nested_generics",
+          "classname": "nanolang.unit.test_native_nested_generics",
+          "passed": true
+        },
+        {
+          "name": "test_match_orpatterns",
+          "classname": "nanolang.unit.test_match_orpatterns",
+          "passed": true
+        },
+        {
+          "name": "test_profile_runtime",
+          "classname": "nanolang.unit.test_profile_runtime",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_functions",
+          "classname": "nanolang.unit.test_firstclass_functions",
+          "passed": true
+        },
+        {
+          "name": "test_selfhost_generic_contexts",
+          "classname": "nanolang.unit.test_selfhost_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "passed": true
+        },
+        {
+          "name": "test_lambdas",
+          "classname": "nanolang.unit.test_lambdas",
+          "passed": true
+        },
+        {
+          "name": "03_union_multiple_fields",
+          "classname": "nanolang.unit.03_union_multiple_fields",
+          "passed": true
+        },
+        {
+          "name": "04_union_mixed_types",
+          "classname": "nanolang.unit.04_union_mixed_types",
+          "passed": true
+        },
+        {
+          "name": "02_union_with_fields",
+          "classname": "nanolang.unit.02_union_with_fields",
+          "passed": true
+        },
+        {
+          "name": "01_simple_union_def",
+          "classname": "nanolang.unit.01_simple_union_def",
+          "passed": true
+        },
+        {
+          "name": "test_for_list",
+          "classname": "nanolang.unit.test_for_list",
+          "passed": true
+        },
+        {
+          "name": "test_generics",
+          "classname": "nanolang.unit.test_generics",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_simple",
+          "classname": "nanolang.unit.test_firstclass_simple",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_record_array_literals",
+          "classname": "nanolang.unit.test_cseed_record_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_tuple_destructuring",
+          "classname": "nanolang.unit.test_tuple_destructuring",
+          "passed": true
+        },
+        {
+          "name": "test_legacy_binary64_parse",
+          "classname": "nanolang.unit.test_legacy_binary64_parse",
+          "passed": true
+        },
+        {
+          "name": "test_map_field_operations",
+          "classname": "nanolang.unit.test_map_field_operations",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_comprehensive",
+          "classname": "nanolang.unit.test_stdlib_comprehensive",
+          "passed": true
+        }
+      ]
+    },
+    ".test_output/junit-route-audit/routes/stage1/results.xml": {
+      "case_count": 237,
+      "failed": [
+        "test_hashmap_set_advanced",
+        "test_import_aliasing",
+        "test_module_introspection",
+        "test_opl_cases_runner",
+        "test_opl_compile_golden",
+        "test_process",
+        "test_pybridge_full",
+        "test_pybridge_matplotlib_smoke",
+        "test_pybridge_smoke",
+        "test_repl_history",
+        "test_resource_effect_checker",
+        "test_row_poly",
+        "test_split2",
+        "test_std_collections",
+        "test_std_lib_collections",
+        "test_std_modules_env_process_fs_binary",
+        "test_std_peg",
+        "test_enums_comprehensive",
+        "test_mac_exec_once_vm",
+        "test_launcher_capture",
+        "test_match_orpatterns",
+        "test_mac_exec_once"
+      ],
+      "skipped": [],
+      "passed": 215,
+      "cases": [
+        {
+          "name": "nl_syntax_literals",
+          "classname": "nanolang.nl.nl_syntax_literals",
+          "passed": true
+        },
+        {
+          "name": "nl_syntax_operators",
+          "classname": "nanolang.nl.nl_syntax_operators",
+          "passed": true
+        },
+        {
+          "name": "nl_types_bool_list",
+          "classname": "nanolang.nl.nl_types_bool_list",
+          "passed": true
+        },
+        {
+          "name": "nl_types_enum",
+          "classname": "nanolang.nl.nl_types_enum",
+          "passed": true
+        },
+        {
+          "name": "nl_types_struct",
+          "classname": "nanolang.nl.nl_types_struct",
+          "passed": true
+        },
+        {
+          "name": "nl_types_tuple",
+          "classname": "nanolang.nl.nl_types_tuple",
+          "passed": true
+        },
+        {
+          "name": "nl_control_array_elements",
+          "classname": "nanolang.nl.nl_control_array_elements",
+          "passed": true
+        },
+        {
+          "name": "nl_control_flow",
+          "classname": "nanolang.nl.nl_control_flow",
+          "passed": true
+        },
+        {
+          "name": "nl_control_match",
+          "classname": "nanolang.nl.nl_control_match",
+          "passed": true
+        },
+        {
+          "name": "nl_control_while",
+          "classname": "nanolang.nl.nl_control_while",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_array_param",
+          "classname": "nanolang.nl.nl_functions_array_param",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_audio_examples_default_args",
+          "classname": "nanolang.nl.nl_functions_audio_examples_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_filter",
+          "classname": "nanolang.nl.nl_functions_filter",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_map_reduce",
+          "classname": "nanolang.nl.nl_functions_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_introspection_flags",
+          "classname": "nanolang.nl.nl_functions_module_introspection_flags",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_metadata",
+          "classname": "nanolang.nl.nl_functions_module_metadata",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_nanoamp_default_args",
+          "classname": "nanolang.nl.nl_functions_nanoamp_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_relative_import",
+          "classname": "nanolang.nl.nl_functions_relative_import",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_string_edges",
+          "classname": "nanolang.nl.nl_functions_string_edges",
+          "passed": true
+        },
+        {
+          "name": "tuple_advanced",
+          "classname": "nanolang.app.tuple_advanced",
+          "passed": true
+        },
+        {
+          "name": "tuple_basic",
+          "classname": "nanolang.app.tuple_basic",
+          "passed": true
+        },
+        {
+          "name": "tuple_params",
+          "classname": "nanolang.app.tuple_params",
+          "passed": true
+        },
+        {
+          "name": "tuple_typeinfo_test",
+          "classname": "nanolang.app.tuple_typeinfo_test",
+          "passed": true
+        },
+        {
+          "name": "nested_structs",
+          "classname": "nanolang.app.nested_structs",
+          "passed": true
+        },
+        {
+          "name": "test_nested_3d",
+          "classname": "nanolang.app.test_nested_3d",
+          "passed": true
+        },
+        {
+          "name": "test_nested_array_shadows",
+          "classname": "nanolang.app.test_nested_array_shadows",
+          "passed": true
+        },
+        {
+          "name": "test_nested_complex",
+          "classname": "nanolang.app.test_nested_complex",
+          "passed": true
+        },
+        {
+          "name": "test_nested_debug_root",
+          "classname": "nanolang.app.test_nested_debug_root",
+          "passed": true
+        },
+        {
+          "name": "test_nested_gc",
+          "classname": "nanolang.app.test_nested_gc",
+          "passed": true
+        },
+        {
+          "name": "test_nested_string_concat",
+          "classname": "nanolang.app.test_nested_string_concat",
+          "passed": true
+        },
+        {
+          "name": "test_affine_integration",
+          "classname": "nanolang.app.test_affine_integration",
+          "passed": true
+        },
+        {
+          "name": "test_algebraic_effects",
+          "classname": "nanolang.app.test_algebraic_effects",
+          "passed": true
+        },
+        {
+          "name": "test_all_imports",
+          "classname": "nanolang.app.test_all_imports",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_function_args",
+          "classname": "nanolang.app.test_anonymous_struct_function_args",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_literal",
+          "classname": "nanolang.app.test_anonymous_struct_literal",
+          "passed": true
+        },
+        {
+          "name": "test_array_lit",
+          "classname": "nanolang.app.test_array_lit",
+          "passed": true
+        },
+        {
+          "name": "test_array_operators",
+          "classname": "nanolang.app.test_array_operators",
+          "passed": true
+        },
+        {
+          "name": "test_array_search_reverse",
+          "classname": "nanolang.app.test_array_search_reverse",
+          "passed": true
+        },
+        {
+          "name": "test_array_slice",
+          "classname": "nanolang.app.test_array_slice",
+          "passed": true
+        },
+        {
+          "name": "test_array_struct_comprehensive",
+          "classname": "nanolang.app.test_array_struct_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_async",
+          "classname": "nanolang.app.test_async",
+          "passed": true
+        },
+        {
+          "name": "test_boolean_precedence",
+          "classname": "nanolang.app.test_boolean_precedence",
+          "passed": true
+        },
+        {
+          "name": "test_break_continue",
+          "classname": "nanolang.app.test_break_continue",
+          "passed": true
+        },
+        {
+          "name": "test_bstring",
+          "classname": "nanolang.app.test_bstring",
+          "passed": true
+        },
+        {
+          "name": "test_builtins",
+          "classname": "nanolang.app.test_builtins",
+          "passed": true
+        },
+        {
+          "name": "test_builtins_phase1",
+          "classname": "nanolang.app.test_builtins_phase1",
+          "passed": true
+        },
+        {
+          "name": "test_bytes_conversion",
+          "classname": "nanolang.app.test_bytes_conversion",
+          "passed": true
+        },
+        {
+          "name": "test_casting",
+          "classname": "nanolang.app.test_casting",
+          "passed": true
+        },
+        {
+          "name": "test_complex",
+          "classname": "nanolang.app.test_complex",
+          "passed": true
+        },
+        {
+          "name": "test_concat",
+          "classname": "nanolang.app.test_concat",
+          "passed": true
+        },
+        {
+          "name": "test_cond",
+          "classname": "nanolang.app.test_cond",
+          "passed": true
+        },
+        {
+          "name": "test_constant_folding",
+          "classname": "nanolang.app.test_constant_folding",
+          "passed": true
+        },
+        {
+          "name": "test_debug_stacktrace",
+          "classname": "nanolang.app.test_debug_stacktrace",
+          "passed": true
+        },
+        {
+          "name": "test_driver_hello",
+          "classname": "nanolang.app.test_driver_hello",
+          "passed": true
+        },
+        {
+          "name": "test_driver_integration",
+          "classname": "nanolang.app.test_driver_integration",
+          "passed": true
+        },
+        {
+          "name": "test_dynamic_arrays",
+          "classname": "nanolang.app.test_dynamic_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_effects",
+          "classname": "nanolang.app.test_effects",
+          "passed": true
+        },
+        {
+          "name": "test_effects_pub",
+          "classname": "nanolang.app.test_effects_pub",
+          "passed": true
+        },
+        {
+          "name": "test_ensures",
+          "classname": "nanolang.app.test_ensures",
+          "passed": true
+        },
+        {
+          "name": "test_env",
+          "classname": "nanolang.app.test_env",
+          "passed": true
+        },
+        {
+          "name": "test_error_messages",
+          "classname": "nanolang.app.test_error_messages",
+          "passed": true
+        },
+        {
+          "name": "test_fn_call_assign",
+          "classname": "nanolang.app.test_fn_call_assign",
+          "passed": true
+        },
+        {
+          "name": "test_for_continue",
+          "classname": "nanolang.app.test_for_continue",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_loops",
+          "classname": "nanolang.app.test_for_in_loops",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_range_scope_bug",
+          "classname": "nanolang.app.test_for_in_range_scope_bug",
+          "passed": true
+        },
+        {
+          "name": "test_format",
+          "classname": "nanolang.app.test_format",
+          "passed": true
+        },
+        {
+          "name": "test_fs_walkdir",
+          "classname": "nanolang.app.test_fs_walkdir",
+          "passed": true
+        },
+        {
+          "name": "test_gc_string_leak",
+          "classname": "nanolang.app.test_gc_string_leak",
+          "passed": true
+        },
+        {
+          "name": "test_generic_list_struct",
+          "classname": "nanolang.app.test_generic_list_struct",
+          "passed": true
+        },
+        {
+          "name": "test_generic_result",
+          "classname": "nanolang.app.test_generic_result",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union",
+          "classname": "nanolang.app.test_generic_union",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_match",
+          "classname": "nanolang.app.test_generic_union_match",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_non_generic",
+          "classname": "nanolang.app.test_generic_union_non_generic",
+          "passed": true
+        },
+        {
+          "name": "test_graphx",
+          "classname": "nanolang.app.test_graphx",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_generic_core",
+          "classname": "nanolang.app.test_hashmap_generic_core",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "passed": false
+        },
+        {
+          "name": "test_hello",
+          "classname": "nanolang.app.test_hello",
+          "passed": true
+        },
+        {
+          "name": "test_higher_order",
+          "classname": "nanolang.app.test_higher_order",
+          "passed": true
+        },
+        {
+          "name": "test_hm_inference",
+          "classname": "nanolang.app.test_hm_inference",
+          "passed": true
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "passed": false
+        },
+        {
+          "name": "test_infix_operators",
+          "classname": "nanolang.app.test_infix_operators",
+          "passed": true
+        },
+        {
+          "name": "test_match_completeness",
+          "classname": "nanolang.app.test_match_completeness",
+          "passed": true
+        },
+        {
+          "name": "test_match_guards",
+          "classname": "nanolang.app.test_match_guards",
+          "passed": true
+        },
+        {
+          "name": "test_mathx",
+          "classname": "nanolang.app.test_mathx",
+          "passed": true
+        },
+        {
+          "name": "test_matrix4",
+          "classname": "nanolang.app.test_matrix4",
+          "passed": true
+        },
+        {
+          "name": "test_minimal",
+          "classname": "nanolang.app.test_minimal",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "passed": false
+        },
+        {
+          "name": "test_module_introspection_exports",
+          "classname": "nanolang.app.test_module_introspection_exports",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_import",
+          "classname": "nanolang.app.test_module_introspection_import",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_comprehensive",
+          "classname": "nanolang.app.test_module_qualified_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_struct",
+          "classname": "nanolang.app.test_module_qualified_struct",
+          "passed": true
+        },
+        {
+          "name": "test_module_struct_qualification",
+          "classname": "nanolang.app.test_module_struct_qualification",
+          "passed": true
+        },
+        {
+          "name": "test_module_system",
+          "classname": "nanolang.app.test_module_system",
+          "passed": true
+        },
+        {
+          "name": "test_module_visibility",
+          "classname": "nanolang.app.test_module_visibility",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_basic",
+          "classname": "nanolang.app.test_namespace_basic",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_syntax",
+          "classname": "nanolang.app.test_namespace_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_transpiler",
+          "classname": "nanolang.app.test_namespace_transpiler",
+          "passed": true
+        },
+        {
+          "name": "test_nested",
+          "classname": "nanolang.app.test_nested",
+          "passed": true
+        },
+        {
+          "name": "test_opaque_basic",
+          "classname": "nanolang.app.test_opaque_basic",
+          "passed": true
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "passed": false
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "passed": false
+        },
+        {
+          "name": "test_par_blocks",
+          "classname": "nanolang.app.test_par_blocks",
+          "passed": true
+        },
+        {
+          "name": "test_par_let",
+          "classname": "nanolang.app.test_par_let",
+          "passed": true
+        },
+        {
+          "name": "test_path_ops_v2",
+          "classname": "nanolang.app.test_path_ops_v2",
+          "passed": true
+        },
+        {
+          "name": "test_pretty_printer",
+          "classname": "nanolang.app.test_pretty_printer",
+          "passed": true
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "passed": false
+        },
+        {
+          "name": "test_profile",
+          "classname": "nanolang.app.test_profile",
+          "passed": true
+        },
+        {
+          "name": "test_proptest",
+          "classname": "nanolang.app.test_proptest",
+          "passed": true
+        },
+        {
+          "name": "test_pub_extern_fn",
+          "classname": "nanolang.app.test_pub_extern_fn",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "passed": false
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "passed": false
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "passed": false
+        },
+        {
+          "name": "test_qualified_names",
+          "classname": "nanolang.app.test_qualified_names",
+          "passed": true
+        },
+        {
+          "name": "test_quaternion",
+          "classname": "nanolang.app.test_quaternion",
+          "passed": true
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "passed": false
+        },
+        {
+          "name": "test_requires",
+          "classname": "nanolang.app.test_requires",
+          "passed": true
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "passed": false
+        },
+        {
+          "name": "test_resource_syntax",
+          "classname": "nanolang.app.test_resource_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_resource_tracking",
+          "classname": "nanolang.app.test_resource_tracking",
+          "passed": true
+        },
+        {
+          "name": "test_resource_valid_use",
+          "classname": "nanolang.app.test_resource_valid_use",
+          "passed": true
+        },
+        {
+          "name": "test_result_let",
+          "classname": "nanolang.app.test_result_let",
+          "passed": true
+        },
+        {
+          "name": "test_result_syntax",
+          "classname": "nanolang.app.test_result_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "passed": false
+        },
+        {
+          "name": "test_setenv_shadow",
+          "classname": "nanolang.app.test_setenv_shadow",
+          "passed": true
+        },
+        {
+          "name": "test_shadow_scope_redefinition",
+          "classname": "nanolang.app.test_shadow_scope_redefinition",
+          "passed": true
+        },
+        {
+          "name": "test_simple_constant",
+          "classname": "nanolang.app.test_simple_constant",
+          "passed": true
+        },
+        {
+          "name": "test_simple_math_introspection",
+          "classname": "nanolang.app.test_simple_math_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "passed": false
+        },
+        {
+          "name": "test_standalone_if_comprehensive",
+          "classname": "nanolang.app.test_standalone_if_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "passed": false
+        },
+        {
+          "name": "test_std_fs",
+          "classname": "nanolang.app.test_std_fs",
+          "passed": true
+        },
+        {
+          "name": "test_std_json",
+          "classname": "nanolang.app.test_std_json",
+          "passed": true
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "passed": false
+        },
+        {
+          "name": "test_std_math_extended",
+          "classname": "nanolang.app.test_std_math_extended",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended_full",
+          "classname": "nanolang.app.test_std_math_extended_full",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "passed": false
+        },
+        {
+          "name": "test_std_modules_simple",
+          "classname": "nanolang.app.test_std_modules_simple",
+          "passed": true
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "passed": false
+        },
+        {
+          "name": "test_std_regex_groups_uaf",
+          "classname": "nanolang.app.test_std_regex_groups_uaf",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_arrays",
+          "classname": "nanolang.app.test_stdlib_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_namespaces",
+          "classname": "nanolang.app.test_stdlib_namespaces",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_result",
+          "classname": "nanolang.app.test_stdlib_result",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_strings",
+          "classname": "nanolang.app.test_stdlib_strings",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus",
+          "classname": "nanolang.app.test_string_plus",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus_nested",
+          "classname": "nanolang.app.test_string_plus_nested",
+          "passed": true
+        },
+        {
+          "name": "test_struct_string_corruption",
+          "classname": "nanolang.app.test_struct_string_corruption",
+          "passed": true
+        },
+        {
+          "name": "test_symbol_scoping",
+          "classname": "nanolang.app.test_symbol_scoping",
+          "passed": true
+        },
+        {
+          "name": "test_tmp_files",
+          "classname": "nanolang.app.test_tmp_files",
+          "passed": true
+        },
+        {
+          "name": "test_top_level_constants",
+          "classname": "nanolang.app.test_top_level_constants",
+          "passed": true
+        },
+        {
+          "name": "test_types_comprehensive",
+          "classname": "nanolang.app.test_types_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_u8_basic",
+          "classname": "nanolang.app.test_u8_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unary_operators",
+          "classname": "nanolang.app.test_unary_operators",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_basic",
+          "classname": "nanolang.app.test_unsafe_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_syntax",
+          "classname": "nanolang.app.test_unsafe_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_vector2d",
+          "classname": "nanolang.app.test_vector2d",
+          "passed": true
+        },
+        {
+          "name": "test_vector3d",
+          "classname": "nanolang.app.test_vector3d",
+          "passed": true
+        },
+        {
+          "name": "test_vector4d",
+          "classname": "nanolang.app.test_vector4d",
+          "passed": true
+        },
+        {
+          "name": "test_vm_value_contracts",
+          "classname": "nanolang.app.test_vm_value_contracts",
+          "passed": true
+        },
+        {
+          "name": "test_walkdir",
+          "classname": "nanolang.app.test_walkdir",
+          "passed": true
+        },
+        {
+          "name": "refresh_getting_started_hello",
+          "classname": "nanolang.app.refresh_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "refresh_language_bindings",
+          "classname": "nanolang.app.refresh_language_bindings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_arrays",
+          "classname": "nanolang.app.ug_canonical_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_cond",
+          "classname": "nanolang.app.ug_canonical_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_enum",
+          "classname": "nanolang.app.ug_canonical_enum",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_fn",
+          "classname": "nanolang.app.ug_canonical_fn",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_for",
+          "classname": "nanolang.app.ug_canonical_for",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_if",
+          "classname": "nanolang.app.ug_canonical_if",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_prefix",
+          "classname": "nanolang.app.ug_canonical_prefix",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_strings",
+          "classname": "nanolang.app.ug_canonical_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_struct",
+          "classname": "nanolang.app.ug_canonical_struct",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_while",
+          "classname": "nanolang.app.ug_canonical_while",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_cond",
+          "classname": "nanolang.app.ug_control_flow_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_for",
+          "classname": "nanolang.app.ug_control_flow_for",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_if",
+          "classname": "nanolang.app.ug_control_flow_if",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_loops",
+          "classname": "nanolang.app.ug_control_flow_loops",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_contracts_combined",
+          "classname": "nanolang.app.ug_fn_contracts_combined",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_ensures_basic",
+          "classname": "nanolang.app.ug_fn_ensures_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_requires_basic",
+          "classname": "nanolang.app.ug_fn_requires_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_arg",
+          "classname": "nanolang.app.ug_fstring_arg",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_basic",
+          "classname": "nanolang.app.ug_fstring_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_exprs",
+          "classname": "nanolang.app.ug_fstring_exprs",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_arithmetic",
+          "classname": "nanolang.app.ug_getting_started_arithmetic",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_hello",
+          "classname": "nanolang.app.ug_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "ug_modules_std_json",
+          "classname": "nanolang.app.ug_modules_std_json",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_builtin_map_reduce",
+          "classname": "nanolang.app.ug_patterns_builtin_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_first_class",
+          "classname": "nanolang.app.ug_patterns_first_class",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_fold",
+          "classname": "nanolang.app.ug_patterns_fold",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_logging_trace_coverage",
+          "classname": "nanolang.app.ug_patterns_logging_trace_coverage",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_match_union",
+          "classname": "nanolang.app.ug_patterns_match_union",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_unsafe_extern",
+          "classname": "nanolang.app.ug_patterns_unsafe_extern",
+          "passed": true
+        },
+        {
+          "name": "ug_types_arrays",
+          "classname": "nanolang.app.ug_types_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_types_bools",
+          "classname": "nanolang.app.ug_types_bools",
+          "passed": true
+        },
+        {
+          "name": "ug_types_enums",
+          "classname": "nanolang.app.ug_types_enums",
+          "passed": true
+        },
+        {
+          "name": "ug_types_generics",
+          "classname": "nanolang.app.ug_types_generics",
+          "passed": true
+        },
+        {
+          "name": "ug_types_hashmap",
+          "classname": "nanolang.app.ug_types_hashmap",
+          "passed": true
+        },
+        {
+          "name": "ug_types_strings",
+          "classname": "nanolang.app.ug_types_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_types_structs",
+          "classname": "nanolang.app.ug_types_structs",
+          "passed": true
+        },
+        {
+          "name": "ug_types_tuples",
+          "classname": "nanolang.app.ug_types_tuples",
+          "passed": true
+        },
+        {
+          "name": "test_generics_comprehensive",
+          "classname": "nanolang.unit.test_generics_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_record_array_projection",
+          "classname": "nanolang.unit.test_record_array_projection",
+          "passed": true
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "passed": false
+        },
+        {
+          "name": "test_cseed_nested_array_literals",
+          "classname": "nanolang.unit.test_cseed_nested_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_match_wildcard",
+          "classname": "nanolang.unit.test_match_wildcard",
+          "passed": true
+        },
+        {
+          "name": "test_pipe_operator",
+          "classname": "nanolang.unit.test_pipe_operator",
+          "passed": true
+        },
+        {
+          "name": "test_c_backend",
+          "classname": "nanolang.unit.test_c_backend",
+          "passed": true
+        },
+        {
+          "name": "test_unions_match_comprehensive",
+          "classname": "nanolang.unit.test_unions_match_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_type_inference",
+          "classname": "nanolang.unit.test_type_inference",
+          "passed": true
+        },
+        {
+          "name": "test_string_interpolation",
+          "classname": "nanolang.unit.test_string_interpolation",
+          "passed": true
+        },
+        {
+          "name": "test_operators_comprehensive",
+          "classname": "nanolang.unit.test_operators_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_dwarf_debug",
+          "classname": "nanolang.unit.test_dwarf_debug",
+          "passed": true
+        },
+        {
+          "name": "test_fstring_comprehensive",
+          "classname": "nanolang.unit.test_fstring_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "passed": false
+        },
+        {
+          "name": "test_empty_record_array_fields",
+          "classname": "nanolang.unit.test_empty_record_array_fields",
+          "passed": true
+        },
+        {
+          "name": "test_control_flow",
+          "classname": "nanolang.unit.test_control_flow",
+          "passed": true
+        },
+        {
+          "name": "test_native_generic_contexts",
+          "classname": "nanolang.unit.test_native_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_wasm_simd",
+          "classname": "nanolang.unit.test_wasm_simd",
+          "passed": true
+        },
+        {
+          "name": "test_map_constructor_contexts",
+          "classname": "nanolang.unit.test_map_constructor_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "passed": false
+        },
+        {
+          "name": "test_native_nested_generics",
+          "classname": "nanolang.unit.test_native_nested_generics",
+          "passed": true
+        },
+        {
+          "name": "test_match_orpatterns",
+          "classname": "nanolang.unit.test_match_orpatterns",
+          "passed": false
+        },
+        {
+          "name": "test_profile_runtime",
+          "classname": "nanolang.unit.test_profile_runtime",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_functions",
+          "classname": "nanolang.unit.test_firstclass_functions",
+          "passed": true
+        },
+        {
+          "name": "test_selfhost_generic_contexts",
+          "classname": "nanolang.unit.test_selfhost_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "passed": false
+        },
+        {
+          "name": "test_lambdas",
+          "classname": "nanolang.unit.test_lambdas",
+          "passed": true
+        },
+        {
+          "name": "03_union_multiple_fields",
+          "classname": "nanolang.unit.03_union_multiple_fields",
+          "passed": true
+        },
+        {
+          "name": "04_union_mixed_types",
+          "classname": "nanolang.unit.04_union_mixed_types",
+          "passed": true
+        },
+        {
+          "name": "02_union_with_fields",
+          "classname": "nanolang.unit.02_union_with_fields",
+          "passed": true
+        },
+        {
+          "name": "01_simple_union_def",
+          "classname": "nanolang.unit.01_simple_union_def",
+          "passed": true
+        },
+        {
+          "name": "test_for_list",
+          "classname": "nanolang.unit.test_for_list",
+          "passed": true
+        },
+        {
+          "name": "test_generics",
+          "classname": "nanolang.unit.test_generics",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_simple",
+          "classname": "nanolang.unit.test_firstclass_simple",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_record_array_literals",
+          "classname": "nanolang.unit.test_cseed_record_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_tuple_destructuring",
+          "classname": "nanolang.unit.test_tuple_destructuring",
+          "passed": true
+        },
+        {
+          "name": "test_legacy_binary64_parse",
+          "classname": "nanolang.unit.test_legacy_binary64_parse",
+          "passed": true
+        },
+        {
+          "name": "test_map_field_operations",
+          "classname": "nanolang.unit.test_map_field_operations",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_comprehensive",
+          "classname": "nanolang.unit.test_stdlib_comprehensive",
+          "passed": true
+        }
+      ]
+    },
+    ".test_output/junit-route-audit/routes/stage2/results.xml": {
+      "case_count": 237,
+      "failed": [
+        "test_hashmap_set_advanced",
+        "test_import_aliasing",
+        "test_module_introspection",
+        "test_opl_cases_runner",
+        "test_opl_compile_golden",
+        "test_process",
+        "test_pybridge_full",
+        "test_pybridge_matplotlib_smoke",
+        "test_pybridge_smoke",
+        "test_repl_history",
+        "test_resource_effect_checker",
+        "test_row_poly",
+        "test_split2",
+        "test_std_collections",
+        "test_std_lib_collections",
+        "test_std_modules_env_process_fs_binary",
+        "test_std_peg",
+        "test_enums_comprehensive",
+        "test_mac_exec_once_vm",
+        "test_launcher_capture",
+        "test_match_orpatterns",
+        "test_mac_exec_once"
+      ],
+      "skipped": [],
+      "passed": 215,
+      "cases": [
+        {
+          "name": "nl_syntax_literals",
+          "classname": "nanolang.nl.nl_syntax_literals",
+          "passed": true
+        },
+        {
+          "name": "nl_syntax_operators",
+          "classname": "nanolang.nl.nl_syntax_operators",
+          "passed": true
+        },
+        {
+          "name": "nl_types_bool_list",
+          "classname": "nanolang.nl.nl_types_bool_list",
+          "passed": true
+        },
+        {
+          "name": "nl_types_enum",
+          "classname": "nanolang.nl.nl_types_enum",
+          "passed": true
+        },
+        {
+          "name": "nl_types_struct",
+          "classname": "nanolang.nl.nl_types_struct",
+          "passed": true
+        },
+        {
+          "name": "nl_types_tuple",
+          "classname": "nanolang.nl.nl_types_tuple",
+          "passed": true
+        },
+        {
+          "name": "nl_control_array_elements",
+          "classname": "nanolang.nl.nl_control_array_elements",
+          "passed": true
+        },
+        {
+          "name": "nl_control_flow",
+          "classname": "nanolang.nl.nl_control_flow",
+          "passed": true
+        },
+        {
+          "name": "nl_control_match",
+          "classname": "nanolang.nl.nl_control_match",
+          "passed": true
+        },
+        {
+          "name": "nl_control_while",
+          "classname": "nanolang.nl.nl_control_while",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_array_param",
+          "classname": "nanolang.nl.nl_functions_array_param",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_audio_examples_default_args",
+          "classname": "nanolang.nl.nl_functions_audio_examples_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_filter",
+          "classname": "nanolang.nl.nl_functions_filter",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_map_reduce",
+          "classname": "nanolang.nl.nl_functions_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_introspection_flags",
+          "classname": "nanolang.nl.nl_functions_module_introspection_flags",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_module_metadata",
+          "classname": "nanolang.nl.nl_functions_module_metadata",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_nanoamp_default_args",
+          "classname": "nanolang.nl.nl_functions_nanoamp_default_args",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_relative_import",
+          "classname": "nanolang.nl.nl_functions_relative_import",
+          "passed": true
+        },
+        {
+          "name": "nl_functions_string_edges",
+          "classname": "nanolang.nl.nl_functions_string_edges",
+          "passed": true
+        },
+        {
+          "name": "tuple_advanced",
+          "classname": "nanolang.app.tuple_advanced",
+          "passed": true
+        },
+        {
+          "name": "tuple_basic",
+          "classname": "nanolang.app.tuple_basic",
+          "passed": true
+        },
+        {
+          "name": "tuple_params",
+          "classname": "nanolang.app.tuple_params",
+          "passed": true
+        },
+        {
+          "name": "tuple_typeinfo_test",
+          "classname": "nanolang.app.tuple_typeinfo_test",
+          "passed": true
+        },
+        {
+          "name": "nested_structs",
+          "classname": "nanolang.app.nested_structs",
+          "passed": true
+        },
+        {
+          "name": "test_nested_3d",
+          "classname": "nanolang.app.test_nested_3d",
+          "passed": true
+        },
+        {
+          "name": "test_nested_array_shadows",
+          "classname": "nanolang.app.test_nested_array_shadows",
+          "passed": true
+        },
+        {
+          "name": "test_nested_complex",
+          "classname": "nanolang.app.test_nested_complex",
+          "passed": true
+        },
+        {
+          "name": "test_nested_debug_root",
+          "classname": "nanolang.app.test_nested_debug_root",
+          "passed": true
+        },
+        {
+          "name": "test_nested_gc",
+          "classname": "nanolang.app.test_nested_gc",
+          "passed": true
+        },
+        {
+          "name": "test_nested_string_concat",
+          "classname": "nanolang.app.test_nested_string_concat",
+          "passed": true
+        },
+        {
+          "name": "test_affine_integration",
+          "classname": "nanolang.app.test_affine_integration",
+          "passed": true
+        },
+        {
+          "name": "test_algebraic_effects",
+          "classname": "nanolang.app.test_algebraic_effects",
+          "passed": true
+        },
+        {
+          "name": "test_all_imports",
+          "classname": "nanolang.app.test_all_imports",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_function_args",
+          "classname": "nanolang.app.test_anonymous_struct_function_args",
+          "passed": true
+        },
+        {
+          "name": "test_anonymous_struct_literal",
+          "classname": "nanolang.app.test_anonymous_struct_literal",
+          "passed": true
+        },
+        {
+          "name": "test_array_lit",
+          "classname": "nanolang.app.test_array_lit",
+          "passed": true
+        },
+        {
+          "name": "test_array_operators",
+          "classname": "nanolang.app.test_array_operators",
+          "passed": true
+        },
+        {
+          "name": "test_array_search_reverse",
+          "classname": "nanolang.app.test_array_search_reverse",
+          "passed": true
+        },
+        {
+          "name": "test_array_slice",
+          "classname": "nanolang.app.test_array_slice",
+          "passed": true
+        },
+        {
+          "name": "test_array_struct_comprehensive",
+          "classname": "nanolang.app.test_array_struct_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_async",
+          "classname": "nanolang.app.test_async",
+          "passed": true
+        },
+        {
+          "name": "test_boolean_precedence",
+          "classname": "nanolang.app.test_boolean_precedence",
+          "passed": true
+        },
+        {
+          "name": "test_break_continue",
+          "classname": "nanolang.app.test_break_continue",
+          "passed": true
+        },
+        {
+          "name": "test_bstring",
+          "classname": "nanolang.app.test_bstring",
+          "passed": true
+        },
+        {
+          "name": "test_builtins",
+          "classname": "nanolang.app.test_builtins",
+          "passed": true
+        },
+        {
+          "name": "test_builtins_phase1",
+          "classname": "nanolang.app.test_builtins_phase1",
+          "passed": true
+        },
+        {
+          "name": "test_bytes_conversion",
+          "classname": "nanolang.app.test_bytes_conversion",
+          "passed": true
+        },
+        {
+          "name": "test_casting",
+          "classname": "nanolang.app.test_casting",
+          "passed": true
+        },
+        {
+          "name": "test_complex",
+          "classname": "nanolang.app.test_complex",
+          "passed": true
+        },
+        {
+          "name": "test_concat",
+          "classname": "nanolang.app.test_concat",
+          "passed": true
+        },
+        {
+          "name": "test_cond",
+          "classname": "nanolang.app.test_cond",
+          "passed": true
+        },
+        {
+          "name": "test_constant_folding",
+          "classname": "nanolang.app.test_constant_folding",
+          "passed": true
+        },
+        {
+          "name": "test_debug_stacktrace",
+          "classname": "nanolang.app.test_debug_stacktrace",
+          "passed": true
+        },
+        {
+          "name": "test_driver_hello",
+          "classname": "nanolang.app.test_driver_hello",
+          "passed": true
+        },
+        {
+          "name": "test_driver_integration",
+          "classname": "nanolang.app.test_driver_integration",
+          "passed": true
+        },
+        {
+          "name": "test_dynamic_arrays",
+          "classname": "nanolang.app.test_dynamic_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_effects",
+          "classname": "nanolang.app.test_effects",
+          "passed": true
+        },
+        {
+          "name": "test_effects_pub",
+          "classname": "nanolang.app.test_effects_pub",
+          "passed": true
+        },
+        {
+          "name": "test_ensures",
+          "classname": "nanolang.app.test_ensures",
+          "passed": true
+        },
+        {
+          "name": "test_env",
+          "classname": "nanolang.app.test_env",
+          "passed": true
+        },
+        {
+          "name": "test_error_messages",
+          "classname": "nanolang.app.test_error_messages",
+          "passed": true
+        },
+        {
+          "name": "test_fn_call_assign",
+          "classname": "nanolang.app.test_fn_call_assign",
+          "passed": true
+        },
+        {
+          "name": "test_for_continue",
+          "classname": "nanolang.app.test_for_continue",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_loops",
+          "classname": "nanolang.app.test_for_in_loops",
+          "passed": true
+        },
+        {
+          "name": "test_for_in_range_scope_bug",
+          "classname": "nanolang.app.test_for_in_range_scope_bug",
+          "passed": true
+        },
+        {
+          "name": "test_format",
+          "classname": "nanolang.app.test_format",
+          "passed": true
+        },
+        {
+          "name": "test_fs_walkdir",
+          "classname": "nanolang.app.test_fs_walkdir",
+          "passed": true
+        },
+        {
+          "name": "test_gc_string_leak",
+          "classname": "nanolang.app.test_gc_string_leak",
+          "passed": true
+        },
+        {
+          "name": "test_generic_list_struct",
+          "classname": "nanolang.app.test_generic_list_struct",
+          "passed": true
+        },
+        {
+          "name": "test_generic_result",
+          "classname": "nanolang.app.test_generic_result",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union",
+          "classname": "nanolang.app.test_generic_union",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_match",
+          "classname": "nanolang.app.test_generic_union_match",
+          "passed": true
+        },
+        {
+          "name": "test_generic_union_non_generic",
+          "classname": "nanolang.app.test_generic_union_non_generic",
+          "passed": true
+        },
+        {
+          "name": "test_graphx",
+          "classname": "nanolang.app.test_graphx",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_generic_core",
+          "classname": "nanolang.app.test_hashmap_generic_core",
+          "passed": true
+        },
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "passed": false
+        },
+        {
+          "name": "test_hello",
+          "classname": "nanolang.app.test_hello",
+          "passed": true
+        },
+        {
+          "name": "test_higher_order",
+          "classname": "nanolang.app.test_higher_order",
+          "passed": true
+        },
+        {
+          "name": "test_hm_inference",
+          "classname": "nanolang.app.test_hm_inference",
+          "passed": true
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "passed": false
+        },
+        {
+          "name": "test_infix_operators",
+          "classname": "nanolang.app.test_infix_operators",
+          "passed": true
+        },
+        {
+          "name": "test_match_completeness",
+          "classname": "nanolang.app.test_match_completeness",
+          "passed": true
+        },
+        {
+          "name": "test_match_guards",
+          "classname": "nanolang.app.test_match_guards",
+          "passed": true
+        },
+        {
+          "name": "test_mathx",
+          "classname": "nanolang.app.test_mathx",
+          "passed": true
+        },
+        {
+          "name": "test_matrix4",
+          "classname": "nanolang.app.test_matrix4",
+          "passed": true
+        },
+        {
+          "name": "test_minimal",
+          "classname": "nanolang.app.test_minimal",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "passed": false
+        },
+        {
+          "name": "test_module_introspection_exports",
+          "classname": "nanolang.app.test_module_introspection_exports",
+          "passed": true
+        },
+        {
+          "name": "test_module_introspection_import",
+          "classname": "nanolang.app.test_module_introspection_import",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_comprehensive",
+          "classname": "nanolang.app.test_module_qualified_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_module_qualified_struct",
+          "classname": "nanolang.app.test_module_qualified_struct",
+          "passed": true
+        },
+        {
+          "name": "test_module_struct_qualification",
+          "classname": "nanolang.app.test_module_struct_qualification",
+          "passed": true
+        },
+        {
+          "name": "test_module_system",
+          "classname": "nanolang.app.test_module_system",
+          "passed": true
+        },
+        {
+          "name": "test_module_visibility",
+          "classname": "nanolang.app.test_module_visibility",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_basic",
+          "classname": "nanolang.app.test_namespace_basic",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_syntax",
+          "classname": "nanolang.app.test_namespace_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_namespace_transpiler",
+          "classname": "nanolang.app.test_namespace_transpiler",
+          "passed": true
+        },
+        {
+          "name": "test_nested",
+          "classname": "nanolang.app.test_nested",
+          "passed": true
+        },
+        {
+          "name": "test_opaque_basic",
+          "classname": "nanolang.app.test_opaque_basic",
+          "passed": true
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "passed": false
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "passed": false
+        },
+        {
+          "name": "test_par_blocks",
+          "classname": "nanolang.app.test_par_blocks",
+          "passed": true
+        },
+        {
+          "name": "test_par_let",
+          "classname": "nanolang.app.test_par_let",
+          "passed": true
+        },
+        {
+          "name": "test_path_ops_v2",
+          "classname": "nanolang.app.test_path_ops_v2",
+          "passed": true
+        },
+        {
+          "name": "test_pretty_printer",
+          "classname": "nanolang.app.test_pretty_printer",
+          "passed": true
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "passed": false
+        },
+        {
+          "name": "test_profile",
+          "classname": "nanolang.app.test_profile",
+          "passed": true
+        },
+        {
+          "name": "test_proptest",
+          "classname": "nanolang.app.test_proptest",
+          "passed": true
+        },
+        {
+          "name": "test_pub_extern_fn",
+          "classname": "nanolang.app.test_pub_extern_fn",
+          "passed": true
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "passed": false
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "passed": false
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "passed": false
+        },
+        {
+          "name": "test_qualified_names",
+          "classname": "nanolang.app.test_qualified_names",
+          "passed": true
+        },
+        {
+          "name": "test_quaternion",
+          "classname": "nanolang.app.test_quaternion",
+          "passed": true
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "passed": false
+        },
+        {
+          "name": "test_requires",
+          "classname": "nanolang.app.test_requires",
+          "passed": true
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "passed": false
+        },
+        {
+          "name": "test_resource_syntax",
+          "classname": "nanolang.app.test_resource_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_resource_tracking",
+          "classname": "nanolang.app.test_resource_tracking",
+          "passed": true
+        },
+        {
+          "name": "test_resource_valid_use",
+          "classname": "nanolang.app.test_resource_valid_use",
+          "passed": true
+        },
+        {
+          "name": "test_result_let",
+          "classname": "nanolang.app.test_result_let",
+          "passed": true
+        },
+        {
+          "name": "test_result_syntax",
+          "classname": "nanolang.app.test_result_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "passed": false
+        },
+        {
+          "name": "test_setenv_shadow",
+          "classname": "nanolang.app.test_setenv_shadow",
+          "passed": true
+        },
+        {
+          "name": "test_shadow_scope_redefinition",
+          "classname": "nanolang.app.test_shadow_scope_redefinition",
+          "passed": true
+        },
+        {
+          "name": "test_simple_constant",
+          "classname": "nanolang.app.test_simple_constant",
+          "passed": true
+        },
+        {
+          "name": "test_simple_math_introspection",
+          "classname": "nanolang.app.test_simple_math_introspection",
+          "passed": true
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "passed": false
+        },
+        {
+          "name": "test_standalone_if_comprehensive",
+          "classname": "nanolang.app.test_standalone_if_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "passed": false
+        },
+        {
+          "name": "test_std_fs",
+          "classname": "nanolang.app.test_std_fs",
+          "passed": true
+        },
+        {
+          "name": "test_std_json",
+          "classname": "nanolang.app.test_std_json",
+          "passed": true
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "passed": false
+        },
+        {
+          "name": "test_std_math_extended",
+          "classname": "nanolang.app.test_std_math_extended",
+          "passed": true
+        },
+        {
+          "name": "test_std_math_extended_full",
+          "classname": "nanolang.app.test_std_math_extended_full",
+          "passed": true
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "passed": false
+        },
+        {
+          "name": "test_std_modules_simple",
+          "classname": "nanolang.app.test_std_modules_simple",
+          "passed": true
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "passed": false
+        },
+        {
+          "name": "test_std_regex_groups_uaf",
+          "classname": "nanolang.app.test_std_regex_groups_uaf",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_arrays",
+          "classname": "nanolang.app.test_stdlib_arrays",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_namespaces",
+          "classname": "nanolang.app.test_stdlib_namespaces",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_result",
+          "classname": "nanolang.app.test_stdlib_result",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_strings",
+          "classname": "nanolang.app.test_stdlib_strings",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus",
+          "classname": "nanolang.app.test_string_plus",
+          "passed": true
+        },
+        {
+          "name": "test_string_plus_nested",
+          "classname": "nanolang.app.test_string_plus_nested",
+          "passed": true
+        },
+        {
+          "name": "test_struct_string_corruption",
+          "classname": "nanolang.app.test_struct_string_corruption",
+          "passed": true
+        },
+        {
+          "name": "test_symbol_scoping",
+          "classname": "nanolang.app.test_symbol_scoping",
+          "passed": true
+        },
+        {
+          "name": "test_tmp_files",
+          "classname": "nanolang.app.test_tmp_files",
+          "passed": true
+        },
+        {
+          "name": "test_top_level_constants",
+          "classname": "nanolang.app.test_top_level_constants",
+          "passed": true
+        },
+        {
+          "name": "test_types_comprehensive",
+          "classname": "nanolang.app.test_types_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_u8_basic",
+          "classname": "nanolang.app.test_u8_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unary_operators",
+          "classname": "nanolang.app.test_unary_operators",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_basic",
+          "classname": "nanolang.app.test_unsafe_basic",
+          "passed": true
+        },
+        {
+          "name": "test_unsafe_syntax",
+          "classname": "nanolang.app.test_unsafe_syntax",
+          "passed": true
+        },
+        {
+          "name": "test_vector2d",
+          "classname": "nanolang.app.test_vector2d",
+          "passed": true
+        },
+        {
+          "name": "test_vector3d",
+          "classname": "nanolang.app.test_vector3d",
+          "passed": true
+        },
+        {
+          "name": "test_vector4d",
+          "classname": "nanolang.app.test_vector4d",
+          "passed": true
+        },
+        {
+          "name": "test_vm_value_contracts",
+          "classname": "nanolang.app.test_vm_value_contracts",
+          "passed": true
+        },
+        {
+          "name": "test_walkdir",
+          "classname": "nanolang.app.test_walkdir",
+          "passed": true
+        },
+        {
+          "name": "refresh_getting_started_hello",
+          "classname": "nanolang.app.refresh_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "refresh_language_bindings",
+          "classname": "nanolang.app.refresh_language_bindings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_arrays",
+          "classname": "nanolang.app.ug_canonical_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_cond",
+          "classname": "nanolang.app.ug_canonical_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_enum",
+          "classname": "nanolang.app.ug_canonical_enum",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_fn",
+          "classname": "nanolang.app.ug_canonical_fn",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_for",
+          "classname": "nanolang.app.ug_canonical_for",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_if",
+          "classname": "nanolang.app.ug_canonical_if",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_prefix",
+          "classname": "nanolang.app.ug_canonical_prefix",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_strings",
+          "classname": "nanolang.app.ug_canonical_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_struct",
+          "classname": "nanolang.app.ug_canonical_struct",
+          "passed": true
+        },
+        {
+          "name": "ug_canonical_while",
+          "classname": "nanolang.app.ug_canonical_while",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_cond",
+          "classname": "nanolang.app.ug_control_flow_cond",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_for",
+          "classname": "nanolang.app.ug_control_flow_for",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_if",
+          "classname": "nanolang.app.ug_control_flow_if",
+          "passed": true
+        },
+        {
+          "name": "ug_control_flow_loops",
+          "classname": "nanolang.app.ug_control_flow_loops",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_contracts_combined",
+          "classname": "nanolang.app.ug_fn_contracts_combined",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_ensures_basic",
+          "classname": "nanolang.app.ug_fn_ensures_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fn_requires_basic",
+          "classname": "nanolang.app.ug_fn_requires_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_arg",
+          "classname": "nanolang.app.ug_fstring_arg",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_basic",
+          "classname": "nanolang.app.ug_fstring_basic",
+          "passed": true
+        },
+        {
+          "name": "ug_fstring_exprs",
+          "classname": "nanolang.app.ug_fstring_exprs",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_arithmetic",
+          "classname": "nanolang.app.ug_getting_started_arithmetic",
+          "passed": true
+        },
+        {
+          "name": "ug_getting_started_hello",
+          "classname": "nanolang.app.ug_getting_started_hello",
+          "passed": true
+        },
+        {
+          "name": "ug_modules_std_json",
+          "classname": "nanolang.app.ug_modules_std_json",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_builtin_map_reduce",
+          "classname": "nanolang.app.ug_patterns_builtin_map_reduce",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_first_class",
+          "classname": "nanolang.app.ug_patterns_first_class",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_fold",
+          "classname": "nanolang.app.ug_patterns_fold",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_logging_trace_coverage",
+          "classname": "nanolang.app.ug_patterns_logging_trace_coverage",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_match_union",
+          "classname": "nanolang.app.ug_patterns_match_union",
+          "passed": true
+        },
+        {
+          "name": "ug_patterns_unsafe_extern",
+          "classname": "nanolang.app.ug_patterns_unsafe_extern",
+          "passed": true
+        },
+        {
+          "name": "ug_types_arrays",
+          "classname": "nanolang.app.ug_types_arrays",
+          "passed": true
+        },
+        {
+          "name": "ug_types_bools",
+          "classname": "nanolang.app.ug_types_bools",
+          "passed": true
+        },
+        {
+          "name": "ug_types_enums",
+          "classname": "nanolang.app.ug_types_enums",
+          "passed": true
+        },
+        {
+          "name": "ug_types_generics",
+          "classname": "nanolang.app.ug_types_generics",
+          "passed": true
+        },
+        {
+          "name": "ug_types_hashmap",
+          "classname": "nanolang.app.ug_types_hashmap",
+          "passed": true
+        },
+        {
+          "name": "ug_types_strings",
+          "classname": "nanolang.app.ug_types_strings",
+          "passed": true
+        },
+        {
+          "name": "ug_types_structs",
+          "classname": "nanolang.app.ug_types_structs",
+          "passed": true
+        },
+        {
+          "name": "ug_types_tuples",
+          "classname": "nanolang.app.ug_types_tuples",
+          "passed": true
+        },
+        {
+          "name": "test_generics_comprehensive",
+          "classname": "nanolang.unit.test_generics_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_record_array_projection",
+          "classname": "nanolang.unit.test_record_array_projection",
+          "passed": true
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "passed": false
+        },
+        {
+          "name": "test_cseed_nested_array_literals",
+          "classname": "nanolang.unit.test_cseed_nested_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_match_wildcard",
+          "classname": "nanolang.unit.test_match_wildcard",
+          "passed": true
+        },
+        {
+          "name": "test_pipe_operator",
+          "classname": "nanolang.unit.test_pipe_operator",
+          "passed": true
+        },
+        {
+          "name": "test_c_backend",
+          "classname": "nanolang.unit.test_c_backend",
+          "passed": true
+        },
+        {
+          "name": "test_unions_match_comprehensive",
+          "classname": "nanolang.unit.test_unions_match_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_type_inference",
+          "classname": "nanolang.unit.test_type_inference",
+          "passed": true
+        },
+        {
+          "name": "test_string_interpolation",
+          "classname": "nanolang.unit.test_string_interpolation",
+          "passed": true
+        },
+        {
+          "name": "test_operators_comprehensive",
+          "classname": "nanolang.unit.test_operators_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_dwarf_debug",
+          "classname": "nanolang.unit.test_dwarf_debug",
+          "passed": true
+        },
+        {
+          "name": "test_fstring_comprehensive",
+          "classname": "nanolang.unit.test_fstring_comprehensive",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "passed": false
+        },
+        {
+          "name": "test_empty_record_array_fields",
+          "classname": "nanolang.unit.test_empty_record_array_fields",
+          "passed": true
+        },
+        {
+          "name": "test_control_flow",
+          "classname": "nanolang.unit.test_control_flow",
+          "passed": true
+        },
+        {
+          "name": "test_native_generic_contexts",
+          "classname": "nanolang.unit.test_native_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_wasm_simd",
+          "classname": "nanolang.unit.test_wasm_simd",
+          "passed": true
+        },
+        {
+          "name": "test_map_constructor_contexts",
+          "classname": "nanolang.unit.test_map_constructor_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "passed": false
+        },
+        {
+          "name": "test_native_nested_generics",
+          "classname": "nanolang.unit.test_native_nested_generics",
+          "passed": true
+        },
+        {
+          "name": "test_match_orpatterns",
+          "classname": "nanolang.unit.test_match_orpatterns",
+          "passed": false
+        },
+        {
+          "name": "test_profile_runtime",
+          "classname": "nanolang.unit.test_profile_runtime",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_functions",
+          "classname": "nanolang.unit.test_firstclass_functions",
+          "passed": true
+        },
+        {
+          "name": "test_selfhost_generic_contexts",
+          "classname": "nanolang.unit.test_selfhost_generic_contexts",
+          "passed": true
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "passed": false
+        },
+        {
+          "name": "test_lambdas",
+          "classname": "nanolang.unit.test_lambdas",
+          "passed": true
+        },
+        {
+          "name": "03_union_multiple_fields",
+          "classname": "nanolang.unit.03_union_multiple_fields",
+          "passed": true
+        },
+        {
+          "name": "04_union_mixed_types",
+          "classname": "nanolang.unit.04_union_mixed_types",
+          "passed": true
+        },
+        {
+          "name": "02_union_with_fields",
+          "classname": "nanolang.unit.02_union_with_fields",
+          "passed": true
+        },
+        {
+          "name": "01_simple_union_def",
+          "classname": "nanolang.unit.01_simple_union_def",
+          "passed": true
+        },
+        {
+          "name": "test_for_list",
+          "classname": "nanolang.unit.test_for_list",
+          "passed": true
+        },
+        {
+          "name": "test_generics",
+          "classname": "nanolang.unit.test_generics",
+          "passed": true
+        },
+        {
+          "name": "test_firstclass_simple",
+          "classname": "nanolang.unit.test_firstclass_simple",
+          "passed": true
+        },
+        {
+          "name": "test_cseed_record_array_literals",
+          "classname": "nanolang.unit.test_cseed_record_array_literals",
+          "passed": true
+        },
+        {
+          "name": "test_tuple_destructuring",
+          "classname": "nanolang.unit.test_tuple_destructuring",
+          "passed": true
+        },
+        {
+          "name": "test_legacy_binary64_parse",
+          "classname": "nanolang.unit.test_legacy_binary64_parse",
+          "passed": true
+        },
+        {
+          "name": "test_map_field_operations",
+          "classname": "nanolang.unit.test_map_field_operations",
+          "passed": true
+        },
+        {
+          "name": "test_stdlib_comprehensive",
+          "classname": "nanolang.unit.test_stdlib_comprehensive",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "scope": "I retain the complete original four-route result at the async candidate, not a passing complete corpus or a result for the newer OR/filter candidates. I preserve every original failure and skipped-case observation."
+}
