@@ -38,3 +38,24 @@ Python compilation, CLI help and the YAML-preservation check pass locally.
 I keep C, NanoLang, Make and test inputs unchanged from 8fd8c0c78. Actual hosted
 profiling still requires the new mode's result. This diagnostic neither replaces
 existing component/fresh/platform gates nor qualifies the unfinished 5.1 release.
+
+
+My actual corrected-OR candidate at exact 8fd8c0c78 has a successful complete
+Linux Clang component job in run 42547244063. Its GCC source creation reaches
+the original deadline after starting 1,059/completing 1,058 shadows, with
+9.671501 summed completed-body seconds. Apple run 42547247624 reaches the same
+deadline after starting 1,012/completing 1,011, with 9.878445 completed-body
+seconds. Completed bodies report zero assertion failures; neither worker
+publishes a source compiler. These are actual current-candidate deadline
+failures, not a demonstrated infrastructure diagnosis.
+
+I retain both intermediate attempt ZIP inventories/texts, CRC/hash observations,
+source/provider stability and comparisons of every retained NanoLang source
+input against exact Git 8fd8c0c78 under source-8fd8-{gcc,apple}/. The remainder
+of Apple's job was still running when these intermediate artifacts were read;
+Clang's success does not qualify the failing workers or the release.
+
+The optional sampler runs at exact f18474b85 in workflow run 42548134459.
+It passes provisioning/headroom/tool selection and correctly skips the six-
+attempt mode only because sampling was explicitly requested. Actual profiler
+output is still pending; no CPU sample is claimed by these local records.
