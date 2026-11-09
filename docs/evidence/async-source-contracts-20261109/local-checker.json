@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component"
+  ],
+  "returncode": 0,
+  "seconds": 43.060680874972604,
+  "before": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/parser.nano": "d4a901358b40fe32216a247f96ac91565ab7fb229091f741dc0ab0f83cc8fab7",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b",
+    "src_nano/compiler/nanoisa_codegen.nano": "54027ba9b65b894ace845bff8433cd9a4519c29daea8eb7964919c327662f353"
+  },
+  "after": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/parser.nano": "d4a901358b40fe32216a247f96ac91565ab7fb229091f741dc0ab0f83cc8fab7",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b",
+    "src_nano/compiler/nanoisa_codegen.nano": "54027ba9b65b894ace845bff8433cd9a4519c29daea8eb7964919c327662f353"
+  },
+  "scope": "I execute the original checker component with changed parser/lexer and the pinned existing C provider. This does not execute the additional NanoISA emitter shadow or establish current C-provider source provenance."
+}

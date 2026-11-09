@@ -1,0 +1,24 @@
+{
+  "scope": "I check my modified Nano sources with the existing local C provider. I pin its actual binary, but do not establish its current-source provenance or native/runtime execution. Target C does not execute shadows.",
+  "argv": [
+    "bin/nanoc_c",
+    "src_nano/typecheck_driver.nano",
+    "--target",
+    "c",
+    "-o",
+    ".test_output/async-source-syntax.c"
+  ],
+  "returncode": 1,
+  "seconds": 0.06804508302593604,
+  "before": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b",
+    "src_nano/parser.nano": "cab268f3f02d9c6947a851297e6689a024e1d758c7a85412e085b95f9d4c07aa"
+  },
+  "after": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b",
+    "src_nano/parser.nano": "cab268f3f02d9c6947a851297e6689a024e1d758c7a85412e085b95f9d4c07aa"
+  },
+  "generated_sha256": null
+}
