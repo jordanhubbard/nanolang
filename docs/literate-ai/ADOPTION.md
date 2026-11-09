@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:473072f9e1e31603b3563dd960b96b96a01ceea5616b1d036cc76dfac9baa39d -->
+<!-- literate-ai:authority-reviewed sha256:9c519962ecc6ccdad6dacb4d5d5dd7758ab900b9ae099f3d1df9878378659230 -->
 
 ## My first metadata checkpoint
 
@@ -455,3 +455,36 @@ carrier lifetime, full fresh/corpus/budget, NativeSDK/lifecycle, security and
 release remain open. Original source authority, eight integration Components,
 empty native selections and absent lifecycle receipt are unchanged. I freeze
 this catalog before supported review and retain final logs outside it.
+
+
+## My optional factory process observation
+
+I preserve the completed GCC/Apple record-field comparisons, including the
+first Apple baseline deadline and both whole-factory wall regressions. I add
+read-only, false-by-default process observation to the existing fixed six-
+attempt diagnostic. I retain only the actual factory root and transitive
+descendants, with PID/PPID/start identity, status, ps comm and monotonic snapshot
+bounds. Process presence is not exact CPU time or resolved image provenance.
+I change no runtime/provider source, actual factory tool selection/environment,
+cache context, selected shadows or original deadlines. Observer overhead and
+failures remain visible, and the original completed comparisons are not retried.
+
+My original-source baseline is `e718c78e67b99ff5517141f28f91c96e762ab7ca`, a real
+direct child of `6bb9c6bd3` with all 92,821 entries and exactly three reviewed
+content changes: the comparison script, its existing controls and diagnostic
+workflow. My first local sparse-checkout attempt has an unpopulated complete
+index and commits only three entries. I reject it before publication, retain
+its identity and correct the index before constructing and merging the complete
+checkpoint. I verify exact entry count, direct parent, changed paths and a clean
+owned checkout; no partial source tree becomes custody authority.
+
+All thirteen bounded local controls pass. My retained actual native witness
+checks native output/refusal, real parent/child identities, an excluded live
+sibling, source/image before/after hashes and actual snapshots. I retain
+commands, the initial checkpoint refusal and scope outside this catalog under
+`docs/evidence/factory-process-phases-20261109/`. Full provider builds remain
+held locally for disk pressure; hosted process diagnosis, complete source/
+fresh/platform and original release gates remain required. I preserve original
+source authority, eight integration Components, empty native implementation
+selections and absent lifecycle receipt. I freeze this catalog before supported
+review; these controls do not complete NativeSDK/lifecycle or release admission.
