@@ -1,0 +1,15 @@
+{
+  "previous": "9f7561afc3122623c1897b80f3bc782354d2b5a2",
+  "checkpoint": "fd6dc793ea2f53a5736f2e70ab8b1c714f69b1f1",
+  "implementation": "419e738cbc0e2cc0fdabca3639de010da2b10cc7",
+  "tree": "9ad5c30f61c86a2ed03f33019d4173974049930a",
+  "entries": 92836,
+  "changed_paths": [
+    ".github/workflows/cseed-kernel-exit.yml",
+    ".github/workflows/cseed-kernel-exit-controls.yml",
+    "scripts/observe_cseed_kernel_exit.py",
+    "tests/test_cseed_kernel_exit.py"
+  ],
+  "added_source_paths": 1,
+  "scope": "I preserve a complete independent Git index, retain every original path/mode/object entry and update exactly four reviewed controller/test/workflow paths. The automatic control gate replays retained data; it does not launch another source factory or kernel capture."
+}
