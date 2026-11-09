@@ -186,7 +186,7 @@ jobs:
       - name: Execute my checked collection lifetimes and original array exports
         run: |
           set -o pipefail
-          make -f Makefile.gnu CC="$CC" test-collection-handles test-collection-array-exports \
+          make -f Makefile.gnu CC="$CC" test-collection-handles test-collection-array-exports test-collection-snapshot-release test-ffi-array-copyback \
             2>&1 | tee .test_output/string-builtin-operands/collection-handles.log
       - name: Build actual fresh VM and C AOT providers
         id: providers
@@ -205,6 +205,14 @@ jobs:
           Path('.test_output/string-builtin-operands/providers.sha256').write_text(manifest)
           PY
           "$CC" --version > .test_output/string-builtin-operands/compiler.txt
+      - name: Execute actual VM snapshot cleanup and ownership refusals
+        env:
+          NANO_SNAPSHOT_VM: ${{ github.workspace }}/bin/nano_vm
+          NANO_SNAPSHOT_ASSEMBLER: ${{ github.workspace }}/bin/nanoisa
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_ffi_result_release \
+            2>&1 | tee .test_output/string-builtin-operands/snapshot-vm.log
       - name: Execute my existing C lexer fixture controls
         run: |
           set -o pipefail
@@ -362,6 +370,9 @@ jobs:
           path: |
             .test_output/string-builtin-operands/
             .test_output/collection-handles-*/
+            .test_output/collection-snapshots-*/
+            .test_output/ffi-array-results-*/
+            .test_output/ffi-result-release-*/
             .test_output/source-checker-component/
             .test_output/retirement/capture-toolchain.json
             .test_output/retirement/selected-tools/

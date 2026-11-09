@@ -47,4 +47,11 @@ void nl_set_remove(void* set, const char* key);
 void nl_set_clear(void* set);
 void nl_set_free(void* set);
 
+/* I consume a unique, unmodified managed snapshot returned by this provider's collection
+ * exports, after a foreign consumer has copied it. False means refusal without
+ * consuming the result. Ordinary C manual element cleanup remains available. */
+bool nl_hm_keys__nano_array_release_v1(void *result);
+bool nl_hm_values__nano_array_release_v1(void *result);
+bool nl_set_values__nano_array_release_v1(void *result);
+
 #endif
