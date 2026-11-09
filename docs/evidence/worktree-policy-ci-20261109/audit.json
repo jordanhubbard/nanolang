@@ -1,0 +1,10 @@
+{
+  "exact_source": "bf2fb83492d0b32e0afe930f1126009417708466",
+  "workflow_conclusion": "success",
+  "sanitizer_job_conclusion": "failure",
+  "verified_successful_bootstrap_step_logs": 17,
+  "manifest_raw_stage1_stage2_equal": true,
+  "failure": "I retain the original 3600-second Stage 2 nanoisa_driver.nano to bin/nanoisa_emitter creation deadline. Make exits2 after its selected entry assertions complete; the negative sanitizer step is skipped.",
+  "scope": "I independently check log bytes and the artifact CRC/inventory. The artifact does not retain the actual native/module images for an independent product-byte audit here. A successful overall continue-on-error workflow does not satisfy full sanitizer acceptance.",
+  "release_qualified": false
+}
