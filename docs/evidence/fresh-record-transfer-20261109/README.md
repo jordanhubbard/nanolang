@@ -1,4 +1,8 @@
-# My fresh local record transfer candidate
+# My rejected fresh record transfer candidate
+
+I reject this optimization after its fixed whole-source comparison and restore
+production bindings byte-for-byte from52933101c. I retain the actual evaluator
+regressions and experiment history below; the transfer is not adopted.
 
 I follow the measured binding experiment from PR #1137. I change only the
 evaluated-let binding path: a completed `AST_STRUCT_LITERAL` whose value is
@@ -81,3 +85,32 @@ workflow at my final test pin for the complete original interpreter suite,
 including this global control. I retain its exact original flags, selected
 tests and budgets. The running complete component and six-attempt comparison
 plans remain on their original pins and handles; production bytes are unchanged.
+
+## My failed whole-source adoption gate and retirement
+
+Fixed GCC run42598208925 completes all six declared attempts with valid
+comparison protocol. Baseline attempts1/5 create native compilers and attempt4
+fails the unchanged ten-second shadow rule. Candidate attempts2/3/6 all fail
+that rule: attempt2 completes1270 of1271 started bodies, while3/6 complete all
+1286 before the supervision failure. Every completed assertion count is zero.
+The full-corpus candidate body sums are9.874466s and9.845426s; baseline full sums
+are9.544708s,9.690298s and9.509501s. Body sums do not establish actual reap time
+or a historical failure cause. No complete successful pair supports a
+whole-factory percentage.
+
+My standalone audit verifies all55 archive entries,197 shared Git inputs,
+67 stable source/provider inputs per factory and both actual C seed images
+against their recorded hashes. Two baseline-created ELF compilers match their
+before/after product hashes; this factory does not execute them. I retain all
+four actual ELF images losslessly under .test_output/fresh-transfer-comparison-native/.
+Other provider and host-tool hashes are reports without uploaded native SDK
+bytes. The report and complete text/inventory records are in comparison-audit/.
+
+I reject adoption and restore src/env.c and the optimization-specific environment
+API test byte-for-byte from52933101c. I retain the meaningful evaluator tests
+for record literals, spreads, copies, global initialization, callbacks and
+escapes, and the workflow's complete interpreter invocation. I do not rerun
+this completed comparison for a better sample. Complete Clang/Apple component
+passes describe the tested candidate pin; they do not replace the failed fixed
+comparison, qualify the restored final head or close source reliability/frame
+reclamation.

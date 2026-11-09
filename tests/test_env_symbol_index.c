@@ -354,88 +354,6 @@ static void check_evaluated_string_bindings(void) {
     assert(!gc_is_managed(pointer));
 }
 
-/* I transfer completed local literals and preserve every borrowed/copy route. */
-static void check_evaluated_record_bindings(void) {
-    GCStats before = gc_get_stats();
-    Environment *env = create_environment();
-    ASTNode literal = {.type = AST_STRUCT_LITERAL};
-    ASTNode identifier = {.type = AST_IDENTIFIER};
-    ASTNode call = {.type = AST_CALL};
-    TypeInfo info = {.base_type = TYPE_STRUCT};
-    char owner[] = "owner.nano";
-    env_set_current_file(env, owner);
-    Value array = create_array(VAL_INT, 1, 1);
-    ((long long *)array.as.array_val->data)[0] = 42;
-    Value fields[] = {create_string("owned"), array};
-    char *names[] = {"茶", "array"};
-    Value inner = create_struct("Inner", names, fields, 2);
-    gc_release(fields[0].as.string_val);
-    char *outer_names[] = {"inner"};
-    Value fresh = create_struct("é", outer_names, &inner, 1);
-    discard_literal_record(inner.as.struct_val);
-    env_define_evaluated_var(env, "fresh", TYPE_STRUCT, TYPE_UNKNOWN, &info,
-                             true, fresh, &literal);
-    Symbol *bound = env_get_var(env, "fresh");
-    assert(bound->value.as.struct_val == fresh.as.struct_val);
-    assert(bound->type_info == &info && bound->is_mut && bound->def_file == owner);
-    assert(!strcmp(bound->value.as.struct_val->struct_name, "é"));
-    env_define_evaluated_var(env, "copy", TYPE_STRUCT, TYPE_UNKNOWN, &info,
-                             false, fresh, &identifier);
-    StructValue *copy = env_get_var(env, "copy")->value.as.struct_val;
-    assert(copy != fresh.as.struct_val);
-    StructValue *copied_inner = copy->field_values[0].as.struct_val;
-    StructValue *original_inner = fresh.as.struct_val->field_values[0].as.struct_val;
-    assert(copied_inner != original_inner);
-    assert(copied_inner->field_values[0].as.string_val != original_inner->field_values[0].as.string_val);
-    assert(copied_inner->field_values[1].as.array_val == array.as.array_val);
-    ((long long *)array.as.array_val->data)[0] = 71;
-    assert(((long long *)copied_inner->field_values[1].as.array_val->data)[0] == 71);
-    bound = env_get_var(env, "fresh");
-    bound->value = create_void();
-    discard_literal_record(fresh.as.struct_val);
-    assert(!strcmp(copied_inner->field_values[0].as.string_val, "owned"));
-    discard_literal_record(copy);
-    env_get_var(env, "copy")->value = create_void();
-    for (int route = 0; route < 7; ++route) {
-        fresh = create_struct("", NULL, NULL, 0);
-        ASTNode *expression = route == 0 ? &call : route == 1 ? NULL : &literal;
-        fresh.is_return = route == 2;
-        fresh.is_break = route == 3;
-        fresh.is_continue = route == 4;
-        if (route == 5) {
-            env_define_var(env, "route", TYPE_STRUCT, false, fresh);
-        } else if (route == 6) {
-            env_define_var_with_type_info(env, "route", TYPE_STRUCT, TYPE_UNKNOWN,
-                                          &info, false, fresh);
-        } else {
-            env_define_evaluated_var(env, "route", TYPE_STRUCT, TYPE_UNKNOWN,
-                                     &info, false, fresh, expression);
-        }
-        Value held = env_get_var(env, "route")->value;
-        assert(held.type == VAL_STRUCT && held.as.struct_val != fresh.as.struct_val);
-        discard_literal_record(fresh.as.struct_val);
-        discard_literal_record(held.as.struct_val);
-        env_get_var(env, "route")->value = create_void();
-    }
-    fresh = create_struct("Borrowed", NULL, NULL, 0);
-    for (int mut = 0; mut < 2; ++mut) {
-        env_define_evaluated_var(env, "borrow", mut ? TYPE_BORROW_MUT : TYPE_BORROW_SHARED,
-                                 TYPE_UNKNOWN, NULL, false, fresh, &literal);
-        assert(env_get_var(env, "borrow")->value.as.struct_val == fresh.as.struct_val);
-        env_get_var(env, "borrow")->value = create_void();
-    }
-    discard_literal_record(fresh.as.struct_val);
-    fresh = create_struct("", NULL, NULL, 0);
-    env_define_evaluated_var(env, "empty", TYPE_STRUCT, TYPE_UNKNOWN, NULL, false,
-                             fresh, &literal);
-    assert(env_get_var(env, "empty")->value.as.struct_val == fresh.as.struct_val);
-    free_environment(env);
-    free(array.as.array_val->data);
-    free(array.as.array_val);
-    GCStats after = gc_get_stats();
-    assert(after.current_usage == before.current_usage && after.num_objects == before.num_objects);
-}
-
 static void check_fresh_string_copy(void) {
     Environment *env = create_environment();
     Value caller = create_string("caller storage");
@@ -505,7 +423,6 @@ int main(void) {
     gc_init();
     check_function_index();
     check_evaluated_string_bindings();
-    check_evaluated_record_bindings();
     check_record_carriers();
     check_record_literal_cleanup();
     check_builtin_registry_selection();
