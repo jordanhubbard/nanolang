@@ -2714,6 +2714,17 @@ void test_eval_record_alias_across_direct_calls(void) {
     run_ctx_free(&ctx);
 }
 
+/* I inspect carrier names and tags; spreads can change their storage order. */
+static Value eval_test_record_field(Value record, const char *name) {
+    ASSERT(record.type == VAL_STRUCT && record.as.struct_val != NULL);
+    StructValue *carrier = record.as.struct_val;
+    for (int i = 0; i < carrier->field_count; ++i) {
+        if (strcmp(carrier->field_names[i], name) == 0) return carrier->field_values[i];
+    }
+    ASSERT(false);
+    return create_void();
+}
+
 /* I preserve escaping fresh locals, copied callers and nested borrowed fields. */
 void test_eval_fresh_record_local_transfer(void) {
     RunCtx ctx;
@@ -2740,10 +2751,17 @@ void test_eval_fresh_record_local_transfer(void) {
     for (int repeat = 0; repeat < 100; ++repeat) {
         Value result = call_function("make", NULL, 0, ctx.env);
         ASSERT_EQ(result.type, VAL_STRUCT);
-        StructValue *item = result.as.struct_val->field_values[0].as.struct_val;
-        ASSERT_EQ(item->field_values[0].as.int_val, 9);
-        ASSERT(strcmp(item->field_values[1].as.string_val, "spread") == 0);
-        Array *rows = result.as.struct_val->field_values[1].as.array_val;
+        Value item = eval_test_record_field(result, "item");
+        Value number = eval_test_record_field(item, "value");
+        Value label = eval_test_record_field(item, "label");
+        ASSERT_EQ(number.type, VAL_INT);
+        ASSERT_EQ(number.as.int_val, 9);
+        ASSERT_EQ(label.type, VAL_STRING);
+        ASSERT(strcmp(label.as.string_val, "spread") == 0);
+        Value values = eval_test_record_field(result, "rows");
+        ASSERT_EQ(values.type, VAL_ARRAY);
+        Array *rows = values.as.array_val;
+        ASSERT_EQ(rows->element_type, VAL_INT);
         ASSERT_EQ(rows->length, 2);
         ASSERT_EQ(((long long *)rows->data)[1], 42);
     }
@@ -2783,9 +2801,13 @@ void test_eval_fresh_record_call_and_list_escape(void) {
     Value held = call_function("List_Item_get", arguments, 2, ctx.env);
     ASSERT_EQ(held.type, VAL_STRUCT);
     ASSERT(held.as.struct_val == original.as.struct_val);
-    ASSERT(strcmp(held.as.struct_val->field_values[1].as.string_val, "keepme") == 0);
+    Value label = eval_test_record_field(held, "label");
+    ASSERT_EQ(label.type, VAL_STRING);
+    ASSERT(strcmp(label.as.string_val, "keepme") == 0);
     ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
-    ASSERT(strcmp(held.as.struct_val->field_values[1].as.string_val, "keepme") == 0);
+    label = eval_test_record_field(held, "label");
+    ASSERT_EQ(label.type, VAL_STRING);
+    ASSERT(strcmp(label.as.string_val, "keepme") == 0);
     gc_release((DynArray *)(intptr_t)list.as.int_val);
     run_ctx_free(&ctx);
 }
