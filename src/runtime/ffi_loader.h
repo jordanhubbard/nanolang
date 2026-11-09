@@ -82,6 +82,12 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
 bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
                                void *function, void (**release)(const char *),
                                char *error, size_t error_size);
+/* I resolve optional provider-owned array cleanup from the function's image.
+ * Missing companions preserve existing borrowed-result behavior. */
+bool ffi_loader_array_release(const char *module_name, const char *symbol_name,
+                              void *function, bool (**release)(void *),
+                              char *error, size_t error_size);
+
 
 /* I check a per-function native array ABI declaration in the function's own
  * loaded image. Missing declarations mean legacy version 1. This checks a

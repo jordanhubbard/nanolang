@@ -231,22 +231,21 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
     return ptr;
 }
 
-bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
-                               void *function, void (**release)(const char *),
-                               char *error, size_t error_size) {
+static bool ffi_loader_result_release(const char *module_name, const char *symbol_name,
+                                      void *function, const char *suffix, const char *kind,
+                                      void **release, char *error, size_t error_size) {
     if (!release) return false;
     *release = NULL;
     if (!module_name || !symbol_name || !function) return false;
-    const char suffix[] = "__nano_string_release_v1";
-    size_t length = strlen(symbol_name);
-    if (length > SIZE_MAX - sizeof suffix) return false;
-    char *name = malloc(length + sizeof suffix);
+    size_t length = strlen(symbol_name), suffix_size = strlen(suffix) + 1;
+    if (length > SIZE_MAX - suffix_size) return false;
+    char *name = malloc(length + suffix_size);
     if (!name) {
-        if (error && error_size) snprintf(error, error_size, "I could not allocate the string cleanup symbol");
+        if (error && error_size) snprintf(error, error_size, "I could not allocate the %s cleanup symbol", kind);
         return false;
     }
     memcpy(name, symbol_name, length);
-    memcpy(name + length, suffix, sizeof suffix);
+    memcpy(name + length, suffix, suffix_size);
     bool valid = false;
     pthread_rwlock_rdlock(&ffi_lock);
     for (int i = 0; i < module_count; ++i) {
@@ -256,7 +255,7 @@ bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
         Dl_info origin, companion;
         if (dladdr(function, &origin) && dladdr(cleanup, &companion) &&
             origin.dli_fbase == companion.dli_fbase) {
-            *release = (void (*)(const char *))cleanup;
+            *release = cleanup;
             valid = true;
         }
         break;
@@ -264,7 +263,29 @@ bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
     pthread_rwlock_unlock(&ffi_lock);
     free(name);
     if (!valid && error && error_size)
-        snprintf(error, error_size, "I require string cleanup from the called function's own image");
+        snprintf(error, error_size, "I require %s cleanup from the called function's own image", kind);
+    return valid;
+}
+
+bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
+                               void *function, void (**release)(const char *),
+                               char *error, size_t error_size) {
+    if (!release) return false;
+    void *cleanup = NULL;
+    bool valid = ffi_loader_result_release(module_name, symbol_name, function,
+        "__nano_string_release_v1", "string", &cleanup, error, error_size);
+    *release = (void (*)(const char *))cleanup;
+    return valid;
+}
+
+bool ffi_loader_array_release(const char *module_name, const char *symbol_name,
+                              void *function, bool (**release)(void *),
+                              char *error, size_t error_size) {
+    if (!release) return false;
+    void *cleanup = NULL;
+    bool valid = ffi_loader_result_release(module_name, symbol_name, function,
+        "__nano_array_release_v1", "array", &cleanup, error, error_size);
+    *release = (bool (*)(void *))cleanup;
     return valid;
 }
 

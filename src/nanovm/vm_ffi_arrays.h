@@ -24,5 +24,10 @@ bool vm_ffi_array_argument(VmFfiArrayFrame *frame, NanoValue value, void **out,
 VmArray *vm_ffi_array_import(VmHeap *heap, const DynArray *array, char *error, size_t size);
 bool vm_ffi_arrays_commit(VmFfiArrayFrame *frame, char *error, size_t size);
 bool vm_ffi_array_alias_result(VmFfiArrayFrame *frame, const void *pointer, NanoValue *out);
+/* I copy independent owned results before invoking cleanup, including failed
+ * conversions. An owned result may not alias an argument frame. */
+bool vm_ffi_array_result(VmFfiArrayFrame *frame, DynArray *native,
+                          bool (*release)(void *), NanoValue *out,
+                          char *error, size_t size);
 void vm_ffi_arrays_dispose(VmFfiArrayFrame *frame);
 #endif
