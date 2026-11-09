@@ -22,6 +22,10 @@ on:
         description: I compare on the existing qualified Apple toolchain.
         type: boolean
         default: false
+      sample_shadows:
+        description: I sample one actual Apple shadow child instead of running the alternating comparison; this is diagnostic only.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -55,12 +59,19 @@ jobs:
         if: runner.os == 'macOS'
         run: python3 scripts/ci_select_capture_clang.py
       - name: Retain all six planned actual factory attempts
+        if: ${{ !inputs.sample_shadows }}
         env:
           BASELINE_SHA: ${{ inputs.baseline || '9baeba459e6ea4c7ebd6c0694cb05fef4d36f401' }}
         run: |
           ulimit -c 0
           python3 scripts/compare_cseed_source_creation.py run \
             --baseline "$BASELINE_SHA" --output .test_output/cseed-source-comparison
+      - name: Sample one actual Apple shadow child without native publication
+        if: inputs.sample_shadows
+        run: |
+          ulimit -c 0
+          python3 scripts/profile_cseed_source_shadows.py \
+            --output .test_output/cseed-source-comparison/shadow-profile
       - name: Retain diagnostic evidence even when creation fails
         if: always()
         uses: actions/upload-artifact@v4
