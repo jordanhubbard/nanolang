@@ -1,0 +1,144 @@
+{
+  "source_pin": "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+  "archive": {
+    "bytes": 39522666,
+    "sha256": "e06ee1054ad70ed7e8a8f0823b7cbddd83742f47112973a701e15b97e7a95581",
+    "entries": 5703,
+    "all_entries_streamed_crc_checked": true
+  },
+  "native_executables": [
+    {
+      "name": "plain",
+      "kind": "ELF executable or PIE, corroborated by actual run operation",
+      "bytes": 8520800,
+      "sha256_before_after": "d6d5fce2886d33908795728d5bbc648d431700b92f11547278c31efe275442e1"
+    },
+    {
+      "name": "sanitized",
+      "kind": "ELF executable or PIE, corroborated by actual run operation",
+      "bytes": 8861200,
+      "sha256_before_after": "36d5da9ac7e817bc5fd71f87a1268e1ee3f256946923cc6932fefa7925d16350"
+    },
+    {
+      "name": "threaded",
+      "kind": "ELF executable or PIE, corroborated by actual run operation",
+      "bytes": 8562760,
+      "sha256_before_after": "463d710419b531c88ab699f34a1e68dd936ac2bdfd45a96bbe7196832d4f4470"
+    }
+  ],
+  "checked_inputs": {
+    "tests/test_collection_handles.py": "105670f58ab693647725288cdd1c2ff99e878759eeddfe0abf9d9b17371ae928",
+    "modules/std/collections/module.json": "56e6fb88377ac9419c8e9bd87031ef9c2872d2201e122cb3eaa7a4447ae6bea0",
+    "tests/test_collection_handles.c": "1bf2e160030f6783ded5c8c5ce6312838c3048db46b9d29ac911b325672675da",
+    "modules/std/collections/collections.c": "c64e63601e667c8e0c6483609ffff9e2006c6ce0f43760ed0df2858050af6fc9",
+    "modules/std/collections/collections.h": "1cfd45aaa4c6321e04171e2049b007ffc041d0733f57855ecdffe93106f6fbdc",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "operations": [
+    {
+      "label": "build-plain",
+      "command": [
+        "gcc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-plain",
+      "command": [
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-sanitized",
+      "command": [
+        "gcc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-sanitized",
+      "command": [
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-threaded",
+      "command": [
+        "gcc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=thread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/threaded"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-threaded",
+      "command": [
+        "/home/runner/work/nanolang/nanolang/.test_output/collection-handles-u5g9m5tg/threaded"
+      ],
+      "returncode": 0
+    }
+  ],
+  "compiler_report": {
+    "argv": [
+      "gcc"
+    ],
+    "observed_launcher": "/usr/bin/x86_64-linux-gnu-gcc-13",
+    "sha256_before_after": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26",
+    "version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "scope": "I retain selected input and compiler-launcher identities, not complete header or toolchain closure."
+  },
+  "scope": "I independently hash actual uploaded native bytes and every archive entry; match all selected inputs to the immutable Git pin; check executable headers, sanitizer symbols, exact commands and actual stdout/stderr. Compiler identity is a retained before/after report, not independent toolchain closure. Full component conclusions are recorded separately. I qualify neither source-field admission nor release."
+}
