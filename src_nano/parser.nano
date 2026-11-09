@@ -2912,6 +2912,11 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
+        # I retain the C seed's primary binding and synchronous scalar value.
+        if (== tok.token_type LexerTokenType.TOKEN_AWAIT) {
+            return (parse_primary (parser_advance p))
+        }
+
         if (and (== tok.token_type (token_lbrace)) (and (== (parser_peek p 1) (token_dot)) (== (parser_peek p 2) (token_dot)))) { return (parse_record_spread p) }
         # I leave the nominal name empty until a declared record context checks it.
         if (== tok.token_type (token_lbrace)) { return (parse_struct_literal (parser_advance p) "" tok.line tok.column) }
@@ -3510,6 +3515,16 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
+    let awaited: List<LexerToken> = (tokenize_string "await 1 + 2" "await.nano" (list_CompilerDiagnostic_new))
+    let primary: Parser = (parse_primary (parser_new awaited (list_LexerToken_length awaited) "await.nano"))
+    assert (not primary.has_error)
+    assert (== primary.last_expr_node_type ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_number primary primary.last_expr_node_id).value "1")
+    assert (== primary.position 2)
+    for source in ["await", "await }"] {
+        let tokens: List<LexerToken> = (tokenize_string source "await.nano" (list_CompilerDiagnostic_new))
+        assert (parser_has_error (parse_primary (parser_new tokens (list_LexerToken_length tokens) "await.nano")))
+    }
     for source in ["(! true)", "!true", "(not true)", "not true"] {
         let tokens: List<LexerToken> = (tokenize_string source "unary-bang.nano" (list_CompilerDiagnostic_new))
         let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "unary-bang.nano"))
@@ -6847,6 +6862,34 @@ shadow parser_mark_pure {
     assert (parser_get_function marked 0).is_pure
 }
 
+# I retain declaration identity without admitting retained ownership facts.
+fn parser_mark_async(p: Parser) -> Parser {
+    if (or (parser_has_error p) (<= p.functions_count 0)) { return p }
+    let index: int = (- p.functions_count 1)
+    let func: ASTFunction = (list_ASTFunction_get p.functions index)
+    (list_ASTFunction_set p.functions index (ASTFunction {
+        node_type: ParseNodeType.PNODE_ASYNC_FN, line: func.line, column: func.column,
+        name: func.name, param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure,
+        self_name: func.self_name, checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }))
+    return (parser_with_node p ParseNodeType.PNODE_ASYNC_FN index)
+}
+shadow parser_mark_async {
+    let empty: Parser = (parser_new (list_LexerToken_new) 0 "async.nano")
+    assert (== (parser_mark_async empty).functions_count 0)
+    let ordinary: Parser = (parser_store_function empty "answer" 2 1 "int" 7 3 4)
+    let parsed: Parser = (parser_mark_async ordinary)
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_ASYNC_FN)
+    assert (== parsed.last_expr_node_id 0)
+    let marked: ASTFunction = (parser_get_function parsed 0)
+    assert (== marked.node_type ParseNodeType.PNODE_ASYNC_FN)
+    assert (== marked.name "answer") assert (== marked.return_type "int")
+    assert (== marked.param_start 2) assert (== marked.param_count 1)
+    assert (== marked.body 7) assert (== marked.line 3) assert (== marked.column 4)
+    assert (== marked.checked_affine 0) assert (== marked.affine_completed_epoch 0)
+    assert (== (at marked.affine_owner 0) 0)
+}
+
 # I retain completion of the existing affine checker, never runtime authority.
 pub fn parser_set_function_affine(p: Parser, index: int, checked: int) -> void {
     let func: ASTFunction = (parser_get_function p index)
@@ -8992,6 +9035,9 @@ fn parse_definition(p: Parser) -> Parser {
             (print "")
         }
         
+        if (== tok.token_type LexerTokenType.TOKEN_ASYNC) {
+            return (parser_mark_async (parse_function_definition (parser_advance p_work)))
+        }
         if (== tok.token_type LexerTokenType.TOKEN_EFFECT) { return (parse_effect_declaration p_work is_pub) }
         if (and is_pub (== tok.token_type LexerTokenType.TOKEN_USE)) {
             return (parser_public_use p_work)
@@ -9117,6 +9163,18 @@ fn parse_definition(p: Parser) -> Parser {
 }
 
 shadow parse_definition {
+    let async_tokens: List<LexerToken> = (tokenize_string "async fn answer()->int{return await 42}" "async.nano" (list_CompilerDiagnostic_new))
+    let async_parser: Parser = (parse_program async_tokens (list_LexerToken_length async_tokens) "async.nano")
+    assert (not async_parser.has_error)
+    assert (== async_parser.functions_count 1)
+    let async_function: ASTFunction = (parser_get_function async_parser 0)
+    assert (== async_function.node_type ParseNodeType.PNODE_ASYNC_FN)
+    assert (== async_function.line 1) assert (== async_function.column 7)
+    assert (== async_function.name "answer")
+    for source in ["async", "async let value:int=1", "async fn", "async fn value()->int{return await}"] {
+        let malformed: List<LexerToken> = (tokenize_string source "async.nano" (list_CompilerDiagnostic_new))
+        assert (parser_has_error (parse_program malformed (list_LexerToken_length malformed) "async.nano"))
+    }
     let tokens: List<LexerToken> = (tokenize_string "pub let answer: int = 41\nlet hidden: int = 9" "visibility.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "visibility.nano")
     assert (not p.has_error)
