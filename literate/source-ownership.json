@@ -1,6 +1,6 @@
 {
   "schema": "nanolang/source-preservation-policy@1",
-  "baseline_commit": "e718c78e67b99ff5517141f28f91c96e762ab7ca",
+  "baseline_commit": "237e76d16f9a555e5c47164f676623ac3834f15e",
   "purpose": "Original Git path/mode/blob preservation ownership; not native producer or SBOM admission",
   "owners": {
     "isa": [
@@ -64,5 +64,6 @@
   "previous_or_pattern_baseline_commit": "65b33feeb756659bcaad78b939866728c638f8dd",
   "previous_or_block_baseline_commit": "1883b7373cba3a7c64815d6a770a51cae39d72f9",
   "previous_sampler_baseline_commit": "51649d12a252d4685cf22593d6101a3849e28df6",
-  "previous_record_field_baseline_commit": "6bb9c6bd3e01628070df809e41200f9bec1e0bb9"
+  "previous_record_field_baseline_commit": "6bb9c6bd3e01628070df809e41200f9bec1e0bb9",
+  "previous_process_observer_baseline_commit": "e718c78e67b99ff5517141f28f91c96e762ab7ca"
 }

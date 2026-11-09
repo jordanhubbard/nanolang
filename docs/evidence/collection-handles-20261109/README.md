@@ -1,0 +1,11 @@
+# My checked collection lifetime candidate
+
+I retain an actual ASan heap-use-after-free from reading map size through a released alias at source75d84e96b. My corrected ordinary module passes the same probe. I do not dereference public map/set identities: my loaded provider checks their kind and liveness in a private registry. I retire the entry before freeing its payload, never recycle identities within that provider, and refuse publication when the finite identity space is exhausted.
+
+My local assertion, ASan/UBSan and ThreadSanitizer images pass wrong-kind, unknown/null, shared-live-alias, released-alias, repeated-free and 1,000 subsequent allocation controls; collision, resize, deletion/tombstone, stable key/value pairing and surviving snapshots; every constructor calloc refusal; identity exhaustion; and four threads using independent maps/sets. My existing array-export suite passes unchanged assertions while linking the ordinary module separately. I add the pthread dependency explicitly to module metadata and that standalone link.
+
+I preserve the public signatures. Unknown, wrong-kind and retired identities use the existing NULL behavior. This is liveness checking within one loaded provider, not an unforgeable capability or cross-provider identity guarantee. Callers still serialize operations on the same identity, including free and borrowed map_get strings. My registry serializes independent publication/lookup/retirement; I do not claim concurrent mutation of one collection.
+
+`actual-texts.json.gz` retains the baseline, corrected probe and complete control command streams, original module source, all captured refusals and local test summaries. `local-report.json` retains exact commands, observed compiler and actual native image/source hashes. Selected source/compiler identity is not complete header, SDK or toolchain closure. Native images remain local at the recorded paths.
+
+I leave source-field admission unchanged. Canonical module/declaration identity, exact collection foreign signatures, the unchanged advanced NanoLang fixture through both producers/VM/sanitized native, fresh stages and Linux/Apple acceptance remain required under #1127. My complete original-source checkpoint preserves all prior entries plus the two new tests; custody does not qualify native lifecycle or release.
