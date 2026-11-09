@@ -1,5 +1,6 @@
 """I test real native gate lifecycle and constructed parser refusals, not Linux BPF execution."""
 import copy
+import gzip
 import hashlib
 import json
 import os
@@ -22,7 +23,7 @@ class KernelExitObserver(unittest.TestCase):
         (ROOT/'.test_output').mkdir(exist_ok=True)
         cls.work=Path(tempfile.mkdtemp(prefix='kernel-exit-controls-',dir=ROOT/'.test_output'))
         print('I retain native gate controls and constructed parser inputs at',cls.work,flush=True)
-        cls.inputs={str(p):observer.digest(p) for p in (ROOT/'scripts/observe_cseed_kernel_exit.py',ROOT/'tests/nanoisa/test_cseed_exit_observer.c',Path(__file__).resolve())}
+        cls.inputs={str(p):observer.digest(p) for p in (ROOT/'scripts/observe_cseed_kernel_exit.py',ROOT/'tests/nanoisa/test_cseed_exit_observer.c',Path(__file__).resolve(),ROOT/'docs/evidence/cseed-kernel-exit-20261109/first-linux/texts.json.gz')}
         cc=shlex.split(os.environ.get('CC','cc'))
         tool=Path(shutil.which(cc[0]) or cc[0]).resolve(strict=True)
         cls.tool=(tool,observer.digest(tool))
@@ -83,7 +84,7 @@ class KernelExitObserver(unittest.TestCase):
 
     def test_interruption_reaps_a_separate_native_wrapper_session(self):
         pidfile=self.work/'separate-session.pid'
-        code='from tests.native_process import run_captured; import sys; run_captured([sys.executable,"-c",'+repr('import os,time; from pathlib import Path; Path('+repr(str(pidfile))+').write_text(str(os.getpid())); time.sleep(300)')+'], timeout=300)'
+        code='from tests.native_process import run_captured; import sys; run_captured([sys.executable,"-c",'+repr('import os,time; from pathlib import Path; p=Path('+repr(str(pidfile))+'); t=p.with_suffix(".tmp"); t.write_text(str(os.getpid())); t.replace(p); time.sleep(300)')+'], timeout=300)'
         with (self.work/'interrupted.stdout').open('wb') as out,(self.work/'interrupted.stderr').open('wb') as err:
             child,gate=observer.spawn_gated([sys.executable,'-c',code],out,err,dict(os.environ))
             try:
@@ -106,6 +107,27 @@ class KernelExitObserver(unittest.TestCase):
         self.assertTrue(checked['valid'])
         self.assertEqual(checked['child_exit_mmap']['wall_ns'],1)
         observer.write(self.work/'constructed-parser-fixture.json',{'scope':'I construct these events; they are not kernel execution evidence.','native_record':record,'events':events})
+
+    def test_constructed_early_process_exit_keeps_late_teardown(self):
+        record,events=self.fixture();root=record['pid'];child=record['child_pid'];start=record['start_ns']
+        for event in events:
+            if event['tid']==child:
+                if event['kind']=='process-exit':event['monotonic_ns']=start+3
+                elif event['kind']=='exit-mmap-enter':event['monotonic_ns']=start+4
+                elif event['kind']=='exit-mmap-return':event['monotonic_ns']=start+5
+        events.insert(-1,{'event':'cseed-kernel-exit','kind':'task-free','root_pid':root,'pid':0,'tid':child,'monotonic_ns':start+7,'value':0,'detail':root})
+        self.assertTrue(observer.check_control(self.parsed(events),record,root)['valid'])
+        broken=copy.deepcopy(events)
+        next(e for e in broken if e['kind']=='task-free')['monotonic_ns']=start+2
+        with self.assertRaises(ValueError):self.parsed(broken)
+
+    def test_retained_actual_linux_control_still_requires_missing_teardown(self):
+        with gzip.open(ROOT/'docs/evidence/cseed-kernel-exit-20261109/first-linux/texts.json.gz','rt') as stream:texts=json.load(stream)
+        prefix='.test_output/cseed-kernel-exit/control/'
+        record=json.loads(texts[prefix+'target.stdout'])
+        events=observer.parse_events(texts[prefix+'kernel.jsonl'],record['pid'],texts[prefix+'observer.stderr'])
+        with self.assertRaisesRegex(ValueError,'teardown'):
+            observer.check_control(events,record,record['pid'])
 
     def test_constructed_protocol_refuses_tampered_or_incomplete_records(self):
         record,events=self.fixture()
