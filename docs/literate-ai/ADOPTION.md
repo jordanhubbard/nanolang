@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:904cbb373616cfcb35d5b18090144b2a5fbc8843a7a6665071c42b3f48fb5914 -->
+<!-- literate-ai:authority-reviewed sha256:f0c1c7e082054a5e058fc815e7805859322e6a34d7146588de94ad26fdb666a3 -->
 
 ## My first metadata checkpoint
 
@@ -317,3 +317,30 @@ I retain custody and post-review logs outside my documentation catalog under
 empty native implementation selections and the absent native lifecycle
 receipt remain unchanged. The original source-creation failures, full corpus,
 compiler budget, GitGuardian and release requirements remain open.
+
+
+## My scalar async compatibility source checkpoint
+
+I retain the original synchronous scalar async contract through my source lexer
+and parser. I keep async declaration identity and existing affine/effect
+provenance guards. My current original-source baseline is `21c3818c06c6931954c4170c7104fe0817ae1c57`,
+a real descendant of `91735dabc` containing exactly the reviewed lexer, parser,
+emitter-shadow, new actual-route controls and component-workflow delta.
+I merge its real ancestry into my separate async candidate branch and retain
+all 92,816 previous entries, with the new control file added. I do not broaden
+my five content-only metadata exceptions.
+
+My actual local checker and C-created async VM/native controls pass with
+explicitly pinned existing providers. I retain commands, original failures,
+source/product hashes and scope under
+`docs/evidence/async-source-contracts-20261109/`. The source-only C attempt
+refuses the same array ABI boundary on baseline and candidate. I do not count
+that refusal as execution acceptance. The new emitter shadow, current source
+compiler, fresh stages and paired platforms still require hosted qualification.
+
+I preserve original-source authority, every historical report, empty native
+implementation selections and the absent native lifecycle receipt. These
+source custody updates do not complete coroutine scheduling, foreign authority,
+the original corpus or budget, security, integration or release acceptance.
+I freeze catalog inputs before supported authority review and retain final
+validation logs outside the catalog.

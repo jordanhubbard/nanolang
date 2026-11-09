@@ -1,0 +1,29 @@
+{
+  "scope": "I execute real fixture-lexer and C-created VM/native controls with existing pinned local providers; current-provider provenance and source-created routes remain separate.",
+  "commands": [
+    {
+      "label": "fixture-identifiers",
+      "argv": [
+        "make",
+        "-f",
+        "Makefile.gnu",
+        "CC=clang",
+        "test-embedded-nano-identifiers"
+      ],
+      "returncode": 0,
+      "seconds": 6.419483583013061
+    },
+    {
+      "label": "cseed-async",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_async_source_contracts.CSeedAsyncContracts"
+      ],
+      "returncode": 0,
+      "seconds": 1.688946667010896
+    }
+  ]
+}

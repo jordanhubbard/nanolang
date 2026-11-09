@@ -1,0 +1,3 @@
+NANO_FIXTURE_LEXER="/Users/jkh/Src/nanolang/obj/fixture_identifier_lexer" python3 -m unittest -v tests.test_embedded_nano_identifiers
+python3 scripts/check_embedded_nano_identifiers.py --lexer "obj/fixture_identifier_lexer"
+I lexed 3267 static fixture fragments; 0 reserved names; 133 lexer-refused fragments remain with their executable tests.

@@ -1,0 +1,2 @@
+{"tool":"nanolang-shadow-stdio-probe","point":"_exit","pid":30253,"child":1,"status":7,"valid_clock":1,"open_devnull":0,"dup":0,"dup2":0,"close":2,"open_devnull_ns":0,"dup_ns":0,"dup2_ns":0,"close_ns":2000}
+{"tool":"nanolang-shadow-stdio-probe","point":"exit","pid":30252,"child":0,"status":0,"valid_clock":1,"open_devnull":1,"dup":1,"dup2":1,"close":6,"open_devnull_ns":26000,"dup_ns":0,"dup2_ns":1000,"close_ns":45000}

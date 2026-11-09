@@ -90,6 +90,8 @@ shadow keyword_group1 {
 }
 
 pure fn keyword_group2(s: string) -> int {
+    if (== s "async") { return LexerTokenType.TOKEN_ASYNC }
+    if (== s "await") { return LexerTokenType.TOKEN_AWAIT }
     if (== s "effect") { return LexerTokenType.TOKEN_EFFECT }
     if (== s "handle") { return LexerTokenType.TOKEN_HANDLE }
     if (== s "with") { return LexerTokenType.TOKEN_WITH }
@@ -154,6 +156,10 @@ pure fn keyword_group2(s: string) -> int {
 }
 
 shadow keyword_group2 {
+    assert (== (keyword_group2 "async") LexerTokenType.TOKEN_ASYNC)
+    assert (== (keyword_group2 "await") LexerTokenType.TOKEN_AWAIT)
+    assert (== (keyword_group2 "async_value") -1)
+    assert (== (keyword_group2 "awaitable") -1)
     assert (== (keyword_group2 "effect") LexerTokenType.TOKEN_EFFECT)
     assert (== (keyword_group2 "handle") LexerTokenType.TOKEN_HANDLE)
     assert (== (keyword_group2 "with") LexerTokenType.TOKEN_WITH)
@@ -962,6 +968,20 @@ shadow tokenize_file {
 }
 
 shadow tokenize_string {
+    let async_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let async_tokens: List<LexerToken> = (tokenize_string "async\n await async_value awaitable" "async.nano" async_diags)
+    assert (not (diag_list_has_errors async_diags))
+    assert (== (list_LexerToken_length async_tokens) 5)
+    let async_token: LexerToken = (list_LexerToken_get async_tokens 0)
+    assert (== async_token.token_type LexerTokenType.TOKEN_ASYNC)
+    assert (== async_token.line 1) assert (== async_token.column 1)
+    let await_token: LexerToken = (list_LexerToken_get async_tokens 1)
+    assert (== await_token.token_type LexerTokenType.TOKEN_AWAIT)
+    assert (== await_token.line 2) assert (== await_token.column 2)
+    assert (== (list_LexerToken_get async_tokens 2).token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== (list_LexerToken_get async_tokens 2).column 8)
+    assert (== (list_LexerToken_get async_tokens 3).token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== (list_LexerToken_get async_tokens 3).column 20)
     let bang_diags: List<CompilerDiagnostic> = (diag_list_new)
     let bang_tokens: List<LexerToken> = (tokenize_string "!\n!= !true not false" "bang.nano" bang_diags)
     assert (not (diag_list_has_errors bang_diags))

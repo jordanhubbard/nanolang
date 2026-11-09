@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "bin/nanoc_c",
+    "src_nano/typecheck_driver.nano",
+    "--target",
+    "c",
+    "-o",
+    ".test_output/async-baseline-syntax.c"
+  ],
+  "returncode": 1,
+  "source_revision": "7a709ee6b",
+  "scope": "I compare the same pre-existing C-profile array ABI refusal; I do not qualify this source-only C route."
+}

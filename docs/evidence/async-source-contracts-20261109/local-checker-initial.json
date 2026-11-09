@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component"
+  ],
+  "returncode": 0,
+  "seconds": 44.43790870800149,
+  "before": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/parser.nano": "cab268f3f02d9c6947a851297e6689a024e1d758c7a85412e085b95f9d4c07aa",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b"
+  },
+  "after": {
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "src_nano/parser.nano": "cab268f3f02d9c6947a851297e6689a024e1d758c7a85412e085b95f9d4c07aa",
+    "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b"
+  },
+  "scope": "I run the existing full checker component against my changed Nano sources with my existing pinned C provider. I do not establish current C-provider source provenance or paired platform acceptance."
+}
