@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f1c68401e4ed8d060653344c69ed26215aa65b07eb67ac37d47321b53794b436 -->
+<!-- literate-ai:authority-reviewed sha256:3633b3ca0c9e44cd5e39d0076e5fbd6ed0341bf300c42fb40e42d0cf1b352490 -->
 
 ## My first metadata checkpoint
 
@@ -485,3 +485,42 @@ carrier lifetime, full fresh/corpus/budget, NativeSDK/lifecycle, security and
 release remain open. Original source authority, eight integration Components,
 empty native selections and absent lifecycle receipt are unchanged. I freeze
 this catalog before supported review and retain final logs outside it.
+
+
+## My current-source GC refusal qualification
+
+I integrate the reviewed registry-allocation refusal from 0d3 with current
+scalar async, grouped OR and record-field controls. My GC source and failure
+matrix remain byte-identical to 0d3; all five original source-factory inputs
+remain byte-identical to 6c. I preserve the old Clang success and GCC/Apple
+source-creation deadlines. I require exact combined platform gates and keep
+the field-filter adoption decision separate from this integration.
+
+My original-source checkpoint is `9ad68ee833ea2efdbe2a38a5120407478cbf3ec5`, a
+real direct child of 6bb9c6bd3 with all 92,821 original entries and the existing
+GC allocation-failure test added. I verify the complete index before staging,
+then require exactly four reviewed paths: GC source, its failure matrix, Make
+and the existing component workflow. Both original codepoint ancestries remain
+in the integration branch. I preserve all prior custody properties and the same
+five content-only metadata exceptions. This is source custody, not execution
+admission.
+
+All thirteen original GC controls and the allocation-failure matrix pass in
+local ASan/UBSan execution. My actual record-helper, interpreted BSTRING and
+STRING bounds controls also pass with their original sanitizers and flags.
+The complete environment unit passes its normal assertion build; I do not
+claim that target is instrumented. I retain complete Make stdout/stderr and
+post-run observations of six actual executed Mach-O images separately from 113
+relocatable objects under `docs/evidence/gc-current-integration-20261109/`.
+These are post-run observations, not before/after image-stability proof or
+complete native toolchain closure. I retain the staged whitespace refusal
+from three surplus parent-report blank lines, correct those newlines without
+changing JSON values, and pass the same check. My first product counter also
+includes relocatable prerequisites; I correct it using actual execution lines,
+the hidden normal environment recipe/output and Mach-O file types.
+
+I retain original source authority, eight integration Components, empty native
+implementation selections and absent native lifecycle receipt. I freeze this
+catalog before supported review and retain final readbacks outside it. Hosted
+GCC/Clang/Apple, full fresh/corpus/budget, NativeSDK/lifecycle, security and
+release acceptance remain open.

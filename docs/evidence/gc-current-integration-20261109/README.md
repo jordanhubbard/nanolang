@@ -1,0 +1,11 @@
+# My combined GC refusal qualification
+
+I preserve the reviewed GC registry refusal from 0d3 and integrate the current async, OR and record-field source candidate from 6a4. All prior 0d3 jobs are terminal; I retain their GCC/Apple ten-second source-creation deadlines and Clang success rather than restarting them. The field-filter adoption decision remains pending its separate phase diagnosis.
+
+The actual GC source and failure matrix are byte-identical to 0d3. All five original source-factory files match 6c. My combined workflow retains all original gates and all 33 source component methods, plus both actual GC and record helper controls. I require fresh exact-head GCC/Clang/Apple qualification under the original budgets.
+
+All 13 original GC controls and the allocation-failure matrix pass under ASan/UBSan. Record helpers, interpreted BSTRING and STRING bounds retain their sanitizers and pass. The complete environment unit passes its normal assertion build, which is not an ASan/UBSan build. I retain the complete Make command/output and actual post-run native observations; these do not prove pre/post image stability or qualify the complete provider/runtime closure. I distinguish the six actual executed images from 113 observed relocatable objects using actual execution lines, the Make-hidden normal environment recipe/output and Mach-O file types. I retain the initial counter refusals in the observation record.
+
+The staged whitespace gate initially refuses three surplus trailing blank lines from parent JSON reports. I remove only those surplus newlines, preserve all JSON values and pass the same check before committing the integration. My complete original checkpoint 9ad68ee83 is a real direct child of 6bb9c6bd3, preserves all 92,821 inherited entries, adds the existing GC failure test and changes exactly the four reviewed source/build/workflow paths. I verify the complete index before staging and retain both source ancestries.
+
+I keep this draft until current qualification and dependency gates pass. Full original corpus/budget, security, NativeSDK/lifecycle and release acceptance remain separate. I hold full local providers for disk pressure and perform hosted checks behind the original worker-headroom gate.
