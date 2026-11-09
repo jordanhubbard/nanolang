@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:6c0c92d6816c4532cea1ceed181b25761ea67c973a004b2123fb94657ddeea77 -->
+<!-- literate-ai:authority-reviewed sha256:d628ddddaefd5a58dd484ef1cc1744d1d1e0462ee6a94ce021a9cb37d2a07631 -->
 
 ## My first metadata checkpoint
 
@@ -545,3 +545,5 @@ My completed snapshot component plans retain Apple42568331586 at42dddfceb and Li
 I retain complete source checkpoint `6e326819890734095b825d44c8127447c294cfb2`, a direct child of `93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e`. I populate a separate complete Git index, apply exactly five reviewed paths and verify all 92,829 entries before retaining the checkpoint ancestry. Two files add actual native boundary controls.
 
 I admit the eighteen existing map/set artifact signatures in my AOT consumer. I retain exact opaque and C bool transport, bind versioned snapshot cleanup to the producer image and stage native copies until cleanup succeeds. Actual producer/VM/O0/O2, allocation-denial and origin/signature refusal controls pass locally; strict generated GCC compiles and 223 product compiles each with clang/GCC pass. I retain the initial GCC formatting refusal and optional full source-regression setup failure for absent comparator/stage executables in `docs/evidence/collection-aot-20261109/`. Full component-platform plans, canonical source declaration identity, opaque field admission, fresh stages and final NativeSDK/release acceptance remain open.
+
+I retain the actual Linux Clang UBSan wrong-function-type refusal in #1133 before correcting my AOT array declarations. My direct-child complete checkpoint `b106ee66ee6258fc930b0bae8107399b0fe6753b` preserves92,829 entries and exactly four source changes from `6e326819890734095b825d44c8127447c294cfb2`. I share the existing public ElementType/DynArray declaration with generated C; preprocessed declaration tokens, remaining public API bytes and ABI version1 are unchanged. Actual collection/JSON/filesystem producer and cleanup types now agree. Five corrected local boundary methods and existing string/snapshot/frame controls pass without weakening sanitizers. I require corrected full platform plans and retain source/fresh-stage/NativeSDK/release boundaries.

@@ -1,0 +1,171 @@
+{
+  "root": "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb",
+  "products": {
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/copy-control-O0": {
+      "sha256": "8bd7405d88157fd64145d0f29dd45c48028727158374106319fe9141a57baa51",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/copy-control-O2": {
+      "sha256": "bd5cd9476f63042de52588042917430b9bdcabae4644ead46f04722203608dad",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/both-dependency-dependency.dylib": {
+      "sha256": "8063ecbc96d1428b15b3002f7b97e5bd891ffd7f4cffd115b6bc4c96401f7a96",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/both-dependency-origin.dylib": {
+      "sha256": "653b6e4fe54d91d6dc7bb05da546ee6a0eac5bffbb0385e1fbb699e3f021239e",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/both-dependency-O0": {
+      "sha256": "f938058abb4b19c60118df780734148d86339b2b492a0cac392af57f580dda8f",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/both-dependency-O2": {
+      "sha256": "efa5497fc84cd777444d9d2bff3c846bb6992549ac156e41e03fe728bb9eb42e",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/companion-dependency-dependency.dylib": {
+      "sha256": "e1744f656f89ef1e1ad16835589368ef263968ee011bbd6ad10abff2d0177e7c",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/companion-dependency-origin.dylib": {
+      "sha256": "fdf6ec8408114dc94d41d5a76d87c6ccf5d21a1b6365d5afe56ec9b78373cd43",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/companion-dependency-O0": {
+      "sha256": "92c200d51ca213f216220153b669c935d361bbee72d714ac0ded9c430d6d1111",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/companion-dependency-O2": {
+      "sha256": "5578019a994d044068bef69195c9bdc92ef76a783189045e1357749c306153b3",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/marker-dependency-dependency.dylib": {
+      "sha256": "9e85696416292b910948bc75f3fd697d8f61e2698a0fe787fb4cadb906d1c115",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/marker-dependency-origin.dylib": {
+      "sha256": "0e85ada12c24eef00dcf572b66f29452407795ffce78f85b5020ce49288d9c6f",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/marker-dependency-O0": {
+      "sha256": "daa13066ed3d9d95ef05f47efad42c6740bf4ad3585450e41c59b1adc0b4c928",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/marker-dependency-O2": {
+      "sha256": "26b107a750fe260ed3ba133d34ff6fe1bcc2ebcad123703f2f4c9ad1f6b3d806",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/bad-marker-dependency.dylib": {
+      "sha256": "6c726f046fb018ddd243ed88d04e41f09d2d91a7231ed4a6b0725ce5b98bea51",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/bad-marker-origin.dylib": {
+      "sha256": "599581db7bb89a3f035663a61099fe3a58575382e97df3324e68d9acd924ab31",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/bad-marker-O0": {
+      "sha256": "7338d86f088258d88df79a464199a66f9fc67b86da1cc4f00e0ba9dd4458f3e4",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/bad-marker-O2": {
+      "sha256": "4c03a795f53f5a1a5c7fc1618aa083c0208595acdfab5c758bb5bc4fe64ea535",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-companion-dependency.dylib": {
+      "sha256": "2389945f71af6c2885fd0352c477bda7fefed4bdb2a324929968618d0aad00dc",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-companion-origin.dylib": {
+      "sha256": "e398e47fee483f7870635146d21043502aeca195d2776ccab3a129b40032c6c0",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-companion-O0": {
+      "sha256": "a471665951ea18d308380565c86df490b065569c72ed5721640939d21f2f50c3",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-companion-O2": {
+      "sha256": "9c83b3db8c908f5b6b13dda1841dc236af821ef40ec250d42718992f3958c6c5",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-marker-dependency.dylib": {
+      "sha256": "e5c423f5f12cd8854f47a8763148623526bd8945ab6ad768a9132cb1bcffe739",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-marker-origin.dylib": {
+      "sha256": "f8893d0777027b342d1d673b80e1202f8aa3b4f4108e3c9c2ffd16dd4696f918",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-marker-O0": {
+      "sha256": "4d6937ce5cc6e72074f5b38a49793f68b44fef45bdae201044a228415f25bee6",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/missing-marker-O2": {
+      "sha256": "4c2074d08261f2e9e977f354577cb832bab3cdb54b4378648fb290d6bbf8de10",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/collections-plain.dylib": {
+      "sha256": "b1b61fda93bb4eb21a6d80a21948294fa7d21a634b03be80cff25c987c82c052",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/collections-sanitized.dylib": {
+      "sha256": "79704dc43e9f669551572d29c3c85e1169a23a8c000478f07bf8f12c5bd796a3",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/all-native-O0": {
+      "sha256": "fb64c432afbe999dbe585ae0a32685e4b179fedb0a2495e8a3e06ee5c160b57a",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/all-native-O2": {
+      "sha256": "81a34cd0d7018973f070dd2e398bd69f9fecf6f37679b0d51fd6be1e54b68385",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/json-sanitized.dylib": {
+      "sha256": "a511909646b060732538e10e2d1f1663a0780325d679e12b2485309701ddece2",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/fs-sanitized.dylib": {
+      "sha256": "102341737b4f925255e18c4b1771a5d83335a44a75b22eb44b99415bd94406bc",
+      "shared": true
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/json-fs-O0": {
+      "sha256": "3776103eb6a167c356e18ed9305940a2b717d340a737b21b13a3e85739de1838",
+      "shared": false
+    },
+    "/Users/jkh/Src/nanolang/.test_output/collection-aot-jrjb_meb/json-fs-O2": {
+      "sha256": "1b5ac5b62cf563feea0198bfe0d256add8c5fa5fb2586233b2940cdc8a5320f1",
+      "shared": false
+    }
+  },
+  "inputs_tools_before_after": {
+    "tools": {
+      "/Users/jkh/Src/nanolang/bin/nanoisa": "15522b8b9666b642a41462e795ff9fec02eb29970f27bb01cc27f1d3c56d41ea",
+      "/Users/jkh/Src/nanolang/bin/nano_vm": "8615ffdefc38625d37b6ecac2ea95db1d3550801dad0b672c49739ff931d8185",
+      "/Users/jkh/Src/nanolang/bin/nvm2c": "decf87d7c9bc810a308df2f89da63b7590108dbeb9b9dd59b399c26357707ed1",
+      "/usr/bin/cc": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+    },
+    "inputs": {
+      "tests/test_collection_aot.py": "7335ca8e16e7a5a8092684f5863a9c051941641b16ae9b137e89ab9ae92875da",
+      "tests/nanoisa/test_collection_snapshot_aot.c": "e4e75a8a1b2f1ae7bca88571e405ffe931df08bdb287ee0930bb5da417102d2c",
+      "src/nanoisa/nvm2c.c": "7d099099da58ceaac679c2db9d60606bd50a29df721146a992d872d220c328c1",
+      "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+      "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+      "src/runtime/dyn_array.h": "2b4294ccf264b520c5b9619ef06ef71d8b55e8dee4ac0d1697b4376ffe89e5a2",
+      "modules/std/json/json.c": "66b38c2598bad7718c69f146ed54c142ab82a2e9a1bf1ce0bf3ab042e0ed1011",
+      "modules/std/fs.c": "8a54e1d0b2f452f7c4f000338b569559a8e6da214a3743579208bb463dc2fda1",
+      "src/cJSON.c": "e3b9e8902dfd7472fb65cca9ab275d5da03dffe4e5d2ecb0b3586fd5f2f4e248",
+      "src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+      "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+      "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+    }
+  },
+  "native_executables": 18,
+  "shared_images": 16,
+  "native_runs": {
+    "success": 6,
+    "expected_SIGABRT": 12
+  },
+  "scope": "I execute all five corrected local methods, including actual instrumented collection/JSON/filesystem libraries at O0/O2. All image hashes still match after the completed cohort; native/tool/selected-source checks remain scoped to reported inputs, not complete SDK/header closure. Linux Clang function-type acceptance requires its corrected plan."
+}
