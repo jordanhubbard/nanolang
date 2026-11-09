@@ -1,0 +1,55 @@
+name: Diagnostic C-seed kernel exit boundaries
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  observe:
+    name: One original GCC factory with kernel exit observation
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CC: gcc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require original worker headroom before provisioning
+        run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/cseed-kernel-preflight
+      - name: Install native prerequisites and the read-only kernel observer
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential clang pkg-config libssl-dev libffi-dev bpftrace
+      - name: Recheck headroom after provisioning
+        run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/cseed-kernel-postinstall
+      - name: Check native gate lifecycle and strict protocol refusals
+        run: python3 -m unittest -v tests.test_cseed_kernel_exit
+      - name: Build actual original providers under the existing flags
+        timeout-minutes: 25
+        run: make -f Makefile.gnu -j2 CC="$CC" nanoisa_dump nano_vm nvm2c bin/nanoisa bin/nanoc_c nano_virt nvm2c-runtime
+      - name: Validate native kernel controls before one actual source factory
+        timeout-minutes: 20
+        run: |
+          ulimit -c 0
+          python3 scripts/observe_cseed_kernel_exit.py run --output .test_output/cseed-kernel-exit
+      - name: Retain every observation and original factory outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cseed-kernel-exit-gcc-${{ github.sha }}
+          include-hidden-files: true
+          if-no-files-found: error
+          path: |
+            .test_output/cseed-kernel-preflight/
+            .test_output/cseed-kernel-postinstall/
+            .test_output/cseed-kernel-exit/
+            .test_output/kernel-exit-controls-*/
+            .test_output/bstring-source-compiler/
+            bin/nanoc_c
+            bin/nano_virt
+            bin/nanoisa
+            bin/nano_vm
+            bin/nvm2c
+            bin/nano_aot_runtime.o

@@ -1,0 +1,13 @@
+{
+  "previous": "28ea08ee1d4b058f4271a3cd082504764fbfa4d9",
+  "checkpoint": "9f7561afc3122623c1897b80f3bc782354d2b5a2",
+  "implementation": "62e8b8678265bebd7f595bcf06454781e952e442",
+  "tree": "8bfc07f460476aff25fc441d8189be62ec92f0ad",
+  "entries": 92835,
+  "changed_paths": [
+    "scripts/observe_cseed_kernel_exit.py",
+    "tests/test_cseed_kernel_exit.py"
+  ],
+  "added_source_paths": 0,
+  "scope": "I preserve every original path/mode/object through a complete independent Git index, update only two reviewed observer/test paths and retain direct-parent checkpoint ancestry. Actual corrected kernel validation remains pending."
+}

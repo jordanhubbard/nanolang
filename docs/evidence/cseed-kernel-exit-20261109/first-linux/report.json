@@ -1,0 +1,83 @@
+{
+  "run_id": 42586919306,
+  "artifact_id": 13659023910,
+  "source_pin": "9e9837d2abaae454896383c4f60faced492b95b0",
+  "archive_sha256": "3f49936de18daed48bcf0e651381a3221f2ded2c51e4fc3baabbc02e15f0b55c",
+  "entries_crc_checked": 42,
+  "native_images": [
+    {
+      "path": ".test_output/cseed-kernel-exit/native-control",
+      "bytes": 21408,
+      "sha256": "afed3f5a5ae6aa276c1da5bb6ca0b43114c59ef158d78961c18f9cbc140bc0b1",
+      "elf_type": 3
+    },
+    {
+      "path": ".test_output/kernel-exit-controls-9a33wkts/actual-native-control",
+      "bytes": 21408,
+      "sha256": "afed3f5a5ae6aa276c1da5bb6ca0b43114c59ef158d78961c18f9cbc140bc0b1",
+      "elf_type": 3
+    },
+    {
+      "path": "bin/nanoc_c",
+      "bytes": 27240896,
+      "sha256": "9ae6f0134932045ee4493de9592e85dca805503c50f4466936b93da785365632",
+      "elf_type": 3
+    },
+    {
+      "path": "bin/nano_virt",
+      "bytes": 27111168,
+      "sha256": "bdc27ba0026808431618cba504c1cea229908c35ca1cf88e0e8e629908eaa5ae",
+      "elf_type": 3
+    },
+    {
+      "path": "bin/nanoisa",
+      "bytes": 4517624,
+      "sha256": "57f2a887669ef9e193a160f9618f00b877bb17f3e9927da83f24ae99eb1ded5a",
+      "elf_type": 3
+    },
+    {
+      "path": "bin/nano_vm",
+      "bytes": 25117928,
+      "sha256": "52fa4ca94b1d05f5c1bedb39801318b5b92f1ca7cc10c2436f8e345c10bfd026",
+      "elf_type": 3
+    },
+    {
+      "path": "bin/nvm2c",
+      "bytes": 6424608,
+      "sha256": "b7093ad7bb80c3315087dfadc4ad92eb85b7ca80ad94cce8705c91aedf434c09",
+      "elf_type": 3
+    }
+  ],
+  "relocatable_objects": [
+    {
+      "path": "bin/nano_aot_runtime.o",
+      "bytes": 8555088,
+      "sha256": "adc5dded1f36c87dc20a4665d973fd43db988ed846dc49458de9348d7373ac7b",
+      "elf_type": 1
+    }
+  ],
+  "actual_control": {
+    "pid": 5036,
+    "child_pid": 5047,
+    "wait_status": 1792,
+    "start_ns": 147564413642,
+    "end_ns": 147595699387
+  },
+  "source_factory_attempts": 0,
+  "observer_control_qualified": false,
+  "missing_child_teardown_intervals": true,
+  "observer_stderr_empty": true,
+  "observation_refusal": {
+    "exception": "ValueError",
+    "message": "I require the actual child exit, teardown and parent reap witnesses.",
+    "observation_qualified": false,
+    "release_qualified": false
+  },
+  "scope": "I retain a real Linux observer-control failure. Native exit/reap succeeds but child teardown is not observed; the source factory never starts. I do not label this a compiler defect or qualify kernel observation.",
+  "shared_git_matched_source_inputs": 197,
+  "observer_git_matched_source_inputs": 4,
+  "provider_images_match_reported_before": 6,
+  "renderer_matches_exact_published_code": true,
+  "control_post_execution_hash_check_reached": false,
+  "provider_after_hash_report_present": false
+}

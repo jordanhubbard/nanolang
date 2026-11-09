@@ -1,0 +1,17 @@
+{
+  "target_pid": 4835,
+  "target_argv": [
+    "/usr/bin/python3",
+    "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+    "sample",
+    "/home/runner/work/nanolang/nanolang"
+  ],
+  "target_uid": 1001,
+  "target_started": true,
+  "timeout_seconds": 660,
+  "probe_program_sha256": "8f2bdac5f1d827146656f71639e7b3de12e84aaa71542318d60705d4380ff91f",
+  "observer_pid": 4836,
+  "target_returncode": 0,
+  "target_final_returncode": 0,
+  "observer_returncode": 0
+}

@@ -1,6 +1,6 @@
 {
   "schema": "nanolang/source-preservation-policy@1",
-  "baseline_commit": "90b79b0e4af163b5b725988e0d0197b64d9f11bc",
+  "baseline_commit": "fd6dc793ea2f53a5736f2e70ab8b1c714f69b1f1",
   "purpose": "Original Git path/mode/blob preservation ownership; not native producer or SBOM admission",
   "owners": {
     "isa": [
@@ -71,5 +71,8 @@
   "previous_collection_snapshot_baseline_commit": "a7e6f2ced0fd8f20d4e343785ea1c97455a184be",
   "previous_collection_loader_fixture_baseline_commit": "93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e",
   "previous_collection_aot_baseline_commit": "6e326819890734095b825d44c8127447c294cfb2",
-  "previous_collection_aot_type_baseline_commit": "b106ee66ee6258fc930b0bae8107399b0fe6753b"
+  "previous_collection_aot_type_baseline_commit": "b106ee66ee6258fc930b0bae8107399b0fe6753b",
+  "previous_shadow_completion_baseline_commit": "90b79b0e4af163b5b725988e0d0197b64d9f11bc",
+  "previous_kernel_exit_initial_baseline_commit": "28ea08ee1d4b058f4271a3cd082504764fbfa4d9",
+  "previous_kernel_exit_task_lifetime_baseline_commit": "9f7561afc3122623c1897b80f3bc782354d2b5a2"
 }
