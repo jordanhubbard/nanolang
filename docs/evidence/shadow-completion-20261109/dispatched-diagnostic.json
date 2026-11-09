@@ -1,0 +1,21 @@
+{
+  "run_id": 42580473796,
+  "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42580473796",
+  "source_pin": "35a32bf746e9c7741158bb8e62563d92bde614f8",
+  "baseline": "3c3f1edae92125dd44cf392ddc0f160a2868e129",
+  "compiler": "gcc",
+  "native_darwin": false,
+  "sample_shadows": false,
+  "observe_processes": false,
+  "observe_shadow_phases": true,
+  "predeclared_attempts": [
+    "original",
+    "modified",
+    "modified",
+    "original",
+    "original",
+    "modified"
+  ],
+  "deadline_seconds": 10,
+  "retry_unchanged_plan_for_green": false
+}

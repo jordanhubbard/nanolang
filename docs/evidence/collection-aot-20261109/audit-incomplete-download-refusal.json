@@ -1,0 +1,7 @@
+{
+  "operation": "audit before active clang archive download finished",
+  "exception": "zipfile.BadZipFile: File is not a zip file",
+  "download_session": 25630,
+  "product_defect_established": false,
+  "action": "I wait for the same download to finish and validate its ZIP before auditing."
+}

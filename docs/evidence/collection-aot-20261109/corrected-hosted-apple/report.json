@@ -1,0 +1,3123 @@
+{
+  "source_pin": "b897da5d404d6b148d2734b3e4673ebcc8d81b3f",
+  "archive": {
+    "bytes": 34278827,
+    "sha256": "19a473a1c6294464acc04a96e843ebaff158fbbff9257e8ecd4dc86051cdcc2b",
+    "entries": 6776,
+    "all_entries_streamed_crc_checked": true
+  },
+  "root": "collection-aot-hczjkr5t/",
+  "source_inputs_git_matched": {
+    "tests/test_collection_aot.py": "7335ca8e16e7a5a8092684f5863a9c051941641b16ae9b137e89ab9ae92875da",
+    "tests/nanoisa/test_collection_snapshot_aot.c": "e4e75a8a1b2f1ae7bca88571e405ffe931df08bdb287ee0930bb5da417102d2c",
+    "src/nanoisa/nvm2c.c": "7d099099da58ceaac679c2db9d60606bd50a29df721146a992d872d220c328c1",
+    "modules/std/collections/collections.c": "c17cb3c0a87d9b54532b47698318015a362f1f033ad01e8683f05989f71d3192",
+    "modules/std/collections/collections.h": "7b665b63dca0fc8a8fd9bde5f14783498adf00a91e44acf56732230270e7d4d6",
+    "src/runtime/dyn_array.h": "2b4294ccf264b520c5b9619ef06ef71d8b55e8dee4ac0d1697b4376ffe89e5a2",
+    "modules/std/json/json.c": "66b38c2598bad7718c69f146ed54c142ab82a2e9a1bf1ce0bf3ab042e0ed1011",
+    "modules/std/fs.c": "8a54e1d0b2f452f7c4f000338b569559a8e6da214a3743579208bb463dc2fda1",
+    "src/cJSON.c": "e3b9e8902dfd7472fb65cca9ab275d5da03dffe4e5d2ecb0b3586fd5f2f4e248",
+    "src/utf8.c": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "tools_reported_before_after": {
+    "/Users/runner/work/nanolang/nanolang/bin/nanoisa": "001acf253a18ac05331503f1c116edd3fcc96ed596e24bd122fc617bc37b6dd8",
+    "/Users/runner/work/nanolang/nanolang/bin/nano_vm": "837bfda883ee81b04b6ef41d4366cc4ca6d94cd2f4a721bd66172caa324e6216",
+    "/Users/runner/work/nanolang/nanolang/bin/nvm2c": "63118b21003aa9e203d3ec7e610d3f4d339fb8745f85517e870d5fa26f0c5be4",
+    "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0"
+  },
+  "tool_bytes_uploaded": false,
+  "operations": [
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/tests/nanoisa/test_collection_snapshot_aot.c",
+        "-DCOLLECTION_AOT_PROGRAM=\"/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-observed.c\"",
+        "modules/std/collections/collections.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-run-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/tests/nanoisa/test_collection_snapshot_aot.c",
+        "-DCOLLECTION_AOT_PROGRAM=\"/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-observed.c\"",
+        "modules/std/collections/collections.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_actual_emitted_copy_failures-copy-control-run-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/copy-control-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_new-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_new-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_put-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_put-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_has-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_has-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_get-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_get-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_size-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_size-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_keys-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_keys-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_values-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_values-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_remove-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_remove-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_clear-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_clear-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_hm_free-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_hm_free-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_new-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_new-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_add-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_add-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_has-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_has-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_size-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_size-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_values-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_values-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_remove-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_remove-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_clear-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_clear-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-result-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-result.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-result-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-result.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-result-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-result.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-result.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-arity-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-arity.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-arity-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-arity.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-arity-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-arity.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-arity.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-parameter-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-parameter.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-parameter-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-parameter.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_all_malformed_signatures_preserve_output-nl_set_free-parameter-refuse",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-parameter.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/nl_set_free-parameter.c"
+      ],
+      "returncode": 1
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-both-dependency-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/both-dependency-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-companion-dependency-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/companion-dependency-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-marker-dependency-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/marker-dependency-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-bad-marker-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/bad-marker-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-companion-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-companion-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-dependency",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-dependency.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-dependency.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-origin",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-origin.c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-dependency.dylib",
+        "-Wl,-rpath,/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-origin.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-refuse-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-O0"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_companion_and_marker_origin_refusals-missing-marker-refuse-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/missing-marker-O2"
+      ],
+      "returncode": -6
+    },
+    {
+      "label": "test_real_collection_vm_and_native-collections-plain",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "modules/std/collections/collections.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/collections-plain.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-vm-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-vm.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-vm.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-vm-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-vm.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-vm",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-vm.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-collections-sanitized",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "modules/std/collections/collections.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/collections-sanitized.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-native-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-native-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-native-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-native-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-run-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-native-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_collection_vm_and_native-all-run-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/all-native-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-sanitized",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "modules/std/json/json.c",
+        "src/cJSON.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-sanitized.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-fs-sanitized",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-dynamiclib",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "modules/std/fs.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/fs-sanitized.dylib"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-assemble",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nanoisa",
+        "asm",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.nasm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-verify",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.nvm"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-translate",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.nvm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.c"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-build-O0",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-run-O0",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-build-O2",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs.c",
+        "/Users/runner/work/nanolang/nanolang/src/utf8.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "test_real_json_and_filesystem_array_types-json-fs-run-O2",
+      "argv": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-aot-hczjkr5t/json-fs-O2"
+      ],
+      "returncode": 0
+    }
+  ],
+  "products": [
+    {
+      "path": "collection-aot-hczjkr5t/copy-control-O0",
+      "bytes": 9337552,
+      "sha256": "6e2423a35f20a968934b2b10d5acf563919058a07014bbdf909bc49f1a74e2bd",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_actual_emitted_copy_failures-copy-control-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/copy-control-O2",
+      "bytes": 8916112,
+      "sha256": "27061cbbc07f56848c9a6469e6dce143f0c53f5bfc1d59774f9e2ec7b75aec6d",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_actual_emitted_copy_failures-copy-control-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/both-dependency-dependency.dylib",
+      "bytes": 34064,
+      "sha256": "fb317e54b6ce6bceeab8fffaecb8c329cb60e4bbe55761eadbacb35f02c7f8e6",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-both-dependency-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/both-dependency-origin.dylib",
+      "bytes": 33968,
+      "sha256": "afdf46ca7309ec8dd227133ade369a6fdeddedf89667c8fbf7fdacb6a3feeded",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-both-dependency-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/both-dependency-O0",
+      "bytes": 312528,
+      "sha256": "8a700705ffccb0d7d8a45d6e601e382708de93a4c775f1cf3897ee75ec280b51",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-both-dependency-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/both-dependency-O2",
+      "bytes": 78608,
+      "sha256": "d6c5254c4c8461e295746d3a99939db9338ae65a34d1db4ba8b2a5ce963897a1",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-both-dependency-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/companion-dependency-dependency.dylib",
+      "bytes": 34008,
+      "sha256": "4bea29f78d36293ca0e0ceb702a8375e01221396bc3fe4af04af86751507f6b6",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-companion-dependency-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/companion-dependency-origin.dylib",
+      "bytes": 34064,
+      "sha256": "2867a92116efa7d3c50338abfa58cb18bc953a763dd63310191b60b57b19d5e9",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-companion-dependency-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/companion-dependency-O0",
+      "bytes": 312536,
+      "sha256": "3fd46023d6166e50c51f9369dcda2f9b493fe260c74111e3dfabfa361d9a36ce",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-companion-dependency-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/companion-dependency-O2",
+      "bytes": 78616,
+      "sha256": "0b235e2a3276aa79ba369fdbb975f99dce39ec0d9216e040895593099f792f3e",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-companion-dependency-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/marker-dependency-dependency.dylib",
+      "bytes": 17264,
+      "sha256": "73c404cd52b5f291a58b3129ede73585903e62bb629f86283a7d9e4643b6c8bb",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-marker-dependency-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/marker-dependency-origin.dylib",
+      "bytes": 34128,
+      "sha256": "82180aff266f85d8c26bfc2314d111b4cfac6642f35503c539d2798be4e79046",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-marker-dependency-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/marker-dependency-O0",
+      "bytes": 312536,
+      "sha256": "09acabc88ab7487fdcf0752b9144988242556c9a8d7e343aa48b3e96a386bde7",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-marker-dependency-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/marker-dependency-O2",
+      "bytes": 78616,
+      "sha256": "0bcd12dc3622214f35c06987d4ffc47a1ceafe6a60ce73a2f8c87dbd57e9d801",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-marker-dependency-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/bad-marker-dependency.dylib",
+      "bytes": 17128,
+      "sha256": "3e6061d31a5de39597c673154a7235f6b28193cc8da5745ca84304a891e83974",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-bad-marker-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/bad-marker-origin.dylib",
+      "bytes": 34184,
+      "sha256": "6819d211d1a29820d5099ab9a819fc0db5fa0dc20c52653685508f090c7ce618",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-bad-marker-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/bad-marker-O0",
+      "bytes": 312512,
+      "sha256": "66d4e8d0b1547a3ea54e59e3103a69eadc2d12ffaa62167e860d6fb2d546ee3d",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-bad-marker-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/bad-marker-O2",
+      "bytes": 78560,
+      "sha256": "2812789eba8185dc8e3acddeea77983f159b0d928da097be1cbb522f72a20186",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-bad-marker-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-companion-dependency.dylib",
+      "bytes": 17152,
+      "sha256": "20ef58b72569eedec7f4ba6cd846c6328a4b854139ea230bbc517da630974094",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-missing-companion-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-companion-origin.dylib",
+      "bytes": 34064,
+      "sha256": "5600393ab33b7fc23a3342d926bdf63c9ac148d91ad121449f8332768c829372",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-missing-companion-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-companion-O0",
+      "bytes": 312536,
+      "sha256": "b0326bbaf607d92b5048bd6984792ef3f606833f8577fb863d636652c886dbcc",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-missing-companion-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-companion-O2",
+      "bytes": 78616,
+      "sha256": "315f7a5b19209fb53063b14b9dadb55d8f3f3e2c477190b93936481cce998e8a",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-missing-companion-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-marker-dependency.dylib",
+      "bytes": 17152,
+      "sha256": "c719598a7598cfbe8082b0f92f13ce5794df2d260a1eb0d04bd44aa53bb5a319",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-missing-marker-dependency"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-marker-origin.dylib",
+      "bytes": 34104,
+      "sha256": "ce268ec7191b28815a76b693c76989f243a64b6bd6ec6be0ff679845b2e894bb",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_companion_and_marker_origin_refusals-missing-marker-origin"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-marker-O0",
+      "bytes": 312528,
+      "sha256": "bcad459f45c92299faee67687776f619092d39f7cd9c637f53c407834311bb7c",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-missing-marker-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/missing-marker-O2",
+      "bytes": 78608,
+      "sha256": "be2e5e5c34ab55c5e747d3bbb83f4641803c55269eb1ca5d877528f534c29b4a",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_companion_and_marker_origin_refusals-missing-marker-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/collections-plain.dylib",
+      "bytes": 8546568,
+      "sha256": "d51cc4fbfc63059d81c9508d875807e2708516791a2150240c14f10861f6819e",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": false,
+      "build": "test_real_collection_vm_and_native-collections-plain"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/collections-sanitized.dylib",
+      "bytes": 8886408,
+      "sha256": "dc35b7554afa8c93095d6c7e445231285a7a283867bd2769f52f04a6f2f29bf3",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": true,
+      "build": "test_real_collection_vm_and_native-collections-sanitized"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/all-native-O0",
+      "bytes": 3596528,
+      "sha256": "0782e969665f0394b400b13d85369c1648660b4b020c98706d77cbf986aa332e",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_real_collection_vm_and_native-all-native-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/all-native-O2",
+      "bytes": 654416,
+      "sha256": "42acdcf1dad76228bbf9c8539461256612f21d8918082df3de88c3b63b6e49b5",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_real_collection_vm_and_native-all-native-build-O2"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/json-sanitized.dylib",
+      "bytes": 8931080,
+      "sha256": "f7dd78dbe854f9e99a8545686b5210d4e19248730d134e3b63af1d6947870f20",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": true,
+      "build": "test_real_json_and_filesystem_array_types-json-sanitized"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/fs-sanitized.dylib",
+      "bytes": 8887392,
+      "sha256": "f917bcace8c570b28d9b11fb417904afbafb86fe53e733f65d5ff711edc5d785",
+      "shared": true,
+      "kind": "Mach-O dylib",
+      "sanitized": true,
+      "build": "test_real_json_and_filesystem_array_types-fs-sanitized"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/json-fs-O0",
+      "bytes": 349160,
+      "sha256": "ffcc0e083972dc93b6e110313267a77b677d51453ad65aa49101dba1ca4cfe53",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_real_json_and_filesystem_array_types-json-fs-build-O0"
+    },
+    {
+      "path": "collection-aot-hczjkr5t/json-fs-O2",
+      "bytes": 100536,
+      "sha256": "2988f5909ff788d47c5446dc27a933291f43ea0857c35f29c2e91e1092308920",
+      "shared": false,
+      "kind": "Mach-O executable",
+      "sanitized": true,
+      "build": "test_real_json_and_filesystem_array_types-json-fs-build-O2"
+    }
+  ],
+  "retained_nvm": 62,
+  "successful_native_runs": 6,
+  "expected_native_refusals": 12,
+  "malformed_signature_refusals": 52,
+  "sdk_and_header_closure_qualified": false,
+  "historical_deadline_cause_established": false
+}
