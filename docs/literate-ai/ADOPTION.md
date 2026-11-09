@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:fec59c65efee4054610b83957c2a8aaba6b25cfff6fd114059990b72101b95cf -->
+<!-- literate-ai:authority-reviewed sha256:1aa306878db679cb538060e9eb5710ccb782b60f3a3360af3e87403fda83a4e1 -->
 
 ## My first metadata checkpoint
 
@@ -505,3 +505,10 @@ These identities belong to one loaded provider; same-handle operations and borro
 caller-serialized. I leave compiler opaque-field admission unchanged. Canonical module identity, foreign
 signatures, unchanged advanced fixtures, fresh stages and complete Linux/Apple gates remain open under #1127.
 I do not infer NativeSDK, retained lifecycle or release admission from local controls or source custody.
+
+I advance that custody checkpoint to `a2ffaa7033aad3f4b0979f914e12a19833bee734` after retaining
+both first Linux fixture build refusals. This direct child changes only the new fixture's first line:
+I define `_GNU_SOURCE` before its system headers, matching the included implementation's feature request.
+The complete tree remains 92,823 entries, and production module bytes are unchanged. Corrected local
+assertion/ASan/UBSan/ThreadSanitizer and existing export controls pass; Linux execution still requires
+its corrected-source run. The original Apple plan remains on its original handle and source pin.

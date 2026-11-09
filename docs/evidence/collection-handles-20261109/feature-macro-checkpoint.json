@@ -1,0 +1,10 @@
+{
+  "previous": "237e76d16f9a555e5c47164f676623ac3834f15e",
+  "checkpoint": "a2ffaa7033aad3f4b0979f914e12a19833bee734",
+  "tree": "b8c58f28ffd763f47b38221bae5c948c7a0bc0e6",
+  "entries": 92823,
+  "changed_paths": [
+    "tests/test_collection_handles.c"
+  ],
+  "production_module_changed": false
+}
