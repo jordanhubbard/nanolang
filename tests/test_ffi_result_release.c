@@ -1,4 +1,6 @@
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
 #include <assert.h>
