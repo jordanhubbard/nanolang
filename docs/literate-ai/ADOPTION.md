@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f0c1c7e082054a5e058fc815e7805859322e6a34d7146588de94ad26fdb666a3 -->
+<!-- literate-ai:authority-reviewed sha256:89e6eec72043fc274107fdf14d6297a5b6c991e46e7975d75411e2a278d9c342 -->
 
 ## My first metadata checkpoint
 
@@ -344,3 +344,26 @@ source custody updates do not complete coroutine scheduling, foreign authority,
 the original corpus or budget, security, integration or release acceptance.
 I freeze catalog inputs before supported authority review and retain final
 validation logs outside the catalog.
+
+
+## My grouped union-pattern source checkpoint
+
+I preserve the existing grouped union-pattern syntax through my source parser,
+coverage checker and emitter. I retain one guard and body, duplicate alternatives,
+exact underscore variant identity and once-only effects. I preserve ordinary
+pattern paths and ownership admission boundaries. My original-source baseline is
+`65b33feeb756659bcaad78b939866728c638f8dd`, a real descendant of my async baseline
+`21c3818c06c6931954c4170c7104fe0817ae1c57`. I change only three original NanoLang
+source files, the actual-route control file and the component workflow. I retain
+all 92,817 previous entries and add one control file without widening my five
+content-only metadata exceptions. This complete Git tree is independent of my
+temporary sparse working view.
+
+I retain local commands, product observations and their limits under
+`docs/evidence/match-or-source-contracts-20261109/`. The actual native checker and
+C-created controls pass with pinned existing providers; source-created execution,
+fresh stages and paired platform acceptance remain open. I preserve original
+source authority, empty native implementation selections and the absent native
+lifecycle receipt. These custody checks do not complete native SDK, original
+corpus, budget, security or release acceptance. I freeze catalog inputs before
+supported authority review and retain its validation logs outside the catalog.
