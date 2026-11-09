@@ -1,0 +1,184 @@
+{
+  "run": 42608197477,
+  "artifact": 13670595540,
+  "source_pin": "f92237c52a894eea7d4ee13de5dfc4df224a99f9",
+  "baseline": "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+  "archive_sha256": "d8d83f2aa97dcd2ca0323d8e899d411c64d2a22a8ee0fdfa7377003fd9e9735c",
+  "entries_crc_hash_checked": 53,
+  "shared_git_matched_inputs": 197,
+  "stable_git_or_provider_inputs_each": 67,
+  "native_images": [
+    {
+      "path": "cseed-source-comparison/providers/modified/nanoc_c",
+      "bytes": 27243576,
+      "sha256": "32f80de6aa10f307061a7801578850f1781f17493fcb74a4ac46a969d4ec98fb",
+      "kind": "ELF executable/PIE",
+      "retained": ".test_output/call-metadata-comparison-native/cseed-source-comparison/providers/modified/nanoc_c.gz"
+    },
+    {
+      "path": "cseed-source-comparison/providers/original/nanoc_c",
+      "bytes": 27240928,
+      "sha256": "5fa935782f6dedfe286e34579cdf51f80fb40b2b657a648508145f3e02b03715",
+      "kind": "ELF executable/PIE",
+      "retained": ".test_output/call-metadata-comparison-native/cseed-source-comparison/providers/original/nanoc_c.gz"
+    },
+    {
+      "path": "cseed-source-comparison/samples/03-modified/compiler",
+      "bytes": 22828096,
+      "sha256": "ef163012309d8ce12a207b30f56898164e0449a1351a5e9b0310e2a79c0c20a0",
+      "kind": "ELF executable/PIE",
+      "retained": ".test_output/call-metadata-comparison-native/cseed-source-comparison/samples/03-modified/compiler.gz"
+    }
+  ],
+  "unique_native_image_hashes": 3,
+  "samples": [
+    {
+      "index": 1,
+      "variant": "original",
+      "creation_succeeded": false,
+      "starts": 1286,
+      "completes": 1286,
+      "failures": 0,
+      "summed_body_seconds": 9.681735,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original",
+        "returncode": 1,
+        "wall_seconds": 166.980362092,
+        "child_user_seconds": 130.87102300000004,
+        "child_system_seconds": 37.357288999999994
+      },
+      "source_compiler_executed": false
+    },
+    {
+      "index": 2,
+      "variant": "modified",
+      "creation_succeeded": false,
+      "starts": 1281,
+      "completes": 1280,
+      "failures": 0,
+      "summed_body_seconds": 9.875451,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified",
+        "returncode": 1,
+        "wall_seconds": 166.82022323200005,
+        "child_user_seconds": 130.84395999999998,
+        "child_system_seconds": 37.213972
+      },
+      "source_compiler_executed": false
+    },
+    {
+      "index": 3,
+      "variant": "modified",
+      "creation_succeeded": true,
+      "starts": 1286,
+      "completes": 1286,
+      "failures": 0,
+      "summed_body_seconds": 9.414232,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified",
+        "returncode": 0,
+        "wall_seconds": 131.787583037,
+        "child_user_seconds": 99.80177700000002,
+        "child_system_seconds": 33.30781200000001
+      },
+      "source_compiler_executed": false
+    },
+    {
+      "index": 4,
+      "variant": "original",
+      "creation_succeeded": false,
+      "starts": 1286,
+      "completes": 1286,
+      "failures": 0,
+      "summed_body_seconds": 9.796205,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original",
+        "returncode": 1,
+        "wall_seconds": 127.58090989999994,
+        "child_user_seconds": 96.43352700000003,
+        "child_system_seconds": 32.27008999999998
+      },
+      "source_compiler_executed": false
+    },
+    {
+      "index": 5,
+      "variant": "original",
+      "creation_succeeded": false,
+      "starts": 1286,
+      "completes": 1286,
+      "failures": 0,
+      "summed_body_seconds": 9.591265,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/original",
+        "returncode": 1,
+        "wall_seconds": 128.53451632799988,
+        "child_user_seconds": 96.96080699999993,
+        "child_system_seconds": 32.875414000000006
+      },
+      "source_compiler_executed": false
+    },
+    {
+      "index": 6,
+      "variant": "modified",
+      "creation_succeeded": false,
+      "starts": 1286,
+      "completes": 1286,
+      "failures": 0,
+      "summed_body_seconds": 9.821789,
+      "process": {
+        "argv": [
+          "/usr/bin/python3",
+          "/home/runner/work/nanolang/nanolang/scripts/compare_cseed_source_creation.py",
+          "sample",
+          "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified"
+        ],
+        "cwd": "/home/runner/.worktrees/nanolang/cseed-profile-xixeief4/modified",
+        "returncode": 1,
+        "wall_seconds": 129.19173743300007,
+        "child_user_seconds": 97.290392,
+        "child_system_seconds": 33.158658
+      },
+      "source_compiler_executed": false
+    }
+  ],
+  "baseline_creations": 0,
+  "candidate_creations": 1,
+  "full_successful_pairs": 0,
+  "all_planned_samples_finished": true,
+  "comparison_protocol_valid": true,
+  "whole_factory_performance_accepted": false,
+  "actual_exit_teardown_cause_established": false,
+  "complete_provider_sdk_bytes_retained": false,
+  "release_qualified": false,
+  "scope": "I retain two real C seed images and one candidate-created native compiler. Other provider/tool hashes are reports without retained bytes. No complete successful pair supports a whole-factory gain; I establish no whole-factory performance gain and do not rerun this completed plan. Metadata correctness acceptance remains separate."
+}

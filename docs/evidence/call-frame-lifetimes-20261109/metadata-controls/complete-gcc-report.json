@@ -1,0 +1,980 @@
+{
+  "run": 42608187904,
+  "artifact": 13669582205,
+  "head": "f92237c52a894eea7d4ee13de5dfc4df224a99f9",
+  "compiler": "gcc",
+  "archive_sha256": "e9f2e167455ea7f6bc41c9d49eaf9f81a7e23b4ba49aad784e2c374b42caecdc",
+  "entries_crc_hash_checked": 1822,
+  "source_tree_git_matched": true,
+  "reported_stable_providers": 6,
+  "stable_input_reports": 59,
+  "git_matched_unique_inputs": 76,
+  "uploaded_hash_matched_unique_inputs": 51,
+  "hash_matched_provider_reports": 5,
+  "native_products_before_after_bytes_matched": 36,
+  "scalar_products_before_after_bytes_matched": 20,
+  "native_entries": [
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-wwim_sjk/native-O0",
+      "sha256": "fd7c00e9d9c6963ed1ea6bded201cc2237b2cb1fa56242059d2acc3daf8fa805",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-wwim_sjk/native-O2",
+      "sha256": "c5ac2d68b2beef11b49a26373152a6522df3d24f480e71bc7e93bba5731fa309",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-kes97kmj/native-O0",
+      "sha256": "41c53b947fea849b39c52dab97caed1d5e34f917372d005dfbbcd623ec1537dc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-kes97kmj/native-O2",
+      "sha256": "fb542f8581591bd0126de596c34e3168a3804a5dadb46c5cdbc8bd1f1a1622f8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-f97edoqz/native",
+      "sha256": "a724cc5f34af1feda111553c3334b97b3a640c0025c765ec268d79f25fbfca79",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-gb1o6vcz/native",
+      "sha256": "296f8e2f883554dde04e8589379e095405130daf62b70d61130d91f834c1a4cd",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-rdjrwams/native",
+      "sha256": "ba1316916ecac25494a58a9823f50ceea1f921bef301581c5273f909b6e8611b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-s_ratofw/native",
+      "sha256": "28a8b9375225b6230aaae27ad94c95c05d142cb9db79dde8f80aed2d0e084133",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-2o0kz8pi/native",
+      "sha256": "bd18749cbaf368924381562cf67f82a6a7ebde87a1a15e609789bc0488571f7b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-ce_8pr_7/native",
+      "sha256": "7779d234b6acda0ccd94371c3c0e5d0c137ca1c49c890c20cb0e8e2001f28721",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-lfqxekt4/native",
+      "sha256": "adc1155e86cd5203d9d17034137016b13abc124441509e657505a9f17ae52ef7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-ws266x1r/native",
+      "sha256": "71add2c70a003ab96fe096526e79bf6dfb6fb361ceb7c3783ea670af9ab94b80",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/binary-nul-nanoc_c/program",
+      "sha256": "02a0ba396c4e0951dfaf495a4ed34e43ff6c36fa99f3d9f31a48d6fb0095c7e1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+      "sha256": "032ebcaea4e514da7cb8f4818cc9d26ab32b0b3faa8f9b3b1f9e280a341a4b42",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-negative-nanoc_c/program",
+      "sha256": "a4cf9336dfc44600528457198a0f3191246619f58a32f6c4de6f5b787caf15c7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+      "sha256": "add3bb446c78700a960c51998d2eb343d855250c3af7aadc55866e599cc831b2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+      "sha256": "69fc212c2ed68ae6278dc0fe9ce969f86436adddb66022a2fbfe7752d8b8e57d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+      "sha256": "9ca64c4ec23f33207f19560d017aaf72e458d1ae3b573b0625325b8863fa8c43",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+      "sha256": "af3f06f8e77967fd7f6490d3bcc5650f855958d7236e3c515f4b5a70da12e84c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+      "sha256": "44a34aaed4f9fbcf44eb94ac32260332f93a07b4a599a7c3d7f0fb634bb2538f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+      "sha256": "f3a032368fcf472858196e8c0f233d7997429c39127847dde435d8123a57bbdf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-05sr1e30/native-O0",
+      "sha256": "ae7068747dbaed497d200805cf2ea8f698bcf681008e7fdd65d5a44260065ba9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-05sr1e30/native-O2",
+      "sha256": "732e2e8d77c459f9e312a51a17edf333a0577959c8b134feaafed1739212bc3a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-f_hh0t3c/native-O0",
+      "sha256": "c12916a1136f21521f655fe3877c85301c575d6ebf201cf5d227a3bd6b91a802",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-f_hh0t3c/native-O2",
+      "sha256": "6db1ff7eee07148446276ebd016658169af2b1417de689b3703dc8e918a7ff05",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-gc6801ns/native-O0",
+      "sha256": "3b1a5f156d3b0bee10f24aeab8dbe4023ee4a6872c8f86d5505c6ec54c1807e3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-gc6801ns/native-O2",
+      "sha256": "2ff967ae1ae4e85103cc96805854f7d080050829462cba86d9a79906d2a20504",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-gpn8p68j/native-O0",
+      "sha256": "cd2d5c2bfd8a83a4f63c00ed19c72f5b5fcaf8b52d3e1637e2e6f3ae179c9989",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-gpn8p68j/native-O2",
+      "sha256": "0057c0d9c53ccaa2d6b323b921a1d431c4a178a3f49be8ffb99ea2931dd67b9d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-l5p3d066/native-O0",
+      "sha256": "b1177ca385d43dfedf7c492678799416734b0dc357eed5c08173f43cae4a0770",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-l5p3d066/native-O2",
+      "sha256": "156ac2536d48f84f1aba8b6a521225a53ff036aa6ec3f8a7ffbba35d1f319fe3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-q1zzsq5d/native-O0",
+      "sha256": "b22f3ee161eb135332561a676cf2f4d46b8a80d6650702b9b34373fa63a92da2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-q1zzsq5d/native-O2",
+      "sha256": "8fa9461f5fd86aaedf9004aebeb8ab257809f9dc2106affd2d1b71f5449a2aae",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-up1ypx85/native-O0",
+      "sha256": "9b9034ee2aa62d3df339e32a3d300b4accf0354b892f049e9ba109aab639a980",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-up1ypx85/native-O2",
+      "sha256": "d5152e754f9eb7f36c3932a7481a454b6e12052c8b4395af70c95dae4230500a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-vh0n2h1k/native-O0",
+      "sha256": "5b226d32ca2b80c3b95fcc8ef81599f0ee2c9f00e474794a558f4f4a7d301bf1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-vh0n2h1k/native-O2",
+      "sha256": "17799297d8bf8f239726d5db19245a560cdbb60c6bd0d75c62d0b54368da8c1a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-57w26qxu/native-O0",
+      "sha256": "c22ee31f2d1f358c23694e831cb4130c080c748a9419c47733fc00dff2199958",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-57w26qxu/native-O2",
+      "sha256": "edbd65560ca05a0cb176a6478881b42e62e103551c1c63b53d20fe716a569f04",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-aauvcva9/native-O0",
+      "sha256": "cd5b5147ecfa84d9ff045275972adf5eeabc686d4378d492b719fee3d2cb29e2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-aauvcva9/native-O2",
+      "sha256": "b269f1661ae5f554f4e4897866b0d5fb7799f6a8a2569091ac508c29fa122795",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-_cc4ug58/native-O0",
+      "sha256": "37a136684c8eacbadf1a196bcff534323ae38510153758b94e6f26b41d05ab03",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-_cc4ug58/native-O2",
+      "sha256": "07e63162c3a2b3fe18751cd4336da7e45806dd69cb4a52d5f541dfa152954879",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-4h9k_iih/native-O0",
+      "sha256": "1110e144c7457aaddb200201375d9533a766bca59f0b7e95dfb00bfc562a517d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-4h9k_iih/native-O2",
+      "sha256": "67b894ba600ad862592242b9efb435cd6933d97f9c70d96805500b00e920fa4f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-payload/original-y2dhz4tt/unit",
+      "sha256": "a0c72c12546ae8590ff065fb12ccc79f3e5df8af50f96ff9ac45e3cbee3a19a5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-3vkl9fyp/native-O0",
+      "sha256": "a29051e2854709d9ce9561fdbc103f51afaca58ad9d316e1bc692483018a2e71",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-3vkl9fyp/native-O2",
+      "sha256": "8635ec79516cff0d881b16156ed3dc942e15bd89ce0ecbd9bfa40503f5489e67",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/all-native-O0",
+      "sha256": "df3f9b9456f94fc722f1cd3772ffba4c8953e5696a07a15dc640a322d22abd3c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/all-native-O2",
+      "sha256": "54bdb71df659f0341f4184485395d9e68ebe63d8c34666f059f04ecc1484a376",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/bad-marker-O0",
+      "sha256": "e76cca8f289c07c487704ce46cde92e814aca52a845c60d6185535b8c54eeaa2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/bad-marker-O2",
+      "sha256": "08aef0651c25e145a38b607213aca0a7fe870bf1928ccd5488b9f53be6f96529",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/bad-marker-dependency.so",
+      "sha256": "d6f7975bdefcd7aef811159b64a0cacc5ce6dc004bccffc42e2fcdbe58dff723",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/bad-marker-origin.so",
+      "sha256": "b5ca01cf8035b40250e0e798bfd26e62cad2c7af7e88c89f3251508de03f70db",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/both-dependency-O0",
+      "sha256": "2aafc39a2f377013500421a594997d75b8794563ad14cb94b31c39477bd4dfbe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/both-dependency-O2",
+      "sha256": "16bb00b89ee09a3218059cac3c0a4f44dbbf1468c3069643825813f5371bcc50",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/both-dependency-dependency.so",
+      "sha256": "c14f7e4669a773c87c1a93ba3110ec728a3dc0eb7e62193a8e6aa9962eadb084",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/both-dependency-origin.so",
+      "sha256": "8657d43dfbd7dcea5cb37c0dfab12e342eeb988f833fd56e432d5d7a7b2a3e72",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/collections-plain.so",
+      "sha256": "533a3d315454624c40a6a9e6604e588ef92a4e46ce07611e65b84807c985df15",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/collections-sanitized.so",
+      "sha256": "bae8230f94c827a4c4a63306d8a5a9e01c072cbc0d7a3bdee0b423199866bfc7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/companion-dependency-O0",
+      "sha256": "36758ecfe8dab4d0eabb2d179ad9247dc016a17f28cbf888b552da0e38e285c3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/companion-dependency-O2",
+      "sha256": "c1cc01054f93397d98e54b15e5e6b5ca73701a9ccc034d980f334220ccc8f951",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/companion-dependency-dependency.so",
+      "sha256": "715a879fd898911fd1a02389bcf8d4386c5b5f6d46dbea26958875ae94d08dc1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/companion-dependency-origin.so",
+      "sha256": "a3fa6496b8639aa4531366e10812778385c466a32f7302daced0ec722252f041",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/copy-control-O0",
+      "sha256": "f0941ffb2900ce6bfc971858ced0c070409338a5207684b45742314287b69e90",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/copy-control-O2",
+      "sha256": "a60c0e2e49f3cacaa6d323e41a8e03aec30b51e571e711dbefcb669b3f506122",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/fs-sanitized.so",
+      "sha256": "5a30e3b46cf3d6df29aa9abab25d26f58271638755d42d390ac88d4bcaf9cb5d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/json-fs-O0",
+      "sha256": "b707476fbb2d8354ae72be564c3b2a6bc0580b5702658d454414d92fbd5fced2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/json-fs-O2",
+      "sha256": "8563ad6ad76aee449c21b6430ce8661ea09f98ffb12fb68778e248a578316299",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/json-sanitized.so",
+      "sha256": "b7c7ee88b09d0a0e9eaeb8bea6af5c785cfed440fcb412b2c82d7e23c482b21a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/marker-dependency-O0",
+      "sha256": "5207016b03a30d0b396e9578bb711c300c92e29fd5e58bc54b69c72babc46fa0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/marker-dependency-O2",
+      "sha256": "7260401463c75127f4e581e59b47a339827f1a3fe58350251f76e77977c911f7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/marker-dependency-dependency.so",
+      "sha256": "a6cfdd3fe2ddeeea7effb3b39a05b4aae6ac0006e02150b17d157709c1955ad3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/marker-dependency-origin.so",
+      "sha256": "9195df758749e8b886857e70c5150c9dead46520022fe7406cc0aeaf9dc610f4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-companion-O0",
+      "sha256": "26cc20a3465459074bd306c1e31fdaff2d3379b389ca2df9692ee27e99a8eef9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-companion-O2",
+      "sha256": "25c330fb9ee6a0e3a73339f52d813dcbde523adfe304ab406bc7d364fb201070",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-companion-dependency.so",
+      "sha256": "0de70de778f83aa825eb0e48191ce8b97ee2b55bff4e3c1b03b0080ee10369ec",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-companion-origin.so",
+      "sha256": "8f94d4429522a82b15766cedee596687a15a2fcf084115882ecab4020eecd745",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-marker-O0",
+      "sha256": "a8d944f501ad869ba31e0820e210e9b23bee69bf8259b4516c50c03a789d23d8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-marker-O2",
+      "sha256": "6d124d95e8d280a3bcb09f4a8cafbe9727ab004cf3962a3f5ca89507d8330eb4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-marker-dependency.so",
+      "sha256": "3f52591c642b1e2265e92ee582221413c24da4b628b6e72b4fe831c4581d6da9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-argp32rl/missing-marker-origin.so",
+      "sha256": "67caf68445027be8031635f44b9616c73651c4067fec0aeaae06abb19aa07f29",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-a1a0f0j4/plain",
+      "sha256": "fd4e488c03990f345c0dabf9a3c6acfd3f5befbc9605d67894f8166f8475c6fa",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-a1a0f0j4/sanitized",
+      "sha256": "18fe0d65fdf47e0820dd505180bc14ded64a67a54bbd72fc72135f2aa652c182",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-a1a0f0j4/threaded",
+      "sha256": "b7556cdfcd9bccc7c9097ebc30a212dca63fd6f3725ce3d68c6bf852b72dbc4c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-352mwxxt/plain",
+      "sha256": "c88e9803fd37ad6bf3c2d9bed9679e35c49befd20bed2c4f344533af743d7b3a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-352mwxxt/sanitized",
+      "sha256": "5555181d54b28e967602556ffd2944fc1a1aa8c58a0bb50df78b174b2c94c3d0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-352mwxxt/threaded",
+      "sha256": "7eb88ff152aa339ed296e1bda7c36fd00724fe0623c60f550fad6e7d29e70718",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-array-results-zu_rgl45/plain",
+      "sha256": "681b632f344f2bf0eacb691c17803b80cad1f4a5fd3cd80928b70431e13471be",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-array-results-zu_rgl45/sanitized",
+      "sha256": "e4291109030b64d65f6afb1ada29c04f469812f0f2c238ac292a2749b1165eed",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/plain/driver",
+      "sha256": "f02403c9068915f87d5538be9356cd161b4c0c44c639dfcc9ab6fb1c86194c89",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/plain/libcollections.so",
+      "sha256": "11e83095098b638a78f805716173340d04b51a6f3aa9ed181370679c8fc816d3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/plain/libdependency.so",
+      "sha256": "8da2e427d4f1c831827e2d1c7af46c8e5137caedd25bc5ce2abda5a63275b62a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/plain/liborigin.so",
+      "sha256": "b1202b8e91823c5f93435559a729e0b73e9d46d47f2c7279058636de122e94d2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/sanitized/driver",
+      "sha256": "5f9e98ce4f03a72a83f9aae16375f151d1e4d9ad6831db2b782b7a2946b4e355",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/sanitized/libcollections.so",
+      "sha256": "9698bec52e1955938a72284658621f175d1240818f4876a98978a692bb067425",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/sanitized/libdependency.so",
+      "sha256": "0e7d8157c70c3730b18595fa080e2002029bdaf5ca93b1eb7cb88cd2de1266fe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/sanitized/liborigin.so",
+      "sha256": "60e4bd92a4a525a34616d44f0471ff6f9d173606957555a1982c6895e35dd37e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/threaded/libcollections.so",
+      "sha256": "4b9e665bd27f311e9fb8dc7d76b60cf5a46c733862938569e8fb9890a9244988",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/threaded/driver",
+      "sha256": "faa5d806ba6cbfd27c82662a60ac336945e372a0473ff7bdd0e6c531262663a1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/threaded/libdependency.so",
+      "sha256": "7c6f75dc8f28f3171d18d44ac20ce635777ce87f756105402812214a6caf07ba",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-oepjfd0_/threaded/liborigin.so",
+      "sha256": "9a0d113b94b277ea38a89dfdbfd60b406d49d60019f2a5c1ffd952f7a63e3178",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/plain/driver",
+      "sha256": "f02403c9068915f87d5538be9356cd161b4c0c44c639dfcc9ab6fb1c86194c89",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/plain/libcollections.so",
+      "sha256": "5e8e765001ccf2c8ca0dbcb8df146b7562fc0d844c4ba2e0d7a23e0d3c7781c4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/plain/libdependency.so",
+      "sha256": "e2ed945100ab5ce5eae71c76e5f976cc63b2c6fbfe05766d66fc843e387177d8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/plain/liborigin.so",
+      "sha256": "dbc326f8b8c0c10e1d0eda60f71690bb3488206e73dde4e6c92863a13db3c07c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/sanitized/driver",
+      "sha256": "5f9e98ce4f03a72a83f9aae16375f151d1e4d9ad6831db2b782b7a2946b4e355",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/sanitized/libcollections.so",
+      "sha256": "241c321fd4ac163fb4f370391012199695e109696b809a152b8b350d71017676",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/sanitized/libdependency.so",
+      "sha256": "f9a3f92c6effcf3a1cd6dd50a7cbb50908b23cc82d031c4b9c774e0a8e0c74ff",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/sanitized/liborigin.so",
+      "sha256": "0cf91bbe85aaab2339688831f39fe469619bfc2b9e2fa72b4d4d1c8ac30bf013",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/threaded/driver",
+      "sha256": "faa5d806ba6cbfd27c82662a60ac336945e372a0473ff7bdd0e6c531262663a1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/threaded/libcollections.so",
+      "sha256": "de6c12a40277e9f429da9a5c12023888449bbc85acde7d42438b0eaa4721adda",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/threaded/liborigin.so",
+      "sha256": "ca43346305950415a724f3fc68e1eda82577ec73191c4770f5662a47e5882157",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-xruk82eg/threaded/libdependency.so",
+      "sha256": "40257b5e100446f221c3fd559f79dd10e9f17a51cf7f8140d52e4f2a2f49aa94",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-9py7j05f/native-O0",
+      "sha256": "6cd870267bdbb8f66dc6dc89d5d722d7e87ec08c76490e7a6d864d38b8724743",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-9py7j05f/native-O2",
+      "sha256": "13d40fd8bfe8a3d253b31f285eb6c1318c5a7cb38cd8f8533ce4a7422414acd9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-l44g_l80/native-O0",
+      "sha256": "8144f674450edec3bdf4c17d827f051652c7f0591ee95a6239fa5ce8f857efe3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-l44g_l80/native-O2",
+      "sha256": "67e567a8f16e8e44e1458b164cd0292dc14076a8e3f6574784b8fd113bcfcad3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-9__knxfr/native-O0",
+      "sha256": "c5fde8944276d52d97df2eda8b619d6286d0d9d6bf917b7270649efc7924baa5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-9__knxfr/native-O2",
+      "sha256": "7ab6f0cebce97695778a6007b2526c6bffe0514e3c23f92e01d8bbc32f85ea30",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "source-checker-component/actual-native-gzc0blm7/checker",
+      "sha256": "26cea641379066803611a8f599d40501140ff71db3da68c24f39c429f5b789d9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "source-checker-component/language-string-self-0kyhq_or/native",
+      "sha256": "7695f16858fd6a9305536a5780c9053560505d91fa06691c78defaf9a96ea437",
+      "kind": 3,
+      "format": "ELF"
+    }
+  ],
+  "binary_entries": [
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-wwim_sjk/native-O0",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-wwim_sjk/native-O2",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-wwim_sjk/program.nvm",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-kes97kmj/native-O0",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-kes97kmj/native-O2",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-kes97kmj/program.nvm",
+    "bstring-c-contracts/O0-f97edoqz/native",
+    "bstring-c-contracts/O0-gb1o6vcz/native",
+    "bstring-c-contracts/O0-rdjrwams/native",
+    "bstring-c-contracts/O0-s_ratofw/native",
+    "bstring-c-contracts/O2-2o0kz8pi/native",
+    "bstring-c-contracts/O2-ce_8pr_7/native",
+    "bstring-c-contracts/O2-lfqxekt4/native",
+    "bstring-c-contracts/O2-ws266x1r/native",
+    "bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+    "bstring-contract-baselines/binary-nul-nanoc_c/program",
+    "bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+    "bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-negative-nanoc_c/program",
+    "bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+    "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+    "bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+    "bstring-contract-baselines/substring-overflow-sanitized-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+    "bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+    "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+    "bstring-contract-baselines/useful-function-shadow-nano_virt/program.nvm",
+    "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+    "bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+    "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+    "bstring-native-contracts/generated-collection-05sr1e30/native-O0",
+    "bstring-native-contracts/generated-collection-05sr1e30/native-O2",
+    "bstring-native-contracts/generated-collection-05sr1e30/program.nvm",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-f_hh0t3c/native-O0",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-f_hh0t3c/native-O2",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-f_hh0t3c/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-gc6801ns/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-gc6801ns/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-gc6801ns/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-gpn8p68j/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-gpn8p68j/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-gpn8p68j/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-l5p3d066/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-l5p3d066/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-l5p3d066/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-q1zzsq5d/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-q1zzsq5d/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-q1zzsq5d/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-up1ypx85/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-up1ypx85/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-up1ypx85/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-vh0n2h1k/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-vh0n2h1k/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-vh0n2h1k/program.nvm",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-57w26qxu/native-O0",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-57w26qxu/native-O2",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-57w26qxu/program.nvm",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-aauvcva9/native-O0",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-aauvcva9/native-O2",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-aauvcva9/program.nvm",
+    "bstring-native-contracts/test_typed_owner_array_aliases-_cc4ug58/native-O0",
+    "bstring-native-contracts/test_typed_owner_array_aliases-_cc4ug58/native-O2",
+    "bstring-native-contracts/test_typed_owner_array_aliases-_cc4ug58/program.nvm",
+    "bstring-native-contracts/test_unchanged_original_fixture-4h9k_iih/native-O0",
+    "bstring-native-contracts/test_unchanged_original_fixture-4h9k_iih/native-O2",
+    "bstring-native-contracts/test_unchanged_original_fixture-4h9k_iih/program.nvm",
+    "bstring-native-payload/original-y2dhz4tt/unit",
+    "bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-an0tzs05/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-4wh0qgqe/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-dcfmzl0u/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-hhvtooqv/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-ujy51hyi/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-xn8e7cm8/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-ybdyanu7/program.nvm",
+    "bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-beo8fvlb/program.nvm",
+    "bstring-vm-contracts/test_unchanged_original_fixture-sfs4bcg5/program.nvm",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-3vkl9fyp/native-O0",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-3vkl9fyp/native-O2",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-3vkl9fyp/program.nvm",
+    "collection-aot-argp32rl/all-native-O0",
+    "collection-aot-argp32rl/all-native-O2",
+    "collection-aot-argp32rl/all-native.nvm",
+    "collection-aot-argp32rl/all-vm.nvm",
+    "collection-aot-argp32rl/bad-marker-O0",
+    "collection-aot-argp32rl/bad-marker-O2",
+    "collection-aot-argp32rl/bad-marker-dependency.so",
+    "collection-aot-argp32rl/bad-marker-origin.so",
+    "collection-aot-argp32rl/bad-marker.nvm",
+    "collection-aot-argp32rl/both-dependency-O0",
+    "collection-aot-argp32rl/both-dependency-O2",
+    "collection-aot-argp32rl/both-dependency-dependency.so",
+    "collection-aot-argp32rl/both-dependency-origin.so",
+    "collection-aot-argp32rl/both-dependency.nvm",
+    "collection-aot-argp32rl/collections-plain.so",
+    "collection-aot-argp32rl/collections-sanitized.so",
+    "collection-aot-argp32rl/companion-dependency-O0",
+    "collection-aot-argp32rl/companion-dependency-O2",
+    "collection-aot-argp32rl/companion-dependency-dependency.so",
+    "collection-aot-argp32rl/companion-dependency-origin.so",
+    "collection-aot-argp32rl/companion-dependency.nvm",
+    "collection-aot-argp32rl/copy-control-O0",
+    "collection-aot-argp32rl/copy-control-O2",
+    "collection-aot-argp32rl/copy-control.nvm",
+    "collection-aot-argp32rl/fs-sanitized.so",
+    "collection-aot-argp32rl/json-fs-O0",
+    "collection-aot-argp32rl/json-fs-O2",
+    "collection-aot-argp32rl/json-sanitized.so",
+    "collection-aot-argp32rl/json-fs.nvm",
+    "collection-aot-argp32rl/marker-dependency-O0",
+    "collection-aot-argp32rl/marker-dependency-O2",
+    "collection-aot-argp32rl/marker-dependency-dependency.so",
+    "collection-aot-argp32rl/marker-dependency-origin.so",
+    "collection-aot-argp32rl/marker-dependency.nvm",
+    "collection-aot-argp32rl/missing-companion-O0",
+    "collection-aot-argp32rl/missing-companion-O2",
+    "collection-aot-argp32rl/missing-companion-dependency.so",
+    "collection-aot-argp32rl/missing-companion-origin.so",
+    "collection-aot-argp32rl/missing-companion.nvm",
+    "collection-aot-argp32rl/missing-marker-O0",
+    "collection-aot-argp32rl/missing-marker-O2",
+    "collection-aot-argp32rl/missing-marker-dependency.so",
+    "collection-aot-argp32rl/missing-marker-origin.so",
+    "collection-aot-argp32rl/missing-marker.nvm",
+    "collection-aot-argp32rl/nl_hm_clear-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_clear-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_clear-result.nvm",
+    "collection-aot-argp32rl/nl_hm_free-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_free-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_free-result.nvm",
+    "collection-aot-argp32rl/nl_hm_get-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_get-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_get-result.nvm",
+    "collection-aot-argp32rl/nl_hm_has-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_has-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_has-result.nvm",
+    "collection-aot-argp32rl/nl_hm_keys-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_keys-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_keys-result.nvm",
+    "collection-aot-argp32rl/nl_hm_new-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_new-result.nvm",
+    "collection-aot-argp32rl/nl_hm_put-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_put-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_put-result.nvm",
+    "collection-aot-argp32rl/nl_hm_remove-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_remove-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_remove-result.nvm",
+    "collection-aot-argp32rl/nl_hm_size-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_size-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_size-result.nvm",
+    "collection-aot-argp32rl/nl_hm_values-arity.nvm",
+    "collection-aot-argp32rl/nl_hm_values-parameter.nvm",
+    "collection-aot-argp32rl/nl_hm_values-result.nvm",
+    "collection-aot-argp32rl/nl_set_add-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_add-arity.nvm",
+    "collection-aot-argp32rl/nl_set_add-result.nvm",
+    "collection-aot-argp32rl/nl_set_clear-arity.nvm",
+    "collection-aot-argp32rl/nl_set_clear-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_clear-result.nvm",
+    "collection-aot-argp32rl/nl_set_free-arity.nvm",
+    "collection-aot-argp32rl/nl_set_free-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_free-result.nvm",
+    "collection-aot-argp32rl/nl_set_has-arity.nvm",
+    "collection-aot-argp32rl/nl_set_has-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_has-result.nvm",
+    "collection-aot-argp32rl/nl_set_new-arity.nvm",
+    "collection-aot-argp32rl/nl_set_new-result.nvm",
+    "collection-aot-argp32rl/nl_set_remove-arity.nvm",
+    "collection-aot-argp32rl/nl_set_remove-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_remove-result.nvm",
+    "collection-aot-argp32rl/nl_set_size-arity.nvm",
+    "collection-aot-argp32rl/nl_set_size-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_size-result.nvm",
+    "collection-aot-argp32rl/nl_set_values-arity.nvm",
+    "collection-aot-argp32rl/nl_set_values-parameter.nvm",
+    "collection-aot-argp32rl/nl_set_values-result.nvm",
+    "collection-handles-a1a0f0j4/plain",
+    "collection-handles-a1a0f0j4/sanitized",
+    "collection-handles-a1a0f0j4/threaded",
+    "collection-snapshots-352mwxxt/plain",
+    "collection-snapshots-352mwxxt/sanitized",
+    "collection-snapshots-352mwxxt/threaded",
+    "ffi-array-results-zu_rgl45/plain",
+    "ffi-array-results-zu_rgl45/sanitized",
+    "ffi-result-release-oepjfd0_/plain/copy.nvm",
+    "ffi-result-release-oepjfd0_/plain/cross-image.nvm",
+    "ffi-result-release-oepjfd0_/plain/driver",
+    "ffi-result-release-oepjfd0_/plain/input-alias.nvm",
+    "ffi-result-release-oepjfd0_/plain/libcollections.so",
+    "ffi-result-release-oepjfd0_/plain/libdependency.so",
+    "ffi-result-release-oepjfd0_/plain/liborigin.so",
+    "ffi-result-release-oepjfd0_/sanitized/driver",
+    "ffi-result-release-oepjfd0_/sanitized/libcollections.so",
+    "ffi-result-release-oepjfd0_/sanitized/libdependency.so",
+    "ffi-result-release-oepjfd0_/sanitized/liborigin.so",
+    "ffi-result-release-oepjfd0_/threaded/libcollections.so",
+    "ffi-result-release-oepjfd0_/threaded/driver",
+    "ffi-result-release-oepjfd0_/threaded/libdependency.so",
+    "ffi-result-release-oepjfd0_/threaded/liborigin.so",
+    "ffi-result-release-xruk82eg/plain/driver",
+    "ffi-result-release-xruk82eg/plain/libcollections.so",
+    "ffi-result-release-xruk82eg/plain/libdependency.so",
+    "ffi-result-release-xruk82eg/plain/liborigin.so",
+    "ffi-result-release-xruk82eg/sanitized/driver",
+    "ffi-result-release-xruk82eg/sanitized/libcollections.so",
+    "ffi-result-release-xruk82eg/sanitized/libdependency.so",
+    "ffi-result-release-xruk82eg/sanitized/liborigin.so",
+    "ffi-result-release-xruk82eg/threaded/driver",
+    "ffi-result-release-xruk82eg/threaded/libcollections.so",
+    "ffi-result-release-xruk82eg/threaded/liborigin.so",
+    "ffi-result-release-xruk82eg/threaded/libdependency.so",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-9py7j05f/native-O0",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-9py7j05f/native-O2",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-9py7j05f/program.nvm",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-l44g_l80/native-O0",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-l44g_l80/native-O2",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-l44g_l80/program.nvm",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-9__knxfr/native-O0",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-9__knxfr/native-O2",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-9__knxfr/program.nvm",
+    "source-checker-component/actual-native-gzc0blm7/checker",
+    "source-checker-component/language-string-self-0kyhq_or/native",
+    "string-builtin-operands/translator-storage/nano-qualification-i53whjw7.tar.gz"
+  ],
+  "unbound_input_paths": [],
+  "original_translator_passed": 2458,
+  "archive_retained": ".test_output/call-metadata-complete-gcc-42608187904.zip",
+  "scope": "I CRC/hash-check every retained archive entry, compare the complete source tree to Git, verify before/after input reports and available Git/provider/uploaded identities, and bind reported products to their uploaded bytes. I do not claim all omitted tools/providers are retained, every subprocess has an independent witness, source reliability, full SDK closure or release qualification."
+}

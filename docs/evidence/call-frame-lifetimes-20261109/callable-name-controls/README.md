@@ -25,3 +25,10 @@ controls use cached dependency objects; they do not establish complete fresh
 provider, sanitizer, nested-signature, escaped-record or NativeSDK acceptance.
 My underlying compiler executable was not measured before this diagnostic;
 I do not claim a complete toolchain identity receipt. #1140 remains open.
+
+My subsequent positive-control plan adds one independently owned global callable
+binding after the fixed batches. Real environment teardown releases its one
+observed name and four annotation allocations. The tracker therefore observes
+both actual allocation and actual reclamation. The10000 indirect-call names and
+40000 annotations remain unmatched. I retain both plans, with distinct observed
+heap-size deltas; allocator variation does not change these exact counts.

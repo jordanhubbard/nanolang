@@ -77,3 +77,40 @@ The final started shadow is `service_wire_serialize`. I do not attribute that
 unfinished shadow or historical failures to a proved teardown cause. Later
 controls and the other plans remain running at this checkpoint; I do not call
 complete original source/platform acceptance green or restart the failed plan.
+
+All declared plans are now terminal. Complete Clang passes. Complete GCC and
+Apple fail only their source-emitter factory step; both later original
+translator controls pass2458 checks. Apple stops after1064 shadow starts and
+1063 completions, with zero recorded assertion failures and9.856874 summed
+completed-body seconds; the last started shadow is `nanoisa_emit_shadows_nasm`.
+I preserve the terminal metadata and original logs separately. My full archive
+audits check1822 GCC,6573 Clang and2023 Apple entries, complete Git trees,
+476 stable-input reports,144 reported native products and72 other reported
+products against uploaded bytes. I retain the complete archives locally;
+provider/tool hash reports without uploaded bytes do not establish SDK closure.
+
+My fixed six-attempt GCC comparison42608197477 finishes in its declared order:
+original failure, modified failure, modified success, original failure,
+original failure, modified failure. Baseline succeeds0/3; corrected metadata
+code succeeds1/3. Every completed shadow reports zero assertion failures;
+the second attempt stops after1281 starts/1280 completes, while the other
+five complete1286/1286. Five factory failures retain the original ten-second
+supervision refusal. Zero fully successful pairs support a whole-factory gain.
+I preserve and independently audit all53 entries,197 shared Git inputs,
+67 stable source/provider inputs per attempt, two actual C seed ELF images
+and the one actual candidate-created ELF compiler. That compiler is created,
+not executed by this factory comparison. Metadata correctness, broader callable
+ownership and complete source acceptance remain distinct requirements.
+
+I retain three initial archive-auditor refusals. I distinguish refused
+compilation's exact prior bytes from an executed product's before/after hash,
+enumerate the inherited source-provider negative fixtures and normalize their
+explicit source/provider identity schema. I still require the same byte/hash
+and refusal/no-execution evidence; I suppress no native test failure.
+
+Three actual altered-archive controls refuse independently: changed seed-image
+bytes, changed shared-source identity and changed candidate compiler bytes.
+Their commands and complete refusal streams remain in
+`../metadata-comparison-audit/refusal-controls.json.gz`. I retain six original
+hosted job logs and terminal run metadata. These are archive audits; none starts
+a new native factory.
