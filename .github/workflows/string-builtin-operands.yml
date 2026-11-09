@@ -9,6 +9,7 @@ on:
       - 'tests/test_env_symbol_index.c'
       - 'src/runtime/gc.c'
       - 'tests/test_gc_struct.c'
+      - 'tests/test_gc_allocation_failure.c'
       - 'src/eval.c'
       - 'src/eval/bstring_intrinsics.inc'
       - 'src/eval/record_carrier_cleanup.inc'

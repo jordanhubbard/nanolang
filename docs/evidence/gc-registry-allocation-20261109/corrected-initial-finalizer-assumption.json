@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=clang",
+    "test-gc-shutdown-sanitizers",
+    "test-eval-bstring-sanitizers",
+    "test-nl-string-bounds-sanitizers"
+  ],
+  "returncode": 2,
+  "before": {
+    "src/runtime/gc.c": "5362c96d79332f33c557b7cc6ee61afe4680b8c0c08eab0ead59660547ac4a0b",
+    "tests/test_gc_allocation_failure.c": "38184158165593ca7163ae61a4604ef539a7380451ff9f52f1370010f4543e38",
+    "Makefile.gnu": "dce34797789899647b64c9ff077c10924a0e899b5b64cc7b6707572c86de3080"
+  },
+  "after": {
+    "src/runtime/gc.c": "5362c96d79332f33c557b7cc6ee61afe4680b8c0c08eab0ead59660547ac4a0b",
+    "tests/test_gc_allocation_failure.c": "38184158165593ca7163ae61a4604ef539a7380451ff9f52f1370010f4543e38",
+    "Makefile.gnu": "dce34797789899647b64c9ff077c10924a0e899b5b64cc7b6707572c86de3080"
+  },
+  "products": {
+    "obj/test_gc_shutdown": "d3e6bde1b30e4a2e70a2cd3d09a36f891d53bf563c7c9eb773f894c1713d9c7c",
+    "obj/test_gc_allocation_failure": "e499f2f0c669d54a2ae0cae8cfa8cfb641c0de71b759138f9b621fed10c039f3",
+    "obj/test_eval_bstring": "ba5892c730a80d10a55383acf1bb3b30e658145a910d4dd87a9ccf248a7ba4a2",
+    "obj/test_nl_string_bounds": "956bce55041773255680b290bb25398f73d660a2c12a136291a541cd0bdbb3b3"
+  },
+  "scope": "I execute the original thirteen GC controls plus actual allocation-failure controls and interpreted BSTRING/STRING sanitizer neighbors locally. Full source/platform and release remain open."
+}

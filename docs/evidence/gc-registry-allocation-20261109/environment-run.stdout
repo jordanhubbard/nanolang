@@ -1,0 +1,3 @@
+I perform 2000 lookups with 1000 name comparisons.
+I perform 2000 source-position lookups with 2000 name comparisons.
+I preserve indexed symbol scope, metadata, reset and fallback semantics.

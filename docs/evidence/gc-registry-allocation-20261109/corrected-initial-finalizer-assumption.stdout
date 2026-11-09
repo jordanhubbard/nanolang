@@ -1,0 +1,26 @@
+clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_struct.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o obj/test_gc_shutdown -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+ASAN_OPTIONS=detect_leaks=0 obj/test_gc_shutdown
+
+[gc_struct] GC-managed struct tests...
+
+  gc_struct_new_and_free                                  PASS
+  gc_struct_set_get_primitive                             PASS
+  gc_struct_get_field_by_name                             PASS
+  gc_struct_get_field_index                               PASS
+  gc_struct_get_field_out_of_bounds                       PASS
+  gc_struct_set_field_update                              PASS
+  gc_struct_free_null                                     PASS
+  gc_struct_clone_primitive                               PASS
+  gc_struct_gc_object_field                               PASS
+  gc_struct_field_types                                   PASS
+  gc_shutdown_statistics_and_finalization                 PASS
+  gc_allocation_size_boundary                             PASS
+  gc_shutdown_registry_visibility                         PASS
+
+All 13 gc_struct tests passed.
+clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.1.0/include -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_allocation_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o obj/test_gc_allocation_failure -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.1.0/lib
+ASAN_OPTIONS=detect_leaks=0 obj/test_gc_allocation_failure

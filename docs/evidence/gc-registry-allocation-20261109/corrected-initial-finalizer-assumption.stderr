@@ -1,0 +1,13 @@
+GC: Field 'missing' not found in struct 'Color'
+GC: Field index 5 out of bounds [0..1)
+GC: Field index -1 out of bounds [0..1)
+I cannot allocate a managed object whose header and payload size overflow.
+I cannot allocate a managed object whose header and payload size overflow.
+I cannot allocate a managed string whose terminator size overflows.
+GC: Out of memory (requested 44 bytes)
+I cannot allocate a managed object's pointer registry entry.
+GC: Out of memory (requested 48 bytes)
+I cannot allocate a managed object's pointer registry entry.
+GC: Out of memory (requested 44 bytes)
+I failed allocation control at line 57: gc_is_managed(ptr)
+make: *** [test-gc-shutdown-sanitizers] Error 1

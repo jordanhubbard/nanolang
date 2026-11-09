@@ -1,0 +1,2 @@
+GC: Out of memory (requested 44 bytes)
+I failed allocation control at line 98: owner == NULL

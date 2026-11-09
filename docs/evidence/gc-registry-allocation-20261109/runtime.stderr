@@ -1,0 +1,20 @@
+GC: Field 'missing' not found in struct 'Color'
+GC: Field index 5 out of bounds [0..1)
+GC: Field index -1 out of bounds [0..1)
+I cannot allocate a managed object whose header and payload size overflow.
+I cannot allocate a managed object whose header and payload size overflow.
+I cannot allocate a managed string whose terminator size overflows.
+GC: Out of memory (requested 44 bytes)
+I cannot allocate a managed object's pointer registry entry.
+GC: Out of memory (requested 48 bytes)
+I cannot allocate a managed object's pointer registry entry.
+GC: Out of memory (requested 44 bytes)
+I cannot allocate a managed object's pointer registry entry.
+I cannot allocate a managed object's pointer registry entry.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require live binary-string owners and exact operand types.
+I require the declared binary-string builtin arity.
+I require the declared binary-string builtin arity.

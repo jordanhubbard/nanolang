@@ -1,0 +1,33 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "clang",
+        "-std=c11",
+        "-D_GNU_SOURCE",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "tests/test_gc_allocation_failure.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc_struct.c",
+        "-o",
+        ".test_output/gc_registry_regression_baseline"
+      ],
+      "returncode": 0
+    },
+    {
+      "argv": [
+        ".test_output/gc_registry_regression_baseline"
+      ],
+      "returncode": 1
+    }
+  ],
+  "source_sha256": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+  "test_sha256": "38184158165593ca7163ae61a4604ef539a7380451ff9f52f1370010f4543e38",
+  "product_sha256": "ca64cc242726fd8cc3cbbbb1f5d95bf4a247be7b37a36a0c40366f3040e0a563"
+}
