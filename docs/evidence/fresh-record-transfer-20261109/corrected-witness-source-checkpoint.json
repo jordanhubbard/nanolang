@@ -1,0 +1,12 @@
+{
+  "previous": "2e8e5b9a2111c107fd6c25d809ffaa9a54ab4809",
+  "checkpoint": "c219ad528b0606de8c813c8e91f6747ab1c92760",
+  "implementation": "1e1ef0b8438430c683566ec5b83e6b7bc6e1166f",
+  "tree": "5f913734620c4dd4a8f2893429afb052e2716448",
+  "entries": 92836,
+  "changed_paths": [
+    "tests/test_eval.c"
+  ],
+  "added_source_paths": 0,
+  "scope": "I retain a complete independent Git index and preserve every other original path/mode/object entry. Native qualification and frame reclamation remain separate."
+}
