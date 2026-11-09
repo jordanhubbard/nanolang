@@ -114,3 +114,16 @@ this completed comparison for a better sample. Complete Clang/Apple component
 passes describe the tested candidate pin; they do not replace the failed fixed
 comparison, qualify the restored final head or close source reliability/frame
 reclamation.
+
+## My final restored-source regression gate
+
+Run42601837132 at3045a2238 passes both fresh GCC/Clang instrumented jobs,
+including all three retained record regressions, the complete original
+interpreter unit and original call/array routes. I CRC/hash-check all12 uploaded
+entries per job, match each full source-tree record to exact Git, verify both
+array alias result records and seven reported unchanged providers. Uploads do
+not contain the provider/unit native images, so I do not claim their independent
+byte custody or SDK closure. The final-restored-instrumented report, job log
+and final-gcc/final-clang inventories/texts retain this boundary. PR #1138 merges
+at391ddafa0 after exact-head proof/custody checks pass; local and origin branches
+are synchronized and the owned merged branch is pruned.

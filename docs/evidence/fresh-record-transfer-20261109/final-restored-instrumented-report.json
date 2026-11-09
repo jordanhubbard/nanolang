@@ -1,0 +1,82 @@
+{
+  "run": 42601837132,
+  "head": "3045a2238bbe155415d4910357586b682ee1637b",
+  "merge": "391ddafa0b3ffb7bf0ab5a97e950d737896b04c7",
+  "jobs": [
+    {
+      "compiler": "gcc",
+      "artifact": 13667010316,
+      "archive_sha256": "4c5432997cdc0c76bd399f7da14652f7d8f2f3ead7dd4dd9a108bbf048ff5b7f",
+      "entries": 12,
+      "full_git_source_tree_matches": true,
+      "new_regression_methods": 3,
+      "complete_original_interpreter_passed": true,
+      "array_alias_results": [
+        {
+          "provider": "nanoc_c",
+          "route": "source-native",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        },
+        {
+          "provider": "nano_virt",
+          "route": "canonical",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        }
+      ],
+      "reported_stable_providers": 7,
+      "native_provider_or_unit_bytes_uploaded": false
+    },
+    {
+      "compiler": "clang",
+      "artifact": 13666756172,
+      "archive_sha256": "552cc13a9b21f07a440f527df9b33d5ff223c7797e265ffa126936bc8fdd8e53",
+      "entries": 12,
+      "full_git_source_tree_matches": true,
+      "new_regression_methods": 3,
+      "complete_original_interpreter_passed": true,
+      "array_alias_results": [
+        {
+          "provider": "nanoc_c",
+          "route": "source-native",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        },
+        {
+          "provider": "nano_virt",
+          "route": "canonical",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        }
+      ],
+      "reported_stable_providers": 7,
+      "native_provider_or_unit_bytes_uploaded": false
+    }
+  ],
+  "scope": "I audit complete uploaded logs, Git source tree and reported stable provider hashes. The workflow executes real instrumented providers and the complete interpreter unit; its uploads do not retain their native image bytes, and this is not NativeSDK closure."
+}
