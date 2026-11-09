@@ -150,6 +150,25 @@ class KernelExitObserver(unittest.TestCase):
         bad=copy.deepcopy(record);bad['end_ns']=bad['start_ns']
         with self.assertRaises(ValueError):observer.check_control(self.parsed(events),bad,record['pid'])
 
+    def test_full_retained_factory_capture_replays_with_bounded_parser(self):
+        capture=ROOT/'docs/evidence/cseed-kernel-exit-20261109/corrected-linux/kernel.jsonl.gz'
+        lifecycle=ROOT/'docs/evidence/cseed-kernel-exit-20261109/corrected-linux/factory-lifecycle.json'
+        code='import gzip,json; from scripts.observe_cseed_kernel_exit import parse_events; '+\
+             'record=json.load(open('+repr(str(lifecycle))+')); '+\
+             'events=parse_events(gzip.open('+repr(str(capture))+',"rt").read(),record["target_pid"]); '+\
+             'assert len(events)==284752; print(len(events))'
+        before={str(p):observer.digest(p) for p in (capture,lifecycle)}
+        started=time.monotonic()
+        result=subprocess.run([sys.executable,'-c',code],cwd=ROOT,capture_output=True,timeout=30)
+        elapsed=time.monotonic()-started
+        self.assertEqual(before,{p:observer.digest(p) for p in before})
+        observer.write(self.work/'actual-capture-replay.json',{'inputs_sha256_before_after':before,'records':284752,'wall_seconds':elapsed,'parser_timeout_seconds':30,'new_kernel_capture_performed':False})
+        (self.work/'actual-capture-replay.stdout').write_bytes(result.stdout)
+        (self.work/'actual-capture-replay.stderr').write_bytes(result.stderr)
+        self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
+        self.assertEqual(result.stdout,b'284752\n')
+        self.assertEqual(result.stderr,b'')
+
     def test_render_refuses_non_pid_inputs_and_uses_explicit_clock(self):
         for value in (True,0,-1,'1; exit();'):
             with self.assertRaises(ValueError):observer.render_program(value)

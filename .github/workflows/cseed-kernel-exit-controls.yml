@@ -1,0 +1,42 @@
+name: C-seed kernel observer controls
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cseed-kernel-exit-controls.yml'
+      - 'scripts/observe_cseed_kernel_exit.py'
+      - 'tests/test_cseed_kernel_exit.py'
+      - 'tests/nanoisa/test_cseed_exit_observer.c'
+      - 'docs/evidence/cseed-kernel-exit-20261109/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controls:
+    name: Native lifecycle and full retained kernel replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CC: gcc
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require worker headroom before native control provisioning
+        run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/kernel-controls-health
+      - name: Install my native control compiler
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential
+      - name: Execute native lifecycle, strict refusals and the complete retained capture
+        timeout-minutes: 2
+        run: python3 -m unittest -v tests.test_cseed_kernel_exit
+      - name: Retain control evidence without a new source factory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-exit-controls-${{ github.sha }}
+          include-hidden-files: true
+          if-no-files-found: error
+          path: |
+            .test_output/kernel-controls-health/
+            .test_output/kernel-exit-controls-*/

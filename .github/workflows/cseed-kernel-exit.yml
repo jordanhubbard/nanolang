@@ -1,13 +1,6 @@
 name: Diagnostic C-seed kernel exit boundaries
 
 on:
-  push:
-    branches: [diag/5.1-cseed-kernel-exit]
-    paths:
-      - '.github/workflows/cseed-kernel-exit.yml'
-      - 'scripts/observe_cseed_kernel_exit.py'
-      - 'tests/test_cseed_kernel_exit.py'
-      - 'tests/nanoisa/test_cseed_exit_observer.c'
   workflow_dispatch:
 
 permissions:
