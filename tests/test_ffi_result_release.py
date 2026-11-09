@@ -66,7 +66,7 @@ bool alias_snapshot__nano_array_release_v1(void *value) { (void)value; abort(); 
                 ("origin", [*flags, *shared, origin, dep, "-Wl,-rpath,"+str(folder), "-o", lib]),
                 ("collections", [*flags, *shared, "modules/std/collections/collections.c",
                     "src/runtime/dyn_array.c", "src/runtime/gc.c", "src/runtime/gc_struct.c", extension, "-lm", "-o", provider]),
-                ("driver", [*flags, "tests/test_ffi_result_release.c", "src/runtime/ffi_loader.c",
+                ("driver", [*flags, "-D_GNU_SOURCE", "tests/test_ffi_result_release.c", "src/runtime/ffi_loader.c",
                     "src/runtime/module_build_dir.c", *crypto, "-ldl", "-o", driver]),
                 ("run", [driver, provider, lib])]
             identities = {}
