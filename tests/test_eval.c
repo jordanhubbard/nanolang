@@ -2726,7 +2726,7 @@ static Value eval_test_record_field(Value record, const char *name) {
 }
 
 /* I preserve escaping fresh locals, copied callers and nested borrowed fields. */
-void test_eval_fresh_record_local_transfer(void) {
+void test_eval_record_literal_copy_and_escape(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
         "struct Item { value: int, label: string }\n"
@@ -2770,7 +2770,7 @@ void test_eval_fresh_record_local_transfer(void) {
 }
 
 /* I use the same evaluated-binding API for top-level initializers too. */
-void test_eval_fresh_record_global_reinitialization(void) {
+void test_eval_record_global_reinitialization(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
         "struct Item { value: int, label: string }\n"
@@ -2803,7 +2803,7 @@ void test_eval_fresh_record_global_reinitialization(void) {
 }
 
 /* I keep named, first-class and generated-list consumers on their old routes. */
-void test_eval_fresh_record_call_and_list_escape(void) {
+void test_eval_record_call_and_list_escape(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
         "struct Item { value: int, label: string }\n"
@@ -3341,9 +3341,9 @@ int main(void) {
     TEST(eval_static_array_alias_reclaim);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
-    TEST(eval_fresh_record_local_transfer);
-    TEST(eval_fresh_record_global_reinitialization);
-    TEST(eval_fresh_record_call_and_list_escape);
+    TEST(eval_record_literal_copy_and_escape);
+    TEST(eval_record_global_reinitialization);
+    TEST(eval_record_call_and_list_escape);
     TEST(eval_record_alias_across_direct_calls);
     TEST(eval_epoch_milliseconds);
     TEST(eval_call_dispatch_names);
