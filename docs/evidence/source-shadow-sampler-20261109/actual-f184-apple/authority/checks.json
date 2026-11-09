@@ -1,0 +1,52 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "--record",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "validate",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "test-receipt",
+        "require-current",
+        "--project",
+        "."
+      ],
+      "returncode": 2,
+      "expected": 2
+    }
+  ],
+  "native_lifecycle_admitted": false
+}

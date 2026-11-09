@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "/Users/jkh/Src/nanolang/docs/evidence/source-shadow-sampler-20261109/process_controls.py"
+  ],
+  "driver_sha256": "bb06cccfd0c62954456a1cf5cf7b7a43d15e1fc7e1ee0466ff5b4405298ae676",
+  "python_sha256": "e925fab5e8f595817ff36ff28e214b91520c040d5b7d47249b0199bc5f68015e",
+  "scope": "I execute actual process cleanup/refusal controls. I do not sample a compiler or qualify source creation.",
+  "controls": [
+    {
+      "control": "owned group and actual nested child stop; separate sibling remains live",
+      "owned_pid": 14646,
+      "nested_pid": 14647,
+      "owned_returncode": 0,
+      "nested_reaped": true,
+      "unrelated_sibling_alive": true
+    },
+    {
+      "control": "I refuse a target sharing the caller process group",
+      "target_pid": 14656,
+      "target_remains_alive": true,
+      "diagnostic": "I refuse to stop a process outside its own diagnostic group."
+    },
+    {
+      "control": "already completed target is unchanged",
+      "returncode": 0
+    }
+  ],
+  "native_lifecycle_admitted": false
+}
