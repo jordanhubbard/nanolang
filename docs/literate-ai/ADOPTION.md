@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:23cc1e88462f6a3d28d07ab4f2896d46cdfd45fec4648a4fcad7703f666d0555 -->
+<!-- literate-ai:authority-reviewed sha256:0644133d9aa0f455e02d77d63ce260dc21e68db718cfbad52795e86456f88c7e -->
 
 ## My first metadata checkpoint
 
@@ -393,3 +393,28 @@ source compiler was produced by those diagnostics. Original source authority,
 empty native implementation selections and the absent native lifecycle receipt
 remain unchanged. I freeze this catalog before supported authority review and
 retain final validation logs outside it.
+
+
+## My optional Apple shadow-sampling diagnostic
+
+I add a false-by-default sampling mode to my existing diagnostic comparison
+workflow and one actual-process driver. My default six-attempt comparison and
+all original C, NanoLang, Make, test and qualification inputs remain unchanged.
+The optional mode samples one identified real shadow child with the original
+selection and ten-second supervisor, then stops before native publication.
+Actual samples, setup refusals and timing acceptance remain distinct.
+
+My original-source baseline is `51649d12a252d4685cf22593d6101a3849e28df6`, a real
+code-only descendant of `1883b7373` containing the workflow delta and new driver.
+I retain all 92,818 inherited entries and add one script without widening my
+five content-only metadata exceptions. My complete source tree is independent
+of the temporary sparse working view, and I merge its real ancestry.
+
+I retain local native process-group controls, their initial harness refusal,
+parsed-YAML preservation and help/compilation checks under
+`docs/evidence/source-shadow-sampler-20261109/`. Actual hosted sampling is still
+required. I keep original source authority, eight integration Components,
+empty native implementation selections and absent native lifecycle receipt
+unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
+security, budget, integration or release acceptance. I freeze this catalog
+before supported authority review and retain its logs outside the catalog.
