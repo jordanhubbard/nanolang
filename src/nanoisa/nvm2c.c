@@ -26,6 +26,7 @@
 #include "affine_bytecode.h"
 #include "verifier.h"
 #include "../nanovm/vm_decode.h"
+#include "../runtime/dyn_array.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -37,6 +38,9 @@
 
 #define NVM2C_MAX_LOCALS 1024
 #define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 32)
+
+#define NVM2C_STRINGIFY_RAW(...) #__VA_ARGS__
+#define NVM2C_STRINGIFY(...) NVM2C_STRINGIFY_RAW(__VA_ARGS__)
 
 /* I inspect my generated executable text, not literal data or comments.
  * This is an internal architecture assertion, not a C security validator. */
@@ -8035,11 +8039,11 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
 static void emit_collection_snapshot_copy(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "extern bool nl_utf8_validate(const char *, size_t, size_t *);\n"
-        "static inline nsarr_t nhost_collection_snapshot(nh_array_value *foreign, bool (*release)(void *)) {\n"
+        "static inline nsarr_t nhost_collection_snapshot(DynArray *foreign, bool (*release)(void *)) {\n"
         "    nsarr_t result = NULL; struct nsarr_owner *owner = NULL;\n"
         "    nsarr_string *strings = NULL; size_t bytes = 0; int attempted = 0;\n"
-        "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
-        "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
+        "    if (!foreign || !foreign->data || foreign->elem_type != ELEM_STRING ||\n"
+        "        foreign->elem_size != sizeof(char *) || foreign->length < 0 ||\n"
         "        foreign->capacity < foreign->length ||\n"
         "        (uint64_t)foreign->length > (SIZE_MAX - sizeof *owner - sizeof *result) / sizeof(char *)) goto failed;\n"
         "    result = calloc(1, sizeof *result); owner = calloc(1, sizeof *owner);\n"
@@ -8078,12 +8082,12 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
         if (!host || host->result != TAG_ARRAY || byte_array_result_adapter(host)) continue;
-        if (!emitted++) nvm2c_puts(b,
-            "#include <dlfcn.h>\n#include <stdbool.h>\n"
-            "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
-            "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
-            "typedef struct { int64_t length, capacity; nh_element type;\n"
-            "    uint8_t width; void *data; } nh_array_value;\n");
+        if (!emitted++) {
+            nvm2c_puts(b, "#include <dlfcn.h>\n#include <stdbool.h>\n"
+                "#ifndef NANO_DYN_ARRAY_ABI_TYPES_DEFINED\n#define NANO_DYN_ARRAY_ABI_TYPES_DEFINED 1\n");
+            nvm2c_puts(b, NVM2C_STRINGIFY(NANO_DYN_ARRAY_ABI_TYPES));
+            nvm2c_puts(b, "\n#endif\n");
+        }
         bool collection = collection_artifact_adapter(host);
         bool opaque = collection || json_artifact_adapter(host);
         if (collection && !collection_emitted++) emit_collection_snapshot_copy(b);
@@ -8094,8 +8098,8 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         const char *release_name = collection ? collection_release : json_artifact_adapter(host) ? "nl_json_object_keys_release" : !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
         nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(%s) {\n", i, parameters);
         nvm2c_puts(b, "    static void *library;\n");
-        nvm2c_printf(b, "    static nh_array_value *(*walk)(%s);\n", types);
-        nvm2c_printf(b, "    static bool (*release)(%s);\n", collection ? "void *" : "nh_array_value *");
+        nvm2c_printf(b, "    static DynArray *(*walk)(%s);\n", types);
+        nvm2c_printf(b, "    static bool (*release)(%s);\n", collection ? "void *" : "DynArray *");
         nvm2c_puts(b,
             "    if (!library) {\n"
             "        library = dlopen(");
@@ -8108,9 +8112,9 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b,
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
             "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
-            "        walk = (nh_array_value *(*)(%s))dlsym(library, \"%s\");\n"
+            "        walk = (DynArray *(*)(%s))dlsym(library, \"%s\");\n"
             "        release = (bool (*)(%s))dlsym(library, \"%s\");\n",
-            host->name, types, host->name, collection ? "void *" : "nh_array_value *", release_name);
+            host->name, types, host->name, collection ? "void *" : "DynArray *", release_name);
         nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
             "        Dl_info producer, marker, companion;\n"
@@ -8123,10 +8127,10 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             nvm2c_puts(b, "    return nhost_collection_snapshot(walk(nvalue_require_opaque(root)), release);\n}\n");
             continue;
         }
-        nvm2c_printf(b, "    nh_array_value *foreign = walk(%s);\n", opaque ? "nvalue_require_opaque(root)" : host->argc == 2 ? "root, extension" : "root");
+        nvm2c_printf(b, "    DynArray *foreign = walk(%s);\n", opaque ? "nvalue_require_opaque(root)" : host->argc == 2 ? "root, extension" : "root");
         nvm2c_puts(b,
-            "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
-            "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
+            "    if (!foreign || !foreign->data || foreign->elem_type != ELEM_STRING ||\n"
+            "        foreign->elem_size != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"
             "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) NVM2C_ABORT();\n"
             "    nsarr_t result = nsarr_new();\n"

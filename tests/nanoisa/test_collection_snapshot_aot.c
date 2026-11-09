@@ -55,7 +55,7 @@ static void expect_failure(DynArray *value) {
     release_calls = allocations = injected = 0;
     assert(!live_allocations && !nsarr_owners && !nsarr_strings && !nagg_live_bytes);
     if (!setjmp(refusal)) {
-        (void)nhost_collection_snapshot((nh_array_value *)value, release_snapshot);
+        (void)nhost_collection_snapshot(value, release_snapshot);
         assert(!"I require the original invariant refusal");
     }
     assert(release_calls == 1 && !live_allocations);
@@ -67,7 +67,7 @@ int main(void) {
     (void)collection_generated_main;
     gc_init();
     DynArray *source = snapshot(false);
-    nsarr_t copied = nhost_collection_snapshot((nh_array_value *)source, release_snapshot);
+    nsarr_t copied = nhost_collection_snapshot(source, release_snapshot);
     assert(release_calls == 1 && gc_get_stats().num_objects == 0 && copied->len == 2);
     assert((!strcmp(copied->data[0], "d") && !strcmp(copied->data[1], "aa")) ||
            (!strcmp(copied->data[0], "aa") && !strcmp(copied->data[1], "d")));
@@ -125,7 +125,7 @@ int main(void) {
 
     source = snapshot(true);
     release_calls = allocations = 0;
-    copied = nhost_collection_snapshot((nh_array_value *)source, release_snapshot);
+    copied = nhost_collection_snapshot(source, release_snapshot);
     assert(release_calls == 1 && copied->len == 0 && gc_get_stats().num_objects == 0);
     assert(live_allocations == 2); live_allocations = 0;
     nsarr_release_owned(); assert(!nagg_live_bytes);

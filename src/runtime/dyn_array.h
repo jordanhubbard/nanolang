@@ -15,26 +15,23 @@
 #define NANO_EXPORT_ARRAY_ABI(function) \
     __attribute__((visibility("default"))) const uint32_t function##__nano_array_abi = NANO_DYN_ARRAY_ABI_VERSION
 
-/* Element type enum (matches nanolang Value types) */
-typedef enum {
-    ELEM_INT = 1,
-    ELEM_U8 = 8,       /* Unsigned byte */
-    ELEM_FLOAT = 2,
-    ELEM_STRING = 3,
-    ELEM_BOOL = 4,
-    ELEM_ARRAY = 5,     /* Arrays (for nested arrays) */
-    ELEM_STRUCT = 6,    /* GC Structs (for arrays of structs) */
-    ELEM_POINTER = 7    /* Generic pointer (for GC objects) */
-} ElementType;
+/* I share my exact existing C types with standalone generated adapters.
+ * Equal layout alone does not make a different function pointer type valid.
+ * I keep enum values, member names/types/order and ABI version unchanged. */
+#define NANO_DYN_ARRAY_ABI_TYPES \
+    typedef enum { \
+        ELEM_INT = 1, ELEM_U8 = 8, ELEM_FLOAT = 2, ELEM_STRING = 3, \
+        ELEM_BOOL = 4, ELEM_ARRAY = 5, ELEM_STRUCT = 6, ELEM_POINTER = 7 \
+    } ElementType; \
+    typedef struct { \
+        int64_t length; int64_t capacity; ElementType elem_type; \
+        uint8_t elem_size; void *data; \
+    } DynArray;
 
-/* Dynamic array structure */
-typedef struct {
-    int64_t length;        /* Current number of elements */
-    int64_t capacity;      /* Allocated capacity */
-    ElementType elem_type; /* Element type */
-    uint8_t elem_size;     /* Size of each element in bytes */
-    void* data;            /* Element storage */
-} DynArray;
+#ifndef NANO_DYN_ARRAY_ABI_TYPES_DEFINED
+#define NANO_DYN_ARRAY_ABI_TYPES_DEFINED 1
+NANO_DYN_ARRAY_ABI_TYPES
+#endif
 
 /* I validate metadata and logical storage, not the provenance of a C pointer. */
 static inline bool dyn_array_has_storage(const DynArray *array, ElementType type,
