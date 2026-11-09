@@ -94,6 +94,7 @@ shadow main{assert (== (main) 0)}
             (work/'inputs.json').write_text(json.dumps({'scope': self.scope, 'before': before,
                 'after': after, 'prior_output_preserved': module.read_bytes() == previous}, indent=2)+'\n')
             self.assertEqual(before, after)
+        return result
 
     def test_malformed_types_and_conditional_coverage_preserve_output(self):
         for label, arms in {
@@ -135,7 +136,7 @@ class SourceOrPatternContracts(OrPatternContracts, unittest.TestCase):
                 self.refuse(label, 'union Choice{First{} Second{}} fn main()->int{return match Choice.First{} {'+arms+'}}\nshadow main{assert true}')
 
     def test_grouped_syntax_does_not_admit_discarded_resource_payloads(self):
-        self.refuse('resource-payload', '''resource struct Token{fd:int}
+        result = self.refuse('resource-payload', '''resource struct Token{fd:int}
 union Owned{First{token:Token} Second{}}
 fn inspect(value:Owned)->int{return match value{First | Second => 1}}
 shadow inspect{assert true}
@@ -145,3 +146,4 @@ fn main()->int{
 }
 shadow main{assert true}
 ''')
+        self.assertIn('[E0036] I cannot verify ownership:', result.stdout+result.stderr)

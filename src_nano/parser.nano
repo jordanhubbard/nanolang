@@ -2877,15 +2877,18 @@ fn parse_match(p: Parser) -> Parser {
                                 let after_arrow: Parser = (parser_expect_match_arrow guarded)
                                 if (parser_has_error after_arrow) { return after_arrow }
                                 if (parser_is_at_end after_arrow) { return (parser_with_error after_arrow true) }
+                                let block_body: bool = (== (parser_current after_arrow).token_type (token_lbrace))
                                 let mut body: Parser = after_arrow
-                                if (== (parser_current after_arrow).token_type (token_lbrace)) {
+                                if block_body {
                                     set body (parse_block after_arrow)
                                 } else { set body (parse_expression after_arrow) }
                                 if (parser_has_error body) { return body }
                                 set arm_variants (array_push arm_variants alternatives.name)
                                 set arm_bindings (array_push arm_bindings "_")
                                 set arm_body_ids (array_push arm_body_ids body.last_expr_node_id)
-                                set arm_body_types (array_push arm_body_types body.last_expr_node_type)
+                                let mut body_kind: int = body.last_expr_node_type
+                                if block_body { set body_kind ParseNodeType.PNODE_BLOCK }
+                                set arm_body_types (array_push arm_body_types body_kind)
                                 set arm_guard_ids (array_push arm_guard_ids guard_id)
                                 set arm_guard_types (array_push arm_guard_types guard_type)
                                 set arm_count (+ arm_count 1)
@@ -2990,6 +2993,14 @@ shadow parse_match {
     assert (== or_match.arm_count 2) assert (== (at or_match.arm_variants 0) "OR:First:Second:First")
     assert (== (at or_match.arm_bindings 0) "_")
     assert (not (parser_match_arm_unconditional grouped or_match 0))
+    let block_tokens: List<LexerToken> = (tokenize_string "match item { First | Second => { return 7 } }" "or-block.nano" (Diagnostics.diag_list_new))
+    let block_parser: Parser = (parse_match (parser_new block_tokens (list_LexerToken_length block_tokens) "or-block.nano"))
+    assert (not block_parser.has_error)
+    let block_match: ASTMatch = (parser_get_match block_parser block_parser.last_expr_node_id)
+    assert (== (at block_match.arm_body_types 0) ParseNodeType.PNODE_BLOCK)
+    let arm: ASTBlock = (parser_get_block block_parser (at block_match.arm_body_ids 0))
+    assert (== (list_ASTStmtRef_length arm.statements) 1)
+    assert (== (list_ASTStmtRef_get arm.statements 0).node_type ParseNodeType.PNODE_RETURN)
     let tokens: List<LexerToken> = (tokenize_string "match item { None() => 1 Some(value) => 2 }" "match.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_match (parser_new tokens (list_LexerToken_length tokens) "match.nano"))
     assert (not (parser_has_error p))

@@ -2598,6 +2598,11 @@ shadow nisa_emit_match_cases {
     assert nisa_ok assert (str_contains or_text "JMP_TRUE")
     assert (str_contains or_text "PUSH_I64 7")
     let _: int = (nisa_reset)
+    let block_tokens: List<LexerToken> = (tokenize_string "union Choice{First{} Second{}} fn main()->int{match Choice.First{}{First | Second => {return 7}} return 0}" "or-block.nano" (diag_list_new))
+    let block_parser: Parser = (parse_program block_tokens (list_LexerToken_length block_tokens) "or-block.nano")
+    let block_text: string = (nisa_emit_match_cases block_parser 0 "")
+    assert nisa_ok assert (str_contains block_text "PUSH_I64 7")
+    let _: int = (nisa_reset)
     let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return match x { 1 if true => 7 } }" "unchecked.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "unchecked.nano")
     set nisa_names ["x"]
