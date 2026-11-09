@@ -1,0 +1,16 @@
+{
+  "previous": "2ca288b342e67350fc3d09155b9d966a0c1cbb77",
+  "checkpoint": "5eebf264047a155443d2a340a57c01fbc868d298",
+  "implementation": "3c70eb36474999e53ca645f66c20229831b92e4b",
+  "tree": "5e628eeb13ee59ce6cdfd3ecc9fde725f4b5edd3",
+  "entries": 92837,
+  "changed_paths": [
+    "src/eval.c",
+    "Makefile.gnu",
+    "tests/test_eval.c",
+    "tests/support/eval_frame_metadata.h",
+    ".github/workflows/string-builtin-operands.yml"
+  ],
+  "added_source_paths": 1,
+  "scope": "I preserve a complete independent Git index and every other original path/mode/object entry. Native full-provider, broader value reclamation and SDK admission remain separate."
+}
