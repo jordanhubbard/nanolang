@@ -1,0 +1,434 @@
+[
+  {
+    "count": 1283,
+    "sample": 1,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-1/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-1/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9563174999784678,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 1283,
+    "sample": 2,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-2/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-2/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.8467622910393402,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 32614,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 1284,
+      "dup": 1284,
+      "dup2": 2569,
+      "close": 2570,
+      "open_devnull_ns": 7428000,
+      "dup_ns": 126000,
+      "dup2_ns": 639000,
+      "close_ns": 305000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 1283,
+    "sample": 3,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-3/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-3/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9248215000261553,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 32682,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 1284,
+      "dup": 1284,
+      "dup2": 2569,
+      "close": 2570,
+      "open_devnull_ns": 11039000,
+      "dup_ns": 205000,
+      "dup2_ns": 951000,
+      "close_ns": 451000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 1283,
+    "sample": 4,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-4/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-4/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.8898427079548128,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 1283,
+    "sample": 5,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-5/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-5/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9257349999970756,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 1283,
+    "sample": 6,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-1283.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-6/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-1283-sample-6/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9092757080215961,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "94fe4df9543ddfc1778ea73ddb54bc90cf885864c4ee607c19d9de037c0b77ff",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 32902,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 1284,
+      "dup": 1284,
+      "dup2": 2569,
+      "close": 2570,
+      "open_devnull_ns": 10694000,
+      "dup_ns": 226000,
+      "dup2_ns": 907000,
+      "close_ns": 449000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 1284,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 1,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-1/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-1/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9008762910380028,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 2,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-2/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-2/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.0113446249742992,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 33043,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 5001,
+      "dup": 5001,
+      "dup2": 10003,
+      "close": 10004,
+      "open_devnull_ns": 33853000,
+      "dup_ns": 657000,
+      "dup2_ns": 2959000,
+      "close_ns": 1394000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 3,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-3/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-3/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.946390584053006,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 33115,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 5001,
+      "dup": 5001,
+      "dup2": 10003,
+      "close": 10004,
+      "open_devnull_ns": 33759000,
+      "dup_ns": 668000,
+      "dup2_ns": 2871000,
+      "close_ns": 1369000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 4,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-4/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-4/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.8919085420202464,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 5,
+    "mode": "plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-5/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-5/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9222202500095591,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  },
+  {
+    "count": 5000,
+    "sample": 6,
+    "mode": "instrumented",
+    "argv": [
+      "/Users/jkh/Src/nanolang/bin/nanoc_c",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/fixture-5000.nano",
+      "--keep-c",
+      "--llm-shadow-json",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-6/shadow.json",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/count-5000-sample-6/program"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.9004573750426061,
+    "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "fixture_sha256": "62455d1f4578fe5eeb3fa907376956b4b15a4f8622e3cd4a2ebedeabc803a69a",
+    "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+    "descriptor_activity": {
+      "tool": "nanolang-shadow-stdio-probe",
+      "point": "_exit",
+      "pid": 33327,
+      "child": 1,
+      "status": 0,
+      "valid_clock": 1,
+      "open_devnull": 5001,
+      "dup": 5001,
+      "dup2": 10003,
+      "close": 10004,
+      "open_devnull_ns": 34725000,
+      "dup_ns": 695000,
+      "dup2_ns": 2921000,
+      "close_ns": 1460000
+    },
+    "product_sha256": "d7281be16587d47a3e16855a82a6bc567a01a3143fd271902e8efb42981c40a7",
+    "run_returncode": 0,
+    "shadow_report": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 5001,
+      "failures": []
+    }
+  }
+]

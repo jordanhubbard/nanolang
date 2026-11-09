@@ -1,0 +1,22 @@
+{
+  "command_observed_in_tool_execution": [
+    "clang",
+    "-std=c11",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O2",
+    "-dynamiclib",
+    "docs/evidence/shadow-stdio-measurement-20261109/interpose.c",
+    "-o",
+    ".test_output/shadow_stdio_probe.dylib"
+  ],
+  "returncode": 0,
+  "source_sha256": "8bc05414cd0b8a16a702720e403e116ae24ac45c3f0d1f4005118aeed006e28e",
+  "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+  "provider_after": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+  "all_fixture_hashes_match_original_generated_bytes": true,
+  "all_final_and_retained_initial_native_products_stable": true,
+  "source_provenance_of_existing_provider_qualified": false
+}

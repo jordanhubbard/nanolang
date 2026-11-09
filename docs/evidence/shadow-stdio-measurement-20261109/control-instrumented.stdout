@@ -1,0 +1,1 @@
+I preserved descriptor, errno, creation mode, data, fork and exit behavior.

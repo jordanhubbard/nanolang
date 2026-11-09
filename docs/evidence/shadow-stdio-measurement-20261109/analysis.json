@@ -1,0 +1,91 @@
+{
+  "scope": "I observe actual inclusive descriptor-call time in the pinned existing C seed. Timing overhead is included. Whole CLI duration includes compilation and does not isolate a framework improvement.",
+  "groups": {
+    "1284": {
+      "selected_shadows": 1284,
+      "observed_descriptor_seconds": [
+        0.008498,
+        0.012646,
+        0.012276
+      ],
+      "median_observed_descriptor_seconds": 0.012276,
+      "counts": [
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        },
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        },
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        }
+      ],
+      "plain_wall_seconds": [
+        0.9563174999784678,
+        0.8898427079548128,
+        0.9257349999970756
+      ],
+      "observed_wall_seconds": [
+        0.8467622910393402,
+        0.9248215000261553,
+        0.9092757080215961
+      ]
+    },
+    "5001": {
+      "selected_shadows": 5001,
+      "observed_descriptor_seconds": [
+        0.038863,
+        0.038667,
+        0.039801
+      ],
+      "median_observed_descriptor_seconds": 0.038863,
+      "counts": [
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        },
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        },
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        }
+      ],
+      "plain_wall_seconds": [
+        0.9008762910380028,
+        0.8919085420202464,
+        0.9222202500095591
+      ],
+      "observed_wall_seconds": [
+        1.0113446249742992,
+        0.946390584053006,
+        0.9004573750426061
+      ]
+    }
+  },
+  "final_samples": 12,
+  "initial_samples_preserved": 12,
+  "final_main_shadow_checks_return": true,
+  "all_compile_stdout_empty": true,
+  "plain_compile_stderr_empty": true,
+  "observed_compile_stderr_only_probe_records": true,
+  "production_optimization_applied": false,
+  "whole_compiler_benefit_established": false
+}
