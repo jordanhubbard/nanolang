@@ -1,0 +1,14 @@
+{
+  "scope": "I qualify the accumulated scalar async, grouped OR and record-field source changes through the unchanged complete four-route corpus after the completed older 869 run.",
+  "workflow": "junit-route-audit.yml",
+  "implementation_pin": "6c97df51bd8c98e5730bf10da5193b8059d8e55a",
+  "source_changes_after_pin": false,
+  "original_cases_per_route": 237,
+  "routes": ["seed-native", "seed-vm", "stage1", "stage2"],
+  "CMD_TIMEOUT": 1800,
+  "BOOTSTRAP_NANOISA_TIMEOUT": 5400,
+  "NANO_SHADOW_TIMEOUT_SECONDS": 120,
+  "component_shadow_timeout_seconds": 10,
+  "native_lifecycle_admitted": false,
+  "release_qualified": false
+}

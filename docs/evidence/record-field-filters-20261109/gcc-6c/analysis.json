@@ -1,0 +1,29 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "original_body_seconds": 9.173215,
+      "modified_body_seconds": 8.266774,
+      "modified_change_percent": -9.88138836820025
+    },
+    {
+      "pair": 2,
+      "original_body_seconds": 9.287713,
+      "modified_body_seconds": 8.346877,
+      "modified_change_percent": -10.129899578076984
+    },
+    {
+      "pair": 3,
+      "original_body_seconds": 9.409857,
+      "modified_body_seconds": 8.445377,
+      "modified_change_percent": -10.249677545578006
+    }
+  ],
+  "all_creations_passed": true,
+  "shared_git_verified_inputs": 197,
+  "selection_count": 1286,
+  "medians": {
+    "original": 9.287713,
+    "modified": 8.346877
+  }
+}
