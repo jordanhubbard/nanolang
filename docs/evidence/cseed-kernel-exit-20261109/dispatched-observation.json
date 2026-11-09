@@ -1,0 +1,16 @@
+{
+  "run_id": 42586919306,
+  "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42586919306",
+  "source_pin": "9e9837d2abaae454896383c4f60faced492b95b0",
+  "source_checkpoint": "28ea08ee1d4b058f4271a3cd082504764fbfa4d9",
+  "product_source_equivalent_to": "35a32bf746e9c7741158bb8e62563d92bde614f8",
+  "worker": "ubuntu-latest",
+  "compiler": "gcc",
+  "predeclared_factory_attempts": 1,
+  "factory_requires_successful_kernel_native_control": true,
+  "shadow_deadline_seconds": 10,
+  "native_cli_budget_seconds": 600,
+  "instrumentation": "I observe explicit monotonic exit/teardown/reap boundaries without changing syscall results, original selected shadows or target user.",
+  "unchanged_retry_for_green": false,
+  "release_qualified": false
+}
