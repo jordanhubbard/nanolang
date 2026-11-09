@@ -2652,6 +2652,67 @@ shadow parser_expect_match_arrow {
     assert (== (list_CompilerDiagnostic_length rejected.diagnostics) 0)
 }
 
+# I keep one arm and one guard for the complete alternative group.
+fn parse_match_alternatives(p: Parser) -> NameParseResult {
+    if (parser_is_at_end p) { return NameParseResult { p: (parser_with_error p true), name: "", ok: false } }
+    let first: LexerToken = (parser_current p)
+    if (or (!= first.token_type (token_identifier)) (== first.value "_")) {
+        return NameParseResult { p: (parser_with_error p true), name: "", ok: false }
+    }
+    let mut cur: Parser = (parser_advance p)
+    if (!= (parser_current cur).token_type LexerTokenType.TOKEN_BAR) {
+        return NameParseResult { p: (parser_with_error cur true), name: "", ok: false }
+    }
+    let mut pattern: string = (+ "OR:" first.value)
+    while (and (not (parser_is_at_end cur)) (== (parser_current cur).token_type LexerTokenType.TOKEN_BAR)) {
+        set cur (parser_advance cur)
+        if (or (parser_is_at_end cur) (!= (parser_current cur).token_type (token_identifier))) {
+            return NameParseResult { p: (parser_with_error cur true), name: "", ok: false }
+        }
+        set pattern (+ pattern (+ ":" (parser_current cur).value))
+        set cur (parser_advance cur)
+    }
+    return NameParseResult { p: cur, name: pattern, ok: true }
+}
+shadow parse_match_alternatives {
+    let tokens: List<LexerToken> = (tokenize_string "First | Second | First if true =>" "or.nano" (list_CompilerDiagnostic_new))
+    let result: NameParseResult = (parse_match_alternatives (parser_new tokens (list_LexerToken_length tokens) "or.nano"))
+    assert result.ok assert (== result.name "OR:First:Second:First")
+    assert (== (parser_current result.p).token_type (token_if))
+    for source in ["First", "First |", "First | 1", "_ | First"] {
+        let bad: List<LexerToken> = (tokenize_string source "or.nano" (list_CompilerDiagnostic_new))
+        assert (not (parse_match_alternatives (parser_new bad (list_LexerToken_length bad) "or.nano")).ok)
+    }
+}
+
+# I decode exact variant names; an underscore inside OR is not a wildcard.
+pub fn parser_match_pattern_variants(pattern: string) -> array<string> {
+    if (not (str_starts_with pattern "OR:")) { return [pattern] }
+    let mut names: array<string> = []
+    let mut start: int = 3
+    let mut index: int = 3
+    let length: int = (str_length pattern)
+    while (<= index length) {
+        if (== index length) {
+            set names (array_push names (str_substring pattern start (- index start)))
+        } else {
+            if (== (char_at pattern index) 58) {
+                set names (array_push names (str_substring pattern start (- index start)))
+                set start (+ index 1)
+            }
+        }
+        set index (+ index 1)
+    }
+    return names
+}
+shadow parser_match_pattern_variants {
+    let names: array<string> = (parser_match_pattern_variants "OR:First:_:First")
+    assert (== (array_length names) 3)
+    assert (== (at names 0) "First") assert (== (at names 1) "_") assert (== (at names 2) "First")
+    assert (== (at (parser_match_pattern_variants "_") 0) "_")
+    assert (== (at (parser_match_pattern_variants "OR:") 0) "")
+}
+
 /* Parse match expression: match expr { pattern => body, ... } */
 fn parse_match(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
@@ -2806,6 +2867,35 @@ fn parse_match(p: Parser) -> Parser {
                                         }
                                     }
                                 }
+                            } else if (== (parser_current p1a).token_type LexerTokenType.TOKEN_BAR) {
+                                let alternatives: NameParseResult = (parse_match_alternatives pcur)
+                                if (not alternatives.ok) { return alternatives.p }
+                                let guarded: Parser = (parse_match_guard alternatives.p)
+                                if (parser_has_error guarded) { return guarded }
+                                let guard_id: int = guarded.last_expr_node_id
+                                let guard_type: int = guarded.last_expr_node_type
+                                let after_arrow: Parser = (parser_expect_match_arrow guarded)
+                                if (parser_has_error after_arrow) { return after_arrow }
+                                if (parser_is_at_end after_arrow) { return (parser_with_error after_arrow true) }
+                                let block_body: bool = (== (parser_current after_arrow).token_type (token_lbrace))
+                                let mut body: Parser = after_arrow
+                                if block_body {
+                                    set body (parse_block after_arrow)
+                                } else { set body (parse_expression after_arrow) }
+                                if (parser_has_error body) { return body }
+                                set arm_variants (array_push arm_variants alternatives.name)
+                                set arm_bindings (array_push arm_bindings "_")
+                                set arm_body_ids (array_push arm_body_ids body.last_expr_node_id)
+                                let mut body_kind: int = body.last_expr_node_type
+                                if block_body { set body_kind ParseNodeType.PNODE_BLOCK }
+                                set arm_body_types (array_push arm_body_types body_kind)
+                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                set arm_guard_types (array_push arm_guard_types guard_type)
+                                set arm_count (+ arm_count 1)
+                                set pcur body
+                                if (and (not (parser_is_at_end pcur)) (== (parser_current pcur).token_type (token_comma))) {
+                                    set pcur (parser_advance pcur)
+                                }
                             } else {
                                 /* Normal arm: VariantName(binding) => { body } */
                                 let p1b: Parser = (parser_expect p1a (token_lparen))
@@ -2896,6 +2986,21 @@ fn parse_match(p: Parser) -> Parser {
 }
 
 shadow parse_match {
+    let or_tokens: List<LexerToken> = (tokenize_string "match item { First | Second | First if false => 1 _ => 2 }" "or.nano" (Diagnostics.diag_list_new))
+    let grouped: Parser = (parse_match (parser_new or_tokens (list_LexerToken_length or_tokens) "or.nano"))
+    assert (not grouped.has_error)
+    let or_match: ASTMatch = (parser_get_match grouped grouped.last_expr_node_id)
+    assert (== or_match.arm_count 2) assert (== (at or_match.arm_variants 0) "OR:First:Second:First")
+    assert (== (at or_match.arm_bindings 0) "_")
+    assert (not (parser_match_arm_unconditional grouped or_match 0))
+    let block_tokens: List<LexerToken> = (tokenize_string "match item { First | Second => { return 7 } }" "or-block.nano" (Diagnostics.diag_list_new))
+    let block_parser: Parser = (parse_match (parser_new block_tokens (list_LexerToken_length block_tokens) "or-block.nano"))
+    assert (not block_parser.has_error)
+    let block_match: ASTMatch = (parser_get_match block_parser block_parser.last_expr_node_id)
+    assert (== (at block_match.arm_body_types 0) ParseNodeType.PNODE_BLOCK)
+    let arm: ASTBlock = (parser_get_block block_parser (at block_match.arm_body_ids 0))
+    assert (== (list_ASTStmtRef_length arm.statements) 1)
+    assert (== (list_ASTStmtRef_get arm.statements 0).node_type ParseNodeType.PNODE_RETURN)
     let tokens: List<LexerToken> = (tokenize_string "match item { None() => 1 Some(value) => 2 }" "match.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_match (parser_new tokens (list_LexerToken_length tokens) "match.nano"))
     assert (not (parser_has_error p))

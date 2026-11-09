@@ -1,0 +1,77 @@
+"""I exercise real process-group cleanup and refusal without compiler builds."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT/'scripts'))
+from profile_cseed_source_shadows import stop_owned
+
+
+def alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+
+
+program = '''import signal, subprocess, sys, time
+child = subprocess.Popen(['/bin/sleep', '60'])
+def stop(*args):
+    child.wait(timeout=5)
+    sys.exit(0)
+signal.signal(signal.SIGTERM, stop)
+print(child.pid, flush=True)
+while True:
+    time.sleep(.1)
+'''
+records = []
+sibling = subprocess.Popen(['/bin/sleep', '60'], start_new_session=True)
+owned = subprocess.Popen([sys.executable, '-c', program], stdout=subprocess.PIPE,
+                         text=True, start_new_session=True)
+shared = None
+try:
+    nested = int(owned.stdout.readline())
+    assert os.getpgid(owned.pid) == owned.pid == os.getpgid(nested)
+    stop_owned(owned)
+    assert owned.returncode == 0 and not alive(nested)
+    assert sibling.poll() is None
+    records.append({'control': 'owned group and actual nested child stop; separate sibling remains live',
+                    'owned_pid': owned.pid, 'nested_pid': nested,
+                    'owned_returncode': owned.returncode, 'nested_reaped': True,
+                    'unrelated_sibling_alive': True})
+    shared = subprocess.Popen(['/bin/sleep', '60'])
+    assert os.getpgid(shared.pid) != shared.pid
+    try:
+        stop_owned(shared)
+    except RuntimeError as error:
+        assert 'outside its own diagnostic group' in str(error)
+        assert shared.poll() is None
+        records.append({'control': 'I refuse a target sharing the caller process group',
+                        'target_pid': shared.pid, 'target_remains_alive': True,
+                        'diagnostic': str(error)})
+    else:
+        raise AssertionError('I require group-ownership refusal.')
+    completed = subprocess.Popen(['/usr/bin/true'], start_new_session=True)
+    assert completed.wait(timeout=5) == 0
+    stop_owned(completed)
+    records.append({'control': 'already completed target is unchanged', 'returncode': completed.returncode})
+finally:
+    stop_owned(owned)
+    stop_owned(sibling)
+    if shared is not None and shared.poll() is None:
+        shared.terminate()
+        shared.wait(timeout=5)
+
+out = Path(__file__).with_name('controls.json')
+script = ROOT/'scripts/profile_cseed_source_shadows.py'
+out.write_text(json.dumps({'argv': [sys.executable, str(Path(__file__))],
+    'driver_sha256': hashlib.sha256(script.read_bytes()).hexdigest(),
+    'python_sha256': hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),
+    'scope': 'I execute actual process cleanup/refusal controls. I do not sample a compiler or qualify source creation.',
+    'controls': records, 'native_lifecycle_admitted': False}, indent=2)+'\n')
+print('I pass three real process-group cleanup and refusal controls.')

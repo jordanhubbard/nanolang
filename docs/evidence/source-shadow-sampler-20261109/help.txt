@@ -1,0 +1,7 @@
+usage: profile_cseed_source_shadows.py [-h] --output OUTPUT
+
+I sample one actual Apple shadow child without replacing qualification.
+
+options:
+  -h, --help       show this help message and exit
+  --output OUTPUT

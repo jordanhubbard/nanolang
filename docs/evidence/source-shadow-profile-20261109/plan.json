@@ -1,0 +1,21 @@
+{
+  "scope": "I sample actual supervised shadow execution using a retained source-built C provider. I disable only downstream native compilation with CC=/usr/bin/false; relocation does not qualify runtime/native creation. Sampling overhead and current host load prohibit timing acceptance. I preserve selections and the ten-second supervisor.",
+  "artifact": 13639517823,
+  "run": 42534611623,
+  "artifact_size": 12833610,
+  "artifact_sha256": "51c4a44d9907d1331d0ce3366074078d61a154e80cc430b1e4d22be1d91c23ae",
+  "provider_path": "/Users/jkh/Src/nanolang/.test_output/source-shadow-profile/nanoc_c",
+  "provider_sha256": "ff48882ed61b2abaf79c2f5f859b40c0d8862131f9ddb5cc3c7807fc96dddf8a",
+  "provider_build_source": "9baeba459e6ea4c7ebd6c0694cb05fef4d36f401",
+  "current_source_revision": "328442f1f368325cf52e9366ad8b3e4090a78824",
+  "current_c_source_and_make_unchanged": true,
+  "attempts": 1,
+  "sample_duration_seconds": 5,
+  "sample_interval_ms": 10,
+  "compile_timeout_seconds": 90,
+  "env": {
+    "CC": "/usr/bin/false",
+    "NANO_SHADOW_TRACE": "1"
+  },
+  "native_lifecycle_admitted": false
+}

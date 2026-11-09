@@ -1,0 +1,6 @@
+test_actual_source_checker_native_component (tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 48.157s
+
+OK

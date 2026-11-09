@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f0c1c7e082054a5e058fc815e7805859322e6a34d7146588de94ad26fdb666a3 -->
+<!-- literate-ai:authority-reviewed sha256:f00c1395899b995a096f1217e46b56cb2c9e9df60de0a827f41bd10f973b8eae -->
 
 ## My first metadata checkpoint
 
@@ -344,3 +344,81 @@ source custody updates do not complete coroutine scheduling, foreign authority,
 the original corpus or budget, security, integration or release acceptance.
 I freeze catalog inputs before supported authority review and retain final
 validation logs outside the catalog.
+
+
+## My grouped union-pattern source checkpoint
+
+I preserve the existing grouped union-pattern syntax through my source parser,
+coverage checker and emitter. I retain one guard and body, duplicate alternatives,
+exact underscore variant identity and once-only effects. I preserve ordinary
+pattern paths and ownership admission boundaries. My original-source baseline is
+`65b33feeb756659bcaad78b939866728c638f8dd`, a real descendant of my async baseline
+`21c3818c06c6931954c4170c7104fe0817ae1c57`. I change only three original NanoLang
+source files, the actual-route control file and the component workflow. I retain
+all 92,817 previous entries and add one control file without widening my five
+content-only metadata exceptions. This complete Git tree is independent of my
+temporary sparse working view.
+
+I retain local commands, product observations and their limits under
+`docs/evidence/match-or-source-contracts-20261109/`. The actual native checker and
+C-created controls pass with pinned existing providers; source-created execution,
+fresh stages and paired platform acceptance remain open. I preserve original
+source authority, empty native implementation selections and the absent native
+lifecycle receipt. These custody checks do not complete native SDK, original
+corpus, budget, security or release acceptance. I freeze catalog inputs before
+supported authority review and retain its validation logs outside the catalog.
+
+
+## My grouped statement-block correction
+
+My exact 328 Apple source compiler completes all 1,286 selected shadows and
+passes 32 of 33 component methods. The unchanged original grouped-pattern
+fixture exposes an incorrect block-arm tag in my new parser branch. I store
+PNODE_BLOCK explicitly for a block arm and retain direct parser/emitter shadows,
+the unchanged original fixture and all expression-arm controls. I also require
+the resource refusal's observed E0036 ownership diagnostic explicitly.
+
+My original-source baseline is `1883b7373cba3a7c64815d6a770a51cae39d72f9`, a real
+code-only descendant of `65b33feeb` changing the parser, emitter shadow and actual
+route control file. I retain all 92,818 original entries, their complete Git
+ancestry and the same five content-only metadata exceptions. I retain exact
+hosted source/product/command audits and local checker controls under
+`docs/evidence/match-or-source-contracts-20261109/`. Linux's source-creation
+deadlines remain separate failures. The corrected source candidate still needs
+hosted execution and fresh/original-corpus acceptance.
+
+I retain bounded local profiling setup failures separately under
+`docs/evidence/source-shadow-profile-20261109/`. No CPU sample was taken and no
+source compiler was produced by those diagnostics. Original source authority,
+empty native implementation selections and the absent native lifecycle receipt
+remain unchanged. I freeze this catalog before supported authority review and
+retain final validation logs outside it.
+
+
+## My optional Apple shadow-sampling diagnostic
+
+I add a false-by-default sampling mode to my existing diagnostic comparison
+workflow and one actual-process driver. My default six-attempt comparison and
+all original C, NanoLang, Make, test and qualification inputs remain unchanged.
+The optional mode samples one identified real shadow child with the original
+selection and ten-second supervisor, then stops before native publication.
+Actual samples, setup refusals and timing acceptance remain distinct.
+
+My original-source baseline is `51649d12a252d4685cf22593d6101a3849e28df6`, a real
+code-only descendant of `1883b7373` containing the workflow delta and new driver.
+I retain all 92,818 inherited entries and add one script without widening my
+five content-only metadata exceptions. My complete source tree is independent
+of the temporary sparse working view, and I merge its real ancestry.
+
+I retain local native process-group controls, their initial harness refusal,
+parsed-YAML preservation and help/compilation checks under
+`docs/evidence/source-shadow-sampler-20261109/`. My actual Apple run 42548134459 at exact f18474b85 now produces a verified CPU
+sample with 602 snapshots after all 1,286 shadow bodies complete. I independently
+match its actual provider/sample bytes and source inputs and retain unchanged
+before/after observations under the same evidence directory. Intentional
+termination prevents native publication; this sample is not source-creation or
+timing acceptance. I keep original source authority, eight integration Components,
+empty native implementation selections and absent native lifecycle receipt
+unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
+security, budget, integration or release acceptance. I freeze this catalog
+before supported authority review and retain its logs outside the catalog.

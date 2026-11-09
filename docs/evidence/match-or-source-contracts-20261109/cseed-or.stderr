@@ -1,0 +1,9 @@
+test_group_guard_once_order_and_duplicate_alternatives (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_group_guard_once_order_and_duplicate_alternatives) ... ok
+test_malformed_types_and_conditional_coverage_preserve_output (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_malformed_types_and_conditional_coverage_preserve_output) ... ok
+test_unchanged_complete_original_fixture (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_unchanged_complete_original_fixture) ... ok
+test_underscore_member_is_exact_variant_and_expression_results (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_underscore_member_is_exact_variant_and_expression_results) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.987s
+
+OK

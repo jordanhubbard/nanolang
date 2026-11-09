@@ -1,0 +1,28 @@
+{
+  "path": ".test_output/source-checker-component/actual-native-o_e___yx/checker",
+  "sha256": "2619a95ab373f60fb22d7c8d0ceec5d0f0fe1cc5ad416172b4f1ce536fd12c55",
+  "size": 11109336,
+  "inputs": {
+    "creation_path": "C-seed-to-native",
+    "native_lifecycle_admitted": false,
+    "fresh_stages_qualified": false,
+    "platform": "darwin",
+    "product_magic_hex": "cffaedfe",
+    "before": {
+      "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+      "src_nano/typecheck.nano": "89cb9d5eebf8bb9645f85629a5a468811802f5fac877c5ec6233a70f646a575f",
+      "src_nano/parser.nano": "6cb148a6d5f1ad6ce1257f542820b312f6f6a0fa0c4b20608ae46bde66db5d79",
+      "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b"
+    },
+    "after": {
+      "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+      "src_nano/typecheck_driver.nano": "c85f6bba7eb082ecdce7059d9319032ef2c49a919483a95d803f5d2d999c1edb",
+      "src_nano/typecheck.nano": "89cb9d5eebf8bb9645f85629a5a468811802f5fac877c5ec6233a70f646a575f",
+      "src_nano/parser.nano": "6cb148a6d5f1ad6ce1257f542820b312f6f6a0fa0c4b20608ae46bde66db5d79",
+      "src_nano/compiler/lexer.nano": "20710cf3f1b84089dba42d0466e717f8531265bd3af085c320756025031c667b"
+    },
+    "product_before_run": "2619a95ab373f60fb22d7c8d0ceec5d0f0fe1cc5ad416172b4f1ce536fd12c55",
+    "product_after_run": "2619a95ab373f60fb22d7c8d0ceec5d0f0fe1cc5ad416172b4f1ce536fd12c55"
+  }
+}

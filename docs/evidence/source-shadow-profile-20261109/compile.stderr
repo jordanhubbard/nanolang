@@ -1,0 +1,17 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 7298, column 9: Unused variable 'checked_body'
+Warning at line 179, column 9: Unused variable 'ignored'
+Warning at line 3741, column 9: Unused variable 'rejected'
+Warning at line 4062, column 9: Unused variable 'rejected'
+Warning at line 4066, column 9: Unused variable 'rejected'
+Warning at line 4070, column 9: Unused variable 'rejected'
+Warning at line 4074, column 9: Unused variable 'rejected'
+Warning at line 4081, column 13: Unused variable 'rejected'
+Warning at line 4230, column 9: Unused variable 'rejected'
+Warning at line 4234, column 9: Unused variable 'rejected'
+Warning at line 4241, column 13: Unused variable 'rejected'
+Warning at line 9677, column 17: Unused variable 'imported'
+Error: Failed to compile module '/Users/jkh/Src/nanolang/src_nano/generated/compiler_schema.nano' to object file
+C file kept at: obj/nano_modules/.nano-module-wWEKi4/source.c
+Error: Failed to compile module '/Users/jkh/Src/nanolang/src_nano/generated/compiler_schema.nano'
+Error: Failed to compile modules
