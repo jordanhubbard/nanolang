@@ -1,0 +1,84 @@
+{
+  "commands": [
+    {
+      "label": "runtime",
+      "argv": [
+        "make",
+        "-f",
+        "Makefile.gnu",
+        "CC=clang",
+        "test-gc-shutdown-sanitizers",
+        "test-eval-bstring-sanitizers",
+        "test-nl-string-bounds-sanitizers"
+      ],
+      "returncode": 0,
+      "ASAN_OPTIONS": "detect_leaks=0"
+    },
+    {
+      "label": "environment-build",
+      "argv": [
+        "clang",
+        "-std=c11",
+        "-D_DARWIN_C_SOURCE",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-fno-omit-frame-pointer",
+        "-Isrc",
+        "tests/test_env_symbol_index.c",
+        "src/builtins_registry.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "src/runtime/dyn_array.c",
+        "src/checked_borrow_facts.c",
+        "src/nanoisa/file_source_snapshot.c",
+        "src/nanoisa/file_source_plan.c",
+        "src/nsi_file_binding.c",
+        "src/nsi_socket_binding.c",
+        "src/nsi_websocket_binding.c",
+        "src/service_namespace.c",
+        "src/service_bodies.c",
+        "src/service_ownership.c",
+        "-Wl,-dead_strip",
+        "-o",
+        ".test_output/gc_registry_environment"
+      ],
+      "returncode": 0,
+      "ASAN_OPTIONS": "detect_leaks=0"
+    },
+    {
+      "label": "environment-run",
+      "argv": [
+        ".test_output/gc_registry_environment"
+      ],
+      "returncode": 0,
+      "ASAN_OPTIONS": "detect_leaks=0"
+    }
+  ],
+  "before": {
+    "src/runtime/gc.c": "5362c96d79332f33c557b7cc6ee61afe4680b8c0c08eab0ead59660547ac4a0b",
+    "tests/test_gc_allocation_failure.c": "f69ae1a923511b362ee226d8d391e158678473b61a4d48dda6971121fe40b35b",
+    "Makefile.gnu": "dce34797789899647b64c9ff077c10924a0e899b5b64cc7b6707572c86de3080"
+  },
+  "after": {
+    "src/runtime/gc.c": "5362c96d79332f33c557b7cc6ee61afe4680b8c0c08eab0ead59660547ac4a0b",
+    "tests/test_gc_allocation_failure.c": "f69ae1a923511b362ee226d8d391e158678473b61a4d48dda6971121fe40b35b",
+    "Makefile.gnu": "dce34797789899647b64c9ff077c10924a0e899b5b64cc7b6707572c86de3080"
+  },
+  "products": {
+    "obj/test_gc_shutdown": "af7bec09c43777f4d373364ac276406eed3cf64faba95bc885402b273e2e9970",
+    "obj/test_gc_allocation_failure": "774ae2a7f83f2e689dcec4a9fff90a4d707514a34d72d7b6946a74208ab1333b",
+    "obj/test_eval_bstring": "4be29128a1406a4b68a8240e8ad725916b4f8befc2888325a2bf188033b28f49",
+    "obj/test_nl_string_bounds": "ece0438d8d82045547f43f47d8dd27fa881f5c62168291d69037cf242636af6a",
+    ".test_output/gc_registry_environment": "5427bbe9b8ef8d2cd73f9d09ea7a00dbe53ed9ebf3c51089546b15ed7a54aff0"
+  },
+  "scope": "I execute the original thirteen GC controls, real allocation-failure controls, complete environment unit and BSTRING/STRING sanitizer neighbors. Darwin leak detection remains disabled. Full source/platform and release remain open."
+}

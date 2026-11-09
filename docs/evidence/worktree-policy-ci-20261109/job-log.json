@@ -1,0 +1,7 @@
+{
+  "run": 42522527770,
+  "job": 128892424859,
+  "bytes": 57741,
+  "sha256": "bd458a7712ce3c71059bd9dc9f583ab82251b4708cc71aa2c3682c6f0c67b830",
+  "download_refusal": "The first gh api readback refuses terminal escape sequences; I explicitly permit raw bytes into a file and retain them without rendering escapes."
+}

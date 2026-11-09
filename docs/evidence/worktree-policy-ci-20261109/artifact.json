@@ -1,0 +1,113 @@
+{
+  "id": 13647985544,
+  "run": 42522527770,
+  "zip_bytes": 107869,
+  "zip_sha256": "e774a56311674e1b201509391ddbbc34fd3759fcc6c1789363e24915ea450eeb",
+  "full_crc_checked": true,
+  "inventory": {
+    ".test_output/sanitizer-checkpoint-resume-plan.log": {
+      "bytes": 995,
+      "sha256": "27862f5eacd215413d81abf6687ccb31290b180aeb566aad8988cb0df9f88223"
+    },
+    "obj/component-logs/stage2_parser.log": {
+      "bytes": 19240,
+      "sha256": "1299b560f3f2e0861a4e0ca38e18f86eb03e1aaf08382ec9b20944d0224885d0"
+    },
+    "obj/component-logs/stage2_nanoisa_emitter.log": {
+      "bytes": 58477,
+      "sha256": "a6fdbf025b80d413e8a574a552b92aa07542e3d1de45f7c3a4102600282cda64"
+    },
+    "obj/component-logs/stage2_typecheck.log": {
+      "bytes": 37497,
+      "sha256": "76e72d8753c458c5416d23cd1e60346c0b339e027a73dc9603b052d8c36d6311"
+    },
+    "obj/component-logs/stage3_nanoisa_emitter.log": {
+      "bytes": 46,
+      "sha256": "541addd4c74b881f03ea0b4fe7a4f88430eb8e1457c9c16b8eadb733f99bdedd"
+    },
+    "obj/component-logs/stage3_parser.log": {
+      "bytes": 37,
+      "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    "obj/component-logs/stage3_typecheck.log": {
+      "bytes": 38,
+      "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/00-seed.log": {
+      "bytes": 65872,
+      "sha256": "288359c46924f1002f8542c811c779e8afb05f50c50ca75dc185a01ab68a7a06"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/01-seed-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/02-stage1.log": {
+      "bytes": 72368,
+      "sha256": "cd9325f4e575e443f31b7ccbc9b398b4cf206a73c7a3b834706e92612ce541b8"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/03-stage1-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/04-stage1-translate.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/05-stage1-native.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/06-stage1-hello-compile.log": {
+      "bytes": 46,
+      "sha256": "bd9c7eeb6fa10eaaf11bc13abd4fffc0f308b5f4c45a46c91bfe4a4050ebbcd8"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/07-stage1-hello-execute.log": {
+      "bytes": 21,
+      "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/08-stage2.log": {
+      "bytes": 72368,
+      "sha256": "d94cbb59ae1cbee85bad499b7de351e18adb111ee9ca9247b18115ea4ed2ef15"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/09-stage2-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/10-stage2-translate.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/11-stage2-native.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/12-stage2-hello-compile.log": {
+      "bytes": 46,
+      "sha256": "bd9c7eeb6fa10eaaf11bc13abd4fffc0f308b5f4c45a46c91bfe4a4050ebbcd8"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/13-stage2-hello-execute.log": {
+      "bytes": 21,
+      "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/14-seed-final-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/15-stage1-final-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/16-stage2-final-verify.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/host-cache-probes.log": {
+      "bytes": 48108,
+      "sha256": "89d138b60253dfed8feeb2e8215f3158ba287d9eed9bc362febb3d01640d580a"
+    },
+    "obj/bootstrap-nanoisa/run-3zhrxwfd/manifest.json": {
+      "bytes": 147442,
+      "sha256": "c9cf7c1c1dd5f9107d85dae12b1d3f95e1a9d86f11051c14fdf9538cd29d2508"
+    }
+  }
+}

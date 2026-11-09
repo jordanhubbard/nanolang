@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "agent-entrypoints": true,
+    "validate": true,
+    "distribution": true,
+    "vm": true,
+    "bootstrap": true,
+    "native": true,
+    "qualification": true,
+    "isa": true,
+    "libraries": true,
+    "frontend": true,
+    "documentation-review": true
+  },
+  "receipt_expected_exit": 2,
+  "receipt_actual_exit": 2,
+  "receipt_refusal_code": "project.test_receipt_policy_unconfigured"
+}

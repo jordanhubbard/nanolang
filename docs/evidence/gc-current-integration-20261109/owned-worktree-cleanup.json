@@ -1,0 +1,21 @@
+{
+  "removed_only_owned_qualification_checkouts": [
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/gc-current-source-custody",
+      "revision": "9ad68ee833ea2efdbe2a38a5120407478cbf3ec5",
+      "committed_pushed_clean": true,
+      "ignored_or_untracked_files": 0,
+      "active_open_files": false
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/docs-worktree-policy-qualification",
+      "revision": "bf2fb83492d0b32e0afe930f1126009417708466",
+      "committed_pushed_clean": true,
+      "ignored_or_untracked_files": 0,
+      "active_open_files": false
+    }
+  ],
+  "preserved_user_stashes": 3,
+  "preserved_dirty_worktrees": 4,
+  "preserved_long_path_evidence_checkouts": 2
+}

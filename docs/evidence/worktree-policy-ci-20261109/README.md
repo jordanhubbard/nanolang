@@ -1,0 +1,9 @@
+# My terminal worktree-policy CI result
+
+I retain exact bf2 run 42522527770 and job 128892424859 before any PR #1035 merge. The workflow reports success, but Memory Sanitizers fails; all eleven required checks pass and the source PR remains open. The optional job status is still required by my full-CI acceptance and release contract under #1053. I do not infer full acceptance from the overall workflow status.
+
+My sanitizer job completes the fresh bootstrap's seventeen recorded steps, with every raw step log matching its manifest hash and raw Stage1/Stage2 module equality recorded. Its later legacy Stage2 component creation invokes bin/nanoc on src_nano/nanoisa_driver.nano to produce bin/nanoisa_emitter. At 02:26:55Z it begins that component; at 03:26:55Z the unchanged 3600-second alarm terminates it. The retained component log reaches the NanoISA emitter entry assertions before expiry. Make exits 2 and negative sanitizer execution is skipped. I do not infer infrastructure or a memory-error cause from that deadline.
+
+I retain the complete 57,741-byte raw job log compressed with its hash, complete CRC/hash inventory for artifact 13647985544 and all 26 text entries. I verify all seventeen bootstrap log hashes. Actual module/native images are absent from this artifact, so I make no independent native-image/closure claim here. The initial gh API readback refuses terminal escape sequences; I explicitly allow raw bytes into a file and retain them without rendering escape controls.
+
+The current-source GC/async/OR/field component qualification, complete fresh corpus and optional process diagnosis are separate runs. None retroactively passes this older sanitizer candidate. I preserve the original deadlines and full selection, keep #1053/#1065 and PR #1035 open, and require current exact-source sanitizer acceptance before release.

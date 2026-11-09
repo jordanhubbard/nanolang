@@ -1,0 +1,23 @@
+{
+  "schema": "nanolang/source-preservation-report@1",
+  "baseline_commit": "d11474719cf2c35b91b0594391d9d3b21f40a9ff",
+  "revision": "b55eb6ebfca4199c7330efacc773978df61a32fe",
+  "original_entries": 92817,
+  "owners": {
+    "distribution": 758,
+    "bootstrap": 98,
+    "qualification": 90575,
+    "libraries": 464,
+    "frontend": 450,
+    "native": 35,
+    "isa": 358,
+    "vm": 79
+  },
+  "inventory_sha256": "187930203717e155218c98ba433960531ae348625a6173f3ef90d43ff5e46bea",
+  "inventory_format": "sorted JSONL [path, Git mode, Git type, Git object ID, preservation owner]",
+  "changed_original_paths": [],
+  "dirty_original_paths": [],
+  "preserved": true,
+  "native_lifecycle_qualified": false,
+  "limits": "Git custody only; original Git object IDs are not file SHA256 or native SBOM/toolchain admission"
+}

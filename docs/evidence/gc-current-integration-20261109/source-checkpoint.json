@@ -1,0 +1,15 @@
+{
+  "baseline": "6bb9c6bd3e01628070df809e41200f9bec1e0bb9",
+  "code_only_checkpoint": "9ad68ee833ea2efdbe2a38a5120407478cbf3ec5",
+  "baseline_entries": 92821,
+  "checkpoint_entries": 92822,
+  "changed_paths": [
+    ".github/workflows/string-builtin-operands.yml",
+    "Makefile.gnu",
+    "src/runtime/gc.c",
+    "tests/test_gc_allocation_failure.c"
+  ],
+  "complete_index_verified_before_staging": true,
+  "source_only": true,
+  "native_lifecycle_admitted": false
+}
