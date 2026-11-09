@@ -11,3 +11,23 @@ My additional actual native witness executes the retained native.c image as a ch
 I hold full local provider builds for disk pressure. Hosted diagnosis retains the original six-attempt order and original budgets, with worker headroom before provisioning and each sample. The original completed comparisons remain evidence; another diagnostic cannot replace them or establish release, NativeSDK, ownership or foreign admission.
 
 My corrected code-only checkpoint e718c78e6 is a real direct child of 6bb9c6bd3 and contains all 92,821 original entries with exactly the three reviewed script/test/workflow content changes. I reject the initial three-entry tree before publication and retain its identity in source-checkpoint.json. Both real-Git controls, all eight locks, supported agent-entrypoint audit, authority review and canonical validation pass. The first receipt readback incorrectly parses empty stdout; I read the retained JSON error from stderr and verify actual exit2 with project.test_receipt_policy_unconfigured. The receipt still refuses; no lifecycle admission is manufactured. My committed source custody readback preserves every original entry.
+
+I prepare a separate offline process-timeline audit before the hosted result.
+It checks exact snapshot counts and observer totals, monotonic finite bounds,
+root start identity and transitive ownership, and retains each observed
+PID/start/command/parent combination separately. Four controls pass against my
+retained actual native witness and deliberately tampered copies: injected
+unowned siblings, reordered/nonfinite/missing snapshots, changed root identity,
+failed observations and inconsistent observer totals all refuse. First/last
+sightings and gaps remain observation bounds, not exact CPU or tool lifetimes.
+I make the complete comparison auditor accept an explicit frozen candidate pin;
+its default still requires the original 6c pin, and observed runs must match the
+actual Git observer bytes before analysis.
+
+I independently recheck every retained emitted-C text against the original
+artifact inventory for both completed comparisons. All eleven emitted sources
+are byte-identical within their variant. Between variants, replacing only the
+two exact recorded checkout-root spellings accounts for every text difference;
+I retain every actual difference under prior-c-deltas/. This is a path-spelling
+comparison of actual retained bytes, not semantic-equivalence or compilation-
+phase timing proof, and it does not explain the original Apple wall regression.

@@ -1,0 +1,9 @@
+test_actual_native_witness_and_observer_totals (__main__.ProcessTimelineAudit.test_actual_native_witness_and_observer_totals) ... ok
+test_injected_unowned_sibling_refuses (__main__.ProcessTimelineAudit.test_injected_unowned_sibling_refuses) ... ok
+test_missing_snapshot_or_changed_observer_total_refuses (__main__.ProcessTimelineAudit.test_missing_snapshot_or_changed_observer_total_refuses) ... ok
+test_order_identity_and_failed_observation_refuse (__main__.ProcessTimelineAudit.test_order_identity_and_failed_observation_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

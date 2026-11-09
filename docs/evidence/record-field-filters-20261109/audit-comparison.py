@@ -1,7 +1,10 @@
 """I audit retained comparison bytes without executing retained native products."""
 import gzip, hashlib, io, json, re, statistics, subprocess, sys, zipfile
 from pathlib import Path
-archive, destination, run_id, artifact_id = sys.argv[1:]
+archive, destination, run_id, artifact_id, *expected_candidate = sys.argv[1:]
+assert len(expected_candidate) <= 1
+candidate = expected_candidate[0] if expected_candidate else '6c97df51bd8c98e5730bf10da5193b8059d8e55a'
+assert re.fullmatch('[0-9a-f]{40}', candidate)
 out = Path(destination); out.mkdir(parents=True, exist_ok=True)
 z = zipfile.ZipFile(archive)
 assert z.testzip() is None
@@ -15,10 +18,13 @@ def packed(name, obj):
 s = read('summary.json'); plan = read('plan.json')
 assert s['plan'] == plan
 assert plan['baseline'] == '48016fec4bc56daffa2d90a60de36399c4f9b453'
-assert plan['candidate'] == '6c97df51bd8c98e5730bf10da5193b8059d8e55a'
+assert plan['candidate'] == candidate
 assert plan['order'] == ['original','modified','modified','original','original','modified']
 assert plan['shadow_timeout_seconds'] == 10 and plan['native_build_budget'] == 600
 assert s['comparison_valid'] and s['all_planned_samples_finished']
+if 'process_observation' in plan:
+    observer = subprocess.check_output(['git', 'show', candidate+':scripts/compare_cseed_source_creation.py'])
+    assert sha(observer) == plan['process_observation']['observer_sha256']
 assert len(s['samples']) == 6
 providers = read('providers-before.json'); assert providers == read('providers-after.json')
 shared = read('shared-inputs.json')
