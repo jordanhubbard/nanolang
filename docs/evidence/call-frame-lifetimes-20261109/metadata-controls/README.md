@@ -60,3 +60,20 @@ production-source plans preserve original flags, selections and budgets. I do
 not repeat an unchanged failed plan for green or launch a new kernel observer.
 Source reliability, broader frame/value reclamation, #1140, NativeSDK closure
 and release acceptance remain separate open requirements.
+
+My exact implementation head `f92237c52a894eea7d4ee13de5dfc4df224a99f9`
+passes fresh instrumented GCC/Clang run42608183231. Both complete interpreter
+units report zero outstanding observed metadata allocations;28 original Python
+methods and both original array-alias routes pass. I CRC/hash-check all12
+entries per archive, compare each full source tree to Git and retain the texts,
+inventories and audit report. Seven stable providers are reported per job;
+this upload contains their hash reports, not native provider/unit image bytes.
+
+My complete Linux run42608187904, Apple run42608192902 and fixed GCC comparison
+run42608197477 are separate plans. The Linux GCC source-emitter step refuses
+its original ten-second shadow deadline after1198 starts,1197 completions and
+zero recorded assertion failures, with9.864710 summed completed-body seconds.
+The final started shadow is `service_wire_serialize`. I do not attribute that
+unfinished shadow or historical failures to a proved teardown cause. Later
+controls and the other plans remain running at this checkpoint; I do not call
+complete original source/platform acceptance green or restart the failed plan.
