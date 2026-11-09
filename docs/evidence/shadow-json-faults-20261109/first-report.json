@@ -1,0 +1,2680 @@
+{
+  "inputs_before": {
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c": "fc604f9b3b43bc69ad2a752826ad65d69191062876c6d2c355431d33ad2b8619",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/run-faults.py": "c2bc47602404d622cc850fbf501769bae69dfcd8ce707e265cfc6728c0e4880c",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc": "21afcc2d4734fee3027b2bbf439b8ab398c2fb4ae96106812b42c6f9a969748b",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc": "e3ce718d338623625eab245d8552da5b78b3a9ef34926b944df9586a7c8be9ba",
+    "/Users/jkh/Src/nanolang/src/eval.c": "f82e15812dc5a253adc3e0ab2fe90a380c8f05b96873ce7f400e59b60bb1848b"
+  },
+  "inputs_after": {
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c": "fc604f9b3b43bc69ad2a752826ad65d69191062876c6d2c355431d33ad2b8619",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/run-faults.py": "c2bc47602404d622cc850fbf501769bae69dfcd8ce707e265cfc6728c0e4880c",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc": "21afcc2d4734fee3027b2bbf439b8ab398c2fb4ae96106812b42c6f9a969748b",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc": "e3ce718d338623625eab245d8552da5b78b3a9ef34926b944df9586a7c8be9ba",
+    "/Users/jkh/Src/nanolang/src/eval.c": "f82e15812dc5a253adc3e0ab2fe90a380c8f05b96873ce7f400e59b60bb1848b"
+  },
+  "tool": {
+    "argv": [
+      "cc"
+    ],
+    "path": "/usr/bin/cc",
+    "sha256_before_after": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "operations": [
+    {
+      "label": "original-O0-build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-fno-omit-frame-pointer",
+        "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+        "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "original-O0-run",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "original-O2-build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-fno-omit-frame-pointer",
+        "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+        "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "original-O2-run",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/original-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "candidate-O0-build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-fno-omit-frame-pointer",
+        "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+        "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "candidate-O0-run",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O0"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "candidate-O2-build",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-fno-omit-frame-pointer",
+        "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+        "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-faults-20261109/stream-faults.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O2"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "candidate-O2-run",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-json-faults-first/candidate-O2"
+      ],
+      "returncode": 0
+    }
+  ],
+  "products": {
+    "original-O0": {
+      "sha256_before_after": "d827ea3ef4c6ff4f1ea6e7355eed651f6c36f28bae4ce9e242375f351473718c",
+      "bytes": 75400,
+      "magic": "cffaedfe"
+    },
+    "original-O2": {
+      "sha256_before_after": "79fe483643fab21051e21416d728fd53441edc5665803a914ee20840b0afddd9",
+      "bytes": 58008,
+      "magic": "cffaedfe"
+    },
+    "candidate-O0": {
+      "sha256_before_after": "5ccb0a78abc5352c6a4b6c78a1e9a7061704f8a225346063d2235283ae53051b",
+      "bytes": 75408,
+      "magic": "cffaedfe"
+    },
+    "candidate-O2": {
+      "sha256_before_after": "cecbf6f843e8ef08bff254e1aa8dc82efb542321fb4db31328decf7320f16856",
+      "bytes": 58016,
+      "magic": "cffaedfe"
+    }
+  },
+  "cases_per_image": 144,
+  "actual_native_images": 4,
+  "o0_o2_outcomes_identical": true,
+  "candidate_stream_equivalent_on_matrix": false,
+  "differences": [
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 77,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 153,
+        "errors": 1,
+        "delivered_hex": "61"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 152,
+        "errors": 1,
+        "delivered_hex": "6162"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 149,
+        "errors": 1,
+        "delivered_hex": "6162636465"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 142,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 78,
+        "attempted_bytes": 78,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 129,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f70717273747576777879"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 140,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 202,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "61"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 200,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 194,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162636465"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 180,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true
+      },
+      "different_fields": [
+        "helper_errno",
+        "helper_error",
+        "flush",
+        "flush_errno",
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 154,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a3031323334353637383961626465666768696a6b6c6d6e6f"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 7,
+        "helper_error": 0,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 168,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a303132333435363738396162636465666768696a6b6c6d6e6f"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 79,
+        "delivered_hex": ""
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 77,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 78,
+        "delivered_hex": "61"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 153,
+        "errors": 1,
+        "delivered_hex": "61"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 77,
+        "delivered_hex": "6162"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 152,
+        "errors": 1,
+        "delivered_hex": "6162"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 74,
+        "delivered_hex": "6162636465"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 149,
+        "errors": 1,
+        "delivered_hex": "6162636465"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 67,
+        "delivered_hex": "6162636465666768696a6b6c"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 142,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 79,
+        "attempted_bytes": 79,
+        "errors": 54,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f70717273747576777879"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 129,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f70717273747576777879"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 15,
+        "attempted_bytes": 960,
+        "errors": 15,
+        "delivered_hex": ""
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": true
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 15,
+        "attempted_bytes": 959,
+        "errors": 14,
+        "delivered_hex": "61"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "61"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": true
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 14,
+        "attempted_bytes": 894,
+        "errors": 13,
+        "delivered_hex": "6162"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": true
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 11,
+        "attempted_bytes": 699,
+        "errors": 10,
+        "delivered_hex": "6162636465"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162636465"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": true
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 4,
+        "attempted_bytes": 244,
+        "errors": 3,
+        "delivered_hex": "6162636465666768696a6b6c"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "6162636465666768696a6b6c"
+      }
+    },
+    {
+      "case": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": true
+      },
+      "different_fields": [
+        "helper_errno",
+        "helper_error"
+      ],
+      "original": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 4,
+        "attempted_bytes": 205,
+        "errors": 3,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f70717273747576777879"
+      },
+      "candidate": {
+        "input": "ordinary",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 7,
+        "helper_error": 0,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 3,
+        "attempted_bytes": 168,
+        "errors": 2,
+        "delivered_hex": "6162636465666768696a6b6c6d6e6f70717273747576777879"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 75,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 15,
+        "attempted_bytes": 82,
+        "errors": 1,
+        "delivered_hex": "5c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 75,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "415c5c4243445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 16,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "415c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 75,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "41425c5c435c224445465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 16,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "41425c5c435c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 75,
+        "attempted_bytes": 83,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 15,
+        "attempted_bytes": 82,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e5c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 145,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 207,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 190,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 205,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 188,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 199,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 182,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 4,
+        "attempted_bytes": 185,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 168,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 159,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a41424344454647484a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 3,
+        "attempted_bytes": 142,
+        "errors": 1,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c75303030314d4e6162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 74,
+        "attempted_bytes": 80,
+        "errors": 74,
+        "delivered_hex": ""
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 13,
+        "attempted_bytes": 78,
+        "errors": 13,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 74,
+        "attempted_bytes": 80,
+        "errors": 73,
+        "delivered_hex": "41"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 14,
+        "attempted_bytes": 79,
+        "errors": 13,
+        "delivered_hex": "41"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 74,
+        "attempted_bytes": 80,
+        "errors": 72,
+        "delivered_hex": "4142"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 13,
+        "attempted_bytes": 78,
+        "errors": 12,
+        "delivered_hex": "4142"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 74,
+        "attempted_bytes": 80,
+        "errors": 70,
+        "delivered_hex": "41425c5c43"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 14,
+        "attempted_bytes": 79,
+        "errors": 11,
+        "delivered_hex": "41425c5c43"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 74,
+        "attempted_bytes": 80,
+        "errors": 65,
+        "delivered_hex": "41425c5c43445c2245465c6e"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 13,
+        "attempted_bytes": 78,
+        "errors": 7,
+        "delivered_hex": "41425c5c43445c2245465c6e"
+      }
+    },
+    {
+      "case": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 76,
+        "attempted_bytes": 85,
+        "errors": 57,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c7530"
+      },
+      "candidate": {
+        "input": "escapes",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 15,
+        "attempted_bytes": 83,
+        "errors": 2,
+        "delivered_hex": "41425c5c43445c2245465c6e47485c74494a5c724b4c5c7530"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 127,
+        "errors": 1,
+        "delivered_hex": "41"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 126,
+        "errors": 1,
+        "delivered_hex": "4142"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 123,
+        "errors": 1,
+        "delivered_hex": "4142c3a943"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 116,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d95904546"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false
+      },
+      "different_fields": [
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 65,
+        "attempted_bytes": 65,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 103,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true
+      },
+      "different_fields": [
+        "helper_errno",
+        "helper_error",
+        "flush",
+        "flush_errno",
+        "delivered_hex"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 7,
+        "helper_error": 0,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d6e6f707172737475767778797a4142434445464748494a4b4c4d4e4f505152535455565758595a"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 2,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 66,
+        "delivered_hex": ""
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 65,
+        "delivered_hex": "41"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 1,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 127,
+        "errors": 1,
+        "delivered_hex": "41"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 64,
+        "delivered_hex": "4142"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 2,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 126,
+        "errors": 1,
+        "delivered_hex": "4142"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 61,
+        "delivered_hex": "4142c3a943"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 5,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 123,
+        "errors": 1,
+        "delivered_hex": "4142c3a943"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 54,
+        "delivered_hex": "4142c3a94344f09d95904546"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 12,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 116,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d95904546"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false
+      },
+      "different_fields": [
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 66,
+        "attempted_bytes": 66,
+        "errors": 41,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d"
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 25,
+        "buffered": false,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 2,
+        "attempted_bytes": 103,
+        "errors": 1,
+        "delivered_hex": "4142c3a94344f09d959045466162636465666768696a6b6c6d"
+      }
+    },
+    {
+      "case": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true
+      },
+      "different_fields": [
+        "helper_errno",
+        "helper_error",
+        "flush",
+        "flush_errno",
+        "close",
+        "close_errno"
+      ],
+      "original": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 7,
+        "helper_error": 0,
+        "flush": -1,
+        "flush_errno": 5,
+        "flush_error": 1,
+        "close": -1,
+        "close_errno": 5,
+        "write_calls": 2,
+        "attempted_bytes": 128,
+        "errors": 2,
+        "delivered_hex": ""
+      },
+      "candidate": {
+        "input": "utf8",
+        "mode": 3,
+        "threshold": 0,
+        "buffered": true,
+        "helper_errno": 5,
+        "helper_error": 1,
+        "flush": 0,
+        "flush_errno": 0,
+        "flush_error": 1,
+        "close": 0,
+        "close_errno": 0,
+        "write_calls": 1,
+        "attempted_bytes": 64,
+        "errors": 1,
+        "delivered_hex": ""
+      }
+    }
+  ],
+  "production_changed": false,
+  "scope": "I compare delivered bytes, error/errno and flush/close outcomes, not callback counts. This is actual native stdio with deterministic short writes and injected errors; I do not infer whole-factory gain or complete SDK closure."
+}
