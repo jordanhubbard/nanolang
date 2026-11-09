@@ -55,7 +55,7 @@ input against exact Git 8fd8c0c78 under source-8fd8-{gcc,apple}/. The remainder
 of Apple's job was still running when these intermediate artifacts were read;
 Clang's success does not qualify the failing workers or the release.
 
-The optional sampler runs at exact f18474b85 in workflow run 42548134459.
+The optional sampler runs at exact f18474b85 in workflow run 42548134459. This paragraph records the earlier live observation.
 It passes provisioning/headroom/tool selection and correctly skips the six-
 attempt mode only because sampling was explicitly requested. Actual profiler
 output is still pending; no CPU sample is claimed by these local records.
@@ -66,3 +66,14 @@ case audit verifies all 33 actual selected component methods pass, including
 SourceOrPatternContracts.test_unchanged_complete_original_fixture. This is
 case-level hosted evidence at exact 8fd8c0c78, not a claim that GCC/Apple,
 the complete fresh corpus, native lifecycle or release acceptance is green.
+
+
+My [actual completed CPU sample](actual-f184-apple/README.md) is now independently
+verified from artifact 13643619104/run 42548134459. I retain source/provider
+stability, exact Git input matching, the actual native provider's bytes/hash,
+process identity and actual nonempty call graph. All 1,286 default shadow bodies
+complete with zero recorded assertion failures; intentional termination prevents
+native publication. The 602 captured stack snapshots identify record-field
+access and byte-field contextualization as the next exact-name comparison
+measurement targets. I have not adopted or claimed an optimization. The
+original full platform/fresh/security/native-lifecycle/release gates remain.

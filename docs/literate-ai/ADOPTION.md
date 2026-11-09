@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:0644133d9aa0f455e02d77d63ce260dc21e68db718cfbad52795e86456f88c7e -->
+<!-- literate-ai:authority-reviewed sha256:f00c1395899b995a096f1217e46b56cb2c9e9df60de0a827f41bd10f973b8eae -->
 
 ## My first metadata checkpoint
 
@@ -412,8 +412,12 @@ of the temporary sparse working view, and I merge its real ancestry.
 
 I retain local native process-group controls, their initial harness refusal,
 parsed-YAML preservation and help/compilation checks under
-`docs/evidence/source-shadow-sampler-20261109/`. Actual hosted sampling is still
-required. I keep original source authority, eight integration Components,
+`docs/evidence/source-shadow-sampler-20261109/`. My actual Apple run 42548134459 at exact f18474b85 now produces a verified CPU
+sample with 602 snapshots after all 1,286 shadow bodies complete. I independently
+match its actual provider/sample bytes and source inputs and retain unchanged
+before/after observations under the same evidence directory. Intentional
+termination prevents native publication; this sample is not source-creation or
+timing acceptance. I keep original source authority, eight integration Components,
 empty native implementation selections and absent native lifecycle receipt
 unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
 security, budget, integration or release acceptance. I freeze this catalog
