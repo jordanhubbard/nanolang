@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:91d4948b2e5b6a4dcf596dbb9010043256c2f881d8ec708a33865b04ec9ce1ea -->
+<!-- literate-ai:authority-reviewed sha256:6c0c92d6816c4532cea1ceed181b25761ea67c973a004b2123fb94657ddeea77 -->
 
 ## My first metadata checkpoint
 
@@ -539,3 +539,9 @@ Production/runtime code is unchanged. Corrected local loader modes pass; the ori
 passed actual VM CLI ownership controls. I retain that handle and require corrected Linux execution.
 
 My completed snapshot component plans retain Apple42568331586 at42dddfceb and Linux42569250444 atb94da11a. Independent hosted audits in `docs/evidence/collection-array-ownership-20261109/` verify33 native executables,54 shared libraries and nine NVM modules, selected immutable source inputs and every original success/refusal operation. Fourteen selected production/Make/workflow/heap-fixture paths are identical across those qualification and review pins; only two loader fixture files differ. VM/assembler hashes are retained reports without uploaded tool binaries. This completes my producer/VM snapshot prerequisite and corrected harness controls, while native AOT adapters, source admission, final-head platform qualification and release/NativeSDK acceptance remain open.
+
+## My native collection artifact candidate, 2026-11-09 UTC
+
+I retain complete source checkpoint `6e326819890734095b825d44c8127447c294cfb2`, a direct child of `93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e`. I populate a separate complete Git index, apply exactly five reviewed paths and verify all 92,829 entries before retaining the checkpoint ancestry. Two files add actual native boundary controls.
+
+I admit the eighteen existing map/set artifact signatures in my AOT consumer. I retain exact opaque and C bool transport, bind versioned snapshot cleanup to the producer image and stage native copies until cleanup succeeds. Actual producer/VM/O0/O2, allocation-denial and origin/signature refusal controls pass locally; strict generated GCC compiles and 223 product compiles each with clang/GCC pass. I retain the initial GCC formatting refusal and optional full source-regression setup failure for absent comparator/stage executables in `docs/evidence/collection-aot-20261109/`. Full component-platform plans, canonical source declaration identity, opaque field admission, fresh stages and final NativeSDK/release acceptance remain open.

@@ -1,0 +1,18 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_nanoisa_artifact_imports",
+    "tests.test_selfhost_json_artifacts"
+  ],
+  "returncode": 1,
+  "missing_executables": [
+    "/Users/jkh/Src/nanolang/bin/nanoc_stage1",
+    "/Users/jkh/Src/nanolang/bin/nanoc_stage2",
+    "/Users/jkh/Src/nanolang/tests/nanoisa/test_nanoisa_src_nano"
+  ],
+  "file_not_found_errors": 16,
+  "scope": "I do not claim fresh-stage JSON coverage from this direct invocation. Actual C-seed JSON subcases have no reported semantic failure; absent stage executables remain an unmet prerequisite."
+}
