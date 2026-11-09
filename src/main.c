@@ -1,4 +1,5 @@
 #include "runtime/shadow_timeout.h"
+#include "runtime/shadow_observation.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
 #include "colors.h"
@@ -465,6 +466,7 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                                       ModuleList *modules, const char *input,
                                       CompilerOptions *opts) {
+    bool observe = nl_shadow_observation_enabled();
     if (opts->llm_shadow_json_path) {
         FILE *report = fopen(opts->llm_shadow_json_path, "w");
         if (!report) {
@@ -503,11 +505,13 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         signal(SIGALRM, SIG_DFL);
         alarm((unsigned)shadow_seconds);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        nl_shadow_observe_phase(observe, "dispatch-start", shadow_seconds);
         int callback_status = check_callback_shadows(program, env, modules, input,
                                                      opts->test_imports);
         bool passed = callback_status != 0 ? callback_status > 0 :
             run_shadow_tests_scope(program, env, modules, input,
                                    opts->test_imports, opts->verbose);
+        nl_shadow_observe_phase(observe, "dispatch-returned", passed);
         if (callback_status != 0 && opts->llm_shadow_json_path) {
             FILE *report = fopen(opts->llm_shadow_json_path, "w");
             if (!report) passed = false;
@@ -522,7 +526,10 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         unsigned char done = 1;
         if (passed && write(completion[1], &done, 1) != 1) passed = false;
         close(completion[1]);
+        nl_shadow_observe_phase(observe, "completion-written", passed);
+        nl_shadow_observe_phase(observe, "flush-start", 0);
         fflush(NULL);
+        nl_shadow_observe_phase(observe, "flush-end", 0);
         _exit(passed ? 0 : 1);
     }
     int fork_error = errno;
@@ -554,6 +561,8 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
     unsigned char done = 0;
     bool completed = read(completion[0], &done, 1) == 1 && done == 1;
     close(completion[0]);
+    nl_shadow_observe_status(observe, child, waited, status, timed_out,
+                             clock_failed, completed, shadow_seconds, clock_ok ? &start : NULL);
     if (waited < 0) {
         fprintf(stderr, "I cannot supervise shadow execution: %s\n", strerror(wait_error));
         return false;

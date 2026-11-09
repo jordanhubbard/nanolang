@@ -15,6 +15,7 @@
 #include "runtime/list_bool.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
+#include "runtime/shadow_observation.h"
 #include "tracing.h"
 #include "interpreter_ffi.h"
 #include "eval/eval_hashmap.h"
@@ -6661,6 +6662,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     int test_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
     bool trace_shadows = getenv("NANO_SHADOW_TRACE") != NULL;
+    bool observe = nl_shadow_observation_enabled();
     ASTNode *root_program = program;
     char *root_owner = env->current_module;
     const char *root_file = env_current_file(env);
@@ -6804,7 +6806,10 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
         }
     }
 
-    if (!shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed, test_count)) {
+    nl_shadow_observe_phase(observe, "report-start", test_count);
+    bool report_written = shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed, test_count);
+    nl_shadow_observe_phase(observe, "report-returned", report_written);
+    if (!report_written) {
         fprintf(stderr, "I cannot write the completed shadow report.\n");
         all_passed = false;
     }
