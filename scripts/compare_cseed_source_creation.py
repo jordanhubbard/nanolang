@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """I compare fixed, alternating source creations without replacing release gates."""
 import argparse
+from contextlib import nullcontext
 import ctypes
 from functools import lru_cache
 import hashlib
@@ -159,29 +160,94 @@ def health(output, label):
         raise RuntimeError('I hold comparison builds for memory pressure.')
 
 
-def command(argv, cwd, log, env, timeout):
+def process_snapshot(root_pid, timeout):
+    """I retain only one owned process tree, with explicit observation bounds."""
+    started = time.monotonic()
+    result = subprocess.run(['ps', '-ww', '-axo', 'pid=,ppid=,stat=,lstart=,comm='],
+                            capture_output=True, text=True, timeout=timeout, check=True)
+    finished = time.monotonic()
+    rows = {}
+    for line in result.stdout.splitlines():
+        fields = line.split(None, 8)
+        if len(fields) != 9:
+            raise RuntimeError('I require complete process identities for phase observation.')
+        pid, parent = map(int, fields[:2])
+        rows[pid] = {'pid': pid, 'ppid': parent, 'status': fields[2],
+                     'started': ' '.join(fields[3:8]), 'command_name': fields[8]}
+    selected = {root_pid} if root_pid in rows else set()
+    while True:
+        expanded = selected | {pid for pid, row in rows.items() if row['ppid'] in selected}
+        if expanded == selected:
+            break
+        selected = expanded
+    return {'started_monotonic': started, 'finished_monotonic': finished,
+            'root_pid': root_pid, 'root_seen': root_pid in selected,
+            'processes': [rows[pid] for pid in sorted(selected)]}
+
+
+def command(argv, cwd, log, env, timeout, *, observe_processes=False):
     log.parent.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     usage = resource.getrusage(resource.RUSAGE_CHILDREN)
-    with log.open('wb') as stream:
+    observation_path = log.with_suffix('.processes.jsonl')
+    observations, observer_seconds = 0, 0.0
+    with log.open('wb') as stream, (observation_path.open('w') if observe_processes
+                                   else nullcontext()) as observation:
         child = subprocess.Popen(list(map(str, argv)), cwd=cwd, env=env, stdout=stream,
                                  stderr=subprocess.STDOUT, start_new_session=True)
         try:
-            code = child.wait(timeout=timeout)
+            if not observe_processes:
+                code = child.wait(timeout=timeout)
+            else:
+                deadline = started + timeout
+                while True:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(argv, timeout)
+                    try:
+                        snapshot = process_snapshot(child.pid, min(5, remaining))
+                    except Exception as error:
+                        observation.write(json.dumps({'observation_failed': True,
+                            'error_type': type(error).__name__, 'root_pid': child.pid})+'\n')
+                        observation.flush()
+                        raise
+                    observation.write(json.dumps(snapshot)+'\n')
+                    observation.flush()
+                    observations += 1
+                    observer_seconds += snapshot['finished_monotonic']-snapshot['started_monotonic']
+                    remaining = deadline-time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(argv, timeout)
+                    try:
+                        code = child.wait(timeout=min(.2, remaining))
+                        break
+                    except subprocess.TimeoutExpired:
+                        pass
         except BaseException:
             # I let the factory's native-process wrapper reap its separate C session.
-            os.killpg(child.pid, signal.SIGINT)
+            try:
+                os.killpg(child.pid, signal.SIGINT)
+            except ProcessLookupError:
+                pass
             try:
                 child.wait(timeout=20)
             except subprocess.TimeoutExpired:
-                os.killpg(child.pid, signal.SIGKILL)
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 child.wait(timeout=10)
             raise
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return {'argv': list(map(str, argv)), 'cwd': str(cwd), 'returncode': code,
+    record = {'argv': list(map(str, argv)), 'cwd': str(cwd), 'returncode': code,
             'wall_seconds': time.monotonic()-started,
             'child_user_seconds': after.ru_utime-usage.ru_utime,
             'child_system_seconds': after.ru_stime-usage.ru_stime}
+    if observe_processes:
+        record['process_observation'] = {'path': str(observation_path), 'snapshots': observations,
+            'wait_interval_seconds': .2, 'snapshot_wall_seconds': observer_seconds,
+            'scope': 'I record process presence within snapshot bounds, not exact CPU time. command_name is ps comm, not an independently resolved executable image. Observer ps costs remain included in child resource totals.'}
+    return record
 
 
 def shadow_trace(text, root):
@@ -215,7 +281,7 @@ def check_selection(prefix, full_selection, selection, succeeded):
     return (selection if len(selection) > len(prefix) else prefix), full_selection
 
 
-def run(output, baseline):
+def run(output, baseline, *, observe_processes=False):
     if not re.fullmatch('[0-9a-f]{40}', baseline):
         raise ValueError('I require a full lowercase baseline commit SHA.')
     if os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS') not in (None, '10'):
@@ -234,6 +300,10 @@ def run(output, baseline):
             'baseline': baseline, 'candidate': candidate, 'order': ORDER, 'worktrees': {k: str(v) for k,v in roots.items()},
             'shadow_timeout_seconds': 10, 'native_build_budget': native_budget,
             'native_lifecycle_admitted': False, 'fresh_stages_qualified': False}
+    if observe_processes:
+        plan['process_observation'] = {'wait_interval_seconds': .2,
+            'observer_sha256': digest(__file__),
+            'scope': 'I observe only actual factory descendants without wrapping or changing tools, inputs, cache keys, selections or deadlines. Observed presence is not exact CPU time; all original attempts remain separate evidence.'}
     write(output/'plan.json', plan)
     base_env = dict(os.environ, NANO_SHADOW_TRACE='1', NANO_NVM2C_SHAPE_TRACE='1',
                     NANO_STRING_OPERAND_COMPILERS='nanoc_c,nano_virt',
@@ -284,7 +354,8 @@ def run(output, baseline):
         if digest(tool) != tool_hash:
             raise RuntimeError('I refuse a changed host compiler.')
         result = command([sys.executable, Path(__file__).resolve(), 'sample', str(root)], root,
-                         output/'samples'/f'{index:02}-{name}.log', environments[name], native_budget + 60)
+                         output/'samples'/f'{index:02}-{name}.log', environments[name], native_budget + 60,
+                         observe_processes=observe_processes)
         created = set(factory.iterdir())-prior
         if len(created) != 1:
             raise RuntimeError('I require exactly one actual factory attempt per planned sample.')
@@ -334,6 +405,7 @@ def main():
     check = sub.add_parser('health'); check.add_argument('--output', type=Path, required=True)
     compare = sub.add_parser('run'); compare.add_argument('--output', type=Path, required=True)
     compare.add_argument('--baseline', required=True)
+    compare.add_argument('--observe-processes', action='store_true')
     sample = sub.add_parser('sample'); sample.add_argument('root', type=Path)
     args = parser.parse_args()
     if args.mode == 'sample':
@@ -345,7 +417,7 @@ def main():
     if args.mode == 'health':
         health(args.output.resolve(), 'preflight')
         return 0
-    return run(args.output.resolve(), args.baseline)
+    return run(args.output.resolve(), args.baseline, observe_processes=args.observe_processes)
 
 
 if __name__ == '__main__':
