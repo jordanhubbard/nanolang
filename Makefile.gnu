@@ -1901,6 +1901,10 @@ test-gc-shutdown-sanitizers: | $(OBJ_DIR)
 		tests/test_gc_struct.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
 		-o $(OBJ_DIR)/test_gc_shutdown $(LDFLAGS)
 	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_shutdown
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_gc_allocation_failure.c src/runtime/dyn_array.c src/runtime/gc_struct.c \
+		-o $(OBJ_DIR)/test_gc_allocation_failure $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_allocation_failure
 
 test-units: test-gc-shutdown-sanitizers
 
