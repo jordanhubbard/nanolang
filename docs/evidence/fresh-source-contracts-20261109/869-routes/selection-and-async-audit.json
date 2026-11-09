@@ -1,6 +1,6 @@
 {
   "source_pin": "869f11634fea9a618416a3173e92d36e3a59aad2",
-  "old_source_pin": "83b031e4",
+  "old_source_pin": "83b7043f417647d79c0cf0eee20b67a6c23880a5",
   "routes": [
     {
       "route": "seed-native",
@@ -71,5 +71,9 @@
       "async_passed": true
     }
   ],
-  "scope": "I prove byte-retained XML case selection and the async case delta relative to the previous complete snapshot. I do not qualify newer OR/filter candidates or a passing full corpus/native lifecycle/release."
+  "scope": "I prove byte-retained XML case selection and the async case delta relative to the previous complete snapshot. I do not qualify newer OR/filter candidates or a passing full corpus/native lifecycle/release.",
+  "old_source_metadata": {
+    "path": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__summary.json.gz",
+    "uncompressed_sha256": "969ccba5667c263e0e33c130f4262176386d8d1ab0a86cd933873935f2b70984"
+  }
 }
