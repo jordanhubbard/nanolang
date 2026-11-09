@@ -1,0 +1,9 @@
+{
+  "source_pin": "42dddfceb6460d272e1064058e96ba675a904830",
+  "runtime_implementation": "fb0b2a64a80bd7de6f9933a92011db56407a2926",
+  "linux": 42568329141,
+  "apple": 42568331586,
+  "linux_state": "I retain its terminal strict-driver build failures, before actual VM CLI controls.",
+  "apple_state": "I observe the actual VM CLI ownership controls passing and preserve this original handle.",
+  "scope": "I do not replace a completed failing plan or infer final Apple success from one step."
+}

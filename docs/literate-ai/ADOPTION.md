@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f8b279a94755cedde79704643d38a00fbeef5da75fd026f754349cc357904a63 -->
+<!-- literate-ai:authority-reviewed sha256:2c4af71c6f6eefea46b24603a889c250505a37c0c8f199303c389f60d23ead28 -->
 
 ## My first metadata checkpoint
 
@@ -531,3 +531,9 @@ loader harness's initial missing-OpenSSL-header refusal and use the installed de
 Evidence is in `docs/evidence/collection-array-ownership-20261109/`. Actual VM CLI controls require explicitly
 selected fresh tools and remain for hosted execution; local heap/loader controls do not substitute for them.
 Canonical module identity, source compiler routes, final platform/NativeSDK and release acceptance remain open.
+
+I advance snapshot custody to `93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e` after retaining the first
+Linux loader-dependency feature-macro refusals. This complete 92,827-entry direct child changes only
+the standalone C/Python loader fixture: I use the production GNU feature flag and guard its definition.
+Production/runtime code is unchanged. Corrected local loader modes pass; the original Apple plan has
+passed actual VM CLI ownership controls. I retain that handle and require corrected Linux execution.
