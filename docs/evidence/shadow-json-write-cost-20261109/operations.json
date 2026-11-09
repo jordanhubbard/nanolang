@@ -1,0 +1,243 @@
+[
+  {
+    "label": "build-sanitized",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-sanitized",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-plain",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-counted",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-DCOUNT_STDIO",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-counted",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-01",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-02",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-03",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-04",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-05",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-06",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-07",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-08",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-09",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-10",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-11",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-12",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-13",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-14",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-15",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-16",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-17",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-18",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-19",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-20",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "counted",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/counted",
+      "--replay"
+    ],
+    "returncode": 0
+  }
+]
