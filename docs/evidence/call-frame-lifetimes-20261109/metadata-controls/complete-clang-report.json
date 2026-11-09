@@ -1,0 +1,2614 @@
+{
+  "run": 42608187904,
+  "artifact": 13669852887,
+  "head": "f92237c52a894eea7d4ee13de5dfc4df224a99f9",
+  "compiler": "clang",
+  "archive_sha256": "03630521dd44a11f636e3212d00df696ddad7ce7faa311b619791c6184b0792a",
+  "entries_crc_hash_checked": 6573,
+  "source_tree_git_matched": true,
+  "reported_stable_providers": 6,
+  "stable_input_reports": 358,
+  "git_matched_unique_inputs": 100,
+  "uploaded_hash_matched_unique_inputs": 303,
+  "hash_matched_provider_reports": 6,
+  "native_products_before_after_bytes_matched": 72,
+  "scalar_products_before_after_bytes_matched": 32,
+  "native_entries": [
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jf0pu5w7/native-O0",
+      "sha256": "f818f3c20b9712b4d5ebd52a2049a86e7d0e5e85a395384bc29dadfe1f05625e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jf0pu5w7/native-O2",
+      "sha256": "44c10ab70407212f550fe343b5f57b6c7356f6bc13c04448cf642d8cce4d2e66",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-buzmlvae/native-O0",
+      "sha256": "851aa8a9582d2b8c85774c5b4bc92dc6b356fcf3d98ef5540321aeed8e98242c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-buzmlvae/native-O2",
+      "sha256": "94796ed7c905582e46eb413230a79c64f05ad16a2aabf78e19858912e9f97a88",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-source-contracts/test_scalar_types_primary_binding_and_once_only_effects-aklaqnh9/native-O0",
+      "sha256": "eb5e193db475f689e87d56c02735579e530579c889d3c34556dcba025292efff",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-source-contracts/test_scalar_types_primary_binding_and_once_only_effects-aklaqnh9/native-O2",
+      "sha256": "391708a4db0b5fb678ae85f8dafa926cbeafe12d26220cb11a3c840efcb597bd",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-source-contracts/test_unchanged_original_async_fixture-r0_6enc0/native-O0",
+      "sha256": "edd8c6dcbd172331e615174ff016f8adeeb5cedbb71b052be29c580ad1e251e9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "async-source-contracts/test_unchanged_original_async_fixture-r0_6enc0/native-O2",
+      "sha256": "393eaa37c0b771668d98674ac7f5928fd84f3b7659c3869c34bdcf669bd2bc4f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-dy7dvhmx/native",
+      "sha256": "b997edb15e12f708099adb21fc74cd1a16fe5f92cc104f716f03068202984ef4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-hmuibgeo/native",
+      "sha256": "3a48e703d58aa2ec370914873d7b0c5f0aaf874c7144affce074289a6ed1cfb2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-j2yc66hx/native",
+      "sha256": "5a76520f16720519d3e8519201da92069d5de5bc657b5cd1a037fde3ddaeebae",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O0-y0mr6vjw/native",
+      "sha256": "0db8d958bd4a736377e7d2fbf914dedc825bc094e01d77291e82f326ceb9f351",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-2dryh6az/native",
+      "sha256": "1f72f6f0c9ad091ce9f8359bd4a2c13b6b0f893be2626deeffe9312ce00fef36",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-_rl8oro4/native",
+      "sha256": "72b4ce3e5aba7a10f9cf002bbf7372b107ebe4b7b0f1f4d24436f1266862049c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-bdemme4l/native",
+      "sha256": "e996abb53550a5a5f7723b641e0f8a4415637acfeb8b03ace2b07d7a2c2a2ca8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-c-contracts/O2-lidhkx1n/native",
+      "sha256": "039028e4cb8c00b5266ba6c01e0a3aece3abadab2fa83b7b68272e37ec3448c5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/binary-nul-nanoc_c/program",
+      "sha256": "158ed8c8aac46e92a2d06c9e816d3fe4cd6f4451bed06caba3d8e787ab92e31a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+      "sha256": "fc5b47585fc39969a8cae233d388196aa55d5dba76c57c28954bd888546bc7cc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-negative-nanoc_c/program",
+      "sha256": "f6bfdafe537eca6da054527a0a7c68831df5cf35ecd9cd9b278317671e2ad615",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+      "sha256": "8872683cd13380485ae595956d42fda55e20096f32a836b596daf123ef820468",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+      "sha256": "52d26027546afc72258afaaa81510985df0b9141981a780384ad162a6bc25041",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+      "sha256": "99945ac5bd5d92c2b983af0ac63687e218726fb59f56cc258ab02f17ae97960f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+      "sha256": "8882244fa7caccf1748e8e29fea735c3dbcc5cb0b5bbae399d491b0273af026f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+      "sha256": "c402aed274e929c1a667e7889ad36c3adf32e6388f5815967d04118404d14b2f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+      "sha256": "c89237395d10c4a4fa06693b9e2f2643b1f5dbf7cb434a3105fa4553719546b1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-btfm8y9q/native-O0",
+      "sha256": "36dfa97eead85e540cfa5b8b9ee783c0f7acef97cde586fbdbcc4ff19d50834d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-btfm8y9q/native-O2",
+      "sha256": "6efac4ead86a1c8c643d34591ca0e95cc37f59ffd9c09a60300839eb3e898b34",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-3le69oet/native-O0",
+      "sha256": "0f909824d5cedad327dab6a7423b43fc8838ec7d6aee37b438587a223c711b2f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-3le69oet/native-O2",
+      "sha256": "427c05ff57c3708ead7d50aecf3761b750e78b1c3a6dce9405177c31eafd8e6c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-2nuuanr8/native-O0",
+      "sha256": "b67a1f0d1436b3bd900e7ed4fe9aa1a0a32063cb4f69701c4624ad95dd83a7ce",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-2nuuanr8/native-O2",
+      "sha256": "053034f62a57d815acec415140b98cf84d58874d342b097dc26bdfdf70216daf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-3wga743d/native-O0",
+      "sha256": "c8c85c3d10ffdea3c0a1798a47dc55d1d7c2d8766ebebdaba9f834dea71c8fe5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-3wga743d/native-O2",
+      "sha256": "3bb17c71ae8606b7bdbe717190d19564c6739b2993f9603aaf4733beb3cfdfa1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-5mriut8e/native-O2",
+      "sha256": "8dbdf9dc9434e92919b6c5def08644445a2ecc6f11fc700359c0ec2069b4c737",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-5mriut8e/native-O0",
+      "sha256": "7533e73fd799b977fbc515a3099c1a354aee861053f3ef8762680d374de2c39d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-60ykghnx/native-O0",
+      "sha256": "e3f91babaee8e6690f56e18b0ebe29081593f541d5ad29e953e34f4d4aa8fd68",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-60ykghnx/native-O2",
+      "sha256": "18c16762511028d4be1752d4621a68250b99586c843b68a7c08902c7fd3dc873",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-msqcn2cy/native-O2",
+      "sha256": "1cac1ec7172a4eb9266b06c1386c6c099ad0aa5b8a190716b602b4b820be787b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-msqcn2cy/native-O0",
+      "sha256": "4ac58fc2e5a68dadb8db05a7fff6fc2ed252da88219665839bfeeb066d115fa0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-w1upvv_j/native-O0",
+      "sha256": "69e462d86a2766a6eab6bc0b39a04bd0183934ac853b92e35e4cf3734265a67d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-w1upvv_j/native-O2",
+      "sha256": "f5e830e1c0427e6afa635ff5ceb0abb9a958cbe6b282d16c97deaa8efda91c6e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-78qr1zhk/native-O2",
+      "sha256": "790bbef37db9261f02175b22e8183acc495290c2d3a3778bb80a6f706caaea75",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-78qr1zhk/native-O0",
+      "sha256": "e35cc639c1775d1b844ed5ef97337fe465053b94efd5b3d99d86c60509833d95",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-uhwhnvn6/native-O0",
+      "sha256": "f8ee9a4c18641e4fc5d453688971c65917e29047d0b76bec70b80a252c7f3689",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-uhwhnvn6/native-O2",
+      "sha256": "b754c030ae2f40b29d80b20819caf9dc5c4a1a995a09614fbbbcad121fd3b821",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-m8p0dkby/native-O0",
+      "sha256": "43964c62e50f12fdd8dff3089b60f95986132ecf98fd34b66fb990f33c7e61a7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-m8p0dkby/native-O2",
+      "sha256": "258fe0b65328f370b74f1e29ef1f0f93fab3da8183e7bc7ff97230b22dfb3fdb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-g7p2mcwv/native-O0",
+      "sha256": "fd64a23301e5cb9d9e458c5a83e71ad9872fce7e1315671775b577ae05ef142c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-g7p2mcwv/native-O2",
+      "sha256": "189ff06b14f40275b04fd390f47d92e553158fc8aa35f402d8bf5f5aa5ae1c3a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-native-payload/original-_u4kiy5v/unit",
+      "sha256": "3c529db677f43e94608a590b3c6862cee1912f878be8571ca6bfe154502f441a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-compiler/actual-native-vvwzx205/compiler",
+      "sha256": "c9591ceb482d852e80d99239dd99de7a51fd038116c17f7ec87a7144be7ccb25",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/generated-collection-et8w_b2l/native-O0",
+      "sha256": "6b552fe33fc9b589a8cc706ff481390a2c63efaaedc34ddcba498e6d6c1e77fe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/generated-collection-et8w_b2l/native-O2",
+      "sha256": "70aebdee6fe97df052562cebf577feb7b2baa4ef9b5c15f8d3e4e01bcfbd55b1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-ootnn4fy/native-O0",
+      "sha256": "1d881d8bc7703a1654ba2eab0b0a9070600c067ce18ee5b12df7cb9a3df6be10",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-ootnn4fy/native-O2",
+      "sha256": "a827cef957cca39f27dd31ed07761719cc538bd93557b10f315a86ef1a24c4af",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-_9bycslk/native-O0",
+      "sha256": "426f4994ee89b1337eb786cd6999c96b7e121d33d57c55723025cea7721229a5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-_9bycslk/native-O2",
+      "sha256": "556e244ffcbf8985b7b013035f3e47767af344c96c3108d65334b116e93c4be1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-gdewidf2/native-O0",
+      "sha256": "57da8e69b8c266afe089d7f921412791f5919d2f0b4dacd7e60161184f35af35",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-gdewidf2/native-O2",
+      "sha256": "4f622f66c9949e1f848d51fdde9d7e48af6f181351caaf3fd3d1f2354eb61679",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-gi7n0p2i/native-O0",
+      "sha256": "caf1f33bd3bb84f2b2f53a96504fd39c689723559d8bd63c9446983c8de33229",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-gi7n0p2i/native-O2",
+      "sha256": "8d4f136f777ade66d52726de5598129f9dea00f24ec1bf796a4fd964fa7475d5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-isyf2n1d/native-O0",
+      "sha256": "d4351843dbfcecf1d1ab4dbfd2acbfea9e2c0656d0043a9c604006dcd27d76f6",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-isyf2n1d/native-O2",
+      "sha256": "455a1969711441daae3751288446776fbb1b5e8ba57258f7326aa4641ddd653a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-j11uh3x3/native-O0",
+      "sha256": "85d32fb2b8e2e3dbf2496be197b1cb4f3643a80c9a1112e787a0e062a65c974f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-j11uh3x3/native-O2",
+      "sha256": "04b795690a4638ee8926d45048372e05c27f75cbc3510f70a2d4831b2c6362ae",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-tyw5hki9/native-O0",
+      "sha256": "886a2433fb4b1845cc758e32389cf471efc4c399eb8f21596cc03ac116ec8816",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-tyw5hki9/native-O2",
+      "sha256": "5159062ad6fc8d1e7855389e89ca4cd2481d8fe81c2a61ec0ea9d8fb2813d20f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-m6x85mvo/native-O0",
+      "sha256": "14a0dfb405f48059c4d2e08f733cedd28a33538da6f44e14a1746103ed871d65",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-m6x85mvo/native-O2",
+      "sha256": "8ed1656927ccd0d9256807210747236b5186ebf14f1c5e6433a84f1a28c14e63",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-7jb9d9ei/native-O0",
+      "sha256": "5d1c2f61a0710a159d51ef2c031c8cf7f81237f9f57fe76ee864742eb7b656c4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-7jb9d9ei/native-O2",
+      "sha256": "4bd5c7c19f07b591b0ae4984206899a0d80faa2f0d2f561357b1704c633a7cdc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_typed_owner_array_aliases-khdg_tty/native-O0",
+      "sha256": "49a522534ac43175ff007a97db9dcf9fdc68c44f0b17641cd9c50f99b9f09c4f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_typed_owner_array_aliases-khdg_tty/native-O2",
+      "sha256": "c19b6e6141ed353535cd71c5d62a6c6537dca1abcd883b1d552e33000ad60c23",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_unchanged_original_fixture-5vk5zge_/native-O0",
+      "sha256": "ecd544898788537ab96f33666ccd058d8fb9e1e2cc12a231ac3d9bbdcfc173b2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_unchanged_original_fixture-5vk5zge_/native-O2",
+      "sha256": "7634fc48db56c57df4b1325095b5da02ebc4193840cb7240fed01cf05011e851",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-9sb51izy/native-O0",
+      "sha256": "77ca23a885fd175668bef2e765edbad09b71300830ac4277c933e7f0cddef398",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-9sb51izy/native-O2",
+      "sha256": "a1738ada2f64b1cf0f86fc368b884aa50cc1e3fb353095fb2a9a3cb4570c794d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-bfi6jq0k/native-O0",
+      "sha256": "ba71ee67f540f1604afbb65cd33f64ee2ebade6a6dbe68035cea34b4386b74f7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-bfi6jq0k/native-O2",
+      "sha256": "02a7e6216a52c79194dc78a7dd5894148d7fdf8cfc859e7362f9daca1cb07d96",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/all-native-O0",
+      "sha256": "f89ea5d118c9f1bb7271b1ff1fb8ac678735e273426435f3f8683d9f3312f1b1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/all-native-O2",
+      "sha256": "62ebab64734892a15bd02445af1432f473a02aa218b41c954914a664d4f83dd3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/bad-marker-O0",
+      "sha256": "f0daccc6542c61c2c932279ebb6a1be70ea9535ad0204925949aec37807bbdd3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/bad-marker-O2",
+      "sha256": "c27bc18ab556f2f822df0ab75829325a2e9f4d991c1e04db4dbc0a796e35e99c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/bad-marker-origin.so",
+      "sha256": "48e93290d66abf356aa4e518777b3243b280bbc1c276d3a4e2a9fd3ba85e40a9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/bad-marker-dependency.so",
+      "sha256": "8d5dee16be9e15c4859565eaa8a7aa44b1dd259faa5d06a456372ffc004c3fe4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/both-dependency-O0",
+      "sha256": "0d2a34ff0eb874869737254c11e3aaa0c3497c9d883f75b91b1bbdc170b63d0a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/both-dependency-O2",
+      "sha256": "22a527261b26b63864c7ac2cca5cd821152e792f1ad5d42e1d37fbb4a0940dcf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/both-dependency-dependency.so",
+      "sha256": "7dc7e1c20a0f2545d0642dc3f5883897c43e098fb70e1cd1533d2b24f579c475",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/both-dependency-origin.so",
+      "sha256": "da301ea80bb6dd4b9b94c066744c74f72774f78abca834e01e4e8eb6ced98f36",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/collections-plain.so",
+      "sha256": "2e25936fd2b6b416d2c0c1d2e427ea7791d86455fbf8624b92b2413860a0cfba",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/companion-dependency-O0",
+      "sha256": "c5228af16ebfecac8abaae40e29865ab9649b8e66547f7fd4ca06a609b2d9177",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/collections-sanitized.so",
+      "sha256": "764c4e74133f2206a9e35346e9a784f2c5e91c05b3aad2dfb11866cd67eb1725",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/companion-dependency-O2",
+      "sha256": "caa548f3922eb32cec12b1fb53ce563cc1ceeaabdc607a499c8c9ea761272abf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/companion-dependency-dependency.so",
+      "sha256": "370d9c23af80fa7ace6e6e191ea44b9a0b9451993cc1fb856dc4e5b964bc88a7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/companion-dependency-origin.so",
+      "sha256": "d44d6f5c47371ecf1557e6fefe4d7422cc04e01d13a418af65ac8289dbd98456",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/copy-control-O0",
+      "sha256": "fdf5aba92b70b7b43701805d3f843d28c12b913440acb0edf3d0b51a803a548c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/copy-control-O2",
+      "sha256": "80db2fa8684556892e975c236c3e4e197f42cf13874ff95e52f82440ffbc1c41",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/fs-sanitized.so",
+      "sha256": "9a2e1c10a5b2bc12ed00a023d036e5ef377053b7a95ad2bd7fec5bd145c4c1a7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/json-fs-O2",
+      "sha256": "19bb27227d4cabfa82c30da9409b1dfb06be781e85cc332e4410aa64db72dab4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/json-fs-O0",
+      "sha256": "39ddb1ed9c780a2d10f85a26cb30aff147155fba0865866667be356ae92a1e14",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/json-sanitized.so",
+      "sha256": "ac69264fb9fe712baeeda1e7ed33a65c12a824710bdffbb757029782783de723",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/marker-dependency-O0",
+      "sha256": "92cd06f773986d52c23f3d6e1608bf8273b20c10183c0714d75353e7560b8621",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/marker-dependency-O2",
+      "sha256": "eba2dc31cb190073fa0fe435b0eb5e7c46e7d4d5676c806e0ed1203719a112c1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/marker-dependency-dependency.so",
+      "sha256": "5dc4fbdcc56160675c063ff98bc9970c1a722693cd77236343680dc2c02dd238",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/marker-dependency-origin.so",
+      "sha256": "8cc5585a2ed6ff29fbe34c43adad1000b43a6ec2e3bc6e391cf6132e5d01cab7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-companion-O0",
+      "sha256": "9bb2b34b7391dffe35358c173afc2575e614e3d49db2c9f010e965be6955afbb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-companion-O2",
+      "sha256": "09091c2299c484dc61735ade53b9790dadcb472b03f01aa33bc4c85c6fabab7b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-companion-dependency.so",
+      "sha256": "076ec541859b42506416374d9c17e4aff85e98df8194d76de4432d5f51af55f4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-companion-origin.so",
+      "sha256": "c5f45b13ca738be180603bd5a69454a2b7538e777c8a50053bda03bb46826cfd",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-marker-O0",
+      "sha256": "150422f6b7b74f9b7bd455734d9e66e77eb0e741d721c169ff0713c20db8a82a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-marker-O2",
+      "sha256": "6fcaca09832feb18f9c73d60a234c13fb692c24a32a2612b7ba1a75dc8a44d63",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-marker-dependency.so",
+      "sha256": "c6ecc1e00f2c54dbed527bcf5c441fc53919c35b66c154d67b9e9309cba80e29",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-aot-4__m1zys/missing-marker-origin.so",
+      "sha256": "553762d99ce5d5e46a6ae019bc6e7d1b5eaf4423c94e66faa1bce38c712a83c0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-654zok9g/plain",
+      "sha256": "fd1bf1679e9c551d81d4941a88f73edbb010e50eca7eaa93366a63fbdf954a84",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-654zok9g/sanitized",
+      "sha256": "0905fab6c8712818d80bc68c8b770309d2240fa82d852f92edbe69b8e1df6ef8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-handles-654zok9g/threaded",
+      "sha256": "13da5c89037527ed8bc33cb845257986678c8599f1ba13da09578603b28668ca",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-e0cjn736/plain",
+      "sha256": "37d9cfab9c47bdec2346b9f3d5abc750ff7ef054a650b462b947f36c15c39e5c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-e0cjn736/sanitized",
+      "sha256": "7b3bf8e99b9c8e50dc7e5050596c74b1fba9517c0994f544e95f11080d4bb4ba",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "collection-snapshots-e0cjn736/threaded",
+      "sha256": "8e5c1789248dc96685ea138039d4d19df9ffe7d21e4724c264db3f81a067312b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "empty-record-array-contexts/test_native_generic_contexts-nano_virt-p625qrjg/native",
+      "sha256": "c76f38b7b69cab3f5f78355b2f9d29f9faaec5b40b12d21b1b8eebb1fe737dbe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "empty-record-array-contexts/test_native_generic_contexts-nanoc_c-ekocc9gq/native",
+      "sha256": "43b20ba99e2d7b9ece7997ac000dc9c80bed16e057bf40c4872aa55bb333e604",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "empty-record-array-contexts/test_selfhost_generic_contexts-nano_virt-qzyrinn_/native",
+      "sha256": "321a6e4c47ce20664c5a927af376049e245cfbb99d42ce9a72582fe1b234c814",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "empty-record-array-contexts/test_selfhost_generic_contexts-nanoc_c-eza6ge2c/native",
+      "sha256": "512fcfc0b447171f4e8fcd3e066ee40eab23cad68ea50a1017c484e49667af45",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-array-results-18t6bst8/plain",
+      "sha256": "5e577cdc0bf7d80df497c004d85e81fa1f8d92baea52be080a4a6e695a185e60",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-array-results-18t6bst8/sanitized",
+      "sha256": "8c9d4759dfe21c20b208248eaad7b912c6aa3ccd888cbc7b9fa4dc1c5b682e7a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/plain/driver",
+      "sha256": "c6ef03a3f3c09b4971f63955e6b0f96f4c1be58d38f3d20a73eca85f7f088fa1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/plain/libcollections.so",
+      "sha256": "94c4805caa68a3718d2529857959600cc5752605e05641b9c007e40d276ad1fa",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/plain/libdependency.so",
+      "sha256": "1ccc1cadb742318835bb602aa6ade425bfae2611e1867e82c36b10c1d7ae0eb9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/plain/liborigin.so",
+      "sha256": "b1d79f42108f7509a2badf93201d66e9b9d5ea06a2699522cf55cfcbe1c87618",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/sanitized/libcollections.so",
+      "sha256": "d367a81ddb97e602117167143b8aeb77754913a271ad959b1c8067c2cfec2943",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/sanitized/driver",
+      "sha256": "65046361e535b2f752626e4e8a64dd2e9eb9c8c4618ec11901626907cb2769c3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/sanitized/libdependency.so",
+      "sha256": "4e8d967270e2acc94cb66460cfbd4d123bc40ad63ca2a982d0673f05a1f2df34",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/sanitized/liborigin.so",
+      "sha256": "f828ad264d079356f3d1c1b199762b79a1d6c770f5abe9e92a9f90422e2e9812",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/threaded/driver",
+      "sha256": "f994f3c09a22614aca491647e6c8316afb753cdf884338f8fd7b6dd7a96d3ebe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/threaded/libcollections.so",
+      "sha256": "9c567ea46caf6d6a6db96de7ef99972a6949bbe8ebd2ef60369a3302f0f4b74e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/threaded/libdependency.so",
+      "sha256": "63563302154412e607853794467d1b45fc593fa41d4739ae84e01142b9a381cb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-5l6tlgu0/threaded/liborigin.so",
+      "sha256": "3f0ad0665f91d8ab33decf1b4fb67e7fdffb185ace2edb5450827db5febc24b3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/plain/libcollections.so",
+      "sha256": "47f6daf21cb8480c4022f5267dddc4d59405a68e1d586b597289f5458991bcd6",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/plain/driver",
+      "sha256": "c6ef03a3f3c09b4971f63955e6b0f96f4c1be58d38f3d20a73eca85f7f088fa1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/plain/libdependency.so",
+      "sha256": "7368edee2414769a8be622b51210924c70838482e57c5a864126d5bc2039ae74",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/plain/liborigin.so",
+      "sha256": "491774c7372ba33d2a6e796022b564d3a541abe47ded935ccd807d969eeb206a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/sanitized/driver",
+      "sha256": "65046361e535b2f752626e4e8a64dd2e9eb9c8c4618ec11901626907cb2769c3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/sanitized/libcollections.so",
+      "sha256": "699dac2f9aedce48011314ef99cb525f781280132942ff98ab32def7c95a1831",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/sanitized/libdependency.so",
+      "sha256": "591faa439d0a9a3d35c6dc2546ad7d1623921a581d3c37981e3b69ee81a0e49d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/sanitized/liborigin.so",
+      "sha256": "b18e7b11e68fd5ce5e7102385ba6cd0678a1d34beaa8b0ce8b5f78c8fb5622c4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/threaded/libcollections.so",
+      "sha256": "1e6fc5c5551af3e55fa11e0a16f1cb4fb3883ded81733d43c68f6d65c4d1f3ac",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/threaded/driver",
+      "sha256": "f994f3c09a22614aca491647e6c8316afb753cdf884338f8fd7b6dd7a96d3ebe",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/threaded/libdependency.so",
+      "sha256": "b5b77e8bd3dae9f415b58b55d2f7707076f94a10d0eafd93c1856f31046659dc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "ffi-result-release-y4kx804z/threaded/liborigin.so",
+      "sha256": "18167952737ba7c0dafa12b2232cf28a5f737492a634379251e67fb8b83c34ea",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "legacy-print-statements/test_bare_statements_and_lexical_prefix_calls_keep_their_identity-nano_virt-aqfh1kl_/native",
+      "sha256": "23aaab699049e6123eb3b5f16357e919f5c03f6056cdf0f70c2efff637476aeb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "legacy-print-statements/test_bare_statements_and_lexical_prefix_calls_keep_their_identity-nanoc_c-bkdtdse6/native",
+      "sha256": "9644d795130df68acb9209c3e02230c06662412cd9a0182fce5a0462d3b47b32",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "legacy-print-statements/test_print_arguments_run_once_in_source_order-nano_virt-ihl1reab/native",
+      "sha256": "6dd7442fdbe50d04408985d6ef7e1c7523aadfa38abed5617924b2952e0a6c23",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "legacy-print-statements/test_print_arguments_run_once_in_source_order-nanoc_c-lo6jfvln/native",
+      "sha256": "d9d06e026793e3dce7c352ed399bcdb3c86db8474a7f045878854369e43e01f9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "legacy-print-statements/test_printed_lexical_capture_remains_visible-nano_virt-uakjmzpx/native",
+      "sha256": "d3a2fe8507b294c335d438b815ca07d73182b1ada39865ab15024d95735f4cb5",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-3n8olwdi/native",
+      "sha256": "74a840cba5b973182c712c0e7e16e91de6b9fb8ed10255e2ba641aeeaf180b93",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-4fbvcpkn/snapshots-int-string-nano_virt-native",
+      "sha256": "aaa4272482c227daaa916f1e0eab28691511964bfeaff543a604e779563d6204",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-4fbvcpkn/seed-native",
+      "sha256": "1f295304395216c0746a7da83c9e62551a64a463ab1a4176754cbc2cd9681d16",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-_5yxlnwv/seed-native",
+      "sha256": "db09a15ed0d3c69efb6931dfe7343be75da52864e6048044c914035701699b57",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-_5yxlnwv/snapshots-string-int-nano_virt-native",
+      "sha256": "1ecd3f5292316485271abaf9a1b2b1ffbb655aa3d69806e4338f48515b80df17",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-br5ix9fd/native",
+      "sha256": "99b3bba2dde6604a37cdbfc2a37414d5824a2fe1417f626615afeb481e2dbaca",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-gaallyas/seed-native",
+      "sha256": "8d23dc25859cd08b77a815707a7a338a8f702dcc29cb012e6d2c5d074db10d43",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-gaallyas/snapshots-string-string-nano_virt-native",
+      "sha256": "10d844f0ad11b70a0ad373955885059e43475d2242381d71ef33962151042d18",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/int-int-nano_virt-native",
+      "sha256": "e19ce39639f4b9e272d5fd770edd71700c374a3f9394d29796afc5349e8591a8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/int-string-nano_virt-native",
+      "sha256": "6633615ce7c50126d2b270fe58e3eaaa00779da1c8c3e09631379fd8cec841cf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/legacy-int-int",
+      "sha256": "da044d63f5161dee0d380da62848dae0ee68f00344cef88ef51a9e49b7a78ff2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/legacy-int-string",
+      "sha256": "23787e51306dc4ac2cbf184cec250009271b2454facebe5aa7b1e96859602295",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/legacy-string-int",
+      "sha256": "33db2e5ddf8fa78e2c4696c75741839757d1f88d06c04ab3196a3db919a8d5fc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/string-int-nano_virt-native",
+      "sha256": "76dad9b8661330b95c45f72f5d3969a032aaf59ca39753141612b084324cb061",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/legacy-string-string",
+      "sha256": "bca5fa1e02bd24af31716c23c413b90703ad905d9ebac26bbe6a5e4a26bf88fa",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-p_3bmxj5/string-string-nano_virt-native",
+      "sha256": "e510b1b004dbf08da5402d08051d72eec4bfb8476eea486e08df77a086d0f1c1",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-q6rct00h/native",
+      "sha256": "0aec7a95e6820ff4c2a79adc1ce2cca60f8289563015af5ac3631af1af656e65",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-zbb28gjt/seed-native",
+      "sha256": "db09c1a1953cd4d568500f1e004cbec0b543893ce7c4db0f90b4a9338479f214",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-zbb28gjt/snapshots-int-int-nano_virt-native",
+      "sha256": "157daf002281731be247c0d86d43accded8290992b33e6f969e0cc75e0e77a5f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "map-constructor-contexts/contexts-zf65vzk1/native",
+      "sha256": "a94847c738fd1ac9b4e9b90243d8571a432a99681e853898f095944a64fbc7a8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-upyzdxo4/native-O0",
+      "sha256": "f20cd7f4f089b7d78dd3b23cea4e4695a54c16ce97a27964bb203c636c7a5138",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-upyzdxo4/native-O2",
+      "sha256": "786abc4b0ac0ce127f8afb321986dc69e3ac7a5707a323a7c457726399b62c94",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-trhltyi8/native-O0",
+      "sha256": "fd03341add768dabd4db7ab0455fe3b1a2b80f52ac48101c9f723d039ba2860a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-trhltyi8/native-O2",
+      "sha256": "9418587c111187dbd9665327f6c79c3947c4d9ec2de20436aa40ce4ce66761b0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-77axbmdl/native-O0",
+      "sha256": "5bb4ea7083cbb502170e0877b9c628c4b4369b03014ea5e3813259555aa1b6ad",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-77axbmdl/native-O2",
+      "sha256": "6d47f4720d9b57296d03b5aa90893fc706dac2d56a764d3f300c32e1954262ed",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-plgmpyih/native-O0",
+      "sha256": "bb4cd6a5174e8f9e0c63c9440ad3ac3b893ead6c5da6e55fff9b0bf8bc4836d7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-plgmpyih/native-O2",
+      "sha256": "ab43fa730c3257cc0cbe8054a6ece7569c2877331b045e95ca2cb37aa8e70075",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_unchanged_complete_original_fixture-geglkgpa/native-O2",
+      "sha256": "424f5f68c916084669b051338230fdce02a82d72394c571c37128041997a15b6",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_unchanged_complete_original_fixture-geglkgpa/native-O0",
+      "sha256": "b2792bed76929438b504d90a917a27e14e6af15a75316d8a9e74f5c17d807a15",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-yb8r8aq7/native-O0",
+      "sha256": "c9ed1f2d1d602dea58edda754edd583e39c3aadce8e06df14852d2e7fdf05c04",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-yb8r8aq7/native-O2",
+      "sha256": "3398769b5e5ac6b84ec7d72f920525c4c22d6da5dd4689abfdf46b2138dde5b4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-1yi2508b/nativeO0",
+      "sha256": "a78490816ba19d0798960c34a96de948130388c57e90aaa14f7697079ff68713",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-1yi2508b/nativeO2",
+      "sha256": "4c1c032e63ab80fc2739f3a8452ece71d2d58299aa255f5972ccd8c73f12c9ce",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-92xugk06/nativeO0",
+      "sha256": "29b43901d1aaebaae1d2e12649775d3a4889ad6068cd5831044cac8b96f20814",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-92xugk06/nativeO2",
+      "sha256": "1438cdf20dbfb548da2a096cf1c0e14d7299bfe5603aea4bb02d3a408cc1c378",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-g2m7o3vx/nativeO0",
+      "sha256": "03bea1b19c158bb93e63d194647ee86161d21b7c70f8d886cb2c000928e2bb82",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-g2m7o3vx/nativeO2",
+      "sha256": "f1892f648e06f0c5edc81766d49463e171fc529b7fa6845cb21589a4bbdaa076",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-g3_al2xa/nativeO0",
+      "sha256": "d6009673f42916e0273d73d2b8988a006dc35aaa94a10e198bf4d6cae7da8715",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-g3_al2xa/nativeO2",
+      "sha256": "8ef3951ca78b8087465f8bd3873b3f6f7426042499aca07c11e673720cbb712e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-kj318kjk/nativeO0",
+      "sha256": "6a095f84a25b739c4e493187853cfa7a5f342c784bf4c0dfd837a218acaf2d52",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-kj318kjk/nativeO2",
+      "sha256": "28244c3fc25a552c2b801f488bdd5c89a6464a7d0780be2c15bb8d06aa85bf0f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-r5_5sf5l/nativeO0",
+      "sha256": "28c222b8663a3ff0d26dd838aa8486e0ffc90502e5f404bc298c39d2c791b5af",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/array-sort-raw-r5_5sf5l/nativeO2",
+      "sha256": "840945b745f7d0fae2926d64e85fae9538abd39f528ccd71c9359e75462bde64",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/byte-conversion-raw-4uerfh9d/nativeO0",
+      "sha256": "ba6f275f79c7e9bc342d18467ea2b65f16500751206ee1cce9183fc71f7541f4",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/byte-conversion-raw-4uerfh9d/nativeO2",
+      "sha256": "5103b89c19c985330380bbcbfeb3cf21849fffaf966077501073045dad9cfc2e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/environment-raw-voa6yvlb/nativeO0",
+      "sha256": "e264df9459f3898f4f3b71546abc75cddc23bb74eb6391ca43836f08702d8eef",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/environment-raw-voa6yvlb/nativeO2",
+      "sha256": "5302653271f1c91fc5b6f1d3ed67b2b000fd376dc1fb36f012c900cc4d6e584f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/.nano-gen-1M5GCk/libmath-selected-provider.so",
+      "sha256": "0ad4a9a63e088bd328f74e1bf653126d41073b34e63b821da0c5bb9f0619fbad",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/.nano-gen-1M5GCk/math-selected-provider.o",
+      "sha256": "c7324f3f381c9eb23e2d543066752a557f9d3348ad737664dd1e2c0e5f30b9e0",
+      "kind": 1,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/current/libmath-selected-provider.so",
+      "sha256": "0ad4a9a63e088bd328f74e1bf653126d41073b34e63b821da0c5bb9f0619fbad",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/current/math-selected-provider.o",
+      "sha256": "c7324f3f381c9eb23e2d543066752a557f9d3348ad737664dd1e2c0e5f30b9e0",
+      "kind": 1,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/raw-pick-callable-n6pbd_00/native",
+      "sha256": "2a17b9b378bff3b711fd73cd7652e807d3cd007694a7d1e10225e990b08a6413",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/raw-pick-record-scprn5sl/native",
+      "sha256": "41519255196cf7548a6641ad73dfd8f55b39b2a7a141aeda8adc9b75d7e26086",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/raw-pick-scalars-lq_qw7ok/native",
+      "sha256": "1a97d66e87b2e9049375c010258aa5eb1185cc3f5b3587fcffa7bdd09192c1a2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-6s2igngs/nativeO0",
+      "sha256": "b07cddd804078bd46b6572c14a3a705fcc34ba35829af627cf27522917824822",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-6s2igngs/nativeO2",
+      "sha256": "3a150288171c6e3e2efa666cc2d0a83623c6e2addd211a98ff1286d7a8c8c27b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-81440xr3/nativeO0",
+      "sha256": "df963c5a33ec91055d6f5ff8274b08aaafc62f99131babd41aa512eef1ccd23d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-81440xr3/nativeO2",
+      "sha256": "01f366e529d83133ac1f11658fe28ff885ac364a26352b26bf24208679071627",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-lyd520zl/nativeO0",
+      "sha256": "b48dd7d0c2f3fd4f71bb6547ebde1d42d0abde5e70fdf6664ddb732f3ca6c88f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-lyd520zl/nativeO2",
+      "sha256": "d86bc23fc574f14b1d90e6e2f93cff7505fabf554f318455d00f5ad8360a48ad",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-mxgjo5_8/nativeO0",
+      "sha256": "3591eb615f2e34e10860eb808e1a79cd9bb2f63cdd3d6f2a5d8424203a741b6e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-mxgjo5_8/nativeO2",
+      "sha256": "68e137bb23897d7d98e681dc4d7eb0c46ef80cb45a706a2d36cf508a6ea25c64",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-nrqh5wnq/nativeO0",
+      "sha256": "3f7a37dc7bc3fc396d0f3704363a9f2f8972bf2ec2dc092bb3edd41f1a8e8242",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-nrqh5wnq/nativeO2",
+      "sha256": "657aefabf8f69d1ca720f49c18000ec24d1a94fb5588ae9f89da4241e9a9ea89",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-v7hnl_dx/nativeO2",
+      "sha256": "01ab31db05b7a41b5d1ce3b4267be151da3fd362a49c104834f4ec9f13a90f91",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-v7hnl_dx/nativeO0",
+      "sha256": "fd81d9d03bf9ff63397db9606ec80dafa81fe88cc54d60691176ba73d213519a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-vbchu4qz/nativeO0",
+      "sha256": "abd62edbf195877ada3ace5a0adcdfd1e481b0dfff0e19818585ecfbfffa3b2e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-vbchu4qz/nativeO2",
+      "sha256": "65d2cf4ed66e4488afdeac674aa227b59c9455aac80e1eead17a77b6c6560c38",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-wmudzmun/nativeO0",
+      "sha256": "56ece6824575407796b5b182fe156ab2e51a21a940933e49d7903634c0a646e7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-wmudzmun/nativeO2",
+      "sha256": "bc16b35a52b56d17c91a39d622f66b37f019fb9651b5266f5d0695047412455f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-yl2oyulh/nativeO0",
+      "sha256": "de165f4bd19724c270c04b6903660a8f3c4602700ced3c0939f239609603a3ee",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/string-stdlib-raw-yl2oyulh/nativeO2",
+      "sha256": "b1483e096360b3596f240d43d9ab26980295b6ba84edfe97e0cef230dab9a845",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_alias_arguments_returns_arrays_and_computed_conversion-nano_virt-327nbgpm/native",
+      "sha256": "c8a40ddf41439b76ea1e42eee94606ee9bc692307b7e9b0f15a170f70efe7716",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-u9fead54/native-O0",
+      "sha256": "9fdf51dfe3fb0749a6f9fa21b85025663f172f77b67635086fc98c956e435e5c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-u9fead54/native-O2",
+      "sha256": "d39799d2f3b870adf3b9a86e7ee7f5d0c1b990951449ccb5798d3d6dd6e9c4d6",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_bound_print_result_is_dropped_once-nano_virt-lxl356dy/native",
+      "sha256": "250dcedec82b93b413f8271dcc041b4f7dddc97248aada6ee844ebab0e88dd9b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_byte_elements_and_empty_storage-nano_virt-2fcdd9jq/native",
+      "sha256": "3beecf2e98967e80f00c5c9a6336bbd7547b7d5575736a3a91e9b06ba9188b9b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_case_and_replacement_keep_original_bytes-nano_virt-r87yr3hx/native",
+      "sha256": "184a8ae10287df9adcc643b7bc825f013dc2b3eec856e5fcf11a669968fa1b04",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_core_values_once_order_and_function_bindings-nano_virt-1q6rj9kf/native",
+      "sha256": "5d8213f20f9cea22951e8e4b4a976422897650346c6063b24fc0a4e83c1fe7ef",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_declared_functions_keep_their_signatures-nano_virt-gsellxuk/native",
+      "sha256": "b65ecc59ea62fbba3d4d670fd36f50ca052bff7699cadb059665d072cb64822f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_declared_result_preserves_string_metadata-nano_virt-xkiatg4p/native",
+      "sha256": "c05bd8187b18c688e3b32b78270c6dfa63bb2f1a12b2c50d8fac3f3a8af57fe9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_direct_indirect_and_callee_first_evaluation-nano_virt-2bz5c_km/native",
+      "sha256": "caf89b8b55e42b7aacfad2d31a7c2fa01b5909e54548c4b9230cbde7ab9b8ed3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_disabled_recorder_has_no_required_external_tool-nano_virt-jl6p8izq/native",
+      "sha256": "3a7402c434a1dd5c1b19ee1cf822fb7a1e4753e42d008d1b270e4549eea4bfee",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_each_existing_statement_head_keeps_identifier_condition-nano_virt-jxai4acu/native",
+      "sha256": "129860433fae62d9c3f8453a426af4892e1abc7ff2a66444b198dc99b378e727",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_empty_unicode_detached_storage_and_typed_calls-nano_virt-ndp1wdw0/native-O0",
+      "sha256": "771d2f7a1c7b17a3c0b42d6396559ac58228b88df64ca500728d53951f1bf042",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_empty_unicode_detached_storage_and_typed_calls-nano_virt-ndp1wdw0/native-O2",
+      "sha256": "6459193591ff2dbf84abbdf2ba481ce771fab8f91a1983022572e73462145ecd",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_every_extended_math_symbol_executes_in_the_product-nano_virt-uqp5b9j8/native",
+      "sha256": "ac5e137063bda9c7769b174226dda63869487636eb22e6b7b9678393df2f7a00",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_exact_scalar_bits_and_mutation_aliases-nano_virt-codq0vp1/native",
+      "sha256": "5b5cd8e290c096a1ea00b4a3ddfc426df94e0b3a80555686c922471aa86be45b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_exhaustive_byte_oracles_and_full_integer_boundaries-nano_virt-k80tueww/native-O0",
+      "sha256": "b0fb5dc81a2d287428629d9ff652daa7699ee1302109d7ff7ec04a79b1cc164d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_exhaustive_byte_oracles_and_full_integer_boundaries-nano_virt-k80tueww/native-O2",
+      "sha256": "646b1c1721f4204fa764d07cc4f1ad5283577171193d4b321149660ca1213a53",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_existing_computed_byte_destinations-nano_virt-pdv7kzbi/native",
+      "sha256": "1fad0242321579be659a4cf06e3d55dce4fc6dd5c265c9830e819b51f5f1ddb0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_existing_negative_and_past_end_removal-nano_virt-o32qp2wk/native",
+      "sha256": "885b8974923caf9ea890ae7f982314ca526c3eced437c01ba19cc3e3488c034f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_existing_nul_and_non_utf8_byte_boundaries-nano_virt-mi_lna1b/native-O0",
+      "sha256": "a67e7ac0c4d003d1a12023d61df1d13871225908e4bc4821bb680f69c3a28ad0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_existing_nul_and_non_utf8_byte_boundaries-nano_virt-mi_lna1b/native-O2",
+      "sha256": "fc48056e735a1972c9cb41952ed176fe86ed21cfd52aafa769fcf0a9549787dd",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_existing_scalar_bits_fallback_and_once_only_operand-nano_virt-dgeqw125/native",
+      "sha256": "30f51d8c5a72cc4d91c8ed0c0cc929fcbed6dcd1ca9427e3ff829ff4de4a9a01",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_five_scalar_kinds_typed_empty_and_detached_storage-nano_virt-ycbqmgqg/native",
+      "sha256": "a30dedb0014ecf254baacfc48bfdf4ef9f9c81f7b5dbcc5471b5753742e68a3b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_float_bits_first_match_and_independent_storage-nano_virt-sme82p9d/native",
+      "sha256": "12ce54fcfc9b79db75abab58774731738c8676119b72032a5d57ee14c9797cdf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-my4s30ja/native-O0",
+      "sha256": "c1d153a6533404b3bce9e2889402f0331fa57864c94840976faa038cf0eb4413",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-my4s30ja/native-O2",
+      "sha256": "3d4f97e5a9b1127d50ea45dd0a0c23fbcd712a14d1198dc313772c4ed89bb838",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_integer_wrap_total_division_and_shorter_lengths-nano_virt-44r2di6v/native-O0",
+      "sha256": "7ff0c66ea05df084842cd130227a888427df3804ed1c39ef26c58b055e480d34",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_integer_wrap_total_division_and_shorter_lengths-nano_virt-44r2di6v/native-O2",
+      "sha256": "c0d21b5a6f6f6f2c148739a9abc0d7ac4b8e3e1512a7dd498e2895eb77b8b83c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-7sm5y7ym/native",
+      "sha256": "3b721a529a9a0a66200a8668437f24c1ddfc44d8ec1c6e266d0cd192ac1238ab",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-9xkfvkxg/native",
+      "sha256": "5c633cb7450dc8bcff7be9a55fb8f07021485b12e54cc490ace38f8e7b58494a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_lexical_bindings_keep_declared_signatures-nano_virt-2atfun9p/native",
+      "sha256": "2e3c3a96eaea2c9a81e88f6e2f9baf6b8e048bd445e0bc347c6c63a67c0a563e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_lexical_bindings_keep_their_signatures-nano_virt-x1mcd394/native",
+      "sha256": "621a52ea7575540000461cd213567f7e194de85a825a7eeba57c96f58f5761c2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_literal_phase_and_quoted_recorder_path-nano_virt-clqcokh7/native",
+      "sha256": "0cb759a42e17974b2a253df0ccf3a7c9368b749f8a4c7ad6a2c33a912e071b0f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-8gbkbdua/native",
+      "sha256": "f93e76bc02cbab09bd8325afe884a9d8808db0ec1adb9b3180c33ab5179e94e8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_nested_and_empty_declared_records-nano_virt-3j1n73_0/native",
+      "sha256": "4c12377091fe76b9d8be2c45100fbf5b6fc993c3ece480fe59fe2fefd7e510f3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-lz94oac_/native-O0",
+      "sha256": "91bcb89e16a3d2e6372e0ac987af095353f8e7a15bec3ffcd87ea4bed2d631ec",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-lz94oac_/native-O2",
+      "sha256": "f92cd2234dd19d00f3a05e8350603a0a6e938955addc61f6521590686d22abbb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_numeric_values_and_original_float_bits-nano_virt-l9lfa28_/native",
+      "sha256": "8dee9e65d9e6a29024e0d0bd62c3b01b5899cbeb7ab5514a5a8c82d9343837cb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_and_bound_function_identity-nano_virt-8__gb9un/native-O0",
+      "sha256": "fcff1e29246606fb5f665522ffe7ce7f2977f0c3bc1484053539104eca5ae813",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_and_bound_function_identity-nano_virt-8__gb9un/native-O2",
+      "sha256": "8c42df7522d5dd1fb2408640f20b36d63aeb7c5c89b1d783b163f0021389e63c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_detached_join_result-nano_virt-o8x6e0w2/native",
+      "sha256": "f266a9a70f42020af037e0b8501ea4d0451bb9cd7f39df6a75b7f6405ed726b2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-omyimpvu/native-O0",
+      "sha256": "6d17f1632eae75a5c4883d260080b2c4110336dfaf91564d3bc53d81dd00e698",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-omyimpvu/native-O2",
+      "sha256": "f5969331d9f68130665ced68ded888fcabf92c5cc76d300dcdf91039e91a87d7",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_only_operands_and_bound_function_identity-nano_virt-_31298b8/native",
+      "sha256": "dd53ae08df7b6555717ad06e5457cea1a894a2723595c521132fd42d402bebda",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_once_order_and_lexical_function_identity-nano_virt-uj6j8nlt/native",
+      "sha256": "3f82108c89ddcf75fc0c964b4e093b1fb76d0143c94e46a8aee6c7409596ccdb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_argument_fixture-nano_virt-6wbqvxfs/native",
+      "sha256": "0176c49ae7b04fb3340bb4a1c1e773b2606d1b9920fcbbe9904d58976f496900",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_array_operators-nano_virt-g9a6ewt4/native-O0",
+      "sha256": "e3a963927cebbc71b95e39009a7ff30a0e2f40e56b762d36a6c38ef23c65ab94",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_array_operators-nano_virt-g9a6ewt4/native-O2",
+      "sha256": "7b5509f0ad93409f862bce01fd811a59c253e4f234776ae4d48f508b274c9693",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_array_stdlib_fixture-nano_virt-htf23oef/native",
+      "sha256": "0e5d0f539db101bfcfeab3a30f82170caa03c11cac60a7e74cd175c204eb6ffb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_builtin_fixture-nano_virt-xtccmjc1/native",
+      "sha256": "49e6dc8f44040aec02c7a079194c74e4ef654592ac87bc8d7f6d292c7d31b9e8",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_byte_conversion_fixture-nano_virt-7x4kno7g/native",
+      "sha256": "153065a4d231f0d7d5fa5dd347defaa09b363d0e3299810b1c9d299b2c98cfc0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_casting_fixture-nano_virt-7pwj9nf9/native",
+      "sha256": "f5328d822e0c3ad7835d188236650852206ec9e5281a5f1ccd150abddfdceb91",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_dynamic_array_fixture-nano_virt-tssmt1n3/native",
+      "sha256": "f2a560e72d53fad27a0406f689bb9b385fc2086cbd90edbbdf02ba589a3b3a2b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-1yboul1e/native",
+      "sha256": "8f5f747f5fec2a410046ab8ec6567b8e4d83087cd6ad1b79cbdaee4070d4829f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-uy_1bxtx/native",
+      "sha256": "325395a7da5f7d828fb65c998298a77a89cdef126cd54569dcd09547ef9269e6",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_extended_math-nano_virt-1rm5xdu1/native",
+      "sha256": "ccda38cec5f04ceb345e2176009b8e01d0bea0b910c18130fb29e064f30b2f01",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_format_fixture-nano_virt-5x86cnpp/native",
+      "sha256": "2fb7d446644405f6af836a7d9ed8a299513121c7d23ae7f02bf2d05043819b8e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_literal_fixture-nano_virt-jngehunq/native",
+      "sha256": "571a545ba8954886ee387ca2f94c81b9d5ab8c6d9d6518040ce83f7e02f0a056",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_par_let_fixture-nano_virt-fcw6huzk/native",
+      "sha256": "422fcc6b55818ce6d61b161567c24fb15d94c8ee77fb30565935dec9ac0337b3",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_search_and_reverse-nano_virt-8eg8taso/native",
+      "sha256": "20280d29ff5cac98862e4dbf1d9c57cc5cd764cc1020bb6dc2f4ce9bd3b7916e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_standard_library_fixture-nano_virt-i8qu2mv_/native",
+      "sha256": "dc842374f6e6fc04a74d1dc8d320e7b4849cde03b486d60d98a53fd61faf13f0",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_string_stdlib_fixture-nano_virt-v78ipv22/native",
+      "sha256": "3fae21c1adaf37bb0af336cd15ffcae31c08519c211369b183416bf3334268d9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nano_virt-zp7ro1cf/native",
+      "sha256": "2ef715fc35a0afa9365f2e46b691c12b8cd4e3d93487c9cc7149d9b6d7270347",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_top_level_constants_fixture-nano_virt-i_xpf0ib/native",
+      "sha256": "eabebafe18c5123f9b676f9eab5eff9b129147c302c1563a65bf11dcdb30689b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complete_u8_fixture-nano_virt-0q7g0gi8/native",
+      "sha256": "bacb2874eac48363dc09bb829c1a2b86d424e1c3d98164045013749e9f33d24e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_complex-nano_virt-9hl7q6yg/native",
+      "sha256": "687dbb3eedb88c0eb4f5bf13d67f23ecde65250b3463f42e9e74fa35759cd33b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_extended_math-nano_virt-be_scp4l/native",
+      "sha256": "e22aa37c4ed0efa753e260996a1c7f781238b65c1db9a7355d072f0316d4be9c",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_file_operations_execute_in_production_main-nano_virt-gockznnf/native-O0",
+      "sha256": "994cf9b0ae6c402c57510a49301c59d7b8a5c054208ff351a03b933e78dd9886",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_file_operations_execute_in_production_main-nano_virt-gockznnf/native-O2",
+      "sha256": "9593f86a153d25211b214a221641794ce33286723d9b48f5a85c1014781b9499",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_fixed_bit_oracle-nano_virt-ne1v965i/native-O0",
+      "sha256": "e6b8b1c15a0a964c2b3f1c19d9d8c3dffb856eaed533ee8d54c35d6caae66d0a",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_fixed_bit_oracle-nano_virt-ne1v965i/native-O2",
+      "sha256": "cd6b08323af465934cec3771a65767b46ae17c5872044d4a92dc137580be9550",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_order_alias_growth_and_empty_neighbors-nano_virt-qg8545mc/native-O0",
+      "sha256": "edb0de9db0e7ceaa128b477ce86f7186806f2276c0f45652970d40f91afd91a2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_order_alias_growth_and_empty_neighbors-nano_virt-qg8545mc/native-O2",
+      "sha256": "1f80c43a0a0464aeefdced5922cd404341142da324fa8462db0e4bc8f5645fbc",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_original_vector2d-nano_virt-ipbwf_nk/native",
+      "sha256": "3d67d04a418ba92d9311134eaebb9258338d899316b8dd3bc4ff9c7476b78d13",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_overwrite_unset_errors_and_retained_getter-nano_virt-q1erx3lp/native-O0",
+      "sha256": "69223a1fbee17c0d921f76f8215f3d225683d2ef70f1e6858d715cc61b7e1584",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_overwrite_unset_errors_and_retained_getter-nano_virt-q1erx3lp/native-O2",
+      "sha256": "918bcd110a92721cb6c25ee8bfad113bd11cb9bd99722e7edae5026ac60dc6c9",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_raw_conversion_policy_and_runtime_literal_spans-nano_virt-eir8f0pa/native",
+      "sha256": "8a2210dffac0617037a46168801cc550eb657abafec24d7bba5f620552ed77e2",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_receiver_then_index_once_with_alias_growth-nano_virt-wkmqkkbr/native",
+      "sha256": "fdbf6a5a20ce67cc6c578184bf270f0c67391ecb7c4a6ac6edb9ac67a66db9fb",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_recorder_refusal_is_observable_without_changing_program_acceptance-nano_virt-vzvkcmsy/native",
+      "sha256": "c977436a6facd3ac1b32870115bd65446b7d8227c5d43f98604b9000f5ed5edf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_retained_conversion_owners_survive_allocation_churn-nano_virt-qu8gdawe/native-O0",
+      "sha256": "8c1cb79dddf3529f7352c7d48a9028774425992854954fb0f37e6851dd282c30",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_retained_conversion_owners_survive_allocation_churn-nano_virt-qu8gdawe/native-O2",
+      "sha256": "a795ac93a0c57627e2aa558d6508dfb9ad406065784399c30053e068dff8ec3e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_runtime_template_order_and_unused_arguments-nano_virt-3ji5iygs/native",
+      "sha256": "ee4ac76531ab7230ba63620729f3e9eac24427b224da9404eff1ed25fcb6bd18",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_scalar_integer_arithmetic_and_computed_narrowing-nano_virt-cx7mm0xl/native",
+      "sha256": "7ebd5093c690fd803be43bd77a78e567507960dbfddb848ba9c368ac2cd85a4f",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_separate_declared_nominal_contexts-nano_virt-z6wygyld/native",
+      "sha256": "3c17c11c3007436bf0ebe1d2d8d66f0e47dc2c1c7f8d04e449996b1336d18f29",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_split_join_empty_elements_and_byte_fragments-nano_virt-ogql41dt/native",
+      "sha256": "5344ade89f1c7e32ea3e8a75e10eb210ede07956ea15916094bbf81ab545845e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_string_broadcast_shorter_lengths_and_repeated_lifetimes-nano_virt-39egbqla/native-O0",
+      "sha256": "1179277bed2037b32b85ff5a99861a46a691e7aa776f2fa730354f4af1b7ecbf",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_string_broadcast_shorter_lengths_and_repeated_lifetimes-nano_virt-39egbqla/native-O2",
+      "sha256": "9003a5cae1503099c7e8a734b427f3af7f9ea2f997c36337a92fe580d793215d",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_trim_sides_keep_other_bytes-nano_virt-80l2c__9/native",
+      "sha256": "0976c39e016bb1a333bcb81ab102dc9d4f9f99fa585de20f49b8c3adf0282574",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_typed_byte_element_caller-nano_virt-5ccs14lk/native",
+      "sha256": "05694d748d1cdfc86bd92ef009ac77a35b918a43e6bde68e05aa1f69d5e621ab",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_typed_empty_results_keep_independent_storage-nano_virt-8b09vr3e/native-O0",
+      "sha256": "8c5ecf242466c2e9e1e90cc78fb6e32abb583ec6ca2ed6d45c9b7755a20953df",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_typed_empty_results_keep_independent_storage-nano_virt-8b09vr3e/native-O2",
+      "sha256": "c16377a8c7826a07c42fdf64d8860d510472b6fcb77bd4ab103f4ce0036dc4fa",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-p8_5qab7/native-O0",
+      "sha256": "32ef4b0a6a65961b3012bfb613946314eca725f3f5b95c32890be5c27e16c23e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-p8_5qab7/native-O2",
+      "sha256": "413a05948ffd4b6cb8599719d28ff875b685008fe96caa7124dad252ea14dc3e",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "numeric-builtin-selection/test_void_and_value_bodies_preserve_scope_and_effects-nano_virt-mxnak6ew/native",
+      "sha256": "e4f431236186bcaaca3571ef3cc3decd1a9df96b2404e12c0391aaf9086ddd7b",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "source-checker-component/actual-native-9br_8095/checker",
+      "sha256": "e07a2c00b373d0bc4702cea1056bb4568c77c3ed64a1e4cb486a356da8b8a595",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "source-checker-component/language-environment-iip9tnq_/native",
+      "sha256": "368ef56cab3f625b31119587b2e52d5d91c500fb873c4cbece373b4a593dd4af",
+      "kind": 3,
+      "format": "ELF"
+    },
+    {
+      "path": "source-checker-component/language-string-self-upbt_mjb/native",
+      "sha256": "44ce809cda795c1eb0a02bb06d92b86c1a87a9a141ff658cd92e158e41639b95",
+      "kind": 3,
+      "format": "ELF"
+    }
+  ],
+  "binary_entries": [
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jf0pu5w7/native-O0",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jf0pu5w7/native-O2",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jf0pu5w7/program.nvm",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-buzmlvae/native-O0",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-buzmlvae/native-O2",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-buzmlvae/program.nvm",
+    "async-source-contracts/test_scalar_types_primary_binding_and_once_only_effects-aklaqnh9/native-O0",
+    "async-source-contracts/test_scalar_types_primary_binding_and_once_only_effects-aklaqnh9/native-O2",
+    "async-source-contracts/test_scalar_types_primary_binding_and_once_only_effects-aklaqnh9/program.nvm",
+    "async-source-contracts/test_unchanged_original_async_fixture-r0_6enc0/native-O0",
+    "async-source-contracts/test_unchanged_original_async_fixture-r0_6enc0/native-O2",
+    "async-source-contracts/test_unchanged_original_async_fixture-r0_6enc0/program.nvm",
+    "bstring-c-contracts/O0-dy7dvhmx/native",
+    "bstring-c-contracts/O0-hmuibgeo/native",
+    "bstring-c-contracts/O0-j2yc66hx/native",
+    "bstring-c-contracts/O0-y0mr6vjw/native",
+    "bstring-c-contracts/O2-2dryh6az/native",
+    "bstring-c-contracts/O2-_rl8oro4/native",
+    "bstring-c-contracts/O2-bdemme4l/native",
+    "bstring-c-contracts/O2-lidhkx1n/native",
+    "bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+    "bstring-contract-baselines/binary-nul-nanoc_c/program",
+    "bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+    "bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-negative-nanoc_c/program",
+    "bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+    "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+    "bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+    "bstring-contract-baselines/substring-overflow-sanitized-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+    "bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+    "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+    "bstring-contract-baselines/useful-function-shadow-nano_virt/program.nvm",
+    "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+    "bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+    "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+    "bstring-native-contracts/generated-collection-btfm8y9q/native-O0",
+    "bstring-native-contracts/generated-collection-btfm8y9q/native-O2",
+    "bstring-native-contracts/generated-collection-btfm8y9q/program.nvm",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-3le69oet/native-O0",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-3le69oet/native-O2",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-3le69oet/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-2nuuanr8/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-2nuuanr8/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-2nuuanr8/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-3wga743d/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-3wga743d/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-3wga743d/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-5mriut8e/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-5mriut8e/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-5mriut8e/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-60ykghnx/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-60ykghnx/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-60ykghnx/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-msqcn2cy/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-msqcn2cy/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-msqcn2cy/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-w1upvv_j/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-w1upvv_j/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-w1upvv_j/program.nvm",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-78qr1zhk/native-O2",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-78qr1zhk/native-O0",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-78qr1zhk/program.nvm",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-uhwhnvn6/native-O0",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-uhwhnvn6/native-O2",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-uhwhnvn6/program.nvm",
+    "bstring-native-contracts/test_typed_owner_array_aliases-m8p0dkby/native-O0",
+    "bstring-native-contracts/test_typed_owner_array_aliases-m8p0dkby/native-O2",
+    "bstring-native-contracts/test_typed_owner_array_aliases-m8p0dkby/program.nvm",
+    "bstring-native-contracts/test_unchanged_original_fixture-g7p2mcwv/native-O0",
+    "bstring-native-contracts/test_unchanged_original_fixture-g7p2mcwv/native-O2",
+    "bstring-native-contracts/test_unchanged_original_fixture-g7p2mcwv/program.nvm",
+    "bstring-native-payload/original-_u4kiy5v/unit",
+    "bstring-source-compiler/actual-native-vvwzx205/compiler",
+    "bstring-source-native-contracts/generated-collection-et8w_b2l/native-O0",
+    "bstring-source-native-contracts/generated-collection-et8w_b2l/native-O2",
+    "bstring-source-native-contracts/generated-collection-et8w_b2l/program.nvm",
+    "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-ootnn4fy/native-O0",
+    "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-ootnn4fy/native-O2",
+    "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-ootnn4fy/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-_9bycslk/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-_9bycslk/native-O2",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-_9bycslk/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gdewidf2/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gdewidf2/native-O2",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gdewidf2/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gi7n0p2i/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gi7n0p2i/native-O2",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-gi7n0p2i/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-isyf2n1d/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-isyf2n1d/native-O2",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-isyf2n1d/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-j11uh3x3/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-j11uh3x3/native-O2",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-j11uh3x3/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-tyw5hki9/native-O0",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-tyw5hki9/program.nvm",
+    "bstring-source-native-contracts/test_all_retained_reference_observations-tyw5hki9/native-O2",
+    "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-m6x85mvo/native-O0",
+    "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-m6x85mvo/native-O2",
+    "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-m6x85mvo/program.nvm",
+    "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-7jb9d9ei/native-O0",
+    "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-7jb9d9ei/native-O2",
+    "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-7jb9d9ei/program.nvm",
+    "bstring-source-native-contracts/test_typed_owner_array_aliases-khdg_tty/native-O0",
+    "bstring-source-native-contracts/test_typed_owner_array_aliases-khdg_tty/native-O2",
+    "bstring-source-native-contracts/test_typed_owner_array_aliases-khdg_tty/program.nvm",
+    "bstring-source-native-contracts/test_unchanged_original_fixture-5vk5zge_/native-O0",
+    "bstring-source-native-contracts/test_unchanged_original_fixture-5vk5zge_/native-O2",
+    "bstring-source-native-contracts/test_unchanged_original_fixture-5vk5zge_/program.nvm",
+    "bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-6xo3wly1/program.nvm",
+    "bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-2dpiahmn/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-2_9gdzh2/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-bhropl1f/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-ihpevhd0/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-o_b98gio/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-pnukzny8/program.nvm",
+    "bstring-source-vm-contracts/test_reference_boundary_observations-ugkpq12l/program.nvm",
+    "bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-bntcrk7_/program.nvm",
+    "bstring-source-vm-contracts/test_unchanged_original_fixture-3bfshqez/program.nvm",
+    "bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-90k8ixkx/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-2lr48p49/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-eei0b1sx/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-kwrh913v/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-pd6s91m3/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-qv2806cc/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-upb81l2f/program.nvm",
+    "bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-0gjqrih0/program.nvm",
+    "bstring-vm-contracts/test_unchanged_original_fixture-zlptrbbn/program.nvm",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-9sb51izy/native-O0",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-9sb51izy/native-O2",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-9sb51izy/program.nvm",
+    "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-bfi6jq0k/native-O0",
+    "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-bfi6jq0k/native-O2",
+    "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-bfi6jq0k/program.nvm",
+    "collection-aot-4__m1zys/all-native-O0",
+    "collection-aot-4__m1zys/all-native-O2",
+    "collection-aot-4__m1zys/all-native.nvm",
+    "collection-aot-4__m1zys/bad-marker-O0",
+    "collection-aot-4__m1zys/all-vm.nvm",
+    "collection-aot-4__m1zys/bad-marker-O2",
+    "collection-aot-4__m1zys/bad-marker-origin.so",
+    "collection-aot-4__m1zys/bad-marker-dependency.so",
+    "collection-aot-4__m1zys/bad-marker.nvm",
+    "collection-aot-4__m1zys/both-dependency-O0",
+    "collection-aot-4__m1zys/both-dependency-O2",
+    "collection-aot-4__m1zys/both-dependency-dependency.so",
+    "collection-aot-4__m1zys/both-dependency-origin.so",
+    "collection-aot-4__m1zys/both-dependency.nvm",
+    "collection-aot-4__m1zys/collections-plain.so",
+    "collection-aot-4__m1zys/companion-dependency-O0",
+    "collection-aot-4__m1zys/collections-sanitized.so",
+    "collection-aot-4__m1zys/companion-dependency-O2",
+    "collection-aot-4__m1zys/companion-dependency-dependency.so",
+    "collection-aot-4__m1zys/companion-dependency-origin.so",
+    "collection-aot-4__m1zys/companion-dependency.nvm",
+    "collection-aot-4__m1zys/copy-control-O0",
+    "collection-aot-4__m1zys/copy-control-O2",
+    "collection-aot-4__m1zys/copy-control.nvm",
+    "collection-aot-4__m1zys/fs-sanitized.so",
+    "collection-aot-4__m1zys/json-fs-O2",
+    "collection-aot-4__m1zys/json-fs-O0",
+    "collection-aot-4__m1zys/json-fs.nvm",
+    "collection-aot-4__m1zys/json-sanitized.so",
+    "collection-aot-4__m1zys/marker-dependency-O0",
+    "collection-aot-4__m1zys/marker-dependency-O2",
+    "collection-aot-4__m1zys/marker-dependency-dependency.so",
+    "collection-aot-4__m1zys/marker-dependency-origin.so",
+    "collection-aot-4__m1zys/marker-dependency.nvm",
+    "collection-aot-4__m1zys/missing-companion-O0",
+    "collection-aot-4__m1zys/missing-companion-O2",
+    "collection-aot-4__m1zys/missing-companion-dependency.so",
+    "collection-aot-4__m1zys/missing-companion-origin.so",
+    "collection-aot-4__m1zys/missing-companion.nvm",
+    "collection-aot-4__m1zys/missing-marker-O0",
+    "collection-aot-4__m1zys/missing-marker-O2",
+    "collection-aot-4__m1zys/missing-marker-dependency.so",
+    "collection-aot-4__m1zys/missing-marker-origin.so",
+    "collection-aot-4__m1zys/missing-marker.nvm",
+    "collection-aot-4__m1zys/nl_hm_clear-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_clear-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_clear-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_free-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_free-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_free-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_get-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_get-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_get-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_has-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_has-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_has-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_keys-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_keys-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_keys-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_new-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_new-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_put-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_put-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_put-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_remove-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_remove-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_remove-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_size-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_size-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_size-result.nvm",
+    "collection-aot-4__m1zys/nl_hm_values-arity.nvm",
+    "collection-aot-4__m1zys/nl_hm_values-parameter.nvm",
+    "collection-aot-4__m1zys/nl_hm_values-result.nvm",
+    "collection-aot-4__m1zys/nl_set_add-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_add-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_add-result.nvm",
+    "collection-aot-4__m1zys/nl_set_clear-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_clear-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_clear-result.nvm",
+    "collection-aot-4__m1zys/nl_set_free-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_free-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_free-result.nvm",
+    "collection-aot-4__m1zys/nl_set_has-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_has-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_has-result.nvm",
+    "collection-aot-4__m1zys/nl_set_new-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_new-result.nvm",
+    "collection-aot-4__m1zys/nl_set_remove-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_remove-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_remove-result.nvm",
+    "collection-aot-4__m1zys/nl_set_size-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_size-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_size-result.nvm",
+    "collection-aot-4__m1zys/nl_set_values-arity.nvm",
+    "collection-aot-4__m1zys/nl_set_values-parameter.nvm",
+    "collection-aot-4__m1zys/nl_set_values-result.nvm",
+    "collection-handles-654zok9g/plain",
+    "collection-handles-654zok9g/sanitized",
+    "collection-handles-654zok9g/threaded",
+    "collection-snapshots-e0cjn736/plain",
+    "collection-snapshots-e0cjn736/sanitized",
+    "collection-snapshots-e0cjn736/threaded",
+    "empty-record-array-contexts/test_native_generic_contexts-nano_virt-p625qrjg/module.nvm",
+    "empty-record-array-contexts/test_native_generic_contexts-nano_virt-p625qrjg/native",
+    "empty-record-array-contexts/test_native_generic_contexts-nanoc_c-ekocc9gq/native",
+    "empty-record-array-contexts/test_selfhost_generic_contexts-nano_virt-qzyrinn_/module.nvm",
+    "empty-record-array-contexts/test_selfhost_generic_contexts-nano_virt-qzyrinn_/native",
+    "empty-record-array-contexts/test_selfhost_generic_contexts-nanoc_c-eza6ge2c/native",
+    "ffi-array-results-18t6bst8/plain",
+    "ffi-array-results-18t6bst8/sanitized",
+    "ffi-result-release-5l6tlgu0/plain/copy.nvm",
+    "ffi-result-release-5l6tlgu0/plain/cross-image.nvm",
+    "ffi-result-release-5l6tlgu0/plain/driver",
+    "ffi-result-release-5l6tlgu0/plain/input-alias.nvm",
+    "ffi-result-release-5l6tlgu0/plain/libcollections.so",
+    "ffi-result-release-5l6tlgu0/plain/libdependency.so",
+    "ffi-result-release-5l6tlgu0/plain/liborigin.so",
+    "ffi-result-release-5l6tlgu0/sanitized/libcollections.so",
+    "ffi-result-release-5l6tlgu0/sanitized/driver",
+    "ffi-result-release-5l6tlgu0/sanitized/libdependency.so",
+    "ffi-result-release-5l6tlgu0/sanitized/liborigin.so",
+    "ffi-result-release-5l6tlgu0/threaded/driver",
+    "ffi-result-release-5l6tlgu0/threaded/libcollections.so",
+    "ffi-result-release-5l6tlgu0/threaded/libdependency.so",
+    "ffi-result-release-5l6tlgu0/threaded/liborigin.so",
+    "ffi-result-release-y4kx804z/plain/libcollections.so",
+    "ffi-result-release-y4kx804z/plain/driver",
+    "ffi-result-release-y4kx804z/plain/libdependency.so",
+    "ffi-result-release-y4kx804z/plain/liborigin.so",
+    "ffi-result-release-y4kx804z/sanitized/driver",
+    "ffi-result-release-y4kx804z/sanitized/libcollections.so",
+    "ffi-result-release-y4kx804z/sanitized/libdependency.so",
+    "ffi-result-release-y4kx804z/sanitized/liborigin.so",
+    "ffi-result-release-y4kx804z/threaded/libcollections.so",
+    "ffi-result-release-y4kx804z/threaded/driver",
+    "ffi-result-release-y4kx804z/threaded/libdependency.so",
+    "ffi-result-release-y4kx804z/threaded/liborigin.so",
+    "legacy-print-statements/test_bare_statements_and_lexical_prefix_calls_keep_their_identity-nano_virt-aqfh1kl_/module.nvm",
+    "legacy-print-statements/test_bare_statements_and_lexical_prefix_calls_keep_their_identity-nano_virt-aqfh1kl_/native",
+    "legacy-print-statements/test_bare_statements_and_lexical_prefix_calls_keep_their_identity-nanoc_c-bkdtdse6/native",
+    "legacy-print-statements/test_print_arguments_run_once_in_source_order-nano_virt-ihl1reab/module.nvm",
+    "legacy-print-statements/test_print_arguments_run_once_in_source_order-nano_virt-ihl1reab/native",
+    "legacy-print-statements/test_print_arguments_run_once_in_source_order-nanoc_c-lo6jfvln/native",
+    "legacy-print-statements/test_printed_lexical_capture_remains_visible-nano_virt-uakjmzpx/module.nvm",
+    "legacy-print-statements/test_printed_lexical_capture_remains_visible-nano_virt-uakjmzpx/native",
+    "map-constructor-contexts/contexts-3n8olwdi/native",
+    "map-constructor-contexts/contexts-4fbvcpkn/snapshots-int-string-nano_virt-native",
+    "map-constructor-contexts/contexts-4fbvcpkn/snapshots-int-string-nano_virt.nvm",
+    "map-constructor-contexts/contexts-4fbvcpkn/seed-native",
+    "map-constructor-contexts/contexts-_5yxlnwv/seed-native",
+    "map-constructor-contexts/contexts-_5yxlnwv/snapshots-string-int-nano_virt-native",
+    "map-constructor-contexts/contexts-_5yxlnwv/snapshots-string-int-nano_virt.nvm",
+    "map-constructor-contexts/contexts-br5ix9fd/case.nvm",
+    "map-constructor-contexts/contexts-br5ix9fd/native",
+    "map-constructor-contexts/contexts-gaallyas/seed-native",
+    "map-constructor-contexts/contexts-gaallyas/snapshots-string-string-nano_virt-native",
+    "map-constructor-contexts/contexts-gaallyas/snapshots-string-string-nano_virt.nvm",
+    "map-constructor-contexts/contexts-p_3bmxj5/int-int-nano_virt-native",
+    "map-constructor-contexts/contexts-p_3bmxj5/int-int-nano_virt.nvm",
+    "map-constructor-contexts/contexts-p_3bmxj5/int-string-nano_virt-native",
+    "map-constructor-contexts/contexts-p_3bmxj5/int-string-nano_virt.nvm",
+    "map-constructor-contexts/contexts-p_3bmxj5/legacy-int-int",
+    "map-constructor-contexts/contexts-p_3bmxj5/legacy-int-string",
+    "map-constructor-contexts/contexts-p_3bmxj5/legacy-string-int",
+    "map-constructor-contexts/contexts-p_3bmxj5/string-int-nano_virt-native",
+    "map-constructor-contexts/contexts-p_3bmxj5/legacy-string-string",
+    "map-constructor-contexts/contexts-p_3bmxj5/string-int-nano_virt.nvm",
+    "map-constructor-contexts/contexts-p_3bmxj5/string-string-nano_virt-native",
+    "map-constructor-contexts/contexts-p_3bmxj5/string-string-nano_virt.nvm",
+    "map-constructor-contexts/contexts-q6rct00h/native",
+    "map-constructor-contexts/contexts-zbb28gjt/seed-native",
+    "map-constructor-contexts/contexts-zbb28gjt/snapshots-int-int-nano_virt-native",
+    "map-constructor-contexts/contexts-zbb28gjt/snapshots-int-int-nano_virt.nvm",
+    "map-constructor-contexts/contexts-zf65vzk1/native",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-upyzdxo4/native-O0",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-upyzdxo4/native-O2",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-upyzdxo4/program.nvm",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-trhltyi8/native-O0",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-trhltyi8/native-O2",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-trhltyi8/program.nvm",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-77axbmdl/native-O0",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-77axbmdl/native-O2",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-77axbmdl/program.nvm",
+    "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-plgmpyih/native-O0",
+    "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-plgmpyih/native-O2",
+    "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-plgmpyih/program.nvm",
+    "match-or-source-contracts/test_unchanged_complete_original_fixture-geglkgpa/native-O2",
+    "match-or-source-contracts/test_unchanged_complete_original_fixture-geglkgpa/native-O0",
+    "match-or-source-contracts/test_unchanged_complete_original_fixture-geglkgpa/program.nvm",
+    "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-yb8r8aq7/native-O0",
+    "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-yb8r8aq7/native-O2",
+    "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-yb8r8aq7/program.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-azbdwcd9/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-curmt9mc/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-m648hb6f/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-okr5wusk/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-p_26o4tp/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-qs5dqzz5/module.nvm",
+    "numeric-builtin-selection/array-sort-import-refusal-yfeg4vl6/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-1yi2508b/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-1yi2508b/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-1yi2508b/nativeO2",
+    "numeric-builtin-selection/array-sort-raw-92xugk06/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-92xugk06/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-92xugk06/nativeO2",
+    "numeric-builtin-selection/array-sort-raw-g2m7o3vx/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-g2m7o3vx/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-g2m7o3vx/nativeO2",
+    "numeric-builtin-selection/array-sort-raw-g3_al2xa/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-g3_al2xa/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-g3_al2xa/nativeO2",
+    "numeric-builtin-selection/array-sort-raw-kj318kjk/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-kj318kjk/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-kj318kjk/nativeO2",
+    "numeric-builtin-selection/array-sort-raw-r5_5sf5l/module.nvm",
+    "numeric-builtin-selection/array-sort-raw-r5_5sf5l/nativeO0",
+    "numeric-builtin-selection/array-sort-raw-r5_5sf5l/nativeO2",
+    "numeric-builtin-selection/byte-conversion-import-refusal-1xpv1q73/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-26lwlwwx/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-5tmeutav/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-8i_r4rwx/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-9ldjvm92/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-_2s3snq6/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-_rg_zu_0/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-_weu_7gm/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-anuqv8xf/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-bb374x5f/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-k77_n6kc/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-k7kxgvo4/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-lpuuamyf/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-neq48aqr/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-ohwt6sy9/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-pa6m_41d/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-soulsl3e/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-tdh0lnx0/module.nvm",
+    "numeric-builtin-selection/byte-conversion-import-refusal-yvj7ga_4/module.nvm",
+    "numeric-builtin-selection/byte-conversion-raw-4uerfh9d/module.nvm",
+    "numeric-builtin-selection/byte-conversion-raw-4uerfh9d/nativeO0",
+    "numeric-builtin-selection/byte-conversion-raw-4uerfh9d/nativeO2",
+    "numeric-builtin-selection/character-import-refusal-6xyvay11/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-d2w5nozw/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-ip93woeu/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-nmlxbh9n/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-qbeemzfu/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-qyji_pus/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-rk6dkpl0/module.nvm",
+    "numeric-builtin-selection/character-import-refusal-sas9xs7d/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-b2spv2nh/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-fd_7u3yy/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-jifg09fc/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-kaheg5zn/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-kqx17ta8/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-ls89xuof/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-o8zfq_tl/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-q2zlz7n4/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-s0_w1flm/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-vwsx_1co/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-w6kwc9ru/module.nvm",
+    "numeric-builtin-selection/environment-import-refusal-yensrj2e/module.nvm",
+    "numeric-builtin-selection/environment-raw-voa6yvlb/module.nvm",
+    "numeric-builtin-selection/environment-raw-voa6yvlb/nativeO0",
+    "numeric-builtin-selection/environment-raw-voa6yvlb/nativeO2",
+    "numeric-builtin-selection/math-import-refusal-0n__4h9w/module.nvm",
+    "numeric-builtin-selection/math-import-refusal-24p5cp_m/module.nvm",
+    "numeric-builtin-selection/math-import-refusal-ct01d2c4/module.nvm",
+    "numeric-builtin-selection/math-import-refusal-fvepy1d7/module.nvm",
+    "numeric-builtin-selection/math-import-refusal-fvmbvd3g/module.nvm",
+    "numeric-builtin-selection/math-selected-artifact-7zb_97ci/module.nvm",
+    "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/.nano-gen-1M5GCk/libmath-selected-provider.so",
+    "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/.nano-gen-1M5GCk/math-selected-provider.o",
+    "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/current/libmath-selected-provider.so",
+    "numeric-builtin-selection/math-selected-artifact-7zb_97ci/provider/.build/current/math-selected-provider.o",
+    "numeric-builtin-selection/raw-array-arithmetic-bool-hxnbk4d2/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-byte-ob57cy8w/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-mixed-ivmwfvls/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-nested-_nz4yjzq/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-scalars-sz3z73t9/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-string-sub-9dx47p_c/module.nvm",
+    "numeric-builtin-selection/raw-array-arithmetic-unknown-3cka9euu/module.nvm",
+    "numeric-builtin-selection/raw-pick-callable-n6pbd_00/module.nvm",
+    "numeric-builtin-selection/raw-pick-callable-n6pbd_00/native",
+    "numeric-builtin-selection/raw-pick-record-scprn5sl/module.nvm",
+    "numeric-builtin-selection/raw-pick-record-scprn5sl/native",
+    "numeric-builtin-selection/raw-pick-scalars-lq_qw7ok/module.nvm",
+    "numeric-builtin-selection/raw-pick-scalars-lq_qw7ok/native",
+    "numeric-builtin-selection/string-stdlib-import-refusal-1k80nvkr/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-1tl8clak/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-43gzxg56/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-6736mqd0/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-8ttfmper/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-crj9xsdd/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-im21ahhs/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-iwcpqe27/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-jzq0ipge/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-k40kuun6/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-m6l6r9u5/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-phtmttlt/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-w9f6lj0u/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-yqg_1d66/module.nvm",
+    "numeric-builtin-selection/string-stdlib-import-refusal-zbqpcjze/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-6s2igngs/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-6s2igngs/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-6s2igngs/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-81440xr3/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-81440xr3/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-81440xr3/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-lyd520zl/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-lyd520zl/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-lyd520zl/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-mxgjo5_8/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-mxgjo5_8/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-mxgjo5_8/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-nrqh5wnq/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-nrqh5wnq/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-nrqh5wnq/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-v7hnl_dx/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-v7hnl_dx/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-v7hnl_dx/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-vbchu4qz/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-vbchu4qz/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-vbchu4qz/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-wmudzmun/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-wmudzmun/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-wmudzmun/nativeO2",
+    "numeric-builtin-selection/string-stdlib-raw-yl2oyulh/module.nvm",
+    "numeric-builtin-selection/string-stdlib-raw-yl2oyulh/nativeO0",
+    "numeric-builtin-selection/string-stdlib-raw-yl2oyulh/nativeO2",
+    "numeric-builtin-selection/test_alias_arguments_returns_arrays_and_computed_conversion-nano_virt-327nbgpm/module.nvm",
+    "numeric-builtin-selection/test_alias_arguments_returns_arrays_and_computed_conversion-nano_virt-327nbgpm/native",
+    "numeric-builtin-selection/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-u9fead54/module.nvm",
+    "numeric-builtin-selection/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-u9fead54/native-O0",
+    "numeric-builtin-selection/test_argument_order_lexical_identity_and_overwrite_narrowing-nano_virt-u9fead54/native-O2",
+    "numeric-builtin-selection/test_bound_print_result_is_dropped_once-nano_virt-lxl356dy/module.nvm",
+    "numeric-builtin-selection/test_bound_print_result_is_dropped_once-nano_virt-lxl356dy/native",
+    "numeric-builtin-selection/test_byte_elements_and_empty_storage-nano_virt-2fcdd9jq/native",
+    "numeric-builtin-selection/test_byte_elements_and_empty_storage-nano_virt-2fcdd9jq/module.nvm",
+    "numeric-builtin-selection/test_case_and_replacement_keep_original_bytes-nano_virt-r87yr3hx/native",
+    "numeric-builtin-selection/test_case_and_replacement_keep_original_bytes-nano_virt-r87yr3hx/module.nvm",
+    "numeric-builtin-selection/test_core_values_once_order_and_function_bindings-nano_virt-1q6rj9kf/module.nvm",
+    "numeric-builtin-selection/test_core_values_once_order_and_function_bindings-nano_virt-1q6rj9kf/native",
+    "numeric-builtin-selection/test_declared_functions_keep_their_signatures-nano_virt-gsellxuk/module.nvm",
+    "numeric-builtin-selection/test_declared_functions_keep_their_signatures-nano_virt-gsellxuk/native",
+    "numeric-builtin-selection/test_declared_result_preserves_string_metadata-nano_virt-xkiatg4p/module.nvm",
+    "numeric-builtin-selection/test_declared_result_preserves_string_metadata-nano_virt-xkiatg4p/native",
+    "numeric-builtin-selection/test_direct_indirect_and_callee_first_evaluation-nano_virt-2bz5c_km/module.nvm",
+    "numeric-builtin-selection/test_direct_indirect_and_callee_first_evaluation-nano_virt-2bz5c_km/native",
+    "numeric-builtin-selection/test_disabled_recorder_has_no_required_external_tool-nano_virt-jl6p8izq/module.nvm",
+    "numeric-builtin-selection/test_disabled_recorder_has_no_required_external_tool-nano_virt-jl6p8izq/native",
+    "numeric-builtin-selection/test_each_existing_statement_head_keeps_identifier_condition-nano_virt-jxai4acu/module.nvm",
+    "numeric-builtin-selection/test_each_existing_statement_head_keeps_identifier_condition-nano_virt-jxai4acu/native",
+    "numeric-builtin-selection/test_empty_unicode_detached_storage_and_typed_calls-nano_virt-ndp1wdw0/native-O0",
+    "numeric-builtin-selection/test_empty_unicode_detached_storage_and_typed_calls-nano_virt-ndp1wdw0/module.nvm",
+    "numeric-builtin-selection/test_empty_unicode_detached_storage_and_typed_calls-nano_virt-ndp1wdw0/native-O2",
+    "numeric-builtin-selection/test_every_extended_math_symbol_executes_in_the_product-nano_virt-uqp5b9j8/module.nvm",
+    "numeric-builtin-selection/test_every_extended_math_symbol_executes_in_the_product-nano_virt-uqp5b9j8/native",
+    "numeric-builtin-selection/test_exact_scalar_bits_and_mutation_aliases-nano_virt-codq0vp1/module.nvm",
+    "numeric-builtin-selection/test_exact_scalar_bits_and_mutation_aliases-nano_virt-codq0vp1/native",
+    "numeric-builtin-selection/test_exhaustive_byte_oracles_and_full_integer_boundaries-nano_virt-k80tueww/module.nvm",
+    "numeric-builtin-selection/test_exhaustive_byte_oracles_and_full_integer_boundaries-nano_virt-k80tueww/native-O0",
+    "numeric-builtin-selection/test_exhaustive_byte_oracles_and_full_integer_boundaries-nano_virt-k80tueww/native-O2",
+    "numeric-builtin-selection/test_existing_computed_byte_destinations-nano_virt-pdv7kzbi/native",
+    "numeric-builtin-selection/test_existing_computed_byte_destinations-nano_virt-pdv7kzbi/module.nvm",
+    "numeric-builtin-selection/test_existing_negative_and_past_end_removal-nano_virt-o32qp2wk/module.nvm",
+    "numeric-builtin-selection/test_existing_negative_and_past_end_removal-nano_virt-o32qp2wk/native",
+    "numeric-builtin-selection/test_existing_nul_and_non_utf8_byte_boundaries-nano_virt-mi_lna1b/native-O0",
+    "numeric-builtin-selection/test_existing_nul_and_non_utf8_byte_boundaries-nano_virt-mi_lna1b/module.nvm",
+    "numeric-builtin-selection/test_existing_nul_and_non_utf8_byte_boundaries-nano_virt-mi_lna1b/native-O2",
+    "numeric-builtin-selection/test_existing_scalar_bits_fallback_and_once_only_operand-nano_virt-dgeqw125/module.nvm",
+    "numeric-builtin-selection/test_existing_scalar_bits_fallback_and_once_only_operand-nano_virt-dgeqw125/native",
+    "numeric-builtin-selection/test_five_scalar_kinds_typed_empty_and_detached_storage-nano_virt-ycbqmgqg/module.nvm",
+    "numeric-builtin-selection/test_five_scalar_kinds_typed_empty_and_detached_storage-nano_virt-ycbqmgqg/native",
+    "numeric-builtin-selection/test_float_bits_first_match_and_independent_storage-nano_virt-sme82p9d/module.nvm",
+    "numeric-builtin-selection/test_float_bits_first_match_and_independent_storage-nano_virt-sme82p9d/native",
+    "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-my4s30ja/module.nvm",
+    "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-my4s30ja/native-O0",
+    "numeric-builtin-selection/test_float_payload_multiset_and_nan_last_without_tie_order-nano_virt-my4s30ja/native-O2",
+    "numeric-builtin-selection/test_integer_wrap_total_division_and_shorter_lengths-nano_virt-44r2di6v/module.nvm",
+    "numeric-builtin-selection/test_integer_wrap_total_division_and_shorter_lengths-nano_virt-44r2di6v/native-O0",
+    "numeric-builtin-selection/test_integer_wrap_total_division_and_shorter_lengths-nano_virt-44r2di6v/native-O2",
+    "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-7sm5y7ym/module.nvm",
+    "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-7sm5y7ym/native",
+    "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-9xkfvkxg/native",
+    "numeric-builtin-selection/test_lexical_binding_keeps_its_signature-nano_virt-9xkfvkxg/module.nvm",
+    "numeric-builtin-selection/test_lexical_bindings_keep_declared_signatures-nano_virt-2atfun9p/module.nvm",
+    "numeric-builtin-selection/test_lexical_bindings_keep_declared_signatures-nano_virt-2atfun9p/native",
+    "numeric-builtin-selection/test_lexical_bindings_keep_their_signatures-nano_virt-x1mcd394/module.nvm",
+    "numeric-builtin-selection/test_lexical_bindings_keep_their_signatures-nano_virt-x1mcd394/native",
+    "numeric-builtin-selection/test_literal_phase_and_quoted_recorder_path-nano_virt-clqcokh7/module.nvm",
+    "numeric-builtin-selection/test_literal_phase_and_quoted_recorder_path-nano_virt-clqcokh7/native",
+    "numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-8gbkbdua/module.nvm",
+    "numeric-builtin-selection/test_negation_forms_once_only_operand_and_inequality-nano_virt-8gbkbdua/native",
+    "numeric-builtin-selection/test_nested_and_empty_declared_records-nano_virt-3j1n73_0/module.nvm",
+    "numeric-builtin-selection/test_nested_and_empty_declared_records-nano_virt-3j1n73_0/native",
+    "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-lz94oac_/module.nvm",
+    "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-lz94oac_/native-O0",
+    "numeric-builtin-selection/test_nominal_enum_array_keeps_existing_integer_storage-nano_virt-lz94oac_/native-O2",
+    "numeric-builtin-selection/test_numeric_values_and_original_float_bits-nano_virt-l9lfa28_/module.nvm",
+    "numeric-builtin-selection/test_numeric_values_and_original_float_bits-nano_virt-l9lfa28_/native",
+    "numeric-builtin-selection/test_once_only_and_bound_function_identity-nano_virt-8__gb9un/module.nvm",
+    "numeric-builtin-selection/test_once_only_and_bound_function_identity-nano_virt-8__gb9un/native-O0",
+    "numeric-builtin-selection/test_once_only_and_bound_function_identity-nano_virt-8__gb9un/native-O2",
+    "numeric-builtin-selection/test_once_only_lexical_identity_and_detached_join_result-nano_virt-o8x6e0w2/module.nvm",
+    "numeric-builtin-selection/test_once_only_lexical_identity_and_detached_join_result-nano_virt-o8x6e0w2/native",
+    "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-omyimpvu/module.nvm",
+    "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-omyimpvu/native-O0",
+    "numeric-builtin-selection/test_once_only_lexical_identity_and_surviving_string_owners-nano_virt-omyimpvu/native-O2",
+    "numeric-builtin-selection/test_once_only_operands_and_bound_function_identity-nano_virt-_31298b8/module.nvm",
+    "numeric-builtin-selection/test_once_only_operands_and_bound_function_identity-nano_virt-_31298b8/native",
+    "numeric-builtin-selection/test_once_order_and_lexical_function_identity-nano_virt-uj6j8nlt/module.nvm",
+    "numeric-builtin-selection/test_once_order_and_lexical_function_identity-nano_virt-uj6j8nlt/native",
+    "numeric-builtin-selection/test_original_complete_argument_fixture-nano_virt-6wbqvxfs/module.nvm",
+    "numeric-builtin-selection/test_original_complete_argument_fixture-nano_virt-6wbqvxfs/native",
+    "numeric-builtin-selection/test_original_complete_array_operators-nano_virt-g9a6ewt4/module.nvm",
+    "numeric-builtin-selection/test_original_complete_array_operators-nano_virt-g9a6ewt4/native-O0",
+    "numeric-builtin-selection/test_original_complete_array_operators-nano_virt-g9a6ewt4/native-O2",
+    "numeric-builtin-selection/test_original_complete_array_stdlib_fixture-nano_virt-htf23oef/native",
+    "numeric-builtin-selection/test_original_complete_array_stdlib_fixture-nano_virt-htf23oef/module.nvm",
+    "numeric-builtin-selection/test_original_complete_builtin_fixture-nano_virt-xtccmjc1/module.nvm",
+    "numeric-builtin-selection/test_original_complete_builtin_fixture-nano_virt-xtccmjc1/native",
+    "numeric-builtin-selection/test_original_complete_byte_conversion_fixture-nano_virt-7x4kno7g/module.nvm",
+    "numeric-builtin-selection/test_original_complete_byte_conversion_fixture-nano_virt-7x4kno7g/native",
+    "numeric-builtin-selection/test_original_complete_casting_fixture-nano_virt-7pwj9nf9/module.nvm",
+    "numeric-builtin-selection/test_original_complete_casting_fixture-nano_virt-7pwj9nf9/native",
+    "numeric-builtin-selection/test_original_complete_dynamic_array_fixture-nano_virt-tssmt1n3/module.nvm",
+    "numeric-builtin-selection/test_original_complete_dynamic_array_fixture-nano_virt-tssmt1n3/native",
+    "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-1yboul1e/module.nvm",
+    "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-1yboul1e/native",
+    "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-uy_1bxtx/module.nvm",
+    "numeric-builtin-selection/test_original_complete_environment_fixtures-nano_virt-uy_1bxtx/native",
+    "numeric-builtin-selection/test_original_complete_extended_math-nano_virt-1rm5xdu1/module.nvm",
+    "numeric-builtin-selection/test_original_complete_extended_math-nano_virt-1rm5xdu1/native",
+    "numeric-builtin-selection/test_original_complete_format_fixture-nano_virt-5x86cnpp/module.nvm",
+    "numeric-builtin-selection/test_original_complete_format_fixture-nano_virt-5x86cnpp/native",
+    "numeric-builtin-selection/test_original_complete_literal_fixture-nano_virt-jngehunq/module.nvm",
+    "numeric-builtin-selection/test_original_complete_literal_fixture-nano_virt-jngehunq/native",
+    "numeric-builtin-selection/test_original_complete_par_let_fixture-nano_virt-fcw6huzk/module.nvm",
+    "numeric-builtin-selection/test_original_complete_par_let_fixture-nano_virt-fcw6huzk/native",
+    "numeric-builtin-selection/test_original_complete_search_and_reverse-nano_virt-8eg8taso/module.nvm",
+    "numeric-builtin-selection/test_original_complete_search_and_reverse-nano_virt-8eg8taso/native",
+    "numeric-builtin-selection/test_original_complete_standard_library_fixture-nano_virt-i8qu2mv_/module.nvm",
+    "numeric-builtin-selection/test_original_complete_standard_library_fixture-nano_virt-i8qu2mv_/native",
+    "numeric-builtin-selection/test_original_complete_string_stdlib_fixture-nano_virt-v78ipv22/module.nvm",
+    "numeric-builtin-selection/test_original_complete_string_stdlib_fixture-nano_virt-v78ipv22/native",
+    "numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nano_virt-zp7ro1cf/native",
+    "numeric-builtin-selection/test_original_complete_symbol_scoping_fixture-nano_virt-zp7ro1cf/module.nvm",
+    "numeric-builtin-selection/test_original_complete_top_level_constants_fixture-nano_virt-i_xpf0ib/module.nvm",
+    "numeric-builtin-selection/test_original_complete_top_level_constants_fixture-nano_virt-i_xpf0ib/native",
+    "numeric-builtin-selection/test_original_complete_u8_fixture-nano_virt-0q7g0gi8/module.nvm",
+    "numeric-builtin-selection/test_original_complete_u8_fixture-nano_virt-0q7g0gi8/native",
+    "numeric-builtin-selection/test_original_complex-nano_virt-9hl7q6yg/module.nvm",
+    "numeric-builtin-selection/test_original_complex-nano_virt-9hl7q6yg/native",
+    "numeric-builtin-selection/test_original_extended_math-nano_virt-be_scp4l/module.nvm",
+    "numeric-builtin-selection/test_original_extended_math-nano_virt-be_scp4l/native",
+    "numeric-builtin-selection/test_original_file_operations_execute_in_production_main-nano_virt-gockznnf/native-O0",
+    "numeric-builtin-selection/test_original_file_operations_execute_in_production_main-nano_virt-gockznnf/module.nvm",
+    "numeric-builtin-selection/test_original_file_operations_execute_in_production_main-nano_virt-gockznnf/native-O2",
+    "numeric-builtin-selection/test_original_fixed_bit_oracle-nano_virt-ne1v965i/module.nvm",
+    "numeric-builtin-selection/test_original_fixed_bit_oracle-nano_virt-ne1v965i/native-O0",
+    "numeric-builtin-selection/test_original_fixed_bit_oracle-nano_virt-ne1v965i/native-O2",
+    "numeric-builtin-selection/test_original_order_alias_growth_and_empty_neighbors-nano_virt-qg8545mc/module.nvm",
+    "numeric-builtin-selection/test_original_order_alias_growth_and_empty_neighbors-nano_virt-qg8545mc/native-O0",
+    "numeric-builtin-selection/test_original_order_alias_growth_and_empty_neighbors-nano_virt-qg8545mc/native-O2",
+    "numeric-builtin-selection/test_original_vector2d-nano_virt-ipbwf_nk/module.nvm",
+    "numeric-builtin-selection/test_original_vector2d-nano_virt-ipbwf_nk/native",
+    "numeric-builtin-selection/test_overwrite_unset_errors_and_retained_getter-nano_virt-q1erx3lp/module.nvm",
+    "numeric-builtin-selection/test_overwrite_unset_errors_and_retained_getter-nano_virt-q1erx3lp/native-O0",
+    "numeric-builtin-selection/test_overwrite_unset_errors_and_retained_getter-nano_virt-q1erx3lp/native-O2",
+    "numeric-builtin-selection/test_raw_conversion_policy_and_runtime_literal_spans-nano_virt-eir8f0pa/module.nvm",
+    "numeric-builtin-selection/test_raw_conversion_policy_and_runtime_literal_spans-nano_virt-eir8f0pa/native",
+    "numeric-builtin-selection/test_receiver_then_index_once_with_alias_growth-nano_virt-wkmqkkbr/module.nvm",
+    "numeric-builtin-selection/test_receiver_then_index_once_with_alias_growth-nano_virt-wkmqkkbr/native",
+    "numeric-builtin-selection/test_recorder_refusal_is_observable_without_changing_program_acceptance-nano_virt-vzvkcmsy/module.nvm",
+    "numeric-builtin-selection/test_recorder_refusal_is_observable_without_changing_program_acceptance-nano_virt-vzvkcmsy/native",
+    "numeric-builtin-selection/test_retained_conversion_owners_survive_allocation_churn-nano_virt-qu8gdawe/module.nvm",
+    "numeric-builtin-selection/test_retained_conversion_owners_survive_allocation_churn-nano_virt-qu8gdawe/native-O0",
+    "numeric-builtin-selection/test_retained_conversion_owners_survive_allocation_churn-nano_virt-qu8gdawe/native-O2",
+    "numeric-builtin-selection/test_runtime_template_order_and_unused_arguments-nano_virt-3ji5iygs/module.nvm",
+    "numeric-builtin-selection/test_runtime_template_order_and_unused_arguments-nano_virt-3ji5iygs/native",
+    "numeric-builtin-selection/test_scalar_integer_arithmetic_and_computed_narrowing-nano_virt-cx7mm0xl/module.nvm",
+    "numeric-builtin-selection/test_scalar_integer_arithmetic_and_computed_narrowing-nano_virt-cx7mm0xl/native",
+    "numeric-builtin-selection/test_separate_declared_nominal_contexts-nano_virt-z6wygyld/module.nvm",
+    "numeric-builtin-selection/test_separate_declared_nominal_contexts-nano_virt-z6wygyld/native",
+    "numeric-builtin-selection/test_split_join_empty_elements_and_byte_fragments-nano_virt-ogql41dt/module.nvm",
+    "numeric-builtin-selection/test_split_join_empty_elements_and_byte_fragments-nano_virt-ogql41dt/native",
+    "numeric-builtin-selection/test_string_broadcast_shorter_lengths_and_repeated_lifetimes-nano_virt-39egbqla/module.nvm",
+    "numeric-builtin-selection/test_string_broadcast_shorter_lengths_and_repeated_lifetimes-nano_virt-39egbqla/native-O0",
+    "numeric-builtin-selection/test_string_broadcast_shorter_lengths_and_repeated_lifetimes-nano_virt-39egbqla/native-O2",
+    "numeric-builtin-selection/test_trim_sides_keep_other_bytes-nano_virt-80l2c__9/module.nvm",
+    "numeric-builtin-selection/test_trim_sides_keep_other_bytes-nano_virt-80l2c__9/native",
+    "numeric-builtin-selection/test_typed_byte_element_caller-nano_virt-5ccs14lk/module.nvm",
+    "numeric-builtin-selection/test_typed_byte_element_caller-nano_virt-5ccs14lk/native",
+    "numeric-builtin-selection/test_typed_empty_results_keep_independent_storage-nano_virt-8b09vr3e/module.nvm",
+    "numeric-builtin-selection/test_typed_empty_results_keep_independent_storage-nano_virt-8b09vr3e/native-O0",
+    "numeric-builtin-selection/test_typed_empty_results_keep_independent_storage-nano_virt-8b09vr3e/native-O2",
+    "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-p8_5qab7/module.nvm",
+    "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-p8_5qab7/native-O0",
+    "numeric-builtin-selection/test_typed_function_array_arguments_and_result_storage-nano_virt-p8_5qab7/native-O2",
+    "numeric-builtin-selection/test_void_and_value_bodies_preserve_scope_and_effects-nano_virt-mxnak6ew/module.nvm",
+    "numeric-builtin-selection/test_void_and_value_bodies_preserve_scope_and_effects-nano_virt-mxnak6ew/native",
+    "source-checker-component/actual-native-9br_8095/checker",
+    "source-checker-component/language-environment-iip9tnq_/native",
+    "source-checker-component/language-string-self-upbt_mjb/native",
+    "string-builtin-operands/translator-storage/nano-qualification-1sugztmy.tar.gz"
+  ],
+  "unbound_input_paths": [],
+  "original_translator_passed": 2458,
+  "archive_retained": ".test_output/call-metadata-complete-clang-42608187904.zip",
+  "scope": "I CRC/hash-check every retained archive entry, compare the complete source tree to Git, verify before/after input reports and available Git/provider/uploaded identities, and bind reported products to their uploaded bytes. I do not claim all omitted tools/providers are retained, every subprocess has an independent witness, source reliability, full SDK closure or release qualification."
+}

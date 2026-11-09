@@ -1,0 +1,1442 @@
+{
+  "run": 42608192902,
+  "artifact": 13669673186,
+  "head": "f92237c52a894eea7d4ee13de5dfc4df224a99f9",
+  "compiler": "apple",
+  "archive_sha256": "d1b22b3a40ebfcc6688d59094c200abf81f8c68764e32b8e70c9537429fa72a2",
+  "entries_crc_hash_checked": 2023,
+  "source_tree_git_matched": true,
+  "reported_stable_providers": 6,
+  "stable_input_reports": 59,
+  "git_matched_unique_inputs": 76,
+  "uploaded_hash_matched_unique_inputs": 51,
+  "hash_matched_provider_reports": 5,
+  "native_products_before_after_bytes_matched": 36,
+  "scalar_products_before_after_bytes_matched": 20,
+  "native_entries": [
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jdpberwu/native-O0",
+      "sha256": "614dbf95f5d188749567ce3c66432670175f5eb13e89edb693fc654ea991e7e2",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jdpberwu/native-O2",
+      "sha256": "ac3389695b61c871511060c7468ccd91427f5a5b8961f9832bbd50c33d182f0d",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-fn1wwklf/native-O0",
+      "sha256": "581016746d26d9f2e63cbc6aae796fdd0ce0f17ff3680a9192336b90bf8d36b3",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "async-cseed-contracts/test_unchanged_original_async_fixture-fn1wwklf/native-O2",
+      "sha256": "292ce7c0ff8c89b132cb14f5f4ed15a2f025fdd825c287d5ec251fa1f386a0a6",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O0-03xhpbio/native",
+      "sha256": "850ae22870515ebfd89498ad9abd4ca90c41eb71447c302aca1261e4fa18604b",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O0-618_0r8u/native",
+      "sha256": "8cff7ff85440520c36c0f29dd7f40e17a7dc07ab724166c6df470a769cf30ab1",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O0-jx755y_p/native",
+      "sha256": "334aad699474c2edeaadb06778132f4103963e6b9858e2c7667f24079f1e1d40",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O0-uj7teb0b/native",
+      "sha256": "1960e4a07260d10af3710ea207606ca13a8153822c45ad60252ac8b684fb9321",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O2-3bgdj733/native",
+      "sha256": "706ea03dfa01bc60c3581fc46e79aa755bb1c4b0169b812582ed94cdcb1bbcad",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O2-n6timmd3/native",
+      "sha256": "9b971a173d9317cc5b402e6cb73eb9ac497b14f1a8844052119ea3febd6b73b6",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O2-oerjo0qq/native",
+      "sha256": "a5407d3ea98d6fcfd484cca99a16a4765e0882888ff9055d8ddcce56740e5981",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-c-contracts/O2-rc9sy0e8/native",
+      "sha256": "0efb715a381e17013ff6a82fe93d598d0f800046d48e2478fdd42f9c715dc140",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/binary-nul-nanoc_c/program",
+      "sha256": "af1f5dfa6f88d7c63b3f0cd11878f65082fcda489b47f8fe815996355ad0f475",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+      "sha256": "94f6946238fe621c113307c35d874a682840f0b7cb417144effb9f263aad2936",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/byte-negative-nanoc_c/program",
+      "sha256": "33d0819dedef4e132bd01dc239a85e0c7a3c966f36d15964c2072ec7aafed5a1",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+      "sha256": "dfbb57d13db3c03deecdabb6c557db72a1d57d8f8883da00c52666384fb858d2",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+      "sha256": "c0f93fe7a2d71d37e311d8a9e802e0a375d7a4291994655989f6d43544421c9e",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+      "sha256": "b1ba3a53ae25ff3bd442b493c90af1cd031998dfb8ebd722f246f433e892fcac",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+      "sha256": "486a1c0b9ba649e8d7313988653ccff4079db23e3a4a73e494dd557f42b7213b",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+      "sha256": "188a6ed4d37824c3769bcdfd8b452c005e9b882c991c475ddb25ee1937bb9fc8",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+      "sha256": "940d659154c62c437ed36b8a256e9305d0175a91c1f4c2881377eacf0607a96e",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-xov9vpky/native-O0",
+      "sha256": "9ac8812fa0837c1ff8ce81a834e5718be8490e648661794532dcf47fc7b98818",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/generated-collection-xov9vpky/native-O2",
+      "sha256": "306dffdcece98e33f90346a09407f9c26d501ea8fad3fe6694ec86e83b3c82e4",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-j_aefo00/native-O2",
+      "sha256": "caa856f82a25aab23571a74d0f320b4ddca02167d2b8f8747d25aa03d4018721",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-j_aefo00/native-O0",
+      "sha256": "ca925c05b82ba94f68151b0478264aa58f382d46e3942585699db84bbf4d7270",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-1nkzveyy/native-O0",
+      "sha256": "7d7150ce7d3f7c1b8d76880c560a436af4a99f69a56cd331bb810722f87e0eec",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-1nkzveyy/native-O2",
+      "sha256": "4628dba6678cec767a89b458be0dcefa97ddea11175d2731fdeb5854a48a6216",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-ao760_jo/native-O0",
+      "sha256": "1619cdda43909b94645c2538c0ff6312e5ef6e78ce876054fed7a9041acb8978",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-ao760_jo/native-O2",
+      "sha256": "bb904f944ec7a3b1913d1d0adc39821ea45a480f06dd1002edf190fb0b8b0455",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-j78ap3pk/native-O0",
+      "sha256": "791e78f3a5c9c52944569645c67bb537089ef1ace3ec0fb9c9239cf1b1090f41",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-j78ap3pk/native-O2",
+      "sha256": "ce887d071cc461eb8132071a2bbeb536d8112588b31b936327ba580fe2e01659",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-m1a20s89/native-O2",
+      "sha256": "9b534875a6213978e616589743ed470e605c2be718491512f754133a9d4517dc",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-m1a20s89/native-O0",
+      "sha256": "234289dbecec7131cb95781ceb53cae6605b5587698fefab3910841288ac3991",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-n1xbkgnp/native-O2",
+      "sha256": "0558873341b66828c73c459378399ff1af8e52f7935f28e7d4a28d3588a5e740",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-n1xbkgnp/native-O0",
+      "sha256": "a5519044d8213b9f3014d903f9d31fd508ebd17c882ba1ff42e99227ae9babf0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-q6zyb9p6/native-O0",
+      "sha256": "027bef8da9b8d9395577681a07df6e1824f34e21ce8bf450166ef46bdd6c5536",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_all_retained_reference_observations-q6zyb9p6/native-O2",
+      "sha256": "cc25c7ecc93ffb105b15b518c94c52d0b8ca973985e3518cc6c9b497d41281f6",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-mn4x_339/native-O0",
+      "sha256": "2622533edcff9d105ecf0d1215286da558a934e3d8042e57cae388b1464050e0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_nominal_live_and_freed_owner_display-mn4x_339/native-O2",
+      "sha256": "f7698d6ff616d85d105562b1625690314cd5d832fe08bab2e59f50e9349897b3",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-xh68jjsa/native-O0",
+      "sha256": "0fd65b155999fd0a1b897fd6da45a6bbf7a155bcb4a9c1454ebd6a5090a33f63",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-xh68jjsa/native-O2",
+      "sha256": "eb9698ac3a26ac4dda1037b910146e9812d010e401e352922e28d8ddf64ccd18",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-1xuq11bw/native-O0",
+      "sha256": "a740539e0efd7460d23a886b2a91bea11767aa92c9d000c791fd9dd5f711ca3c",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_typed_owner_array_aliases-1xuq11bw/native-O2",
+      "sha256": "a94d3bd53164b06b809680b974af0587cede8d5f6fcdb9b2832e0123b1bab095",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-7rgprh9q/native-O0",
+      "sha256": "ad6e0751994d0bb4f34213fb5fb1001a1de1203b7d4095424e32c98098b3c062",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-contracts/test_unchanged_original_fixture-7rgprh9q/native-O2",
+      "sha256": "184d85fe5f3726e6bdcf3675260cd623367d0abf892585d768884c97fcc5d3e7",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "bstring-native-payload/original-hsjn1axh/unit",
+      "sha256": "27dd67687afd0fbff4cef168951746c2d73cfd377a85d76451653ec579e901a9",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-uys_4a5u/native-O0",
+      "sha256": "bcfee6d8a9c06e01ae026775fc9e2aef631d88ce7f1a481c32877dab953f4379",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-uys_4a5u/native-O2",
+      "sha256": "1b868887fdb150f92f1385fb0e437263b8f56d08f03f51a254f8ae54a521bb08",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/all-native-O0",
+      "sha256": "94abd8f58e032cb728547125aa184c9ad033b3e33faa8042cdd284fd855d7281",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/all-native-O0.dSYM/Contents/Resources/DWARF/all-native-O0",
+      "sha256": "8387f7cbc726fff5f73dac197b5b6225ce548a573cb55504a513005df0d72a67",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/all-native-O2",
+      "sha256": "9767e521ceb841233cea664a10f47cff4e6d7a03167cf29f8cb01926c2fe5a8a",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/all-native-O2.dSYM/Contents/Resources/DWARF/all-native-O2",
+      "sha256": "ec09eec1a14a02ed0506ae8f42d2e52057f074bae6630875037fdee94e304690",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-O0",
+      "sha256": "435155a4bd9eaf8f5c51720492989b3f271079f177b8ee07017eebe54a190571",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-O0.dSYM/Contents/Resources/DWARF/bad-marker-O0",
+      "sha256": "6aa5c0b0bb9b956eba60e74c06e7a8cd74f8d4e8c22f9a189630cce3cbd1bbcc",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-O2",
+      "sha256": "1dbc80918a022500eea74fd3384046af5321f2ced5b93f2549d0f5335131705d",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-O2.dSYM/Contents/Resources/DWARF/bad-marker-O2",
+      "sha256": "57a078e0fe2afc61f858ab5539915b29b1e5594092116589eccebbf930d1a24a",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-dependency.dylib",
+      "sha256": "145737dbc3227187c3012e7ff9dc46ee8fefdfba56909dddbec66afa81e219d9",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-dependency.dylib.dSYM/Contents/Resources/DWARF/bad-marker-dependency.dylib",
+      "sha256": "e8c2df37523f008b6a8b30ae4279f817c5e786230fddaf77e54112f9758d97ac",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-origin.dylib",
+      "sha256": "663525012d4e5bae1d2329f9d9d128671535c6539ff81e0eb345ca13d4f33c17",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/bad-marker-origin.dylib.dSYM/Contents/Resources/DWARF/bad-marker-origin.dylib",
+      "sha256": "d429cff09b8cf84c0f8096253fd1d4ddd21a6825ffa44664572992a0589bffa6",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-O0",
+      "sha256": "2f2115782ae939e0d3cb5b5b080a5c218bc35c92b6563f43a24ce63dc54cf6c0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-O0.dSYM/Contents/Resources/DWARF/both-dependency-O0",
+      "sha256": "cd1d034fe6d56d50a66b43f37c634e60cb0a76fcac3963308dae560b3428b063",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-O2",
+      "sha256": "6e7172e144712ca49bdb7c66c71cb27894dc0ecebe6afdfadf067032076099a6",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-O2.dSYM/Contents/Resources/DWARF/both-dependency-O2",
+      "sha256": "3dbb024c25f48e005ee8bdf40dbf2a61870dec15684b81f27bae1880e096ca58",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-dependency.dylib",
+      "sha256": "8e0b90ff4abb42ad2180dccd5825cb0ef71c94ee7e7329183ea267ca925f409e",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/both-dependency-dependency.dylib",
+      "sha256": "3fc25e59c26fce3aef5465e41ac5b4a363b4494bacae83a71f7bb867ae42d9b0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-origin.dylib",
+      "sha256": "269f7b5c48543d35a09aba6efde98ac2f9104fef0374641c43a874aa21c48215",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/both-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/both-dependency-origin.dylib",
+      "sha256": "911fd5a3c1ca30bd0943c9bf965208e1f4eabd573dd9865ad45d3cb33c6e97e3",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/collections-plain.dylib",
+      "sha256": "98c2c34261ab5756516454bba8b4f338d17898998eac6acc2b78514ca3986dc5",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/collections-plain.dylib.dSYM/Contents/Resources/DWARF/collections-plain.dylib",
+      "sha256": "7ddce3b2e197551674b466b50dc07d577dd55122b26a04adb54b4822bd420a01",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/collections-sanitized.dylib",
+      "sha256": "eb41a76ca1fd34195d79d20e616ce85ac189c662bebbf3563374745099c79afa",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/collections-sanitized.dylib.dSYM/Contents/Resources/DWARF/collections-sanitized.dylib",
+      "sha256": "6cfbeae66bee86c36102c413116f0ddaa2b838c8e81611d9d6a36198e305047f",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-O0",
+      "sha256": "7f4523ebc1d3d1662674e818c96ea025bbd54d5be53d9655ee38e9ffa25bbac9",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-O0.dSYM/Contents/Resources/DWARF/companion-dependency-O0",
+      "sha256": "90476594b81b5b64cc1e4e79de846a8aa976d3a3e36b894a908ba538e5a0b72e",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-O2",
+      "sha256": "acce7a20310189813387f2f3fdede00f95894a907caed9af2760f16166dc6d9b",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-O2.dSYM/Contents/Resources/DWARF/companion-dependency-O2",
+      "sha256": "d3db7f50cfcb1f49e577fef78b1ef67fce95247ab01b02bb1538eb5eaded1813",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-dependency.dylib",
+      "sha256": "9609af71d7dfe0c2d14c00dae252133d520b37ea19417f0992fa43d8dfb2637f",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/companion-dependency-dependency.dylib",
+      "sha256": "a5d3a0c00391f233997b479f36ba18210db29b7a6a160fba376f026a9afec401",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-origin.dylib",
+      "sha256": "a6d26b7e3b2560152befb9ac235fa7d509a853577930cc00ae92023f4dd695e5",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/companion-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/companion-dependency-origin.dylib",
+      "sha256": "f6d16a2a5af6e09ceb58e96c319efd403965625c17452f568e1e8f2dcffc0fee",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/copy-control-O0",
+      "sha256": "f8be227aa2b2ad9bc5c50f047811e9959d714f8c5c107f0589000d11b70d16e4",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/copy-control-O0.dSYM/Contents/Resources/DWARF/copy-control-O0",
+      "sha256": "63f705106442140dad0bd82aa07a97c7a4e673f1963e661020ce81f07a3021db",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/copy-control-O2",
+      "sha256": "8c66e907ab5eb7394fca9fbba0d676987db67f4c302c550d7bca4026fac70aa9",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/copy-control-O2.dSYM/Contents/Resources/DWARF/copy-control-O2",
+      "sha256": "7835444cd4f965c0942248c60a94e1686ef4f13ab4466ca453f00887e886016b",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/fs-sanitized.dylib",
+      "sha256": "db5a748aa89484be0d4b3d593de4ff013b98b8d508afc51dd1b49c4b67b22900",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/fs-sanitized.dylib.dSYM/Contents/Resources/DWARF/fs-sanitized.dylib",
+      "sha256": "5642abe5022b463f3b1f43893ebb0b8e7cd6ec3dd7c519885898117b0a27e8f8",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-fs-O0",
+      "sha256": "46b84141818cb4e57a8e250f29e6db44314721ae508893c9926cd8c53716a391",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-fs-O0.dSYM/Contents/Resources/DWARF/json-fs-O0",
+      "sha256": "6d852d3c09b93fba450c337b4ba18caf9e4077c81592a8f788f86d4da1036e5e",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-fs-O2",
+      "sha256": "af8c94947d3402e1f7a5ee200efb9ae3e24cdc251b298c32231807572cb9a7a0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-fs-O2.dSYM/Contents/Resources/DWARF/json-fs-O2",
+      "sha256": "d77844962298945bb407b05669f75765d39dea49a38024faf586656df86df8f4",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-sanitized.dylib",
+      "sha256": "e2acd393910d4cc742e8fde07957f694bb9b4e37f43c56bcb416e699572d3eb9",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/json-sanitized.dylib.dSYM/Contents/Resources/DWARF/json-sanitized.dylib",
+      "sha256": "3c8b4aedc93293ff7f59735826f5b48199ff497c41a1bee3e30bfb5fb1c9ae4d",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-O0.dSYM/Contents/Resources/DWARF/marker-dependency-O0",
+      "sha256": "1f8f7900d3389fb4c3fc23ab6d39d0a9b3c5ec1fe3c3a13156a06cf42d4a6594",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-O0",
+      "sha256": "4a86410b6244e13d04328a3a6d6cf5bc43679f055979745f0433b398f3d4d004",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-O2",
+      "sha256": "3f9aedba4112f0daf6d89ede921a366b4d202cde808942496971e77470817578",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-O2.dSYM/Contents/Resources/DWARF/marker-dependency-O2",
+      "sha256": "8167108ea67d4773db25c95b0d2de864cc54d97069430d7804ab25e2ffa2e617",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-dependency.dylib",
+      "sha256": "ee469e33137e01b176ba905110835146c07eb3b968bff3df942c8ba015fa567b",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/marker-dependency-dependency.dylib",
+      "sha256": "f715a157db96013c473cecfceab5d3365bb633890491705c77c6b75f5f40d70a",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-origin.dylib",
+      "sha256": "0e950dab18296261782ea45c889ca26d316639b39cfe83289f7dda93385f1c4c",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/marker-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/marker-dependency-origin.dylib",
+      "sha256": "8472702198939ad63ab6446bc7f500c3c27cc59c557e139a17e8247cc7be92f3",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-O0",
+      "sha256": "a8d6cc103cbd6c83b3de1efb461baf8101878600632dee83cd1b8ed056795b6f",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-O0.dSYM/Contents/Resources/DWARF/missing-companion-O0",
+      "sha256": "80d70d0c0808b1ab2ef6a18bd774b9bcdd494693bf72e0beec1259bc424d680a",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-O2",
+      "sha256": "5d32e97d4c23d0b0a49d58c080088fdf838cae5719748e93a1acfa2f7f4c43a9",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-O2.dSYM/Contents/Resources/DWARF/missing-companion-O2",
+      "sha256": "46ecd99514c4283379509aea2ebf2debb7e3504d5ba561cae3a875a6ea46cbbe",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-dependency.dylib",
+      "sha256": "f8e4e29c981e3852a1e095bd0c56e01d7c7c780aba74107a6baf4ccb01b5e292",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-dependency.dylib.dSYM/Contents/Resources/DWARF/missing-companion-dependency.dylib",
+      "sha256": "28a419d9e34132c2542fbb221dcef8104ca82f6880ff0668c36359c5a3605fb4",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-origin.dylib",
+      "sha256": "ea476e37d08a6de1b7f820af8fdc0b73d6da53dadcc63e78d87dea8d70d8d10d",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-companion-origin.dylib.dSYM/Contents/Resources/DWARF/missing-companion-origin.dylib",
+      "sha256": "0ba65edea82377a6ce172da333c91e1336dc0a7ebaceff914a9c0d5fdc94e39b",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-O0",
+      "sha256": "1b712b74098e840347a4a4fdb1a3b661078a25eec183f081f2f5c6a66a84aae5",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-O0.dSYM/Contents/Resources/DWARF/missing-marker-O0",
+      "sha256": "999155b8bcf296b94d0c7fcc2d74a2d6cf7ffbd0ea6f642f091294118ee52426",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-O2",
+      "sha256": "22e88b58f2abb08baf50afbe7a5e7cad1dd801ece5f50f789a93c962704f3bff",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-O2.dSYM/Contents/Resources/DWARF/missing-marker-O2",
+      "sha256": "350b3846626e0be6867d0a0197c838d15cd13521b808d0da96505e2223cff212",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-dependency.dylib",
+      "sha256": "3f113e5d84cb4f2a8d5969f03befa67418735d9a1593e3199b3609e27f687f42",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-dependency.dylib.dSYM/Contents/Resources/DWARF/missing-marker-dependency.dylib",
+      "sha256": "a1c9df166ec8c915741133fcb02dff121fc781ed44d1537acebe3257aa9bf6c1",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-origin.dylib",
+      "sha256": "3da5042793f892f09590d2aa7f23cb385b069887a4c19e79a60b6bdfe0c82696",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-aot-uph6jz8k/missing-marker-origin.dylib.dSYM/Contents/Resources/DWARF/missing-marker-origin.dylib",
+      "sha256": "3dafd6947cbda2340576ef5fc22f8b383d92e17339e293cae5ebf4ef396761d7",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/plain",
+      "sha256": "090d69a5a97cb0118e88010fe15970753480fff03ecf8c43f4c687f50cba1512",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/plain.dSYM/Contents/Resources/DWARF/plain",
+      "sha256": "3724012f1699e0656709285d7466afbb25870b04acdc9ee5936380bfe8cdac94",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/sanitized",
+      "sha256": "be0bb5e03a07b9bea7f4872ed89442744534a7691330447f93dfb9d8bedb7d0c",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+      "sha256": "c216147d74c1a8942cbbd7ab5f1cfdc1e90490e422dcf848d6ff0ee959d88e4c",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/threaded",
+      "sha256": "656fe025fbd4d820d576a4106c3d4d15efa2137156934f701f57c930c7316bbe",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-handles-4797t1sp/threaded.dSYM/Contents/Resources/DWARF/threaded",
+      "sha256": "e9826d7754883a0894297b7b626470e8d595e44f8613ed76d840001a7a0e30c8",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/plain",
+      "sha256": "d8e8d9f80d37cb4bf658e23a8d57d6a92f4cc88bf94206319086339dc6df7f43",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/plain.dSYM/Contents/Resources/DWARF/plain",
+      "sha256": "641bbbccc46dbe9e5e6533a0dd563f5779ebd5346c156f2a2c263352d73f44ea",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/sanitized",
+      "sha256": "087153481caae3d29586b6bd97a777f286d1d47e92e639db7b01bef6a22c3192",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+      "sha256": "201827b999e93b1db45c45b075a9ac4b12ed4f0d5c92c2727c0f0f8ccba5d23a",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/threaded",
+      "sha256": "a65bddc01107fdf59cbf0980b45832d4df8b52e32979bef4c0a1e668b99fc496",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "collection-snapshots-_bynqzjq/threaded.dSYM/Contents/Resources/DWARF/threaded",
+      "sha256": "f3511bdb953302567d807dbcefdffbc5fc2dfc314c027b485bc34b31e3c883c9",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-array-results-7_pykbmn/plain",
+      "sha256": "1128a8efebea00d12e448550553139125d5bad06059185968f1faf621f9bd161",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-array-results-7_pykbmn/plain.dSYM/Contents/Resources/DWARF/plain",
+      "sha256": "fe215ba53e9198a60a90600f7c7fdc1e180e2be3f030146e31f763c5c8d665ca",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-array-results-7_pykbmn/sanitized",
+      "sha256": "2a946e8fc86a4c4c2abdb81a1095d2ae32a2c197f45e8378402a08c4a52d33e5",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-array-results-7_pykbmn/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+      "sha256": "36f44e976cdf3c8d145601a55e125397a5d0ea88afbd0a8916b0de0502f6c81e",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/driver",
+      "sha256": "c993fb21f9f5701d8129af1cf14fb01f1d8ebc476ebfad3a08eedf312a31c88a",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "a6e7fdeb3cfaa62b6369f078a3829ba5063e9e9f5623323029bd397545fff032",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/libcollections.dylib",
+      "sha256": "391c14bf479bed64e766172231e4bea05099035607dfada2fb2d4c1c61545933",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "3c8930ed6d1c53bea2a52bb79e21ee5afa31e24944ae61085a6618badab39741",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/libdependency.dylib",
+      "sha256": "4a01ea1a468f385578812328c0d48db8b017c67333650d8be3c215afabbc04cc",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "31450669dcc375a31c4d658df3dcd288da7c1ad8a13f70dd4f6cdb0055370f5c",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/liborigin.dylib",
+      "sha256": "e81c2be349e17cd96e8707358b9909f92b2b143d42dd506a7e16cb0b5f76ee29",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/plain/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "02e00acce7e0098eee698313fa9b49748012fb5eb15cba33462ac92de23157a8",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/driver",
+      "sha256": "86938cb41db3a2ad3ac8a8861a792f5c02761f4d1398e31ae08d318de573d127",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "482dd7c6b0226e4b3bbd593e54041687508b86dfcee0161cd41288dc803bc2a8",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/libcollections.dylib",
+      "sha256": "6bbaf6818c85ad930e91fbfd6730ab5f9e8091e68b94ad6b16724e0533c9a8c6",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "e9c208bc634503001f577123100e4e59b78a173917a8fb893b769c0a4bce6fee",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/libdependency.dylib",
+      "sha256": "2089658d40a9c55281717623c4b33df8402f691d8f9a2b5a2ea1653c3ac5414f",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "27d48fbf753a26d11c78097f00eaa09e7142cc15b48b4eac8a6f98eeaeaf13a0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/liborigin.dylib",
+      "sha256": "548f5cbecee10fb112e4a90c1b07a94b46f5b67867e33f7d8a39c4d88c6b01ca",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/sanitized/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "5343e05102409b83f3004ed0472c8da88a5ee129fb58f44bf1345b057935913f",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/driver",
+      "sha256": "6ff53316d4f7bc16aacc468881d8bdfa8bd31f994212693c81df7fd98a391a9e",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "3abbf87e4282f3737883ed7fcdf1dde2101e258c4d64804066fd1cbe54492704",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/libcollections.dylib",
+      "sha256": "9e65897c8581e372cf28a7db51676a455158f576480284525511f3a3184e22d4",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "5d51fc3a1bdd84812ab8bf0ccaaac65cadbe1c56ed5ffb0565448d1efd13c2e8",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/libdependency.dylib",
+      "sha256": "d80aa7d29c97bc54b018d5be81b82dbbe5d3637e4039009626e9a7d9da15ac34",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "3d9889a913bb2b3836ad46c290d568a2bb5fe02b52dc0ca47524364cf5daa3d0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/liborigin.dylib",
+      "sha256": "06032c11ebbf3ce9ac5cf01ef6ba455d9ca4e2d9ffa7b04ff2a6424130f23370",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-g2hc8ykh/threaded/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "46a544816fdbaccbcc3c3b9406b96516c500b96e0b237ac57ef684ffaba0de67",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/driver",
+      "sha256": "39afcf3636bdafff76f03c64619d32e15a6cf23834c80f11e923a691d317217d",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "8e769c2fc659c944454901a67a2a069f5e67da98af994004f17aa64145a7341c",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/libcollections.dylib",
+      "sha256": "9a1e67ebfdb223116733d74c1425b0a25b813c67b5183a0b22ac73e18ad8a39e",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "75342cc982f03182bee55c14f77d9e64b7042d31f27311d0739c4f2e2c61d3a0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/libdependency.dylib",
+      "sha256": "483978de798b1a9b5a675a76e8de35bf3b5d99eb6c2d7cce6bf502acd861ffea",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "33373714da6b347a74d1dcacaa0fb1c29f376df80cf227991eb743f3473bea0e",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/liborigin.dylib",
+      "sha256": "378d28af73e89857567ad56ebfaa4ccc827e3a4a2c3c9724f2302d7161ae49c3",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/plain/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "d786f28f99f38b24e8b607fb706747d36feae1eeb25f912a524431d0ad4a87e0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/driver",
+      "sha256": "0feff0d84e3494171ab9a5e5dbe458eeca4ce7788d5325844cbeb7f10b1c8a88",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "6436f3c72aa6962b00384537822b112c4a5cdd79560f5bfa2fd5ef2f5c69aa4a",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/libcollections.dylib",
+      "sha256": "68d05e9768f2870a182c0d8477db6f067f7b4f48b3eeea7dd09fc012476e1ae6",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "de9e5322d48100b1b28bfa5cb0322cb70cd4e5ec754fc39d62aa0b819cd33559",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/libdependency.dylib",
+      "sha256": "b85424e4da99fc6a5868688caf0725e4c5702640e8c147b8a650b72f6eb7b4ca",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "7d74ab50514498de544137e9b8d0f59524b8f4a771644528485d14306aee90a0",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/liborigin.dylib",
+      "sha256": "a0043cb18795e62ecdea907ef6b7cd7606848fcce13d48f0953a3d465a495532",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/sanitized/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "a6795d90c350f9ba11bce42ef00d40d67e0d14911d3c9709093db18cb236fa7c",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/driver",
+      "sha256": "c13d71517ed4f0ae762329996143ffea51aae2903375d762cf43b072bebf8025",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/driver.dSYM/Contents/Resources/DWARF/driver",
+      "sha256": "8c6e0ae09dd6001bb3eafcf8c29429456017ff28cdfc19bcbe21a7992cb0e2d4",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/libcollections.dylib",
+      "sha256": "65328dfe95631676596172d60c5f8ceb5b6db2f39239e609e50f20edf7cbe38d",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+      "sha256": "0bf54fcf38fe94f5bfe2b4495c406687a609fde9c62d2763ed4cecae0961bc34",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/libdependency.dylib",
+      "sha256": "746d2b6e35f700a59eb1a1957ad28c666682fb4efec7815eff9be5e9d3e3ebd5",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+      "sha256": "93cdd9df8cae9a4d49a7ae8de9718c5848b2cdf282f486daea5a5964bb7c6612",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/liborigin.dylib",
+      "sha256": "650bffb3bbc81d2bad57e2a75c0ed6e1a338ab586c79f7d7f1f00262923c0348",
+      "kind": 6,
+      "format": "Mach-O"
+    },
+    {
+      "path": "ffi-result-release-tag25rdw/threaded/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+      "sha256": "69007f7688736896bcddee82715c3e6a7477490b3a583e73a6c655aece63bc69",
+      "kind": 10,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-k6f8k9fu/native-O0",
+      "sha256": "9cacf488c1fab33d7ad39b40d932ba5f4251ed48e2aa10ce4b7eba22394e2da6",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-k6f8k9fu/native-O2",
+      "sha256": "abd3b69d0b6e009b35a591d640ca6e6e32b6aaed120d774c7414693144120c40",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-8tw5pup2/native-O0",
+      "sha256": "42c0f8721b72ac465ccad36773ef6611bc4075081392810f38eb36964505dfe0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-8tw5pup2/native-O2",
+      "sha256": "4b04fa8ae243d97fd4dfd76dd3c335e20a6b4b59f00b12c50f4c8198fd8f4faf",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-qi9zv_45/native-O0",
+      "sha256": "498c7989d9f71ca48e4671e2f0ec7d81ccd724998976b0c281e3d1e008a16de5",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-qi9zv_45/native-O2",
+      "sha256": "f5b2829e8862492b36663ecd145a613ee35a9422bcee2cf5a976c3561a10f9f8",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "source-checker-component/actual-native-jjpdc3m4/checker",
+      "sha256": "68383c648d3a9f1b61a8ee5d175d59ef3b362ec4c69505afacd73d9bd9c41ac0",
+      "kind": 2,
+      "format": "Mach-O"
+    },
+    {
+      "path": "source-checker-component/language-string-self-u3f5j82t/native",
+      "sha256": "34cb7ecf3d95273051d47902c70d71986715a9c11c85e7704966922d3c68d91c",
+      "kind": 2,
+      "format": "Mach-O"
+    }
+  ],
+  "binary_entries": [
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jdpberwu/native-O0",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jdpberwu/native-O2",
+    "async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-jdpberwu/program.nvm",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-fn1wwklf/native-O0",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-fn1wwklf/native-O2",
+    "async-cseed-contracts/test_unchanged_original_async_fixture-fn1wwklf/program.nvm",
+    "bstring-c-contracts/O0-03xhpbio/native",
+    "bstring-c-contracts/O0-618_0r8u/native",
+    "bstring-c-contracts/O0-jx755y_p/native",
+    "bstring-c-contracts/O0-uj7teb0b/native",
+    "bstring-c-contracts/O2-3bgdj733/native",
+    "bstring-c-contracts/O2-n6timmd3/native",
+    "bstring-c-contracts/O2-oerjo0qq/native",
+    "bstring-c-contracts/O2-rc9sy0e8/native",
+    "bstring-contract-baselines/binary-nul-nano_virt/program.nvm",
+    "bstring-contract-baselines/binary-nul-nanoc_c/program",
+    "bstring-contract-baselines/byte-beyond-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-beyond-nanoc_c/program",
+    "bstring-contract-baselines/byte-negative-nano_virt/program.nvm",
+    "bstring-contract-baselines/byte-negative-nanoc_c/program",
+    "bstring-contract-baselines/invalid-utf8-nano_virt/program.nvm",
+    "bstring-contract-baselines/invalid-utf8-nanoc_c/program",
+    "bstring-contract-baselines/substring-bounds-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-bounds-nanoc_c/program",
+    "bstring-contract-baselines/substring-overflow-sanitized-nano_virt/program.nvm",
+    "bstring-contract-baselines/substring-overflow-sanitized-nanoc_c/program",
+    "bstring-contract-baselines/unicode-and-ownership-nano_virt/program.nvm",
+    "bstring-contract-baselines/unicode-and-ownership-nanoc_c/program",
+    "bstring-contract-baselines/useful-function-shadow-nano_virt/program.nvm",
+    "bstring-contract-baselines/useful-function-shadow-nanoc_c/program",
+    "bstring-contract-baselines/whole-fixture-nano_virt/program.nvm",
+    "bstring-contract-baselines/whole-fixture-nanoc_c/program",
+    "bstring-native-contracts/generated-collection-xov9vpky/native-O0",
+    "bstring-native-contracts/generated-collection-xov9vpky/native-O2",
+    "bstring-native-contracts/generated-collection-xov9vpky/program.nvm",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-j_aefo00/native-O2",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-j_aefo00/program.nvm",
+    "bstring-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-j_aefo00/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-1nkzveyy/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-1nkzveyy/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-1nkzveyy/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-ao760_jo/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-ao760_jo/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-ao760_jo/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-j78ap3pk/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-j78ap3pk/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-j78ap3pk/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-m1a20s89/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-m1a20s89/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-m1a20s89/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-n1xbkgnp/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-n1xbkgnp/program.nvm",
+    "bstring-native-contracts/test_all_retained_reference_observations-n1xbkgnp/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-q6zyb9p6/native-O0",
+    "bstring-native-contracts/test_all_retained_reference_observations-q6zyb9p6/native-O2",
+    "bstring-native-contracts/test_all_retained_reference_observations-q6zyb9p6/program.nvm",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-mn4x_339/native-O0",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-mn4x_339/native-O2",
+    "bstring-native-contracts/test_nominal_live_and_freed_owner_display-mn4x_339/program.nvm",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-xh68jjsa/native-O0",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-xh68jjsa/native-O2",
+    "bstring-native-contracts/test_owner_array_mutation_and_higher_order_operations-xh68jjsa/program.nvm",
+    "bstring-native-contracts/test_typed_owner_array_aliases-1xuq11bw/native-O0",
+    "bstring-native-contracts/test_typed_owner_array_aliases-1xuq11bw/native-O2",
+    "bstring-native-contracts/test_typed_owner_array_aliases-1xuq11bw/program.nvm",
+    "bstring-native-contracts/test_unchanged_original_fixture-7rgprh9q/native-O0",
+    "bstring-native-contracts/test_unchanged_original_fixture-7rgprh9q/native-O2",
+    "bstring-native-contracts/test_unchanged_original_fixture-7rgprh9q/program.nvm",
+    "bstring-native-payload/original-hsjn1axh/unit",
+    "bstring-vm-contracts/test_extreme_substring_clamps_without_signed_addition-r336ytuq/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-0doq84c7/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-95zj4sei/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-b1kmn1cs/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-ej3vmmoq/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-p957ar6g/program.nvm",
+    "bstring-vm-contracts/test_reference_boundary_observations-ti20s9qj/program.nvm",
+    "bstring-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-adn3610q/program.nvm",
+    "bstring-vm-contracts/test_unchanged_original_fixture-h07czkoy/program.nvm",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-uys_4a5u/native-O0",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-uys_4a5u/native-O2",
+    "byte-conversion-scan-boundary/test_managed_vm_and_native_keep_complete_input-uys_4a5u/program.nvm",
+    "collection-aot-uph6jz8k/all-native-O0",
+    "collection-aot-uph6jz8k/all-native-O0.dSYM/Contents/Resources/DWARF/all-native-O0",
+    "collection-aot-uph6jz8k/all-native-O2",
+    "collection-aot-uph6jz8k/all-native-O2.dSYM/Contents/Resources/DWARF/all-native-O2",
+    "collection-aot-uph6jz8k/all-native.nvm",
+    "collection-aot-uph6jz8k/all-vm.nvm",
+    "collection-aot-uph6jz8k/bad-marker-O0",
+    "collection-aot-uph6jz8k/bad-marker-O0.dSYM/Contents/Resources/DWARF/bad-marker-O0",
+    "collection-aot-uph6jz8k/bad-marker-O2",
+    "collection-aot-uph6jz8k/bad-marker-O2.dSYM/Contents/Resources/DWARF/bad-marker-O2",
+    "collection-aot-uph6jz8k/bad-marker-dependency.dylib",
+    "collection-aot-uph6jz8k/bad-marker-dependency.dylib.dSYM/Contents/Resources/DWARF/bad-marker-dependency.dylib",
+    "collection-aot-uph6jz8k/bad-marker-origin.dylib",
+    "collection-aot-uph6jz8k/bad-marker-origin.dylib.dSYM/Contents/Resources/DWARF/bad-marker-origin.dylib",
+    "collection-aot-uph6jz8k/bad-marker.nvm",
+    "collection-aot-uph6jz8k/both-dependency-O0",
+    "collection-aot-uph6jz8k/both-dependency-O0.dSYM/Contents/Resources/DWARF/both-dependency-O0",
+    "collection-aot-uph6jz8k/both-dependency-O2",
+    "collection-aot-uph6jz8k/both-dependency-O2.dSYM/Contents/Resources/DWARF/both-dependency-O2",
+    "collection-aot-uph6jz8k/both-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/both-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/both-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/both-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/both-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/both-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/both-dependency.nvm",
+    "collection-aot-uph6jz8k/collections-plain.dylib",
+    "collection-aot-uph6jz8k/collections-plain.dylib.dSYM/Contents/Resources/DWARF/collections-plain.dylib",
+    "collection-aot-uph6jz8k/collections-sanitized.dylib",
+    "collection-aot-uph6jz8k/collections-sanitized.dylib.dSYM/Contents/Resources/DWARF/collections-sanitized.dylib",
+    "collection-aot-uph6jz8k/companion-dependency-O0",
+    "collection-aot-uph6jz8k/companion-dependency-O0.dSYM/Contents/Resources/DWARF/companion-dependency-O0",
+    "collection-aot-uph6jz8k/companion-dependency-O2",
+    "collection-aot-uph6jz8k/companion-dependency-O2.dSYM/Contents/Resources/DWARF/companion-dependency-O2",
+    "collection-aot-uph6jz8k/companion-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/companion-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/companion-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/companion-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/companion-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/companion-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/companion-dependency.nvm",
+    "collection-aot-uph6jz8k/copy-control-O0",
+    "collection-aot-uph6jz8k/copy-control-O0.dSYM/Contents/Resources/DWARF/copy-control-O0",
+    "collection-aot-uph6jz8k/copy-control-O2",
+    "collection-aot-uph6jz8k/copy-control-O2.dSYM/Contents/Resources/DWARF/copy-control-O2",
+    "collection-aot-uph6jz8k/copy-control.nvm",
+    "collection-aot-uph6jz8k/fs-sanitized.dylib",
+    "collection-aot-uph6jz8k/fs-sanitized.dylib.dSYM/Contents/Resources/DWARF/fs-sanitized.dylib",
+    "collection-aot-uph6jz8k/json-fs-O0",
+    "collection-aot-uph6jz8k/json-fs-O0.dSYM/Contents/Resources/DWARF/json-fs-O0",
+    "collection-aot-uph6jz8k/json-fs-O2",
+    "collection-aot-uph6jz8k/json-fs-O2.dSYM/Contents/Resources/DWARF/json-fs-O2",
+    "collection-aot-uph6jz8k/json-fs.nvm",
+    "collection-aot-uph6jz8k/json-sanitized.dylib",
+    "collection-aot-uph6jz8k/json-sanitized.dylib.dSYM/Contents/Resources/DWARF/json-sanitized.dylib",
+    "collection-aot-uph6jz8k/marker-dependency-O0.dSYM/Contents/Resources/DWARF/marker-dependency-O0",
+    "collection-aot-uph6jz8k/marker-dependency-O0",
+    "collection-aot-uph6jz8k/marker-dependency-O2",
+    "collection-aot-uph6jz8k/marker-dependency-O2.dSYM/Contents/Resources/DWARF/marker-dependency-O2",
+    "collection-aot-uph6jz8k/marker-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/marker-dependency-dependency.dylib.dSYM/Contents/Resources/DWARF/marker-dependency-dependency.dylib",
+    "collection-aot-uph6jz8k/marker-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/marker-dependency-origin.dylib.dSYM/Contents/Resources/DWARF/marker-dependency-origin.dylib",
+    "collection-aot-uph6jz8k/marker-dependency.nvm",
+    "collection-aot-uph6jz8k/missing-companion-O0",
+    "collection-aot-uph6jz8k/missing-companion-O0.dSYM/Contents/Resources/DWARF/missing-companion-O0",
+    "collection-aot-uph6jz8k/missing-companion-O2",
+    "collection-aot-uph6jz8k/missing-companion-O2.dSYM/Contents/Resources/DWARF/missing-companion-O2",
+    "collection-aot-uph6jz8k/missing-companion-dependency.dylib",
+    "collection-aot-uph6jz8k/missing-companion-dependency.dylib.dSYM/Contents/Resources/DWARF/missing-companion-dependency.dylib",
+    "collection-aot-uph6jz8k/missing-companion-origin.dylib",
+    "collection-aot-uph6jz8k/missing-companion-origin.dylib.dSYM/Contents/Resources/DWARF/missing-companion-origin.dylib",
+    "collection-aot-uph6jz8k/missing-companion.nvm",
+    "collection-aot-uph6jz8k/missing-marker-O0",
+    "collection-aot-uph6jz8k/missing-marker-O0.dSYM/Contents/Resources/DWARF/missing-marker-O0",
+    "collection-aot-uph6jz8k/missing-marker-O2",
+    "collection-aot-uph6jz8k/missing-marker-O2.dSYM/Contents/Resources/DWARF/missing-marker-O2",
+    "collection-aot-uph6jz8k/missing-marker-dependency.dylib",
+    "collection-aot-uph6jz8k/missing-marker-dependency.dylib.dSYM/Contents/Resources/DWARF/missing-marker-dependency.dylib",
+    "collection-aot-uph6jz8k/missing-marker-origin.dylib",
+    "collection-aot-uph6jz8k/missing-marker-origin.dylib.dSYM/Contents/Resources/DWARF/missing-marker-origin.dylib",
+    "collection-aot-uph6jz8k/missing-marker.nvm",
+    "collection-aot-uph6jz8k/nl_hm_clear-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_clear-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_clear-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_free-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_free-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_free-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_get-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_get-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_get-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_has-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_has-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_has-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_keys-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_keys-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_keys-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_new-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_new-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_put-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_put-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_put-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_remove-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_remove-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_remove-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_size-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_size-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_size-result.nvm",
+    "collection-aot-uph6jz8k/nl_hm_values-arity.nvm",
+    "collection-aot-uph6jz8k/nl_hm_values-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_hm_values-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_add-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_add-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_add-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_clear-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_clear-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_clear-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_free-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_free-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_free-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_has-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_has-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_has-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_new-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_new-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_remove-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_remove-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_remove-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_size-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_size-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_size-result.nvm",
+    "collection-aot-uph6jz8k/nl_set_values-arity.nvm",
+    "collection-aot-uph6jz8k/nl_set_values-parameter.nvm",
+    "collection-aot-uph6jz8k/nl_set_values-result.nvm",
+    "collection-handles-4797t1sp/plain",
+    "collection-handles-4797t1sp/plain.dSYM/Contents/Resources/DWARF/plain",
+    "collection-handles-4797t1sp/sanitized",
+    "collection-handles-4797t1sp/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+    "collection-handles-4797t1sp/threaded",
+    "collection-handles-4797t1sp/threaded.dSYM/Contents/Resources/DWARF/threaded",
+    "collection-snapshots-_bynqzjq/plain",
+    "collection-snapshots-_bynqzjq/plain.dSYM/Contents/Resources/DWARF/plain",
+    "collection-snapshots-_bynqzjq/sanitized",
+    "collection-snapshots-_bynqzjq/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+    "collection-snapshots-_bynqzjq/threaded",
+    "collection-snapshots-_bynqzjq/threaded.dSYM/Contents/Resources/DWARF/threaded",
+    "ffi-array-results-7_pykbmn/plain",
+    "ffi-array-results-7_pykbmn/plain.dSYM/Contents/Resources/DWARF/plain",
+    "ffi-array-results-7_pykbmn/sanitized",
+    "ffi-array-results-7_pykbmn/sanitized.dSYM/Contents/Resources/DWARF/sanitized",
+    "ffi-result-release-g2hc8ykh/plain/driver",
+    "ffi-result-release-g2hc8ykh/plain/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-g2hc8ykh/plain/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/plain/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/plain/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/plain/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/plain/liborigin.dylib",
+    "ffi-result-release-g2hc8ykh/plain/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/driver",
+    "ffi-result-release-g2hc8ykh/sanitized/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-g2hc8ykh/sanitized/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/liborigin.dylib",
+    "ffi-result-release-g2hc8ykh/sanitized/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/driver",
+    "ffi-result-release-g2hc8ykh/threaded/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-g2hc8ykh/threaded/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/liborigin.dylib",
+    "ffi-result-release-g2hc8ykh/threaded/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "ffi-result-release-tag25rdw/plain/copy.nvm",
+    "ffi-result-release-tag25rdw/plain/cross-image.nvm",
+    "ffi-result-release-tag25rdw/plain/driver",
+    "ffi-result-release-tag25rdw/plain/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-tag25rdw/plain/input-alias.nvm",
+    "ffi-result-release-tag25rdw/plain/libcollections.dylib",
+    "ffi-result-release-tag25rdw/plain/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-tag25rdw/plain/libdependency.dylib",
+    "ffi-result-release-tag25rdw/plain/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-tag25rdw/plain/liborigin.dylib",
+    "ffi-result-release-tag25rdw/plain/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "ffi-result-release-tag25rdw/sanitized/driver",
+    "ffi-result-release-tag25rdw/sanitized/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-tag25rdw/sanitized/libcollections.dylib",
+    "ffi-result-release-tag25rdw/sanitized/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-tag25rdw/sanitized/libdependency.dylib",
+    "ffi-result-release-tag25rdw/sanitized/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-tag25rdw/sanitized/liborigin.dylib",
+    "ffi-result-release-tag25rdw/sanitized/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "ffi-result-release-tag25rdw/threaded/driver",
+    "ffi-result-release-tag25rdw/threaded/driver.dSYM/Contents/Resources/DWARF/driver",
+    "ffi-result-release-tag25rdw/threaded/libcollections.dylib",
+    "ffi-result-release-tag25rdw/threaded/libcollections.dylib.dSYM/Contents/Resources/DWARF/libcollections.dylib",
+    "ffi-result-release-tag25rdw/threaded/libdependency.dylib",
+    "ffi-result-release-tag25rdw/threaded/libdependency.dylib.dSYM/Contents/Resources/DWARF/libdependency.dylib",
+    "ffi-result-release-tag25rdw/threaded/liborigin.dylib",
+    "ffi-result-release-tag25rdw/threaded/liborigin.dylib.dSYM/Contents/Resources/DWARF/liborigin.dylib",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-k6f8k9fu/native-O0",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-k6f8k9fu/native-O2",
+    "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-k6f8k9fu/program.nvm",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-8tw5pup2/native-O0",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-8tw5pup2/native-O2",
+    "match-or-cseed-contracts/test_unchanged_complete_original_fixture-8tw5pup2/program.nvm",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-qi9zv_45/native-O0",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-qi9zv_45/native-O2",
+    "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-qi9zv_45/program.nvm",
+    "source-checker-component/actual-native-jjpdc3m4/checker",
+    "source-checker-component/language-string-self-u3f5j82t/native",
+    "string-builtin-operands/translator-storage/nano-qualification-44mjtofs.tar.gz"
+  ],
+  "unbound_input_paths": [],
+  "original_translator_passed": 2458,
+  "archive_retained": ".test_output/call-metadata-complete-apple-42608192902.zip",
+  "scope": "I CRC/hash-check every retained archive entry, compare the complete source tree to Git, verify before/after input reports and available Git/provider/uploaded identities, and bind reported products to their uploaded bytes. I do not claim all omitted tools/providers are retained, every subprocess has an independent witness, source reliability, full SDK closure or release qualification."
+}

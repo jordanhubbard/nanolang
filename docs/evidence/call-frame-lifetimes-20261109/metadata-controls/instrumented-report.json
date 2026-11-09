@@ -1,0 +1,83 @@
+{
+  "head": "f92237c52a894eea7d4ee13de5dfc4df224a99f9",
+  "run": 42608183231,
+  "jobs": [
+    {
+      "compiler": "gcc",
+      "artifact": 13669650794,
+      "archive_sha256": "91307f713658c57f0bd5bbf24580bef53e9e06437d100368483837ca1c229684",
+      "entries_crc_hash_checked": 12,
+      "source_tree_git_matched": true,
+      "metadata_unreleased": 0,
+      "complete_original_eval": true,
+      "original_test_methods": 28,
+      "array_alias_results": [
+        {
+          "provider": "nanoc_c",
+          "route": "source-native",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        },
+        {
+          "provider": "nano_virt",
+          "route": "canonical",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        }
+      ],
+      "reported_stable_providers": 7,
+      "native_image_bytes_uploaded": false
+    },
+    {
+      "compiler": "clang",
+      "artifact": 13668039620,
+      "archive_sha256": "6c671d2471ffc481d9051278cf4076bea669afe3ea2c523260491b55edf774ff",
+      "entries_crc_hash_checked": 12,
+      "source_tree_git_matched": true,
+      "metadata_unreleased": 0,
+      "complete_original_eval": true,
+      "original_test_methods": 28,
+      "array_alias_results": [
+        {
+          "provider": "nanoc_c",
+          "route": "source-native",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        },
+        {
+          "provider": "nano_virt",
+          "route": "canonical",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "-v",
+            "tests.test_array_builtin_aliases"
+          ],
+          "returncode": 0
+        }
+      ],
+      "reported_stable_providers": 7,
+      "native_image_bytes_uploaded": false
+    }
+  ],
+  "scope": "I audit actual hosted test logs, full Git source identity and reported stable provider hashes. Native image bytes are not uploaded by this workflow. Complete source/platform gates and SDK closure remain separate."
+}
