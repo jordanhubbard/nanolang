@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f00c1395899b995a096f1217e46b56cb2c9e9df60de0a827f41bd10f973b8eae -->
+<!-- literate-ai:authority-reviewed sha256:473072f9e1e31603b3563dd960b96b96a01ceea5616b1d036cc76dfac9baa39d -->
 
 ## My first metadata checkpoint
 
@@ -422,3 +422,36 @@ empty native implementation selections and absent native lifecycle receipt
 unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
 security, budget, integration or release acceptance. I freeze this catalog
 before supported authority review and retain its logs outside the catalog.
+
+
+## My measured record-name filter candidate
+
+I factor my unchanged record lookup and byte-context bodies into a private
+include used by the actual evaluator and native sanitizer unit, then reject
+unequal initial bytes before the same full strcmp equality test. I preserve
+first-match/declaration order, duplicate/empty/non-ASCII C metadata, byte
+normalization/refusals, owned STRING reads and other value identities/flags.
+I change no public record, AST or GC layout and introduce no ownership cache
+or foreign admission.
+
+My original-source baseline is `6bb9c6bd3e01628070df809e41200f9bec1e0bb9`, a real
+code-only descendant of `51649d12a` containing five reviewed paths: evaluator,
+private include, native unit, Make target and existing component workflow.
+I retain all 92,819 inherited entries and add two source/control files, with
+real ancestry and the same five content-only metadata exceptions. My temporary
+sparse working view does not omit inputs from the complete Git checkpoint.
+
+My same actual helper/environment/GC sanitizer controls pass before and after
+filtering, with identical refusal text and owned STRING lifetime behavior. The
+wide control reduces 128,000 comparisons to 2,000 for 2,000 lookups; it does not
+establish a whole-compiler speedup. The complete evaluator syntax check passes.
+I retain exact commands, initial C test-literal warning, source/product hashes
+and scope under `docs/evidence/record-field-filters-20261109/`.
+
+I declare fixed actual whole-source paired comparisons against pre-change
+48016fec4 and retain the original complete component/platform selections and
+deadlines before adoption. Actual hosted results remain required. Source
+carrier lifetime, full fresh/corpus/budget, NativeSDK/lifecycle, security and
+release remain open. Original source authority, eight integration Components,
+empty native selections and absent lifecycle receipt are unchanged. I freeze
+this catalog before supported review and retain final logs outside it.
