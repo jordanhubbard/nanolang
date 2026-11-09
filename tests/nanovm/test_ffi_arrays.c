@@ -185,6 +185,66 @@ static void invalid_strings(VmHeap *heap) {
     assert(!vm_ffi_array_import(heap, &bad, error, sizeof error));
 }
 
+static int owned_releases;
+extern void *nl_hm_new(void);
+extern void nl_hm_put(void *, const char *, const char *);
+extern void nl_hm_free(void *);
+extern DynArray *nl_hm_keys(void *);
+extern bool nl_hm_keys__nano_array_release_v1(void *);
+static bool owned_release(void *result) {
+    owned_releases++;
+    return nl_hm_keys__nano_array_release_v1(result);
+}
+static void owned_results(VmHeap *heap) {
+    void *map = nl_hm_new(); assert(map); nl_hm_put(map, "owned", "value");
+    char error[256]; NanoValue result;
+    VmFfiArrayFrame frame = {.heap = heap};
+    DynArray *native = nl_hm_keys(map); assert(native); owned_releases = 0;
+    assert(vm_ffi_array_result(&frame, native, owned_release, &result, error, sizeof error));
+    assert(owned_releases == 1 && gc_get_stats().num_objects == 0);
+    assert(result.tag == TAG_ARRAY && result.as.array->length == 1);
+    nl_hm_free(map);
+    assert(!strcmp(vm_array_get(result.as.array, 0).as.string->data, "owned"));
+    vm_release(heap, result);
+
+    for (int fail = 0; fail < 4; fail++) {
+        map = nl_hm_new(); assert(map); nl_hm_put(map, fail == 3 ? "\xff" : "owned", "value");
+        native = nl_hm_keys(map); assert(native); nl_hm_free(map); owned_releases = 0;
+        if (fail == 0) { vm_allocations = 0; reject_vm_at = 1; }
+        if (fail == 1) reject_string = 1;
+        if (fail == 2) native->elem_size = 1;
+        assert(!vm_ffi_array_result(&frame, native, owned_release, &result, error, sizeof error));
+        assert(result.tag == TAG_VOID && owned_releases == 1);
+        reject_vm_at = reject_string = 0;
+        if (fail == 2) {
+            assert(strstr(error, "invalid native metadata"));
+            native->elem_size = sizeof(char *); assert(nl_hm_keys__nano_array_release_v1(native));
+        }
+        vm_gc_collect_cycles(heap);
+        assert(gc_get_stats().num_objects == 0 && heap->stats.num_objects == 0);
+    }
+    native = nl_hm_keys(NULL); assert(native); gc_retain(native); owned_releases = 0;
+    assert(!vm_ffi_array_result(&frame, native, owned_release, &result, error, sizeof error));
+    assert(result.tag == TAG_VOID && owned_releases == 1 && gc_get_header(native)->ref_count == 2);
+    gc_release(native); assert(nl_hm_keys__nano_array_release_v1(native));
+    owned_releases = 0;
+    assert(!vm_ffi_array_result(&frame, NULL, owned_release, &result, error, sizeof error));
+    assert(result.tag == TAG_VOID && owned_releases == 1);
+    assert(vm_ffi_array_result(&frame, NULL, NULL, &result, error, sizeof error));
+    assert(result.tag == TAG_VOID);
+
+    VmArray *input = vm_array_new(heap, TAG_INT, 1); assert(input);
+    assert(vm_array_push(heap, input, val_int(7)));
+    void *argument;
+    assert(vm_ffi_array_argument(&frame, val_array(input), &argument, error, sizeof error));
+    owned_releases = 0;
+    assert(!vm_ffi_array_result(&frame, argument, owned_release, &result, error, sizeof error));
+    assert(result.tag == TAG_VOID && owned_releases == 0 && strstr(error, "independent"));
+    assert(vm_ffi_array_result(&frame, argument, NULL, &result, error, sizeof error));
+    assert(result.as.array == input); vm_release(heap, result);
+    vm_ffi_arrays_dispose(&frame); vm_release(heap, val_array(input));
+}
+
 int main(void) {
     VmHeap heap;
     vm_heap_init(&heap);
@@ -194,6 +254,7 @@ int main(void) {
     scalar_types(&heap);
     failures(&heap);
     invalid_strings(&heap);
+    owned_results(&heap);
     vm_gc_collect_cycles(&heap);
     assert(gc_get_stats().num_objects == 0 && heap.stats.num_objects == 0);
     gc_shutdown();

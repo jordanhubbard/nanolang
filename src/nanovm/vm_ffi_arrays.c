@@ -164,6 +164,31 @@ bool vm_ffi_array_alias_result(VmFfiArrayFrame *frame, const void *pointer, Nano
     return false;
 }
 
+bool vm_ffi_array_result(VmFfiArrayFrame *frame, DynArray *native,
+                          bool (*release)(void *), NanoValue *out,
+                          char *error, size_t size) {
+    *out = val_void();
+    NanoValue converted = val_void();
+    bool alias = vm_ffi_array_alias_result(frame, native, &converted);
+    if (alias && release) {
+        vm_release(frame->heap, converted);
+        return array_error(error, size, "I require an independent provider-owned result");
+    }
+    bool ok = true;
+    if (!alias && native) {
+        VmArray *copy = vm_ffi_array_import(frame->heap, native, error, size);
+        if (copy) converted = val_array(copy);
+        else ok = false;
+    }
+    if (release && !release(native)) {
+        if (ok) array_error(error, size, "I require valid unique provider-array cleanup");
+        ok = false;
+    }
+    if (ok) *out = converted;
+    else vm_release(frame->heap, converted);
+    return ok;
+}
+
 void vm_ffi_arrays_dispose(VmFfiArrayFrame *frame) {
     for (int i = 0; i < frame->count; ++i) {
         VmFfiArrayEntry *entry = &frame->entries[i];

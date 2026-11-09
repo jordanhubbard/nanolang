@@ -1,0 +1,37 @@
+[
+  {
+    "path": "providers/original/nanoc_c",
+    "sha256": "41ad4390bd5d0a2e5bc24d6964605a08d7cb0c0877e1289afe68cbdfaa8a6b1b",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "providers/modified/nanoc_c",
+    "sha256": "ee193ccb92dba9823fecd07bef40d8651e53aeaccb25d8b059d1688b2237c153",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "samples/02-modified/compiler",
+    "sha256": "ae77a0b70e21b8a3e1f60b24f97162dbe0ab76498e1ef35213e26b2e32df8021",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "samples/03-modified/compiler",
+    "sha256": "ae77a0b70e21b8a3e1f60b24f97162dbe0ab76498e1ef35213e26b2e32df8021",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "samples/04-original/compiler",
+    "sha256": "ae77a0b70e21b8a3e1f60b24f97162dbe0ab76498e1ef35213e26b2e32df8021",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "samples/05-original/compiler",
+    "sha256": "ae77a0b70e21b8a3e1f60b24f97162dbe0ab76498e1ef35213e26b2e32df8021",
+    "magic": "cffaedfe"
+  },
+  {
+    "path": "samples/06-modified/compiler",
+    "sha256": "ae77a0b70e21b8a3e1f60b24f97162dbe0ab76498e1ef35213e26b2e32df8021",
+    "magic": "cffaedfe"
+  }
+]

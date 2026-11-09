@@ -1,0 +1,245 @@
+[
+  {
+    "index": 1,
+    "variant": "original",
+    "factory_wall_seconds": 235.03252887500003,
+    "snapshot_wall_seconds": 42.054470976999994,
+    "snapshot_count": 949,
+    "max_snapshot_gap_seconds": 0.40210187500002803,
+    "c_provider_pid": 10736,
+    "same_command_child_pid": 47567,
+    "same_command_child_first_sighting_bounds_seconds": [
+      222.31234454100007,
+      222.393488666
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      231.39951950000005,
+      231.449122166
+    ],
+    "clang_command_identities_observed_before_child": 288,
+    "clang_command_identities_observed_after_child": 4,
+    "command_identity_counts": {
+      "(bash)": 525,
+      "clang": 292,
+      "sh": 227,
+      "(clang)": 81,
+      "bash": 56,
+      "(sed)": 50,
+      "(mv)": 25,
+      "(cat)": 19,
+      "(rm)": 17,
+      "(tr)": 16,
+      "(mktemp)": 13,
+      "(Python)": 3,
+      "Python": 2,
+      "nanoc_c": 2,
+      "(nanoc_c)": 2,
+      "cat": 1,
+      "<defunct>": 1,
+      "(sh)": 1,
+      "(ld)": 1,
+      "(python3.15)": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  },
+  {
+    "index": 2,
+    "variant": "modified",
+    "factory_wall_seconds": 218.26640433300008,
+    "snapshot_wall_seconds": 35.03447914199592,
+    "snapshot_count": 901,
+    "max_snapshot_gap_seconds": 0.23285120800005643,
+    "c_provider_pid": 48070,
+    "same_command_child_pid": 84296,
+    "same_command_child_first_sighting_bounds_seconds": [
+      208.65153033299998,
+      208.688235791
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      215.33782458299993,
+      215.37213633299996
+    ],
+    "clang_command_identities_observed_before_child": 265,
+    "clang_command_identities_observed_after_child": 5,
+    "command_identity_counts": {
+      "(bash)": 521,
+      "clang": 270,
+      "sh": 203,
+      "(clang)": 93,
+      "(sed)": 47,
+      "bash": 34,
+      "(cat)": 29,
+      "(mv)": 21,
+      "(rm)": 18,
+      "(tr)": 14,
+      "(mktemp)": 7,
+      "nanoc_c": 2,
+      "(Python)": 2,
+      "(nanoc_c)": 2,
+      "Python": 1,
+      "(python3.15)": 1,
+      "<defunct>": 1,
+      "(sh)": 1,
+      "(ld)": 1,
+      "(pkgconf)": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  },
+  {
+    "index": 3,
+    "variant": "modified",
+    "factory_wall_seconds": 148.445996542,
+    "snapshot_wall_seconds": 19.622661698000343,
+    "snapshot_count": 632,
+    "max_snapshot_gap_seconds": 0.21310795799990956,
+    "c_provider_pid": 84725,
+    "same_command_child_pid": 18168,
+    "same_command_child_first_sighting_bounds_seconds": [
+      139.41936691700005,
+      139.44912662499996
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      145.51486279200003,
+      145.54832891700005
+    ],
+    "clang_command_identities_observed_before_child": 138,
+    "clang_command_identities_observed_after_child": 5,
+    "command_identity_counts": {
+      "(bash)": 460,
+      "sh": 144,
+      "clang": 143,
+      "(clang)": 48,
+      "(sed)": 38,
+      "bash": 32,
+      "(cat)": 27,
+      "(mv)": 25,
+      "(rm)": 22,
+      "(tr)": 14,
+      "(mktemp)": 11,
+      "nanoc_c": 2,
+      "(sh)": 2,
+      "(python3.15)": 2,
+      "(nanoc_c)": 2,
+      "Python": 1,
+      "<defunct>": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  },
+  {
+    "index": 4,
+    "variant": "original",
+    "factory_wall_seconds": 148.92814937499998,
+    "snapshot_wall_seconds": 19.765671619004593,
+    "snapshot_count": 633,
+    "max_snapshot_gap_seconds": 0.21311454200008484,
+    "c_provider_pid": 18583,
+    "same_command_child_pid": 51287,
+    "same_command_child_first_sighting_bounds_seconds": [
+      139.35966433299996,
+      139.38934104100008
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      145.90278816599994,
+      145.93676149999988
+    ],
+    "clang_command_identities_observed_before_child": 138,
+    "clang_command_identities_observed_after_child": 5,
+    "command_identity_counts": {
+      "(bash)": 478,
+      "sh": 148,
+      "clang": 143,
+      "(clang)": 50,
+      "bash": 37,
+      "(sed)": 34,
+      "(mv)": 30,
+      "(rm)": 23,
+      "(cat)": 17,
+      "(tr)": 14,
+      "(mktemp)": 6,
+      "nanoc_c": 2,
+      "<defunct>": 2,
+      "Python": 1,
+      "(nanoc_c)": 1,
+      "ld": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  },
+  {
+    "index": 5,
+    "variant": "original",
+    "factory_wall_seconds": 153.67016483299994,
+    "snapshot_wall_seconds": 21.706525524996778,
+    "snapshot_count": 647,
+    "max_snapshot_gap_seconds": 0.21316158299987364,
+    "c_provider_pid": 51446,
+    "same_command_child_pid": 84534,
+    "same_command_child_first_sighting_bounds_seconds": [
+      144.277914,
+      144.31288225000003
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      150.7241825420001,
+      150.75566479200006
+    ],
+    "clang_command_identities_observed_before_child": 137,
+    "clang_command_identities_observed_after_child": 6,
+    "command_identity_counts": {
+      "(bash)": 484,
+      "sh": 146,
+      "clang": 143,
+      "(sed)": 39,
+      "(clang)": 39,
+      "(rm)": 34,
+      "bash": 33,
+      "(mv)": 21,
+      "(cat)": 18,
+      "(tr)": 17,
+      "(mktemp)": 13,
+      "nanoc_c": 2,
+      "Python": 1,
+      "(sh)": 1,
+      "(python3.15)": 1,
+      "(nanoc_c)": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  },
+  {
+    "index": 6,
+    "variant": "modified",
+    "factory_wall_seconds": 152.94114416699995,
+    "snapshot_wall_seconds": 21.547341244000563,
+    "snapshot_count": 644,
+    "max_snapshot_gap_seconds": 0.22091599999998834,
+    "c_provider_pid": 84793,
+    "same_command_child_pid": 18491,
+    "same_command_child_first_sighting_bounds_seconds": [
+      144.13213429200005,
+      144.16179754199993
+    ],
+    "same_command_child_last_sighting_bounds_seconds": [
+      149.89824287500005,
+      149.930807792
+    ],
+    "clang_command_identities_observed_before_child": 152,
+    "clang_command_identities_observed_after_child": 5,
+    "command_identity_counts": {
+      "(bash)": 486,
+      "clang": 157,
+      "sh": 153,
+      "bash": 42,
+      "(sed)": 37,
+      "(clang)": 30,
+      "(rm)": 27,
+      "(mv)": 20,
+      "(tr)": 15,
+      "(cat)": 14,
+      "(mktemp)": 11,
+      "nanoc_c": 2,
+      "Python": 1,
+      "(sh)": 1,
+      "<defunct>": 1,
+      "ld": 1
+    },
+    "scope": "I identify one same-ps-comm child below the C-provider process, consistent with the original shadow fork. I infer its phase from that parent/name relationship and the completed shadow trace, not an independent executable-image or child-start timestamp receipt. Command sightings, snapshot spans and aggregate observer wall time are not exact CPU or execution durations. I do not subtract concurrent observer wall time from factory wall time."
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "agent-entrypoints": true,
+  "validate": true,
+  "distribution": true,
+  "vm": true,
+  "bootstrap": true,
+  "native": true,
+  "qualification": true,
+  "isa": true,
+  "libraries": true,
+  "frontend": true,
+  "documentation-review": true,
+  "test_receipt": {
+    "expected_exit": 2,
+    "actual_exit": 2,
+    "code": "project.test_receipt_policy_unconfigured",
+    "lifecycle_admitted": false,
+    "stream": "stderr",
+    "initial_readback_refusal": "I first parsed empty stdout instead of the retained JSON error on stderr. I correct the readback and retain both actual streams; the policy refusal is unchanged."
+  }
+}

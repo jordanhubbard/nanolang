@@ -1,0 +1,586 @@
+{
+  "run": 42553861103,
+  "artifact": 13650943185,
+  "source_pin": "955a26eea990553fc6f5909110064007616ec703",
+  "archive_bytes": 57932916,
+  "archive_sha256": "790b579f14cbf616ac7ac04819922a79639e641ea570fceb7e79fbc2266dc789",
+  "streamed_crc_checked_entries": 9721,
+  "routes": {
+    "seed-native": {
+      "selected": 237,
+      "passed": 237,
+      "failed": 0,
+      "skipped": 0,
+      "failures": [],
+      "xml_sha256": "edfd22339991a6fc8d3f47028a5e55bdfbcb89a0e794f5c0723957f1dc624e98"
+    },
+    "seed-vm": {
+      "selected": 237,
+      "passed": 237,
+      "failed": 0,
+      "skipped": 0,
+      "failures": [],
+      "xml_sha256": "2838433259cb014c50078232e169c36e79a76e790c52152a9a8f9023cc6837a6"
+    },
+    "stage1": {
+      "selected": 237,
+      "passed": 216,
+      "failed": 21,
+      "skipped": 0,
+      "failures": [
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "seconds": 0.84,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap "
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "seconds": 0.46,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type StringBuilder "
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "seconds": 0.25,
+          "diagnostic": "compilation failed: I am testing shadow add I am testing shadow multiply I am testing shadow helper I am testing shadow distance_squared I am testing shadow main "
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "seconds": 7.97,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "seconds": 5.8,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "seconds": 0.09,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol process_run "
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "seconds": 2.02,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "seconds": 0.85,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol mpl_init "
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "seconds": 1.89,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "seconds": 1.46,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper "
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "seconds": 120.16,
+          "diagnostic": "compilation failed: "
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "seconds": 0.16,
+          "diagnostic": "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)   [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)   [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16) "
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "seconds": 0.59,
+          "diagnostic": "compilation failed: I am testing shadow __nano_module_0_is_null I am testing shadow __nano_module_0_quick_match I am testing shadow __nano_module_0_quick_find I am testing shadow __nano_module_0_quick_replace I am testing shadow __nano_module_0_quick_split "
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "seconds": 1.07,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder "
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "seconds": 1.05,
+          "diagnostic": "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5) "
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "seconds": 2.04,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow std_fs_walkdir_glob_normalize at merged line 853: I require a bound declaration for this artifact call "
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "seconds": 0.21,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match "
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "seconds": 0.39,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type unknown "
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "seconds": 2.09,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run "
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "seconds": 2.95,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn "
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "seconds": 3.0,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run "
+        }
+      ],
+      "xml_sha256": "c459a466da23f37275373591d07916abcb2dcff5d1bc2e5adf1c32f46058adad"
+    },
+    "stage2": {
+      "selected": 237,
+      "passed": 216,
+      "failed": 21,
+      "skipped": 0,
+      "failures": [
+        {
+          "name": "test_hashmap_set_advanced",
+          "classname": "nanolang.app.test_hashmap_set_advanced",
+          "seconds": 0.84,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 152: unsupported local type HashMap "
+        },
+        {
+          "name": "test_import_aliasing",
+          "classname": "nanolang.app.test_import_aliasing",
+          "seconds": 0.47,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type StringBuilder "
+        },
+        {
+          "name": "test_module_introspection",
+          "classname": "nanolang.app.test_module_introspection",
+          "seconds": 0.25,
+          "diagnostic": "compilation failed: I am testing shadow add I am testing shadow multiply I am testing shadow helper I am testing shadow distance_squared I am testing shadow main "
+        },
+        {
+          "name": "test_opl_cases_runner",
+          "classname": "nanolang.app.test_opl_cases_runner",
+          "seconds": 8.06,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+        },
+        {
+          "name": "test_opl_compile_golden",
+          "classname": "nanolang.app.test_opl_compile_golden",
+          "seconds": 5.92,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type OplParseResult "
+        },
+        {
+          "name": "test_process",
+          "classname": "nanolang.app.test_process",
+          "seconds": 0.09,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol process_run "
+        },
+        {
+          "name": "test_pybridge_full",
+          "classname": "nanolang.app.test_pybridge_full",
+          "seconds": 2.08,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+        },
+        {
+          "name": "test_pybridge_matplotlib_smoke",
+          "classname": "nanolang.app.test_pybridge_matplotlib_smoke",
+          "seconds": 0.87,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol mpl_init "
+        },
+        {
+          "name": "test_pybridge_smoke",
+          "classname": "nanolang.app.test_pybridge_smoke",
+          "seconds": 1.87,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init "
+        },
+        {
+          "name": "test_repl_history",
+          "classname": "nanolang.app.test_repl_history",
+          "seconds": 1.47,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper "
+        },
+        {
+          "name": "test_resource_effect_checker",
+          "classname": "nanolang.app.test_resource_effect_checker",
+          "seconds": 120.16,
+          "diagnostic": "compilation failed: "
+        },
+        {
+          "name": "test_row_poly",
+          "classname": "nanolang.app.test_row_poly",
+          "seconds": 0.16,
+          "diagnostic": "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable updated: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:36:5)   [E0001] Variable replaced: I expected a value of type `Person`, but found `Reordered`. (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:41:5)   [E0010] Argument 1 to 'get_name': expected {name:string|r}, got Person (/home/runner/work/nanolang/nanolang/tests/test_row_poly.nano:83:16) "
+        },
+        {
+          "name": "test_split2",
+          "classname": "nanolang.app.test_split2",
+          "seconds": 0.6,
+          "diagnostic": "compilation failed: I am testing shadow __nano_module_0_is_null I am testing shadow __nano_module_0_quick_match I am testing shadow __nano_module_0_quick_find I am testing shadow __nano_module_0_quick_replace I am testing shadow __nano_module_0_quick_split "
+        },
+        {
+          "name": "test_std_collections",
+          "classname": "nanolang.app.test_std_collections",
+          "seconds": 1.07,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 36: unsupported local type StringBuilder "
+        },
+        {
+          "name": "test_std_lib_collections",
+          "classname": "nanolang.app.test_std_lib_collections",
+          "seconds": 1.05,
+          "diagnostic": "compilation failed: NSType checking failed Diagnostics:   [E0001] Variable hm1: I expected a value of type `HashMap`, but found `void`. (/home/runner/work/nanolang/nanolang/tests/test_std_lib_collections.nano:15:5) "
+        },
+        {
+          "name": "test_std_modules_env_process_fs_binary",
+          "classname": "nanolang.app.test_std_modules_env_process_fs_binary",
+          "seconds": 2.09,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow std_fs_walkdir_glob_normalize at merged line 853: I require a bound declaration for this artifact call "
+        },
+        {
+          "name": "test_std_peg",
+          "classname": "nanolang.app.test_std_peg",
+          "seconds": 0.2,
+          "diagnostic": "compilation failed: I cannot lower the selected shadows: I cannot lower shadow peg_literal_sequence at merged line 80: unsupported extern result or symbol nl_peg_match "
+        },
+        {
+          "name": "test_enums_comprehensive",
+          "classname": "nanolang.unit.test_enums_comprehensive",
+          "seconds": 0.37,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported local type unknown "
+        },
+        {
+          "name": "test_mac_exec_once_vm",
+          "classname": "nanolang.unit.test_mac_exec_once_vm",
+          "seconds": 2.14,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run "
+        },
+        {
+          "name": "test_launcher_capture",
+          "classname": "nanolang.unit.test_launcher_capture",
+          "seconds": 3.03,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_spawn "
+        },
+        {
+          "name": "test_mac_exec_once",
+          "classname": "nanolang.unit.test_mac_exec_once",
+          "seconds": 3.06,
+          "diagnostic": "compilation failed: I cannot lower this checked program: unsupported extern result or symbol nl_os_process_run "
+        }
+      ],
+      "xml_sha256": "f62aee3f2295ed0ea649004a3afd7cce2c7663e81b77a7d6b235254ffc2be8f3"
+    }
+  },
+  "comparison_to_869": [
+    {
+      "route": "seed-native",
+      "same_ordered_original_cases": true,
+      "old_failed": 0,
+      "new_failed": 0,
+      "newly_passed": [],
+      "new_regressions": []
+    },
+    {
+      "route": "seed-vm",
+      "same_ordered_original_cases": true,
+      "old_failed": 0,
+      "new_failed": 0,
+      "newly_passed": [],
+      "new_regressions": []
+    },
+    {
+      "route": "stage1",
+      "same_ordered_original_cases": true,
+      "old_failed": 22,
+      "new_failed": 21,
+      "newly_passed": [
+        "test_match_orpatterns"
+      ],
+      "new_regressions": []
+    },
+    {
+      "route": "stage2",
+      "same_ordered_original_cases": true,
+      "old_failed": 22,
+      "new_failed": 21,
+      "newly_passed": [
+        "test_match_orpatterns"
+      ],
+      "new_regressions": []
+    }
+  ],
+  "nested_archives": [
+    {
+      "path": ".test_output/junit-route-audit/storage/nano-qualification-6cefedft.tar.gz",
+      "sha256": "5cf13b8648991a2b8f30385b9548131318f0a2bfe8ccf271ea809a6dbcb8c3cb",
+      "verified_entries": 3
+    },
+    {
+      "path": ".test_output/junit-route-audit/storage/nano-qualification-xvtam1c3.tar.gz",
+      "sha256": "79b9944cbe7c0bb5dddbd6ed087a5d10ab34e08a6747f701d53057dc0d76ef27",
+      "verified_entries": 3
+    }
+  ],
+  "cli_compilation_reports": [
+    {
+      "root": ".test_output/cli-run-contract-native/nano_virt-p8e973j_/",
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 4.636497727999995,
+        "compiler_started_monotonic": 5315.534222743,
+        "compiler_returned_monotonic": 5320.170412297
+      },
+      "stable_inputs": {
+        "bin/nano_virt": "07f500ef4e4fc31037710d94bd3810e5c87233ae355ab479d39da25da2ae818e",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "cli_case_outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ],
+      "actual_product": {
+        "artifact_path": ".test_output/cli-run-contract-native/nano_virt-p8e973j_/checker.nvm",
+        "local_copy": "/Users/jkh/Src/nanolang/.test_output/fresh-955-cli-products/nano_virt-p8e973j_/checker.nvm",
+        "kind": "NanoISA bytecode",
+        "bytes": 769524,
+        "sha256": "fef2185281e46233eda3ba75c223090c31552fc2533bb586b0aa85123f136b3d",
+        "magic": "4e564d02"
+      }
+    },
+    {
+      "root": ".test_output/cli-run-contract-native/nanoc_c-e5xx1mf9/",
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 34.62957038900004,
+        "compiler_started_monotonic": 5280.788363885,
+        "compiler_returned_monotonic": 5315.41749731
+      },
+      "stable_inputs": {
+        "bin/nanoc_c": "dadb13a58f614bfe96c66f4a200f2722e5f62b8771c1f87b7d9bc146c00d0910",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "cli_case_outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ],
+      "actual_product": {
+        "artifact_path": ".test_output/cli-run-contract-native/nanoc_c-e5xx1mf9/checker",
+        "local_copy": "/Users/jkh/Src/nanolang/.test_output/fresh-955-cli-products/nanoc_c-e5xx1mf9/checker",
+        "kind": "native ELF executable",
+        "bytes": 14316712,
+        "sha256": "b9a53338b5ed8d719f8193fe01781d65205480f9b4a2dda2c1cb5c78a02fcf32",
+        "magic": "7f454c46"
+      }
+    },
+    {
+      "root": ".test_output/cli-run-contract-native/nanoc_stage1-lz6puy99/",
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 585.024619883,
+        "compiler_started_monotonic": 5321.065987923,
+        "compiler_returned_monotonic": 5906.08685374
+      },
+      "stable_inputs": {
+        "bin/nanoc_stage1": "48e93fcbc9128cf1c1b7b1caf06a1040d48ee9c5f06a7a9c8acde9aca4a1011a",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "cli_case_outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ],
+      "actual_product": {
+        "artifact_path": ".test_output/cli-run-contract-native/nanoc_stage1-lz6puy99/checker",
+        "local_copy": "/Users/jkh/Src/nanolang/.test_output/fresh-955-cli-products/nanoc_stage1-lz6puy99/checker",
+        "kind": "native ELF executable",
+        "bytes": 14634192,
+        "sha256": "018f127f1fbcef98b975b89f302066b228ec728a17895ee02bb96ca8da96716b",
+        "magic": "7f454c46"
+      }
+    },
+    {
+      "root": ".test_output/cli-run-contract-native/nanoc_stage2-t_wz58r2/",
+      "compile_status": {
+        "returncode": 0,
+        "timed_out": false,
+        "timeout": 1800,
+        "elapsed_seconds": 583.1225932719999,
+        "compiler_started_monotonic": 5906.156967366,
+        "compiler_returned_monotonic": 6489.275997072
+      },
+      "stable_inputs": {
+        "bin/nanoc_stage2": "365a287a91859eb25ee2f70812763a86f5480632af4331a195bca5b0ff89e1cd",
+        "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+        "tests/test_resource_effect_checker.cases.json": "b833e236ff7ed59e1815db985abc69d797c70fb10202397b414cffe5cf3a3ce0",
+        "tests/fixtures/resource-checker/valid.nano": "c083f5045ad780ee14b45da3b58c949aaa500431582ddfb076186e23331bf974",
+        "tests/fixtures/resource-checker/unconsumed.nano": "859b3e02ecc92db0fad3d1d43b5a43e4c98e64d421324a370f1f0fb83c8874e5"
+      },
+      "cli_case_outcomes": [
+        {
+          "case": "invalid_arity",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "accepted_source",
+          "returncode": 0,
+          "expected": 0,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "ownership_refusal",
+          "returncode": 1,
+          "expected": 1,
+          "timed_out": false,
+          "accepted": true
+        },
+        {
+          "case": "extra_argument",
+          "returncode": 2,
+          "expected": 2,
+          "timed_out": false,
+          "accepted": true
+        }
+      ],
+      "actual_product": {
+        "artifact_path": ".test_output/cli-run-contract-native/nanoc_stage2-t_wz58r2/checker",
+        "local_copy": "/Users/jkh/Src/nanolang/.test_output/fresh-955-cli-products/nanoc_stage2-t_wz58r2/checker",
+        "kind": "native ELF executable",
+        "bytes": 14634192,
+        "sha256": "018f127f1fbcef98b975b89f302066b228ec728a17895ee02bb96ca8da96716b",
+        "magic": "7f454c46"
+      }
+    }
+  ],
+  "providers_reported_stable": {
+    "bin/nanoc_c": "dadb13a58f614bfe96c66f4a200f2722e5f62b8771c1f87b7d9bc146c00d0910",
+    "bin/nano_virt": "07f500ef4e4fc31037710d94bd3810e5c87233ae355ab479d39da25da2ae818e",
+    "bin/nano_vm": "faf8d40e80ad697553d725fcc5f570866c7529cdd0776f56c39dfb1ec7d25cd3",
+    "bin/nanoisa": "4c23b2fb3cfd190e58e7a2a49f21cee830cd91d2049170b6cfef9dd9ba2a4d54",
+    "bin/nvm2c": "b9a614f3051e4655cf72f7788c001dbba8dd100f6184132d6b66bf89bb3f52fa",
+    "bin/nanoc_stage1": "48e93fcbc9128cf1c1b7b1caf06a1040d48ee9c5f06a7a9c8acde9aca4a1011a",
+    "bin/nanoc_stage2": "365a287a91859eb25ee2f70812763a86f5480632af4331a195bca5b0ff89e1cd",
+    "bin/nanoc_stage1.nvm": "69d0e68cbc33ded3f16c0142251cbe61602d91e1c170bca9dbbaeda1c9cb5a0c",
+    "bin/nanoc_stage2.nvm": "69d0e68cbc33ded3f16c0142251cbe61602d91e1c170bca9dbbaeda1c9cb5a0c",
+    "bin/nano_aot_runtime.o": "8a8cc95eb9e310fcca16e8eceb8995d45b171c5837d7eda67570d4dff45925c4"
+  },
+  "native_lifecycle_admitted": false,
+  "scope": "I independently verify complete route XML, unchanged ordered selection, every archive CRC/hash, nested retention manifests, and CLI selected input hashes against immutable Git. Tool/provider stability and bootstrap equality remain retained reports, not complete independently audited NativeSDK closure. I preserve the original 120-second corpus and 1800-second diagnostic CLI budgets separately; all original routes still do not pass."
+}

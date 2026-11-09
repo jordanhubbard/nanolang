@@ -1,0 +1,17 @@
+{
+  "rejected_commit": "c8aaf5dfdb3480cd254e32835b3e5519cf73c9a1",
+  "rejected_tree_entries": 3,
+  "expected_baseline": "6bb9c6bd3e01628070df809e41200f9bec1e0bb9",
+  "baseline_entries": 92821,
+  "published": false,
+  "reason": "I initialized the sparse working view before populating the complete index. I refuse this three-entry tree as original-source custody.",
+  "corrected_commit": "e718c78e67b99ff5517141f28f91c96e762ab7ca",
+  "corrected_tree": "d73ba4b2a9487c8fa9d2e9cbbdb37c28a81db328",
+  "corrected_tree_entries": 92821,
+  "changed_paths": [
+    ".github/workflows/cseed-source-comparison.yml",
+    "scripts/compare_cseed_source_creation.py",
+    "tests/test_cseed_source_comparison.py"
+  ],
+  "corrected_worktree_clean": true
+}

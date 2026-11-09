@@ -1,0 +1,4 @@
+I require a checked integer at a byte record field.
+I require a checked integer at a byte record field.
+Error: Struct 'Identity' has no field 'absent'
+Error: Struct 'Identity' has no field ''

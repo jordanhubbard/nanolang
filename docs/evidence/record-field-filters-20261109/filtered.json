@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=clang",
+    "test-eval-record-fields-sanitizers"
+  ],
+  "returncode": 0,
+  "seconds": 2.0210696670110337,
+  "before": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "516332ebf7cbe649b17c170dc074e1cc3f4887fbc625b1693872f6f737d58b75",
+    "tests/test_eval_record_fields.c": "02c570551453bf492b90dd66a0aa391152e2da91939bb83044946389331b9a62",
+    "src/env.c": "52a754e9afd60b8a48d32fbf12bd076ef29b7eff4233e17ae1e541a1d55e3a3f",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c"
+  },
+  "after": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "516332ebf7cbe649b17c170dc074e1cc3f4887fbc625b1693872f6f737d58b75",
+    "tests/test_eval_record_fields.c": "02c570551453bf492b90dd66a0aa391152e2da91939bb83044946389331b9a62",
+    "src/env.c": "52a754e9afd60b8a48d32fbf12bd076ef29b7eff4233e17ae1e541a1d55e3a3f",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c"
+  },
+  "scope": "I execute the same actual private helpers/current environment/GC sanitizer controls after adding exact-name first-byte rejection. I do not establish whole-source timing benefit or source/platform/native-lifecycle acceptance."
+}

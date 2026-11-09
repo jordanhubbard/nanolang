@@ -1,0 +1,8 @@
+{
+  "path": "obj/test_eval_record_fields",
+  "retained_path": ".test_output/record-field-filter-units/filtered/test_eval_record_fields",
+  "size": 8838648,
+  "sha256": "c2df6c9d98acd99f32e3a73a01c0a438d10f37621c558f58c4b9477f01573ffc",
+  "magic": "cffaedfe",
+  "scope": "I observe actual native unit bytes after a successful sanitizer run; no whole-provider or native lifecycle admission follows."
+}

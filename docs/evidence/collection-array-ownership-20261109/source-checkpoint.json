@@ -1,0 +1,27 @@
+{
+  "previous": "a2ffaa7033aad3f4b0979f914e12a19833bee734",
+  "checkpoint": "a7e6f2ced0fd8f20d4e343785ea1c97455a184be",
+  "tree": "c064be375dd2a9c2ed0cf717c528a1abf10716bf",
+  "entries": 92827,
+  "added_tests": 4,
+  "changed_paths": [
+    ".github/workflows/string-builtin-operands.yml",
+    "Makefile.gnu",
+    "modules/std/collections/collections.c",
+    "modules/std/collections/collections.h",
+    "src/nanoisa/nvm_format.h",
+    "src/nanovm/vm_ffi.c",
+    "src/nanovm/vm_ffi_arrays.c",
+    "src/nanovm/vm_ffi_arrays.h",
+    "src/runtime/ffi_loader.c",
+    "src/runtime/ffi_loader.h",
+    "tests/nanovm/test_ffi_arrays.c",
+    "tests/test_ffi_array_copyback.py",
+    "tests/test_collection_snapshot_release.c",
+    "tests/test_collection_snapshot_release.py",
+    "tests/test_ffi_result_release.c",
+    "tests/test_ffi_result_release.py"
+  ],
+  "implementation": "fb0b2a64a80bd7de6f9933a92011db56407a2926",
+  "scope": "I populate the complete index before applying sixteen reviewed deltas. This source-custody snapshot does not admit NativeSDK, compiler field shapes or release."
+}

@@ -1,0 +1,106 @@
+[
+  {
+    "host": "apple",
+    "source_artifact": {
+      "run_id": "42551848365",
+      "artifact_id": "13646920477",
+      "zip_bytes": 18650431,
+      "zip_sha256": "4ab8fab49ee333e9442cdf69529bf0e33feafaa8581ca171a2ecce0d38b06b2b",
+      "full_zip_crc_checked": true
+    },
+    "raw_text_inventory_matches": true,
+    "within_variant_emitted_c_bytes_identical": true,
+    "cross_variant_bytes_identical": false,
+    "exact_checkout_root_spelling_accounts_for_all_text_differences": true,
+    "original_root": "/Users/runner/.worktrees/nanolang/cseed-profile-jlhp3q3q/original",
+    "modified_root": "/Users/runner/.worktrees/nanolang/cseed-profile-jlhp3q3q/modified",
+    "observations": [
+      {
+        "index": 2,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "4cec9663ad5e8c5032d74698cfbe1949f855669e706b2dfa542779ad92f8738b",
+        "bytes": 722790
+      },
+      {
+        "index": 3,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "4cec9663ad5e8c5032d74698cfbe1949f855669e706b2dfa542779ad92f8738b",
+        "bytes": 722790
+      },
+      {
+        "index": 4,
+        "variant": "original",
+        "actual_emitted_c_sha256": "a46d936dda59ad4f1671cfaef5968fd15b52d91238f943c6df6edcbf6ac4eeba",
+        "bytes": 722790
+      },
+      {
+        "index": 5,
+        "variant": "original",
+        "actual_emitted_c_sha256": "a46d936dda59ad4f1671cfaef5968fd15b52d91238f943c6df6edcbf6ac4eeba",
+        "bytes": 722790
+      },
+      {
+        "index": 6,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "4cec9663ad5e8c5032d74698cfbe1949f855669e706b2dfa542779ad92f8738b",
+        "bytes": 722790
+      }
+    ],
+    "scope": "I preserve raw C and every actual difference. Replacing the two known checkout-root spellings is a diagnostic comparison, not independent semantic equivalence, compilation-phase timing, full runtime/toolchain closure or release admission."
+  },
+  {
+    "host": "gcc",
+    "source_artifact": {
+      "run_id": "42551845618",
+      "artifact_id": "13645749873",
+      "zip_bytes": 43553412,
+      "zip_sha256": "50acc8a6783925055f83eed0d901eef2b120bc9699f35493eeccaf97532a58b1",
+      "full_zip_crc_checked": true
+    },
+    "raw_text_inventory_matches": true,
+    "within_variant_emitted_c_bytes_identical": true,
+    "cross_variant_bytes_identical": false,
+    "exact_checkout_root_spelling_accounts_for_all_text_differences": true,
+    "original_root": "/home/runner/.worktrees/nanolang/cseed-profile-dmx7_t6p/original",
+    "modified_root": "/home/runner/.worktrees/nanolang/cseed-profile-dmx7_t6p/modified",
+    "observations": [
+      {
+        "index": 1,
+        "variant": "original",
+        "actual_emitted_c_sha256": "44821797a81e81dfc6cc753bcabd190a7bdd52f75c4083d5fd0f5dfc55e1d8f2",
+        "bytes": 720991
+      },
+      {
+        "index": 2,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "e984c4e2b9cd48f7aeaf73d3c029c7e61aaa1fad1ebaaecb8cf1cba95e5d9550",
+        "bytes": 720991
+      },
+      {
+        "index": 3,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "e984c4e2b9cd48f7aeaf73d3c029c7e61aaa1fad1ebaaecb8cf1cba95e5d9550",
+        "bytes": 720991
+      },
+      {
+        "index": 4,
+        "variant": "original",
+        "actual_emitted_c_sha256": "44821797a81e81dfc6cc753bcabd190a7bdd52f75c4083d5fd0f5dfc55e1d8f2",
+        "bytes": 720991
+      },
+      {
+        "index": 5,
+        "variant": "original",
+        "actual_emitted_c_sha256": "44821797a81e81dfc6cc753bcabd190a7bdd52f75c4083d5fd0f5dfc55e1d8f2",
+        "bytes": 720991
+      },
+      {
+        "index": 6,
+        "variant": "modified",
+        "actual_emitted_c_sha256": "e984c4e2b9cd48f7aeaf73d3c029c7e61aaa1fad1ebaaecb8cf1cba95e5d9550",
+        "bytes": 720991
+      }
+    ],
+    "scope": "I preserve raw C and every actual difference. Replacing the two known checkout-root spellings is a diagnostic comparison, not independent semantic equivalence, compilation-phase timing, full runtime/toolchain closure or release admission."
+  }
+]

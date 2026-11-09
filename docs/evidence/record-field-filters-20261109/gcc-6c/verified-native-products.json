@@ -1,0 +1,42 @@
+[
+  {
+    "path": "providers/original/nanoc_c",
+    "sha256": "17e7547fecf92743c50c4b97d65bb5d99118a077bdbda5410b5373c50013b792",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "providers/modified/nanoc_c",
+    "sha256": "6c8d8ef3eacbb6d2c4a05bf013b5da32c45c979e5324e6bcc47ad7922a9afdb9",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/01-original/compiler",
+    "sha256": "5556185fdc7a6c29a4f045bdea9e2370c33ace7508947ca5723e0fc23bb62ff6",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/02-modified/compiler",
+    "sha256": "1ff720c5146c14077065be77483ef958b2d977ce7963410f3e229037fc38a52a",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/03-modified/compiler",
+    "sha256": "2438784fbccb4af0dc4f368588ccfa2476f9dd1d2b71aadca9884671c67f3eca",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/04-original/compiler",
+    "sha256": "7feac9287d5f5806f2b751e3fef8b948f9b315e37558313126147ad0e84e6b41",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/05-original/compiler",
+    "sha256": "54d682747e5086c19ddae43f2b06da02698de5adf128133f7ec1a24ab5434726",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/06-modified/compiler",
+    "sha256": "7a3d2babfdd8f3d91ee5c540e3d57eee1176aa2a75b62836a86c9658dfa189bb",
+    "magic": "7f454c46"
+  }
+]

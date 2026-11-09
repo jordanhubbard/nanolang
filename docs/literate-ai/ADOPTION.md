@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:f00c1395899b995a096f1217e46b56cb2c9e9df60de0a827f41bd10f973b8eae -->
+<!-- literate-ai:authority-reviewed sha256:91d4948b2e5b6a4dcf596dbb9010043256c2f881d8ec708a33865b04ec9ce1ea -->
 
 ## My first metadata checkpoint
 
@@ -422,3 +422,120 @@ empty native implementation selections and absent native lifecycle receipt
 unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
 security, budget, integration or release acceptance. I freeze this catalog
 before supported authority review and retain its logs outside the catalog.
+
+
+## My measured record-name filter candidate
+
+I factor my unchanged record lookup and byte-context bodies into a private
+include used by the actual evaluator and native sanitizer unit, then reject
+unequal initial bytes before the same full strcmp equality test. I preserve
+first-match/declaration order, duplicate/empty/non-ASCII C metadata, byte
+normalization/refusals, owned STRING reads and other value identities/flags.
+I change no public record, AST or GC layout and introduce no ownership cache
+or foreign admission.
+
+My original-source baseline is `6bb9c6bd3e01628070df809e41200f9bec1e0bb9`, a real
+code-only descendant of `51649d12a` containing five reviewed paths: evaluator,
+private include, native unit, Make target and existing component workflow.
+I retain all 92,819 inherited entries and add two source/control files, with
+real ancestry and the same five content-only metadata exceptions. My temporary
+sparse working view does not omit inputs from the complete Git checkpoint.
+
+My same actual helper/environment/GC sanitizer controls pass before and after
+filtering, with identical refusal text and owned STRING lifetime behavior. The
+wide control reduces 128,000 comparisons to 2,000 for 2,000 lookups; it does not
+establish a whole-compiler speedup. The complete evaluator syntax check passes.
+I retain exact commands, initial C test-literal warning, source/product hashes
+and scope under `docs/evidence/record-field-filters-20261109/`.
+
+I declare fixed actual whole-source paired comparisons against pre-change
+48016fec4 and retain the original complete component/platform selections and
+deadlines before adoption. Actual hosted results remain required. Source
+carrier lifetime, full fresh/corpus/budget, NativeSDK/lifecycle, security and
+release remain open. Original source authority, eight integration Components,
+empty native selections and absent lifecycle receipt are unchanged. I freeze
+this catalog before supported review and retain final logs outside it.
+
+
+## My optional factory process observation
+
+I preserve the completed GCC/Apple record-field comparisons, including the
+first Apple baseline deadline and both whole-factory wall regressions. I add
+read-only, false-by-default process observation to the existing fixed six-
+attempt diagnostic. I retain only the actual factory root and transitive
+descendants, with PID/PPID/start identity, status, ps comm and monotonic snapshot
+bounds. Process presence is not exact CPU time or resolved image provenance.
+I change no runtime/provider source, actual factory tool selection/environment,
+cache context, selected shadows or original deadlines. Observer overhead and
+failures remain visible, and the original completed comparisons are not retried.
+
+My original-source baseline is `e718c78e67b99ff5517141f28f91c96e762ab7ca`, a real
+direct child of `6bb9c6bd3` with all 92,821 entries and exactly three reviewed
+content changes: the comparison script, its existing controls and diagnostic
+workflow. My first local sparse-checkout attempt has an unpopulated complete
+index and commits only three entries. I reject it before publication, retain
+its identity and correct the index before constructing and merging the complete
+checkpoint. I verify exact entry count, direct parent, changed paths and a clean
+owned checkout; no partial source tree becomes custody authority.
+
+All thirteen bounded local controls pass. My retained actual native witness
+checks native output/refusal, real parent/child identities, an excluded live
+sibling, source/image before/after hashes and actual snapshots. I retain
+commands, the initial checkpoint refusal and scope outside this catalog under
+`docs/evidence/factory-process-phases-20261109/`. Full provider builds remain
+held locally for disk pressure; hosted process diagnosis, complete source/
+fresh/platform and original release gates remain required. I preserve original
+source authority, eight integration Components, empty native implementation
+selections and absent lifecycle receipt. I freeze this catalog before supported
+review; these controls do not complete NativeSDK/lifecycle or release admission.
+
+## My checked collection lifetime checkpoint, 2026-11-09 UTC
+
+I retain source-only checkpoint `237e76d16f9a555e5c47164f676623ac3834f15e`, a direct child of
+`e718c78e67b99ff5517141f28f91c96e762ab7ca`, with the complete 92,823-entry tree: every prior entry,
+eight reviewed path changes and two added native test files. I verify the full isolated index and exact
+delta before merging its ancestry. I advance preservation ownership to this reviewed source checkpoint;
+I retain the previous process-observer baseline as provenance and keep the five metadata exceptions unchanged.
+
+My local collection boundary evidence in `docs/evidence/collection-handles-20261109/README.md` retains an
+actual ASan stale-map failure and corrected ordinary-module probe. Assertion, ASan/UBSan and ThreadSanitizer
+controls execute checked map/set liveness, alias retirement, wrong-kind refusal, allocation/identity exhaustion,
+content/snapshot behavior and independent-thread publication. Existing array-export assertions pass.
+These identities belong to one loaded provider; same-handle operations and borrowed strings remain
+caller-serialized. I leave compiler opaque-field admission unchanged. Canonical module identity, foreign
+signatures, unchanged advanced fixtures, fresh stages and complete Linux/Apple gates remain open under #1127.
+I do not infer NativeSDK, retained lifecycle or release admission from local controls or source custody.
+
+I advance that custody checkpoint to `a2ffaa7033aad3f4b0979f914e12a19833bee734` after retaining
+both first Linux fixture build refusals. This direct child changes only the new fixture's first line:
+I define `_GNU_SOURCE` before its system headers, matching the included implementation's feature request.
+The complete tree remains 92,823 entries, and production module bytes are unchanged. Corrected local
+assertion/ASan/UBSan/ThreadSanitizer and existing export controls pass; Linux execution still requires
+its corrected-source run. The original Apple plan remains on its original handle and source pin.
+
+## My collection snapshot ownership candidate, 2026-11-09 UTC
+
+I retain complete source checkpoint `a7e6f2ced0fd8f20d4e343785ea1c97455a184be`, a direct child of
+`a2ffaa7033aad3f4b0979f914e12a19833bee734`. Its full index preserves 92,827 entries with sixteen
+reviewed path deltas and four new tests. I retain the prior fixture checkpoint and all metadata exceptions.
+
+I add explicit versioned array-release companions to collection snapshots, resolve cleanup only from the
+producer's image, and copy VM results before cleanup. I reject a declared owned result that aliases an
+argument and attempt cleanup after conversion failure. The runtime descriptor records optional cleanup;
+I do not admit new foreign signatures or opaque record fields. Missing companions retain borrowed-result
+behavior. My marker preserves existing C manual element cleanup; it does not add automatic string destruction.
+
+My local native producer, actual shared-image loader and real VM heap controls pass, including copy/allocation
+refusals and cleanup errors. My strict fast gate passes 223 compiles each with clang and GCC. I retain the
+loader harness's initial missing-OpenSSL-header refusal and use the installed dependency flags for correction.
+Evidence is in `docs/evidence/collection-array-ownership-20261109/`. Actual VM CLI controls require explicitly
+selected fresh tools and remain for hosted execution; local heap/loader controls do not substitute for them.
+Canonical module identity, source compiler routes, final platform/NativeSDK and release acceptance remain open.
+
+I advance snapshot custody to `93ccb6e5536d96361d3c73cbe0f3ce8c8886f99e` after retaining the first
+Linux loader-dependency feature-macro refusals. This complete 92,827-entry direct child changes only
+the standalone C/Python loader fixture: I use the production GNU feature flag and guard its definition.
+Production/runtime code is unchanged. Corrected local loader modes pass; the original Apple plan has
+passed actual VM CLI ownership controls. I retain that handle and require corrected Linux execution.
+
+My completed snapshot component plans retain Apple42568331586 at42dddfceb and Linux42569250444 atb94da11a. Independent hosted audits in `docs/evidence/collection-array-ownership-20261109/` verify33 native executables,54 shared libraries and nine NVM modules, selected immutable source inputs and every original success/refusal operation. Fourteen selected production/Make/workflow/heap-fixture paths are identical across those qualification and review pins; only two loader fixture files differ. VM/assembler hashes are retained reports without uploaded tool binaries. This completes my producer/VM snapshot prerequisite and corrected harness controls, while native AOT adapters, source admission, final-head platform qualification and release/NativeSDK acceptance remain open.

@@ -1,0 +1,3 @@
+{
+  "scope": "Each native loader driver loads three shared libraries. It calls collection-provider and origin-library exports, and rejects cleanup supplied by the dependency image without invoking that rejected cleanup. The dependency remains a loaded negative-control image, not a successfully executed cleanup provider. Three extra shared libraries retained from the initial OpenSSL setup refusal were built before driver execution and are not passing driver runs."
+}

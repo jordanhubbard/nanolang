@@ -1,0 +1,19 @@
+{
+  "baseline": "e718c78e67b99ff5517141f28f91c96e762ab7ca",
+  "source_implementation": "d2e488b52b7ef05db4404bc81dc2a8e0ba13d78a",
+  "checkpoint": "237e76d16f9a555e5c47164f676623ac3834f15e",
+  "checkpoint_tree": "f36cdbd9867e5d4e1c719b9757bfea06dde1b107",
+  "baseline_entries": 92821,
+  "checkpoint_entries": 92823,
+  "changed_paths": [
+    ".github/workflows/string-builtin-operands.yml",
+    "Makefile.gnu",
+    "modules/std/collections/collections.c",
+    "modules/std/collections/collections.h",
+    "modules/std/collections/module.json",
+    "tests/test_collection_array_exports.py",
+    "tests/test_collection_handles.c",
+    "tests/test_collection_handles.py"
+  ],
+  "scope": "I populate a complete isolated index from the original baseline and verify all eight deltas and the full entry count before publishing this source-only checkpoint. I qualify no native lifecycle or release from custody."
+}

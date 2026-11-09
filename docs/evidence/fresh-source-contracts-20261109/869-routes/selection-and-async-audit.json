@@ -1,0 +1,79 @@
+{
+  "source_pin": "869f11634fea9a618416a3173e92d36e3a59aad2",
+  "old_source_pin": "83b7043f417647d79c0cf0eee20b67a6c23880a5",
+  "routes": [
+    {
+      "route": "seed-native",
+      "old_xml": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__routes__seed-native__results.xml.gz",
+      "old_xml_sha256": "e5b7a4aafeebf728db4a88c1e7fd3e800b673e31b5c148e88e3b2cd38e760184",
+      "new_artifact_xml": ".test_output/junit-route-audit/routes/seed-native/results.xml",
+      "new_saved_xml": "docs/evidence/fresh-source-contracts-20261109/869-routes/bc5f442f5674.xml.gz",
+      "new_xml_sha256": "f3abd35356d67ccd8078c78587698eb5c5139b2da69fd0bb5b1e101001693401",
+      "same_ordered_original_cases": true,
+      "count": 237,
+      "skipped": 0,
+      "old_failed": 0,
+      "new_failed": 0,
+      "newly_passed": [],
+      "new_regressions": [],
+      "async_passed": true
+    },
+    {
+      "route": "seed-vm",
+      "old_xml": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__routes__seed-vm__results.xml.gz",
+      "old_xml_sha256": "6247ffe008da511ecf1ba3fd19cbfa9941f0a5bc47443f2318c355c7106b1308",
+      "new_artifact_xml": ".test_output/junit-route-audit/routes/seed-vm/results.xml",
+      "new_saved_xml": "docs/evidence/fresh-source-contracts-20261109/869-routes/5759bf0f67a7.xml.gz",
+      "new_xml_sha256": "f847ee8166488063891d808e9fcc10f4a83ee58303765f5a6e1f9f41081e7b91",
+      "same_ordered_original_cases": true,
+      "count": 237,
+      "skipped": 0,
+      "old_failed": 0,
+      "new_failed": 0,
+      "newly_passed": [],
+      "new_regressions": [],
+      "async_passed": true
+    },
+    {
+      "route": "stage1",
+      "old_xml": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__routes__stage1__results.xml.gz",
+      "old_xml_sha256": "882072b8ec86fe1265c146fb6f2f22256850e10b3612628eb1510a815c5eda89",
+      "new_artifact_xml": ".test_output/junit-route-audit/routes/stage1/results.xml",
+      "new_saved_xml": "docs/evidence/fresh-source-contracts-20261109/869-routes/737e8bd47ae3.xml.gz",
+      "new_xml_sha256": "c22e154396c87ef48c045a89e99157037f142895477faa22ad4bc3818c847ba8",
+      "same_ordered_original_cases": true,
+      "count": 237,
+      "skipped": 0,
+      "old_failed": 23,
+      "new_failed": 22,
+      "newly_passed": [
+        "test_async"
+      ],
+      "new_regressions": [],
+      "async_passed": true
+    },
+    {
+      "route": "stage2",
+      "old_xml": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__routes__stage2__results.xml.gz",
+      "old_xml_sha256": "443ab74fb91a52c63ebe7ec7bc6e5a4f31eeb187c80061709e129d2b03ac168c",
+      "new_artifact_xml": ".test_output/junit-route-audit/routes/stage2/results.xml",
+      "new_saved_xml": "docs/evidence/fresh-source-contracts-20261109/869-routes/c809b58ee2f2.xml.gz",
+      "new_xml_sha256": "440f25bc6ac98ad6d54cb627d9dd6e1551b1904f2774be22921f07138e8c844c",
+      "same_ordered_original_cases": true,
+      "count": 237,
+      "skipped": 0,
+      "old_failed": 23,
+      "new_failed": 22,
+      "newly_passed": [
+        "test_async"
+      ],
+      "new_regressions": [],
+      "async_passed": true
+    }
+  ],
+  "scope": "I prove byte-retained XML case selection and the async case delta relative to the previous complete snapshot. I do not qualify newer OR/filter candidates or a passing full corpus/native lifecycle/release.",
+  "old_source_metadata": {
+    "path": "docs/evidence/fresh-source-contracts-20261108/83-route-xml/.test_output__junit-route-audit__summary.json.gz",
+    "uncompressed_sha256": "969ccba5667c263e0e33c130f4262176386d8d1ab0a86cd933873935f2b70984"
+  }
+}
