@@ -3,7 +3,7 @@ static bool eval_record_field_context(const StructDef *definition,
         const char *field, Value *value) {
     if (!definition) return true;
     for (int i = 0; i < definition->field_count; ++i) {
-        if (strcmp(definition->field_names[i], field)) continue;
+        if (definition->field_names[i][0] != field[0] || strcmp(definition->field_names[i], field)) continue;
         if (definition->field_types[i] != TYPE_U8) return true;
         if (value->type != VAL_INT) {
             fprintf(stderr, "I require a checked integer at a byte record field.\n");
@@ -17,7 +17,7 @@ static bool eval_record_field_context(const StructDef *definition,
 
 static Value eval_record_field_value(const StructValue *record, const char *field) {
     for (int i = 0; i < record->field_count; ++i) {
-        if (strcmp(record->field_names[i], field) == 0) {
+        if (record->field_names[i][0] == field[0] && strcmp(record->field_names[i], field) == 0) {
             /* I return owned STRING storage and preserve other value identities. */
             if (record->field_values[i].type == VAL_STRING)
                 return create_string(record->field_values[i].as.string_val);

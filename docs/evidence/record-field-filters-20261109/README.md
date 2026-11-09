@@ -25,3 +25,21 @@ controls do not qualify the complete evaluator, C provider or source compiler.
 Whole-source fixed paired measurements and all original component/platform,
 fresh/corpus, budget, NativeSDK/lifecycle, security and release gates remain
 required. Frame-carrier lifetime remains separate under #1116.
+
+
+I now reject a field only when its initial byte differs, before the same full
+strcmp equality check. I retain first-match order even for duplicate/empty and
+non-ASCII C metadata; no index cache or mutable ownership fact is introduced.
+The same actual native sanitizer controls pass after filtering. The wide control
+performs 2,000 comparisons for the same 2,000 lookups, while all expected refusal
+text is byte-identical. I retain both actual native unit images locally and hash
+the post-run bytes. This reduced comparison count is not a measured source-
+creation speedup. Syntax-only compilation of the full actual evaluator with the
+same compiler/header flags also passes; no local full-provider build is claimed.
+
+I merge the completed sampler PR #1125 into its parent OR branch at 48016fec4,
+preserve real ancestry and synchronize that merge into this candidate. The
+whole-source comparison baseline is that pre-filter commit 48016fec4. I require
+unchanged NanoLang/factory inputs and the original six-attempt order and ten-
+second shadow supervisor, then all original component/platform gates, before
+retaining this production candidate. The unchecked roadmap item remains open.
