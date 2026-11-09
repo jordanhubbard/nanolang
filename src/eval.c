@@ -245,7 +245,7 @@ static void eval_match_release_empty_literal(Value value, bool owned, Value resu
 }
 
 /* I retire only owned names; values and declaration type facts are separate. */
-static void eval_match_pop_metadata(Environment *env, int first) {
+static void eval_pop_binding_metadata(Environment *env, int first) {
     for (int i = first; i < env->symbol_count; ++i) {
         free(env->symbols[i].name);
         free(env->symbols[i].struct_type_name);
@@ -5036,6 +5036,10 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
     /* Clean up parameter strings and restore environment */
     for (int i = old_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
+        if (env->symbols[i].struct_type_name) {
+            free(env->symbols[i].struct_type_name);
+            env->symbols[i].struct_type_name = NULL;
+        }
         if (env->symbols[i].value.type == VAL_STRING) {
             /* Release GC-managed string if applicable */
             if (gc_is_managed(env->symbols[i].value.as.string_val)) {
@@ -5829,24 +5833,24 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_pop_binding_metadata(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_pop_binding_metadata(env, saved_symbol_count);
                         eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_pop_binding_metadata(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_pop_binding_metadata(env, saved_symbol_count);
                 eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }
@@ -6067,7 +6071,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             g_eval_return_target = saved_return_target;
 
             /* Restore scope. */
-            henv->symbol_count = saved_sym;
+            eval_pop_binding_metadata(henv, saved_sym);
 
             /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
@@ -6241,13 +6245,13 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     env->symbols[loop_var_index].value = create_int(i);
                     result = eval_statement(stmt->as.for_stmt.body, env);
                     if (result.is_return) {
-                        env->symbol_count = loop_var_index;
+                        eval_pop_binding_metadata(env, loop_var_index);
                         return result;
                     }
                     if (result.is_break) { result = create_void(); break; }
                     if (result.is_continue) { result = create_void(); continue; }
                 }
-                env->symbol_count = loop_var_index;
+                eval_pop_binding_metadata(env, loop_var_index);
                 return result;
 
             } else {
@@ -6269,7 +6273,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 if (iter_val.type == VAL_ARRAY) {
                     /* Static array iteration */
                     Array *arr = iter_val.as.array_val;
-                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!arr) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < arr->length; idx++) {
                         Value elem = create_void();
                         switch (arr->element_type) {
@@ -6297,14 +6301,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             discard_array_callable(elem);
                             env->symbols[loop_var_index].value = create_void();
                         }
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (iter_val.type == VAL_DYN_ARRAY) {
                     /* Dynamic array iteration */
                     DynArray *arr = iter_val.as.dyn_array_val;
-                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!arr) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     int64_t len = dyn_array_length(arr);
                     ElementType et = dyn_array_get_elem_type(arr);
                     for (int64_t idx = 0; idx < len; idx++) {
@@ -6319,37 +6323,37 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         }
                         env->symbols[loop_var_index].value = elem;
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (list_type == TYPE_LIST_INT) {
                     List_int *lst = (List_int*)(intptr_t)iter_val.as.int_val;
-                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_int(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (list_type == TYPE_LIST_STRING) {
                     List_string *lst = (List_string*)(intptr_t)iter_val.as.int_val;
-                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_string(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else if (list_type == TYPE_LIST_BOOL) {
                     List_bool *lst = (List_bool*)(intptr_t)iter_val.as.int_val;
-                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_bool(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
-                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
                     }
@@ -6357,7 +6361,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     fprintf(stderr, "Error: for-in requires a list, array, or range expression\n");
                 }
 
-                env->symbol_count = loop_var_index;
+                eval_pop_binding_metadata(env, loop_var_index);
                 return result;
             }
         }
@@ -7010,6 +7014,10 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     /* Clean up parameter strings and restore environment */
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
+        if (env->symbols[i].struct_type_name) {
+            free(env->symbols[i].struct_type_name);
+            env->symbols[i].struct_type_name = NULL;
+        }
         if (env->symbols[i].value.type == VAL_FUNCTION)
             discard_array_callable(env->symbols[i].value);
         if (env->symbols[i].value.type == VAL_STRING) {

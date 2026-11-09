@@ -18,6 +18,9 @@
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
+#include "../src/runtime/list_int.h"
+#include "../src/runtime/list_string.h"
+#include "../src/runtime/list_bool.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +64,38 @@ int nano_test_fclose(FILE *stream) {
         #a, #b, __LINE__, (long long)(a), (long long)(b)); exit(1); }
 #define ASSERT_NOT_NULL(p) \
     if ((p) == NULL) { printf("\n    FAILED: unexpected NULL at line %d\n", __LINE__); exit(1); }
+
+/* I count actual duplicated binding metadata, not allocator-size estimates. */
+static bool s_metadata_tracking;
+static const void *s_metadata_caller;
+static struct { void *pointer; bool released; } s_metadata_allocations[1024];
+static size_t s_metadata_allocated, s_metadata_released;
+
+char *nano_test_metadata_strdup(const char *text) {
+    char *copy = strdup(text);
+    if (s_metadata_tracking && strcmp(text, "FrameMetadataOwner") == 0) {
+        ASSERT_NOT_NULL(copy);
+        ASSERT(s_metadata_allocated < sizeof s_metadata_allocations / sizeof *s_metadata_allocations);
+        s_metadata_allocations[s_metadata_allocated].pointer = copy;
+        s_metadata_allocations[s_metadata_allocated++].released = false;
+    }
+    return copy;
+}
+
+void nano_test_metadata_free(void *pointer) {
+    if (s_metadata_tracking && pointer) {
+        ASSERT(pointer != s_metadata_caller);
+        for (size_t i = 0; i < s_metadata_allocated; ++i) {
+            if (!s_metadata_allocations[i].released &&
+                s_metadata_allocations[i].pointer == pointer) {
+                s_metadata_allocations[i].released = true;
+                ++s_metadata_released;
+                break;
+            }
+        }
+    }
+    free(pointer);
+}
 
 /* Required by runtime/cli.c */
 int g_argc = 0;
@@ -2725,6 +2760,262 @@ static Value eval_test_record_field(Value record, const char *name) {
     return create_void();
 }
 
+/* I preserve callers/values while accounting for every activation's metadata. */
+void test_eval_owned_frame_metadata(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct FrameMetadataOwner { value: int }\n"
+        "let shared: FrameMetadataOwner = FrameMetadataOwner { value: 7 }\n"
+        "effect Stop { stop : int -> int }\n"
+        "fn metadata_clean(plain: int) -> int { return plain }\n"
+        "shadow metadata_clean { assert (== (metadata_clean 7) 7) }\n"
+        "fn metadata_named(shared: int) -> int { return shared }\n"
+        "shadow metadata_named { assert (== (metadata_named 7) 7) }\n"
+        "fn metadata_indirect() -> int { let action: fn(int) -> int = metadata_named return (action 7) }\n"
+        "shadow metadata_indirect { assert (== (metadata_indirect) 7) }\n"
+        "fn metadata_local() -> int { let shared: int = 7 return shared }\n"
+        "shadow metadata_local { assert (== (metadata_local) 7) }\n"
+        "fn metadata_recursive(shared: int) -> int { if (> shared 0) { return (metadata_recursive (- shared 1)) } return 7 }\n"
+        "shadow metadata_recursive { assert (== (metadata_recursive 3) 7) }\n"
+        "fn metadata_text() -> string { let shared: string = (+ \"ke\" \"pt\") return shared }\n"
+        "shadow metadata_text { assert (== (metadata_text) \"kept\") }\n"
+        "fn metadata_record() -> FrameMetadataOwner { let shared: FrameMetadataOwner = FrameMetadataOwner { value: 7 } return shared }\n"
+        "shadow metadata_record { assert (== (metadata_record).value 7) }\n"
+        "fn metadata_callable() -> fn(int) -> int { let shared: fn(int) -> int = metadata_named return shared }\n"
+        "shadow metadata_callable { assert (== ((metadata_callable) 7) 7) }\n"
+        "fn metadata_handler() -> int { let shared: int = 7 "
+        " let ignored = handle { perform Stop.stop(7) } with { stop shared -> { return shared } } return 99 }\n"
+        "shadow metadata_handler { assert (== (metadata_handler) 7) }\n"
+        "fn metadata_range() -> int { let mut total: int = 0 for shared in (range 0 3) { set total (+ total shared) } return total }\n"
+        "shadow metadata_range { assert (== (metadata_range) 3) }\n"
+        "fn metadata_array() -> int { let mut total: int = 0 for shared in [1, 6] { set total (+ total shared) } return total }\n"
+        "shadow metadata_array { assert (== (metadata_array) 7) }\n"
+        "fn metadata_early() -> int { for shared in (range 7 9) { return shared } return 0 }\n"
+        "shadow metadata_early { assert (== (metadata_early) 7) }\n"
+        "fn metadata_break() -> int { let mut total: int = 0 for shared in [1, 6] { set total shared break } return total }\n"
+        "shadow metadata_break { assert (== (metadata_break) 1) }\n"
+        "fn metadata_continue() -> int { let mut total: int = 0 for shared in (range 0 3) { if (== shared 0) { continue } set total (+ total shared) } return total }\n"
+        "shadow metadata_continue { assert (== (metadata_continue) 3) }\n"
+        "fn metadata_empty() -> int { for shared in (range 0 0) { return 99 } return 7 }\n"
+        "shadow metadata_empty { assert (== (metadata_empty) 7) }\n"
+        "fn metadata_iterable(values: array<int>, first: bool) -> int { let mut total: int = 0 "
+        " for shared in values { if first { return shared } set total (+ total shared) } return total }\n"
+        "shadow metadata_iterable { assert (== (metadata_iterable [1, 6] false) 7) assert (== (metadata_iterable [1, 6] true) 1) }\n"
+        "fn metadata_legacy_int(values: List<int>, first: bool) -> int { let mut total: int = 0 "
+        " for shared in values { if first { return shared } set total (+ total shared) } return total }\n"
+        "shadow metadata_legacy_int { assert (== (metadata_legacy_int [1, 6] false) 7) }\n"
+        "fn metadata_legacy_string(values: List<string>, first: bool) -> int { let mut total: int = 0 "
+        " for shared in values { if first { return (str_length shared) } set total (+ total (str_length shared)) } return total }\n"
+        "shadow metadata_legacy_string { assert (== (metadata_legacy_string [\"a\", \"bc\"] false) 3) }\n"
+        "fn metadata_legacy_bool(values: List<bool>, first: bool) -> int { let mut total: int = 0 "
+        " for shared in values { if first { if shared { return 1 } return 0 } if shared { set total (+ total 1) } } return total }\n"
+        "shadow metadata_legacy_bool { assert (== (metadata_legacy_bool [true, false] false) 1) }\n"
+        "fn metadata_record_arg(shared: FrameMetadataOwner) -> int { return shared.value }\n"
+        "shadow metadata_record_arg { assert (== (metadata_record_arg shared) 7) }\n"
+        "fn metadata_return_record(shared: FrameMetadataOwner) -> FrameMetadataOwner { return shared }\n"
+        "shadow metadata_return_record { assert (== (metadata_return_record shared).value 7) }\n"
+        "fn metadata_return_text(shared: string) -> string { return shared }\n"
+        "shadow metadata_return_text { assert (== (metadata_return_text \"kept\") \"kept\") }\n"
+        "fn metadata_return_callable(shared: fn(int) -> int) -> fn(int) -> int { return shared }\n"
+        "shadow metadata_return_callable { assert (== ((metadata_return_callable metadata_named) 7) 7) }\n"
+        "fn main() -> int { return 0 }\n"));
+    Symbol *caller = env_get_var(ctx.env, "shared");
+    ASSERT_NOT_NULL(caller);
+    s_metadata_caller = caller->struct_type_name;
+    ASSERT_NOT_NULL(s_metadata_caller);
+    ASSERT(strcmp(s_metadata_caller, "FrameMetadataOwner") == 0);
+    Value record = caller->value;
+    const struct { const char *name; int arity; int argument; Type kind; int result; int metadata_per_call; } cases[] = {
+        {"metadata_clean", 1, 7, TYPE_INT, 7, 0},
+        {"metadata_named", 1, 7, TYPE_INT, 7, 1},
+        {"metadata_indirect", 0, 0, TYPE_INT, 7, 1},
+        {"metadata_local", 0, 0, TYPE_INT, 7, 1},
+        {"metadata_recursive", 1, 3, TYPE_INT, 7, 4},
+        {"metadata_text", 0, 0, TYPE_STRING, 0, 1},
+        {"metadata_record", 0, 0, TYPE_STRUCT, 0, 1},
+        {"metadata_callable", 0, 0, TYPE_FUNCTION, 0, 1},
+        {"metadata_handler", 0, 0, TYPE_INT, 7, 2},
+        {"metadata_range", 0, 0, TYPE_INT, 3, 1},
+        {"metadata_array", 0, 0, TYPE_INT, 7, 1},
+        {"metadata_early", 0, 0, TYPE_INT, 7, 1},
+        {"metadata_break", 0, 0, TYPE_INT, 1, 1},
+        {"metadata_continue", 0, 0, TYPE_INT, 3, 1},
+        {"metadata_empty", 0, 0, TYPE_INT, 7, 1},
+    };
+    size_t outstanding = 0;
+    for (size_t c = 0; c < sizeof cases / sizeof *cases; ++c) {
+        s_metadata_allocated = s_metadata_released = 0;
+        int mark = ctx.env->symbol_count;
+        s_metadata_tracking = true;
+        for (int repeat = 0; repeat < 16; ++repeat) {
+            Value arg = create_int(cases[c].argument);
+            Value result = call_function(cases[c].name, &arg, cases[c].arity, ctx.env);
+            ASSERT_EQ(ctx.env->symbol_count, mark);
+            if (cases[c].kind == TYPE_STRING) {
+                ASSERT_EQ(result.type, VAL_STRING);
+                ASSERT(strcmp(result.as.string_val, "kept") == 0);
+                gc_release(result.as.string_val);
+            } else if (cases[c].kind == TYPE_STRUCT) {
+                Value value = eval_test_record_field(result, "value");
+                ASSERT_EQ(value.type, VAL_INT);
+                ASSERT_EQ(value.as.int_val, 7);
+                release_struct_carrier_names(result.as.struct_val);
+                free(result.as.struct_val->field_values);
+                free(result.as.struct_val);
+            } else if (cases[c].kind == TYPE_FUNCTION) {
+                ASSERT_EQ(result.type, VAL_FUNCTION);
+                ASSERT(strcmp(result.as.function_val.function_name, "metadata_named") == 0);
+                free((char *)result.as.function_val.function_name);
+                free_function_signature(result.as.function_val.signature);
+            } else {
+                ASSERT_EQ(result.type, VAL_INT);
+                ASSERT_EQ(result.as.int_val, cases[c].result);
+            }
+            ASSERT(env_get_var(ctx.env, "shared")->struct_type_name == s_metadata_caller);
+            ASSERT(strcmp(s_metadata_caller, "FrameMetadataOwner") == 0);
+        }
+        s_metadata_tracking = false;
+        ASSERT_EQ(s_metadata_allocated, (size_t)(16 * cases[c].metadata_per_call));
+        printf("\n    I observe %s: %zu metadata allocations, %zu releases.",
+               cases[c].name, s_metadata_allocated, s_metadata_released);
+        outstanding += s_metadata_allocated - s_metadata_released;
+    }
+    /* I also preserve both existing C API borrow kinds without source admission. */
+    Function *read = env_get_function(ctx.env, "metadata_record_arg");
+    ASSERT_NOT_NULL(read);
+    Type original_type = read->params[0].type;
+    for (int mut = 0; mut < 2; ++mut) {
+        read->params[0].type = mut ? TYPE_BORROW_MUT : TYPE_BORROW_SHARED;
+        s_metadata_allocated = s_metadata_released = 0;
+        s_metadata_tracking = true;
+        Value result = call_function("metadata_record_arg", &record, 1, ctx.env);
+        s_metadata_tracking = false;
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 7);
+        ASSERT_EQ(s_metadata_allocated, 1);
+        outstanding += s_metadata_allocated - s_metadata_released;
+        ASSERT(env_get_var(ctx.env, "shared")->value.as.struct_val == record.as.struct_val);
+    }
+    read->params[0].type = original_type;
+
+    s_metadata_allocated = s_metadata_released = 0;
+    s_metadata_tracking = true;
+    Value returned_record = call_function("metadata_return_record", &record, 1, ctx.env);
+    s_metadata_tracking = false;
+    ASSERT_EQ(returned_record.type, VAL_STRUCT);
+    ASSERT(returned_record.as.struct_val != record.as.struct_val);
+    ASSERT(strcmp(returned_record.as.struct_val->struct_name, "FrameMetadataOwner") == 0);
+    Value returned_field = eval_test_record_field(returned_record, "value");
+    ASSERT_EQ(returned_field.type, VAL_INT);
+    ASSERT_EQ(returned_field.as.int_val, 7);
+    ASSERT_EQ(s_metadata_allocated, 1);
+    outstanding += s_metadata_allocated - s_metadata_released;
+    release_struct_carrier_names(returned_record.as.struct_val);
+    free(returned_record.as.struct_val->field_values);
+    free(returned_record.as.struct_val);
+
+    Value text = create_string("kept");
+    s_metadata_allocated = s_metadata_released = 0;
+    s_metadata_tracking = true;
+    Value returned_text = call_function("metadata_return_text", &text, 1, ctx.env);
+    s_metadata_tracking = false;
+    ASSERT_EQ(returned_text.type, VAL_STRING);
+    ASSERT(strcmp(text.as.string_val, "kept") == 0);
+    ASSERT(strcmp(returned_text.as.string_val, "kept") == 0);
+    ASSERT(returned_text.as.string_val != text.as.string_val);
+    ASSERT_EQ(s_metadata_allocated, 1);
+    outstanding += s_metadata_allocated - s_metadata_released;
+    gc_release(text.as.string_val);
+    gc_release(returned_text.as.string_val);
+
+    Value callable = call_function("metadata_callable", NULL, 0, ctx.env);
+    s_metadata_allocated = s_metadata_released = 0;
+    s_metadata_tracking = true;
+    Value returned_callable = call_function("metadata_return_callable", &callable, 1, ctx.env);
+    s_metadata_tracking = false;
+    ASSERT_EQ(returned_callable.type, VAL_FUNCTION);
+    ASSERT(strcmp(callable.as.function_val.function_name, "metadata_named") == 0);
+    ASSERT(strcmp(returned_callable.as.function_val.function_name, "metadata_named") == 0);
+    ASSERT(returned_callable.as.function_val.function_name != callable.as.function_val.function_name);
+    ASSERT_EQ(s_metadata_allocated, 1);
+    outstanding += s_metadata_allocated - s_metadata_released;
+    free((char *)callable.as.function_val.function_name);
+    free_function_signature(callable.as.function_val.signature);
+    free((char *)returned_callable.as.function_val.function_name);
+    free_function_signature(returned_callable.as.function_val.signature);
+
+    /* I construct existing runtime tags directly; I widen no source admission. */
+    DynArray *dynamic = dyn_array_new(ELEM_INT);
+    dyn_array_push_int(dynamic, 1);
+    dyn_array_push_int(dynamic, 6);
+    DynArray *empty_dynamic = dyn_array_new(ELEM_INT);
+    Value static_array = create_array(VAL_INT, 2, 2);
+    ((long long *)static_array.as.array_val->data)[0] = 1;
+    ((long long *)static_array.as.array_val->data)[1] = 6;
+    Value empty_static = create_array(VAL_INT, 0, 0);
+    List_int *integers = list_int_new();
+    list_int_push(integers, 1); list_int_push(integers, 6);
+    List_string *strings = list_string_new();
+    list_string_push(strings, "a"); list_string_push(strings, "bc");
+    List_bool *booleans = list_bool_new();
+    list_bool_push(booleans, true); list_bool_push(booleans, false);
+    const struct { const char *name; Value value; Type type; bool first; int expected; } loops[] = {
+        {"metadata_iterable", static_array, TYPE_ARRAY, false, 7},
+        {"metadata_iterable", static_array, TYPE_ARRAY, true, 1},
+        {"metadata_iterable", empty_static, TYPE_ARRAY, false, 0},
+        {"metadata_iterable", {.type = VAL_DYN_ARRAY, .as.dyn_array_val = dynamic}, TYPE_ARRAY, false, 7},
+        {"metadata_iterable", {.type = VAL_DYN_ARRAY, .as.dyn_array_val = dynamic}, TYPE_ARRAY, true, 1},
+        {"metadata_iterable", {.type = VAL_DYN_ARRAY, .as.dyn_array_val = empty_dynamic}, TYPE_ARRAY, false, 0},
+        {"metadata_iterable", {.type = VAL_ARRAY, .as.array_val = NULL}, TYPE_ARRAY, false, 0},
+        {"metadata_iterable", {.type = VAL_DYN_ARRAY, .as.dyn_array_val = NULL}, TYPE_ARRAY, false, 0},
+        {"metadata_iterable", {.type = VAL_BOOL, .as.bool_val = true}, TYPE_ARRAY, false, 0},
+        {"metadata_legacy_int", create_int((long long)(intptr_t)integers), TYPE_LIST_INT, false, 7},
+        {"metadata_legacy_int", create_int((long long)(intptr_t)integers), TYPE_LIST_INT, true, 1},
+        {"metadata_legacy_int", create_int(0), TYPE_LIST_INT, false, 0},
+        {"metadata_legacy_string", create_int((long long)(intptr_t)strings), TYPE_LIST_STRING, false, 3},
+        {"metadata_legacy_string", create_int((long long)(intptr_t)strings), TYPE_LIST_STRING, true, 1},
+        {"metadata_legacy_string", create_int(0), TYPE_LIST_STRING, false, 0},
+        {"metadata_legacy_bool", create_int((long long)(intptr_t)booleans), TYPE_LIST_BOOL, false, 1},
+        {"metadata_legacy_bool", create_int((long long)(intptr_t)booleans), TYPE_LIST_BOOL, true, 1},
+        {"metadata_legacy_bool", create_int(0), TYPE_LIST_BOOL, false, 0},
+    };
+    for (size_t c = 0; c < sizeof loops / sizeof *loops; ++c) {
+        Function *loop = env_get_function(ctx.env, loops[c].name);
+        ASSERT_NOT_NULL(loop);
+        Type saved_type = loop->params[0].type;
+        loop->params[0].type = loops[c].type;
+        s_metadata_allocated = s_metadata_released = 0;
+        s_metadata_tracking = true;
+        Value arguments[] = {loops[c].value, create_bool(loops[c].first)};
+        suppress_stderr();
+        Value result = call_function(loops[c].name, arguments, 2, ctx.env);
+        restore_stderr();
+        s_metadata_tracking = false;
+        loop->params[0].type = saved_type;
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, loops[c].expected);
+        ASSERT_EQ(s_metadata_allocated, 1);
+        outstanding += s_metadata_allocated - s_metadata_released;
+        ASSERT(env_get_var(ctx.env, "shared")->value.as.struct_val == record.as.struct_val);
+        printf("\n    I observe native loop %zu: %zu metadata allocations, %zu releases.",
+               c, s_metadata_allocated, s_metadata_released);
+    }
+    gc_release(dynamic);
+    gc_release(empty_dynamic);
+    free(static_array.as.array_val->data);
+    free(static_array.as.array_val);
+    free(empty_static.as.array_val->data);
+    free(empty_static.as.array_val);
+    list_int_free(integers);
+    list_string_free(strings);
+    list_bool_free(booleans);
+    printf("\n    I retain %zu unreleased activation metadata allocations.\n", outstanding);
+    ASSERT_EQ(outstanding, 0);
+    s_metadata_caller = NULL;
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 /* I preserve escaping fresh locals, copied callers and nested borrowed fields. */
 void test_eval_record_literal_copy_and_escape(void) {
     RunCtx ctx;
@@ -3342,6 +3633,7 @@ int main(void) {
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
     TEST(eval_record_literal_copy_and_escape);
+    TEST(eval_owned_frame_metadata);
     TEST(eval_record_global_reinitialization);
     TEST(eval_record_call_and_list_escape);
     TEST(eval_record_alias_across_direct_calls);
