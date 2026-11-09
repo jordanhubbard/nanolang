@@ -1,0 +1,9 @@
+tests/test_eval_record_fields.c:28:48: error: suspicious concatenation of string literals in an array initialization; did you mean to separate the elements with a comma? [-Werror,-Wstring-concatenation]
+   28 |                         "\xc3\xa9", "\xc3\xa9" "clair", "\xc3\xb1", "\x80"};
+      |                                                ^
+      |                                               ,
+tests/test_eval_record_fields.c:28:37: note: place parentheses around the string literal to silence warning
+   28 |                         "\xc3\xa9", "\xc3\xa9" "clair", "\xc3\xb1", "\x80"};
+      |                                     ^
+1 error generated.
+make: *** [test-eval-record-fields-sanitizers] Error 1

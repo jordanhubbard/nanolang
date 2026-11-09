@@ -1913,6 +1913,15 @@ test-eval-bstring-sanitizers: | $(OBJ_DIR)
 
 test-units: test-eval-bstring-sanitizers
 
+.PHONY: test-eval-record-fields-sanitizers
+test-eval-record-fields-sanitizers: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -ffunction-sections -fdata-sections -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+		tests/test_eval_record_fields.c src/env.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/utf8.c \
+		-o $(OBJ_DIR)/test_eval_record_fields -Xlinker $(if $(filter Darwin,$(UNAME_S)),-dead_strip,--gc-sections) $(filter-out $(EXPORT_DYNAMIC_LDFLAGS),$(LDFLAGS))
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_eval_record_fields
+
+test-units: test-eval-record-fields-sanitizers
+
 .PHONY: test-nl-string-bounds-sanitizers
 test-nl-string-bounds-sanitizers: | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
