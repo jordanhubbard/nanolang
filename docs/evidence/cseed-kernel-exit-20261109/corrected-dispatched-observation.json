@@ -1,0 +1,17 @@
+{
+  "run_id": 42588515731,
+  "url": "https://github.com/jordanhubbard/nanolang/actions/runs/42588515731",
+  "source_pin": "ed64b3a8563305bd710689458b7dd9f9d243370e",
+  "source_checkpoint": "9f7561afc3122623c1897b80f3bc782354d2b5a2",
+  "previous_run_id": 42586919306,
+  "previous_factory_attempts": 0,
+  "change": "I keep task tracking through task-free and validate complete teardown across supported process-exit hook orders.",
+  "compiler": "gcc",
+  "predeclared_factory_attempts": 1,
+  "requires_corrected_real_native_kernel_control": true,
+  "shadow_deadline_seconds": 10,
+  "native_cli_budget_seconds": 600,
+  "unchanged_retry_for_green": false,
+  "production_changed": false,
+  "release_qualified": false
+}
