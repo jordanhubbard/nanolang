@@ -43,3 +43,5 @@ whole-source comparison baseline is that pre-filter commit 48016fec4. I require
 unchanged NanoLang/factory inputs and the original six-attempt order and ten-
 second shadow supervisor, then all original component/platform gates, before
 retaining this production candidate. The unchecked roadmap item remains open.
+
+I retain the completed [GCC](gcc-6c/README.md) and [Apple](apple-6c/README.md) comparisons. GCC improves all three complete shadow-body pairs; Apple improves both complete shadow-body pairs but has slower whole-factory wall times. Its first baseline attempt times out and does not publish a product. I keep the candidate draft pending phase diagnosis rather than claiming a whole-compiler improvement. The complete GCC/Clang/Apple component jobs pass at the exact implementation pin; their immutable job/step records are retained here. Full four-route run42553861103 qualifies the accumulated source separately at documentation-only descendant955a26eea.

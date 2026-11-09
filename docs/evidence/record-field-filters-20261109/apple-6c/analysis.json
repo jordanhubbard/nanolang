@@ -1,0 +1,80 @@
+{
+  "scope": "I compare only complete paired selections. Partial timeout body sums are censored, not faster/slower complete workloads. I retain all failed attempts. Whole-factory wall times include other phases and remain separate from shadow-body times.",
+  "pairs": [
+    {
+      "pair": 1,
+      "original_body_seconds": 9.752883,
+      "modified_body_seconds": 7.436768,
+      "both_creations_complete": false,
+      "modified_body_change_percent": null,
+      "original_factory_wall_seconds": 265.9647034999998,
+      "modified_factory_wall_seconds": 242.48759070899996,
+      "modified_factory_wall_change_percent": null
+    },
+    {
+      "pair": 2,
+      "original_body_seconds": 6.728986,
+      "modified_body_seconds": 5.734514,
+      "both_creations_complete": true,
+      "modified_body_change_percent": -14.778928058402851,
+      "original_factory_wall_seconds": 135.5655677919999,
+      "modified_factory_wall_seconds": 144.42815233399983,
+      "modified_factory_wall_change_percent": 6.537489339179325
+    },
+    {
+      "pair": 3,
+      "original_body_seconds": 6.004491,
+      "modified_body_seconds": 5.544105,
+      "both_creations_complete": true,
+      "modified_body_change_percent": -7.667360980306237,
+      "original_factory_wall_seconds": 128.78337799999986,
+      "modified_factory_wall_seconds": 129.890411459,
+      "modified_factory_wall_change_percent": 0.8596089621132341
+    }
+  ],
+  "all_creations_passed": false,
+  "shared_git_verified_inputs": 197,
+  "selection_count": 1286,
+  "completed_sample_distributions": {
+    "original": {
+      "body_seconds": {
+        "count": 2,
+        "median": 6.3667385,
+        "p25": 6.18561475,
+        "p75": 6.54786225,
+        "iqr": 0.3622474999999996,
+        "min": 6.004491,
+        "max": 6.728986
+      },
+      "factory_wall_seconds": {
+        "count": 2,
+        "median": 132.17447289599988,
+        "p25": 130.47892544799987,
+        "p75": 133.8700203439999,
+        "iqr": 3.391094896000027,
+        "min": 128.78337799999986,
+        "max": 135.5655677919999
+      }
+    },
+    "modified": {
+      "body_seconds": {
+        "count": 3,
+        "median": 5.734514,
+        "p25": 5.6393094999999995,
+        "p75": 6.585641,
+        "iqr": 0.9463315000000003,
+        "min": 5.544105,
+        "max": 7.436768
+      },
+      "factory_wall_seconds": {
+        "count": 3,
+        "median": 144.42815233399983,
+        "p25": 137.15928189649992,
+        "p75": 193.4578715214999,
+        "iqr": 56.29858962499998,
+        "min": 129.890411459,
+        "max": 242.48759070899996
+      }
+    }
+  }
+}
