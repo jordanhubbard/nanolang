@@ -1,0 +1,507 @@
+{
+  "scope": "I inspect actual C-created local products across preserved initial and corrected fixture attempts. These do not qualify current C-provider provenance or source-created/fresh/platform execution.",
+  "native_products": [
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-tledyzgp/native-O0",
+      "sha256": "d6eb23cba1ecccbeb45c2fe2043aab0fb316ef3c2c5a096c8d021d74cb35d98a",
+      "size": 8809704,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-tledyzgp/native-O2",
+      "sha256": "2a5c184e4751c447348a51ed8c9f5a9087becdb7ac65b623a0a7d0cd0656dc3a",
+      "size": 8547784,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-0b3cokk3/native-O0",
+      "sha256": "e8cf4a56c2977dc8e89d72ccff071999f5e128ee479c77c1f4731100bb1eac09",
+      "size": 8925800,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-0b3cokk3/native-O2",
+      "sha256": "066fe7861394ef3b035088c7bde15f4bd57bf8fbaa636cae8f0729dd3f16d386",
+      "size": 8564632,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-91jsc6o3/native-O0",
+      "sha256": "d18a13b4f036d400b1d169601418a6dec2871339b941da522d070db2ab08eb91",
+      "size": 8892568,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-91jsc6o3/native-O2",
+      "sha256": "63718abaa46526cdbb8431f55477fe5bf1a4165468b50ec65411ab02dbf7c9b4",
+      "size": 8564744,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-u9xusm25/native-O0",
+      "sha256": "5d3810160d2a8aa9cbf72b82f7000b5ff491773b1721ae948f6c9dab46d00026",
+      "size": 8925800,
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-u9xusm25/native-O2",
+      "sha256": "41416e3ee5476445ab583f867cf035b82dbda7672023a48f33519204db44b3e7",
+      "size": 8564632,
+      "magic": "cffaedfe"
+    }
+  ],
+  "modules": [
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-tledyzgp/program.nvm",
+      "sha256": "e73903cfe271c211287ac3fe6385e19a34a10e2ca691eb2cecc748703bb8c2f1"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-0b3cokk3/program.nvm",
+      "sha256": "280c454101fc633ccb67e7e4d95d509f8210940f06fdfaa86452634c5d1974bc"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-91jsc6o3/program.nvm",
+      "sha256": "c08624d23e5948c86b3d9a9fb46421cb8aa8883258d2372469e8a27b78fea293"
+    },
+    {
+      "path": ".test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-u9xusm25/program.nvm",
+      "sha256": "280c454101fc633ccb67e7e4d95d509f8210940f06fdfaa86452634c5d1974bc"
+    }
+  ],
+  "expected_refusals": [
+    {
+      "directory": ".test_output/match-or-cseed-contracts/integer-alternative-p3r8l95k",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-p3r8l95k/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-p3r8l95k/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-result-3z7r9uuj",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-3z7r9uuj/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-3z7r9uuj/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/first-binding-j2tyish4",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-j2tyish4/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-j2tyish4/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/duplicate-missing-4j6iv0ib",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/duplicate-missing-4j6iv0ib/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/duplicate-missing-4j6iv0ib/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-result-ixkvcztt",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-ixkvcztt/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-ixkvcztt/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/first-binding-7v6de4gg",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-7v6de4gg/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-7v6de4gg/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/first-binding-hvkyzn15",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-hvkyzn15/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/first-binding-hvkyzn15/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wildcard-head-jyqhesvb",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-jyqhesvb/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-jyqhesvb/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wildcard-head-ir70zipz",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-ir70zipz/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-ir70zipz/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/missing-alternative-o6v0_i1d",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-o6v0_i1d/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-o6v0_i1d/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/second-binding-b354l6ky",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-b354l6ky/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-b354l6ky/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-result-l_no0m64",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-l_no0m64/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-result-l_no0m64/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-guard-w9aixf16",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-w9aixf16/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-w9aixf16/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/conditional-missing-y5_ny5o2",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-y5_ny5o2/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-y5_ny5o2/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/integer-alternative-vjwi8es0",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-vjwi8es0/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-vjwi8es0/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/missing-alternative-2f5qjtia",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-2f5qjtia/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-2f5qjtia/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-guard-i37mrf26",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-i37mrf26/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-i37mrf26/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/conditional-missing-_x1gpzyy",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-_x1gpzyy/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-_x1gpzyy/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/integer-alternative-24osarux",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-24osarux/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-24osarux/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wrong-guard-80c95_kq",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-80c95_kq/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-80c95_kq/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/wildcard-head-fkdpoauh",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-fkdpoauh/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-fkdpoauh/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/missing-alternative-pv7mlrbo",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-pv7mlrbo/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-pv7mlrbo/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/conditional-missing-qbcf040e",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-qbcf040e/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-qbcf040e/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/second-binding-zyu3js0c",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-zyu3js0c/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-zyu3js0c/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/second-binding-v5cstocq",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-v5cstocq/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/second-binding-v5cstocq/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    }
+  ],
+  "initial_invalid_positive_fixtures": [
+    {
+      "directory": ".test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-4yw5i0ti",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-4yw5i0ti/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-4yw5i0ti/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": ".test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-lnwjakcm",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/jkh/Src/nanolang/bin/nano_virt",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-lnwjakcm/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-lnwjakcm/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ]
+    }
+  ]
+}

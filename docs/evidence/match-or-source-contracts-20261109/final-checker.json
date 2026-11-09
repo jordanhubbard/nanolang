@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component"
+  ],
+  "returncode": 0,
+  "seconds": 51.62976574996719,
+  "before": {
+    "src_nano/parser.nano": "6cb148a6d5f1ad6ce1257f542820b312f6f6a0fa0c4b20608ae46bde66db5d79",
+    "src_nano/typecheck.nano": "89cb9d5eebf8bb9645f85629a5a468811802f5fac877c5ec6233a70f646a575f",
+    "src_nano/compiler/nanoisa_codegen.nano": "41cc51b20f50ed7762af6ecd303cde354de974335ac68c6d558f00c055ea439b",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff"
+  },
+  "after": {
+    "src_nano/parser.nano": "6cb148a6d5f1ad6ce1257f542820b312f6f6a0fa0c4b20608ae46bde66db5d79",
+    "src_nano/typecheck.nano": "89cb9d5eebf8bb9645f85629a5a468811802f5fac877c5ec6233a70f646a575f",
+    "src_nano/compiler/nanoisa_codegen.nano": "41cc51b20f50ed7762af6ecd303cde354de974335ac68c6d558f00c055ea439b",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff"
+  },
+  "scope": "I retain direct ordinary-pattern paths and decode groups only when present; I execute parser/coverage shadows and the actual checker entry using the pinned existing provider. Emitter/source-created/fresh/platform qualification remains open."
+}
