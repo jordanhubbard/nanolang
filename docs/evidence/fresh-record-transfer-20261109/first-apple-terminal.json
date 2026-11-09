@@ -1,0 +1,11 @@
+{
+  "run": 42598205000,
+  "head": "a469d94ec3830882a573186743d2647b9fde1a3f",
+  "conclusion": "failure",
+  "failed_step": "Execute my existing environment index and STRING ownership controls",
+  "artifact": 13664623050,
+  "artifact_bytes": 7512287,
+  "artifact_sha256": "901c29745ede34aa5424eb2e291d2d7238d6651504c2481138367a5614cf811b",
+  "entries": 1115,
+  "scope": "I preserve the actual positional-field witness failure and CRC/hash-check every uploaded entry. Later source-provider steps skip after this failure; I do not claim full source acceptance or SDK closure."
+}
