@@ -1,0 +1,15 @@
+{
+  "previous": "90b79b0e4af163b5b725988e0d0197b64d9f11bc",
+  "checkpoint": "28ea08ee1d4b058f4271a3cd082504764fbfa4d9",
+  "implementation": "9f1d624fde30a4ba4b781cd4dbaf9e4e74be221d",
+  "tree": "98e1a3811df35ce069613086dcf2e76466374551",
+  "entries": 92835,
+  "changed_paths": [
+    ".github/workflows/cseed-kernel-exit.yml",
+    "scripts/observe_cseed_kernel_exit.py",
+    "tests/test_cseed_kernel_exit.py",
+    "tests/nanoisa/test_cseed_exit_observer.c"
+  ],
+  "added_source_paths": 4,
+  "scope": "I populate a complete independent Git index, preserve all original path/mode/object entries and retain direct-parent checkpoint ancestry through an explicit ours merge. This is source custody, not kernel execution or native lifecycle admission."
+}

@@ -1,0 +1,43 @@
+{
+  "work": "/Users/jkh/Src/nanolang/.test_output/kernel-exit-controls-zg6jqn8q",
+  "actual_native_kind": "Mach-O executable",
+  "native_validation": {
+    "source_inputs_before_after": {
+      "/Users/jkh/Src/nanolang/scripts/observe_cseed_kernel_exit.py": "afb2728858aca6315827d04d0080e04e4923fb3008a7cf414148acc6fcfb71ed",
+      "/Users/jkh/Src/nanolang/tests/nanoisa/test_cseed_exit_observer.c": "4488cfab779c949ca00c0bd7d338ba02c9f28425f5098fe8b29fcdbb7c20c27a",
+      "/Users/jkh/Src/nanolang/tests/test_cseed_kernel_exit.py": "1edb87e513c9f27efb6df019d7945f71a579e6af5f9125b627091377f78223f6"
+    },
+    "compiler": {
+      "path": "/usr/bin/cc",
+      "sha256_before_after": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+    },
+    "native_control": {
+      "pid": 91439,
+      "child_pid": 91461,
+      "wait_status": 1792,
+      "start_ns": 319341132700000,
+      "end_ns": 319341153143000
+    },
+    "native_binary_sha256_before_after": "f30adc64ad4cd6c3100eaf5b6600d591918f0f52781e6b4c06850a60c9995a5e",
+    "build": {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "/Users/jkh/Src/nanolang/tests/nanoisa/test_cseed_exit_observer.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/kernel-exit-controls-zg6jqn8q/actual-native-control"
+      ],
+      "returncode": 0
+    },
+    "linux_kernel_execution_qualified": false,
+    "parser_fixture_scope": "I construct kernel records to exercise parser refusals; these are not native BPF results."
+  },
+  "methods_passed": 6,
+  "linux_bpf_execution_qualified": false
+}
