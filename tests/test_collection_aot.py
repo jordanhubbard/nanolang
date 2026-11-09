@@ -41,7 +41,8 @@ class CollectionAot(unittest.TestCase):
         cls.inputs = {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in
                       ['tests/test_collection_aot.py', 'tests/nanoisa/test_collection_snapshot_aot.c', 'src/nanoisa/nvm2c.c',
                        'modules/std/collections/collections.c', 'modules/std/collections/collections.h',
-                       'src/utf8.c', *RUNTIME]}
+                       'src/runtime/dyn_array.h', 'modules/std/json/json.c', 'modules/std/fs.c',
+                       'src/cJSON.c', 'src/utf8.c', *RUNTIME]}
 
     @classmethod
     def tearDownClass(cls):
@@ -236,6 +237,27 @@ class CollectionAot(unittest.TestCase):
                 self.assertIn(b'I stopped at a native invariant', result.stderr)
                 self.assertNotIn(b'ERROR: AddressSanitizer', result.stderr)
                 self.assertFalse(marker.exists(), 'I refuse origin errors before calling the producer or cleanup.')
+
+    def test_real_json_and_filesystem_array_types(self):
+        json_lib = self.library('json-sanitized', ['modules/std/json/json.c', 'src/cJSON.c', *RUNTIME], sanitized=True)
+        fs_lib = self.library('fs-sanitized', ['modules/std/fs.c', *RUNTIME], sanitized=True)
+        directory = self.work/'walk'; directory.mkdir(); child = directory/'entry'; child.write_text('I retain one entry.\n')
+        entries = [(json_lib, 'nl_json_parse', 'opaque string'),
+                   (json_lib, 'nl_json_object_keys', 'array opaque'),
+                   (json_lib, 'nl_json_free', 'void opaque'),
+                   (fs_lib, 'fs_walkdir', 'array string')]
+        text = ''.join(f'.import {json.dumps(str(lib))} {json.dumps(name)} {signature}\n.import_kind {i} artifact\n'
+                       for i, (lib, name, signature) in enumerate(entries))
+        text += '.string json '+json.dumps('{"key":1}')+'\n.string key "key"\n'
+        text += '.string root '+json.dumps(str(directory))+'\n.string path '+json.dumps(str(child))+'\n'
+        text += ('.entry 0\n.function main 0 3 0 int 1\nPUSH_STR json\nCALL_EXTERN 0\nSTORE_LOCAL 0\n'
+                 'LOAD_LOCAL 0\nCALL_EXTERN 1\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nCALL_EXTERN 2\n'
+                 'LOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\nPUSH_STR key\nEQ\nASSERT\n'
+                 'PUSH_STR root\nCALL_EXTERN 3\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\n'
+                 'LOAD_LOCAL 2\nPUSH_I64 0\nARR_GET\nPUSH_STR path\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        generated = self.translate('json-fs', self.module('json-fs', text))
+        for optimization in ('-O0', '-O2'):
+            self.run_native('json-fs-run'+optimization, self.build('json-fs', generated, optimization))
 
 
 if __name__ == '__main__':
