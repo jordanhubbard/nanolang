@@ -31,3 +31,14 @@ two exact recorded checkout-root spellings accounts for every text difference;
 I retain every actual difference under prior-c-deltas/. This is a path-spelling
 comparison of actual retained bytes, not semantic-equivalence or compilation-
 phase timing proof, and it does not explain the original Apple wall regression.
+
+I now retain the completed observed Apple run 42555259741 at exact fac84b549
+under actual-fac-apple/. All six creations pass the same 1,286 ordered shadows
+and publish byte-identical actual native source compilers. The complete ZIP,
+197 shared Git inputs, exact observer bytes, actual native products, input/
+provider stability and 4,406 snapshots pass the independent audits. I retain
+all body/factory distributions and sighting bounds, including concurrent
+observer costs, without reconstructing the cause of the older wall regression.
+I declare one additional fixed Linux/Clang observer run in linux-observer-plan.json
+before execution to qualify that existing optional mode; this does not rerun
+any completed Apple or earlier GCC plan or replace full release requirements.
