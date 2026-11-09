@@ -11,3 +11,11 @@ I add an explicit --observe-shadow-phases option to the existing six-attempt sou
 My source checkpoint preserves92831 entries with seven reviewed deltas and two new paths. Source-creation reliability under #1065, the AOT integration under #1127/#1133, complete fresh stages, NativeSDK and release acceptance remain open.
 
 I separately retain executable proof for the three GitGuardian occurrences in PR #1132: all are the public token_value_bytes.nano source checksum at the exact reported immutable evidence lines. The actual security verdict remains failed and requires supported check-specific disposition under #1076. I do not exclude files, detectors or unrelated findings.
+
+## My fixed GCC result
+
+Run42580473796 at exact35a32bf74 finishes all six attempts in the declared order; every creation fails. All three modified-provider phase audits are valid. Attempts1/2 complete1,197 bodies; attempts3–6 complete all1,286, with zero recorded body assertion failures. My independent archive audit CRC-checks all87 entries, matches197 shared source inputs to both immutable Git pins and67 stable factory inputs per attempt, and retains six actual native provider/control images. No source compiler is published. Full job output is retained separately.
+
+Observed attempt2 records child signal14, incomplete completion state and parent timeout. Attempts3/6 finish the report, completion-byte write and flush at9.817004/9.846630 seconds from the original parent timer origin. Their later supervisor records show completion present, raw wait status0, exit0 and parent timeout at10.122663/10.154558. This distinguishes successful user-space phases from supervised acceptance. The actual child exit time, diagnostic-write delay, kernel teardown and parent scheduling/check behavior remain unmeasured; I do not call this a proven supervisor race or infrastructure incident. No complete successful pair exists, so I report no whole-factory improvement.
+
+My executable audit-diagnostic.py reproduces the archive, source-input, provider-byte, phase and timing checks. Findings and complete inventories/text streams are under actual-gcc/. The observer controls and diagnostic work do not qualify reliable GCC source creation, NativeSDK closure or release.
