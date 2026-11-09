@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:2c4af71c6f6eefea46b24603a889c250505a37c0c8f199303c389f60d23ead28 -->
+<!-- literate-ai:authority-reviewed sha256:91d4948b2e5b6a4dcf596dbb9010043256c2f881d8ec708a33865b04ec9ce1ea -->
 
 ## My first metadata checkpoint
 
@@ -537,3 +537,5 @@ Linux loader-dependency feature-macro refusals. This complete 92,827-entry direc
 the standalone C/Python loader fixture: I use the production GNU feature flag and guard its definition.
 Production/runtime code is unchanged. Corrected local loader modes pass; the original Apple plan has
 passed actual VM CLI ownership controls. I retain that handle and require corrected Linux execution.
+
+My completed snapshot component plans retain Apple42568331586 at42dddfceb and Linux42569250444 atb94da11a. Independent hosted audits in `docs/evidence/collection-array-ownership-20261109/` verify33 native executables,54 shared libraries and nine NVM modules, selected immutable source inputs and every original success/refusal operation. Fourteen selected production/Make/workflow/heap-fixture paths are identical across those qualification and review pins; only two loader fixture files differ. VM/assembler hashes are retained reports without uploaded tool binaries. This completes my producer/VM snapshot prerequisite and corrected harness controls, while native AOT adapters, source admission, final-head platform qualification and release/NativeSDK acceptance remain open.
