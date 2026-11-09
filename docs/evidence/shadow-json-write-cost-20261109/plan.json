@@ -1,0 +1,15 @@
+{
+  "scope": "I measure mechanically copied current formatter bodies in an isolated native witness before changing production code. I do not replace original source, skip shadows, alter budgets or infer source-creation/release acceptance.",
+  "source_pin": "a561d8c97d3cbfd7954efe7d3625d09ef1476223",
+  "source_file": "src/eval.c",
+  "helper_start": "static void shadow_json_escape(",
+  "helper_end_before": "static bool shadow_write_json_file(",
+  "trace_fixture": "docs/evidence/factory-process-phases-20261109/actual-fac-apple/texts.json.gz",
+  "trace_attempt": "cseed-source-comparison/samples/04-original/source-build.stderr",
+  "trace_events": 2572,
+  "selected_shadows": 1286,
+  "samples": 20,
+  "destination": "I write to a real unbuffered temporary regular file and retain its final actual bytes/hash; I report the scope separately from pipes/terminals/full compiler runs.",
+  "native_lifecycle_admitted": false,
+  "release_qualified": false
+}
