@@ -20,6 +20,11 @@ void nl_sb_free(void* sb);
 
 /* ============================ HashMap<string,string> ============================ */
 
+/* I expose non-dereferenceable identities belonging to this loaded provider.
+ * Unknown, wrong-kind and retired identities behave like NULL. Free retires all
+ * aliases; new allocations do not revive them. Callers serialize operations on
+ * one identity, including free and use of borrowed nl_hm_get strings. This is
+ * liveness checking, not an unforgeable capability or cross-provider ABI. */
 void* nl_hm_new(void);
 void nl_hm_put(void* hm, const char* key, const char* value);
 bool nl_hm_has(void* hm, const char* key);

@@ -183,6 +183,11 @@ jobs:
         run: |
           python3 scripts/gen_reserved_builtins.py --check
           python3 scripts/gen_nvm2c_bstring_payload.py --check
+      - name: Execute my checked collection lifetimes and original array exports
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-collection-handles test-collection-array-exports \
+            2>&1 | tee .test_output/string-builtin-operands/collection-handles.log
       - name: Build actual fresh VM and C AOT providers
         id: providers
         timeout-minutes: 25
@@ -356,6 +361,7 @@ jobs:
           name: string-builtin-operands-${{ matrix.compiler }}-${{ github.sha }}
           path: |
             .test_output/string-builtin-operands/
+            .test_output/collection-handles-*/
             .test_output/source-checker-component/
             .test_output/retirement/capture-toolchain.json
             .test_output/retirement/selected-tools/

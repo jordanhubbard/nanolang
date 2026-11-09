@@ -15,7 +15,7 @@ class CollectionArrayExports(unittest.TestCase):
             output = Path(tmp) / "snapshots"
             built = subprocess.run([
                 *shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-g",
-                "-Wall", "-Wextra", "-Werror", "-Isrc",
+                "-Wall", "-Wextra", "-Werror", "-pthread", "-Isrc",
                 "tests/test_collection_array_exports.c",
                 "modules/std/collections/collections.c", "modules/std/json/json.c",
                 "src/cJSON.c", "src/runtime/dyn_array.c", "src/runtime/gc.c",
