@@ -213,6 +213,11 @@ jobs:
           set -o pipefail
           python3 -m unittest -v tests.test_ffi_result_release \
             2>&1 | tee .test_output/string-builtin-operands/snapshot-vm.log
+      - name: Execute actual native collection adapters and snapshot refusals
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="$CC" test-collection-aot test-artifact-string-release \
+            2>&1 | tee .test_output/string-builtin-operands/collection-aot.log
       - name: Execute my existing C lexer fixture controls
         run: |
           set -o pipefail
@@ -373,6 +378,7 @@ jobs:
             .test_output/collection-snapshots-*/
             .test_output/ffi-array-results-*/
             .test_output/ffi-result-release-*/
+            .test_output/collection-aot-*/
             .test_output/source-checker-component/
             .test_output/retirement/capture-toolchain.json
             .test_output/retirement/selected-tools/

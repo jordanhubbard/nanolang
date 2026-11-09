@@ -901,6 +901,12 @@ test-collection-snapshot-release:
 
 test-units: test-collection-snapshot-release
 
+.PHONY: test-collection-aot
+test-collection-aot: $(BIN_DIR)/nanoisa nano_vm nvm2c
+	python3 -m unittest -v tests.test_collection_aot
+
+test-units: test-collection-aot
+
 .PHONY: test-collection-handles
 test-collection-handles:
 	python3 -m unittest tests.test_collection_handles
