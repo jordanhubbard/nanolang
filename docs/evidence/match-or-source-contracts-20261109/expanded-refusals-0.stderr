@@ -1,0 +1,6 @@
+test_malformed_types_and_conditional_coverage_preserve_output (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_malformed_types_and_conditional_coverage_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.152s
+
+OK

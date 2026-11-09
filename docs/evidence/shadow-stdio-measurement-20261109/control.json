@@ -1,0 +1,41 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "clang",
+        "-std=c11",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "/Users/jkh/Src/nanolang/docs/evidence/shadow-stdio-measurement-20261109/control.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/control/nanoc_c"
+      ],
+      "returncode": 0
+    },
+    {
+      "mode": "plain",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/control/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/control/plain.txt"
+      ],
+      "returncode": 0,
+      "stdout": "I preserved descriptor, errno, creation mode, data, fork and exit behavior.\n",
+      "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029"
+    },
+    {
+      "mode": "instrumented",
+      "argv": [
+        "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/control/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-stdio-measurement/control/instrumented.txt"
+      ],
+      "returncode": 0,
+      "stdout": "I preserved descriptor, errno, creation mode, data, fork and exit behavior.\n",
+      "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029"
+    }
+  ],
+  "product_sha256": "efb7cdee6ea6daf1b240661800635ac6116ae1f0acd64132d7c155e2fc7b5b4d",
+  "scope": "I compare actual native POSIX behavior with and without my observing library; I do not qualify a production optimization."
+}

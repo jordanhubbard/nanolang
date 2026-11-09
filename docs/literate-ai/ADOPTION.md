@@ -348,3 +348,140 @@ receipt. This metadata update does not establish source timing, complete
 corpus/budget, frame-carrier lifetime, security, native admission or release.
 I freeze catalog inputs before supported authority review and retain final
 validation outside the catalog.
+
+## My scalar async compatibility source checkpoint
+
+I retain the original synchronous scalar async contract through my source lexer
+and parser. I keep async declaration identity and existing affine/effect
+provenance guards. My current original-source baseline is `21c3818c06c6931954c4170c7104fe0817ae1c57`,
+a real descendant of `91735dabc` containing exactly the reviewed lexer, parser,
+emitter-shadow, new actual-route controls and component-workflow delta.
+I merge its real ancestry into my separate async candidate branch and retain
+all 92,816 previous entries, with the new control file added. I do not broaden
+my five content-only metadata exceptions.
+
+My actual local checker and C-created async VM/native controls pass with
+explicitly pinned existing providers. I retain commands, original failures,
+source/product hashes and scope under
+`docs/evidence/async-source-contracts-20261109/`. The source-only C attempt
+refuses the same array ABI boundary on baseline and candidate. I do not count
+that refusal as execution acceptance. The new emitter shadow, current source
+compiler, fresh stages and paired platforms still require hosted qualification.
+
+I preserve original-source authority, every historical report, empty native
+implementation selections and the absent native lifecycle receipt. These
+source custody updates do not complete coroutine scheduling, foreign authority,
+the original corpus or budget, security, integration or release acceptance.
+I freeze catalog inputs before supported authority review and retain final
+validation logs outside the catalog.
+
+
+## My grouped union-pattern source checkpoint
+
+I preserve the existing grouped union-pattern syntax through my source parser,
+coverage checker and emitter. I retain one guard and body, duplicate alternatives,
+exact underscore variant identity and once-only effects. I preserve ordinary
+pattern paths and ownership admission boundaries. My original-source baseline is
+`65b33feeb756659bcaad78b939866728c638f8dd`, a real descendant of my async baseline
+`21c3818c06c6931954c4170c7104fe0817ae1c57`. I change only three original NanoLang
+source files, the actual-route control file and the component workflow. I retain
+all 92,817 previous entries and add one control file without widening my five
+content-only metadata exceptions. This complete Git tree is independent of my
+temporary sparse working view.
+
+I retain local commands, product observations and their limits under
+`docs/evidence/match-or-source-contracts-20261109/`. The actual native checker and
+C-created controls pass with pinned existing providers; source-created execution,
+fresh stages and paired platform acceptance remain open. I preserve original
+source authority, empty native implementation selections and the absent native
+lifecycle receipt. These custody checks do not complete native SDK, original
+corpus, budget, security or release acceptance. I freeze catalog inputs before
+supported authority review and retain its validation logs outside the catalog.
+
+
+## My grouped statement-block correction
+
+My exact 328 Apple source compiler completes all 1,286 selected shadows and
+passes 32 of 33 component methods. The unchanged original grouped-pattern
+fixture exposes an incorrect block-arm tag in my new parser branch. I store
+PNODE_BLOCK explicitly for a block arm and retain direct parser/emitter shadows,
+the unchanged original fixture and all expression-arm controls. I also require
+the resource refusal's observed E0036 ownership diagnostic explicitly.
+
+My original-source baseline is `1883b7373cba3a7c64815d6a770a51cae39d72f9`, a real
+code-only descendant of `65b33feeb` changing the parser, emitter shadow and actual
+route control file. I retain all 92,818 original entries, their complete Git
+ancestry and the same five content-only metadata exceptions. I retain exact
+hosted source/product/command audits and local checker controls under
+`docs/evidence/match-or-source-contracts-20261109/`. Linux's source-creation
+deadlines remain separate failures. The corrected source candidate still needs
+hosted execution and fresh/original-corpus acceptance.
+
+I retain bounded local profiling setup failures separately under
+`docs/evidence/source-shadow-profile-20261109/`. No CPU sample was taken and no
+source compiler was produced by those diagnostics. Original source authority,
+empty native implementation selections and the absent native lifecycle receipt
+remain unchanged. I freeze this catalog before supported authority review and
+retain final validation logs outside it.
+
+
+## My optional Apple shadow-sampling diagnostic
+
+I add a false-by-default sampling mode to my existing diagnostic comparison
+workflow and one actual-process driver. My default six-attempt comparison and
+all original C, NanoLang, Make, test and qualification inputs remain unchanged.
+The optional mode samples one identified real shadow child with the original
+selection and ten-second supervisor, then stops before native publication.
+Actual samples, setup refusals and timing acceptance remain distinct.
+
+My original-source baseline is `51649d12a252d4685cf22593d6101a3849e28df6`, a real
+code-only descendant of `1883b7373` containing the workflow delta and new driver.
+I retain all 92,818 inherited entries and add one script without widening my
+five content-only metadata exceptions. My complete source tree is independent
+of the temporary sparse working view, and I merge its real ancestry.
+
+I retain local native process-group controls, their initial harness refusal,
+parsed-YAML preservation and help/compilation checks under
+`docs/evidence/source-shadow-sampler-20261109/`. My actual Apple run 42548134459 at exact f18474b85 now produces a verified CPU
+sample with 602 snapshots after all 1,286 shadow bodies complete. I independently
+match its actual provider/sample bytes and source inputs and retain unchanged
+before/after observations under the same evidence directory. Intentional
+termination prevents native publication; this sample is not source-creation or
+timing acceptance. I keep original source authority, eight integration Components,
+empty native implementation selections and absent native lifecycle receipt
+unchanged. No diagnostic profile completes native SDK, source/fresh/platform,
+security, budget, integration or release acceptance. I freeze this catalog
+before supported authority review and retain its logs outside the catalog.
+
+
+## My measured record-name filter candidate
+
+I factor my unchanged record lookup and byte-context bodies into a private
+include used by the actual evaluator and native sanitizer unit, then reject
+unequal initial bytes before the same full strcmp equality test. I preserve
+first-match/declaration order, duplicate/empty/non-ASCII C metadata, byte
+normalization/refusals, owned STRING reads and other value identities/flags.
+I change no public record, AST or GC layout and introduce no ownership cache
+or foreign admission.
+
+My original-source baseline is `6bb9c6bd3e01628070df809e41200f9bec1e0bb9`, a real
+code-only descendant of `51649d12a` containing five reviewed paths: evaluator,
+private include, native unit, Make target and existing component workflow.
+I retain all 92,819 inherited entries and add two source/control files, with
+real ancestry and the same five content-only metadata exceptions. My temporary
+sparse working view does not omit inputs from the complete Git checkpoint.
+
+My same actual helper/environment/GC sanitizer controls pass before and after
+filtering, with identical refusal text and owned STRING lifetime behavior. The
+wide control reduces 128,000 comparisons to 2,000 for 2,000 lookups; it does not
+establish a whole-compiler speedup. The complete evaluator syntax check passes.
+I retain exact commands, initial C test-literal warning, source/product hashes
+and scope under `docs/evidence/record-field-filters-20261109/`.
+
+I declare fixed actual whole-source paired comparisons against pre-change
+48016fec4 and retain the original complete component/platform selections and
+deadlines before adoption. Actual hosted results remain required. Source
+carrier lifetime, full fresh/corpus/budget, NativeSDK/lifecycle, security and
+release remain open. Original source authority, eight integration Components,
+empty native selections and absent lifecycle receipt are unchanged. I freeze
+this catalog before supported review and retain final logs outside it.

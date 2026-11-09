@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=clang",
+    "test-eval-record-fields-sanitizers"
+  ],
+  "returncode": 2,
+  "seconds": 1.8382423330331221,
+  "before": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "80e4b6e48ba5080602461fe7a0f7883684f3e96d12b71dbb596945e3a36394da",
+    "tests/test_eval_record_fields.c": "af3baa72e7b3109e779fc8f27e670dbae592f634a683965d0350a4e593ee8a31",
+    "src/env.c": "52a754e9afd60b8a48d32fbf12bd076ef29b7eff4233e17ae1e541a1d55e3a3f",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c"
+  },
+  "after": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "80e4b6e48ba5080602461fe7a0f7883684f3e96d12b71dbb596945e3a36394da",
+    "tests/test_eval_record_fields.c": "af3baa72e7b3109e779fc8f27e670dbae592f634a683965d0350a4e593ee8a31",
+    "src/env.c": "52a754e9afd60b8a48d32fbf12bd076ef29b7eff4233e17ae1e541a1d55e3a3f",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c"
+  },
+  "scope": "I compile and execute my actual private helper and real environment/GC source under ASan/UBSan, before the first-byte filter. This is a bounded native unit, not whole-provider, source-created or timing acceptance."
+}

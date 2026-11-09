@@ -1,0 +1,33 @@
+{
+  "scope": "I measure real descriptor activity in the pinned existing C provider. I do not infer its current-source provenance, whole-compiler performance or release acceptance.",
+  "provider": "/Users/jkh/Src/nanolang/bin/nanoc_c",
+  "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+  "library": "/Users/jkh/Src/nanolang/.test_output/shadow_stdio_probe.dylib",
+  "library_sha256": "a3bf088afec5bd914f3a24daa1794e3d31131b6f4ee1f1aafd18cfa6d9c9e029",
+  "shadow_timeout_seconds": 10,
+  "main_shadow_checks_return": true,
+  "plan": [
+    {
+      "count": 1283,
+      "order": [
+        "plain",
+        "instrumented",
+        "instrumented",
+        "plain",
+        "plain",
+        "instrumented"
+      ]
+    },
+    {
+      "count": 5000,
+      "order": [
+        "plain",
+        "instrumented",
+        "instrumented",
+        "plain",
+        "plain",
+        "instrumented"
+      ]
+    }
+  ]
+}

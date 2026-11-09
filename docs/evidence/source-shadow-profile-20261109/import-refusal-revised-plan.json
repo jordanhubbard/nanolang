@@ -1,0 +1,16 @@
+{
+  "scope": "I sample the real default shadow child using the same retained original C executable. I correct the prior CC=false pre-shadow refusal by allowing actual prerequisite compilation in an isolated working/output directory. I explicitly resolve the project root through argv0; this is not a published provider or native-creation qualification. I stop the diagnostic process group upon last main-shadow completion to prevent full native compilation.",
+  "provider": "/Users/jkh/Src/nanolang/.test_output/source-shadow-profile/nanoc_c",
+  "provider_sha256": "ff48882ed61b2abaf79c2f5f859b40c0d8862131f9ddb5cc3c7807fc96dddf8a",
+  "argv0_for_existing_root_resolution": "/Users/jkh/Src/nanolang/bin/nanoc_c",
+  "working_directory": "/Users/jkh/Src/nanolang/.test_output/source-shadow-profile/isolated",
+  "selection": "all default dependency/root shadows, unchanged",
+  "supervisor_seconds": 10,
+  "sample_duration_seconds": 8,
+  "sample_interval_ms": 10,
+  "timeout_seconds": 60,
+  "max_attempts": 1,
+  "native_lifecycle_admitted": false,
+  "timing_acceptance": false,
+  "source_pin": "0d7f5b22dbabd2f106ff3c54bad49e226e19a0fb"
+}

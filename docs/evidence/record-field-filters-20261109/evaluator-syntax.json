@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "clang",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+    "-I/opt/homebrew/Cellar/openssl@4/4.1.0/include",
+    "-UNDEBUG",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-fno-omit-frame-pointer",
+    "-fsyntax-only",
+    "src/eval.c"
+  ],
+  "returncode": 0,
+  "seconds": 0.09146016696467996,
+  "before": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "516332ebf7cbe649b17c170dc074e1cc3f4887fbc625b1693872f6f737d58b75"
+  },
+  "after": {
+    "src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "src/eval/record_fields.inc": "516332ebf7cbe649b17c170dc074e1cc3f4887fbc625b1693872f6f737d58b75"
+  },
+  "scope": "I parse/typecheck the complete actual evaluator with the native-unit compiler flags and current headers, without emitting objects. I do not establish a whole-provider build or execution result."
+}

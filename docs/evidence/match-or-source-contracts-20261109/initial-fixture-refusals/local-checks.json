@@ -1,0 +1,45 @@
+{
+  "scope": "I execute actual local fixture, C-created VM/native and checker controls with pinned existing providers. I do not establish their current C-source provenance or source-created/fresh/platform acceptance.",
+  "before": {
+    "src_nano/parser.nano": "48ad184482b915363046467b4e98067980fe7b9e0bb68c4c9f80f0e4d8287d05",
+    "src_nano/typecheck.nano": "5f86412abfa31ef62d7cc5c2afc4270c0cd5b3e81865adf6eb16d5411e23d880",
+    "src_nano/compiler/nanoisa_codegen.nano": "0fe771a0d051c4a89496d3bef7b6a20beb6eab5494e4332db5e4f6422b4d14e4",
+    "tests/test_match_or_source_contracts.py": "e8da7eafb6199262dd9cb3af3c8b0e9740bb7fb88ab2cdcc605766eb3941c9e4",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "bin/nano_virt": "ed325c65299a289d34037f55bdff5f999569385a65d321a61904e730acbe67f2"
+  },
+  "after": {
+    "src_nano/parser.nano": "48ad184482b915363046467b4e98067980fe7b9e0bb68c4c9f80f0e4d8287d05",
+    "src_nano/typecheck.nano": "5f86412abfa31ef62d7cc5c2afc4270c0cd5b3e81865adf6eb16d5411e23d880",
+    "src_nano/compiler/nanoisa_codegen.nano": "0fe771a0d051c4a89496d3bef7b6a20beb6eab5494e4332db5e4f6422b4d14e4",
+    "tests/test_match_or_source_contracts.py": "e8da7eafb6199262dd9cb3af3c8b0e9740bb7fb88ab2cdcc605766eb3941c9e4",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+    "bin/nano_virt": "ed325c65299a289d34037f55bdff5f999569385a65d321a61904e730acbe67f2"
+  },
+  "commands": [
+    {
+      "label": "fixture-identifiers",
+      "argv": [
+        "make",
+        "-f",
+        "Makefile.gnu",
+        "CC=clang",
+        "test-embedded-nano-identifiers"
+      ],
+      "returncode": 0,
+      "seconds": 6.069225874962285
+    },
+    {
+      "label": "cseed-or",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_match_or_source_contracts.CSeedOrPatternContracts"
+      ],
+      "returncode": 1,
+      "seconds": 1.5067620829795487
+    }
+  ]
+}

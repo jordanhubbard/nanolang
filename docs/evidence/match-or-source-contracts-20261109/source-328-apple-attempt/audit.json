@@ -1,0 +1,1012 @@
+{
+  "worker": "apple",
+  "source_pin": "328442f1f368325cf52e9366ad8b3e4090a78824",
+  "source_files_matched_to_exact_git": [
+    "src_nano/ast_shared.nano",
+    "src_nano/cli_args.nano",
+    "src_nano/compiler/binary64_arithmetic_runtime.nano",
+    "src_nano/compiler/binary64_format_runtime.nano",
+    "src_nano/compiler/checked_borrow_facts.nano",
+    "src_nano/compiler/declaration_ownership.nano",
+    "src_nano/compiler/diagnostics.nano",
+    "src_nano/compiler/effect_bindings.nano",
+    "src_nano/compiler/effect_declarations.nano",
+    "src_nano/compiler/error_messages.nano",
+    "src_nano/compiler/file_source_plan.nano",
+    "src_nano/compiler/function_signature.nano",
+    "src_nano/compiler/generic_types.nano",
+    "src_nano/compiler/ir.nano",
+    "src_nano/compiler/lexer.nano",
+    "src_nano/compiler/module_bindings.nano",
+    "src_nano/compiler/module_introspection.nano",
+    "src_nano/compiler/module_loader.nano",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "src_nano/compiler/nanoisa_codegen.nano",
+    "src_nano/compiler/native_product.nano",
+    "src_nano/compiler/nominal_bindings.nano",
+    "src_nano/compiler/owner_selection.nano",
+    "src_nano/compiler/passive_graph.nano",
+    "src_nano/compiler/passive_purity.nano",
+    "src_nano/compiler/resource_effects.nano",
+    "src_nano/compiler/result.nano",
+    "src_nano/compiler/serialize.nano",
+    "src_nano/compiler/service_bodies.nano",
+    "src_nano/compiler/service_inputs.nano",
+    "src_nano/compiler/service_lowering.nano",
+    "src_nano/compiler/service_namespace.nano",
+    "src_nano/compiler/service_origins.nano",
+    "src_nano/compiler/service_ownership.nano",
+    "src_nano/compiler/service_product.nano",
+    "src_nano/compiler/service_types.nano",
+    "src_nano/compiler/service_wire.nano",
+    "src_nano/compiler/token_value_bytes.nano",
+    "src_nano/compiler/type_substitution.nano",
+    "src_nano/compiler.nano",
+    "src_nano/compiler_simple.nano",
+    "src_nano/driver_minimal.nano",
+    "src_nano/file_io.nano",
+    "src_nano/generated/compiler_ast.nano",
+    "src_nano/generated/compiler_contracts.nano",
+    "src_nano/generated/compiler_schema.nano",
+    "src_nano/generated/purity_intrinsics.nano",
+    "src_nano/generated/reserved_builtin_names.nano",
+    "src_nano/lexer_main.nano",
+    "src_nano/nanoc.nano",
+    "src_nano/nanoc_modular.nano",
+    "src_nano/nanoc_selfhost.nano",
+    "src_nano/nanoc_stage0.nano",
+    "src_nano/nanoc_stage1.nano",
+    "src_nano/nanoc_v04.nano",
+    "src_nano/nanoc_v06.nano",
+    "src_nano/nanoisa_driver.nano",
+    "src_nano/nanoisa_emit.nano",
+    "src_nano/parse_nanoc.nano",
+    "src_nano/parser.nano",
+    "src_nano/parser_driver.nano",
+    "src_nano/typecheck.nano",
+    "src_nano/typecheck_driver.nano",
+    "src_nano/typecheck_nanoc.nano",
+    "modules/compiler_support/compiler_support.nano",
+    "modules/nanoisa/nanoisa.nano"
+  ],
+  "factory": {
+    "starts": 1286,
+    "completes": 1286,
+    "completed_assertion_failures": 0,
+    "summed_completed_body_seconds": 6.507352,
+    "actual_image": {
+      "size": 15718616,
+      "sha256": "64b00ef43e9fdb5cc9d1c2c96aed64b4206d060dd6b350e94263b014f6f0f010"
+    },
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/Users/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/Users/runner/work/nanolang/nanolang/src_nano/nanoc_v06.nano",
+          "--keep-c",
+          "-o",
+          "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  "native_products": [
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O0",
+      "size": 8909192,
+      "sha256": "5652c9fcb663d68694a77e5e93aa08934b8dbf4b5e6f5cf60406a0e548c053d0"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O2",
+      "size": 8564840,
+      "sha256": "6e4825113a6742aaf2c08f4d9d50d2f293f76b69b2e746c65d785344f5738708"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O0",
+      "size": 8942424,
+      "sha256": "d1bf486772aada6a0d154fc883ef999142ef6c0b2183502dfd002a815fb8b1b9"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O2",
+      "size": 8564744,
+      "sha256": "74b2b04b0a8b73a8bc77324acd9c774da5e5572c520fa1233263024fb370cd21"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O0",
+      "size": 8826328,
+      "sha256": "96ad6d2ac51a4166e1f416cfc20089dab9e8ba7a357c375f4fcdab5a6f954388"
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O2",
+      "size": 8547896,
+      "sha256": "936f5933ef02160ec8a57e2982e313235623d7045648511630cf8029057356f5"
+    },
+    {
+      "path": "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O0",
+      "size": 8909192,
+      "sha256": "a606208329bd8c86e739a3ebdc52571383a8dbf180a4de9947fd7e00d09b0f37"
+    },
+    {
+      "path": "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O2",
+      "size": 8564840,
+      "sha256": "23af9b116aeeb45b55f2f3f11d2b344ec134cc17799fff2fc5377a0c5adaa9ef"
+    },
+    {
+      "path": "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O0",
+      "size": 8826328,
+      "sha256": "952c90ee86a5bb66d29b14b778e884710c2eebe3752d28702560c7caf098df59"
+    },
+    {
+      "path": "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O2",
+      "size": 8547896,
+      "sha256": "18740de5d418f207535ea2b655272d8760d26926bd0dc89c3ad52c2b45abd7a5"
+    }
+  ],
+  "modules": [
+    {
+      "path": "match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.nvm",
+      "size": 2680,
+      "sha256": "1572ed1cd8ee3d6f865f6a5c0444d86da4821509cd3b0e592aff26b58deec8a0",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-o8liy2qx/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "path": "match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.nvm",
+      "size": 3112,
+      "sha256": "c669499a6d88e62a4aff3edcf2633109fbda6a86dff0ff2ca84ee7190bacf799",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_unchanged_complete_original_fixture-x5bzljf2/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "path": "match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.nvm",
+      "size": 1884,
+      "sha256": "1020cd2bff08e909b6345fe24d15cc7ceeea70c303a3802fca123e648b24e17c",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-mjd4amjh/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "path": "match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.nvm",
+      "size": 2080,
+      "sha256": "8615eac120baca219e60b797781438d1cf500946692de2d237c0c56693acc7f1",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_group_guard_once_order_and_duplicate_alternatives-i4udtqqb/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "path": "match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.nvm",
+      "size": 1544,
+      "sha256": "48f80046bdddc730fad18737105a34dc7354e661ec9b89cc9c5d7d2ddd4bbfc6",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "cc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/program.c",
+            "/Users/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_underscore_member_is_exact_variant_and_expression_results-3uc3viqt/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "refusals": [
+    {
+      "directory": "match-or-cseed-contracts/conditional-missing-vifn3sid",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-vifn3sid/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-vifn3sid/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "-- E035 NON-EXHAUSTIVE MATCH --- /Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/conditional-missing-vifn3sid/main.nano\nI require this match to cover every variant; I am missing: First Second\n\n1| union Choice{First{} Second{}} fn main()->int{return match Choice.First{} {First | Second if false => 1}}\n                                                        ^^^^^\nHint: Add unconditional arms for the missing variants or one unconditional wildcard.\nerror: type check failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/duplicate-missing-ooua54ik",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/duplicate-missing-ooua54ik/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/duplicate-missing-ooua54ik/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "-- E035 NON-EXHAUSTIVE MATCH --- /Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/duplicate-missing-ooua54ik/main.nano\nI require this match to cover every variant; I am missing: Second\n\n1| union Choice{First{} Second{}} fn main()->int{return match Choice.First{} {First | First => 1}}\n                                                        ^^^^^\nHint: Add unconditional arms for the missing variants or one unconditional wildcard.\nerror: type check failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/first-binding-ru1p6zyn",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/first-binding-ru1p6zyn/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/first-binding-ru1p6zyn/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Error at line 1, column 85: Expected '=>' after match pattern (got BAR)\nError at line 1, column 85: Unexpected token in expression: BAR (type=79)\nError at line 1, column 94: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 101: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 106: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nerror: parser failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/integer-alternative-s5v_mb3n",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-s5v_mb3n/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/integer-alternative-s5v_mb3n/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Error at line 1, column 84: Expected variant name after '|' in or-pattern\nError at line 1, column 84: Expected '=>' after or-pattern in match (got NUMBER)\nError at line 1, column 86: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 93: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 98: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nerror: parser failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/missing-alternative-ryjjfak9",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-ryjjfak9/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/missing-alternative-ryjjfak9/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Error at line 1, column 84: Expected variant name after '|' in or-pattern\nerror: parser failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/second-binding-xie74xcw",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/second-binding-xie74xcw/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/second-binding-xie74xcw/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Error at line 1, column 90: Expected '=>' after or-pattern in match (got LPAREN)\nError at line 1, column 94: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 101: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 106: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nerror: parser failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/wildcard-head-2gd3l06n",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-2gd3l06n/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wildcard-head-2gd3l06n/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Error at line 1, column 78: Expected '=>' after '_' in match (got BAR)\nError at line 1, column 78: Unexpected token in expression: BAR (type=79)\nError at line 1, column 86: Unexpected token in expression: ARROW (type=16)\nError at line 1, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nerror: parser failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/wrong-guard-dn45yokc",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-dn45yokc/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-dn45yokc/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "-- E001 TYPE MISMATCH --- /Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-guard-dn45yokc/main.nano\nI require a match guard to have type bool.\n\n1| union Choice{First{} Second{}} fn main()->int{return match Choice.First{} {First | Second if 7 => 1 _ => 2}}\n                                                                                                ^\nHint: Give this guard an exact bool type before I select an arm.\nerror: type check failed\n"
+    },
+    {
+      "directory": "match-or-cseed-contracts/wrong-result-k3wqd33g",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/bin/nano_virt",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-result-k3wqd33g/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-result-k3wqd33g/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "-- E001 TYPE MISMATCH --- /Users/runner/work/nanolang/nanolang/.test_output/match-or-cseed-contracts/wrong-result-k3wqd33g/main.nano\nReturn type mismatch: got bool, expected int.\n\n1| union Choice{First{} Second{}} fn main()->int{return match Choice.First{} {First | Second => true}}\n                                                 ^\nHint: Ensure the returned value matches the function's declared return type.\nerror: type check failed\n"
+    },
+    {
+      "directory": "match-or-source-contracts/conditional-missing-3ftq0jt0",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/conditional-missing-3ftq0jt0/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/conditional-missing-3ftq0jt0/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E035] I require unconditional coverage of every match value (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/conditional-missing-3ftq0jt0/main.nano:1:54)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/duplicate-missing-2qf644iv",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/duplicate-missing-2qf644iv/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/duplicate-missing-2qf644iv/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E035] I require unconditional coverage of every match value (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/duplicate-missing-2qf644iv/main.nano:1:54)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/first-binding-v9igtvqa",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/first-binding-v9igtvqa/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/first-binding-v9igtvqa/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Parse error at /Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/first-binding-v9igtvqa/main.nano:1, column 85: unexpected token ''\n"
+    },
+    {
+      "directory": "match-or-source-contracts/integer-alternative-n_dtnz1x",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/integer-alternative-n_dtnz1x/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/integer-alternative-n_dtnz1x/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Parse error at /Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/integer-alternative-n_dtnz1x/main.nano:1, column 84: unexpected token '1'\n"
+    },
+    {
+      "directory": "match-or-source-contracts/missing-alternative-llkw783p",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/missing-alternative-llkw783p/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/missing-alternative-llkw783p/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Parse error at /Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/missing-alternative-llkw783p/main.nano:1, column 84: unexpected token ''\n"
+    },
+    {
+      "directory": "match-or-source-contracts/resource-payload-fbtf2p6i",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/resource-payload-fbtf2p6i/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/resource-payload-fbtf2p6i/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: I require an exhaustive unguarded owned match with supported concrete payloads (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/resource-payload-fbtf2p6i/main.nano:3:37)\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/resource-payload-fbtf2p6i/main.nano:3:12)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/second-binding-hdr3lvtv",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/second-binding-hdr3lvtv/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/second-binding-hdr3lvtv/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Parse error at /Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/second-binding-hdr3lvtv/main.nano:1, column 90: unexpected token ''\n"
+    },
+    {
+      "directory": "match-or-source-contracts/underscore-not-wildcard-s88vw2d3",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/underscore-not-wildcard-s88vw2d3/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/underscore-not-wildcard-s88vw2d3/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] I require a pattern from the exact match domain (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/underscore-not-wildcard-s88vw2d3/main.nano:1:54)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/unknown-variant-l0vjs0nr",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/unknown-variant-l0vjs0nr/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/unknown-variant-l0vjs0nr/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] I require a pattern from the exact match domain (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/unknown-variant-l0vjs0nr/main.nano:1:54)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/wildcard-head-dnl60mkm",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wildcard-head-dnl60mkm/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wildcard-head-dnl60mkm/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "Parse error at /Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wildcard-head-dnl60mkm/main.nano:1, column 78: unexpected token ''\n"
+    },
+    {
+      "directory": "match-or-source-contracts/wrong-guard-df1exu6w",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-guard-df1exu6w/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-guard-df1exu6w/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] I require an exact bool match guard (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-guard-df1exu6w/main.nano:1:54)\n"
+    },
+    {
+      "directory": "match-or-source-contracts/wrong-result-xb17_4oq",
+      "commands": [
+        {
+          "label": "refuse",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-result-xb17_4oq/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-result-xb17_4oq/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0001] Return value of main: I expected a value of type `int`, but found `bool`. (/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/wrong-result-xb17_4oq/main.nano:1:47)\n"
+    }
+  ],
+  "failed_positive_emissions": [
+    {
+      "directory": "match-or-source-contracts/test_unchanged_complete_original_fixture-ykjd5i6r",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/Users/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-_by1yakz/compiler",
+            "/Users/runner/work/nanolang/nanolang/tests/unit/test_match_orpatterns.nano",
+            "--emit-nvm",
+            "-o",
+            "/Users/runner/work/nanolang/nanolang/.test_output/match-or-source-contracts/test_unchanged_complete_original_fixture-ykjd5i6r/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "diagnostic": "I cannot lower this checked program: I require a statement block in each match arm\n"
+    }
+  ]
+}

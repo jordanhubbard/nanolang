@@ -1,0 +1,50 @@
+{
+  "sample_sha256": "b3be0eeea92f2ed1fc37dbdfb78a1302fcfe510935f7d1aa86cd82f53ba4c30c",
+  "thread_snapshots": 602,
+  "string_comparison_snapshots": 135,
+  "string_comparison_nearest_c_callers": {
+    "eval_expression": 76,
+    "symbol_lookup": 30,
+    "builtin_is_array_operation": 13,
+    "function_named": 6,
+    "eval_call": 4,
+    "env_get_struct": 2,
+    "env_get_function_at": 2,
+    "env_get_enum": 2
+  },
+  "string_comparison_c_call_sites": {
+    "eval_expression + 3700  [0x10408ed9c]  eval.c:5745": 35,
+    "eval_expression + 4772  [0x10408f1cc]  eval.c:5658": 32,
+    "symbol_lookup + 272  [0x1040846b8]  env.c:119": 16,
+    "symbol_lookup + 236  [0x104084694]  env.c:117": 10,
+    "eval_expression + 5968  [0x10408f678]  eval.c:5719": 5,
+    "builtin_is_array_operation + 52  [0x104065d3c]  builtins_registry.c:286": 4,
+    "eval_call + 624  [0x10409193c]  eval.c:3353": 4,
+    "symbol_lookup + 352  [0x104084708]  env.c:117": 4,
+    "eval_expression + 2184  [0x10408e7b0]  eval.c:5311": 4,
+    "function_named + 1464  [0x104086164]  env.c:183": 4,
+    "function_named + 1532  [0x1040861a8]  env.c:186": 2,
+    "builtin_is_array_operation + 208  [0x104065dd8]  builtins_registry.c:288": 2,
+    "env_get_struct + 320  [0x104086db4]  env.c:1483": 2,
+    "builtin_is_array_operation + 72  [0x104065d50]  builtins_registry.c:286": 2,
+    "builtin_is_array_operation + 188  [0x104065dc4]  builtins_registry.c:287": 2,
+    "env_get_function_at + 336  [0x104085860]  env.c:1117": 2,
+    "builtin_is_array_operation + 32  [0x104065d28]  builtins_registry.c:286": 2,
+    "builtin_is_array_operation + 104  [0x104065d70]  builtins_registry.c:287": 1,
+    "env_get_enum + 816  [0x104087380]  env.c:1617": 1,
+    "env_get_enum + 712  [0x104087318]  env.c:1606": 1
+  },
+  "allocator_nearest_c_callers": {
+    "allocate_struct_carrier": 73,
+    "gc_alloc": 11,
+    "env_define_var_impl": 5,
+    "eval_evaluated_call": 4,
+    "eval_hm_rehash": 1,
+    "eval_expression": 1,
+    "env_free_value": 1
+  },
+  "reported_physical_footprint": "3.4G",
+  "method": "I count each rootmost comparison/allocator frame once per call-graph branch and attribute it to the nearest non-stub C frame. I do not sum recursive inclusive totals.",
+  "next_measurement": "I measure exact-name first-byte filters at record-field access and byte contextualization before considering production adoption.",
+  "limits": "Snapshots are not call/allocation counts, a wall-time measurement, proof of a leak, or an optimization comparison. The sampled interval does not establish the cause of every hosted deadline. Native creation, lifecycle and release remain unqualified."
+}

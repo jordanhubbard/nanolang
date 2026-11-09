@@ -1,0 +1,10 @@
+test_docstrings_are_not_fixture_programs_and_literals_are_not_executed (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_docstrings_are_not_fixture_programs_and_literals_are_not_executed) ... ok
+test_exact_negative_annotation_does_not_hide_other_reserved_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_exact_negative_annotation_does_not_hide_other_reserved_names) ... ok
+test_real_reported_fixtures_refuse_the_original_regressions (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_real_reported_fixtures_refuse_the_original_regressions) ... ok
+test_reserved_parameter_and_constructor_field_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_reserved_parameter_and_constructor_field_names) ... ok
+test_strings_comments_and_mutable_names_follow_actual_lexer (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_strings_comments_and_mutable_names_follow_actual_lexer) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.814s
+
+OK

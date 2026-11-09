@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "bin/nanoc_c",
+    "src_nano/nanoc_v06.nano",
+    "--target",
+    "c",
+    "-o",
+    ".test_output/match-or-source-syntax.c"
+  ],
+  "returncode": 1,
+  "provider_sha256": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff",
+  "scope": "I inspect full source parsing/typechecking through an existing provider; the source-only C profile is expected to refuse array ABI, not establish execution acceptance."
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "I inspect actual local native products from the C-created async controls, separate from source-created and current-provider provenance acceptance.",
+  "native_products": [
+    {
+      "path": ".test_output/async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-tc2te0hk/native-O0",
+      "size": 8773656,
+      "sha256": "f5f1488f375b56313ca389a8a7688488bdc3904d394abf2b6f930ab199e300fc",
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/async-cseed-contracts/test_scalar_types_primary_binding_and_once_only_effects-tc2te0hk/native-O2",
+      "size": 8547112,
+      "sha256": "b09888809047edaf43b07e6f216cc25698843ec8f7785303797b3fb51c20ba38",
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/async-cseed-contracts/test_unchanged_original_async_fixture-x_v0nfsc/native-O0",
+      "size": 8564248,
+      "sha256": "53de6a7c32ca56890322d75fb208ba8301c367f33a19ff41a0b4d265b4522c46",
+      "magic": "cffaedfe"
+    },
+    {
+      "path": ".test_output/async-cseed-contracts/test_unchanged_original_async_fixture-x_v0nfsc/native-O2",
+      "size": 8545160,
+      "sha256": "c91a33a0bd3112098248fbaea790c333ec30d6f55d1177d4c189cd8d598cb6af",
+      "magic": "cffaedfe"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"command":"project.test-receipt","error":{"code":"project.test_receipt_policy_unconfigured","message":"project definition does not configure test_receipt_policy; no receipt can be accepted or current"},"ok":false,"schema":"literate-ai/cli-error@1"}

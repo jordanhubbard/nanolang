@@ -1,0 +1,7 @@
+{
+  "scope": "I retain the initial local process-control harness refusal, not a compiler or profiler result.",
+  "harness_sha256": "a810e3db9f7a0412d6ea4854fe0327d6fe223d1009b85386515181bcdf10ec55",
+  "observed_error": "AssertionError at assert owned.returncode == 0 and not alive(nested)",
+  "correction": "I avoid reentering child.wait from the SIGTERM handler while the main control thread is already waiting on the same child; the main thread idles instead.",
+  "limits": "The initial tool output does not record the actual return code or nested-process state; I do not invent those values."
+}

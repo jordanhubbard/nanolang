@@ -1,0 +1,192 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_litai_source_preservation"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "00.stdout",
+      "stderr": "00.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/bootstrap",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "01.stdout",
+      "stderr": "01.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/distribution",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "02.stdout",
+      "stderr": "02.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/frontend",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "03.stdout",
+      "stderr": "03.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/isa",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "04.stdout",
+      "stderr": "04.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/libraries",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "05.stdout",
+      "stderr": "05.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/native",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "06.stdout",
+      "stderr": "06.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/qualification",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "07.stdout",
+      "stderr": "07.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "lock",
+        "literate/components/vm",
+        "--check"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "08.stdout",
+      "stderr": "08.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "agent-entrypoints",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "09.stdout",
+      "stderr": "09.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "--record",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "10.stdout",
+      "stderr": "10.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "documentation-review",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "11.stdout",
+      "stderr": "11.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "validate",
+        "."
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "stdout": "12.stdout",
+      "stderr": "12.stderr"
+    },
+    {
+      "argv": [
+        "litai",
+        "--json",
+        "project",
+        "test-receipt",
+        "require-current",
+        "--project",
+        "."
+      ],
+      "returncode": 2,
+      "expected": 2,
+      "stdout": "13.stdout",
+      "stderr": "13.stderr"
+    }
+  ],
+  "native_lifecycle_admitted": false,
+  "receipt_refusal_code": "project.test_receipt_policy_unconfigured",
+  "receipt_refusal_stream": "stderr"
+}

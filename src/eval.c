@@ -36,22 +36,7 @@
 #include <math.h>
 #include <limits.h>
 
-/* I narrow an already evaluated operand only at its declared byte field. */
-static bool eval_record_field_context(const StructDef *definition,
-        const char *field, Value *value) {
-    if (!definition) return true;
-    for (int i = 0; i < definition->field_count; ++i) {
-        if (strcmp(definition->field_names[i], field)) continue;
-        if (definition->field_types[i] != TYPE_U8) return true;
-        if (value->type != VAL_INT) {
-            fprintf(stderr, "I require a checked integer at a byte record field.\n");
-            return false;
-        }
-        value->as.int_val = (int64_t)(uint8_t)value->as.int_val;
-        return true;
-    }
-    return true;
-}
+#include "eval/record_fields.inc"
 
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
@@ -5740,21 +5725,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             const char *field_name = expr->as.field_access.field_name;
             StructValue *sv = obj.as.struct_val;
             
-            /* Find field in struct */
-            for (int i = 0; i < sv->field_count; i++) {
-                if (strcmp(sv->field_names[i], field_name) == 0) {
-                    /* I return an owned string, not a record's borrowed storage.
-                     * A local binding releases its value when its call ends. */
-                    if (sv->field_values[i].type == VAL_STRING) {
-                        return create_string(sv->field_values[i].as.string_val);
-                    }
-                    return sv->field_values[i];
-                }
-            }
-            
-            fprintf(stderr, "Error: Struct '%s' has no field '%s'\n", 
-                    sv->struct_name, field_name);
-            return create_void();
+            return eval_record_field_value(sv, field_name);
         }
 
         case AST_UNION_CONSTRUCT: {

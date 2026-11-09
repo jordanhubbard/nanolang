@@ -1,0 +1,85 @@
+{
+  "scope": "I observe real descriptor-call counts and inclusive elapsed call time in the pinned existing C seed. Whole CLI time includes native compilation and cannot isolate shadow-framework benefit. Observer timing overhead is not subtracted.",
+  "groups": {
+    "1284": {
+      "selected_shadows": 1284,
+      "plain_wall_seconds": [
+        0.9484337909962051,
+        0.8669690000242554,
+        0.8946335830260068
+      ],
+      "instrumented_wall_seconds": [
+        1.0710338749922812,
+        0.8397244159714319,
+        0.9020291669876315
+      ],
+      "descriptor_call_counts": [
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        },
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        },
+        {
+          "open_devnull": 1284,
+          "dup": 1284,
+          "dup2": 2569,
+          "close": 2570
+        }
+      ],
+      "observed_descriptor_seconds": [
+        0.019259,
+        0.012767,
+        0.014085
+      ],
+      "median_observed_descriptor_seconds": 0.014085
+    },
+    "5001": {
+      "selected_shadows": 5001,
+      "plain_wall_seconds": [
+        0.9055914579657838,
+        0.9016355840140022,
+        0.9269865000387654
+      ],
+      "instrumented_wall_seconds": [
+        0.8992950420361012,
+        0.8856425830163062,
+        0.8868289169622585
+      ],
+      "descriptor_call_counts": [
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        },
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        },
+        {
+          "open_devnull": 5001,
+          "dup": 5001,
+          "dup2": 10003,
+          "close": 10004
+        }
+      ],
+      "observed_descriptor_seconds": [
+        0.038279,
+        0.040171,
+        0.039725
+      ],
+      "median_observed_descriptor_seconds": 0.039725
+    }
+  },
+  "production_optimization_applied": false,
+  "whole_compiler_benefit_established": false
+}

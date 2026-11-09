@@ -1,0 +1,74 @@
+test_group_guard_once_order_and_duplicate_alternatives (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_group_guard_once_order_and_duplicate_alternatives) ... FAIL
+test_malformed_types_and_conditional_coverage_preserve_output (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_malformed_types_and_conditional_coverage_preserve_output) ... ok
+test_unchanged_complete_original_fixture (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_unchanged_complete_original_fixture) ... ok
+test_underscore_member_is_exact_variant_and_expression_results (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_underscore_member_is_exact_variant_and_expression_results) ... FAIL
+
+======================================================================
+FAIL: test_group_guard_once_order_and_duplicate_alternatives (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_group_guard_once_order_and_duplicate_alternatives)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_match_or_source_contracts.py", line 23, in test_group_guard_once_order_and_duplicate_alternatives
+            self.exercise('''union Choice{First{value:int} Second{} Third{}}
+            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let mut trace:int=0
+    ^^^^^^^^^^^^^^^^^^^
+    ...<31 lines>...
+    shadow main{assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_bstring_native_contracts.py", line 37, in exercise
+    self.command(work, 'emit', [providers[1], path, '--emit-nvm', '-o', module], build=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_numeric_builtin_selection.py", line 36, in command
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E035 NON-EXHAUSTIVE MATCH --- /Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_group_guard_once_order_and_duplicate_alternatives-4yw5i0ti/main.nano
+I require this match to cover every variant; I am missing: First Second
+
+11|  return match (select value){
+            ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Warning at line 11, column 9: Unused variable 't'
+error: type check failed
+
+
+======================================================================
+FAIL: test_underscore_member_is_exact_variant_and_expression_results (tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_underscore_member_is_exact_variant_and_expression_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_match_or_source_contracts.py", line 60, in test_underscore_member_is_exact_variant_and_expression_results
+            self.exercise('''union Choice{First{} _{} Other{}}
+            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn choose(value:Choice)->int{return match value{First | _ => 7 _ => 9}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    shadow main{assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_bstring_native_contracts.py", line 37, in exercise
+    self.command(work, 'emit', [providers[1], path, '--emit-nvm', '-o', module], build=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_numeric_builtin_selection.py", line 36, in command
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E003 ARITY MISMATCH --- /Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-lnwjakcm/main.nano
+Function `choose` expects 1 argument(s), but got 2.
+
+8|  assert (== (choose Choice._{}) 7)
+               ^^^^^^
+Hint: Add or remove arguments to match the function signature.
+-- E003 ARITY MISMATCH --- /Users/jkh/Src/nanolang/.test_output/match-or-cseed-contracts/test_underscore_member_is_exact_variant_and_expression_results-lnwjakcm/main.nano
+Function `text` expects 1 argument(s), but got 2.
+
+10|  assert (== (text Choice._{}) "group")
+                ^^^^
+Hint: Add or remove arguments to match the function signature.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.470s
+
+FAILED (failures=2)

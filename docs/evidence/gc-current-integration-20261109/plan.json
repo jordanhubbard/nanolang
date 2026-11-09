@@ -1,0 +1,16 @@
+{
+  "scope": "I qualify the original GC registry-allocation refusal with the current source candidate, preserving every old failure and all combined selections/deadlines. Field adoption and complete lifecycle/release gates remain separate.",
+  "gc_source": "0d3f591b1ec5194550478eba3b3a27195855d614",
+  "source_parent": "6a4f15868abbd69068fb9a5427d3a678067dee15",
+  "gc_controls": "I retain all thirteen original controls plus the allocation-failure matrix.",
+  "source_component_methods": 33,
+  "shadow_timeout_seconds": 10,
+  "native_build_budget_seconds": 600,
+  "workers": [
+    "linux-gcc",
+    "linux-clang",
+    "xcode-27-cc"
+  ],
+  "native_lifecycle_admitted": false,
+  "release_qualified": false
+}

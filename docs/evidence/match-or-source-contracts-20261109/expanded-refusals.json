@@ -1,0 +1,22 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_match_or_source_contracts.CSeedOrPatternContracts.test_malformed_types_and_conditional_coverage_preserve_output"
+    ],
+    "returncode": 0
+  },
+  {
+    "argv": [
+      "make",
+      "-f",
+      "Makefile.gnu",
+      "CC=clang",
+      "test-embedded-nano-identifiers"
+    ],
+    "returncode": 0
+  }
+]

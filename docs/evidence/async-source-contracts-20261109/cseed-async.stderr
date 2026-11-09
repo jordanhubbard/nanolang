@@ -1,0 +1,8 @@
+test_malformed_types_and_failed_shadows_preserve_prior_output (tests.test_async_source_contracts.CSeedAsyncContracts.test_malformed_types_and_failed_shadows_preserve_prior_output) ... ok
+test_scalar_types_primary_binding_and_once_only_effects (tests.test_async_source_contracts.CSeedAsyncContracts.test_scalar_types_primary_binding_and_once_only_effects) ... ok
+test_unchanged_original_async_fixture (tests.test_async_source_contracts.CSeedAsyncContracts.test_unchanged_original_async_fixture) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.652s
+
+OK

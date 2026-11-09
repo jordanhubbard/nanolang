@@ -1,0 +1,2123 @@
+{
+  "run": 42537583587,
+  "artifact": 13640555640,
+  "zip_size": 146214920,
+  "zip_sha256": "f29df6d53638d89e535b016c37622dc4c9fd1377d0b13983275dea7eb0d77b44",
+  "crc_checked": true,
+  "zip_saved": false,
+  "scope": "I verify the actual C-created source compiler, its source VM modules and translated native programs at 7a709ee6b on Clang after private GC-entry tail retirement, before the async candidate. The complete Clang job passes. GCC and Apple remain separately observed; fresh/integrated/platform/NativeSDK/release acceptance remains open.",
+  "source_compiler": {
+    "path": "bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+    "size": 17985624,
+    "sha256": "8a3d887b886dbb51e1a93392f122427eb177b0d9e11ea657f034966ee030672b",
+    "magic": "7f454c46",
+    "commands": [
+      {
+        "label": "source-build",
+        "argv": [
+          "/home/runner/work/nanolang/nanolang/bin/nanoc_c",
+          "/home/runner/work/nanolang/nanolang/src_nano/nanoc_v06.nano",
+          "--keep-c",
+          "-o",
+          "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler"
+        ],
+        "returncode": 0
+      }
+    ],
+    "shadow_starts": 1283,
+    "shadow_completes": 1283,
+    "summed_body_seconds": 5.72204
+  },
+  "vm_modules": [
+    {
+      "path": "bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r/program.nvm",
+      "size": 1068,
+      "sha256": "d6dbd0308a1c9c5b3ef9e48d7cab62f5f552e45830a378db066ebcf12114a634"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro/program.nvm",
+      "size": 2204,
+      "sha256": "9318e7dfde6578e2bbd42c31af2e4e411d8eba0342e116152bb1adb161234147"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn/program.nvm",
+      "size": 1080,
+      "sha256": "905fb50e93aa36fc4b163a18216eb41dae057b527f5d1a5eca01342a282ff78b"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs/program.nvm",
+      "size": 764,
+      "sha256": "8ebd1bc7c6b4efb702ff159077afeaadeb658a4d019b26fea15f99685d69912c"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs/program.nvm",
+      "size": 1140,
+      "sha256": "58beaeba6116ad2d4470566ca35f5d6f4de1452c2c97759f645622a81d1b968d"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3/program.nvm",
+      "size": 764,
+      "sha256": "bd730d0b66ef713eaf18fadbb1ecf601fff387369b2894db17a4952e49ebea21"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn/program.nvm",
+      "size": 1292,
+      "sha256": "c4a96e5c59806a8bba213bb56327f2872a7ff017fe1c1dcb588cb9c977f24a3f"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t/program.nvm",
+      "size": 1116,
+      "sha256": "87b5a9e5cffa228754b223f7a08321f83b6e5a7247276b1a3c0bb3ebba752e6e"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h/program.nvm",
+      "size": 1608,
+      "sha256": "01a2258360370bc7b2b8db50d3c8c5562cc031a1e21825688b7a8b3f902c87a7"
+    },
+    {
+      "path": "bstring-source-vm-contracts/test_unchanged_original_fixture-y9q_ku6l/program.nvm",
+      "size": 2132,
+      "sha256": "c884d77441284ba4584f4c9fe81b20cc9a5a49ddf5df5639556b459bec45b6ff"
+    },
+    {
+      "path": "bstring-source-native-contracts/generated-collection-w7gxx_eo/program.nvm",
+      "size": 684,
+      "sha256": "584e80bece21674d43b1a0daafed0db0cb7651ea80a644f3388c64ebeaa49387"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.nvm",
+      "size": 1688,
+      "sha256": "60c787e12ff78c18ee30d939809175ed1cf26fed7ebb78f76ba88d499646f03e"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.nvm",
+      "size": 764,
+      "sha256": "bd730d0b66ef713eaf18fadbb1ecf601fff387369b2894db17a4952e49ebea21"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.nvm",
+      "size": 1116,
+      "sha256": "87b5a9e5cffa228754b223f7a08321f83b6e5a7247276b1a3c0bb3ebba752e6e"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.nvm",
+      "size": 1292,
+      "sha256": "c4a96e5c59806a8bba213bb56327f2872a7ff017fe1c1dcb588cb9c977f24a3f"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.nvm",
+      "size": 1080,
+      "sha256": "905fb50e93aa36fc4b163a18216eb41dae057b527f5d1a5eca01342a282ff78b"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.nvm",
+      "size": 764,
+      "sha256": "8ebd1bc7c6b4efb702ff159077afeaadeb658a4d019b26fea15f99685d69912c"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.nvm",
+      "size": 1140,
+      "sha256": "58beaeba6116ad2d4470566ca35f5d6f4de1452c2c97759f645622a81d1b968d"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.nvm",
+      "size": 764,
+      "sha256": "cc050b7d1526fff5d2304b6a4f5320dbe1654242350969b21a3ce8a4bbcfb511"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.nvm",
+      "size": 2396,
+      "sha256": "dcc45a3fe535d58ebf05e8fb039a8f37844eb05ab00d978be5dc5b0bfe7d39fe"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.nvm",
+      "size": 1608,
+      "sha256": "01a2258360370bc7b2b8db50d3c8c5562cc031a1e21825688b7a8b3f902c87a7"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.nvm",
+      "size": 2132,
+      "sha256": "c884d77441284ba4584f4c9fe81b20cc9a5a49ddf5df5639556b459bec45b6ff"
+    },
+    {
+      "path": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.nvm",
+      "size": 1168,
+      "sha256": "4930472009397a155e086dec2418d29eb6b094dd367d94ecbb7c7e83f5119747"
+    }
+  ],
+  "native_products": [
+    {
+      "path": "bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0",
+      "size": 10460304,
+      "sha256": "6241572a02c02861e62200a05c1b0addace65d36c9e074a601c09b02ea2309b1",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2",
+      "size": 10152960,
+      "sha256": "dba4e6290c52fa0c93da175c544af6ded846dd7e174e97d9c658b2a1fe01f804",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O0",
+      "size": 10499424,
+      "sha256": "c34349033eb4c71dc77f306ce0e00114ca5a48942db7759998f8d4ea260039a1",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O2",
+      "size": 10166976,
+      "sha256": "1190477bb6ff795febda70829a4b1d31411f9cfcab9f03fc899fd94e7cb7a408",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O0",
+      "size": 10460736,
+      "sha256": "c1856ec6bc2322a44a12d3aa359c5f12c08ec9ae31608cec169593a0bd8d83ca",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O2",
+      "size": 10141816,
+      "sha256": "46591d24e1b40f095314225d8cd46f5cd9eac1ecfac209409b87d76fb8850e0d",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O0",
+      "size": 10475776,
+      "sha256": "9d3e28068e9c1992abfb7df63aa4f0ea3339b8a61e482c90df17ae6c9f394549",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O2",
+      "size": 10156096,
+      "sha256": "1cb88a6dc9dde2f1c03b1e8628c7cc7a129bc9a95264aaf72a1bd534965938a6",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O0",
+      "size": 10485960,
+      "sha256": "05fb2df4e58a4124d00e701e2161b8e364cdca06d2aee41fe230d9a3ace62ec5",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O2",
+      "size": 10162064,
+      "sha256": "8d1003e2b48849da258fab10b24d06e007832f6ffdf7aefc72a3b40b0104cb4a",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O0",
+      "size": 10512120,
+      "sha256": "21f39f709cf5b22f18bc125c5adecb3e077380ab3c110a769cfca9da449ca757",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O2",
+      "size": 10158384,
+      "sha256": "2e9ec7a5746c45bd8a66b5ddf40f5a95938787d68ec00537f88dfe3451d00784",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O0",
+      "size": 10460736,
+      "sha256": "a2a8b9d6fe6334134d164e7f7d923fc86c4ea4002192fff1701bc1edd6614319",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O2",
+      "size": 10141816,
+      "sha256": "193c24b79fc92dc0e0721f001d2c8697c0191e3a8c518d112fd25f3d037ec4fc",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O0",
+      "size": 10511816,
+      "sha256": "e6270cbad4a80869093c0e391d491a5606e1312ce936a617573db923aacdb808",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O2",
+      "size": 10162672,
+      "sha256": "4b20c69aee373b9e8cc011a209f92df3aa4ba217260def91d969a4a513dcf2c1",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O0",
+      "size": 10518120,
+      "sha256": "e581e977e4f21eb07abe7cc9f776b31e0167236877fcf0227dfe0c027366be11",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O2",
+      "size": 10168800,
+      "sha256": "9e41b917fc58a43805c2a165cd59e40b686523ea00a4207937b2e400d36b6a7c",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O0",
+      "size": 10718848,
+      "sha256": "76efbb4ae6c1ac207ee45626e60b9d9df76171101af40c5dec8784dfa5bab557",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O2",
+      "size": 10201744,
+      "sha256": "f9fc6fcb18b0cffaa3b59967d441e5260743b7bdcad91bc18a27fb4e3007c1d9",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O0",
+      "size": 10540320,
+      "sha256": "35b76bbe5d5719ec1f39f7fd5c99b7c52df60851989698171bc1d9c119c26539",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O2",
+      "size": 10182048,
+      "sha256": "88b373a419f82f19f8e41ec53e9d17e9f929fbd44c277831dce9f4092a864c57",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O0",
+      "size": 10531392,
+      "sha256": "6b036c9369dc29a1333e6b3c2dcf5eeb380bf40718787d7d6b9590bce0033216",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O2",
+      "size": 10177800,
+      "sha256": "f91dd9e4408bb8bac65a77ecffefc418a300e3dc6b747decf1b7fdac7960ac62",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O0",
+      "size": 10464784,
+      "sha256": "6b626307a831bc4a4ab2e78cf1f37a8dce086fd15a650d54dfdaa53625103a3c",
+      "magic": "7f454c46"
+    },
+    {
+      "path": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O2",
+      "size": 10158096,
+      "sha256": "23e402c52422296c07ce800690d1e552f3041e8b3b38c4bcc46d15b8495a0d3c",
+      "magic": "7f454c46"
+    }
+  ],
+  "refusal_controls": [
+    {
+      "directory": "bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-gui8c6bb",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-gui8c6bb/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-gui8c6bb/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-ipxm2bys",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-ipxm2bys/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-ipxm2bys/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-sh9frj6h",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-sh9frj6h/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_binary_owner_operators_refuse_mixed_or_ordered_operands-sh9frj6h/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-32a5_i8s",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-32a5_i8s/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-32a5_i8s/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-k7qfm1qk",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-k7qfm1qk/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-k7qfm1qk/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-m84yo6yb",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-m84yo6yb/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-m84yo6yb/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-r4vhhuhv",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-r4vhhuhv/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_wrong_builtin_types_preserve_output-r4vhhuhv/program.nvm"
+          ],
+          "returncode": 1
+        }
+      ],
+      "prior_sha256": "c24e8793027379257452aa1562f6ac14e811f1157f412bad801b79caf0d2fded"
+    }
+  ],
+  "execution_records": [
+    {
+      "directory": "bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_extreme_substring_clamps_without_signed_addition-wgb3gg7r/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_lexical_callee_and_constructor_argument_order-hjbi4mro/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-em6zq8qn/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-hjvjv6qs/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-lgascmvs/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-nsrynxm3/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-x2rol1gn/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_reference_boundary_observations-zdjuzw7t/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_typed_functions_arrays_aliases_and_useful_shadows-rvk4cd2h/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-vm-contracts/test_unchanged_original_fixture-y9q_ku6l",
+      "commands": [
+        {
+          "label": "build",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_unchanged_original_fixture-y9q_ku6l/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_unchanged_original_fixture-y9q_ku6l/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-vm-contracts/test_unchanged_original_fixture-y9q_ku6l/program.nvm"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/generated-collection-w7gxx_eo",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/collection.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "collection-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "freed-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0",
+            "freed"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "double-free-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0",
+            "double-free"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "wrong-tag-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0",
+            "wrong-tag"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "unowned-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O0",
+            "unowned"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/collection.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "collection-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "freed-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2",
+            "freed"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "double-free-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2",
+            "double-free"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "wrong-tag-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2",
+            "wrong-tag"
+          ],
+          "returncode": -6
+        },
+        {
+          "label": "unowned-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/generated-collection-w7gxx_eo/native-O2",
+            "unowned"
+          ],
+          "returncode": -6
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_alias_identity_snapshot_and_extreme_bounds-glaymhlt/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-6qgy_8jw/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-8j26n8xa/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-jc9k068m/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-pttkx95z/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-qh1j2qev/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_all_retained_reference_observations-t3wsk9a1/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_nominal_live_and_freed_owner_display-uj2qzlsq/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_owner_array_mutation_and_higher_order_operations-1q3kfhqp/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_typed_owner_array_aliases-mtsbzd6w/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/tests/test_bstring.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-native-contracts/test_unchanged_original_fixture-j5xcbdbs/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd",
+      "commands": [
+        {
+          "label": "emit",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/bstring-source-compiler/actual-native-7ry_qp8e/compiler",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/main.nano",
+            "--emit-nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "verify",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "--verify-only",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "vm",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nano_vm",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.nvm"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "translate",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/bin/nvm2c",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.nvm",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.c"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O0",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O0",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O0",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O0"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "build-O2",
+          "argv": [
+            "clang",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=address,undefined",
+            "-fno-sanitize-recover=all",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/program.c",
+            "/home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o",
+            "-lm",
+            "-Wl,--export-dynamic",
+            "-ldl",
+            "-o",
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O2"
+          ],
+          "returncode": 0
+        },
+        {
+          "label": "run-O2",
+          "argv": [
+            "/home/runner/work/nanolang/nanolang/.test_output/byte-conversion-source-scan-boundary/test_managed_vm_and_native_keep_complete_input-cfbrjavd/native-O2"
+          ],
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "terminal_lines": [
+    "test_binary_owner_operators_refuse_mixed_or_ordered_operands (tests.test_bstring_source_vm.BstringSourceVmContracts.test_binary_owner_operators_refuse_mixed_or_ordered_operands) ... ok",
+    "test_extreme_substring_clamps_without_signed_addition (tests.test_bstring_source_vm.BstringSourceVmContracts.test_extreme_substring_clamps_without_signed_addition) ... ok",
+    "test_lexical_callee_and_constructor_argument_order (tests.test_bstring_source_vm.BstringSourceVmContracts.test_lexical_callee_and_constructor_argument_order) ... ok",
+    "test_reference_boundary_observations (tests.test_bstring_source_vm.BstringSourceVmContracts.test_reference_boundary_observations) ... ok",
+    "test_typed_functions_arrays_aliases_and_useful_shadows (tests.test_bstring_source_vm.BstringSourceVmContracts.test_typed_functions_arrays_aliases_and_useful_shadows) ... ok",
+    "test_unchanged_original_fixture (tests.test_bstring_source_vm.BstringSourceVmContracts.test_unchanged_original_fixture) ... ok",
+    "test_wrong_builtin_types_preserve_output (tests.test_bstring_source_vm.BstringSourceVmContracts.test_wrong_builtin_types_preserve_output) ... ok",
+    "test_alias_identity_snapshot_and_extreme_bounds (tests.test_bstring_source_native.BstringSourceNativeContracts.test_alias_identity_snapshot_and_extreme_bounds) ... ok",
+    "test_all_retained_reference_observations (tests.test_bstring_source_native.BstringSourceNativeContracts.test_all_retained_reference_observations) ... ok",
+    "test_generated_owner_collection_and_refusals (tests.test_bstring_source_native.BstringSourceNativeContracts.test_generated_owner_collection_and_refusals) ... ok",
+    "test_nominal_live_and_freed_owner_display (tests.test_bstring_source_native.BstringSourceNativeContracts.test_nominal_live_and_freed_owner_display) ... ok",
+    "test_owner_array_mutation_and_higher_order_operations (tests.test_bstring_source_native.BstringSourceNativeContracts.test_owner_array_mutation_and_higher_order_operations) ... ok",
+    "test_typed_owner_array_aliases (tests.test_bstring_source_native.BstringSourceNativeContracts.test_typed_owner_array_aliases) ... ok",
+    "test_unchanged_original_fixture (tests.test_bstring_source_native.BstringSourceNativeContracts.test_unchanged_original_fixture) ... ok",
+    "test_c_seed_native_keeps_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_c_seed_native_keeps_complete_input) ... ok",
+    "test_managed_vm_and_native_keep_complete_input (tests.test_byte_conversion_scan_boundary.ByteConversionScanBoundary.test_managed_vm_and_native_keep_complete_input) ... ok",
+    "test_managed_vm_and_native_keep_complete_input (tests.test_byte_conversion_scan_boundary.SourceByteConversionScanBoundary.test_managed_vm_and_native_keep_complete_input) ... ok",
+    "Ran 17 tests in 102.085s",
+    "OK"
+  ]
+}

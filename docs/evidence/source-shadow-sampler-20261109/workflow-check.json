@@ -1,0 +1,12 @@
+{
+  "before_sha256": "0d90105a0d41a822b8fbf5990888d6305e70727f78f8547c1d213a518ac26c0a",
+  "after_sha256": "fa377118b95cd5516adb11af2e6e35470a355ab9f69e349458e6a3fb66712327",
+  "allowed_changes": [
+    "I add an opt-in false-by-default sample_shadows input.",
+    "I run the original six-attempt step whenever sampling is not selected.",
+    "I add one guarded sampling step."
+  ],
+  "original_workflow_ast_preserved_after_declared_changes": true,
+  "parser": "Ruby YAML converted to JSON",
+  "native_lifecycle_admitted": false
+}

@@ -1,0 +1,8 @@
+{
+  "built_path": "obj/test_eval_record_fields",
+  "retained_path": ".test_output/record-field-filter-units/linear/test_eval_record_fields",
+  "size": 8838648,
+  "sha256": "fb642c257999bb3ce2f9ac8aa1473ac9c67dc20e287312acf0fa7f825ff03c8e",
+  "magic": "cffaedfe",
+  "observation": "I hash actual native unit bytes after the successful sanitizer target; this is not a whole C-provider image or execution-closure admission."
+}
