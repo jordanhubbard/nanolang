@@ -16,7 +16,7 @@ import time
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE_EQUIVALENT='35a32bf746e9c7741158bb8e62563d92bde614f8'
-KINDS={'ready','end','fork','exit-group','exit-thread','exit-mmap-enter','exit-mmap-return','process-exit','kill','wait-return'}
+KINDS={'ready','end','fork','exit-group','exit-thread','exit-mmap-enter','exit-mmap-return','process-exit','task-free','kill','wait-return'}
 
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -38,7 +38,8 @@ def render_program(root_pid):
         'tracepoint:syscalls:sys_enter_exit /@tracked[tid]/ { '+emit('exit-thread','args->error_code')+' }',
         'kprobe:exit_mmap /@tracked[tid]/ { '+emit('exit-mmap-enter')+' }',
         'kretprobe:exit_mmap /@tracked[tid]/ { '+emit('exit-mmap-return')+' }',
-        'tracepoint:sched:sched_process_exit /@tracked[tid]/ { '+emit('process-exit')+' delete(@tracked[tid]); }',
+        'tracepoint:sched:sched_process_exit /@tracked[tid]/ { '+emit('process-exit')+' }',
+        'tracepoint:sched:sched_process_free /@tracked[args->pid]/ { '+emit('task-free',detail='tid',pid='0',tid='args->pid')+' delete(@tracked[args->pid]); }',
         'tracepoint:syscalls:sys_enter_kill /@tracked[tid]/ { '+emit('kill','args->pid','args->sig')+' }',
         'tracepoint:syscalls:sys_exit_wait4 /@tracked[tid] && args->ret != 0/ { '+emit('wait-return','args->ret')+' }',
         'END { '+emit('end',pid='0',tid='0')+' clear(@tracked); }',''])
@@ -65,19 +66,29 @@ def parse_events(text,root_pid,stderr=''):
         raise ValueError('I require complete observer start and stop boundaries.')
     if sum(e['kind']=='ready' for e in events)!=1 or sum(e['kind']=='end' for e in events)!=1:
         raise ValueError('I require one observer start and stop.')
-    active={root_pid}
+    known={root_pid};exited=set();freed=set()
     for event in events:
-        if event['kind'] in ('ready','end'):
-            if event['pid'] or event['tid']: raise ValueError('I refuse a changed observer boundary identity.')
+        kind=event['kind'];tid=event['tid']
+        if kind in ('ready','end'):
+            if event['pid'] or tid: raise ValueError('I refuse a changed observer boundary identity.')
             continue
-        if event['pid']<=0 or event['tid'] not in active:
-            raise ValueError('I refuse an event outside the tracked target family.')
-        if event['kind']=='fork':
-            if event['value']<=0 or event['value'] in active:
-                raise ValueError('I refuse an inconsistent child identity.')
-            active.add(event['value'])
-        elif event['kind']=='process-exit': active.remove(event['tid'])
-    if active: raise ValueError('I require terminal events for the complete observed family.')
+        if tid not in known or tid in freed:
+            raise ValueError('I refuse an event outside the tracked task lifetime.')
+        if kind=='task-free':
+            if event['pid'] or tid not in exited:
+                raise ValueError('I require task-free after the matching process-exit event.')
+            freed.add(tid)
+            continue
+        if event['pid']<=0:
+            raise ValueError('I refuse an invalid target process identity.')
+        if tid in exited and kind not in ('exit-mmap-enter','exit-mmap-return'):
+            raise ValueError('I refuse a new syscall or duplicate exit after process-exit.')
+        if kind=='fork':
+            if event['value']<=0 or event['value'] in known:
+                raise ValueError('I refuse inconsistent or reused task identities.')
+            known.add(event['value'])
+        elif kind=='process-exit':exited.add(tid)
+    if known!=exited:raise ValueError('I require process-exit events for the complete observed family.')
     return events
 
 def exit_intervals(events,tid):
@@ -103,13 +114,15 @@ def check_control(events,record,root_pid):
         raise ValueError('I refuse the wrong actual native control result.')
     child=record['child_pid']
     entries=[e for e in events if e['tid']==child and e['pid']==child and e['kind']=='exit-group']
-    exits=[e for e in events if e['tid']==child and e['kind']=='process-exit']
+    exits=[e for e in events if e['tid']==child and e['pid']==child and e['kind']=='process-exit']
     waits=[e for e in events if e['tid']==root_pid and e['pid']==root_pid and e['kind']=='wait-return' and e['value']==child]
     intervals=exit_intervals(events,child)
     if len(entries)!=1 or entries[0]['value']!=7 or len(exits)!=1 or len(waits)!=1 or len(intervals)!=1:
         raise ValueError('I require the actual child exit, teardown and parent reap witnesses.')
-    points=[record['start_ns'],entries[0]['monotonic_ns'],intervals[0]['start_ns'],intervals[0]['end_ns'],exits[0]['monotonic_ns'],waits[0]['monotonic_ns'],record['end_ns']]
-    if points!=sorted(points): raise ValueError('I refuse inconsistent native and kernel monotonic clocks.')
+    entry=entries[0]['monotonic_ns'];reap=waits[0]['monotonic_ns']
+    points=[record['start_ns'],entry,intervals[0]['start_ns'],intervals[0]['end_ns'],reap,record['end_ns']]
+    if points!=sorted(points) or not entry<=exits[0]['monotonic_ns']<=reap:
+        raise ValueError('I refuse inconsistent native and kernel monotonic clocks.')
     return {'valid':True,'native':record,'child_exit_mmap':intervals[0],'clock':'CLOCK_MONOTONIC','kernel_execution_observed':True}
 
 def gated(fd,command):
@@ -187,7 +200,7 @@ def preflight(output):
     bpf=str(Path(shutil.which('bpftrace')).resolve(strict=True))
     write(output/'observer-tool.json',{'path':bpf,'sha256_before':digest(bpf)})
     commands=[['uname','-srvmo'],[bpf,'--version'],['sudo','-n','/usr/bin/timeout','--kill-after=2s','15s',bpf,'--info']]
-    commands += [['sudo','-n','/usr/bin/timeout','--kill-after=2s','15s',bpf,'-l',probe] for probe in ('kprobe:exit_mmap','kretprobe:exit_mmap','tracepoint:sched:sched_process_fork','tracepoint:sched:sched_process_exit','tracepoint:syscalls:sys_enter_exit_group','tracepoint:syscalls:sys_enter_exit','tracepoint:syscalls:sys_enter_kill','tracepoint:syscalls:sys_exit_wait4')]
+    commands += [['sudo','-n','/usr/bin/timeout','--kill-after=2s','15s',bpf,'-l',probe] for probe in ('kprobe:exit_mmap','kretprobe:exit_mmap','tracepoint:sched:sched_process_fork','tracepoint:sched:sched_process_exit','tracepoint:sched:sched_process_free','tracepoint:syscalls:sys_enter_exit_group','tracepoint:syscalls:sys_enter_exit','tracepoint:syscalls:sys_enter_kill','tracepoint:syscalls:sys_exit_wait4')]
     for i,command in enumerate(commands):
         result=subprocess.run(command,capture_output=True,text=True,timeout=20)
         operations.append({'argv':command,'returncode':result.returncode,'stdout':result.stdout,'stderr':result.stderr})
@@ -270,7 +283,7 @@ def run(output):
     status=phases['events'][-1];parent=status['pid'];child=status['child_pid']
     if not any(e['kind']=='fork' and e['pid']==parent and e['value']==child for e in events):raise RuntimeError('I require the actual source supervisor/child kernel identity.')
     intervals=exit_intervals(events,child)
-    exits=[e for e in events if e['tid']==child and e['kind']=='process-exit']
+    exits=[e for e in events if e['tid']==child and e['pid']==child and e['kind']=='process-exit']
     waits=[e for e in events if e['tid']==parent and e['kind']=='wait-return' and e['value']==child]
     if len(intervals)!=1 or len(exits)!=1 or len(waits)!=1:raise RuntimeError('I require complete actual child teardown, exit and reap observations.')
     origin=status['parent_start_seconds']*1000000000+status['parent_start_nanoseconds']
