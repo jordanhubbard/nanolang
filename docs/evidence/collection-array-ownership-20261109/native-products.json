@@ -1,0 +1,190 @@
+{
+  "implementation": "fb0b2a64a",
+  "images": {
+    "producer/plain": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-snapshots-5olk_bq9/plain",
+      "bytes": 8550536,
+      "sha256": "fb7efbfe93aea9e4ca9a3b6c4458db3a8aeaa58d65ea85b710ea08cd56632af1",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "producer/sanitized": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-snapshots-5olk_bq9/sanitized",
+      "bytes": 8893720,
+      "sha256": "367776311378b9541dc1b7922c91a8ddb6d6c29c6bdc859ed66734cdd5d25f4e",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "producer/threaded": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-snapshots-5olk_bq9/threaded",
+      "bytes": 8553144,
+      "sha256": "0c76517357dd445d41c49d94c375e8b02656ae6a1ee507c7011dc78fb3b0eb39",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "loader/plain/liborigin.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/plain/liborigin.dylib",
+      "bytes": 34432,
+      "sha256": "e42426e34083ce201031c73793c62bb9c6ed95d0587e0ee6c1eba716cf745245",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/plain/driver": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/plain/driver",
+      "bytes": 58520,
+      "sha256": "b9de7293a0316f3be72a1aaee5b378531412f4fd97db800ee52287e0798b0b94",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "loader/plain/libdependency.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/plain/libdependency.dylib",
+      "bytes": 17424,
+      "sha256": "cc91188476e80135b86193a47a1c8940b0eb75eba66f992792249f6c8467d487",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/plain/libcollections.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/plain/libcollections.dylib",
+      "bytes": 8547208,
+      "sha256": "44ee79042c2399c3a09c2543f5048f78f168ff8ccdf4105567cb15a0667d619a",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/sanitized/liborigin.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/sanitized/liborigin.dylib",
+      "bytes": 52128,
+      "sha256": "15e4c0a62fc979c60c82c9d604195844c6f1a0b8fa23ce0fee6d953f4b46bece",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/sanitized/driver": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/sanitized/driver",
+      "bytes": 87800,
+      "sha256": "99820638148f8555f70e6d20ff285ec61c5328356d2bfab3d78a6be780f05242",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "loader/sanitized/libdependency.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/sanitized/libdependency.dylib",
+      "bytes": 34256,
+      "sha256": "39fe3925305cbebe753b7bfdff5eed8ec70810bc5391742b7b1e0e7243a81f07",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/sanitized/libcollections.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/sanitized/libcollections.dylib",
+      "bytes": 8887480,
+      "sha256": "593f731f7bd67cefeb8a45541d0f5e3b298b02760ce911b57df82b2a5c411ebc",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/threaded/liborigin.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/threaded/liborigin.dylib",
+      "bytes": 34720,
+      "sha256": "0b517076aeb95b6cca1ae79b521fd97cb04833ca78baf5edb579836b6d20cf74",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/threaded/driver": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/threaded/driver",
+      "bytes": 72728,
+      "sha256": "b22631883b12b8866cb1fd248c540956a6523d33e31ba6a97f56f0d861f5d3a4",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "loader/threaded/libdependency.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/threaded/libdependency.dylib",
+      "bytes": 34128,
+      "sha256": "95f7f846d63e99832e6dc12399fd510f0be564299b72a4f010fedcd83786fda3",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "loader/threaded/libcollections.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-nek70pqb/threaded/libcollections.dylib",
+      "bytes": 8553688,
+      "sha256": "1f8aad5a499e0f5a168ad4bdf0f65fe4a13853c404062f40ff452f5a82e8a9fe",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "vm-heap/plain": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-array-results-i9sodhyx/plain",
+      "bytes": 8619176,
+      "sha256": "c594abdd82b67b27e408849cbfb6a3adab33079c1a3bd803698e093e7aef92b0",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "vm-heap/sanitized": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-array-results-i9sodhyx/sanitized",
+      "bytes": 9143800,
+      "sha256": "9a1fb6c4c2bcf4c7ad3fdd020e682d3163a9c03a56b7569e0d9805c09db56c01",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "handle-regressions/plain": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-13seonyr/plain",
+      "bytes": 8552520,
+      "sha256": "b1968fd25d3b8eb45ed402a63adfb0e43b08bf56660ee33f7848ac730748f949",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "handle-regressions/sanitized": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-13seonyr/sanitized",
+      "bytes": 8914712,
+      "sha256": "50593f4444faac96c6f62843cf9de7d6ae792ec2cf5692a0111e21c96e9525b3",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "handle-regressions/threaded": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-13seonyr/threaded",
+      "bytes": 8553640,
+      "sha256": "16d72857a5112a7a9af8b84a620339b21c8314f6ca145db13365b56de5a685db",
+      "magic": "cffaedfe",
+      "role": "native_executable",
+      "mach_o_filetype": 2
+    },
+    "initial-loader-refusal/plain/liborigin.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-kjiozn9v/plain/liborigin.dylib",
+      "bytes": 34384,
+      "sha256": "4a70ef82e1c0f4375087a9955184c5f8010c993cd071ca1d9892fdfdde2e039b",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "initial-loader-refusal/plain/libdependency.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-kjiozn9v/plain/libdependency.dylib",
+      "bytes": 17424,
+      "sha256": "b2ccde97c16c70e3d0b8ceb9ee7a9c6cbe3b2770d6ace57e2d6f6ced66970172",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    },
+    "initial-loader-refusal/plain/libcollections.dylib": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/ffi-result-release-kjiozn9v/plain/libcollections.dylib",
+      "bytes": 8546520,
+      "sha256": "f3868b95b7779e807051292a015d2c084758fa5027fdb6fd6cba5fd32225d460",
+      "magic": "cffaedfe",
+      "role": "native_shared_library",
+      "mach_o_filetype": 6
+    }
+  },
+  "scope": "I retain local executable and shared-library bytes at their recorded paths. My producer/loader controls execute assertion, ASan/UBSan and ThreadSanitizer modes; real VM heap controls execute assertion and ASan/UBSan modes. Native loader drivers call actual shared-image exports. The initial loader failure precedes driver execution. Fresh VM CLI controls are prepared but not selected in these local commands. I exclude dSYM/debug companions from native executable and library classification."
+}
