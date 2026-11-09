@@ -1,0 +1,241 @@
+{
+  "plan": {
+    "scope": "I measure mechanically copied current formatter bodies in an isolated native witness before changing production code. I do not replace original source, skip shadows, alter budgets or infer source-creation/release acceptance.",
+    "source_pin": "a561d8c97d3cbfd7954efe7d3625d09ef1476223",
+    "source_file": "src/eval.c",
+    "helper_start": "static void shadow_json_escape(",
+    "helper_end_before": "static bool shadow_write_json_file(",
+    "trace_fixture": "docs/evidence/factory-process-phases-20261109/actual-fac-apple/texts.json.gz",
+    "trace_attempt": "cseed-source-comparison/samples/04-original/source-build.stderr",
+    "trace_events": 2572,
+    "selected_shadows": 1286,
+    "samples": 20,
+    "destination": "I write to a real unbuffered temporary regular file and retain its final actual bytes/hash; I report the scope separately from pipes/terminals/full compiler runs.",
+    "native_lifecycle_admitted": false,
+    "release_qualified": false
+  },
+  "before": {
+    "/Users/jkh/Src/nanolang/src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/native-witness.c": "514d87074e140579301d6eb433f80df3d4f468ba6cceb7cae1774e7aa4fb2c70",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/plan.json": "db5a22673cd0cfdcc52a530a10cd2ebd3019c338a61a205741d962d0f41a83fc",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/run-measurement.py": "e49bbe258bbcdef63f0740383f139c3c245bb139d8f22e0bc7fef2074a12b14a",
+    "/Users/jkh/Src/nanolang/docs/evidence/factory-process-phases-20261109/actual-fac-apple/texts.json.gz": "d3af96abf1fa1113707c182b3d1cb0eb34fceb783460bc0c4b727ee81659e357"
+  },
+  "after": {
+    "/Users/jkh/Src/nanolang/src/eval.c": "2e58dba0d8d3d7f2676389712cfbb317802477ee541cb5c985e92b5ec8746444",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/native-witness.c": "514d87074e140579301d6eb433f80df3d4f468ba6cceb7cae1774e7aa4fb2c70",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/plan.json": "db5a22673cd0cfdcc52a530a10cd2ebd3019c338a61a205741d962d0f41a83fc",
+    "/Users/jkh/Src/nanolang/docs/evidence/shadow-json-write-cost-20261109/run-measurement.py": "e49bbe258bbcdef63f0740383f139c3c245bb139d8f22e0bc7fef2074a12b14a",
+    "/Users/jkh/Src/nanolang/docs/evidence/factory-process-phases-20261109/actual-fac-apple/texts.json.gz": "d3af96abf1fa1113707c182b3d1cb0eb34fceb783460bc0c4b727ee81659e357"
+  },
+  "helper_sha256": "21afcc2d4734fee3027b2bbf439b8ab398c2fb4ae96106812b42c6f9a969748b",
+  "compiler": {
+    "argv": [
+      "cc"
+    ],
+    "observed_executable": "/usr/bin/cc",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+  },
+  "products": {
+    "sanitized": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/sanitized",
+      "sha256_before_execution": "9c548f79d1d6f75096247afaf0d46a8ee7ac4e400a8a51be3ab15d61a6079f92",
+      "magic": "cffaedfe",
+      "sha256_after_execution": "9c548f79d1d6f75096247afaf0d46a8ee7ac4e400a8a51be3ab15d61a6079f92"
+    },
+    "plain": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/plain",
+      "sha256_before_execution": "ab4f64ca433b8041e8ba0e7391ae8a342467097393a72bbef3b84413c7f0dde0",
+      "magic": "cffaedfe",
+      "sha256_after_execution": "ab4f64ca433b8041e8ba0e7391ae8a342467097393a72bbef3b84413c7f0dde0"
+    },
+    "counted": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/shadow-json-write-cost/linear-a561-corrected/counted",
+      "sha256_before_execution": "19d16ff352de18f55cde17b16c4e22d5580b0fd1ad890e16f5e3e5ace4b362c0",
+      "magic": "cffaedfe",
+      "sha256_after_execution": "19d16ff352de18f55cde17b16c4e22d5580b0fd1ad890e16f5e3e5ace4b362c0"
+    }
+  },
+  "expected_trace_bytes": 550034,
+  "expected_trace_sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b",
+  "samples": [
+    {
+      "wall_seconds": 0.529163,
+      "events": 2572,
+      "counted": false,
+      "index": 1,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.508262,
+      "events": 2572,
+      "counted": false,
+      "index": 2,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.500446,
+      "events": 2572,
+      "counted": false,
+      "index": 3,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.486844,
+      "events": 2572,
+      "counted": false,
+      "index": 4,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.482198,
+      "events": 2572,
+      "counted": false,
+      "index": 5,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.496276,
+      "events": 2572,
+      "counted": false,
+      "index": 6,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.511834,
+      "events": 2572,
+      "counted": false,
+      "index": 7,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.513158,
+      "events": 2572,
+      "counted": false,
+      "index": 8,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.515889,
+      "events": 2572,
+      "counted": false,
+      "index": 9,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.490675,
+      "events": 2572,
+      "counted": false,
+      "index": 10,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.504142,
+      "events": 2572,
+      "counted": false,
+      "index": 11,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.488373,
+      "events": 2572,
+      "counted": false,
+      "index": 12,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.482218,
+      "events": 2572,
+      "counted": false,
+      "index": 13,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.495276,
+      "events": 2572,
+      "counted": false,
+      "index": 14,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.49478,
+      "events": 2572,
+      "counted": false,
+      "index": 15,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.490458,
+      "events": 2572,
+      "counted": false,
+      "index": 16,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.509879,
+      "events": 2572,
+      "counted": false,
+      "index": 17,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.485393,
+      "events": 2572,
+      "counted": false,
+      "index": 18,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.502333,
+      "events": 2572,
+      "counted": false,
+      "index": 19,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    },
+    {
+      "wall_seconds": 0.495273,
+      "events": 2572,
+      "counted": false,
+      "index": 20,
+      "bytes": 550034,
+      "sha256": "7b7b117f356496761625820515f0a1615b33e626401f04fe0482ec6aa2bcac7b"
+    }
+  ],
+  "counted_separate_replay": {
+    "wall_seconds": 0.48132,
+    "events": 2572,
+    "counted": true,
+    "fputc_calls": 292890,
+    "fwrite_calls": 0
+  },
+  "distribution": {
+    "count": 20,
+    "median": 0.495776,
+    "p25": 0.48993675000000003,
+    "p75": 0.50866625,
+    "iqr": 0.018729499999999955,
+    "min": 0.482198,
+    "max": 0.529163
+  },
+  "scope": "I mechanically copy current bodies into an isolated native witness. Timed images use real libc I/O without count wrappers; a separate image counts calls. I check actual bytes after every replay and all input/tool/image hashes before/after. This is regular-file micro-measurement, not whole-compiler timing, complete toolchain closure or release admission."
+}
