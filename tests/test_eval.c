@@ -2769,6 +2769,39 @@ void test_eval_fresh_record_local_transfer(void) {
     run_ctx_free(&ctx);
 }
 
+/* I use the same evaluated-binding API for top-level initializers too. */
+void test_eval_fresh_record_global_reinitialization(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "let mut original: Item = Item { value: 7, label: (+ \"keep\" \"me\") }\n"
+        "let snapshot: Item = original\n"
+        "fn replace_global() -> int {\n"
+        " set original Item { value: 9, label: \"changed\" }\n"
+        " assert (== snapshot.value 7) assert (== snapshot.label \"keepme\")\n"
+        " assert (== original.label \"changed\") return original.value }\n"
+        "shadow replace_global { assert (== (replace_global) 9) }\n"
+        "fn main() -> int { return 0 }\n"));
+    Value original = env_get_var(ctx.env, "original")->value;
+    Value snapshot = env_get_var(ctx.env, "snapshot")->value;
+    ASSERT_EQ(original.type, VAL_STRUCT);
+    ASSERT_EQ(snapshot.type, VAL_STRUCT);
+    ASSERT(original.as.struct_val != snapshot.as.struct_val);
+    Value original_label = eval_test_record_field(original, "label");
+    Value snapshot_label = eval_test_record_field(snapshot, "label");
+    ASSERT_EQ(original_label.type, VAL_STRING);
+    ASSERT_EQ(snapshot_label.type, VAL_STRING);
+    ASSERT(original_label.as.string_val != snapshot_label.as.string_val);
+    for (int repeat = 0; repeat < 3; ++repeat) {
+        ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+        snapshot = env_get_var(ctx.env, "snapshot")->value;
+        snapshot_label = eval_test_record_field(snapshot, "label");
+        ASSERT_EQ(snapshot_label.type, VAL_STRING);
+        ASSERT(strcmp(snapshot_label.as.string_val, "keepme") == 0);
+    }
+    run_ctx_free(&ctx);
+}
+
 /* I keep named, first-class and generated-list consumers on their old routes. */
 void test_eval_fresh_record_call_and_list_escape(void) {
     RunCtx ctx;
@@ -3309,6 +3342,7 @@ int main(void) {
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
     TEST(eval_fresh_record_local_transfer);
+    TEST(eval_fresh_record_global_reinitialization);
     TEST(eval_fresh_record_call_and_list_escape);
     TEST(eval_record_alias_across_direct_calls);
     TEST(eval_epoch_milliseconds);

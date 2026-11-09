@@ -1,7 +1,7 @@
 # My fresh local record transfer candidate
 
 I follow the measured binding experiment from PR #1137. I change only the
-local evaluated-binding path: a completed `AST_STRUCT_LITERAL` whose value is
+evaluated-let binding path: a completed `AST_STRUCT_LITERAL` whose value is
 a non-null `VAL_STRUCT` transfers its fresh carrier. Return, break and continue
 values retain the old copy path. Ordinary binding APIs, assignments, arguments
 and nonliteral results retain their existing record-copy and borrow behavior.
@@ -62,3 +62,22 @@ separate diagnostic main. I preserve the first positional witness image
 losslessly. The corrected full component plans require a new test source
 checkpoint; the original fixed six-attempt GCC comparison remains on its live
 handle and original product source pin.
+
+## My global initialization scope
+
+I verify that run_program and run_shadow_tests use the same API for top-level
+let initializers. My transfer therefore covers completed fresh record literals
+at global initialization as well as inside functions. I do not restrict the
+implementation to a local-only call path. A new actual evaluator control keeps
+global record/STRING snapshots independent through reassignment and three
+shadow initialization cycles. All three new test functions pass in the bounded
+diagnostic recorded in global-evaluator-diagnostic.json.gz, with fresh
+env/eval/io objects and stable cached dependencies. I preserve the preceding
+corrected diagnostic image losslessly. This is still not a complete fresh
+provider gate.
+
+I predeclare the existing Instrumented shadow calls GCC/Clang ASan/UBSan
+workflow at my final test pin for the complete original interpreter suite,
+including this global control. I retain its exact original flags, selected
+tests and budgets. The running complete component and six-attempt comparison
+plans remain on their original pins and handles; production bytes are unchanged.
