@@ -1,0 +1,29 @@
+{
+  "scope": "I require actual unchanged-source paired factory measurements before adopting the exact-name filter. Native-unit comparison counts are not whole-compiler performance evidence.",
+  "baseline": "48016fec4bc56daffa2d90a60de36399c4f9b453",
+  "order": [
+    "original",
+    "modified",
+    "modified",
+    "original",
+    "original",
+    "modified"
+  ],
+  "workers": [
+    {
+      "native_darwin": false,
+      "compiler": "gcc"
+    },
+    {
+      "native_darwin": true,
+      "compiler": "cc"
+    }
+  ],
+  "shadow_timeout_seconds": 10,
+  "native_build_budget_seconds": 600,
+  "component_gates": [
+    "I run the original complete Linux GCC/Clang and Apple component selections, adding only the actual native record-helper unit."
+  ],
+  "native_lifecycle_admitted": false,
+  "release_qualified": false
+}
