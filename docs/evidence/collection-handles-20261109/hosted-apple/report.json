@@ -1,0 +1,144 @@
+{
+  "source_pin": "08fe93fcec8922a6e0699d403592e68fba9d7d9b",
+  "archive": {
+    "bytes": 29101216,
+    "sha256": "b402756a6282e0737372a2263aeb6329ec794f8655a9aca8c149c9fd57aaac8f",
+    "entries": 5713,
+    "all_entries_streamed_crc_checked": true
+  },
+  "native_executables": [
+    {
+      "name": "plain",
+      "kind": "Mach-O MH_EXECUTE",
+      "bytes": 8551928,
+      "sha256_before_after": "c990f7b70d9a6375c84a461d623d5048d8ff1a16cca1fafa9b21d3929d32a8ba"
+    },
+    {
+      "name": "sanitized",
+      "kind": "Mach-O MH_EXECUTE",
+      "bytes": 8914104,
+      "sha256_before_after": "b7494f86fa06e7afefe2f453c00e16b9622cfe530ed85f5272e883e61d71e066"
+    },
+    {
+      "name": "threaded",
+      "kind": "Mach-O MH_EXECUTE",
+      "bytes": 8553000,
+      "sha256_before_after": "c8b4d5355d7758145b92c116b4cb89af264f1005eebcba7a2433d43fd2dc5605"
+    }
+  ],
+  "checked_inputs": {
+    "tests/test_collection_handles.py": "105670f58ab693647725288cdd1c2ff99e878759eeddfe0abf9d9b17371ae928",
+    "modules/std/collections/module.json": "56e6fb88377ac9419c8e9bd87031ef9c2872d2201e122cb3eaa7a4447ae6bea0",
+    "tests/test_collection_handles.c": "2deae38054554e111fbf5e06e5b4147cbb0fb7b49652b47155168b24876510b4",
+    "modules/std/collections/collections.c": "c64e63601e667c8e0c6483609ffff9e2006c6ce0f43760ed0df2858050af6fc9",
+    "modules/std/collections/collections.h": "1cfd45aaa4c6321e04171e2049b007ffc041d0733f57855ecdffe93106f6fbdc",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "operations": [
+    {
+      "label": "build-plain",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-plain",
+      "command": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-sanitized",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-sanitized",
+      "command": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-threaded",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=thread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/threaded"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-threaded",
+      "command": [
+        "/Users/runner/work/nanolang/nanolang/.test_output/collection-handles-m632ui6c/threaded"
+      ],
+      "returncode": 0
+    }
+  ],
+  "compiler_report": {
+    "argv": [
+      "cc"
+    ],
+    "observed_launcher": "/Users/runner/work/nanolang/nanolang/.test_output/retirement/selected-tools/cc",
+    "sha256_before_after": "28ce03503938ac0a13ddd9126e44929807c48327119e820cfc8835fd1d97a6a0",
+    "version": "Apple clang version 21.0.0 (clang-2100.4.1.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "scope": "I retain selected input and compiler-launcher identities, not complete header or toolchain closure."
+  },
+  "scope": "I independently hash actual uploaded native bytes and every archive entry; match all selected inputs to the immutable Git pin; check executable headers, sanitizer symbols, exact commands and actual stdout/stderr. Compiler identity is a retained before/after report, not independent toolchain closure. Full component conclusions are recorded separately. I qualify neither source-field admission nor release."
+}
