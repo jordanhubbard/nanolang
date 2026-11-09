@@ -54,3 +54,25 @@ My [metadata commands](metadata/checks.json) pass the real Git controls, all
 eight integration locks, four delegates, current authority review and canonical
 validation. The native receipt policy remains unconfigured and refuses
 acceptance; no receipt or implementation selection is invented.
+
+
+## My terminal hosted component receipts
+
+My [paired source audit](paired-source-audit.json), [GCC receipt](source-869-gcc/README.md)
+and [Clang receipt](source-869-clang/README.md) independently match each real
+source compiler and 34 actual native products, 27 modules and 21 exact prior
+outputs. The ordered 1,284 selected shadows match between Linux workers.
+Every recorded Nano source hash matches exact Git content, and all seven
+source async negative diagnostics identify their intended parse/type/shadow
+boundary. Both complete component jobs pass at 869f11634.
+
+My [Apple receipt](source-869-apple/README.md) preserves its first source-creation
+deadline after all 1,284 bodies complete, with zero completed-shadow failures.
+It publishes no source compiler and executes no source async methods. Four
+actual C-created native async products, two modules and seven prior-output
+refusals pass independently. I do not infer a passing supervisor or reliable
+performance from the completed-body timings.
+
+The unchanged complete fresh compiler/JUnit route run 42539974907 remains
+on its original handle. These receipts do not qualify the later registry
+allocation correction, full fresh stages, paired source platforms or release.
