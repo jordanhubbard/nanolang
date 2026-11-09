@@ -1,0 +1,64 @@
+{
+  "scope": "I compare only complete paired selections. Partial timeout body sums are censored, not faster/slower complete workloads. I retain all failed attempts. Whole-factory wall times include other phases and remain separate from shadow-body times.",
+  "pairs": [
+    {
+      "pair": 1,
+      "original_body_seconds": 9.553229,
+      "modified_body_seconds": 9.460101,
+      "both_creations_complete": false,
+      "modified_body_change_percent": null,
+      "original_factory_wall_seconds": 124.28349689000001,
+      "modified_factory_wall_seconds": 128.60115965799997,
+      "modified_factory_wall_change_percent": null
+    },
+    {
+      "pair": 2,
+      "original_body_seconds": 9.893641,
+      "modified_body_seconds": 9.873923,
+      "both_creations_complete": false,
+      "modified_body_change_percent": null,
+      "original_factory_wall_seconds": 88.33611461400005,
+      "modified_factory_wall_seconds": 88.52526694499994,
+      "modified_factory_wall_change_percent": null
+    },
+    {
+      "pair": 3,
+      "original_body_seconds": 9.895575000000001,
+      "modified_body_seconds": 9.457219,
+      "both_creations_complete": false,
+      "modified_body_change_percent": null,
+      "original_factory_wall_seconds": 88.452951772,
+      "modified_factory_wall_seconds": 92.54381570299995,
+      "modified_factory_wall_change_percent": null
+    }
+  ],
+  "all_creations_passed": false,
+  "shared_git_verified_inputs": 197,
+  "selection_count": 1286,
+  "completed_sample_distributions": {
+    "original": {
+      "body_seconds": null,
+      "factory_wall_seconds": null
+    },
+    "modified": {
+      "body_seconds": {
+        "count": 2,
+        "median": 9.45866,
+        "p25": 9.4579395,
+        "p75": 9.4593805,
+        "iqr": 0.0014409999999998035,
+        "min": 9.457219,
+        "max": 9.460101
+      },
+      "factory_wall_seconds": {
+        "count": 2,
+        "median": 110.57248768049996,
+        "p25": 101.55815169174996,
+        "p75": 119.58682366924997,
+        "iqr": 18.02867197750001,
+        "min": 92.54381570299995,
+        "max": 128.60115965799997
+      }
+    }
+  }
+}

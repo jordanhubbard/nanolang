@@ -1,0 +1,22 @@
+[
+  {
+    "path": "providers/original/nanoc_c",
+    "sha256": "61240dff6e6e4e6259be7c0db272e2a30b2543cb4e2407c6d9d44084003c877f",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "providers/modified/nanoc_c",
+    "sha256": "5be209c9ca4babd40e9ba0a11118e12ec9cf455928c922cf73da594e1f7c227d",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/02-modified/compiler",
+    "sha256": "195edc26d71f785d747c9376c7ab1cc4a84da006309d98198d86aab0960ccd07",
+    "magic": "7f454c46"
+  },
+  {
+    "path": "samples/06-modified/compiler",
+    "sha256": "195edc26d71f785d747c9376c7ab1cc4a84da006309d98198d86aab0960ccd07",
+    "magic": "7f454c46"
+  }
+]
