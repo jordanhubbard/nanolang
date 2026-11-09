@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-11-09T04:08:11.452613+00:00",
+  "check_run_id": 128966401811,
+  "check_name": "GitGuardian Security Checks",
+  "check_conclusion": "failure",
+  "check_title": "1 secret uncovered!",
+  "check_head": "d896dff6b33eea74f0739a9337562559b95dcee7",
+  "finding_reference": "https://github.com/jordanhubbard/nanolang/commit/994930b3804f950f3b9cfb568ea2c0e4b6a34435#diff-67702fc139629977da64d613f6a1bcd3f9ace496587486cb5df4ff923be089d1R78",
+  "finding_commit": "994930b3804f950f3b9cfb568ea2c0e4b6a34435",
+  "finding_manifest": "docs/evidence/async-source-contracts-20261109/source-869-apple/summary.json",
+  "finding_line": 78,
+  "source_commit": "869f11634fea9a618416a3173e92d36e3a59aad2",
+  "source_file": "src_nano/compiler/token_value_bytes.nano",
+  "reported_value_is_lowercase_hex_sha256": true,
+  "actual_exact_source_blob_digest_matches_before_and_after": true,
+  "verdict": "I independently verify this occurrence as a public source-content checksum, not an authentication credential.",
+  "dismissal_performed": false,
+  "scope": "I verify only this specific occurrence. I do not classify other GitGuardian findings or alter detector configuration, check conclusions, credentials or scan coverage."
+}

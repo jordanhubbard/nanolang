@@ -26,6 +26,10 @@ on:
         description: I sample one actual Apple shadow child instead of running the alternating comparison; this is diagnostic only.
         type: boolean
         default: false
+      observe_processes:
+        description: I retain read-only factory descendant snapshots during the six attempts; presence is not exact CPU time.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -45,6 +49,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Require one diagnostic observation mode
+        if: inputs.sample_shadows && inputs.observe_processes
+        run: |
+          echo 'I require separate CPU sampling and factory process observation.'
+          exit 1
       - name: Require worker headroom before provisioning
         run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/cseed-source-comparison
       - name: Install my existing Linux native prerequisites
@@ -58,14 +67,21 @@ jobs:
       - name: Select the existing qualified Apple compiler and SDK
         if: runner.os == 'macOS'
         run: python3 scripts/ci_select_capture_clang.py
+      - name: Check actual observer process and native controls
+        if: inputs.observe_processes
+        run: python3 -m unittest -v tests.test_cseed_source_comparison tests.test_native_phase_trace
       - name: Retain all six planned actual factory attempts
         if: ${{ !inputs.sample_shadows }}
         env:
           BASELINE_SHA: ${{ inputs.baseline || '9baeba459e6ea4c7ebd6c0694cb05fef4d36f401' }}
         run: |
           ulimit -c 0
+          observation=()
+          if ${{ inputs.observe_processes && 'true' || 'false' }}; then
+            observation+=(--observe-processes)
+          fi
           python3 scripts/compare_cseed_source_creation.py run \
-            --baseline "$BASELINE_SHA" --output .test_output/cseed-source-comparison
+            --baseline "$BASELINE_SHA" --output .test_output/cseed-source-comparison "${observation[@]}"
       - name: Sample one actual Apple shadow child without native publication
         if: inputs.sample_shadows
         run: |

@@ -1,0 +1,80 @@
+{
+  "scope": "I compare only complete paired selections. Partial timeout body sums are censored, not faster/slower complete workloads. I retain all failed attempts. Whole-factory wall times include other phases and remain separate from shadow-body times.",
+  "pairs": [
+    {
+      "pair": 1,
+      "original_body_seconds": 9.426269,
+      "modified_body_seconds": 6.739384,
+      "both_creations_complete": true,
+      "modified_body_change_percent": -28.50422579707835,
+      "original_factory_wall_seconds": 235.03252887500003,
+      "modified_factory_wall_seconds": 218.26640433300008,
+      "modified_factory_wall_change_percent": -7.133533652661694
+    },
+    {
+      "pair": 2,
+      "original_body_seconds": 6.821749,
+      "modified_body_seconds": 6.277151,
+      "both_creations_complete": true,
+      "modified_body_change_percent": -7.98326059783202,
+      "original_factory_wall_seconds": 148.92814937499998,
+      "modified_factory_wall_seconds": 148.445996542,
+      "modified_factory_wall_change_percent": -0.32374862309335617
+    },
+    {
+      "pair": 3,
+      "original_body_seconds": 6.398843,
+      "modified_body_seconds": 5.823781,
+      "both_creations_complete": true,
+      "modified_body_change_percent": -8.986968425385655,
+      "original_factory_wall_seconds": 153.67016483299994,
+      "modified_factory_wall_seconds": 152.94114416699995,
+      "modified_factory_wall_change_percent": -0.47440611962137336
+    }
+  ],
+  "all_creations_passed": true,
+  "shared_git_verified_inputs": 197,
+  "selection_count": 1286,
+  "completed_sample_distributions": {
+    "original": {
+      "body_seconds": {
+        "count": 3,
+        "median": 6.821749,
+        "p25": 6.610296,
+        "p75": 8.124009,
+        "iqr": 1.5137129999999992,
+        "min": 6.398843,
+        "max": 9.426269
+      },
+      "factory_wall_seconds": {
+        "count": 3,
+        "median": 153.67016483299994,
+        "p25": 151.29915710399996,
+        "p75": 194.35134685399998,
+        "iqr": 43.052189750000025,
+        "min": 148.92814937499998,
+        "max": 235.03252887500003
+      }
+    },
+    "modified": {
+      "body_seconds": {
+        "count": 3,
+        "median": 6.277151,
+        "p25": 6.050466,
+        "p75": 6.5082675000000005,
+        "iqr": 0.4578015000000004,
+        "min": 5.823781,
+        "max": 6.739384
+      },
+      "factory_wall_seconds": {
+        "count": 3,
+        "median": 152.94114416699995,
+        "p25": 150.69357035449997,
+        "p75": 185.60377425000001,
+        "iqr": 34.91020389550005,
+        "min": 148.445996542,
+        "max": 218.26640433300008
+      }
+    }
+  }
+}

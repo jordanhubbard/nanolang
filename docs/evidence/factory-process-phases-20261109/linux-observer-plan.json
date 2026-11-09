@@ -1,0 +1,21 @@
+{
+  "scope": "I qualify the existing Linux observer mode with actual controls and one fixed complete Clang comparison. I do not rerun the completed Apple or earlier GCC plans or erase their outcomes.",
+  "baseline": "48016fec4bc56daffa2d90a60de36399c4f9b453",
+  "runtime_candidate": "6c97df51bd8c98e5730bf10da5193b8059d8e55a",
+  "order": [
+    "original",
+    "modified",
+    "modified",
+    "original",
+    "original",
+    "modified"
+  ],
+  "worker": "ubuntu-latest",
+  "compiler": "clang",
+  "observe_processes": true,
+  "sample_shadows": false,
+  "shadow_timeout_seconds": 10,
+  "native_build_budget_seconds": 600,
+  "native_lifecycle_admitted": false,
+  "release_qualified": false
+}
