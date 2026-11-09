@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component"
+  ],
+  "returncode": 0,
+  "seconds": 56.771139750024304,
+  "before": {
+    "src_nano/parser.nano": "e7ea6f5df1039e400cc3eeb975e8641f6707846d293cf1ba766f8841e2101ab8",
+    "src_nano/compiler/nanoisa_codegen.nano": "091b903e2de3b5dd3442a8dbf05c823c02c8854b30eefe058e7ee137efd066e2",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff"
+  },
+  "after": {
+    "src_nano/parser.nano": "e7ea6f5df1039e400cc3eeb975e8641f6707846d293cf1ba766f8841e2101ab8",
+    "src_nano/compiler/nanoisa_codegen.nano": "091b903e2de3b5dd3442a8dbf05c823c02c8854b30eefe058e7ee137efd066e2",
+    "bin/nanoc_c": "d75b3274b3a36c86e09e81f9b8b3f0bcb7d18be256b238fd0bab8bd7b8ee98ff"
+  },
+  "scope": "I execute actual parser block-tag shadows and the checker entry with the pinned existing local provider. I do not qualify emitter shadows or source-created/fresh/platform acceptance locally."
+}

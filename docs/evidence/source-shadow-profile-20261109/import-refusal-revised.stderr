@@ -1,0 +1,9 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 7298, column 9: Unused variable 'checked_body'
+Warning at line 179, column 9: Unused variable 'ignored'
+Error at line 3, column 1: Module file 'modules/std/fs.nano' not found
+Error: Failed to process imports for module '/Users/jkh/Src/nanolang/modules/nanoisa/nanoisa.nano'
+Error at line 33, column 1: Failed to load module '/Users/jkh/Src/nanolang/modules/nanoisa/nanoisa.nano'
+Error: Failed to process imports for module '/Users/jkh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano'
+Error at line 22, column 1: Failed to load module '/Users/jkh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano'
+Module loading failed

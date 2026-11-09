@@ -32,3 +32,16 @@ removed after these hash/manifests are committed; the exact CI artifact remains
 the retrieval source. No native SDK or lifecycle admission follows from this
 probe. The actual CPU profile and original platform/budget acceptance remain
 open under #1065.
+
+
+I retain two corrected local setup attempts separately. The first permits real
+prerequisite compilation in an isolated directory but refuses the CWD-relative
+modules/std/fs.nano import before shadows; I retain it under import-refusal-*.
+The second sets the documented NANO_MODULE_PATH to my original modules directory
+and uses the same source-built executable with explicit project-root argv0
+resolution. It builds 7 MB of local prerequisite artifacts, then reaches its
+declared sixty-second diagnostic budget before any shadow starts. I stop only
+that diagnostic process group. No CPU sample or native product is produced.
+I retain both plans, commands, source/provider stability observations, complete
+text and the corrected driver. These are bounded setup failures, not passing
+source-creation controls. I keep actual hosted profiling open under #1065.

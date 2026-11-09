@@ -1,0 +1,26 @@
+test_actual_source_checker_native_component (tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component) ... FAIL
+
+======================================================================
+FAIL: test_actual_source_checker_native_component (tests.test_source_checker_component.SourceCheckerComponent.test_actual_source_checker_native_component)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang/tests/test_source_checker_component.py", line 32, in test_actual_source_checker_native_component
+    self.command(work, 'source-build', [compiler, source, '--verbose', '--keep-c', '-o', product], build=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang/tests/test_numeric_builtin_selection.py", line 36, in command
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Compiling /Users/jkh/Src/nanolang/src_nano/typecheck_driver.nano...
+✓ Lexing complete (2680 tokens)
+✓ Parsing complete
+Error at line 2889, column 80: I require the cond else value to match the clause value type.
+Hint: Use the same type in every cond value arm.
+Error: Type checking failed for module '/Users/jkh/Src/nanolang/src_nano/parser.nano'
+Error at line 1, column 1: Failed to load module '/Users/jkh/Src/nanolang/src_nano/parser.nano'
+Module loading failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.050s
+
+FAILED (failures=1)

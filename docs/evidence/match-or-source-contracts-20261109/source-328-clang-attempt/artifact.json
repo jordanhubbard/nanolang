@@ -1,0 +1,10 @@
+{
+  "artifact": 13643925437,
+  "run": 42545624130,
+  "source_pin": "328442f1f368325cf52e9366ad8b3e4090a78824",
+  "size": 30793192,
+  "sha256": "8470dca8b938c62a9aa7a34b56b7d69fa3485335612131aeb410020db0bd0839",
+  "crc_checked": true,
+  "zip_saved": false,
+  "scope": "I retain the intermediate attempt artifact independently of the still-live remainder of its job."
+}
