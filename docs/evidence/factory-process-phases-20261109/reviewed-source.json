@@ -1,0 +1,10 @@
+{
+  "before_commit": "6a4f15868abbd69068fb9a5427d3a678067dee15",
+  "after_working_files": {
+    "scripts/compare_cseed_source_creation.py": "4b1a84f3e045ab8881e4a30deb2469f538127970a12b84e52288719c84f6347e",
+    "tests/test_cseed_source_comparison.py": "1c8431778c12442f39c4b653eb7090f6bed50c8285f029eb439819cd75278f61",
+    ".github/workflows/cseed-source-comparison.yml": "64d05b5a8c1650c3fbc09f9409007456841643fe256b7f0d32a37db092b65e96"
+  },
+  "runtime_diff_from_6c": "",
+  "provider_build_qualified": false
+}

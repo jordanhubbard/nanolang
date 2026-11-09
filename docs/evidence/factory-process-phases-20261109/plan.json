@@ -3,9 +3,16 @@
   "parent": "6a4f15868abbd69068fb9a5427d3a678067dee15",
   "baseline": "48016fec4bc56daffa2d90a60de36399c4f9b453",
   "runtime_candidate": "6c97df51bd8c98e5730bf10da5193b8059d8e55a",
-  "order": ["original", "modified", "modified", "original", "original", "modified"],
+  "order": [
+    "original",
+    "modified",
+    "modified",
+    "original",
+    "original",
+    "modified"
+  ],
   "worker": "xcode-27",
-  "observer": "I poll ps for the current factory root and transitive descendants only, retaining monotonic snapshot boundaries and tool paths.",
+  "observer": "I poll ps for the factory root and transitive descendants only, retaining monotonic snapshot bounds and ps comm names, not independently resolved image identities.",
   "poll_interval_seconds": 0.2,
   "shadow_timeout_seconds": 10,
   "native_build_budget_seconds": 600,

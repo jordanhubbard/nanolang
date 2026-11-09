@@ -1,0 +1,19 @@
+test_actual_compiler_descendant_and_sibling_exclusion (tests.test_cseed_source_comparison.CseedSourceComparison.test_actual_compiler_descendant_and_sibling_exclusion) ... ok
+test_complete_clone_keeps_baseline_links_modes_and_write_isolation (tests.test_cseed_source_comparison.CseedSourceComparison.test_complete_clone_keeps_baseline_links_modes_and_write_isolation) ... Preparing worktree (detached HEAD caca8ad)
+ok
+test_default_command_keeps_arguments_environment_and_refusal (tests.test_cseed_source_comparison.CseedSourceComparison.test_default_command_keeps_arguments_environment_and_refusal) ... ok
+test_different_and_missing_source_inputs_refuse (tests.test_cseed_source_comparison.CseedSourceComparison.test_different_and_missing_source_inputs_refuse) ... ok
+test_failed_observer_keeps_refusal_and_cleans_up (tests.test_cseed_source_comparison.CseedSourceComparison.test_failed_observer_keeps_refusal_and_cleans_up) ... ok
+test_interleaved_and_truncated_shadow_trace (tests.test_cseed_source_comparison.CseedSourceComparison.test_interleaved_and_truncated_shadow_trace) ... ok
+test_observed_timeout_retains_tree_and_reaps_own_compiler (tests.test_cseed_source_comparison.CseedSourceComparison.test_observed_timeout_retains_tree_and_reaps_own_compiler) ... ok
+test_successful_subset_cannot_replace_full_selection (tests.test_cseed_source_comparison.CseedSourceComparison.test_successful_subset_cannot_replace_full_selection) ... ok
+test_configuration_preserves_existing_tool_flags (tests.test_native_phase_trace.NativePhaseTrace.test_configuration_preserves_existing_tool_flags) ... ok
+test_interrupted_real_compiler_keeps_an_incomplete_record (tests.test_native_phase_trace.NativePhaseTrace.test_interrupted_real_compiler_keeps_an_incomplete_record) ... ok
+test_real_cc_native_output_and_exact_custody (tests.test_native_phase_trace.NativePhaseTrace.test_real_cc_native_output_and_exact_custody) ... ok
+test_real_compiler_refusal_remains_a_failure (tests.test_native_phase_trace.NativePhaseTrace.test_real_compiler_refusal_remains_a_failure) ... ok
+test_real_marker_recorder_retains_literal_phase_and_order (tests.test_native_phase_trace.NativePhaseTrace.test_real_marker_recorder_retains_literal_phase_and_order) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.336s
+
+OK

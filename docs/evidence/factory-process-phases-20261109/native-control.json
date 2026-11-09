@@ -1,0 +1,50 @@
+{
+  "command": {
+    "argv": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import json,os,subprocess,sys,time\nchild=subprocess.Popen([sys.argv[1]],stdin=subprocess.PIPE)\nprint(json.dumps([os.getpid(),child.pid]),flush=True)\ntime.sleep(.7)\nchild.communicate(b'x',timeout=5)\nsys.exit(child.returncode)\n",
+      "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native"
+    ],
+    "cwd": "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls",
+    "returncode": 17,
+    "wall_seconds": 0.8127152080414817,
+    "child_user_seconds": 0.04635999999999999,
+    "child_system_seconds": 0.11099800000000001,
+    "process_observation": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/run.processes.jsonl",
+      "snapshots": 3,
+      "wait_interval_seconds": 0.2,
+      "snapshot_wall_seconds": 0.14669054094702005,
+      "scope": "I record process presence within snapshot bounds, not exact CPU time. command_name is ps comm, not an independently resolved executable image. Observer ps costs remain included in child resource totals."
+    }
+  },
+  "compiler_argv": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native.c",
+    "-o",
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native"
+  ],
+  "compiler_returncode": 0,
+  "actual_native_magic": "cffaedfe",
+  "before": {
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native.c": "dc0d74983b1e9f5f7f9e4b5aa5e2db8c7144ffd541695b5fbd7e46e3c918a909",
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native": "cb21abccf60666d064da956ba7ff68013aebf0d2c028569b36252f437b1c90ab",
+    "scripts/compare_cseed_source_creation.py": "4b1a84f3e045ab8881e4a30deb2469f538127970a12b84e52288719c84f6347e"
+  },
+  "after": {
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native.c": "dc0d74983b1e9f5f7f9e4b5aa5e2db8c7144ffd541695b5fbd7e46e3c918a909",
+    "/Users/jkh/Src/nanolang/.test_output/factory-process-observer-controls/native": "cb21abccf60666d064da956ba7ff68013aebf0d2c028569b36252f437b1c90ab",
+    "scripts/compare_cseed_source_creation.py": "4b1a84f3e045ab8881e4a30deb2469f538127970a12b84e52288719c84f6347e"
+  },
+  "parent_pid": 11825,
+  "native_child_pid": 11829,
+  "excluded_live_sibling_pid": 11824,
+  "source_creation_qualified": false,
+  "native_lifecycle_admitted": false
+}
