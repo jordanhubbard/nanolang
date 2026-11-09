@@ -1,0 +1,41 @@
+{
+  "scope": "I require refusal for tampered native evidence independently of its reported hash or success status. These controls do not prove complete binary provenance.",
+  "cases": [
+    {
+      "case": "wrong-input",
+      "command": [
+        "python3",
+        "/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/wrong-input.zip",
+        "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/wrong-input"
+      ],
+      "returncode": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 69, in <module>\n    p=argparse.ArgumentParser(description=__doc__);p.add_argument('archive',type=Path);p.add_argument('source_pin');p.add_argument('output',type=Path);a=p.parse_args();audit(a.archive,a.source_pin,a.output)\n                                                                                                                                                                        ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 36, in audit\n    assert hashlib.sha256(actual).hexdigest()==expected, path\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: modules/std/collections/collections.c\n"
+    },
+    {
+      "case": "native-script",
+      "command": [
+        "python3",
+        "/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/native-script.zip",
+        "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/native-script"
+      ],
+      "returncode": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 69, in <module>\n    p=argparse.ArgumentParser(description=__doc__);p.add_argument('archive',type=Path);p.add_argument('source_pin');p.add_argument('output',type=Path);a=p.parse_args();audit(a.archive,a.source_pin,a.output)\n                                                                                                                                                                        ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 46, in audit\n    assert data[:4]==b'\\x7fELF' and data[5] in (1,2)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    },
+    {
+      "case": "failed-run",
+      "command": [
+        "python3",
+        "/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/failed-run.zip",
+        "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+        "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-handles-audit-controls-ltagryt5/failed-run"
+      ],
+      "returncode": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 69, in <module>\n    p=argparse.ArgumentParser(description=__doc__);p.add_argument('archive',type=Path);p.add_argument('source_pin');p.add_argument('output',type=Path);a=p.parse_args();audit(a.archive,a.source_pin,a.output)\n                                                                                                                                                                        ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jkh/.worktrees/nanolang/collection-lifetime-evidence/docs/evidence/collection-handles-20261109/audit-hosted.py\", line 32, in audit\n    assert all(o['returncode']==0 for o in operations)\n           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    }
+  ]
+}

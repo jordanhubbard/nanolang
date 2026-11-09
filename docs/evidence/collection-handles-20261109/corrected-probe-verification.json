@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang/.test_output/collection-handles/corrected/stale"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "sha256_before_after": "ad7a46c19750d66f396a7dea557013364fb88cfb724f1b58ccc133e3be56ac0c",
+  "scope": "I independently re-execute the corrected original stale-handle probe and record its actual exit status; I do not infer it from a later shell command."
+}

@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:9c519962ecc6ccdad6dacb4d5d5dd7758ab900b9ae099f3d1df9878378659230 -->
+<!-- literate-ai:authority-reviewed sha256:1aa306878db679cb538060e9eb5710ccb782b60f3a3360af3e87403fda83a4e1 -->
 
 ## My first metadata checkpoint
 
@@ -488,3 +488,27 @@ fresh/platform and original release gates remain required. I preserve original
 source authority, eight integration Components, empty native implementation
 selections and absent lifecycle receipt. I freeze this catalog before supported
 review; these controls do not complete NativeSDK/lifecycle or release admission.
+
+## My checked collection lifetime checkpoint, 2026-11-09 UTC
+
+I retain source-only checkpoint `237e76d16f9a555e5c47164f676623ac3834f15e`, a direct child of
+`e718c78e67b99ff5517141f28f91c96e762ab7ca`, with the complete 92,823-entry tree: every prior entry,
+eight reviewed path changes and two added native test files. I verify the full isolated index and exact
+delta before merging its ancestry. I advance preservation ownership to this reviewed source checkpoint;
+I retain the previous process-observer baseline as provenance and keep the five metadata exceptions unchanged.
+
+My local collection boundary evidence in `docs/evidence/collection-handles-20261109/README.md` retains an
+actual ASan stale-map failure and corrected ordinary-module probe. Assertion, ASan/UBSan and ThreadSanitizer
+controls execute checked map/set liveness, alias retirement, wrong-kind refusal, allocation/identity exhaustion,
+content/snapshot behavior and independent-thread publication. Existing array-export assertions pass.
+These identities belong to one loaded provider; same-handle operations and borrowed strings remain
+caller-serialized. I leave compiler opaque-field admission unchanged. Canonical module identity, foreign
+signatures, unchanged advanced fixtures, fresh stages and complete Linux/Apple gates remain open under #1127.
+I do not infer NativeSDK, retained lifecycle or release admission from local controls or source custody.
+
+I advance that custody checkpoint to `a2ffaa7033aad3f4b0979f914e12a19833bee734` after retaining
+both first Linux fixture build refusals. This direct child changes only the new fixture's first line:
+I define `_GNU_SOURCE` before its system headers, matching the included implementation's feature request.
+The complete tree remains 92,823 entries, and production module bytes are unchanged. Corrected local
+assertion/ASan/UBSan/ThreadSanitizer and existing export controls pass; Linux execution still requires
+its corrected-source run. The original Apple plan remains on its original handle and source pin.

@@ -1,0 +1,18 @@
+{
+  "implementation": "d2e488b52b7ef05db4404bc81dc2a8e0ba13d78a",
+  "apple_pin": "08fe93fcec8922a6e0699d403592e68fba9d7d9b",
+  "linux_pin": "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+  "reviewed_head": "5c2755768e0620025a264151ce554a0b4b5fea1e",
+  "identical_paths": [
+    "modules/std/collections/collections.c",
+    "modules/std/collections/collections.h",
+    "modules/std/collections/module.json",
+    "tests/test_collection_array_exports.py",
+    "Makefile.gnu",
+    ".github/workflows/string-builtin-operands.yml",
+    "tests/test_collection_handles.py"
+  ],
+  "fixture_only_delta": "I prepend #define _GNU_SOURCE before the same C fixture headers and preserve every assertion. I retain both original Linux compile failures.",
+  "audited_native_executables": 9,
+  "scope": "I bind terminal platform component results to identical production module/build/runtime-test inputs. The Linux fixture macro differs from the original Apple source. This is not an exact final release-head platform run or complete source-route acceptance."
+}

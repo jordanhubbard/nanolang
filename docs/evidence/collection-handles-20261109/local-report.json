@@ -1,0 +1,154 @@
+{
+  "baseline_source_pin": "75d84e96bd27b695a94bbd6f83ef5999e6031d5d",
+  "implementation": "d2e488b52b7ef05db4404bc81dc2a8e0ba13d78a",
+  "baseline_probe_returncode": 134,
+  "corrected_probe_returncode": 0,
+  "original_array_exports_returncode": 0,
+  "products": {
+    "baseline/stale": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles/baseline/stale",
+      "sha256_observed_after": "7389a7e3385ed9f5ee342aa441ecedad3c279fc9065d961d6fa55dd3fab7690a",
+      "bytes": 8886232,
+      "magic": "cffaedfe"
+    },
+    "corrected-probe/stale": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles/corrected/stale",
+      "sha256_observed_after": "ad7a46c19750d66f396a7dea557013364fb88cfb724f1b58ccc133e3be56ac0c",
+      "bytes": 8887160,
+      "magic": "cffaedfe"
+    },
+    "complete-controls/plain": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/plain",
+      "sha256_observed_after": "12423a82587986c0013a9716716256a2803d9da2092fdbd12e74f9b54357f386",
+      "bytes": 8551864,
+      "magic": "cffaedfe"
+    },
+    "complete-controls/sanitized": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/sanitized",
+      "sha256_observed_after": "e0696747c2b5b89f7c94619310876d1ded1b1cbe805dde1404e75053464c43f0",
+      "bytes": 8914056,
+      "magic": "cffaedfe"
+    },
+    "complete-controls/threaded": {
+      "path": "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/threaded",
+      "sha256_observed_after": "085f36acbd4d2ec0faad9b0945bac1400bb44a193254e7f2ce2f87874ae8bab4",
+      "bytes": 8552952,
+      "magic": "cffaedfe"
+    }
+  },
+  "controls": [
+    {
+      "label": "build-plain",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-plain",
+      "command": [
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/plain"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-sanitized",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-sanitized",
+      "command": [
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/sanitized"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "build-threaded",
+      "command": [
+        "cc",
+        "-std=c99",
+        "-g",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-pthread",
+        "-fsanitize=thread",
+        "-Isrc",
+        "tests/test_collection_handles.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/gc.c",
+        "src/runtime/gc_struct.c",
+        "-lm",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/threaded"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "run-threaded",
+      "command": [
+        "/Users/jkh/Src/nanolang/.test_output/collection-handles-u812aq9c/threaded"
+      ],
+      "returncode": 0
+    }
+  ],
+  "inputs_before_after": {
+    "tests/test_collection_handles.py": "105670f58ab693647725288cdd1c2ff99e878759eeddfe0abf9d9b17371ae928",
+    "modules/std/collections/module.json": "56e6fb88377ac9419c8e9bd87031ef9c2872d2201e122cb3eaa7a4447ae6bea0",
+    "tests/test_collection_handles.c": "2deae38054554e111fbf5e06e5b4147cbb0fb7b49652b47155168b24876510b4",
+    "modules/std/collections/collections.c": "c64e63601e667c8e0c6483609ffff9e2006c6ce0f43760ed0df2858050af6fc9",
+    "modules/std/collections/collections.h": "1cfd45aaa4c6321e04171e2049b007ffc041d0733f57855ecdffe93106f6fbdc",
+    "src/runtime/dyn_array.c": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "src/runtime/gc.c": "8de33225188b4b01661cabfe2d2023e95162efa58316225b05606eb16269b82c",
+    "src/runtime/gc_struct.c": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7"
+  },
+  "compiler": {
+    "argv": [
+      "cc"
+    ],
+    "observed_launcher": "/usr/bin/cc",
+    "sha256_before_after": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "scope": "I retain selected input and compiler-launcher identities, not complete header or toolchain closure."
+  },
+  "scope": "I execute actual native C lifetime controls and the existing array exports locally on Apple. My standalone private-source inclusion redirects only calloc for bounded failure injection; the corrected original stale probe and existing export suite link the ordinary module separately. I do not qualify compiler routes, opaque record admission, complete source/platform gates, complete toolchain closure or release. Public identities belong to one loaded provider and are not unforgeable capabilities; same-handle operations and borrowed-string reads remain caller-serialized."
+}

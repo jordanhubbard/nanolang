@@ -895,6 +895,12 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@rm -f tests/test_gc_struct
 
 .PHONY: test-vm-ffi
+.PHONY: test-collection-handles
+test-collection-handles:
+	python3 -m unittest tests.test_collection_handles
+
+test-units: test-collection-handles
+
 .PHONY: test-collection-array-exports
 test-collection-array-exports:
 	python3 -m unittest tests.test_collection_array_exports

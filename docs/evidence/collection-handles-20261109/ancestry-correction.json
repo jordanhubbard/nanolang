@@ -1,0 +1,11 @@
+{
+  "first_published_head": "08fe93fcec8922a6e0699d403592e68fba9d7d9b",
+  "restored_merge": "c81584979b7563f09297280d5f5a3eaee84a42ba",
+  "checkpoint": "237e76d16f9a555e5c47164f676623ac3834f15e",
+  "checkpoint_is_ancestor": true,
+  "tree_equal_to_first_published_head": true,
+  "cause": "I used git pull --rebase after my deliberate custody merge. Rebase flattened that merge and dropped the duplicate source patch, leaving the original checkpoint out of the pushed ancestry.",
+  "correction": "I restore the explicit checkpoint parent with a new ours merge and a fast-forward push; I do not rewrite published history. Existing native qualification runs remain on their original head and source bytes.",
+  "linux_run": 42563945357,
+  "apple_run": 42563948312
+}

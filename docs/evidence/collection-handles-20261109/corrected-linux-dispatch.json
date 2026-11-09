@@ -1,0 +1,34 @@
+{
+  "conclusion": null,
+  "created_at": "2026-11-09T04:54:07Z",
+  "head_sha": "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+  "html_url": "https://github.com/jordanhubbard/nanolang/actions/runs/42564282451",
+  "id": 42564282451,
+  "status": "in_progress",
+  "scope": "I preserve the first failed Linux plan separately and dispatch this corrected fixture once, with unchanged production module bytes, assertions, warnings, sanitizers and full component selections.",
+  "local_make_stdout": "python3 -m unittest tests.test_collection_handles\nI retain collection handle evidence at /Users/jkh/Src/nanolang/.test_output/collection-handles-3pugvu19\npython3 -m unittest tests.test_collection_array_exports\n",
+  "local_make_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.710s\n\nOK\n.\n----------------------------------------------------------------------\nRan 1 test in 0.497s\n\nOK\n",
+  "postcommit_custody": {
+    "schema": "nanolang/source-preservation-report@1",
+    "baseline_commit": "a2ffaa7033aad3f4b0979f914e12a19833bee734",
+    "revision": "2e25073d9ebbd1995189c1b49f703d154ba7278f",
+    "original_entries": 92823,
+    "owners": {
+      "distribution": 758,
+      "bootstrap": 99,
+      "qualification": 90579,
+      "libraries": 464,
+      "frontend": 451,
+      "native": 35,
+      "isa": 358,
+      "vm": 79
+    },
+    "inventory_sha256": "c44c94c6f2c40ae02d5bc02b84dfec8d68fc0c40905ab0d48d4f56a2bfffb8e8",
+    "inventory_format": "sorted JSONL [path, Git mode, Git type, Git object ID, preservation owner]",
+    "changed_original_paths": [],
+    "dirty_original_paths": [],
+    "preserved": true,
+    "native_lifecycle_qualified": false,
+    "limits": "Git custody only; original Git object IDs are not file SHA256 or native SBOM/toolchain admission"
+  }
+}

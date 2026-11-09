@@ -1,0 +1,33 @@
+{
+  "source_pin": "08fe93fcec8922a6e0699d403592e68fba9d7d9b",
+  "source_implementation": "d2e488b52b7ef05db4404bc81dc2a8e0ba13d78a",
+  "source_paths_unchanged_through": "dccfc4eebd4ce74bddb3b77351d7c05885396889",
+  "source_paths_checked": [
+    ".github/workflows/string-builtin-operands.yml",
+    "Makefile.gnu",
+    "modules/std/collections/collections.c",
+    "modules/std/collections/collections.h",
+    "modules/std/collections/module.json",
+    "tests/test_collection_array_exports.py",
+    "tests/test_collection_handles.c",
+    "tests/test_collection_handles.py"
+  ],
+  "runs": [
+    {
+      "id": 42563945357,
+      "platform": "Linux",
+      "compilers": [
+        "gcc",
+        "clang"
+      ]
+    },
+    {
+      "id": 42563948312,
+      "platform": "Apple",
+      "compilers": [
+        "cc"
+      ]
+    }
+  ],
+  "scope": "I dispatch each full existing component plan once at the original source pin. I preserve those handles and every failure. I record the later custody ancestry repair separately; it changes no native source/input bytes and does not retroactively qualify the original missing checkpoint ancestry."
+}

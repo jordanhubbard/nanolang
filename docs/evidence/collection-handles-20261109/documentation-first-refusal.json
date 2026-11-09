@@ -1,0 +1,9 @@
+{
+  "command": "project.documentation-review",
+  "ok": false,
+  "error": {
+    "code": "project.documentation_markdown_undeclared",
+    "message": "documentation links to undeclared Markdown: docs/literate-ai/ADOPTION.md:500"
+  },
+  "correction": "I reference retained evidence as a literal path, preserving the established distinction between evidence and newly declared authority documents. I do not broaden the documentation catalog."
+}
