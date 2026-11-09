@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:3e49e63ba4ae024561038c41796f42e1aba8695209d2f49526f594c4629d818f -->
+<!-- literate-ai:authority-reviewed sha256:e7b215144f499377f9c577d99b22050682023b73b829486eb8b44a49beee4938 -->
 
 ## My first metadata checkpoint
 
@@ -551,3 +551,5 @@ I retain the actual Linux Clang UBSan wrong-function-type refusal in #1133 befor
 I retain opt-in C-seed shadow completion observation at complete source checkpoint `90b79b0e4af163b5b725988e0d0197b64d9f11bc`, a direct child of `b106ee66ee6258fc930b0bae8107399b0fe6753b`. I preserve all 92,831 entries with seven reviewed deltas and two new source paths. Actual success/failure/deadline/report/zero-exit and errno controls pass, as do original comparison controls and strict clang/GCC product compiles. The fixed six-attempt diagnostic remains measurement work under #1065, with original deadlines and selections unchanged. I do not infer whole-source reliability, NativeSDK or release admission from these controls or custody. Evidence is in `docs/evidence/shadow-completion-20261109/`.
 
 I retain kernel-exit observation source checkpoint `28ea08ee1d4b058f4271a3cd082504764fbfa4d9`, a complete 92,835-entry direct child of `90b79b0e4af163b5b725988e0d0197b64d9f11bc`. I preserve every prior source entry and add exactly four reviewed workflow/controller/control/test paths through an independent full Git index. Six local methods pass actual native gate/exit/wait execution, interruption cleanup and constructed parser refusals; the latter are not Linux BPF evidence. I predeclare one Linux/GCC factory observation only after real kernel/native control validation, preserving the original runner identity, inputs, ten-second shadow supervision and native CLI budget. Production language/runtime behavior, source reliability, NativeSDK and release acceptance remain open. Evidence is in `docs/evidence/cseed-kernel-exit-20261109/`.
+
+I retain the first real Linux kernel observer refusal at9e9837d2a: my Linux7.0.0 control exits and is reaped correctly, but tracking stops before address-space teardown and no source factory starts. My corrected source checkpoint `9f7561afc3122623c1897b80f3bc782354d2b5a2` is a complete 92,835-entry direct child of `28ea08ee1d4b058f4271a3cd082504764fbfa4d9`, changing only the observer and its tests. I track until task-free, preserve complete teardown and native/kernel clock checks across either tracepoint order, and retain the failed actual records as a negative control. Eight local methods pass; corrected Linux kernel controls and the one original GCC factory remain pending. Source custody is not native lifecycle, SDK or release admission.
