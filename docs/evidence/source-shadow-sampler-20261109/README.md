@@ -59,3 +59,10 @@ The optional sampler runs at exact f18474b85 in workflow run 42548134459.
 It passes provisioning/headroom/tool selection and correctly skips the six-
 attempt mode only because sampling was explicitly requested. Actual profiler
 output is still pending; no CPU sample is claimed by these local records.
+
+
+I retain Clang's complete successful job log in clang-8fd8-job.log.gz. My
+case audit verifies all 33 actual selected component methods pass, including
+SourceOrPatternContracts.test_unchanged_complete_original_fixture. This is
+case-level hosted evidence at exact 8fd8c0c78, not a claim that GCC/Apple,
+the complete fresh corpus, native lifecycle or release acceptance is green.
