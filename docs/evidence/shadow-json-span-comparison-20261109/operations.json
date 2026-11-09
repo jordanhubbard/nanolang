@@ -1,0 +1,493 @@
+[
+  {
+    "label": "build-original-sanitized",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-original-sanitized",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-original-plain",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-original-plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-original-counted",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-DCOUNT_STDIO",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/original.inc\"",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-original-counted",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-candidate-sanitized",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+      "-DSPAN_CANDIDATE",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-candidate-sanitized",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-sanitized"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-candidate-plain",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+      "-DSPAN_CANDIDATE",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-candidate-plain",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "build-candidate-counted",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-DCOUNT_STDIO",
+      "-DTRACE_HELPERS=\"/Users/jkh/Src/nanolang/docs/evidence/shadow-json-span-comparison-20261109/candidate.inc\"",
+      "-DSPAN_CANDIDATE",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/native-witness.c",
+      "-o",
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "controls-candidate-counted",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-counted"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-01-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-02-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-03-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-04-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-05-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-06-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-07-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-08-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-09-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-10-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-11-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-12-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-13-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-14-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-15-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-16-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-17-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-18-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-19-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-20-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-21-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-22-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-23-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-24-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-25-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-26-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-27-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-28-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-29-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-30-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-31-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-32-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-33-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-34-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-35-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-36-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-37-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-38-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-39-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "sample-40-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-plain",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "counted-original",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/original-counted",
+      "--replay"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "counted-candidate",
+    "argv": [
+      "/Users/jkh/Src/nanolang/.test_output/shadow-json-span-comparison-first/candidate-counted",
+      "--replay"
+    ],
+    "returncode": 0
+  }
+]

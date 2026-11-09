@@ -30,6 +30,10 @@ on:
         description: I retain read-only factory descendant snapshots during the six attempts; presence is not exact CPU time.
         type: boolean
         default: false
+      observe_shadow_phases:
+        description: I retain opt-in C-seed report/completion/flush and parent wait phases during the fixed six attempts.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -50,9 +54,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Require one diagnostic observation mode
-        if: inputs.sample_shadows && inputs.observe_processes
+        if: inputs.sample_shadows && (inputs.observe_processes || inputs.observe_shadow_phases)
         run: |
-          echo 'I require separate CPU sampling and factory process observation.'
+          echo 'I require separate CPU sampling and factory observation.'
           exit 1
       - name: Require worker headroom before provisioning
         run: python3 scripts/compare_cseed_source_creation.py health --output .test_output/cseed-source-comparison
@@ -70,6 +74,11 @@ jobs:
       - name: Check actual observer process and native controls
         if: inputs.observe_processes
         run: python3 -m unittest -v tests.test_cseed_source_comparison tests.test_native_phase_trace
+      - name: Check actual shadow completion and unchanged trace controls
+        # I build controls outside the measured worktrees and preserve their
+        # original source-creation commands, order, selection and deadlines.
+        if: inputs.observe_shadow_phases
+        run: make -f Makefile.gnu -j2 CC="$CC" test-shadow-completion-observation
       - name: Retain all six planned actual factory attempts
         if: ${{ !inputs.sample_shadows }}
         env:
@@ -79,6 +88,9 @@ jobs:
           observation=()
           if ${{ inputs.observe_processes && 'true' || 'false' }}; then
             observation+=(--observe-processes)
+          fi
+          if ${{ inputs.observe_shadow_phases && 'true' || 'false' }}; then
+            observation+=(--observe-shadow-phases)
           fi
           python3 scripts/compare_cseed_source_creation.py run \
             --baseline "$BASELINE_SHA" --output .test_output/cseed-source-comparison "${observation[@]}"
@@ -95,6 +107,7 @@ jobs:
           name: cseed-source-comparison-${{ runner.os }}-${{ env.CC }}-${{ github.sha }}
           path: |
             .test_output/cseed-source-comparison/
+            .test_output/shadow-completion-*/
             .test_output/retirement/capture-toolchain.json
             .test_output/retirement/selected-tools/
           include-hidden-files: true

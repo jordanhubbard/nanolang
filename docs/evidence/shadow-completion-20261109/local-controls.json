@@ -1,0 +1,711 @@
+{
+  "root": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja",
+  "compiler_before_after": {
+    "/Users/jkh/Src/nanolang/bin/nanoc_c": "742b04af271298a5fa9552032406581597a0089a9f71df5182a3fccbd3b2af1e"
+  },
+  "operations": [
+    {
+      "label": "assertion",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/assertion/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/assertion/program"
+      ],
+      "returncode": 1,
+      "input_sha256_before_after": "ae47e9dd072100b59b3053d19fbdbb113863484da7ea2ef9acd3e989d5cae55d",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711538000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-start",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711819000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-returned",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711822000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-returned",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711823000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "completion-written",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711825000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-start",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711827000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-end",
+          "pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 711829000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93435,
+          "child_pid": 93472,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 799425000,
+          "wait_result": 93472,
+          "wait_status": 256,
+          "reaped": true,
+          "signal": 0,
+          "exit_code": 1,
+          "parent_timeout": false,
+          "clock_failure": false,
+          "completed": false,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315321,
+          "parent_start_nanoseconds": 711347000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/assertion/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/assertion/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0001,
+          "failures": 1
+        }
+      ]
+    },
+    {
+      "label": "failed-report",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/failed-report/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/failed-report/program",
+        "--llm-shadow-json",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/failed-report.json"
+      ],
+      "returncode": 1,
+      "input_sha256_before_after": "c435daabdc1fc05daf9b614fe64a06e71270abf78055cc4852a2b2acff0335c4",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 824468000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-start",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848052000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-returned",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848060000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-returned",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848062000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "completion-written",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848063000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-start",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848065000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-end",
+          "pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 848065000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93485,
+          "child_pid": 93487,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 911981000,
+          "wait_result": 93487,
+          "wait_status": 256,
+          "reaped": true,
+          "signal": 0,
+          "exit_code": 1,
+          "parent_timeout": false,
+          "clock_failure": false,
+          "completed": false,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315321,
+          "parent_start_nanoseconds": 824327000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/failed-report/input.nano",
+          "line": 4,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/failed-report/input.nano",
+          "line": 4,
+          "elapsed_seconds": 0.023434,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "report-timeout",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/report-timeout/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/report-timeout/program",
+        "--llm-shadow-json",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/blocked-report.fifo"
+      ],
+      "returncode": 1,
+      "input_sha256_before_after": "65f88d58f989b75ccf2fd529c9a1fb7880ccf9d2f29c0bdf13f549c2f28f52e2",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93499,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 925791000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-start",
+          "pid": 93499,
+          "clock_ok": true,
+          "monotonic_seconds": 315321,
+          "monotonic_nanoseconds": 943167000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93497,
+          "child_pid": 93499,
+          "clock_ok": true,
+          "monotonic_seconds": 315322,
+          "monotonic_nanoseconds": 981131000,
+          "wait_result": 93499,
+          "wait_status": 9,
+          "reaped": true,
+          "signal": 9,
+          "exit_code": -1,
+          "parent_timeout": true,
+          "clock_failure": false,
+          "completed": false,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315321,
+          "parent_start_nanoseconds": 925466000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/report-timeout/input.nano",
+          "line": 4,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/report-timeout/input.nano",
+          "line": 4,
+          "elapsed_seconds": 0.017261,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "body-timeout",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/body-timeout/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/body-timeout/program"
+      ],
+      "returncode": 1,
+      "input_sha256_before_after": "0439fd7a7671510f606e3344690d9fe51202562bb930e85991213d4304a56046",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93591,
+          "clock_ok": true,
+          "monotonic_seconds": 315323,
+          "monotonic_nanoseconds": 670000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93589,
+          "child_pid": 93591,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 5138000,
+          "wait_result": 93591,
+          "wait_status": 9,
+          "reaped": true,
+          "signal": 9,
+          "exit_code": -1,
+          "parent_timeout": true,
+          "clock_failure": false,
+          "completed": false,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315323,
+          "parent_start_nanoseconds": 504000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/body-timeout/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "early-exit",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/early-exit/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/early-exit/program"
+      ],
+      "returncode": 1,
+      "input_sha256_before_after": "3fcc4a77fea96d307d937f0e16ae6d0adf9f7f6e8ee57ff8d5eca7b12f6002d3",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93716,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 13527000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93715,
+          "child_pid": 93716,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 62037000,
+          "wait_result": 93716,
+          "wait_status": 0,
+          "reaped": true,
+          "signal": 0,
+          "exit_code": 0,
+          "parent_timeout": false,
+          "clock_failure": false,
+          "completed": false,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315324,
+          "parent_start_nanoseconds": 13414000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/early-exit/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "native-errno",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "-Isrc",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/errno.c",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/errno-native"
+      ],
+      "build_returncode": 0,
+      "returncode": 0,
+      "native_sha256_before_after": "11c69bde802e277d02a895c397f50f14733728a33124b7ad83a21c26698337bd"
+    },
+    {
+      "label": "phase-audit",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/phase-audit/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/phase-audit/program"
+      ],
+      "returncode": 0,
+      "input_sha256_before_after": "4142b9952e13b6a01378e482dd13eb7bb5b683f0d059e3565fd417604d7b8ddf",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504742000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-start",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504833000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-returned",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504834000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-returned",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504835000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "completion-written",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504837000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-start",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504838000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-end",
+          "pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 504839000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 93775,
+          "child_pid": 93776,
+          "clock_ok": true,
+          "monotonic_seconds": 315324,
+          "monotonic_nanoseconds": 542004000,
+          "wait_result": 93776,
+          "wait_status": 0,
+          "reaped": true,
+          "signal": 0,
+          "exit_code": 0,
+          "parent_timeout": false,
+          "clock_failure": false,
+          "completed": true,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315324,
+          "parent_start_nanoseconds": 504676000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/phase-audit/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/phase-audit/input.nano",
+          "line": 3,
+          "elapsed_seconds": 3.8e-05,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "disabled",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/disabled/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/disabled/program"
+      ],
+      "returncode": 0,
+      "input_sha256_before_after": "4142b9952e13b6a01378e482dd13eb7bb5b683f0d059e3565fd417604d7b8ddf",
+      "observation": false,
+      "phases": [],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/disabled/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/disabled/input.nano",
+          "line": 3,
+          "elapsed_seconds": 3.4e-05,
+          "failures": 0
+        }
+      ]
+    },
+    {
+      "label": "enabled",
+      "argv": [
+        "/Users/jkh/Src/nanolang/bin/nanoc_c",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/enabled/input.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/enabled/program"
+      ],
+      "returncode": 0,
+      "input_sha256_before_after": "4142b9952e13b6a01378e482dd13eb7bb5b683f0d059e3565fd417604d7b8ddf",
+      "observation": true,
+      "phases": [
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-start",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986564000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-start",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986699000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "report-returned",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986700000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "dispatch-returned",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986701000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "completion-written",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986703000,
+          "value": 1
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-start",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986705000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "flush-end",
+          "pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315326,
+          "monotonic_nanoseconds": 986707000,
+          "value": 0
+        },
+        {
+          "event": "cseed-shadow-phase",
+          "phase": "supervisor-status",
+          "pid": 94124,
+          "child_pid": 94125,
+          "clock_ok": true,
+          "monotonic_seconds": 315327,
+          "monotonic_nanoseconds": 76408000,
+          "wait_result": 94125,
+          "wait_status": 0,
+          "reaped": true,
+          "signal": 0,
+          "exit_code": 0,
+          "parent_timeout": false,
+          "clock_failure": false,
+          "completed": true,
+          "deadline_seconds": 1,
+          "parent_start_clock_ok": true,
+          "parent_start_seconds": 315326,
+          "parent_start_nanoseconds": 986366000
+        }
+      ],
+      "bodies": [
+        {
+          "event": "shadow-start",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/enabled/input.nano",
+          "line": 3,
+          "elapsed_seconds": 0.0,
+          "failures": 0
+        },
+        {
+          "event": "shadow-complete",
+          "name": "main",
+          "source": "/Users/jkh/Src/nanolang/.test_output/shadow-completion-1k7eoeja/enabled/input.nano",
+          "line": 3,
+          "elapsed_seconds": 4e-05,
+          "failures": 0
+        }
+      ]
+    }
+  ],
+  "integration_and_original_trace_methods": 10,
+  "comparison_native_methods": 13,
+  "scope": "I execute actual C-seed success/failure/deadline/early-exit and post-body report controls, a real sanitized native errno witness and tampered actual record refusals. One-second unit budgets do not change the ten-second factory diagnostic. These controls do not qualify source-creation reliability, complete toolchain closure, NativeSDK or release."
+}

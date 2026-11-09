@@ -1,0 +1,18 @@
+{
+  "previous": "b106ee66ee6258fc930b0bae8107399b0fe6753b",
+  "checkpoint": "90b79b0e4af163b5b725988e0d0197b64d9f11bc",
+  "implementation": "619733ebb951005b9e9b8ae878ee27bee633cf3e",
+  "tree": "e82e529346d0b356ccb2b5b00abec30898f54f10",
+  "entries": 92831,
+  "changed_paths": [
+    ".github/workflows/cseed-source-comparison.yml",
+    "Makefile.gnu",
+    "scripts/compare_cseed_source_creation.py",
+    "src/eval.c",
+    "src/main.c",
+    "src/runtime/shadow_observation.h",
+    "tests/test_shadow_completion_observation.py"
+  ],
+  "added_source_paths": 2,
+  "scope": "I populate a complete separate Git index, retain all92831 original entries, apply exactly seven reviewed source paths, and retain direct-parent ancestry through an explicit ours merge. This Git custody does not establish native lifecycle or release admission."
+}
