@@ -47,7 +47,7 @@ def render_program(root_pid):
 def parse_events(text,root_pid,stderr=''):
     if re.search(r'\b(lost|dropped|error|failed|unable)\b|\bcould not\b',stderr,re.I):
         raise ValueError('I refuse observer errors or lost events.')
-    events=[]
+    events=[];seen=set()
     for line in text.splitlines():
         if not line.strip(): continue
         event=json.loads(line)
@@ -59,7 +59,9 @@ def parse_events(text,root_pid,stderr=''):
             if type(event[name]) is not int: raise ValueError('I require integer kernel event fields.')
         if event['root_pid']!=root_pid or event['monotonic_ns']<0:
             raise ValueError('I refuse a changed observer root or clock.')
-        if event in events: raise ValueError('I refuse duplicate kernel records.')
+        identity=tuple(event[k] for k in ('event','kind','root_pid','pid','tid','monotonic_ns','value','detail'))
+        if identity in seen:raise ValueError('I refuse duplicate kernel records.')
+        seen.add(identity)
         events.append(event)
     events.sort(key=lambda e:e['monotonic_ns'])
     if not events or events[0]['kind']!='ready' or events[-1]['kind']!='end':
