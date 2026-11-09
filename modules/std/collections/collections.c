@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 NANO_EXPORT_ARRAY_ABI(nl_hm_keys);
 NANO_EXPORT_ARRAY_ABI(nl_hm_values);
@@ -112,6 +113,59 @@ void nl_sb_free(void* sb_ptr) {
     if (!sb) return;
     free(sb->buf);
     free(sb);
+}
+
+/* I keep public collection handles separate from allocation addresses. I never
+ * recycle an identity within this loaded provider. My registry checks kind and
+ * liveness before accessing payloads; exhaustion refuses new publication.
+ * Callers serialize operations on the same handle, including free and borrowed
+ * string reads. Independent handles may be used by independent threads. */
+typedef enum { COLLECTION_MAP, COLLECTION_SET } CollectionKind;
+typedef struct CollectionHandle {
+    uintptr_t identity;
+    CollectionKind kind;
+    void *payload;
+    struct CollectionHandle *next;
+} CollectionHandle;
+static CollectionHandle *collection_handles;
+static uintptr_t collection_next_identity = 1;
+static pthread_mutex_t collection_handles_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static void collection_lock(void) {
+    if (pthread_mutex_lock(&collection_handles_lock)) abort();
+}
+static void collection_unlock(void) {
+    if (pthread_mutex_unlock(&collection_handles_lock)) abort();
+}
+static void *collection_publish(void *payload, CollectionKind kind) {
+    if (!payload) return NULL;
+    collection_lock();
+    uintptr_t identity = collection_next_identity;
+    if (!identity || (uintptr_t)(void *)identity != identity) {
+        collection_unlock(); return NULL;
+    }
+    CollectionHandle *entry = calloc(1, sizeof *entry);
+    if (!entry) { collection_unlock(); return NULL; }
+    entry->identity = identity; entry->kind = kind; entry->payload = payload;
+    entry->next = collection_handles; collection_handles = entry;
+    collection_next_identity = identity == UINTPTR_MAX ? 0 : identity + 1;
+    collection_unlock();
+    return (void *)identity;
+}
+static void *collection_lookup(void *identity, CollectionKind kind, bool retire) {
+    if (!identity) return NULL;
+    collection_lock();
+    CollectionHandle **link = &collection_handles;
+    while (*link) {
+        CollectionHandle *entry = *link;
+        if (entry->identity == (uintptr_t)identity && entry->kind == kind) {
+            void *payload = entry->payload;
+            if (retire) { *link = entry->next; free(entry); }
+            collection_unlock(); return payload;
+        }
+        link = &entry->next;
+    }
+    collection_unlock(); return NULL;
 }
 
 /* ============================ HashMap<string,string> ============================ */
@@ -233,11 +287,14 @@ static HMEntry* hm_find_slot(NLHashMap *hm, const char *key, bool *found_out) {
 }
 
 void* nl_hm_new(void) {
-    return (void*)hm_alloc(64);
+    NLHashMap *hm = hm_alloc(64);
+    void *identity = collection_publish(hm, COLLECTION_MAP);
+    if (!identity && hm) { free(hm->entries); free(hm); }
+    return identity;
 }
 
 void nl_hm_put(void* hm_ptr, const char* key, const char* value) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm || !key) return;
     if (!value) value = "";
 
@@ -265,7 +322,7 @@ void nl_hm_put(void* hm_ptr, const char* key, const char* value) {
 }
 
 bool nl_hm_has(void* hm_ptr, const char* key) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm || !key) return false;
     bool found = false;
     (void)hm_find_slot(hm, key, &found);
@@ -273,7 +330,7 @@ bool nl_hm_has(void* hm_ptr, const char* key) {
 }
 
 const char* nl_hm_get(void* hm_ptr, const char* key) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm || !key) return "";
     bool found = false;
     HMEntry *e = hm_find_slot(hm, key, &found);
@@ -282,13 +339,13 @@ const char* nl_hm_get(void* hm_ptr, const char* key) {
 }
 
 int64_t nl_hm_size(void* hm_ptr) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm) return 0;
     return hm->size;
 }
 
 DynArray* nl_hm_keys(void* hm_ptr) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm) return dyn_array_new(ELEM_STRING);
     DynArray *out = dyn_array_new(ELEM_STRING);
     for (int64_t i = 0; i < hm->capacity; i++) {
@@ -302,7 +359,7 @@ DynArray* nl_hm_keys(void* hm_ptr) {
 }
 
 DynArray* nl_hm_values(void* hm_ptr) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm) return dyn_array_new(ELEM_STRING);
     DynArray *out = dyn_array_new(ELEM_STRING);
     for (int64_t i = 0; i < hm->capacity; i++) {
@@ -316,7 +373,7 @@ DynArray* nl_hm_values(void* hm_ptr) {
 }
 
 void nl_hm_remove(void* hm_ptr, const char* key) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm || !key) return;
     bool found = false;
     HMEntry *e = hm_find_slot(hm, key, &found);
@@ -331,7 +388,7 @@ void nl_hm_remove(void* hm_ptr, const char* key) {
 }
 
 void nl_hm_clear(void* hm_ptr) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, false);
     if (!hm) return;
     for (int64_t i = 0; i < hm->capacity; i++) {
         HMEntry *e = &hm->entries[i];
@@ -348,7 +405,7 @@ void nl_hm_clear(void* hm_ptr) {
 }
 
 void nl_hm_free(void* hm_ptr) {
-    NLHashMap *hm = (NLHashMap*)hm_ptr;
+    NLHashMap *hm = collection_lookup(hm_ptr, COLLECTION_MAP, true);
     if (!hm) return;
     for (int64_t i = 0; i < hm->capacity; i++) {
         HMEntry *e = &hm->entries[i];
@@ -363,54 +420,57 @@ void nl_hm_free(void* hm_ptr) {
 /* ============================ Set<string> (on top of HashMap) ============================ */
 
 typedef struct {
-    NLHashMap *hm;
+    void *hm;
 } NLStringSet;
 
 void* nl_set_new(void) {
     NLStringSet *s = (NLStringSet*)calloc(1, sizeof(NLStringSet));
     if (!s) return NULL;
-    s->hm = (NLHashMap*)nl_hm_new();
-    return s;
+    s->hm = nl_hm_new();
+    if (!s->hm) { free(s); return NULL; }
+    void *identity = collection_publish(s, COLLECTION_SET);
+    if (!identity) { nl_hm_free(s->hm); free(s); }
+    return identity;
 }
 
 void nl_set_add(void* set_ptr, const char* key) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm || !key) return;
     nl_hm_put(s->hm, key, "1");
 }
 
 bool nl_set_has(void* set_ptr, const char* key) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm || !key) return false;
     return nl_hm_has(s->hm, key);
 }
 
 int64_t nl_set_size(void* set_ptr) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm) return 0;
     return nl_hm_size(s->hm);
 }
 
 DynArray* nl_set_values(void* set_ptr) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm) return dyn_array_new(ELEM_STRING);
     return nl_hm_keys(s->hm);
 }
 
 void nl_set_remove(void* set_ptr, const char* key) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm || !key) return;
     nl_hm_remove(s->hm, key);
 }
 
 void nl_set_clear(void* set_ptr) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, false);
     if (!s || !s->hm) return;
     nl_hm_clear(s->hm);
 }
 
 void nl_set_free(void* set_ptr) {
-    NLStringSet *s = (NLStringSet*)set_ptr;
+    NLStringSet *s = collection_lookup(set_ptr, COLLECTION_SET, true);
     if (!s) return;
     if (s->hm) nl_hm_free(s->hm);
     free(s);
