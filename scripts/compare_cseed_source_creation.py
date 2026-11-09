@@ -281,11 +281,73 @@ def check_selection(prefix, full_selection, selection, succeeded):
     return (selection if len(selection) > len(prefix) else prefix), full_selection
 
 
-def run(output, baseline, *, observe_processes=False):
+def shadow_phases(text, succeeded, expected_deadline=None):
+    events, refusals = [], []
+    for line in text.splitlines():
+        offset = line.find('{"event":"cseed-shadow-phase"')
+        if offset < 0:
+            continue
+        try:
+            events.append(json.loads(line[offset:]))
+        except ValueError:
+            refusals.append('I retain an incomplete or malformed phase record.')
+    order = ['dispatch-start', 'report-start', 'report-returned', 'dispatch-returned',
+             'completion-written', 'flush-start', 'flush-end']
+    if not events:
+        return {'events': [], 'valid': False, 'refusals': [*refusals, 'I have no phase observations.']}
+    try:
+        if events[-1]['phase'] != 'supervisor-status' or sum(e['phase']=='supervisor-status' for e in events) != 1:
+            raise ValueError('I require one final supervisor outcome.')
+        status, children = events[-1], events[:-1]
+        if [e['phase'] for e in children] != order[:len(children)]:
+            raise ValueError('I require a contiguous child phase prefix.')
+        if any(type(status[key]) is not bool for key in ('reaped', 'completed', 'parent_timeout', 'clock_failure', 'parent_start_clock_ok')):
+            raise ValueError('I require boolean supervision states.')
+        if any(type(status[key]) is not int for key in ('child_pid', 'wait_result', 'wait_status', 'signal', 'exit_code', 'deadline_seconds')):
+            raise ValueError('I require integer wait and deadline states.')
+        if not 1 <= status['deadline_seconds'] <= 300 or (expected_deadline is not None and status['deadline_seconds'] != expected_deadline):
+            raise ValueError('I refuse a changed observation deadline.')
+        stamps = []
+        for event in events:
+            if event['clock_ok'] is not True or type(event['pid']) is not int or event['pid'] <= 0:
+                raise ValueError('I require measured process identities.')
+            seconds, nanos = event['monotonic_seconds'], event['monotonic_nanoseconds']
+            if type(seconds) is not int or type(nanos) is not int or seconds < 0 or not 0 <= nanos < 10**9:
+                raise ValueError('I require valid monotonic timestamps.')
+            stamps.append(seconds*10**9+nanos)
+        if stamps != sorted(stamps):
+            raise ValueError('I refuse reversed phase timestamps.')
+        start_seconds, start_nanos = status['parent_start_seconds'], status['parent_start_nanoseconds']
+        if (not status['parent_start_clock_ok'] or type(start_seconds) is not int or type(start_nanos) is not int or
+                start_seconds < 0 or not 0 <= start_nanos < 10**9 or start_seconds*10**9+start_nanos > stamps[-1]):
+            raise ValueError('I require the measured original parent timer origin.')
+        if status['pid'] == status['child_pid'] or any(e['pid'] != status['child_pid'] for e in children):
+            raise ValueError('I require the actual child and parent identities.')
+        if not status['reaped'] or status['wait_result'] != status['child_pid']:
+            raise ValueError('I require a reaped child outcome.')
+        raw = status['wait_status']
+        if not (os.WIFEXITED(raw) or os.WIFSIGNALED(raw)):
+            raise ValueError('I require a terminal wait state.')
+        if (status['signal'] != (os.WTERMSIG(raw) if os.WIFSIGNALED(raw) else 0) or
+                status['exit_code'] != (os.WEXITSTATUS(raw) if os.WIFEXITED(raw) else -1)):
+            raise ValueError('I refuse contradictory raw wait status.')
+        if succeeded and (len(children) != len(order) or not status['completed'] or
+                          status['parent_timeout'] or status['clock_failure'] or
+                          status['signal'] or status['exit_code']):
+            raise ValueError('I refuse an incomplete successful child observation.')
+    except (KeyError, TypeError, ValueError) as error:
+        refusals.append(str(error))
+    return {'events': events, 'valid': not refusals, 'refusals': refusals,
+            'scope': 'I retain monotonic phase and wait observations; event counts alone neither locate an earlier unobserved delay nor qualify release.'}
+
+
+def run(output, baseline, *, observe_processes=False, observe_shadow_phases=False):
     if not re.fullmatch('[0-9a-f]{40}', baseline):
         raise ValueError('I require a full lowercase baseline commit SHA.')
     if os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS') not in (None, '10'):
         raise ValueError('I require the unchanged ten-second shadow limit.')
+    if 'NANO_SHADOW_PHASE_TRACE' in os.environ and not observe_shadow_phases:
+        raise ValueError('I require explicit phase-observation mode for the inherited flag.')
     if (output/'plan.json').exists():
         raise ValueError('I refuse to overwrite an existing comparison.')
     sys.path.insert(0, str(ROOT))
@@ -304,6 +366,9 @@ def run(output, baseline, *, observe_processes=False):
         plan['process_observation'] = {'wait_interval_seconds': .2,
             'observer_sha256': digest(__file__),
             'scope': 'I observe only actual factory descendants without wrapping or changing tools, inputs, cache keys, selections or deadlines. Observed presence is not exact CPU time; all original attempts remain separate evidence.'}
+    if observe_shadow_phases:
+        plan['shadow_phase_observation'] = {'environment': 'NANO_SHADOW_PHASE_TRACE=1',
+            'scope': 'I enable phase records where implemented in each pinned compiler. Optional writes perturb timing; this is boundary diagnosis, not performance or release acceptance.'}
     write(output/'plan.json', plan)
     base_env = dict(os.environ, NANO_SHADOW_TRACE='1', NANO_NVM2C_SHAPE_TRACE='1',
                     NANO_STRING_OPERAND_COMPILERS='nanoc_c,nano_virt',
@@ -311,6 +376,8 @@ def run(output, baseline, *, observe_processes=False):
                     NANO_EMPTY_RECORD_PROVIDERS='nanoc_c,nano_virt',
                     NANO_NUMERIC_PROVIDERS='nano_virt',
                     NANO_MAP_CONTEXT_PROVIDERS='nanoc_c,nano_virt')
+    if observe_shadow_phases:
+        base_env['NANO_SHADOW_PHASE_TRACE'] = '1'
     records, providers, environments = {}, {}, {}
     checkouts = {}
     for name, revision in (('original', baseline), ('modified', candidate)):
@@ -382,6 +449,8 @@ def run(output, baseline, *, observe_processes=False):
         samples.append({'index': index, 'variant': name, 'process': result, 'creation_succeeded': completed,
                         'trace': trace, 'factory_directory': str(evidence), 'copied_directory': str(copied),
                         'product_sha256': inputs['product_before_run']})
+        if observe_shadow_phases:
+            samples[-1]['phase_observation'] = shadow_phases((evidence/'source-build.stderr').read_text(), completed, 10)
         summary = {'plan': plan, 'comparison_valid': False,
               'all_planned_samples_finished': len(samples)==len(ORDER),
               'all_creations_passed': all(s['creation_succeeded'] for s in samples), 'samples': samples}
@@ -395,8 +464,11 @@ def run(output, baseline, *, observe_processes=False):
     if any(shared_inputs(root) != common for root in roots.values()):
         raise RuntimeError('I refuse changed inputs after comparison.')
     summary['comparison_valid'] = True
+    if observe_shadow_phases:
+        summary['phase_observation_valid'] = all(s['phase_observation']['valid'] for s in samples if s['variant']=='modified')
     write(output/'summary.json', summary)
-    return int(any(not s['creation_succeeded'] for s in samples))
+    return int(any(not s['creation_succeeded'] for s in samples) or
+               (observe_shadow_phases and not summary['phase_observation_valid']))
 
 
 def main():
@@ -406,6 +478,7 @@ def main():
     compare = sub.add_parser('run'); compare.add_argument('--output', type=Path, required=True)
     compare.add_argument('--baseline', required=True)
     compare.add_argument('--observe-processes', action='store_true')
+    compare.add_argument('--observe-shadow-phases', action='store_true')
     sample = sub.add_parser('sample'); sample.add_argument('root', type=Path)
     args = parser.parse_args()
     if args.mode == 'sample':
@@ -417,7 +490,8 @@ def main():
     if args.mode == 'health':
         health(args.output.resolve(), 'preflight')
         return 0
-    return run(args.output.resolve(), args.baseline, observe_processes=args.observe_processes)
+    return run(args.output.resolve(), args.baseline, observe_processes=args.observe_processes,
+               observe_shadow_phases=args.observe_shadow_phases)
 
 
 if __name__ == '__main__':
