@@ -1,0 +1,7 @@
+test_longest_prefix_and_ambiguity (tests.test_litai_source_preservation.SourceCustody.test_longest_prefix_and_ambiguity) ... ok
+test_real_git_bytes_modes_deletion_and_dirty_source (tests.test_litai_source_preservation.SourceCustody.test_real_git_bytes_modes_deletion_and_dirty_source) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.579s
+
+OK

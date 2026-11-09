@@ -58,3 +58,12 @@ Current full source/native/platform and Linux leak-detector execution remain
 required. I do not close #1121 or claim release qualification from these local
 controls. Original-source custody is refreshed only at a committed reviewed
 source checkpoint, without widening metadata exceptions.
+
+
+My [reviewed source custody](custody-precommit.json) uses real code-only
+checkpoint d11474719, preserving all 92,816 previous entries plus the new
+allocation-failure test. My [metadata commands](metadata/checks.json) pass
+both real Git controls, eight integration locks, four delegates, supported
+current documentation authority and canonical validation. The native receipt
+guard continues to refuse its unconfigured policy; I create no native receipt
+or implementation selection. Catalog inputs stay frozen before final review.

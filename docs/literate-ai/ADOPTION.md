@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:904cbb373616cfcb35d5b18090144b2a5fbc8843a7a6665071c42b3f48fb5914 -->
+<!-- literate-ai:authority-reviewed sha256:f1c68401e4ed8d060653344c69ed26215aa65b07eb67ac37d47321b53794b436 -->
 
 ## My first metadata checkpoint
 
@@ -317,3 +317,34 @@ I retain custody and post-review logs outside my documentation catalog under
 empty native implementation selections and the absent native lifecycle
 receipt remain unchanged. The original source-creation failures, full corpus,
 compiler budget, GitGuardian and release requirements remain open.
+
+
+## My registry-allocation refusal source checkpoint
+
+I correct a separately reproduced allocation failure: if my GC pointer-table
+entry cannot be allocated, I return NULL and free unpublished storage before
+linking the owner or charging statistics. I retain the separate allocation
+layout and existing ordinary-release/shutdown finalizer contracts. My reviewed
+source baseline is `d11474719cf2c35b91b0594391d9d3b21f40a9ff`, a real code-only descendant of
+`91735dabc` containing the runtime correction, actual allocation-failure control,
+existing Make sanitizer integration and workflow file selection. I merge its
+real ancestry and preserve all prior 92,816 entries, adding the new test file.
+My five content-only metadata exceptions remain unchanged.
+
+I retain the failing original probe, permanent baseline regression and the
+corrected local commands/source/product hashes under
+`docs/evidence/gc-registry-allocation-20261109/`. All thirteen original GC
+controls, the new failure matrix, complete environment unit and interpreted
+BSTRING/STRING bounds neighbors pass under local ASan/UBSan with the existing
+Darwin leak-detector setting. I preserve my first fixture's wrong ordinary
+finalizer visibility expectation and its correction; production ordering is
+unchanged. Current hosted source/platform and Linux leak-detector acceptance
+remain required under #1121.
+
+I keep this correction separate from the async candidate at `869f11634` and
+its live qualification handles. I retain original-source authority, every
+historical report, empty implementation selections and no native lifecycle
+receipt. This metadata update does not establish source timing, complete
+corpus/budget, frame-carrier lifetime, security, native admission or release.
+I freeze catalog inputs before supported authority review and retain final
+validation outside the catalog.
