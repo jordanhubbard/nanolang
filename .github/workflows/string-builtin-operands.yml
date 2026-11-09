@@ -8,6 +8,7 @@ on:
       - 'src/env.c'
       - 'tests/test_env_symbol_index.c'
       - 'tests/test_eval.c'
+      - 'tests/support/eval_frame_metadata.h'
       - 'tests/test_eval_record_fields.c'
       - 'src/eval/record_fields.inc'
       - 'src/runtime/gc.c'

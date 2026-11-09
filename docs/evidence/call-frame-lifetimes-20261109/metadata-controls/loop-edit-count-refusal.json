@@ -1,0 +1,6 @@
+{
+  "scope": "I refuse my first mechanical loop-exit replacement before writing: I expected14 occurrences but the actual source contains13. I correct the enumerated expectation to13 and keep the exact-match guard.",
+  "expected": 14,
+  "actual": 13,
+  "production_loop_replacement_written": false
+}
