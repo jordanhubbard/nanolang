@@ -1,3 +1,31 @@
+# My 5.1 compiler architecture and release order
+
+I compile my source to NanoISA. From that shared representation I either execute
+in NanoVM or emit C with a translator implemented in NanoLang, then invoke the
+host C compiler to produce a standalone binary:
+
+```text
+NanoLang source -> NanoISA -> NanoVM
+                         -> C emitted by NanoLang code -> C compiler -> native binary
+```
+
+This is my required release architecture. My current `bin/nvm2c` is built from
+`src/nanoisa/nvm2c*.c`; the existing One IR driver does not establish a NanoLang
+implementation of that translator. I retain the C translator as a reference and
+bootstrap dependency until its replacement is qualified. I keep the full
+[release scope](RELEASE_5.1_SCOPE.md), including all original 67 entries and
+Literate AI adoption. I track the missing translator under [#1142](https://github.com/jordanhubbard/nanolang/issues/1142).
+
+- [ ] Under #1142 I map the current translator's admitted module, opcode, host, ownership and refusal contracts to a NanoLang implementation before changing product selection.
+- [ ] Under #1142 I implement NanoISA-to-C translation in NanoLang, including the required aggregate, collection, callable and service contracts. Calling the existing C translator through FFI does not satisfy this requirement.
+- [ ] Under #1142 I execute the translator in NanoVM and as a native product, run the complete required pinned corpus and malformed/prior-output controls on Linux and Darwin, and preserve identity, evaluation order and cleanup behavior.
+- [ ] Under #1142/#976 I derive installed compiler and translator products through NanoISA, verify exact raw Stage1/Stage2 equality and no-C-seed execution, and verify native products neither invoke the C reference translator nor embed NanoVM as their execution engine.
+- [ ] Under #976 I reconcile every original and additional release requirement against one exact integrated candidate, pass the full release gates, update documentation and presentation, then tag and publish 5.1.
+
+## My current implementation and qualification ledger
+
+- [ ] Under #1140 I reproduce callable name ownership with a fresh isolated build of every interpreter provider, real allocation/free tracking and a successful teardown control. I retain direct/bound/declaration-return/binding-return/recursive/parameter/computed-callee routes, scalar results, independent returned names and caller survival. I use the failing ownership regression to guide a correction; I preserve escaped containers and nested signatures before enabling cleanup, then require complete original source/platform acceptance.
+
 - [ ] Under #1139/#1065 I retain complete Clang acceptance and the unchanged original GCC/Apple source-factory deadline failures, plus the fixed GCC six-attempt baseline0/3 versus corrected1/3 result in `docs/evidence/call-frame-lifetimes-20261109/`. I require complete original source acceptance before closing metadata qualification; no fully successful pair establishes a whole-factory gain, and I do not retry unchanged plans or increase their deadlines.
 - [x] Under #1139 I retain my first full-archive audit refusal: a rejected VM compilation preserves prior output without setting a runtime-before product hash; inherited source-provider fixtures use the same negative contract, and other fixtures use explicit source/provider identity pairs. I distinguish that exact negative fixture by its retained prior bytes, rejected build and absent run; executed-product hash equality remains required.
 - [x] Under #1139 I retain my mechanical loop-edit refusal: I expected14 symbol_count restores but the exact source contains13. I keep the exact-match guard, correct that enumerated count before writing loop replacements and validate all thirteen exit forms with real metadata allocation/free controls.

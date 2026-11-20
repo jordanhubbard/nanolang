@@ -67,13 +67,14 @@ int nano_test_fclose(FILE *stream) {
 
 /* I count actual duplicated binding metadata, not allocator-size estimates. */
 static bool s_metadata_tracking;
+static const char *s_metadata_target = "FrameMetadataOwner";
 static const void *s_metadata_caller;
 static struct { void *pointer; bool released; } s_metadata_allocations[1024];
 static size_t s_metadata_allocated, s_metadata_released;
 
 char *nano_test_metadata_strdup(const char *text) {
     char *copy = strdup(text);
-    if (s_metadata_tracking && strcmp(text, "FrameMetadataOwner") == 0) {
+    if (s_metadata_tracking && strcmp(text, s_metadata_target) == 0) {
         ASSERT_NOT_NULL(copy);
         ASSERT(s_metadata_allocated < sizeof s_metadata_allocations / sizeof *s_metadata_allocations);
         s_metadata_allocations[s_metadata_allocated].pointer = copy;
