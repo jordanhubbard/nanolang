@@ -283,6 +283,8 @@ struct ASTNode {
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
+    ASTNode *checked_global; /* I borrow the exact checked global declaration, never its storage. */
+    bool checked_function_name; /* I resolved this spelling to a declaration, not a value binding. */
     ASTNode *affine_use_owner; /* Borrowed exact checked source function. */
     uint64_t affine_use_epoch;
     unsigned char checked_affine_use; /* 0 unknown, 1 observe, 2 consume. */
@@ -345,6 +347,7 @@ struct ASTNode {
             char *name;
             ASTNode *value;
             char *field_name; /* Optional scalar field of an exclusive referent. */
+            bool qualified_global; /* I checked alias.field as one imported global binding. */
         } set;
         struct {
             ASTNode *condition;
@@ -1032,11 +1035,13 @@ void env_reclaim_static_arrays(Environment *env);
 /* Diagnostic: number of static-array containers reclaimed at teardown. */
 size_t env_static_array_reclaim_count(void);
 Symbol *env_get_var(Environment *env, const char *name);
+Symbol *env_get_declared_global(Environment *env, const ASTNode *declaration);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
 /* I accept the value just evaluated from this exact expression. */
 void env_define_evaluated_var(Environment *env, const char *name, Type type, Type element_type,
                               TypeInfo *type_info, bool is_mut, Value value, ASTNode *expression);
 void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression);
+void env_set_evaluated_binding(Environment *env, Symbol *binding, Value value, ASTNode *expression);
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);

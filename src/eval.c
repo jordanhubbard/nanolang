@@ -91,6 +91,13 @@ static const void *g_eval_return_target = NULL;
 static Value call_function_at(const char *name, Value *args, int arg_count,
                              Environment *env, int line, int column);
 
+/* I use checked declaration identity for globals and retain local lookup otherwise. */
+static Symbol *eval_binding(ASTNode *node, Environment *env, const char *name) {
+    if (node->checked_global) return env_get_declared_global(env, node->checked_global);
+    if (node->checked_function_name) return NULL;
+    return env_get_var(env, name);
+}
+
 /* I keep checked dispatch and shadow failure accounting shared by every call route. */
 static Value eval_foreign_call(Function *func, Value *args, int arg_count,
                                Environment *env, int line, int column) {
@@ -3326,7 +3333,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     g_eval_call_site = node;
     char *bound_name = NULL;
     if (!node->as.call.func_expr && node->as.call.name) {
-        Symbol *binding = env_get_var(env, node->as.call.name);
+        Symbol *binding = eval_binding(node, env, node->as.call.name);
         if (binding && binding->value.type == VAL_FUNCTION) {
             bound_name = strdup(binding->value.as.function_val.function_name);
             if (!bound_name) {
@@ -5297,7 +5304,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_IDENTIFIER: {
             /* First check if it's a variable */
-            Symbol *sym = env_get_var(env, expr->as.identifier);
+            Symbol *sym = eval_binding(expr, env, expr->as.identifier);
             if (strcmp(expr->as.identifier, "array_push") == 0) {
                 Function *declared = env_get_function(env, expr->as.identifier);
                 if (declared && !declared->is_extern && declared->body &&
@@ -5367,6 +5374,19 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             size_t qlen = strlen(module_alias) + strlen(function_name) + 2;
             char *qualified_name = malloc(qlen);
             snprintf(qualified_name, qlen, "%s.%s", module_alias, function_name);
+            if (expr->checked_global) {
+                Symbol *callable = env_get_declared_global(env, expr->checked_global);
+                free(qualified_name);
+                if (!callable || callable->value.type != VAL_FUNCTION) {
+                    fprintf(stderr, "I cannot call an uninitialized global function value\n");
+                    return create_void();
+                }
+                qualified_name = strdup(callable->value.as.function_val.function_name);
+                if (!qualified_name) {
+                    fprintf(stderr, "I could not retain the global function name\n");
+                    return create_void();
+                }
+            }
 
             Value *args = NULL;
             if (arg_count > 0) {
@@ -5666,12 +5686,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            if (expr->checked_global) {
+                Symbol *global = env_get_declared_global(env, expr->checked_global);
+                return global ? global->value : create_void();
+            }
             /* I already know a live record binding denotes a value. Static
              * source visibility is only needed for enum/import spellings.
              * I still evaluate the receiver below, preserving read tracing. */
             ASTNode *receiver = expr->as.field_access.object;
             Symbol *binding = receiver && receiver->type == AST_IDENTIFIER ?
-                env_get_var(env, receiver->as.identifier) : NULL;
+                eval_binding(receiver, env, receiver->as.identifier) : NULL;
             bool live_record = binding && binding->def_line == 0 &&
                 binding->value.type == VAL_STRUCT;
             ASTNode *literal = live_record ? NULL : env_qualified_import_literal(env, expr);
@@ -6089,9 +6113,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
  * parameters and returned function values already receive. */
 static Value own_function_identifier(ASTNode *expression, Environment *env,
                                      Value value) {
-    if (value.type != VAL_FUNCTION || !expression ||
-        expression->type != AST_IDENTIFIER) return value;
-    Symbol *source = env_get_var(env, expression->as.identifier);
+    if (value.type != VAL_FUNCTION || !expression) return value;
+    Symbol *source = expression->checked_global
+        ? env_get_declared_global(env, expression->checked_global)
+        : expression->type == AST_IDENTIFIER
+            ? eval_binding(expression, env, expression->as.identifier) : NULL;
     if (!source || source->value.type != VAL_FUNCTION ||
         source->value.as.function_val.function_name !=
             value.as.function_val.function_name) return value;
@@ -6143,7 +6169,12 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                                          stmt->as.let.type_info,
                                          stmt->as.let.is_mut,
                                          value, stmt->as.let.value);
-            
+            if (stmt->checked_global) {
+                Symbol *global = &env->symbols[env->symbol_count - 1];
+                global->is_global = true;
+                global->global_declaration = stmt->checked_global;
+            }
+
             /* Trace variable declaration */
 #ifdef TRACING_ENABLED
             const char *scope = (g_tracing_config.call_stack_size > 0) ?
@@ -6161,8 +6192,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_SET: {
             Value value = eval_expression(stmt->as.set.value, env);
             if (value.is_return) return value;
-            if (stmt->as.set.field_name) {
-                Symbol *owner = env_get_var(env, stmt->as.set.name);
+            if (stmt->as.set.field_name && !stmt->as.set.qualified_global) {
+                Symbol *owner = eval_binding(stmt, env, stmt->as.set.name);
                 if (owner && owner->value.type == VAL_STRUCT) {
                     StructValue *record = owner->value.as.struct_val;
                     for (int i = 0; i < record->field_count; ++i) {
@@ -6176,7 +6207,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             value = own_function_identifier(stmt->as.set.value, env, value);
-            env_set_evaluated_var(env, stmt->as.set.name, value, stmt->as.set.value);
+            env_set_evaluated_binding(env, eval_binding(stmt, env, stmt->as.set.name),
+                                      value, stmt->as.set.value);
             
             /* Trace variable assignment */
 #ifdef TRACING_ENABLED

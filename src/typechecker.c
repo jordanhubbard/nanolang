@@ -2591,11 +2591,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_FUNCTION;
             }
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
+            expr->checked_global = sym ? sym->global_declaration : NULL;
+            expr->checked_function_name = false;
             if (!sym) {
                 /* Not a variable - check if it's a function name */
                 Function *func = env_get_function_at(env, expr->as.identifier, expr->line, expr->column);
                 if (func) {
                     /* Function name used as value (for passing/returning) */
+                    expr->checked_function_name = true;
                     return TYPE_FUNCTION;
                 }
                 char message[256];
@@ -3045,6 +3048,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* I resolve a lexical binding before a same-named declaration or builtin. */
             {
                 Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
+                expr->checked_global = binding ? binding->global_declaration : NULL;
+                expr->checked_function_name = binding == NULL;
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
@@ -4388,6 +4393,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             call.as.call.args = expr->as.module_qualified_call.args;
             call.as.call.arg_count = expr->as.module_qualified_call.arg_count;
             Type result = check_expression(&call, env);
+            expr->checked_global = call.checked_global;
             if (!call.as.call.checked_signature)
                 call.as.call.checked_signature = function_signature_from_function(env_get_function(env, qualified_name));
             free_function_signature(expr->as.module_qualified_call.checked_signature);
@@ -4785,6 +4791,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            expr->checked_global = NULL;
             ASTNode *receiver = expr->as.field_access.object;
             if (receiver && receiver->type == AST_IDENTIFIER &&
                 !env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) {
@@ -4795,7 +4802,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 snprintf(qualified, length, "%s.%s", receiver->as.identifier, field);
                 Symbol *imported = env_global_import_symbol(env, qualified);
                 free(qualified);
-                if (imported) return imported->type;
+                if (imported) {
+                    expr->checked_global = imported->global_declaration;
+                    return imported->type;
+                }
             }
             /* Check object is not NULL */
             assert(expr->as.field_access.object != NULL);
@@ -6169,6 +6179,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_SET: {
             Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
+            stmt->checked_global = NULL;
+            stmt->as.set.qualified_global = false;
             bool qualified_global = false;
             if (!sym && stmt->as.set.field_name) {
                 size_t length = strlen(stmt->as.set.name) + strlen(stmt->as.set.field_name) + 2;
@@ -6194,6 +6206,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
                 return TYPE_VOID;
             }
+
+            stmt->checked_global = sym->global_declaration;
+            stmt->as.set.qualified_global = qualified_global;
 
             if (stmt->as.set.field_name && !qualified_global) {
                 StructDef *record = sym->struct_type_name ? env_get_struct(tc->env, sym->struct_type_name) : NULL;
@@ -9104,6 +9119,7 @@ register_function_pass1:;
             if (sym) {
                 sym->is_global = true;
                 sym->global_declaration = item;
+                item->checked_global = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -9890,6 +9906,7 @@ register_function_pass2:;
             if (sym) {
                 sym->is_global = true;
                 sym->global_declaration = item;
+                item->checked_global = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }

@@ -3507,7 +3507,84 @@ void test_eval_call_dispatch_names(void) {
     ASSERT(eval_call_name("User.function") == EVAL_CALL_unknown);
 }
 
+/* I retain the callee's global even when an unrelated activation shadows it. */
+void test_eval_global_binding_identity(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "let slots: array<int> = [41]\n"
+        "fn fetch() -> int { return (at slots 0) }\n"
+        "shadow fetch { assert (== (fetch) 41) }\n"
+        "fn caller() -> int {\n"
+        "    let slots: array<int> = []\n"
+        "    return (fetch)\n"
+        "}\n"
+        "shadow caller { assert (== (caller) 41) }\n"
+        "fn main() -> int { return 0 }\n");
+    ASSERT(ok);
+    Value result = call_function("caller", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 41);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+/* I preserve live lexical captures and parameter/local hiding of a global. */
+void test_eval_global_binding_local_capture(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "let counter: int = 41\n"
+        "fn captured(counter: int) -> int {\n"
+        "  let add = fn(value: int) -> int { return (+ counter value) }\n"
+        "  return (add 2)\n"
+        "}\n"
+        "shadow captured { assert (== (captured 7) 9) }\n"
+        "fn early() -> string { let counter: int = 7 if (== counter 7) { return \"kept\" } return \"bad\" }\n"
+        "shadow early { assert (== (early) \"kept\") }\n"
+        "fn main() -> int { return 0 }\n"));
+    Value argument = create_int(7);
+    Value result = call_function("captured", &argument, 1, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 9);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+/* I exercise exact global reads/writes without changing caller STRING ownership. */
+void test_eval_global_binding_scalar_ownership(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "let mut counter: int = 40\n"
+        "let label: string = \"global\"\n"
+        "fn read_count() -> int { return counter }\n"
+        "shadow read_count { assert (== (read_count) 40) }\n"
+        "fn step_count() -> int { set counter (+ counter 1) return counter }\n"
+        "shadow step_count { set counter 40 assert (== (step_count) 41) }\n"
+        "fn read_label() -> string { return label }\n"
+        "shadow read_label { assert (== (read_label) \"global\") }\n"
+        "fn exercise() -> int {\n"
+        "  let counter: int = -7 let label: string = \"caller\"\n"
+        "  let seen: string = (read_label)\n"
+        "  assert (== seen \"global\") assert (== label \"caller\")\n"
+        "  let value: int = (step_count)\n"
+        "  assert (== value 41) assert (== counter -7)\n"
+        "  return (read_count)\n"
+        "}\n"
+        "shadow exercise { set counter 40 assert (== (exercise) 41) }\n"
+        "fn main() -> int { return 0 }\n"));
+    Value result = call_function("exercise", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 41);
+    Symbol *global = env_get_var(ctx.env, "counter");
+    ASSERT(global && global->global_declaration);
+    ASSERT(env_get_declared_global(ctx.env, global->global_declaration) == global);
+    ASSERT_EQ(global->value.as.int_val, 41);
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_global_binding_scalar_ownership);
+    TEST(eval_global_binding_local_capture);
+    TEST(eval_global_binding_identity);
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
