@@ -281,6 +281,13 @@ until their complete profile checks are implemented. I do not silently accept
 them through the passive path or reinterpret successful deserialization as
 instruction/host execution authority.
 
+My [paired passive-module evidence](evidence/nanolang-passive-modules-20261120/README.md)
+matches 2240 complete module decisions and exact claim bytes per route on
+Linux/Darwin, including 472 explicit expectations and four unchanged producer
+modules. The updated 5489-case decoder gate and prior passive/call gates pass;
+four profiles remain pending. I retain the missing-PyYAML setup failure and
+the corrected system-Python schema result separately.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
