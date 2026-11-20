@@ -297,7 +297,7 @@ shadow closed_function {
     assert (not (closed_function bytes [f] 0 [1] 0))
 }
 
-pub fn closed(bytes: array<u8>, functions: array<Function>, index: int) -> bool {
+pub fn closed_sequence(bytes: array<u8>, functions: array<Function>, indices: array<int>) -> bool {
     # I accept descriptors in the existing narrow function representation.
     if (> (array_length bytes) 4294967295) { return false }
     let mut i: int = 0
@@ -306,7 +306,23 @@ pub fn closed(bytes: array<u8>, functions: array<Function>, index: int) -> bool 
         if (or (< f.arity 0) (or (> f.arity 65535) (or (< f.locals 0) (or (> f.locals 65535) (or (< f.upvalues 0) (or (> f.upvalues 65535) (or (< f.results 0) (> f.results 255)))))))) { return false }
         set i (+ i 1)
     }
-    return (closed_function bytes functions index (zeroes (array_length functions)) 0)
+    let state: array<int> = (zeroes (array_length functions))
+    set i 0
+    while (< i (array_length indices)) {
+        if (not (closed_function bytes functions (at indices i) state 0)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow closed_sequence {
+    let f: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }
+    assert (closed_sequence [61] [f] [0, 0])
+    assert (not (closed_sequence [61] [f] [0, 1]))
+    assert (closed_sequence [] [] [])
+}
+
+pub fn closed(bytes: array<u8>, functions: array<Function>, index: int) -> bool {
+    return (closed_sequence bytes functions [index])
 }
 shadow closed {
     let f: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }

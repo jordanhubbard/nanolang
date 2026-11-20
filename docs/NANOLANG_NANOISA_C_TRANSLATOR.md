@@ -222,14 +222,40 @@ My differential gate covers both512 opcode/profile decisions and complete
 callee decisions. Explicit controls exercise actual depth/instruction/storage
 limits and a cyclic set-propagation graph exceeding the actual worklist limit;
 I do not lower a limit for testing. Independent graph propagation counts the
-stress fixture's steps. This prerequisite does not admit passive records:
-guarded inputs, node/block ranges, graph order and whole-module relationships
-remain required in the subsequent profile implementation.
+stress fixture's steps. This prerequisite alone does not admit passive records.
+Guarded inputs, node/block ranges, graph order and whole-module relationships
+remain separate checks.
 
 My [paired closed-call evidence](evidence/nanolang-passive-calls-20261120/README.md)
 matches1498 callee decisions and512 opcode/profile decisions per route on
 Linux/Darwin. It includes415 explicit callee controls and independent actual-C
 ASan/UBSan runs, without changing a production bound or the active C verifier.
+
+## My complete passive-claim validator
+
+`src_nano/nvm2c/passive.nano` implements the existing `nvm_passive_valid`
+boundary in NanoLang. I validate both record versions, bounded fields and
+sorted exact dependency/read lists, guarded immutable parameter inputs,
+distinct result locals, stable lowest-source-index topological scheduling,
+and exact physical partitions. Version 2 additionally checks forward-only node
+CFGs, instruction boundaries, matching stack heights and its unchanged 65536
+instruction limit. Version 1 retains its existing straight-line behavior.
+I scan the owner function for interval-entry and external-input-write rules.
+
+My `closed_sequence` API checks the encountered concrete callees in block,
+selected-node and instruction order using one shared cache. I collect those
+roots while checking the claim and analyze them before returning success. The
+C boundary returns a boolean; I publish no intermediate claim or execution
+grant. Sharing its cache preserves decisions at the analysis depth bound
+without exposing caller-forged checked-state arrays.
+
+This API takes bounded code and narrow function/parameter descriptors; it does
+not replace v2 wire conversion or ordinary verification. In particular, owner
+calls outside node ranges retain ordinary target/stack checks, and module
+conversion still owns signatures, references, ownership and other profiles.
+`decode_core` continues to report pending for section 12 until its complete
+module-conversion prerequisites are implemented. My active verifier and product
+selection remain unchanged.
 
 ## My cutover gate
 

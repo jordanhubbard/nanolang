@@ -720,6 +720,13 @@ $(OBJ_DIR)/nvm2c_passive_calls_reference: tests/nvm2c_passive_calls_reference.c 
 test-nanolang-translator-passive-calls: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_passive_calls_reference $(OBJ_DIR)/nvm2c_module_reference
 	python3 -m unittest -v tests.test_nanolang_translator_passive_calls
 
+$(OBJ_DIR)/nvm2c_passive_reference: tests/nvm2c_passive_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-passive
+test-nanolang-translator-passive: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_passive_reference $(OBJ_DIR)/nvm2c_module_reference
+	python3 -m unittest -v tests.test_nanolang_translator_passive
+
 $(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
