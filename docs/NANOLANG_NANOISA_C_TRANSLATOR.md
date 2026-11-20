@@ -175,6 +175,18 @@ fixtures expose [#1147](https://github.com/jordanhubbard/nanolang/issues/1147)
 both unchanged witnesses. Namespaced metadata and explicit integer conversion
 let this decoder continue; they do not close those release defects.
 
+## My checked global-binding prerequisite
+
+My decoder shadows exposed #1147: a caller local hid the callee's global when
+my C interpreter repeated name lookup. I now preserve the checked declaration
+identity on global reads, writes and callable selection. Evaluated globals retain
+that identity, and qualified imports read current storage. I retain local lookup,
+callee-before-argument order and independent callable copies without changing
+frame cleanup. My [paired global-binding evidence](evidence/global-bindings-20261120/README.md)
+keeps functional/ownership results separate from the still-failing legacy
+qualified-global AST-to-C route (#986) and full original LeakSanitizer gate
+(#1149). I do not count either failure as release acceptance.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
