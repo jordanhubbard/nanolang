@@ -25,7 +25,7 @@ on the strength of one component's tests.
 | --- | --- | --- |
 | 1 | `nvm_format_v2.c`, `nvm_format_v2.h` | Read the 40-byte v2 header and 24-byte directory entries; preserve exact version, feature, flags, range, duplicate, overlap and checksum decisions. |
 | 2 | `nvm_v2_cursor.c`, `nvm_v2_constants.c`, `nvm_v2_signatures.c`, `nvm_v2_layouts.c`, `nvm_v2_functions.c`, `nvm_v2_imports.c` | Decode bounded payload tables, explicit byte lengths, exact tags, signatures, function spans, imports and reserved fields. Keep embedded zero bytes and nominal identity. |
-| 3 | `nvm_v2_module.c`, `nvm_v2_convert.c`, `modules/nanoisa/nanoisa.c` | Validate the required section set, cross-table indices, entry point, feature/section agreement and declared operand depth. The current bridge to the old in-memory module is an implementation detail I must not mistake for the wire format. |
+| 3 | `nvm_v2_module.c`, `nvm_v2_convert.c`, `modules/nanoisa/nanoisa.c` | Preserve section-presence/default-empty behavior, cross-table indices, entry point, feature/section agreement and declared operand depth. The current bridge to the old in-memory module is an implementation detail I must not mistake for the wire format. |
 | 4 | `isa.c`, `verifier.c`, `verifier_types.c`, ownership/reference/layout/service contracts | Decode each instruction exactly; validate branch targets, stack effects/joins, calls, locals, ownership, borrowed places and declared service authority before executable admission. Transporting a section is not admission. |
 | 5 | `nvm2c_shape.c`, `nvm2c_callables.c`, `nvm2c_reachability.h` | Derive stable representation constraints, producer tags, aggregate projections, indirect target sets and reachable bodies. Preserve failure poisoning and refuse unresolved/conflicting facts. |
 | 6 | `nvm2c.c` and its included emission/runtime fragments | Emit prototypes, C operators, locals, simultaneous edge transfers, direct/indirect calls, tail restarts, strings/byte strings, aggregates, collections, globals, declared host imports and checked lifetime cleanup. Preserve signed endpoints, eager order and once-only effects. |
@@ -75,6 +75,45 @@ unsafe expression placement) and the raw single-file emitter's expected imported
 module refusal in my component evidence. I correct the fixture by declaring CLI
 operations inside an ordinary `unsafe` statement block and use the full module
 driver. I do not change a compiler admission rule to make this fixture pass.
+
+## My core payload tables
+
+`src_nano/nvm2c/payloads.nano` implements the ten public core table codecs:
+metadata, constants, signatures, layouts, functions, globals, imports, links,
+debug and callbacks. `PayloadTable` holds validated row spans into unchanged
+section bytes. It preserves full unsigned function/debug fields without
+converting their high bits into a signed offset. I apply code-range admission
+later, against the CODE section. The translator must retain those section
+buffers and leave their bytes unchanged while using these internal views.
+
+`reencode` writes the count and validated rows, omitting tolerated trailing
+bytes. My C oracle decodes actual fields and calls the original encoder; my
+NanoLang view must reproduce those bytes, including embedded zero payloads and
+high-bit fields. Error results publish no partial row list. Padding errors,
+unknown tags and reserved fields preserve the existing precedence. Callbacks
+require exact section size and sorted unique import/parameter pairs. Ordinary
+core codecs retain the current trailing-byte tolerance, including empty tables.
+
+My layout decoder preserves prior-only transport and the public forward-record
+profile. Forward edges trigger a whole-table scalar/record shape check followed
+by iterative cycle detection; I do not use recursive traversal or accept a
+private array/map/ownership profile through this public entry point. Structural
+layout decoding is not execution authority.
+
+`tests/nvm2c_payload_reference.c` compares the actual C-decoded/re-encoded fields.
+My independent fixtures cover all sixteen constant/signature tags, binary zeros,
+full unsigned endpoints, every truncation of representative tables, padding and
+refusal precedence, callback ordering, and shared/deep/cyclic record graphs.
+`tests/nanolang_translator_routes.py` shares the route build/link machinery with
+my existing container gate. Both original three-route commands and the explicit
+five-route source-compiler setting remain available.
+
+Passive, ownership and service extension bytes, module cross-table checks,
+callback ABI/host semantics, instruction verification and execution profiles
+remain separate required work. The current whole-module decoder can represent
+absent sections as empty tables; I do not invent a blanket required-section set
+from the serializer's normal output. This payload layer changes no product
+selection or host grant.
 
 ## My cutover gate
 

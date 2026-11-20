@@ -1,0 +1,35 @@
+module "src_nano/nvm2c/payloads.nano" as payload
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn hexadecimal(bytes: array<u8>) -> string {
+    let alphabet: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        let octet: int = (at bytes i)
+        set result (+ result (str_substring alphabet (/ octet 16) 1))
+        set result (+ result (str_substring alphabet (% octet 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow hexadecimal {
+    let bytes: array<u8> = [0, 255, 128]
+    assert (== (hexadecimal bytes) "00ff80")
+}
+
+fn main() -> int {
+    unsafe {
+        let kind: int = (string_to_int (get_argv 1))
+        let mut index: int = 2
+        while (< index (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv index))
+            let table: payload.PayloadTable = (payload.decode bytes kind)
+            let encoded: array<u8> = (payload.reencode table)
+            (println (+ (+ (int_to_string table.status) ":") (+ (+ (int_to_string (array_length table.starts)) ":") (hexadecimal encoded))))
+            set index (+ index 1)
+        }
+    }
+    return 0
+}

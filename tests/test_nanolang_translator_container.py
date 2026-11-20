@@ -1,15 +1,12 @@
 """I compare my NanoLang v2 container boundary with the C reference."""
 from pathlib import Path
-import os
 import random
-import shlex
 import struct
-import sys
 import tempfile
 import unittest
 import zlib
 
-from tests.native_process import native_link_flags, run_captured
+from tests.nanolang_translator_routes import build_routes, checked
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -88,63 +85,25 @@ def corpus():
 
 
 class NanoLangTranslatorContainer(unittest.TestCase):
-    @classmethod
-    def checked(cls, command, *, build=False, timeout=60):
-        completed = run_captured(command, build=build, timeout=timeout, cwd=ROOT)
-        if completed.returncode:
-            raise AssertionError(f'{command}: {completed.returncode}\n'
-                                 + completed.stdout.decode(errors='replace')
-                                 + completed.stderr.decode(errors='replace'))
-        return completed.stdout.decode()
-
     def test_real_wire_decisions_in_native_vm_and_aot(self):
         with tempfile.TemporaryDirectory(prefix='nano-nanolang-container-') as directory:
             directory = Path(directory)
             fixture = ROOT / 'tests/nvm2c_container_driver.nano'
-            native = directory / 'container-native'
-            module = directory / 'container.nvm'
-            source = directory / 'container.c'
-            aot = directory / 'container-aot'
-            self.checked([ROOT / 'bin/nanoc_c', fixture, '-o', native], build=True)
-            self.checked([ROOT / 'bin/nano_virt', fixture, '-o', module], build=True)
-            compiler = shlex.split(os.environ.get('CC', 'cc'))
-
-            def native_from_module(input_module, c_path, executable):
-                self.checked([ROOT / 'bin/nvm2c', input_module, '-o', c_path], build=True)
-                self.checked([*compiler, '-std=c11', '-O1', '-g',
-                              '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                              c_path, ROOT / 'bin/nano_aot_runtime.o', '-lm',
-                              *(['-ldl', '-Wl,--export-dynamic'] if sys.platform.startswith('linux') else []),
-                              *native_link_flags(), '-o', executable], build=True)
-
-            native_from_module(module, source, aot)
-            routes = [('c-seed-native', [native]),
-                      ('c-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', module, '--']),
-                      ('c-producer-sanitized-native', [aot])]
-            source_compiler = os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER')
-            if source_compiler:
-                source_module = directory / 'source-container.nvm'
-                source_c = directory / 'source-container.c'
-                source_native = directory / 'source-container-aot'
-                self.checked([source_compiler, fixture, '--emit-nvm', '-o', source_module], build=True)
-                native_from_module(source_module, source_c, source_native)
-                routes.extend([
-                    ('nanolang-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', source_module, '--']),
-                    ('nanolang-producer-sanitized-native', [source_native])])
+            routes = build_routes(fixture, directory)
             cases = corpus()
             paths = []
             for index, (_, data, _) in enumerate(cases):
                 path = directory / f'{index}.nvm'
                 path.write_bytes(data)
                 paths.append(path)
-            reference = list(map(int, self.checked([ROOT / 'obj/nvm2c_container_reference', *paths]).splitlines()))
+            reference = list(map(int, checked([ROOT / 'obj/nvm2c_container_reference', *paths]).splitlines()))
             self.assertEqual(len(reference), len(cases))
             for (name, _, expected), actual in zip(cases, reference):
                 if expected is not None:
                     with self.subTest(reference_contract=name):
                         self.assertEqual(actual, expected)
             for name, command in routes:
-                output = list(map(int, self.checked([*command, *paths]).splitlines()))
+                output = list(map(int, checked([*command, *paths]).splitlines()))
                 self.assertEqual(len(output), len(cases), name)
                 for (case, _, _), expected, actual in zip(cases, reference, output):
                     with self.subTest(route=name, case=case):
