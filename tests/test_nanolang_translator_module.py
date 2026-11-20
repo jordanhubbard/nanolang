@@ -109,7 +109,10 @@ def corpus():
         mutated = bytearray(base)
         mutated[rng.randrange(len(mutated))] ^= 1 << rng.randrange(8)
         cases.append((f'wire-mutation-{i}', bytes(mutated), None))
-    pending = [(f'pending-section-{kind}', packet([(kind, b'\0')]), -1) for kind in (12, 13, 14)]
+    cases += [('passive-short-missing-feature', packet([(12, b'\0')]), 14),
+              ('passive-short-with-feature', packet([(12, b'\0')], features=64), 13),
+              ('passive-empty-section', packet([(12, b'')], features=64), 9)]
+    pending = [(f'pending-section-{kind}', packet([(kind, b'\0')]), -1) for kind in (13, 14)]
     pending += [('pending-array-layout', packet([(4, table(layout(fields=[(7,NONE,NONE)])))]), -1),
                 ('pending-map-layout', packet([(4, table(layout(fields=[(13,NONE,NONE)])))]), -1)]
     return cases, pending

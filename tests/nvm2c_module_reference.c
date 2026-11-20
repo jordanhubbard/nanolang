@@ -16,7 +16,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     bool scan = argc > 1 && !strcmp(argv[1], "--scan");
-    for (int i = scan ? 2 : 1; i < argc; ++i) {
+    bool passive = argc > 1 && !strcmp(argv[1], "--passive");
+    for (int i = scan || passive ? 2 : 1; i < argc; ++i) {
         FILE *input = fopen(argv[i], "rb");
         if (!input || fseek(input, 0, SEEK_END)) return 2;
         long length = ftell(input);
@@ -28,7 +29,13 @@ int main(int argc, char **argv) {
         if (scan) printf("%d\n", isa_code_has_file_instructions(bytes, (size_t)length));
         else {
             NvmV2Module module = {0};
-            printf("%u\n", (unsigned)nvm_v2_module_deserialize(bytes, (size_t)length, &module));
+            NvmV2Result result = nvm_v2_module_deserialize(bytes, (size_t)length, &module);
+            if (passive) {
+                uint32_t size = result == NVM_V2_OK ? module.passive_size : 0;
+                printf("%u:%u:", (unsigned)result, size);
+                for (uint32_t j = 0; j < size; ++j) printf("%02x", module.passive_data[j]);
+                putchar('\n');
+            } else printf("%u\n", (unsigned)result);
             nvm_v2_module_free(&module);
         }
         free(bytes);

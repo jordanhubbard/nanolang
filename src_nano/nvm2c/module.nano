@@ -2,6 +2,8 @@ module nvm2c_module
 module "src_nano/nvm2c/container.nano" as wire
 module "src_nano/nvm2c/payloads.nano" as payload
 module "src_nano/nvm2c/isa_metadata.nano" as isa
+module "src_nano/nvm2c/passive.nano" as passive
+module "src_nano/nvm2c/passive_calls.nano" as calls
 
 # Status -1 marks a profile I have not implemented, never successful admission.
 pub struct ModuleView {
@@ -10,6 +12,7 @@ pub struct ModuleView {
     entry: int,
     isa_version: int,
     code: array<u8>,
+    passive: array<u8>,
     tables: array<payload.PayloadTable>,
     present: array<bool>
 }
@@ -26,7 +29,7 @@ fn blank(status: int) -> ModuleView {
         set i (+ i 1)
     }
     let code: array<u8> = []
-    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, tables: tables, present: present }
+    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, passive: [], tables: tables, present: present }
 }
 shadow blank {
     let view: ModuleView = (blank 13)
@@ -320,12 +323,105 @@ fn features(view: ModuleView) -> int {
         }
         set i (+ i 1)
     }
-    if (or (has_feature flags 64) (has_feature flags 256)) { return 14 }
+    if (!= (has_feature flags 64) (> (array_length view.passive) 0)) { return 14 }
+    if (has_feature flags 256) { return 14 }
     return 0
 }
 shadow features {
     let view: ModuleView = (blank 0)
     assert (== (features view) 0)
+}
+
+fn same_string(constants: payload.PayloadTable, left: int, right: int) -> bool {
+    let a: int = (at constants.starts left)
+    let b: int = (at constants.starts right)
+    let length: int = (wire.read_u32 constants.data (+ a 4))
+    if (!= length (wire.read_u32 constants.data (+ b 4))) { return false }
+    let mut i: int = 0
+    while (< i length) {
+        if (!= (at constants.data (+ (+ a 8) i)) (at constants.data (+ (+ b 8) i))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow same_string {
+    let bytes: array<u8> = [2,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0]
+    let constants: payload.PayloadTable = (payload.decode bytes 2)
+    assert (same_string constants 0 1)
+    (array_set bytes 24 66)
+    assert (not (same_string constants 0 1))
+    assert (same_string constants 1 1)
+}
+
+# I preserve the complete conversion checks before a passive module decision.
+# Core references/features and unsupported-profile selection have already run.
+fn convert_passive(view: ModuleView) -> int {
+    let constants: payload.PayloadTable = (table view 2)
+    let mut i: int = 0
+    while (< i (array_length constants.starts)) {
+        let row: int = (at constants.starts i)
+        if (!= (at constants.data row) 5) { return 8 }
+        let mut j: int = 0
+        while (< j i) {
+            if (same_string constants i j) { return 13 }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    if (> (array_length view.code) 4294967295) { return 13 }
+    let signatures: payload.PayloadTable = (table view 3)
+    let mut functions: array<calls.Function> = []
+    let mut params: array<array<int>> = []
+    set i 0
+    while (< i (count view 5)) {
+        let row: int = (at signatures.starts (field view 5 i 4 4))
+        let arity: int = (wire.read_u16 signatures.data row)
+        let results: int = (wire.read_u16 signatures.data (+ row 2))
+        let start: int = (field view 5 i 8 8)
+        let length: int = (field view 5 i 16 8)
+        if (or (< start 0) (or (> start 4294967295) (or (< length 0) (or (> length 4294967295) (> results 255))))) { return 13 }
+        let mut tags: array<int> = []
+        let mut j: int = 0
+        while (< j arity) {
+            set tags (array_push tags (cast_int (at signatures.data (+ (+ row 4) j))))
+            set j (+ j 1)
+        }
+        set functions (array_push functions calls.Function {
+            start: start, length: length, arity: arity, results: results,
+            locals: (field view 5 i 24 2), upvalues: (field view 5 i 26 2) })
+        set params (array_push params tags)
+        set i (+ i 1)
+    }
+    # Import/callback construction adds no new nonallocation refusal after my
+    # core callback checks. Debug offsets must still fit the narrow carrier.
+    set i 0
+    while (< i (count view 10)) {
+        let offset: int = (field view 10 i 0 8)
+        if (or (< offset 0) (> offset 4294967295)) { return 13 }
+        set i (+ i 1)
+    }
+    # Canonical layout re-encoding drops permitted table tails. Names, kinds,
+    # counts and the public layout DAG were checked before this conversion.
+    if (has_feature view.features 128) {
+        let mut bytes: int = 4
+        set i 0
+        while (< i (count view 4)) {
+            set bytes (+ bytes (+ 8 (* 12 (field view 4 i 2 2))))
+            if (> bytes 4294967295) { return 13 }
+            set i (+ i 1)
+        }
+    }
+    # No ownership/service section is selected here. The C shared ownership
+    # declaration validator returns success for that exact absent contract.
+    if (not (passive.validate view.passive view.code functions params)) { return 13 }
+    return 0
+}
+shadow convert_passive {
+    let view: ModuleView = (blank 0)
+    assert (== (convert_passive view) 0)
+    let bytes: array<u8> = [2,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0]
+    (array_set view.tables 2 (payload.decode bytes 2))
+    assert (== (convert_passive view) 13)
 }
 
 # Private array/map layout profiles must not pass through the public decoder.
@@ -362,13 +458,14 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
     let tables: array<payload.PayloadTable> = base.tables
     let present: array<bool> = base.present
     let mut code: array<u8> = []
+    let mut passive_bytes: array<u8> = []
     let sections: int = (wire.read_u32 bytes 24)
     let mut i: int = 0
     # I identify unimplemented profiles before publishing any decoded view.
     while (< i sections) {
         let entry: int = (+ 40 (* i 24))
         let kind: int = (wire.read_u32 bytes entry)
-        if (>= kind 12) { return (blank -1) }
+        if (>= kind 13) { return (blank -1) }
         if (== kind 4) {
             let data: array<u8> = (array_slice bytes (wire.read_offset bytes (+ entry 8)) (wire.read_offset bytes (+ entry 16)))
             if (profile_layout data) { return (blank -1) }
@@ -385,6 +482,9 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         (array_set present kind true)
         if (== kind 6) {
             set code data
+        } else if (== kind 12) {
+            if (or (== length 0) (> length 4294967295)) { return (blank 9) }
+            set passive_bytes data
         } else {
             let decoded: payload.PayloadTable = (payload.decode data kind)
             if (!= decoded.status 0) { return (blank decoded.status) }
@@ -392,11 +492,15 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         }
         set i (+ i 1)
     }
-    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, tables: tables, present: present }
+    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, passive: passive_bytes, tables: tables, present: present }
     let reference_status: int = (references view)
     if (!= reference_status 0) { return (blank reference_status) }
     let feature_status: int = (features view)
     if (!= feature_status 0) { return (blank feature_status) }
+    if (> (array_length passive_bytes) 0) {
+        let converted: int = (convert_passive view)
+        if (!= converted 0) { return (blank converted) }
+    }
     return view
 }
 shadow decode_core {

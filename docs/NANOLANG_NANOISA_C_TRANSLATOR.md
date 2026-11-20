@@ -129,8 +129,8 @@ bytes, stop at undecodable input and recognize even a truncated File opcode at
 an instruction boundary. I do not silently treat that classifier as a verifier
 for the extended instruction plane.
 
-`decode_core` reports -1 for still-unimplemented passive/ownership/service
-sections and array/map layout profiles. That result is distinct from zero and
+`decode_core` reports -1 for still-unimplemented ownership/service sections
+and array/map layout profiles. That result is distinct from zero and
 from C format errors. It is a development boundary, not a final translator
 refusal policy. I must implement those profiles before product cutover; this
 module does not change executable selection.
@@ -253,14 +253,33 @@ This API takes bounded code and narrow function/parameter descriptors; it does
 not replace v2 wire conversion or ordinary verification. In particular, owner
 calls outside node ranges retain ordinary target/stack checks, and module
 conversion still owns signatures, references, ownership and other profiles.
-`decode_core` continues to report pending for section 12 until its complete
-module-conversion prerequisites are implemented. My active verifier and product
-selection remain unchanged.
+`decode_core` now checks the complete core/passive conversion path before
+publishing a module view. My active verifier and product selection remain
+unchanged.
 
 My [paired passive-record evidence](evidence/nanolang-passive-records-20261120/README.md)
 matches 2183 claim decisions per route on Linux/Darwin, including 414 explicit
 expectations, four unchanged producer products, the full earlier call-analysis
 regression, actual-C sanitizer checks and all25 original passive methods.
+
+## My passive module-conversion boundary
+
+When section 12 is present I preserve its exact bytes and framing/feature
+checks, then apply the current C conversion requirements before passive-claim
+validation. All constants must be strings with distinct length-and-byte
+identities, including embedded zeros. Code, function spans and debug offsets
+must fit the narrow carrier; function result counts must fit its byte field.
+I reconstruct parameter tags and retained-layout size in conversion order.
+Core references, callback shapes and layout DAGs have already been checked.
+Ordinary import construction adds no result-count restriction beyond the
+existing wire contract; I preserve that distinction from function conversion.
+
+These conversion checks run only for a present passive payload. A core module
+without extension payloads retains its existing nonconversion decisions.
+Ownership/service sections and private array/map layouts still return pending
+until their complete profile checks are implemented. I do not silently accept
+them through the passive path or reinterpret successful deserialization as
+instruction/host execution authority.
 
 ## My cutover gate
 

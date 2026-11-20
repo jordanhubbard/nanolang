@@ -140,8 +140,11 @@ My development NanoLang replacement now has a separate closed-call analyzer
 with [paired differential evidence](evidence/nanolang-passive-calls-20261120/README.md).
 It preserves these four limits and checks concrete decoded bodies. My new
 `src_nano/nvm2c/passive.nano` also implements guarded-input, graph and interval
-checks at the passive-claim boundary. Whole-module conversion remains separate;
-I have not replaced my active C verifier or changed executable selection.
+checks at the passive-claim boundary. My core/passive module decoder now applies
+the existing conversion requirements before publishing that claim. Ownership,
+service and private layout profiles remain pending, and ordinary instruction
+verification remains separate. I have not replaced my active C verifier or
+changed executable selection.
 
 ## Bounded source emission
 
