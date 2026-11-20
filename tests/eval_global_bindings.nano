@@ -78,3 +78,4 @@ fn exercise() -> int {
 shadow exercise { assert (== (exercise) 42) }
 
 fn main() -> int { (println (exercise)) return 0 }
+shadow main { assert (== (main) 0) }

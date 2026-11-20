@@ -67,6 +67,7 @@ fn caller() -> int {
 }
 shadow caller { assert (== (caller) 42) }
 fn main() -> int { (println (caller)) return 0 }
+shadow main { assert (== (main) 0) }
 ''')
             output = directory/'products'
             output.mkdir()

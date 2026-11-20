@@ -3540,7 +3540,8 @@ void test_eval_global_binding_local_capture(void) {
         "shadow captured { assert (== (captured 7) 9) }\n"
         "fn early() -> string { let counter: int = 7 if (== counter 7) { return \"kept\" } return \"bad\" }\n"
         "shadow early { assert (== (early) \"kept\") }\n"
-        "fn main() -> int { return 0 }\n"));
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
     Value argument = create_int(7);
     Value result = call_function("captured", &argument, 1, ctx.env);
     ASSERT_EQ(result.type, VAL_INT);
@@ -3570,7 +3571,8 @@ void test_eval_global_binding_scalar_ownership(void) {
         "  return (read_count)\n"
         "}\n"
         "shadow exercise { set counter 40 assert (== (exercise) 41) }\n"
-        "fn main() -> int { return 0 }\n"));
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
     Value result = call_function("exercise", NULL, 0, ctx.env);
     ASSERT_EQ(result.type, VAL_INT);
     ASSERT_EQ(result.as.int_val, 41);
