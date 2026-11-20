@@ -164,8 +164,10 @@ I do not claim extended-plane verification.
 My instruction gate compares actual `isa_decode` operands, `isa_get_info` stack
 metadata and `isa_encode` bytes. I cover all256 primary allocations, every
 truncation, exact and offset windows, all-ones/high-bit/random patterns and
-independent signed-integer/F64-bit controls. Passive CFG/closed-call checks,
-extension profiles and executable selection remain separate work. My initial
+independent signed-integer/F64-bit controls. My [paired instruction evidence](evidence/nanolang-instructions-20261120/README.md)
+retains3472 instruction cases per route within the combined5486-case component
+gate on Linux/Darwin. Passive CFG/closed-call checks, extension profiles and
+executable selection remain separate work. My initial
 fixtures expose [#1147](https://github.com/jordanhubbard/nanolang/issues/1147)
 (caller locals hide callee globals during C shadow execution) and
 [#1148](https://github.com/jordanhubbard/nanolang/issues/1148)

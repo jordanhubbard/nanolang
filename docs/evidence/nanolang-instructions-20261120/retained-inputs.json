@@ -1,0 +1,132 @@
+{
+  "instructions-initial-build.log": {
+    "sha256": "900207d5232d3dfea082df6eaf0db6ec7ee1689ec85f54feffb652882f8a7c70",
+    "bytes": 131,
+    "gzip_sha256": "c0705d1158d78b8c4fdd259cdfdb6bf3d664619959c226043fe4867dfd9271fb"
+  },
+  "instructions-driver-build.log": {
+    "sha256": "ba04f2b47c77b113600925e5dfc53ab36543d3a1d7bb615a31a009272bca2366",
+    "bytes": 1204,
+    "gzip_sha256": "f792a137855409786041f069e37a82f35718bf47a576b1de9c6bf9e06611ffc0"
+  },
+  "instructions-driver-build-corrected.log": {
+    "sha256": "0545ada37a837f2690d2c31e680c335e084b5c149bc7904a344ef13b9a9b7b06",
+    "bytes": 128,
+    "gzip_sha256": "9911e2d679634bd00186cf7f667c40b04488715854544ed5027eb659560ead9d"
+  },
+  "instructions-caller-global.nano": {
+    "sha256": "c1d63a741a2eaac4448485a45e3060fcde8cebbe1ce05c11b825b80635f3ab17",
+    "bytes": 256,
+    "gzip_sha256": "0b2c3342b224a8ecc5905a854049f52ab6e8b634a2fbc07a3ed5261ceb141c7d"
+  },
+  "instructions-caller-global.log": {
+    "sha256": "0a59afa3693e11832a64790ec7bf82132d9f17eaf5f6561d1cdbe46b7df383e3",
+    "bytes": 180,
+    "gzip_sha256": "1e439840060f342041ef6dd8fc60deb7d1a970e826462d5cef31d99df9191593"
+  },
+  "instructions-linux-suite.log": {
+    "sha256": "6063719634850ac7f72b6eebfa702cdfe967a4bb4bb8df2c7d4ef2642d11f828",
+    "bytes": 2013,
+    "gzip_sha256": "71d5e50235bcb06ec0d8afa2d37002a02d09fd1848a9f91f2e7da56d17069106"
+  },
+  "instructions-byte-int-join.nano": {
+    "sha256": "d6dc5a78169dab8dc422d1b4ce205940602047b897b36bab751302b925bcb614",
+    "bytes": 585,
+    "gzip_sha256": "828403e5ed3610e87a460d96bc917f43dd274dbd4947ed428e7137090e8df0a4"
+  },
+  "instructions-byte-int-join-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "gzip_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "instructions-byte-int-join-aot.log": {
+    "sha256": "aa9f112fe4b8bb44d02140abd89aa7f621467a387105d153b0589613b4f3350e",
+    "bytes": 222,
+    "gzip_sha256": "0713dac4f320cdb03ff56daea3fac0268b5ac5c69d61c31bb861dbea4e0ce028"
+  },
+  "instructions-bytecode-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "gzip_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "instructions-driver-build-namespaced.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "gzip_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "instructions-linux-suite-cast.log": {
+    "sha256": "cb324d595d52d1c5b2ea4178ee2ac7968de0b81e0d0f1202d2afeea28005b19e",
+    "bytes": 389,
+    "gzip_sha256": "0502e0ddbd55c0f46ae3da1d7d63b4579f32db4d5bc39e8d47e1c84674c793cb"
+  },
+  "instructions-schema-tests.log": {
+    "sha256": "6538204214df78f06d267cd13786edb290eb82c6ca4f92591735bd2219a430c7",
+    "bytes": 132,
+    "gzip_sha256": "a2da9ef2373ef7566fb74621abe8b95aa102019aec8eff1e5582cef8fe4e03dc"
+  },
+  "instructions-embedded.log": {
+    "sha256": "c5d58db9e4c862f6f6751c27d7371692167e1f952a9c2f908d1b4d075ab0b801",
+    "bytes": 1429,
+    "gzip_sha256": "6c9f0cb2edabae147c424df95ac98e3965762030256120d569e2ab2b4eb9802b"
+  },
+  "instructions-current.nvm": {
+    "sha256": "c14b62953d9a27882938cd38f7b651c684162d335de2718320345177688820dc",
+    "bytes": 33492,
+    "gzip_sha256": "6daaaa7c0445340b39bb1a1b4c119bcc530b14fe87bc49322c57e0c4b30fac3d"
+  },
+  "instructions-byte-int-join.nvm": {
+    "sha256": "7f788146091ebb86d3a8efd59ad790e788a414e2b582671e305dcd1dc11409f6",
+    "bytes": 1252,
+    "gzip_sha256": "4fb54e9f3dff604f9e7b4aa3ed3082bf017ff5a349027d601b49e0db531fa635"
+  },
+  "instructions-linux-combined.log": {
+    "sha256": "39344543a839937296fc957d980b2140bc0a48e2b1e641b8712d0058908b15b6",
+    "bytes": 1344,
+    "gzip_sha256": "a5aca25e6beba1a33f96be502b4ad136442059c180299e6fd4dc7ad60ad41b8b"
+  },
+  "instructions-linux-schema-check.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "gzip_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "instructions-prior-refusals.json": {
+    "sha256": "8a695d3c53bbe9a53a162826d8c6f7c2bdbf66dbfa9d506cdaeb9a4958e9ee32",
+    "bytes": 985,
+    "gzip_sha256": "3106d183b717e0ad04ef72cd7bcc67e103bb7cf5e8224b57dee9d17b4417fa9a"
+  },
+  "instructions-darwin-build.log": {
+    "sha256": "a3b304da03e3ef2a4840bd13d65d6413139038b8728edffe0fd955fb1ad259a4",
+    "bytes": 17840,
+    "gzip_sha256": "73bfc12998659d222b086a62d9b7ad0bbd609c17667d526d8a8b5cde6e67c179"
+  },
+  "instructions-darwin-combined.log": {
+    "sha256": "ee1079e4d1a464079747441928e4363066f36babf923ef0c6f0a6c2a106c23a0",
+    "bytes": 1343,
+    "gzip_sha256": "2ac474f339031e3eea37f5050c3ad974070f8c3c577a9b845b3c8450f4874d17"
+  },
+  "instructions-darwin-embedded.log": {
+    "sha256": "f9f8a1d5ba049d84510a4910c6dbccff50eb7888c0ca45bd80b5d209bb1d16fa",
+    "bytes": 1447,
+    "gzip_sha256": "cf868ed9a87c186bfb900c13ea4a3cacf98f3bfd8c0c3e813c55db10b5795ad7"
+  },
+  "instructions-darwin-schema-check-corrected.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "gzip_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "instructions-darwin-schema-check.log": {
+    "sha256": "17d2b75f0bf3b595501413892256df77c24a018daf6ce9031795a54889d70af5",
+    "bytes": 216,
+    "gzip_sha256": "d01d1d159aee84e126433c24f682c1ce7a98e56a22e390faa44ede680b4953ad"
+  },
+  "instructions-darwin-schema-tests.log": {
+    "sha256": "51d3e36bc795f77a872e88508b9fec0c70330203b682e515bf328c71275886f6",
+    "bytes": 132,
+    "gzip_sha256": "514e0336222f219a08e59481d351fac3bc8b6846eddce8ed3cb4992a15273a0c"
+  },
+  "instructions-oracle-build.log": {
+    "sha256": "707e57ce7b8247f417a73ff6aafdc974d74af785e159f7c24376eb51715df160",
+    "bytes": 9888,
+    "gzip_sha256": "1b54b621f2b45cffc48e4fc029c72d33e219af26cfab049ab568c116ce203d2e"
+  }
+}
