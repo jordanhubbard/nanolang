@@ -183,9 +183,18 @@ identity on global reads, writes and callable selection. Evaluated globals retai
 that identity, and qualified imports read current storage. I retain local lookup,
 callee-before-argument order and independent callable copies without changing
 frame cleanup. My [paired global-binding evidence](evidence/global-bindings-20261120/README.md)
-keeps functional/ownership results separate from the still-failing legacy
-qualified-global AST-to-C route (#986) and full original LeakSanitizer gate
-(#1149). I do not count either failure as release acceptance.
+keeps functional/ownership results separate from that checkpoint's legacy
+qualified-global AST-to-C refusal (#986) and full original LeakSanitizer failure
+(#1149).
+
+My subsequent [native storage checkpoint](evidence/native-global-storage-20261120/README.md)
+restores the unchanged qualified fixture's fifth execution route. Typed public
+storage accessors preserve module identity, aggregate types, once-only ordered
+initialization and callee-before-argument order across separate C objects.
+Canonical object and metadata symbols distinguish same-basename modules. My
+full NanoLang driver also matches the C loader's duplicate-public-identity
+refusal before publication. These prerequisites do not implement translator
+admission or C emission; #986 integration and the complete #1149 gate remain open.
 
 ## My cutover gate
 
