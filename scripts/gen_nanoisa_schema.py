@@ -207,23 +207,52 @@ def generate(schema: dict) -> str:
 
 
 def generate_nanolang(schema: dict) -> str:
-    """I share primary decode widths with the C reader without calling it."""
+    """I share primary decode metadata with the C reader without calling it."""
     validate(schema)
     sizes = {"NONE": 0, "U8": 1, "U16": 2, "U32": 4, "I32": 4, "I64": 8, "F64": 8}
-    widths = [0] * 256
+    kinds = {name: index for index, name in enumerate(sizes)}
+    tables = {"widths": [0] * 256, "counts": [-1] * 256,
+              "pops": [-1] * 256, "pushes": [-1] * 256,
+              "kinds": [0] * 1024}
     for opcode in schema["legacy_opcodes"]:
-        widths[_as_int(opcode["code"])] = 1 + sum(sizes[o] for o in opcode.get("operands", []))
+        code = _as_int(opcode["code"])
+        operands = opcode.get("operands", [])
+        if len(operands) > 4 or any(kind not in kinds for kind in operands):
+            raise ValueError("I require at most four known primary operands")
+        tables["widths"][code] = 1 + sum(sizes[o] for o in operands)
+        tables["counts"][code] = len(operands)
+        tables["pops"][code] = opcode.get("pops", -1)
+        tables["pushes"][code] = opcode.get("pushes", -1)
+        for index, kind in enumerate(operands):
+            tables["kinds"][code * 4 + index] = kinds[kind]
     lines = ["# I am generated from spec/nanoisa.yaml by scripts/gen_nanoisa_schema.py.",
-             "module nvm2c_isa_metadata", "", "let widths: array<int> = ["]
-    for index in range(0, 256, 16):
-        lines.append("    " + ", ".join(map(str, widths[index:index+16])) + ("," if index < 240 else ""))
-    lines += ["]", "", "pub fn primary_width(opcode: int) -> int {",
-              "    if (or (< opcode 0) (> opcode 255)) { return 0 }",
-              "    return (at widths opcode)", "}", "", "shadow primary_width {",
-              "    assert (== (primary_width 0) 1)",
-              "    assert (== (primary_width 1) 9)",
-              "    assert (== (primary_width 255) 0)",
-              "    assert (== (primary_width -1) 0)", "}", ""]
+             "module nvm2c_isa_metadata", ""]
+    for name, values in tables.items():
+        lines.append(f"let nvm2c_primary_{name}: array<int> = [")
+        for index in range(0, len(values), 16):
+            lines.append("    " + ", ".join(map(str, values[index:index+16])) +
+                         ("," if index + 16 < len(values) else ""))
+        lines += ["]", ""]
+    for name, table, missing, controls in [
+        ("primary_width", "widths", 0, [(0, 1), (1, 9), (255, 0), (-1, 0), (256, 0)]),
+        ("primary_operands", "counts", -1, [(0, 0), (15, 2), (255, -1), (-1, -1)]),
+        ("primary_pops", "pops", -1, [(0, 0), (32, 2), (255, -1), (256, -1)]),
+        ("primary_pushes", "pushes", -1, [(0, 0), (1, 1), (255, -1), (-1, -1)]),
+    ]:
+        lines += [f"pub fn {name}(opcode: int) -> int {{",
+                  f"    if (or (< opcode 0) (> opcode 255)) {{ return {missing} }}",
+                  f"    return (at nvm2c_primary_{table} opcode)", "}", "", f"shadow {name} {{"]
+        lines += [f"    assert (== ({name} {op}) {value})" for op, value in controls]
+        lines += ["}", ""]
+    lines += ["pub fn primary_kind(opcode: int, operand: int) -> int {",
+              "    if (or (< operand 0) (>= operand (primary_operands opcode))) { return 0 }",
+              "    return (at nvm2c_primary_kinds (+ (* opcode 4) operand))", "}", "",
+              "shadow primary_kind {",
+              "    assert (== (primary_kind 1 0) 5)",
+              "    assert (== (primary_kind 15 1) 2)",
+              "    assert (== (primary_kind 1 1) 0)",
+              "    assert (== (primary_kind -1 0) 0)",
+              "    assert (== (primary_kind 1 -1) 0)", "}", ""]
     return "\n".join(lines)
 
 

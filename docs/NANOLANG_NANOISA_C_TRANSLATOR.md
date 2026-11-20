@@ -144,6 +144,35 @@ the declared module context, and [#1146](https://github.com/jordanhubbard/nanola
 checks record arguments before either frontend can publish bytecode. I preserve
 the qualified source and distinct declaration identities while repairing them.
 
+## My instruction decoder
+
+`src_nano/nvm2c/instructions.nano` decodes the existing primary instruction plane
+using schema-generated widths, operand kinds and stack effects. I check the
+whole requested byte window by subtraction before reading. A zero length means
+refusal; I return no partial operands. Variable stack effects remain -1 for the
+later call/signature verifier to resolve.
+
+I retain each operand as unsigned low/high 32-bit halves. `integer` reconstructs
+signed I32/I64 values without overflowing at either signed extreme. F64 operands
+remain raw bits: I preserve signed zero, infinities and quiet/signaling NaN
+payloads without numeric conversion. `reencode` reconstructs the bytes from the
+decoded fields. Its input contract is an `Instruction` returned by `decode`.
+Neither decoding nor re-encoding grants executable admission. The reserved 0xff
+prefix remains undecodable by this primary API, matching the existing C reader;
+I do not claim extended-plane verification.
+
+My instruction gate compares actual `isa_decode` operands, `isa_get_info` stack
+metadata and `isa_encode` bytes. I cover all256 primary allocations, every
+truncation, exact and offset windows, all-ones/high-bit/random patterns and
+independent signed-integer/F64-bit controls. Passive CFG/closed-call checks,
+extension profiles and executable selection remain separate work. My initial
+fixtures expose [#1147](https://github.com/jordanhubbard/nanolang/issues/1147)
+(caller locals hide callee globals during C shadow execution) and
+[#1148](https://github.com/jordanhubbard/nanolang/issues/1148)
+(accepted INT/U8 joins fail native integer-array shape constraints). I retain
+both unchanged witnesses. Namespaced metadata and explicit integer conversion
+let this decoder continue; they do not close those release defects.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,

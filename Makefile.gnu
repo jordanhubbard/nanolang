@@ -706,6 +706,13 @@ $(OBJ_DIR)/nvm2c_payload_reference: tests/nvm2c_payload_reference.c $(NANOISA_OB
 test-nanolang-translator-payloads: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_payload_reference
 	python3 -m unittest -v tests.test_nanolang_translator_payloads
 
+$(OBJ_DIR)/nvm2c_instruction_reference: tests/nvm2c_instruction_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-instructions
+test-nanolang-translator-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference
+	python3 -m unittest -v tests.test_nanolang_translator_instructions
+
 $(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
