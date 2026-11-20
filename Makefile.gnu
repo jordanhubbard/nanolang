@@ -690,6 +690,14 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 		$(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
+# I compare my NanoLang container decoder with the existing C boundary.
+$(OBJ_DIR)/nvm2c_container_reference: tests/nvm2c_container_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-container
+test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
+	python3 -m unittest -v tests.test_nanolang_translator_container
+
 .PHONY: nvm2c
 .PHONY: check-binary64-parser
 check-binary64-parser:
