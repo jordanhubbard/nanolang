@@ -257,6 +257,11 @@ conversion still owns signatures, references, ownership and other profiles.
 module-conversion prerequisites are implemented. My active verifier and product
 selection remain unchanged.
 
+My [paired passive-record evidence](evidence/nanolang-passive-records-20261120/README.md)
+matches 2183 claim decisions per route on Linux/Darwin, including 414 explicit
+expectations, four unchanged producer products, the full earlier call-analysis
+regression, actual-C sanitizer checks and all25 original passive methods.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
