@@ -1,3 +1,4 @@
+import hashlib
 """I check one compiler invocation supplies diagnostics and exit status."""
 import os
 import json
@@ -156,7 +157,9 @@ class ModuleCompileInvocation(unittest.TestCase):
                             os.killpg(process.pid, signal.SIGKILL)
                         process.communicate()
                 return
-            cached = path / "obj/nano_modules/single_invocation_probe.o"
+            canonical = os.fsencode((path / module_relative).parent.resolve())
+            key = hashlib.sha256(canonical).hexdigest()
+            cached = path / "obj/nano_modules" / ("v2-" + key) / "nanolang_single_invocation_probe.o"
             if mode in ("partial", "missing"):
                 cached.parent.mkdir(parents=True)
                 cached.write_bytes(b"previous object")

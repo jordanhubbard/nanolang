@@ -722,6 +722,62 @@ static void emit_signature_type(StringBuilder *sb, Environment *env, Type type,
         sb_append(sb, type_to_c(type));
     }
 }
+/* I preserve canonical source bytes without path or basename collisions. */
+static char *native_source_symbol(const char *source, const char *prefix) {
+    if (!source) source = "<root>";
+    char *canonical = realpath(source, NULL);
+    if (canonical) source = canonical;
+    StringBuilder *name = sb_create();
+    sb_append(name, prefix);
+    for (const unsigned char *p = (const unsigned char *)source; *p; ++p)
+        sb_appendf(name, "%02x", (unsigned)*p);
+    free(canonical);
+    char *result = name->buffer;
+    free(name);
+    return result;
+}
+
+static char *native_global_storage_name(Environment *env, ASTNode *declaration) {
+    Symbol *symbol = env_get_declared_global(env, declaration);
+    const char *source = symbol && symbol->def_file ? symbol->def_file : env_current_file(env);
+    char *owner = native_source_symbol(source, "__nl_global_p");
+    StringBuilder *name = sb_create();
+    sb_append(name, owner);
+    sb_append(name, "_g");
+    free(owner);
+    for (const unsigned char *p = (const unsigned char *)declaration->as.let.name; *p; ++p)
+        sb_appendf(name, "%02x", (unsigned)*p);
+    char *result = name->buffer;
+    free(name);
+    return result;
+}
+
+/* I expose an address with the declaration's complete native storage type. */
+static void emit_global_storage_signature(StringBuilder *sb, Environment *env, ASTNode *declaration) {
+    TypeInfo function = {.base_type=TYPE_FUNCTION, .fn_sig=declaration->as.let.fn_sig};
+    emit_signature_type(sb, env, declaration->as.let.var_type,
+        declaration->as.let.type_name,
+        declaration->as.let.type_info ? declaration->as.let.type_info :
+            declaration->as.let.var_type == TYPE_FUNCTION ? &function : NULL);
+    if (!declaration->as.let.is_mut) sb_append(sb, " const");
+    char *name = native_global_storage_name(env, declaration);
+    sb_appendf(sb, " *%s(void)", name);
+    free(name);
+}
+
+static void generate_global_storage_declarations(StringBuilder *sb, Environment *env) {
+    for (int i = 0; i < env->symbol_count; ++i) {
+        ASTNode *declaration = env->symbols[i].global_declaration;
+        if (!declaration || declaration->type != AST_LET || !declaration->as.let.is_pub) continue;
+        bool seen = false;
+        for (int j = 0; j < i; ++j)
+            if (env->symbols[j].global_declaration == declaration) { seen = true; break; }
+        if (seen) continue;
+        emit_global_storage_signature(sb, env, declaration);
+        sb_append(sb, ";\n");
+    }
+}
+
 static void emit_signature_parameters(StringBuilder *sb, Environment *env, FunctionSignature *sig) {
     if (!sig->param_count) sb_append(sb, "void");
     for (int i = 0; i < sig->param_count; ++i) {
@@ -4284,7 +4340,7 @@ static bool is_c_constant_initializer(ASTNode *expr) {
 /* Generate top-level globals (constants + mutable globals).
  * For non-constant initializers, emit a small runtime initializer.
  */
-static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env, const char *source_file) {
     sb_append(sb, "/* Top-level globals */\n");
 
     ASTNode **runtime_inits = NULL;
@@ -4384,12 +4440,29 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 
     sb_append(sb, "\n");
 
-    if (runtime_init_count > 0) {
+    StringBuilder *dependencies = sb_create();
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_IMPORT) continue;
+        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, source_file);
+        if (!resolved) continue;
+        char *canonical = realpath(resolved, NULL);
+        const char *path = canonical ? canonical : resolved;
+        if (!module_is_ffi_only(path)) {
+            char *name = native_source_symbol(path, "__nl_module_p");
+            sb_appendf(sb, "void %s(void);\n", name);
+            sb_appendf(dependencies, "    %s();\n", name);
+            free(name);
+        }
+        free(canonical); free((char *)resolved);
+    }
+    {
         sb_append(sb, "/* Top-level runtime initialization */\n");
         sb_append(sb, "static bool nl_toplevel_initialized = false;\n");
         sb_append(sb, "static void nl_init_toplevel(void) {\n");
         sb_append(sb, "    if (nl_toplevel_initialized) return;\n");
         sb_append(sb, "    nl_toplevel_initialized = true;\n");
+        sb_append(sb, dependencies->buffer);
         for (int i = 0; i < runtime_init_count; i++) {
             ASTNode *item = runtime_inits[i];
             sb_appendf(sb, "    %s = ", item->as.let.name);
@@ -4398,13 +4471,27 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         }
         sb_append(sb, "}\n");
 
+        char *module_init = native_source_symbol(source_file, "__nl_module_p");
+        sb_appendf(sb, "void %s(void) { nl_init_toplevel(); }\n", module_init);
+        free(module_init);
+
         sb_append(sb, "#if defined(__GNUC__) || defined(__clang__)\n");
         sb_append(sb, "__attribute__((constructor))\n");
         sb_append(sb, "#endif\n");
         sb_append(sb, "static void nl_init_toplevel_ctor(void) { nl_init_toplevel(); }\n\n");
     }
 
+    free(dependencies->buffer); free(dependencies);
     free(runtime_inits);
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_LET || !item->as.let.is_pub) continue;
+        emit_global_storage_signature(sb, env, item);
+        sb_append(sb, " { ");
+        sb_append(sb, "nl_init_toplevel(); ");
+        sb_appendf(sb, "return &%s; }\n", item->as.let.name);
+    }
+
 }
 
 /* Collect module headers from all import statements */
@@ -5111,7 +5198,9 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* I discover global and body specializations before declarations and typedefs. */
     StringBuilder *global_initializers = sb_create();
-    generate_toplevel_globals(global_initializers, program, env);
+    generate_toplevel_globals(global_initializers, program, env, input_file);
+    StringBuilder *global_storage_declarations = sb_create();
+    generate_global_storage_declarations(global_storage_declarations, env);
     effect_helpers = sb_create(); effect_serial = 0;
     StringBuilder *implementations = sb_create();
     generate_function_implementations(implementations, program, env, fn_registry, tuple_registry);
@@ -5182,6 +5271,9 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     
     /* I declare callable signatures before runtime global initializers use them. */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
+
+    sb_append(sb, global_storage_declarations->buffer);
+    free(global_storage_declarations->buffer); free(global_storage_declarations);
 
     /* Emit top-level globals in their original initialization order. */
     sb_append(sb, global_initializers->buffer);

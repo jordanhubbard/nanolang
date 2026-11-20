@@ -1167,6 +1167,7 @@ bool compile_module_to_object(const char *module_path,
                               char **extra_compile_flags,
                               size_t extra_compile_flags_count);
 /* I return an owned module object fragment; callers free it on success or failure. */
+bool module_is_ffi_only(const char *module_path);
 bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_buffer, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
 
 /* Module metadata for serialization */
@@ -1188,6 +1189,7 @@ typedef struct {
 ModuleMetadata *extract_module_metadata(Environment *env, const char *module_name);
 void free_module_metadata(ModuleMetadata *meta);
 char *serialize_module_metadata_to_c(ModuleMetadata *meta);
+char *serialize_module_metadata_for_source(ModuleMetadata *meta, const char *source);
 bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **meta_out);
 bool embed_metadata_in_module_c(char *c_code, ModuleMetadata *meta, size_t buffer_size);
 

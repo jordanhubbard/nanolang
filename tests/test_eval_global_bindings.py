@@ -71,8 +71,7 @@ shadow main { assert (== (main) 0) }
 ''')
             output = directory/'products'
             output.mkdir()
-            # I retain the legacy AST-to-C refusal under #986 separately.
-            routes = build_routes(fixture, output, include_seed_native=False)
+            routes = build_routes(fixture, output)
             for route, command in routes:
                 with self.subTest(route=route):
                     self.assertEqual(checked(command), '42\n')

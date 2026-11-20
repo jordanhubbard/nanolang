@@ -1105,6 +1105,10 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
+    if (expr && (expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) && expr->checked_global) {
+        Symbol *global = env_get_declared_global(env, expr->checked_global);
+        if (global) return global->struct_type_name;
+    }
     if (expr && expr->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (symbol && (symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT)) return symbol->struct_type_name;

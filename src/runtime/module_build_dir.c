@@ -8,14 +8,13 @@
 #include <errno.h>
 #include <openssl/sha.h>
 
-bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size) {
+bool nano_module_build_dir_at(const char *module_dir, const char *cache, char *dest, size_t dest_size) {
     if (!dest || dest_size == 0) {
         return false;
     }
     dest[0] = '\0';
     if (!module_dir || !module_dir[0]) return false;
 
-    const char *cache = getenv("NANO_BUILD_CACHE");
     if (cache && cache[0] != '\0') {
         char *canonical = realpath(module_dir, NULL);
         struct stat st;
@@ -45,6 +44,10 @@ bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size)
     if (n >= 0 && (size_t)n < dest_size) return true;
     dest[0] = '\0';
     return false;
+}
+
+bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size) {
+    return nano_module_build_dir_at(module_dir, getenv("NANO_BUILD_CACHE"), dest, dest_size);
 }
 
 bool nano_module_artifact_dir(const char *module_dir, char *dest, size_t dest_size) {

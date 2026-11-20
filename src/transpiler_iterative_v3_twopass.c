@@ -72,6 +72,10 @@ static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, si
 
 static const char *hashmap_suffix_from_expr(ASTNode *hm_expr, Environment *env, char *buf, size_t buf_size) {
     if (!hm_expr || !env) return NULL;
+    if ((hm_expr->type == AST_IDENTIFIER || hm_expr->type == AST_FIELD_ACCESS) && hm_expr->checked_global) {
+        Symbol *global = env_get_declared_global(env, hm_expr->checked_global);
+        return hashmap_suffix_from_typeinfo(global ? global->type_info : NULL, buf, buf_size);
+    }
     if (hm_expr->type == AST_FIELD_ACCESS)
         return hashmap_suffix_from_typeinfo(hm_expr->as.field_access.resolved_type_info, buf, buf_size);
     if (hm_expr->type == AST_CALL) {
@@ -616,6 +620,10 @@ static const char *map_function_name(const char *name, Environment *env) {
 }
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
+    if (expr && (expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) && expr->checked_global) {
+        Symbol *global = env_get_declared_global(env, expr->checked_global);
+        return global ? global->type_info : NULL;
+    }
     if (expr && expr->type == AST_TUPLE_INDEX) {
         const TypeInfo *tuple = array_expr_type_info(expr->as.tuple_index.tuple, env);
         int index = expr->as.tuple_index.index;
@@ -1221,10 +1229,45 @@ static void build_callable_array_read(WorkList *list, ASTNode *array,
     emit_formatted(list, "%s _elem = *((%s *)_slot); ", type, type);
 }
 
+/* I keep imported aliases and local spellings on one declaring storage slot. */
+static bool build_public_global(WorkList *list, ASTNode *node, Environment *env) {
+    ASTNode *declaration = node->checked_global;
+    if (!declaration || declaration->type != AST_LET || !declaration->as.let.is_pub) return false;
+    char *name = native_global_storage_name(env, declaration);
+    emit_formatted(list, "(*%s())", name);
+    free(name);
+    return true;
+}
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
     if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)
         check_expression(expr, env);
+
+    if ((expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) &&
+        build_public_global(list, expr, env)) return;
+    if ((expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) &&
+        expr->checked_global && expr->checked_global->as.let.is_pub) {
+        bool qualified = expr->type == AST_MODULE_QUALIFIED_CALL;
+        ASTNode **args = qualified ? expr->as.module_qualified_call.args : expr->as.call.args;
+        int count = qualified ? expr->as.module_qualified_call.arg_count : expr->as.call.arg_count;
+        FunctionSignature *signature = qualified ? expr->as.module_qualified_call.checked_signature : expr->as.call.checked_signature;
+        ASTNode callee = {.type=AST_IDENTIFIER, .checked_global=expr->checked_global};
+        emit_literal(list, "({ ");
+        unsigned id = build_ordered_call_args_with_callee(list, args, count, env, NULL, &callee);
+        emit_formatted(list, "__nl_callee_%u(", id);
+        for (int i = 0; i < count; ++i) {
+            if (i) emit_literal(list, ", ");
+            if (signature && i < signature->param_count &&
+                (signature->param_types[i] == TYPE_OPAQUE ||
+                 (signature->param_types[i] == TYPE_STRUCT && signature->param_struct_names &&
+                  signature->param_struct_names[i] && env_get_opaque_type(env, signature->param_struct_names[i]))))
+                emit_literal(list, "(void*)");
+            emit_formatted(list, "__nl_arg_%u_%d", id, i);
+        }
+        emit_literal(list, "); })");
+        return;
+    }
 
     if (native_effect_program && expr != effect_guarded_foreign_call &&
         (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)) {
@@ -4375,6 +4418,19 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
         
         case AST_SET:
+            if (stmt->checked_global && stmt->checked_global->as.let.is_pub &&
+                (!stmt->as.set.field_name || stmt->as.set.qualified_global)) {
+                emit_indent_item(list, indent);
+                (void)build_public_global(list, stmt, env);
+                emit_literal(list, " = ");
+                ASTNode *value = stmt->as.set.value;
+                if (value && value->type == AST_ARRAY_LITERAL && !value->as.array_literal.element_count &&
+                    value->as.array_literal.element_type == TYPE_UNKNOWN)
+                    value->as.array_literal.element_type = stmt->checked_global->as.let.element_type;
+                build_expr(list, value, env);
+                emit_literal(list, ";\n");
+                break;
+            }
             if (stmt->as.set.field_name) {
                 emit_indent_item(list, indent);
                 emit_literal(list, native_local_name(list, stmt->as.set.name));

@@ -222,6 +222,37 @@ shadow mi_capture {
     set mi_facts []
 }
 
+# I keep my inventory lossless and check public identity before publication.
+pub fn mi_ambiguous_identity() -> string {
+    let mut i: int = 0
+    while (< i (array_length mi_facts)) {
+        let current: ModuleIntrospection = (at mi_facts i)
+        let mut j: int = 0
+        while (< j i) {
+            let previous: ModuleIntrospection = (at mi_facts j)
+            if (== current.name previous.name) {
+                if (== current.name "") { return "<empty>" }
+                return current.name
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow mi_ambiguous_identity {
+    (mi_reset)
+    assert (== (mi_ambiguous_identity) "")
+    assert (mi_capture "module first" "/one.nano")
+    assert (mi_capture "module second" "/two.nano")
+    assert (mi_capture "module first" "/one.nano")
+    assert (== (mi_ambiguous_identity) "")
+    assert (mi_capture "module first" "/three.nano")
+    assert (== (mi_ambiguous_identity) "first")
+    assert (== (array_length mi_facts) 3)
+    (mi_reset)
+}
+
 pub fn mi_fact(name: string) -> ModuleIntrospection {
     let mut result: ModuleIntrospection = (mi_scan "" "" name)
     let mut found: bool = false

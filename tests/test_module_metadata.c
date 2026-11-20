@@ -676,7 +676,28 @@ static void test_malformed_signature_metadata(void) {
     ASSERT_NULL(serialize_module_metadata_to_c(&meta));
 }
 
+/* I preserve the reported name while source identities select distinct table symbols. */
+void test_serialize_source_identity(void) {
+    ModuleMetadata metadata = make_empty_meta("value");
+    char *left = serialize_module_metadata_for_source(&metadata, "left/value.nano");
+    char *right = serialize_module_metadata_for_source(&metadata, "right/value.nano");
+    char *legacy = serialize_module_metadata_to_c(&metadata);
+    ASSERT_NOT_NULL(left); ASSERT_NOT_NULL(right); ASSERT_NOT_NULL(legacy);
+    ASSERT(strcmp(left, right) != 0);
+    ASSERT(strstr(left, ".module_name = \"value\"") != NULL);
+    ASSERT(strstr(right, ".module_name = \"value\"") != NULL);
+    ASSERT(strstr(legacy, "ModuleMetadata _module_metadata_value") != NULL);
+    char *canonical = realpath(__FILE__, NULL);
+    ASSERT_NOT_NULL(canonical);
+    char *relative = serialize_module_metadata_for_source(&metadata, __FILE__);
+    char *absolute = serialize_module_metadata_for_source(&metadata, canonical);
+    ASSERT_NOT_NULL(relative); ASSERT_NOT_NULL(absolute);
+    ASSERT(strcmp(relative, absolute) == 0);
+    free(left); free(right); free(legacy); free(canonical); free(relative); free(absolute);
+}
+
 int main(void) {
+    TEST(serialize_source_identity);
     printf("=== Module Metadata Tests ===\n");
     TEST(union_payload_lifetime);
     TEST(recursive_signature_roundtrip);

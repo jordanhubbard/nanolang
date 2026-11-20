@@ -104,7 +104,7 @@ class CanonicalMatchGuards(unittest.TestCase):
         stem = self.work / f"command-{self.serial:04d}"
         args = list(map(str, args))
         stem.with_suffix(".json").write_text(json.dumps(args))
-        generated_before = self.retain_files((ROOT / "obj/nano_modules").glob("*.o"))
+        generated_before = self.retain_files((ROOT / "obj/nano_modules").rglob("*.o"))
         stem.with_suffix(".generated-before.json").write_text(json.dumps(generated_before, indent=2))
         started = time.monotonic()
         timed_out = False
@@ -138,7 +138,7 @@ class CanonicalMatchGuards(unittest.TestCase):
         result = subprocess.CompletedProcess(args, status,
             stem.with_suffix(".stdout").read_bytes().decode("utf-8", errors="replace"),
             stem.with_suffix(".stderr").read_bytes().decode("utf-8", errors="replace"))
-        generated_after = self.retain_files((ROOT / "obj/nano_modules").glob("*.o"))
+        generated_after = self.retain_files((ROOT / "obj/nano_modules").rglob("*.o"))
         stem.with_suffix(".generated-after.json").write_text(json.dumps(generated_after, indent=2))
         retained_c = []
         for line in (result.stdout + "\n" + result.stderr).splitlines():
