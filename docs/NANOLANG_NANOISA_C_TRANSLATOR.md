@@ -115,6 +115,35 @@ absent sections as empty tables; I do not invent a blanket required-section set
 from the serializer's normal output. This payload layer changes no product
 selection or host grant.
 
+## My core module view
+
+`src_nano/nvm2c/module.nano` combines the core tables and preserves their
+cross-section contracts: indices and optional sentinels, unsigned code ranges,
+absolute binary-safe artifact paths, callback signature/adapter/coverage rules,
+entry points and feature floors. I preserve default-empty sections. Metadata
+success still does not verify instructions or grant execution authority.
+
+I derive primary instruction widths from the same `spec/nanoisa.yaml` generator
+as my C metadata. My File scan follows the existing C classifier: I skip operand
+bytes, stop at undecodable input and recognize even a truncated File opcode at
+an instruction boundary. I do not silently treat that classifier as a verifier
+for the extended instruction plane.
+
+`decode_core` reports -1 for still-unimplemented passive/ownership/service
+sections and array/map layout profiles. That result is distinct from zero and
+from C format errors. It is a development boundary, not a final translator
+refusal policy. I must implement those profiles before product cutover; this
+module does not change executable selection.
+
+My module tests retain actual whole-module C decoder decisions, existing
+unmodified language examples from both producers, all256 primary widths and
+all256 scan controls. Qualified forwarding also retains a wrong-nominal argument
+and prior-output refusal across producers. These tests exposed two prerequisites:
+[#1145](https://github.com/jordanhubbard/nanolang/issues/1145) binds annotations in
+the declared module context, and [#1146](https://github.com/jordanhubbard/nanolang/issues/1146)
+checks record arguments before either frontend can publish bytecode. I preserve
+the qualified source and distinct declaration identities while repairing them.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,

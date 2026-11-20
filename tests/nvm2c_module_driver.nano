@@ -1,0 +1,32 @@
+module "src_nano/nvm2c/module.nano" as decoder
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    unsafe {
+        if (<= (get_argc) 1) { return 0 }
+        let option: string = (get_argv 1)
+        if (== option "--widths") {
+            let mut opcode: int = 0
+            while (< opcode 256) {
+                (println (isa.primary_width opcode))
+                set opcode (+ opcode 1)
+            }
+            return 0
+        }
+        let mut i: int = 1
+        if (== option "--scan") { set i 2 }
+        while (< i (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv i))
+            if (== option "--scan") {
+                if (decoder.file_instructions bytes 0 (array_length bytes)) { (println 1) } else { (println 0) }
+            } else {
+                let view: decoder.ModuleView = (decoder.decode_core bytes)
+                (println view.status)
+            }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}

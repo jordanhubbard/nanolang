@@ -6340,7 +6340,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {
                         let expected: NSType = (at sym.param_types j)
-                        if (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) {
+                        if (or (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) (and (== expected.kind TypeKind.TYPE_STRUCT) (not (tc_is_opaque_name parser expected.name)))) {
                             let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
                             let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
                             let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
@@ -6576,6 +6576,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    # I check record identity on qualified calls before either backend sees them.
+    let nominal_parser: Parser = (resource_test_parser "fn main()->int{return (lib.accept value)}")
+    let nominal_return: ASTReturn = (parser_get_return nominal_parser 0)
+    let nominal_function: Symbol = (symbol_new "lib.accept" (type_int) false true 1 [(type_from_string "Left")] (type_int))
+    let nominal_good: Symbol = (symbol_new "value" (type_from_string "Left") false false 0 (empty_param_types) (type_void))
+    let nominal_bad: Symbol = (symbol_new "value" (type_from_string "Right") false false 0 (empty_param_types) (type_void))
+    let good_nominal_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let bad_nominal_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let _: NSType = (check_expr_node nominal_parser nominal_return.value nominal_return.value_type [nominal_function, nominal_good] good_nominal_diags "qualified.nano")
+    let _: NSType = (check_expr_node nominal_parser nominal_return.value nominal_return.value_type [nominal_function, nominal_bad] bad_nominal_diags "qualified.nano")
+    assert (== (list_CompilerDiagnostic_length good_nominal_diags) 0)
+    assert (> (list_CompilerDiagnostic_length bad_nominal_diags) 0)
+
     let directed_argument: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{let byte_value:u8=7 return (take byte_value)}")
     assert (not (typecheck_phase directed_argument "argument.nano").had_error)
     let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=same assert (== (is_digit \"ok\") \"ok\") return 0}")

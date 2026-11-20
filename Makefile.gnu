@@ -690,6 +690,11 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 		$(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
+.PHONY: test-nominal-owner-context
+test-nominal-owner-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nominal_owner_context tests/test_nominal_owner_context.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nominal_owner_context
+
 # I compare my NanoLang container decoder with the existing C boundary.
 $(OBJ_DIR)/nvm2c_container_reference: tests/nvm2c_container_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
@@ -700,6 +705,13 @@ $(OBJ_DIR)/nvm2c_payload_reference: tests/nvm2c_payload_reference.c $(NANOISA_OB
 .PHONY: test-nanolang-translator-payloads
 test-nanolang-translator-payloads: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_payload_reference
 	python3 -m unittest -v tests.test_nanolang_translator_payloads
+
+$(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-module
+test-nanolang-translator-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference test-nominal-owner-context
+	python3 -m unittest -v tests.test_nanolang_translator_module
 
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference

@@ -4010,6 +4010,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             func->params[i].type == TYPE_STRUCT &&
                             func->params[i].struct_type_name &&
                             env_get_opaque_type(env, func->params[i].struct_type_name);
+                        /* I preserve the declared record identity before a backend
+                         * can flatten both arguments to the same value tag. */
+                        if (func->params[i].type == TYPE_STRUCT && !named_opaque &&
+                            func->params[i].struct_type_name && arg_type == TYPE_STRUCT) {
+                            TypeInfo parameter_view;
+                            const TypeInfo *expected = generic_parameter(&func->params[i], &parameter_view);
+                            if (!indirect_argument_matches(arg, env, expected, TYPE_STRUCT, 0)) {
+                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                    "I require the declared nominal record argument.",
+                                    "Pass a value from the same record declaration and generic instance.");
+                                return TYPE_UNKNOWN;
+                            }
+                        }
                         if (func->params[i].type == TYPE_OPAQUE || named_opaque) {
                                 const char *opaque_name = func->params[i].struct_type_name
                                     ? func->params[i].struct_type_name : "opaque";

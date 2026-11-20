@@ -14,6 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA = ROOT / "spec/nanoisa.yaml"
 OUTPUT = ROOT / "src/nanoisa/generated_schema.h"
+NANOLANG_OUTPUT = ROOT / "src_nano/nvm2c/isa_metadata.nano"
 
 
 # Every portable ("public") v2 instruction records why it belongs in the
@@ -205,17 +206,41 @@ def generate(schema: dict) -> str:
     return "\n".join(lines)
 
 
+def generate_nanolang(schema: dict) -> str:
+    """I share primary decode widths with the C reader without calling it."""
+    validate(schema)
+    sizes = {"NONE": 0, "U8": 1, "U16": 2, "U32": 4, "I32": 4, "I64": 8, "F64": 8}
+    widths = [0] * 256
+    for opcode in schema["legacy_opcodes"]:
+        widths[_as_int(opcode["code"])] = 1 + sum(sizes[o] for o in opcode.get("operands", []))
+    lines = ["# I am generated from spec/nanoisa.yaml by scripts/gen_nanoisa_schema.py.",
+             "module nvm2c_isa_metadata", "", "let widths: array<int> = ["]
+    for index in range(0, 256, 16):
+        lines.append("    " + ", ".join(map(str, widths[index:index+16])) + ("," if index < 240 else ""))
+    lines += ["]", "", "pub fn primary_width(opcode: int) -> int {",
+              "    if (or (< opcode 0) (> opcode 255)) { return 0 }",
+              "    return (at widths opcode)", "}", "", "shadow primary_width {",
+              "    assert (== (primary_width 0) 1)",
+              "    assert (== (primary_width 1) 9)",
+              "    assert (== (primary_width 255) 0)",
+              "    assert (== (primary_width -1) 0)", "}", ""]
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    rendered = generate(yaml.safe_load(SCHEMA.read_text()))
+    schema = yaml.safe_load(SCHEMA.read_text())
+    outputs = {OUTPUT: generate(schema), NANOLANG_OUTPUT: generate_nanolang(schema)}
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text() != rendered:
-            print(f"{OUTPUT.relative_to(ROOT)} is out of date")
-            return 1
-        return 0
-    OUTPUT.write_text(rendered)
+        stale = [p for p, rendered in outputs.items() if not p.exists() or p.read_text() != rendered]
+        for path in stale:
+            print(f"{path.relative_to(ROOT)} is out of date")
+        return int(bool(stale))
+    for path, rendered in outputs.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(rendered)
     return 0
 
 

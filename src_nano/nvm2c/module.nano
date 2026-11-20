@@ -1,0 +1,410 @@
+module nvm2c_module
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# Status -1 marks a profile I have not implemented, never successful admission.
+pub struct ModuleView {
+    status: int,
+    features: int,
+    entry: int,
+    isa_version: int,
+    code: array<u8>,
+    tables: array<payload.PayloadTable>,
+    present: array<bool>
+}
+
+fn blank(status: int) -> ModuleView {
+    let zero: array<u8> = [0, 0, 0, 0]
+    let empty: payload.PayloadTable = (payload.decode zero 1)
+    let mut tables: array<payload.PayloadTable> = []
+    let mut present: array<bool> = []
+    let mut i: int = 0
+    while (< i 15) {
+        set tables (array_push tables empty)
+        set present (array_push present false)
+        set i (+ i 1)
+    }
+    let code: array<u8> = []
+    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, tables: tables, present: present }
+}
+shadow blank {
+    let view: ModuleView = (blank 13)
+    assert (== view.status 13)
+    assert (== (array_length view.tables) 15)
+    assert (== (array_length view.code) 0)
+}
+
+fn has_feature(features: int, flag: int) -> bool {
+    return (== (% (/ features flag) 2) 1)
+}
+shadow has_feature {
+    assert (has_feature 1023 512)
+    assert (not (has_feature 8 32))
+}
+
+pub fn table(view: ModuleView, kind: int) -> payload.PayloadTable {
+    if (or (< kind 0) (>= kind (array_length view.tables))) {
+        let empty: array<u8> = []
+        return (payload.decode empty 0)
+    }
+    return (at view.tables kind)
+}
+shadow table {
+    let view: ModuleView = (blank 0)
+    let empty: payload.PayloadTable = (table view 2)
+    assert (== empty.status 0)
+    let bad: payload.PayloadTable = (table view 15)
+    assert (== bad.status 8)
+}
+
+fn count(view: ModuleView, kind: int) -> int {
+    let section: payload.PayloadTable = (table view kind)
+    return (array_length section.starts)
+}
+shadow count {
+    let view: ModuleView = (blank 0)
+    assert (== (count view 2) 0)
+}
+
+fn field(view: ModuleView, kind: int, row: int, offset: int, width: int) -> int {
+    let section: payload.PayloadTable = (table view kind)
+    if (or (< row 0) (>= row (array_length section.starts))) { return -1 }
+    let position: int = (+ (at section.starts row) offset)
+    if (== width 1) {
+        if (not (wire.contains section.data position 1)) { return -1 }
+        return (at section.data position)
+    }
+    if (== width 2) { return (wire.read_u16 section.data position) }
+    if (== width 4) { return (wire.read_u32 section.data position) }
+    if (== width 8) { return (wire.read_offset section.data position) }
+    return -1
+}
+shadow field {
+    let view: ModuleView = (blank 0)
+    assert (== (field view 5 0 0 4) -1)
+}
+
+fn index_ok(index: int, length: int, optional: bool) -> bool {
+    if (and optional (== index 4294967295)) { return true }
+    return (and (>= index 0) (< index length))
+}
+shadow index_ok {
+    assert (index_ok 4294967295 0 true)
+    assert (not (index_ok 4294967295 0 false))
+    assert (index_ok 0 1 false)
+}
+
+fn text_constant(view: ModuleView, index: int, absolute: bool) -> bool {
+    if (not (index_ok index (count view 2) false)) { return false }
+    let section: payload.PayloadTable = (table view 2)
+    let row: int = (at section.starts index)
+    let length: int = (wire.read_u32 section.data (+ row 4))
+    if (or (!= (at section.data row) 5) (== length 0)) { return false }
+    if absolute {
+        if (!= (at section.data (+ row 8)) 47) { return false }
+    }
+    let mut i: int = 0
+    while (< i length) {
+        if (== (at section.data (+ (+ row 8) i)) 0) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow text_constant {
+    let view: ModuleView = (blank 0)
+    assert (not (text_constant view 0 false))
+}
+
+pub fn file_instructions(code: array<u8>, start: int, length: int) -> bool {
+    if (not (wire.contains code start length)) { return false }
+    let mut cursor: int = start
+    let end: int = (+ start length)
+    while (< cursor end) {
+        let opcode: int = (at code cursor)
+        if (and (>= opcode 145) (<= opcode 152)) { return true }
+        let width: int = (isa.primary_width opcode)
+        if (or (== width 0) (> width (- end cursor))) { return false }
+        set cursor (+ cursor width)
+    }
+    return false
+}
+shadow file_instructions {
+    let operand: array<u8> = [1, 145, 0, 0, 0, 0, 0, 0, 0]
+    assert (not (file_instructions operand 0 9))
+    let file: array<u8> = [145]
+    assert (file_instructions file 0 1)
+    let unknown: array<u8> = [255, 145]
+    assert (not (file_instructions unknown 0 2))
+}
+
+fn callback_scalar(tag: int) -> bool {
+    return (or (and (>= tag 1) (<= tag 4)) (== tag 14))
+}
+shadow callback_scalar {
+    assert (callback_scalar 14)
+    assert (not (callback_scalar 5))
+}
+
+fn callback_shape(view: ModuleView, signature: int) -> bool {
+    let signatures: payload.PayloadTable = (table view 3)
+    let row: int = (at signatures.starts signature)
+    let params: int = (wire.read_u16 signatures.data row)
+    let results: int = (wire.read_u16 signatures.data (+ row 2))
+    if (or (> params 16) (> results 1)) { return false }
+    let mut p: int = 0
+    while (< p params) {
+        if (not (callback_scalar (at signatures.data (+ (+ row 4) p)))) { return false }
+        set p (+ p 1)
+    }
+    if (== results 1) {
+        let result_position: int = (+ (+ row 4) (* (/ (+ params 3) 4) 4))
+        if (not (callback_scalar (at signatures.data result_position))) { return false }
+    }
+    return true
+}
+shadow callback_shape {
+    let zero: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0]
+    let mut view: ModuleView = (blank 0)
+    (array_set view.tables 3 (payload.decode zero 3))
+    assert (callback_shape view 0)
+}
+
+fn callbacks(view: ModuleView) -> int {
+    let signatures: payload.PayloadTable = (table view 3)
+    let mut begin: int = 0
+    while (< begin (count view 11)) {
+        let owner: int = (field view 11 begin 0 4)
+        if (not (index_ok owner (count view 8) false)) { return 13 }
+        let import_signature: int = (field view 8 owner 8 4)
+        let signature_row: int = (at signatures.starts import_signature)
+        let params: int = (wire.read_u16 signatures.data signature_row)
+        if (> params 16) { return 13 }
+        let mut expected: array<bool> = []
+        let mut actual: array<bool> = []
+        let mut any: bool = false
+        let mut p: int = 0
+        while (< p params) {
+            let tag: int = (at signatures.data (+ (+ signature_row 4) p))
+            let callable: bool = (or (== tag 11) (== tag 15))
+            set expected (array_push expected callable)
+            set actual (array_push actual false)
+            if callable { set any true }
+            set p (+ p 1)
+        }
+        let mut end: int = begin
+        while (< end (count view 11)) {
+            if (!= (field view 11 end 0 4) owner) { break }
+            let adapter: int = (field view 11 end 12 4)
+            if (not (index_ok adapter (count view 2) false)) { return 13 }
+            if (not (text_constant view adapter false)) { return 8 }
+            if (!= (field view 11 end 7 1) (field view 11 begin 7 1)) { return 8 }
+            if (!= adapter (field view 11 begin 12 4)) { return 8 }
+            let parameter: int = (field view 11 end 4 2)
+            let signature: int = (field view 11 end 8 4)
+            if (== parameter 65535) {
+                if (or any (!= end begin)) { return 13 }
+                if (!= signature 4294967295) { return 13 }
+            } else {
+                if (not (index_ok parameter params false)) { return 13 }
+                if (not (at expected parameter)) { return 13 }
+                if (not (index_ok signature (count view 3) false)) { return 13 }
+                if (not (callback_shape view signature)) { return 8 }
+                (array_set actual parameter true)
+            }
+            set end (+ end 1)
+        }
+        set p 0
+        while (< p params) {
+            if (!= (at expected p) (at actual p)) { return 13 }
+            set p (+ p 1)
+        }
+        set begin end
+    }
+    return 0
+}
+shadow callbacks {
+    let view: ModuleView = (blank 0)
+    assert (== (callbacks view) 0)
+}
+
+fn references(view: ModuleView) -> int {
+    if (has_feature view.features 512) { return 8 }
+    let mut i: int = 0
+    while (< i (count view 8)) {
+        if (== (field view 8 i 12 1) 3) { return 8 }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 5)) {
+        let start: int = (field view 5 i 8 8)
+        let length: int = (field view 5 i 16 8)
+        if (file_instructions view.code start length) { return 8 }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 5)) {
+        if (not (index_ok (field view 5 i 0 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 5 i 4 4) (count view 3) false)) { return 13 }
+        if (not (wire.contains view.code (field view 5 i 8 8) (field view 5 i 16 8))) { return 13 }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 7)) {
+        if (not (index_ok (field view 7 i 0 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 7 i 8 4) (count view 2) true)) { return 13 }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 8)) {
+        if (not (index_ok (field view 8 i 0 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 8 i 4 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 8 i 8 4) (count view 3) false)) { return 13 }
+        if (== (field view 8 i 12 1) 2) {
+            if (not (text_constant view (field view 8 i 0 4) true)) { return 8 }
+        }
+        set i (+ i 1)
+    }
+    let callback_status: int = (callbacks view)
+    if (!= callback_status 0) { return callback_status }
+    set i 0
+    while (< i (count view 9)) {
+        if (not (index_ok (field view 9 i 0 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 9 i 4 4) (count view 2) true)) { return 13 }
+        if (not (index_ok (field view 9 i 8 4) (count view 3) true)) { return 13 }
+        set i (+ i 1)
+    }
+    let layouts: payload.PayloadTable = (table view 4)
+    set i 0
+    while (< i (count view 4)) {
+        let row: int = (at layouts.starts i)
+        if (not (index_ok (wire.read_u32 layouts.data (+ row 4)) (count view 2) true)) { return 13 }
+        let mut f: int = 0
+        while (< f (wire.read_u16 layouts.data (+ row 2))) {
+            let position: int = (+ (+ row 8) (* f 12))
+            if (not (index_ok (wire.read_u32 layouts.data (+ position 8)) (count view 2) true)) { return 13 }
+            if (not (index_ok (wire.read_u32 layouts.data (+ position 4)) (count view 4) true)) { return 13 }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 1)) {
+        if (not (index_ok (field view 1 i 0 4) (count view 2) false)) { return 13 }
+        if (not (index_ok (field view 1 i 4 4) (count view 2) false)) { return 13 }
+        set i (+ i 1)
+    }
+    if (not (index_ok view.entry (count view 5) true)) { return 13 }
+    return 0
+}
+shadow references {
+    let view: ModuleView = (blank 0)
+    assert (== (references view) 0)
+}
+
+fn features(view: ModuleView) -> int {
+    let flags: int = view.features
+    if (!= (has_feature flags 32) (> (count view 11) 0)) { return 14 }
+    if (and (> (count view 9) 0) (not (has_feature flags 1))) { return 14 }
+    if (and (> (count view 8) 0) (not (has_feature flags 2))) { return 14 }
+    if (and (at view.present 10) (not (has_feature flags 8))) { return 14 }
+    let mut i: int = 0
+    while (< i (count view 8)) {
+        if (and (== (field view 8 i 12 1) 1) (not (has_feature flags 4))) { return 14 }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (count view 4)) {
+        if (or (!= (field view 4 i 4 4) 4294967295) (> (field view 4 i 2 2) 0)) {
+            if (not (has_feature flags 128)) { return 14 }
+        }
+        set i (+ i 1)
+    }
+    if (or (has_feature flags 64) (has_feature flags 256)) { return 14 }
+    return 0
+}
+shadow features {
+    let view: ModuleView = (blank 0)
+    assert (== (features view) 0)
+}
+
+# Private array/map layout profiles must not pass through the public decoder.
+fn profile_layout(bytes: array<u8>) -> bool {
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (< count 0) (> count (/ (- (array_length bytes) 4) 8))) { return false }
+    let mut i: int = 0
+    let mut cursor: int = 4
+    while (< i count) {
+        if (not (wire.contains bytes cursor 8)) { return false }
+        let fields: int = (wire.read_u16 bytes (+ cursor 2))
+        set cursor (+ cursor 8)
+        if (> fields (/ (- (array_length bytes) cursor) 12)) { return false }
+        let mut f: int = 0
+        while (< f fields) {
+            let tag: int = (at bytes cursor)
+            if (or (== tag 7) (== tag 13)) { return true }
+            set cursor (+ cursor 12)
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow profile_layout {
+    let empty: array<u8> = [0, 0, 0, 0]
+    assert (not (profile_layout empty))
+}
+
+pub fn decode_core(bytes: array<u8>) -> ModuleView {
+    let status: int = (wire.validate bytes)
+    if (!= status 0) { return (blank status) }
+    let base: ModuleView = (blank 0)
+    let tables: array<payload.PayloadTable> = base.tables
+    let present: array<bool> = base.present
+    let mut code: array<u8> = []
+    let sections: int = (wire.read_u32 bytes 24)
+    let mut i: int = 0
+    # I identify unimplemented profiles before publishing any decoded view.
+    while (< i sections) {
+        let entry: int = (+ 40 (* i 24))
+        let kind: int = (wire.read_u32 bytes entry)
+        if (>= kind 12) { return (blank -1) }
+        if (== kind 4) {
+            let data: array<u8> = (array_slice bytes (wire.read_offset bytes (+ entry 8)) (wire.read_offset bytes (+ entry 16)))
+            if (profile_layout data) { return (blank -1) }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i sections) {
+        let entry: int = (+ 40 (* i 24))
+        let kind: int = (wire.read_u32 bytes entry)
+        let start: int = (wire.read_offset bytes (+ entry 8))
+        let length: int = (wire.read_offset bytes (+ entry 16))
+        let data: array<u8> = (array_slice bytes start length)
+        (array_set present kind true)
+        if (== kind 6) {
+            set code data
+        } else {
+            let decoded: payload.PayloadTable = (payload.decode data kind)
+            if (!= decoded.status 0) { return (blank decoded.status) }
+            (array_set tables kind decoded)
+        }
+        set i (+ i 1)
+    }
+    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, tables: tables, present: present }
+    let reference_status: int = (references view)
+    if (!= reference_status 0) { return (blank reference_status) }
+    let feature_status: int = (features view)
+    if (!= feature_status 0) { return (blank feature_status) }
+    return view
+}
+shadow decode_core {
+    let header: array<u8> = [78, 86, 77, 2, 1, 0, 2, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0]
+    let view: ModuleView = (decode_core header)
+    assert (== view.status 0)
+    assert (== (count view 5) 0)
+    let empty: array<u8> = []
+    let bad: ModuleView = (decode_core empty)
+    assert (== bad.status 1)
+}

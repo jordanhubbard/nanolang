@@ -318,7 +318,7 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
     return true;
 }
 
-bool bind_nominal_records(ASTNode *program, Environment *env) {
+static bool bind_nominal_records_owned(ASTNode *program, Environment *env) {
     const char *owner = env->current_module;
     for (int i = 0; i < program->as.program.count; ++i)
         if (program->as.program.items[i]->type == AST_MODULE_DECL) owner = program->as.program.items[i]->as.module_decl.name;
@@ -409,6 +409,23 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
         return false;
     }
     return true;
+}
+
+
+/* I resolve aliases in the same declared owner that registered imports.
+ * The environment keeps ownership of its original context on every result. */
+bool bind_nominal_records(ASTNode *program, Environment *env) {
+    char *saved_owner = env->current_module;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_MODULE_DECL) {
+            env->current_module = item->as.module_decl.name;
+            break;
+        }
+    }
+    bool result = bind_nominal_records_owned(program, env);
+    env->current_module = saved_owner;
+    return result;
 }
 
 
