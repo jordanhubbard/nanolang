@@ -1,5 +1,22 @@
 # 5.1 Scope - One IR
 
+## Additional required 5.1 architecture, 2026-11-20
+
+**Required (NANOISA-NANOLANG-C-001):** Under [#1142](https://github.com/jordanhubbard/nanolang/issues/1142)
+I implement my NanoISA-to-C translator in NanoLang. My required flow is
+`source -> NanoISA -> NanoVM`, or
+`source -> NanoISA -> C emitted by NanoLang code -> host C compiler -> standalone binary`.
+My current C implementation of `nvm2c` does not satisfy this requirement, and an
+FFI wrapper around that implementation does not replace it. I retain the full
+module/host/ownership/refusal contract, complete required pinned corpus,
+Linux/Darwin qualification, exact Stage1/Stage2 module equality, installed
+no-C-seed execution and native products independent of NanoVM execution.
+I record ordered implementation and acceptance in [my roadmap](ROADMAP.md).
+
+I retain the original 67 entries and LITAI-001 below unchanged. With this explicit
+architecture requirement I have 69 headline entries. This count describes scope,
+not completion.
+
 ## Additional required 5.1 scope, 2026-10-28
 
 **Required (LITAI-001):** I adopt Literate AI under [#1039](https://github.com/jordanhubbard/nanolang/issues/1039)
