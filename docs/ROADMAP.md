@@ -24,6 +24,8 @@ Literate AI adoption. I track the missing translator under [#1142](https://githu
 
 ## My current implementation and qualification ledger
 
+- [x] Under #1140 I retain a fresh full-provider GCC and Clang ASan/UBSan regression in [my evidence](evidence/callable-fresh-providers-20261120/README.md). Both count576 unreleased names across nine fixed64-call routes after successful teardown controls. My original interpreter suite passes; the new strict ownership target and LeakSanitizer correctly fail. I preserve fixture/observer/tool-selection refusals and require ownership correction, escaped-container/nested-signature checks and original source/platform qualification before closure.
+
 - [ ] Under #1140 I reproduce callable name ownership with a fresh isolated build of every interpreter provider, real allocation/free tracking and a successful teardown control. I retain direct/bound/declaration-return/binding-return/recursive/parameter/computed-callee routes, scalar results, independent returned names and caller survival. I use the failing ownership regression to guide a correction; I preserve escaped containers and nested signatures before enabling cleanup, then require complete original source/platform acceptance.
 
 - [ ] Under #1139/#1065 I retain complete Clang acceptance and the unchanged original GCC/Apple source-factory deadline failures, plus the fixed GCC six-attempt baseline0/3 versus corrected1/3 result in `docs/evidence/call-frame-lifetimes-20261109/`. I require complete original source acceptance before closing metadata qualification; no fully successful pair establishes a whole-factory gain, and I do not retry unchanged plans or increase their deadlines.
