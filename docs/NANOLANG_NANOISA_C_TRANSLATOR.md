@@ -226,6 +226,11 @@ stress fixture's steps. This prerequisite does not admit passive records:
 guarded inputs, node/block ranges, graph order and whole-module relationships
 remain required in the subsequent profile implementation.
 
+My [paired closed-call evidence](evidence/nanolang-passive-calls-20261120/README.md)
+matches1498 callee decisions and512 opcode/profile decisions per route on
+Linux/Darwin. It includes415 explicit callee controls and independent actual-C
+ASan/UBSan runs, without changing a production bound or the active C verifier.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,

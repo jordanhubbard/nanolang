@@ -136,6 +136,12 @@ callee. Exceeding a bound refuses the claim. Allocation failure also refuses it.
 Version 1 remains unchanged. Version 2 additionally admits typed integer/float/
 boolean arithmetic and string concatenation with the same scalar provenance.
 
+My development NanoLang replacement now has a separate closed-call analyzer
+with [paired differential evidence](evidence/nanolang-passive-calls-20261120/README.md).
+It preserves these four limits and checks concrete decoded bodies. I have not
+connected it to passive-node/block admission or replaced my active C verifier;
+the remaining guarded-input, graph, interval and whole-module checks still apply.
+
 ## Bounded source emission
 
 I retain `par` identity in both frontends and require distinct immutable `let`
