@@ -1,0 +1,49 @@
+{
+  "commit": "3947d68fb8864f521b5296e7c38683a8607468e6",
+  "platform": "Linux sparky 7.0.0-1025-nvidia #26~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov  3 19:27:25 UTC 2 aarch64 aarch64 aarch64 GNU/Linux",
+  "post_run_sha256": {
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3",
+    "tests/nvm2c_container_driver.nano": "15cb7db66b3e98864dee29ab8b4705e272ca61afd75727958b6011de3f978dbc",
+    "tests/nvm2c_payload_driver.nano": "2ab2f90ab0870d9078f437b79d4301a95d32663a13209f6072d0042538f9b537",
+    "tests/test_nanolang_translator_container.py": "088206524e47eea4afe70cc9d1f6d086c23c4d35f873ce446fa46bec8cae1c4a",
+    "tests/test_nanolang_translator_payloads.py": "0124a0c3b064ae83773f09f6e30748f5a12747e961d0afc0e9557f43b6d6cb5f",
+    "tests/nanolang_translator_routes.py": "3a0cfe51fa95649a93f26eed003cd9c2b5b798fd7df83b8208c7aa7fd8c42ff4",
+    "tests/nvm2c_container_reference.c": "1aa3e64474e69b43ef4473489433b1a3264058ba51285590c1875f5d09093e80",
+    "tests/nvm2c_payload_reference.c": "d3c7d285b98e641f6f7eb5e30dcee91efc37374316edd6fbe5da07b76db6a4d1",
+    "Makefile.gnu": "0ba9415073709f7e4af45f20de083ae46ca5e100872fbb6bcbfc5be5e23d0f67",
+    "bin/nanoc_c": "c0cf13e765e5b1a98c772089f889607423ee65766b99b8565a5d530dd47d4120",
+    "bin/nano_virt": "fab2eaa9bf5c421ae7b3c030c87d617a58574a6a317b39342f0e1d4a81af6589",
+    "bin/nano_vm": "8ac9131f5fbb5d2dda920249e787e25c403095294c1c7aa8a111ae048ddafd13",
+    "bin/nvm2c": "26f003c17623e36b1ae2550340a30461993c610b5b6bebb9f224785a2292d072",
+    "bin/nano_aot_runtime.o": "0b19465ec8fad9f36cba9f82f4e3823f9a3b25b04b4a910a037c754fd92b8ce8",
+    "obj/nvm2c_container_reference": "e0d878e1e721c6ce687ba97cb094341b2d1f0c7ad23c88dc5e7e1d5796a1cf37",
+    "obj/nvm2c_payload_reference": "a0985e57ff01ad5224220ab9da78232afc0cc0bb03f2484c357fdc7fc2f567c1",
+    ".test_output/nvm2c-full-source-compiler": "5dd7469cd551cc914745c3e1818c3c6bcc680ea775dbd37e71259f0b9b49add4"
+  },
+  "cross_host_identical_source_files": [
+    "src_nano/nvm2c/container.nano",
+    "src_nano/nvm2c/payloads.nano",
+    "tests/nvm2c_container_driver.nano",
+    "tests/nvm2c_payload_driver.nano",
+    "tests/test_nanolang_translator_container.py",
+    "tests/test_nanolang_translator_payloads.py",
+    "tests/nanolang_translator_routes.py",
+    "tests/nvm2c_container_reference.c",
+    "tests/nvm2c_payload_reference.c",
+    "Makefile.gnu"
+  ],
+  "darwin_archive_sha256": "a78cd4330b3900107731b5605f279fdaf559ce043aee6e84ac577d618f0f00ab",
+  "case_counts": {
+    "container": 165,
+    "payload": 1585,
+    "payload_independent_expected": 785
+  },
+  "limits": [
+    "These are post-run tool/source hashes, not a before/after SDK receipt.",
+    "The unittest removes temporary modules/native images on success; actual test products are not archived.",
+    "C AOT emission is instrumented, while the existing AOT runtime object is ordinary.",
+    "Both NanoLang drivers are C-seed-built, not qualified Stage1/Stage2 products.",
+    "Cross-section/extension/instruction/host admission, C emission in NanoLang, cutover and the full release remain open."
+  ]
+}
