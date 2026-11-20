@@ -413,7 +413,7 @@ static bool bind_nominal_records_owned(ASTNode *program, Environment *env) {
 
 
 /* I resolve aliases in the same declared owner that registered imports.
- * The environment keeps ownership of its original context on every result. */
+ * I restore the borrowed original context on every result. */
 bool bind_nominal_records(ASTNode *program, Environment *env) {
     char *saved_owner = env->current_module;
     for (int i = 0; i < program->as.program.count; ++i) {

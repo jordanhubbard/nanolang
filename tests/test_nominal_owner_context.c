@@ -36,6 +36,7 @@ int main(void) {
     free_ast(program);
     free_tokens(tokens, count);
     free_environment(env);
+    free(saved);
 
     env = create_environment();
     saved = strdup("filename");
@@ -54,6 +55,7 @@ int main(void) {
     free_ast(program);
     free_tokens(tokens, count);
     free_environment(env);
+    free(saved);
     puts("I preserve declared-owner identity and restore context after success and refusal.");
     return 0;
 }
