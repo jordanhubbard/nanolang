@@ -196,6 +196,36 @@ full NanoLang driver also matches the C loader's duplicate-public-identity
 refusal before publication. These prerequisites do not implement translator
 admission or C emission; #986 integration and the complete #1149 gate remain open.
 
+## My passive closed-call prerequisite
+
+`src_nano/nvm2c/passive_calls.nano` analyzes concrete local callees under the
+assumption that their actual arguments are scalar. It does not infer that fact
+from declaration tags. I decode the whole function, follow reachable direct and
+tail calls, check stack-height joins, and intersect definitely initialized local
+sets until the worklist converges. I check loads after convergence, including
+all loop predecessors. A returning path must leave the declared result count.
+I refuse recursion, captures, reachable foreign/indirect calls and effects.
+Unreachable decoded instructions do not contribute to this summary; ordinary
+module verification still applies to them.
+
+I preserve the existing limits:64 active calls,65536 decoded instructions,
+2097152 local-state words and1048576 worklist steps per callee. I represent a
+64-bit local set word as two nonnegative integer halves and implement set
+intersection in NanoLang. The storage limit counts the original64-bit words;
+my two-half representation uses twice as many integer slots. I call no foreign
+analysis or bitset helper. The API takes explicit narrow function descriptors;
+it is not a wire decoder or an executable admission entry point.
+
+`tests/nvm2c_passive_calls_reference.c` includes the existing C implementation
+to expose its private analyzer and allowlist, without copying that algorithm.
+My differential gate covers both512 opcode/profile decisions and complete
+callee decisions. Explicit controls exercise actual depth/instruction/storage
+limits and a cyclic set-propagation graph exceeding the actual worklist limit;
+I do not lower a limit for testing. Independent graph propagation counts the
+stress fixture's steps. This prerequisite does not admit passive records:
+guarded inputs, node/block ranges, graph order and whole-module relationships
+remain required in the subsequent profile implementation.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
