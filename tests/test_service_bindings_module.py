@@ -2,9 +2,9 @@
 import os
 from pathlib import Path
 import shlex
-import subprocess
 import tempfile
 import unittest
+from tests.native_process import run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,12 +22,12 @@ class ServiceModule(unittest.TestCase):
         cls.objects = shlex.split(os.environ["SERVICE_MODULE_OBJECTS"])
         cls.linkflags = shlex.split(os.environ.get("SERVICE_MODULE_LDFLAGS", ""))
 
-    def command(self, name, command, *, expected=0, extra=None):
+    def command(self, name, command, *, expected=0, extra=None, build=False):
         env = dict(os.environ, ASAN_OPTIONS="halt_on_error=1",
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         env.update(extra or {})
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(command) + "\n")
-        result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True, timeout=90)
+        result = run_captured(command, cwd=ROOT, env=env, text=True, timeout=90, build=build)
         (self.artifacts / f"{name}.log").write_text(result.stdout + result.stderr)
         self.assertEqual(result.returncode, expected, (command, result.stdout, result.stderr))
         return result.stdout
@@ -43,12 +43,12 @@ class ServiceModule(unittest.TestCase):
                 self.command(f"{source}-compile", [*self.compiler, *self.flags,
                     "-include", "tests/nanoisa/service_alloc_hooks.h", "-Dmalloc=service_test_malloc",
                     "-Dcalloc=service_test_calloc", "-Drealloc=service_test_realloc",
-                    "-c", f"src/nanoisa/{source}.c", "-o", str(output)])
+                    "-c", f"src/nanoisa/{source}.c", "-o", str(output)], build=True)
                 objects.append(str(output))
         exe = self.artifacts / name
         defines = ["-DSERVICE_ALLOC_TEST"] if instrumented else []
         self.command(f"{name}-build", [*self.compiler, *self.flags, *defines,
-            "tests/nanoisa/test_service_bindings_module.c", *objects, *self.linkflags, "-o", str(exe)])
+            "tests/nanoisa/test_service_bindings_module.c", *objects, *self.linkflags, "-o", str(exe)], build=True)
         wire = self.artifacts / f"{name}.nvm"
         output = self.command(f"{name}-run", [str(exe), "tests/fixtures/nsi_file_plan.json"],
                               extra={"SERVICE_MODULE_WIRE": str(wire)})
@@ -85,7 +85,7 @@ class ServiceModule(unittest.TestCase):
         exe = self.artifacts / "mixed-boundary"
         self.command("mixed-build", [*self.compiler, *self.flags,
             "tests/nanoisa/test_service_mixed_boundaries.c", *self.objects,
-            *self.linkflags, "-o", str(exe)])
+            *self.linkflags, "-o", str(exe)], build=True)
         output = self.command("mixed-run", [str(exe)])
         self.assertIn("mixed service selection and recovery checks passed", output)
         print(output.strip(), flush=True)

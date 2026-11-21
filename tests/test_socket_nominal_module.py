@@ -31,12 +31,12 @@ class SocketNominalModule(unittest.TestCase):
             hooks = (["-include", "tests/nanoisa/service_alloc_hooks.h", "-Dmalloc=service_test_malloc",
                       "-Dcalloc=service_test_calloc", "-Drealloc=service_test_realloc"] if instrument else [])
             self.command(f"{name}-{source}-compile", [*self.compiler, *self.flags, *hooks,
-                "-c", f"src/nanoisa/{source}.c", "-o", str(obj)])
+                "-c", f"src/nanoisa/{source}.c", "-o", str(obj)], build=True)
             objects.append(str(obj))
         exe = self.artifacts / name
         self.command(f"{name}-build", [*self.compiler, *self.flags,
             *(["-DSERVICE_ALLOC_TEST"] if instrument else []),
-            "tests/nanoisa/test_socket_nominal_module.c", *objects, *self.linkflags, "-o", str(exe)])
+            "tests/nanoisa/test_socket_nominal_module.c", *objects, *self.linkflags, "-o", str(exe)], build=True)
         wire = self.artifacts / f"{name}.nvm"
         output = self.command(f"{name}-run", [str(exe), "tests/fixtures/nsi_socket_plan.json"],
                               extra={"NOMINAL_MODULE_WIRE": str(wire)})
