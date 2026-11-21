@@ -6,6 +6,10 @@ on:
         description: I observe Linux capture without starting the Apple qualification job.
         type: boolean
         default: false
+      qualify_as_246:
+        description: I qualify a private GNU as 2.46 candidate without changing product admission.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -19,7 +23,7 @@ permissions:
 jobs:
   linux-capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Retain selected Linux compiler and assembler evidence
@@ -29,6 +33,10 @@ jobs:
           make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so > .test_output/source-capture-diagnostic/linux-probe-build.log 2>&1
       - name: Observe a cold compiler support capture without changing admission
         run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify the isolated GNU assembler 2.46 candidate
+        if: inputs.qualify_as_246
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py
       - name: Upload Linux capture evidence
         if: always()
         uses: actions/upload-artifact@v4
