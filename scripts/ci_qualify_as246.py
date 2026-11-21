@@ -145,6 +145,24 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
         if (clang_only or native_debug_only) and report['skipped']:
             raise RuntimeError('I require every selected native diagnostic to execute.')
         if clang_only:
+            comparisons = []
+            for layout in ('source', 'cache', 'all'):
+                for macro, explicit in ((False, False), (True, False), (True, True)):
+                    label = 'clang-equals-' + layout + '-' + str(int(macro)) + str(int(explicit))
+                    argv = [sys.executable, 'tests/characterize_assembler_debug.py', clang,
+                            '--integrated', '--module-alias', '--require-physical-debug',
+                            '--equals-paths', layout]
+                    if macro:
+                        argv += ['--macro-read', '--nested-read', '--instruction-macro']
+                    if explicit:
+                        argv += ['--explicit-locations']
+                    command(argv, label, 180)
+                    observed = json.loads((OUT / (label + '.stdout')).read_text())
+                    if len(observed['cases']) != 4 or any(case['published_unit_aliases']
+                            for case in observed['cases']):
+                        raise RuntimeError('I require four native debug cases without private unit aliases.')
+                    comparisons.append({'label': label, 'cases': len(observed['cases'])})
+            record['clang_native_equals_comparisons'] = comparisons
             record['clang_2118_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
             return
