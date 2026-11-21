@@ -501,9 +501,42 @@ return no partial rows. Normal immutable value carriers model the C APIs'
 valid storage; original C tests separately exercise pointer and allocation
 failure contracts. C allocation denial is not a claim about NanoLang's heap.
 
-My legacy File v1 metadata adapter and whole-module service selection remain
-required. The shared module decoder still marks service profiles pending;
+My legacy File v1 narrow metadata adapter is implemented below. Rich v2
+adaptation and whole-module service selection remain required. The shared
+module decoder still marks service profiles pending;
 this library does not change installed products or translator selection.
+
+## My shared service metadata boundary
+
+`service_module.nano` mirrors the shared normal narrow-module service validator.
+I validate legacy File v1 import names and positional signatures using the pure
+immutable catalog. I dispatch nominal versions2/3 before legacy fallback,
+selecting exact File/TCP or multi-instance plans. A standalone WebSocket v2
+claim remains refused by this ordinary shared boundary; its existing private
+transport adapter is distinct. Multi-instance plans can describe WebSocket
+instances under their own exact catalog rules.
+
+I preserve the existing NvmV2Result status order: a File instruction without a
+nominal prefix refuses with8 before absent metadata can succeed; malformed raw
+legacy bytes refuse with8 before import/reference/callback counts refuse with14;
+a legacy index outside the exact import table refuses with13 before that
+entry's name/signature checks. Nominal plan limits map to13 and other metadata
+refusals to8. Legacy validation does not inspect unrelated layouts/ownership.
+Nominal metadata cannot silently fall back to a legacy plan.
+
+I expose metadata presence and bounded File-instruction classification. I scan
+only in-range function spans, recognize File opcodes before their operands and
+stop at unknown or truncated non-File instructions. An immediate byte equal to
+a File opcode is not an instruction claim. Pending execution is the union of
+metadata presence and File instruction presence; successful metadata validation
+does not remove it.
+
+My pure input arrays represent canonical normal storage: absent service bytes
+have no separate nonnull empty pointer. C-only malformed pointer/count graphs,
+allocation failures and destination preservation retain their original C test
+scope. Rich v2 tables, their adapter/constant/signature prechecks, whole-module
+service conversion, private WebSocket routing and full flow/host/execution
+admission remain required before product cutover.
 
 ## My cutover gate
 
