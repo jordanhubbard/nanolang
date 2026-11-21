@@ -770,6 +770,24 @@ test-nanolang-translator-declarations: $(COMPILER_C) nano_virt nano_vm nvm2c nvm
 test-nanolang-translator-routes: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference
 	python3 -m unittest -v tests.test_nanolang_translator_routes
 
+SERVICE_WIRE_SOURCES = $(addprefix $(NANOISA_DIR)/,service_bindings.c service_file_nominal.c service_socket_nominal.c service_websocket_nominal.c service_multi_nominal.c)
+SERVICE_WIRE_HEADERS = $(addprefix $(NANOISA_DIR)/,service_bindings.h service_file_nominal.h service_socket_nominal.h service_websocket_nominal.h service_multi_nominal.h service_nominal_codec.inc service_file_nominal_config.h service_socket_nominal_config.h service_websocket_nominal_config.h)
+$(OBJ_DIR)/nvm2c_service_reference: tests/nvm2c_service_reference.c $(SERVICE_WIRE_SOURCES) $(SERVICE_WIRE_HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -o $@ $< $(SERVICE_WIRE_SOURCES) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_service_reference_asan: tests/nvm2c_service_reference.c $(SERVICE_WIRE_SOURCES) $(SERVICE_WIRE_HEADERS) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_WIRE_SOURCES) $(LDFLAGS)
+
+.PHONY: test-native-byte-array-results
+test-native-byte-array-results: $(COMPILER_C) nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_native_byte_array_results
+
+test-nvm2c: test-native-byte-array-results
+
+.PHONY: test-nanolang-translator-services
+test-nanolang-translator-services: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_service_reference $(OBJ_DIR)/nvm2c_service_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_services
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container

@@ -1,0 +1,104 @@
+module "src_nano/nvm2c/service_wire.nano" as service
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn numbers(values: array<int>, start: int, length: int) -> string {
+    if (> length 64) {
+        let left: int = (/ length 2)
+        return (+ (numbers values start left) (numbers values (+ start left) (- length left)))
+    }
+    let mut result: string = ""
+    let mut i: int = start
+    while (< i (+ start length)) { set result (+ (+ result (int_to_string (at values i))) ",") set i (+ i 1) }
+    return result
+}
+shadow numbers { assert (== (numbers [0,4294967295] 0 2) "0,4294967295,") }
+
+fn hexadecimal(bytes: array<u8>, start: int, length: int) -> string {
+    if (> length 128) {
+        let left: int = (/ length 2)
+        return (+ (hexadecimal bytes start left) (hexadecimal bytes (+ start left) (- length left)))
+    }
+    let alphabet: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = start
+    while (< i (+ start length)) {
+        let octet: int = (cast_int (at bytes i))
+        set result (+ result (str_substring alphabet (/ octet 16) 1))
+        set result (+ result (str_substring alphabet (% octet 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow hexadecimal { assert (== (hexadecimal [0,255,128] 0 3) "00ff80") }
+
+fn report(decoded: service.Bindings, profile: int) -> string {
+    if (!= decoded.status 0) { return (int_to_string decoded.status) }
+    let status: int = (service.check decoded.instances profile)
+    if (!= status 0) { return (int_to_string status) }
+    let encoded: service.Encoded = (service.encode decoded.instances profile)
+    assert (== encoded.status 0)
+    let mut values: array<int> = [(array_length decoded.instances)]
+    let mut i: int = 0
+    while (< i (array_length decoded.instances)) {
+        let row: service.Instance = (at decoded.instances i)
+        let mut catalog: int = row.catalog
+        if (!= profile 5) { set catalog 1 if (> profile 1) { set catalog (- profile 1) } }
+        set values (array_push values catalog)
+        let mut j: int = 0
+        while (< j (array_length row.imports)) { set values (array_push values (at row.imports j)) set j (+ j 1) }
+        set j 0
+        while (< j (array_length row.layouts)) { set values (array_push values (at row.layouts j)) set j (+ j 1) }
+        set i (+ i 1)
+    }
+    return (+ (+ (+ "0|" (numbers values 0 (array_length values))) "|") (hexadecimal encoded.bytes 0 (array_length encoded.bytes)))
+}
+shadow report { assert (== (report service.Bindings { status: 8, instances: [] } 1) "8") }
+
+fn value_carrier(bytes: array<u8>, profile: int) -> service.Bindings {
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (< count 0) (> count 65)) { return service.Bindings { status: 99, instances: [] } }
+    let mut rows: array<service.Instance> = []
+    if (or (== count 0) (== count 65)) {
+        if (or (!= profile 5) (!= (array_length bytes) 4)) { return service.Bindings { status: 99, instances: [] } }
+        let mut i: int = 0
+        while (< i count) { set rows (array_push rows service.Instance { catalog: 0, imports: [], layouts: [] }) set i (+ i 1) }
+        return service.Bindings { status: 0, instances: rows }
+    }
+    if (or (!= (array_length bytes) (+ 4 (* count 60))) (and (!= profile 5) (!= count 1))) { return service.Bindings { status: 99, instances: [] } }
+    let mut i: int = 0
+    while (< i count) {
+        let offset: int = (+ 4 (* i 60))
+        let catalog: int = (wire.read_u32 bytes offset)
+        let mut methods: int = 5
+        let mut types: int = 9
+        if (!= profile 5) { set types 0 if (> profile 1) { set methods (service.catalog_methods (- profile 1)) set types (service.catalog_types (- profile 1)) } }
+        let mut imports: array<int> = []
+        let mut layouts: array<int> = []
+        let mut j: int = 0
+        while (< j methods) { set imports (array_push imports (wire.read_u32 bytes (+ (+ offset 4) (* j 4)))) set j (+ j 1) }
+        set j 0
+        while (< j types) { set layouts (array_push layouts (wire.read_u32 bytes (+ (+ offset 24) (* j 4)))) set j (+ j 1) }
+        set rows (array_push rows service.Instance { catalog: catalog, imports: imports, layouts: layouts })
+        set i (+ i 1)
+    }
+    return service.Bindings { status: 0, instances: rows }
+}
+shadow value_carrier { assert (== (value_carrier [] 1).status 99) assert (== (service.check (value_carrier [0,0,0,0] 5).instances 5) 5) }
+
+fn main() -> int {
+    unsafe {
+        let profile: int = (string_to_int (get_argv 1))
+        let mode: string = (get_argv 2)
+        let mut i: int = 3
+        while (< i (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv i))
+            if (== mode "value") { (println (report (value_carrier bytes profile) profile)) }
+            else { (println (report (service.decode bytes profile) profile)) }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
