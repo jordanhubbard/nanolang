@@ -321,6 +321,31 @@ Both fresh C-seed-built NanoLang compilers pass the unchanged four-method
 slicing suite and semantic refusal controls. These development images do not
 establish installed-stage or raw fixed-point qualification.
 
+## My private retained-layout structure
+
+`src_nano/nvm2c/private_layouts.nano` supplies the ARRAY, mixed and MAP
+retained-layout structure profiles. I check exact transport before semantic
+fields, retaining the 256-layout, 65536-field and 16 MiB limits. My shared
+`payloads.layouts_profile` parser keeps public decoding on its original grammar.
+
+For forward-containing tables, ARRAY permits record DAGs with scalar/string/
+array leaves. Mixed additionally permits scalar union nodes beside record DAGs;
+record edges still connect records, and array leaves remain record fields. MAP
+adds map leaves in records. Prior-only tables retain the C codec's distinct,
+broader transport behavior. Later declaration and executable consumers own
+their remaining checks.
+
+These are immutable byte views: callers keep the input bytes immutable. They
+do not emulate C allocation ownership or establish element types, ordinary/
+resource classification, reference eligibility or execution authority. Private
+declaration projections and whole-module profile admission remain required.
+
+My [paired private-layout evidence](evidence/nanolang-private-layouts-20261120/README.md)
+matches all 1748 cases on four profiles across five routes on Linux/Darwin,
+including 4640 explicit status expectations, exact field/byte limits and
+complete C-provider ASan/UBSan. The original public payload and dependent
+module/ownership gates pass; I retain the two corrected oracle expectations.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
