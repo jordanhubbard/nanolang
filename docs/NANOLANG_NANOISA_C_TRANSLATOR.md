@@ -314,6 +314,13 @@ test defaults still select the actual installed stages. Explicit compiler
 selection lets development qualification name its real tools without aliasing
 them as Stage1/Stage2 or deleting any product assertion.
 
+My [paired declaration and slice evidence](evidence/nanolang-ownership-20261120/README.md)
+matches 2350 shared C status/authority decisions across all five Linux/Darwin
+routes, with 1415 explicit expectations and unchanged declaration budgets.
+Both fresh C-seed-built NanoLang compilers pass the unchanged four-method
+slicing suite and semantic refusal controls. These development images do not
+establish installed-stage or raw fixed-point qualification.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
