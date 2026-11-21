@@ -149,7 +149,7 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
             for layout in ('source', 'cache', 'all'):
                 for macro, explicit in ((False, False), (True, False), (True, True)):
                     label = 'clang-equals-' + layout + '-' + str(int(macro)) + str(int(explicit))
-                    argv = [sys.executable, 'tests/characterize_assembler_debug.py', clang,
+                    argv = [sys.executable, '-m', 'tests.characterize_assembler_debug', clang,
                             '--integrated', '--module-alias', '--require-physical-debug',
                             '--equals-paths', layout]
                     if macro:
