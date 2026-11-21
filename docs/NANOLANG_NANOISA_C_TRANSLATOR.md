@@ -688,3 +688,28 @@ validity/count summary after complete copying. Both producers execute useful
 shadows under their existing component deadline. My original identifier gate
 passes five controls and3308 static fragments. Darwin and full checked-profile
 analysis remain required.
+
+## My closed recipe stack-height walk
+
+`record_stack.nano` checks reachable stack heights over freshly decoded
+ARRAY/MAP recipe inputs. I start with an empty operand stack, reject underflow
+and unequal-height joins/backedges, and require exact declared result counts
+at explicit and implicit exits. I measure both sides of each reachable
+instruction and reject a locals-plus-operand frame above65535 slots. I include
+callee results in a tail exit's maximum, matching the shared height helper;
+my copied execution recipe itself records no pushed tail result.
+
+I preserve dead-code behavior: decoding and recipe framing still inspect it,
+but an unreachable valid POP does not cause reachable underflow. The shared C
+height helper accepts an empty body independently of its declared result;
+structural verification owns that separate refusal. This entry also does not
+establish matching tail-return signatures, value tags, origins, lifetimes or
+complete resource budgets. Handler/effect/explicit-retain flows require the
+broader verifier. I grant no module or executable admission from a height result.
+
+My [Linux height checkpoint](evidence/record-stack-linux-20261121) matches1475
+reports per route,963 explicit expectations and512 randomized CFGs through five
+routes in181.116 seconds. Targeted actual C copier/shared-verifier sanitizer
+controls and original identifiers pass. I retain the initial DELETE/LEN fixture
+opcode error and correct only its byte. Paired Darwin acceptance and full
+profile/verifier integration remain required.

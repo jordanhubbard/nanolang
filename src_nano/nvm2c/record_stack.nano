@@ -1,0 +1,84 @@
+module nvm2c_record_stack
+module "src_nano/nvm2c/record_instructions.nano" as records
+
+# I check only reachable stack heights in the closed recipe subset. A passing
+# height walk is neither typed verification nor ownership/execution authority.
+pub struct Height { valid: bool, maximum: int }
+fn refused() -> Height { return Height { valid: false, maximum: 0 } }
+shadow refused { assert (not (refused).valid) assert (== (refused).maximum 0) }
+
+pub fn verify(code: array<u8>, start: int, length: int,
+              signatures: array<records.Signature>, current: int,
+              locals: int, maps: bool) -> Height {
+    if (or (< locals 0) (> locals 65535)) { return (refused) }
+    let plan: records.Plan = (records.decode code start length signatures current maps)
+    if (not plan.valid) { return (refused) }
+    let count: int = (array_length plan.rows)
+    let results: int = (at signatures current).results
+    let mut heights: array<int> = []
+    let mut indices: array<int> = []
+    let mut i: int = 0
+    while (<= i count) { set heights (array_push heights -1) set i (+ i 1) }
+    set i 0
+    while (<= i length) { set indices (array_push indices -1) set i (+ i 1) }
+    set i 0
+    while (< i count) {
+        (array_set indices (at plan.rows i).pc i)
+        set i (+ i 1)
+    }
+    (array_set indices length count)
+    (array_set heights 0 0)
+    let mut work: array<int> = [0]
+    let mut head: int = 0
+    let mut maximum: int = 0
+    while (< head (array_length work)) {
+        let index: int = (at work head)
+        set head (+ head 1)
+        # My shared C height helper accepts an empty body independently of
+        # its declared result. Structural verification owns that refusal.
+        if (!= index count) {
+            let row: records.Row = (at plan.rows index)
+            let before: int = (at heights index)
+            let mut pushes: int = row.pushes
+            if (== row.instruction.opcode 51) {
+                # The height helper includes callee results at a tail exit,
+                # while the copied execution recipe has no pushed result.
+                set pushes (at signatures row.callee).results
+            }
+            if (and (== row.instruction.opcode 61) (!= before results)) { return (refused) }
+            if (< before row.pops) { return (refused) }
+            let after: int = (+ (- before row.pops) pushes)
+            if (> before maximum) { set maximum before }
+            if (> after maximum) { set maximum after }
+            let mut successor: int = 0
+            while (< successor (array_length row.successors)) {
+                let offset: int = (at row.successors successor)
+                let target: int = (at indices offset)
+                if (< target 0) { return (refused) }
+                if (== target count) {
+                    if (!= after results) { return (refused) }
+                } else {
+                    let prior: int = (at heights target)
+                    if (< prior 0) {
+                        (array_set heights target after)
+                        set work (array_push work target)
+                    } else if (!= prior after) { return (refused) }
+                }
+                set successor (+ successor 1)
+            }
+        }
+    }
+    if (> (+ locals maximum) 65535) { return (refused) }
+    return Height { valid: true, maximum: maximum }
+}
+shadow verify {
+    let signatures: array<records.Signature> = [records.Signature { arity: 0, results: 1 }]
+    assert (verify [] 0 0 signatures 0 65535 false).valid
+    assert (not (verify [61] 0 1 signatures 0 0 false).valid)
+    let returned: Height = (verify [5,61] 0 2 signatures 0 0 false)
+    assert returned.valid
+    assert (== returned.maximum 1)
+    assert (not (verify [5,61] 0 2 signatures 0 65535 false).valid)
+    assert (not (verify [5,5,61] 0 3 signatures 0 0 false).valid)
+    assert (verify [5,61,8] 0 3 signatures 0 0 false).valid
+}
