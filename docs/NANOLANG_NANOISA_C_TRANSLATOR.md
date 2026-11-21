@@ -129,8 +129,8 @@ bytes, stop at undecodable input and recognize even a truncated File opcode at
 an instruction boundary. I do not silently treat that classifier as a verifier
 for the extended instruction plane.
 
-`decode_core` reports -1 for still-unimplemented ownership/service sections
-and array/map layout profiles. That result is distinct from zero and
+`decode_core` reports -1 for still-unimplemented service sections and private
+array/map profiles. Shared ownership conversion is implemented below. That result is distinct from zero and
 from C format errors. It is a development boundary, not a final translator
 refusal policy. I must implement those profiles before product cutover; this
 module does not change executable selection.
@@ -274,10 +274,10 @@ Core references, callback shapes and layout DAGs have already been checked.
 Ordinary import construction adds no result-count restriction beyond the
 existing wire contract; I preserve that distinction from function conversion.
 
-These conversion checks run only for a present passive payload. A core module
-without extension payloads retains its existing nonconversion decisions.
-Ownership/service sections and private array/map layouts still return pending
-until their complete profile checks are implemented. I do not silently accept
+These conversion checks run for a present passive or ownership payload. A core
+module without extension payloads retains its existing nonconversion decisions.
+Service sections and private array/map profiles still return pending until
+their complete profile checks are implemented. I do not silently accept
 them through the passive path or reinterpret successful deserialization as
 instruction/host execution authority.
 
@@ -399,13 +399,44 @@ retains its separate priority.
 
 I share File scanning through `instructions.has_file` and retain the module
 helper as a wrapper. Routing does not validate declarations, code flow or
-runtime authority. Shared ownership module conversion and complete private
-admission remain separate dependencies.
+runtime authority. I integrate shared ownership conversion below; complete
+private admission remains a separate dependency.
 
 My [paired routing evidence](evidence/nanolang-routing-20261121/README.md)
 matches5727 complete reports across five Linux/Darwin routes, with1315 explicit
 expectations and fourteen original producer products. The declaration, core
 module and instruction regressions pass; no routing result grants execution.
+
+## My shared ownership module conversion
+
+`module.decode_core` now carries section13 through whole-module decoding and
+requires its ownership feature bit exactly when nonempty bytes are present.
+I run the public MAP quarantine scan before table decoding. Selected private
+profiles remain pending; malformed selected MAP metadata is an error, never a
+fallback to shared validation.
+
+Core table decoding, references and features precede narrow-carrier conversion.
+I preserve byte-exact constant identity, parameter and first-result tags,
+function/debug/code bounds, canonical retained-layout reconstruction and
+per-kind counts. I then select ownership profiles and run shared declarations
+before passive claims. Tolerated layout table tails are removed by canonical
+re-encoding; an empty layout table is retained only when requested by the
+retained-layout feature. Invalid owner routing returns the conversion error
+before the shared validator's more specific statuses.
+
+My [paired whole-module evidence](evidence/nanolang-ownership-modules-20261121/README.md)
+matches completed decisions and exact ownership/passive bytes across five
+Linux/Darwin routes. I retain2531 synthetic inputs, twenty explicit status
+controls and fourteen original producer modules. Eight private inputs remain
+pending on every route: six synthetic inputs and two actual nested-map
+products. The269-case core module and2240-case passive-module regressions pass,
+including their original products, prior-output refusals, widths and File scans.
+
+This shared conversion path mirrors the C decoder's declaration boundary; it
+does not run ordinary instruction verification. An explicit unknown-opcode case
+therefore deserializes successfully on both sides without gaining execution
+authority. Service14, private flow admission, ordinary executable verification
+and my NanoLang C emitter remain required before cutover.
 
 ## My cutover gate
 
