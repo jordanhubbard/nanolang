@@ -381,6 +381,32 @@ models. Full C-provider instrumentation and original declaration/public
 ownership regressions pass. I retain the initial oracle/expectation failures;
 whole-module and product cutover gates remain open.
 
+## My private profile routing
+
+`src_nano/nvm2c/routes.nano` classifies public MAP routes, ordinary ARRAY
+candidates, resource ARRAY routes, mixed candidates and service/File priority.
+I keep the independent bounded layout and ownership scans: a malformed span
+cannot hide a MAP identity already established by the other span. Kind5 is
+recognized before its remaining header, revision, payload or padding can fail.
+
+Valid absence and DEFER remain distinct. DEFER requires the original full
+validators; it grants no fallback execution. Selected or invalid private routes
+cannot pass as shared ownership. ARRAY/mixed candidates retain their early
+returns, while owner ARRAY routing validates its complete layout scan and
+rejects combined version3 authority. Service imports, bindings and actual File
+instruction boundaries suppress those ARRAY/owner selectors; MAP classification
+retains its separate priority.
+
+I share File scanning through `instructions.has_file` and retain the module
+helper as a wrapper. Routing does not validate declarations, code flow or
+runtime authority. Shared ownership module conversion and complete private
+admission remain separate dependencies.
+
+My [paired routing evidence](evidence/nanolang-routing-20261121/README.md)
+matches5727 complete reports across five Linux/Darwin routes, with1315 explicit
+expectations and fourteen original producer products. The declaration, core
+module and instruction regressions pass; no routing result grants execution.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
