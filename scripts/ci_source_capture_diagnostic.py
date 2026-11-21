@@ -105,6 +105,25 @@ for number, (compiler, developer) in enumerate(compilers):
     nested_response.write_text('@'+str(work/'response-3.rsp')+'\n')
     run([compiler, '-E', '-P', '-x', 'c', response_source, '@'+str(nested_response)],
         f'{number}-response-grammar-nested')
+    if sys.platform.startswith('linux'):
+        # I preserve the original failing native .S flags separately from
+        # capture admission, then retain a diagnostic preprocessor action.
+        native_source = work/'payload.S'
+        native_source.write_text('#define INSTRUCTION nop\n.text\nINSTRUCTION\n.data\n'
+                                 '.globl snapshot_payload\nsnapshot_payload:\n.byte 42\n')
+        native_object = work/'payload-native.o'
+        native_command = [compiler, '-c', '-fPIC', '-g', native_source, '-o', native_object]
+        run(native_command, f'{number}-native-preprocessed-debug')
+        run([*native_command, '-###'], f'{number}-native-preprocessed-debug-report')
+        run([compiler, '-E', '-fPIC', '-g', native_source, '-o', work/'payload-preprocessed.s'],
+            f'{number}-native-preprocessor-action')
+        reader = shutil.which('readelf')
+        if reader and native_object.is_file():
+            backend_hashes[str(Path(reader).resolve())] = hashlib.sha256(Path(reader).read_bytes()).hexdigest()
+            (out/'backend-hashes.json').write_text(json.dumps(backend_hashes, indent=2)+'\n')
+            run([reader, '--version'], f'{number}-native-debug-reader')
+            run([reader, '--debug-dump=info', native_object], f'{number}-native-debug-info')
+            run([reader, '--debug-dump=decodedline', native_object], f'{number}-native-debug-lines')
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):
