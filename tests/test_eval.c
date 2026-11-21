@@ -1703,14 +1703,16 @@ void test_eval_effects_basic(void) {
     /* Test effect declaration (no-op in interpreter) and basic effect structure */
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
-        "effect Log {\n"
-        "  fn write(msg: string) -> string\n"
-        "}\n"
+        "effect Log { write : string -> string }\n"
         "fn noop() -> int { return 42 }\n"
+        "shadow noop { assert (== (noop) 42) }\n"
+        "fn main() -> int { return (noop) }\n"
+        "shadow main { assert (== (main) 42) }\n"
     );
     ASSERT(ok);
     Value result = call_function("noop", NULL, 0, ctx.env);
     ASSERT_EQ(result.as.int_val, 42);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
@@ -3589,6 +3591,7 @@ int main(void) {
     TEST(eval_global_binding_identity);
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
+    TEST(eval_effects_basic);
     TEST(eval_handler_return_async_calls);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
