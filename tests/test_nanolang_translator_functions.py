@@ -1,7 +1,9 @@
 """I compare complete function boundaries and resolved targets with the VM."""
 from pathlib import Path
+import hashlib
 import json
 import random
+import shutil
 import struct
 import tempfile
 import unittest
@@ -114,9 +116,15 @@ class NanoLangTranslatorFunctions(unittest.TestCase):
             # I retain complete reports before the ordinary temporary cleanup.
             receipt = ROOT / '.test_output/nanolang-functions-results.json'
             receipt.parent.mkdir(exist_ok=True)
+            products = Path(tempfile.mkdtemp(prefix='nanolang-functions-products-', dir=receipt.parent))
+            identities = {}
+            for path in sorted(work.iterdir()):
+                if path.is_file():
+                    shutil.copy2(path, products / path.name)
+                    identities[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
             receipt.write_text(json.dumps(dict(cases=[label for label, _, _ in cases],
                 explicit=sum(valid is not None for _, _, valid in cases), expected=expected,
-                routes=results), indent=2) + '\n')
+                routes=results, products=str(products), sha256=identities), indent=2) + '\n')
             print(f'I matched {len(cases)} complete function decodes across {len(routes)} routes; '
                   f'{sum(valid is not None for _, _, valid in cases)} have explicit validity expectations.')
 
