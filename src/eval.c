@@ -1,5 +1,8 @@
-#include "eval/call_dispatch.h"
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
+#endif
+
+#include "eval/call_dispatch.h"
 
 #include "nanolang.h"
 #include "string_literal_decode.h"
