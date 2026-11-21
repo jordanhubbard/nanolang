@@ -159,8 +159,9 @@ class BootstrapBoundaries(unittest.TestCase):
             bootstrap = Bootstrap(self.root, 30)
         self.assertEqual(bootstrap.shadow_timeout, 30)
         bootstrap.work = self.bootstrap.work
-        bootstrap.manifest = {**self.bootstrap.manifest, 'version': 1,
+        bootstrap.manifest = {**self.bootstrap.manifest, 'version': 2,
                               'root': str(self.root), 'work': str(bootstrap.work),
+                              'module_build_cache': None,
                               'shadow_timeout_seconds': 30, 'steps': []}
         bootstrap.run('deadline', [sys.executable, '-c',
                       'import os; print(os.environ["NANO_SHADOW_TIMEOUT_SECONDS"])'],
@@ -171,6 +172,64 @@ class BootstrapBoundaries(unittest.TestCase):
         changed = Bootstrap(self.root, 30, shadow_timeout=31)
         with self.assertRaisesRegex(RuntimeError, 'recorded bootstrap shadow deadline'):
             changed.load()
+
+    def record_cache_receipt(self, cache):
+        with patch.dict(os.environ, {}, clear=True):
+            bootstrap = Bootstrap(self.root, 30)
+        if cache is not None:
+            bootstrap.env['NANO_BUILD_CACHE'] = cache
+        for module in HOST_MODULES:
+            metadata = self.root / 'modules' / module / 'module.json'
+            metadata.parent.mkdir(parents=True, exist_ok=True)
+            metadata.write_text('{}')
+        with patch.object(bootstrap, 'run', side_effect=InterruptedError('seed boundary')):
+            with self.assertRaisesRegex(InterruptedError, 'seed boundary'):
+                bootstrap.stage1()
+        host = self.root / 'host-library'
+        bootstrap.manifest['hosts'] = {str(host): digest(host)}
+        bootstrap.publish_receipt()
+        return bootstrap
+
+    def test_module_cache_context_reaches_resumed_children(self):
+        for cache in (None, '', 'cache with spaces'):
+            with self.subTest(cache=cache):
+                self.record_cache_receipt(cache)
+                with patch.dict(os.environ, {}, clear=True):
+                    resumed = Bootstrap(self.root, 30)
+                resumed.load()
+                resumed.run('cache-context', [sys.executable, '-c',
+                    'import json,os; print(json.dumps(os.environ.get("NANO_BUILD_CACHE")))'],
+                    resumed.guarded_environment())
+                actual = Path(resumed.manifest['steps'][-1]['log']).read_text()
+                self.assertEqual(json.loads(actual), cache)
+
+    def test_explicit_module_cache_conflict_is_refused(self):
+        recorded = self.record_cache_receipt('original cache')
+        before = recorded.receipt.read_bytes()
+        with patch.dict(os.environ, {'NANO_BUILD_CACHE': 'different cache'}, clear=True):
+            resumed = Bootstrap(self.root, 30)
+        with self.assertRaisesRegex(RuntimeError, 'recorded module-cache context'):
+            resumed.load()
+        self.assertEqual(recorded.receipt.read_bytes(), before)
+
+    def test_old_or_invalid_cache_receipts_are_refused(self):
+        recorded = self.record_cache_receipt('original cache')
+        original = dict(recorded.manifest)
+        malformed = [dict(original, version=1)]
+        missing = dict(original)
+        del missing['module_build_cache']
+        malformed.append(missing)
+        malformed.extend(dict(original, module_build_cache=value)
+                         for value in (False, 42, ['cache'], 'cache\0suffix'))
+        for manifest in malformed:
+            with self.subTest(manifest=manifest):
+                recorded.receipt.write_text(json.dumps(manifest))
+                before = recorded.receipt.read_bytes()
+                with patch.dict(os.environ, {}, clear=True):
+                    resumed = Bootstrap(self.root, 30)
+                with self.assertRaisesRegex(RuntimeError, 'module-cache context'):
+                    resumed.load()
+                self.assertEqual(recorded.receipt.read_bytes(), before)
 
     def test_shadow_deadline_overrides_are_bounded(self):
         with patch.dict(os.environ, {'NANO_SHADOW_TIMEOUT_SECONDS': '17'}):

@@ -45,8 +45,9 @@ class BootstrapMessages(unittest.TestCase):
             artifacts = ['nanoc_seed.nvm', 'nanoc_stage1.nvm', 'nanoc_stage2.nvm',
                          'nanoc_stage1', 'nanoc_stage2']
             configuration = Bootstrap(root, 30)
-            receipt = {'version': 1, 'root': str(root.resolve()), 'work': str((root / 'work').resolve()),
+            receipt = {'version': 2, 'root': str(root.resolve()), 'work': str((root / 'work').resolve()),
                        'phase': 'stage2', 'sources': source_inputs(root), 'tools': configuration.tool_inputs(),
+                       'module_build_cache': os.environ.get('NANO_BUILD_CACHE', str(root / 'obj/module_cache')),
                        'shadow_timeout_seconds': configuration.shadow_timeout,
                        'hosts': {}, 'artifacts': {name: digest(root / 'bin' / name) for name in artifacts},
                        'steps': []}

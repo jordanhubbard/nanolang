@@ -108,6 +108,14 @@ invocations retain their existing defaults. My declared bootstrap host closure
 includes `file_product`; I still refuse generated NanoLang C during VM
 generations and pin the exact host-library bytes.
 
+My version-2 receipt also records the selected `NANO_BUILD_CACHE`, including
+an explicitly empty value. I restore that context when a resumed process environment
+omits it and refuse an explicitly different value. I require a fresh Stage 1
+for older receipts that do not record this context, or to change it. Make
+selects `obj/module_cache` by default; a standalone invocation retains its
+chosen cache context. Exact raw bytes and host-generation paths still have
+to match.
+
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
 remains a host program. Runtime C (`gc.c`, lists) is the same pattern:
