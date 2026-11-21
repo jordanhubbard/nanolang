@@ -119,6 +119,10 @@ static void for_each_child(VmHeap *heap, NanoValue v, ChildFn fn, void *ctx) {
 void vm_gc_note_suspect(VmHeap *heap, NanoValue v) {
     VmHeapHeader *h = header_of(v);
     if (!h || !can_hold_children(v.tag)) return;
+    /* I never buffer packed scalar arrays: they have no heap edges, even
+     * when aliased or mutated. Buffering them delays their final release and
+     * can trigger a trial walk of unrelated live candidates. */
+    if (v.tag == TAG_ARRAY && v.as.array->unboxed) return;
     if (h->colour == VM_GC_PURPLE && h->buffered) return;
     h->colour = VM_GC_PURPLE;
     if (h->buffered) return;

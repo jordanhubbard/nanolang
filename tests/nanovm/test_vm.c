@@ -2399,6 +2399,80 @@ static void test_closure(void) {
  * rather than forbidding the shape.
  */
 
+static void test_packed_array_aliases_release_immediately(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    bool immediate = true;
+    unsigned representations = 0;
+    for (unsigned tag = 0; tag < 256; tag++) {
+        if (!vm_array_type_unboxable((uint8_t)tag)) continue;
+        VmArray *array = vm_array_new(&heap, (uint8_t)tag, 8);
+        ASSERT(array && array->unboxed, "I create each packed scalar representation");
+        representations++;
+        NanoValue value = val_array(array);
+        vm_retain(&heap, value);
+        vm_release(&heap, value);
+        vm_release(&heap, value);
+        if (heap.stats.num_objects || heap.stats.allocated != heap.stats.freed)
+            immediate = false;
+        /* I clean up even when the baseline unnecessarily buffers the leaf. */
+        vm_gc_collect_cycles(&heap);
+    }
+    vm_heap_destroy(&heap);
+    ASSERT(representations >= 4, "I cover the integer, float, boolean and byte representations");
+    ASSERT(immediate, "I reclaim packed scalar storage when its final alias retires");
+}
+
+static void test_packed_alias_churn_does_not_scan_live_graphs(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    const unsigned leaves = 8192;
+    VmArray *graph = vm_array_new(&heap, TAG_ARRAY, leaves);
+    ASSERT(graph, "I allocate my live graph root");
+    NanoValue root = val_array(graph);
+    for (unsigned i = 0; i < leaves; i++) {
+        VmArray *leaf = vm_array_new(&heap, TAG_INT, 8);
+        ASSERT(leaf, "I allocate a packed leaf");
+        ASSERT(vm_array_push(&heap, leaf, val_int(i)), "I store the leaf identity");
+        NanoValue value = val_array(leaf);
+        ASSERT(vm_array_push(&heap, graph, value), "I retain each leaf from my graph");
+        vm_release(&heap, value);
+    }
+    vm_gc_collect_cycles(&heap);
+    VmArray *cycle = vm_array_new(&heap, TAG_ARRAY, 8);
+    ASSERT(cycle, "I allocate an independent cycle witness");
+    NanoValue witness = val_array(cycle);
+    ASSERT(vm_array_push(&heap, cycle, witness), "I close my cycle witness");
+    vm_release(&heap, witness);
+    uint64_t before = heap.cycles_collected;
+    for (unsigned round = 0; round < 4; round++) {
+        vm_retain(&heap, root);
+        vm_release(&heap, root);
+        for (unsigned i = 0; i < leaves; i++) {
+            NanoValue value = vm_array_get(graph, i);
+            vm_retain(&heap, value);
+            vm_release(&heap, value);
+        }
+    }
+    uint64_t automatic = heap.cycles_collected - before;
+    uint64_t explicit_freed = vm_gc_collect_cycles(&heap);
+    bool live = graph->header.ref_count == 1 && graph->length == leaves;
+    for (unsigned i = 0; i < leaves; i++) {
+        NanoValue value = vm_array_get(graph, i);
+        if (value.tag != TAG_ARRAY || !value.as.array ||
+                value.as.array->header.ref_count != 1 ||
+                vm_array_get(value.as.array, 0).as.i64 != (int64_t)i) live = false;
+    }
+    vm_release(&heap, root);
+    vm_gc_collect_cycles(&heap);
+    size_t remaining = heap.stats.num_objects;
+    vm_heap_destroy(&heap);
+    ASSERT_EQ_INT(automatic, 0, "I do not trigger graph collection for packed-leaf alias churn");
+    ASSERT_EQ_INT(explicit_freed, 1, "I still reclaim the boxed cycle when explicitly asked");
+    ASSERT(live, "I preserve every live leaf and its exact reference count");
+    ASSERT_EQ_INT(remaining, 0, "I retire the live graph after its final owner");
+}
+
 static void test_self_referential_array_is_collected(void) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -6019,6 +6093,8 @@ int main(void) {
 
     printf("\n[Closures]\n");
     RUN_TEST(test_closure);
+    RUN_TEST(test_packed_array_aliases_release_immediately);
+    RUN_TEST(test_packed_alias_churn_does_not_scan_live_graphs);
     RUN_TEST(test_self_referential_array_is_collected);
     RUN_TEST(test_two_object_cycle_is_collected);
     RUN_TEST(test_reachable_cycle_is_not_collected);
