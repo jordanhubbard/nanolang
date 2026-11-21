@@ -64,6 +64,16 @@ def main():
             raise RuntimeError('I refuse an unexpected refusal-control fixture.')
         test.write_text(text.replace(old, new))
         if clang_only:
+            clang = shutil.which('clang')
+            if not clang:
+                raise RuntimeError('I require the actual selected Ubuntu Clang 21.1.8 driver.')
+            command([clang, '--version'], 'selected-clang-version', 30)
+            version = (OUT / 'selected-clang-version.stdout').read_text()
+            if not version.startswith('Ubuntu clang version 21.1.8 (6ubuntu1)\n'):
+                raise RuntimeError('I refuse an unqualified selected Clang identity.')
+            record['selected_clang'] = {'path': str(Path(clang).resolve()),
+                'sha256': hashlib.sha256(Path(clang).read_bytes()).hexdigest(),
+                'version': version}
             text = source.read_text()
             old = '? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;'
             new = ('? "Ubuntu clang version 18.1.3 (1ubuntu1)" : '
@@ -131,6 +141,9 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
             runner = runner.replace('discovered==128 and result.testsRun==128',
                                     'discovered==8 and result.testsRun==8')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
+        report = json.loads((OUT / 'tests.json').read_text())
+        if (clang_only or native_debug_only) and report['skipped']:
+            raise RuntimeError('I require every selected native diagnostic to execute.')
         if clang_only:
             record['clang_2118_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
