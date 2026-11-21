@@ -637,3 +637,21 @@ name-mutation correction, default-shadow deadline refusal, successful traced
 169-shadow observation and excluded stale-artifact diagnostic. A later success
 does not identify the historical timeout's cause or establish reliable source
 creation. Product selection, the pure C emitter and installed stages remain open.
+
+## My function decode boundary
+
+`functions.nano` decodes every primary instruction in a bounded function span,
+including unreachable bytes. I retain relative starts/next offsets, exact
+primary operands, terminal and instruction boundaries, one-based instruction
+indices and resolved targets. Branch targets are relative to the opcode byte;
+resolved branch addresses include the function's code offset. Direct and tail
+calls resolve to function indices. I refuse malformed or truncated instructions,
+interior/out-of-range branches and calls outside the declared function count.
+
+My terminal boundary is valid for ordinary branch decoding, but it names no
+instruction. A File-result branch requires both its target and fallthrough to
+name bytes before that terminal boundary. Handler decoding preserves its
+ordinary terminal-boundary behavior; executable handler-arm validation belongs
+to the verifier. I clear every partial view on refusal. This immutable decode
+boundary grants no stack, type, lifetime, effect or host authority. Full paired
+producer/platform qualification remains pending.

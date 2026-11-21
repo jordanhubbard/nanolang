@@ -1,0 +1,68 @@
+module "src_nano/nvm2c/functions.nano" as functions
+module "src_nano/nvm2c/instructions.nano" as primary
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn hexadecimal(bytes: array<u8>) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        let octet: int = (cast_int (at bytes i))
+        set result (+ result (str_substring digits (/ octet 16) 1))
+        set result (+ result (str_substring digits (% octet 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow hexadecimal { assert (== (hexadecimal [0,128,255]) "0080ff") }
+
+fn describe(bytes: array<u8>) -> string {
+    if (< (array_length bytes) 24) { return "0" }
+    let f: functions.Function = (functions.decode (array_slice bytes 24 (- (array_length bytes) 24))
+        (wire.read_offset bytes 0) (wire.read_offset bytes 8) (wire.read_offset bytes 16))
+    if (not f.valid) { return "0" }
+    let mut result: string = (+ (+ "1:" (int_to_string f.size)) (+ ":" (int_to_string (array_length f.starts))))
+    let mut i: int = 0
+    while (< i (array_length f.starts)) {
+        let item: primary.Instruction = (at f.instructions i)
+        set result (+ result (+ ":" (int_to_string (at f.starts i))))
+        set result (+ result (+ ":" (int_to_string (at f.next i))))
+        set result (+ result (+ ":" (int_to_string (at f.targets i))))
+        set result (+ result (+ ":" (int_to_string item.pops)))
+        set result (+ result (+ ":" (int_to_string item.pushes)))
+        set result (+ result (+ ":" (hexadecimal (primary.reencode item))))
+        set i (+ i 1)
+    }
+    set result (+ result ":")
+    set i 0
+    while (< i (array_length f.boundaries)) {
+        set result (+ result (cond ((at f.boundaries i) "1") (else "0")))
+        set i (+ i 1)
+    }
+    set result (+ result ":")
+    set i 0
+    while (< i (array_length f.indices)) {
+        if (> i 0) { set result (+ result ",") }
+        set result (+ result (int_to_string (at f.indices i)))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow describe {
+    assert (== (describe []) "0")
+    let empty: array<u8> = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+    assert (== (describe empty) "1:0:0:1:0")
+}
+
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            (println (describe (file_read_bytes (get_argv i))))
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
