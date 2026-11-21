@@ -24,10 +24,11 @@ def command(argv, label, timeout):
 
 
 def main():
-    if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only']):
+    if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'], ['--response-only']):
         raise ValueError('I require an explicit supported diagnostic mode.')
     native_debug_only = sys.argv[1:] == ['--native-debug-only']
     clang_only = sys.argv[1:] == ['--clang-2118-only']
+    response_only = sys.argv[1:] == ['--response-only']
     OUT.mkdir(parents=True, exist_ok=False)
     previous = json.loads((capture.OUT / 'observation.json').read_text())
     if not previous['assembler_version'].splitlines()[0].endswith(') 2.46'):
@@ -37,6 +38,7 @@ def main():
     original = {path: path.read_bytes() for path in (source, test)}
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
               'native_debug_only': native_debug_only, 'clang_2118_only': clang_only,
+              'response_only': response_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
                          'Original unittest temporary products retain their original cleanup.']}
@@ -140,10 +142,30 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                                     'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
             runner = runner.replace('discovered==128 and result.testsRun==128',
                                     'discovered==8 and result.testsRun==8')
+        if response_only:
+            methods = ['test_response_file_restored_arguments',
+                       'test_link_driver_response_arguments_are_retained',
+                       'test_large_response_arguments_are_retained',
+                       'test_response_words_match_the_real_compiler',
+                       'test_response_transport_outlives_build_info_and_rejects_changed_sidecars',
+                       'test_response_rebuild_errors_and_recovery',
+                       'test_response_unsupported_fragments_keep_the_original_path',
+                       'test_response_driver_mode_declines_the_whole_argument_capture']
+            selection = ['tests.test_source_snapshots.SourceSnapshots.' + name for name in methods]
+            selection.append('tests.test_response_driver_grammar.ResponseDriverGrammar.'
+                             'test_response_quoted_backslashes_follow_selected_driver')
+            runner = runner.replace("unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')",
+                                    'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
+            runner = runner.replace('discovered==128 and result.testsRun==128',
+                                    'discovered==9 and result.testsRun==9')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
         report = json.loads((OUT / 'tests.json').read_text())
-        if (clang_only or native_debug_only) and report['skipped']:
+        if (clang_only or native_debug_only or response_only) and report['skipped']:
             raise RuntimeError('I require every selected native diagnostic to execute.')
+        if response_only:
+            record['response_grammar_observation_passed'] = True
+            record['private_candidate_qualification_passed'] = False
+            return
         if clang_only:
             comparisons = []
             for layout in ('source', 'cache', 'all'):

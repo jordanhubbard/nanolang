@@ -624,7 +624,8 @@ int main(int argc, char **argv) {
         return ok ? 0 : 1;
     }
     if (argc == 3 && !strcmp(argv[1], "capture-response")) {
-        char *captured = module_capture_response_fragment(argv[2]);
+        ModuleBuildMetadata response_meta = {0};
+        char *captured = module_capture_response_fragment(argv[2], &response_meta);
         if (!captured) return 1;
         puts(captured);
         free(captured);

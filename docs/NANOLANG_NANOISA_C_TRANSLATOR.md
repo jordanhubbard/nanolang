@@ -653,5 +653,4 @@ instruction. A File-result branch requires both its target and fallthrough to
 name bytes before that terminal boundary. Handler decoding preserves its
 ordinary terminal-boundary behavior; executable handler-arm validation belongs
 to the verifier. I clear every partial view on refusal. This immutable decode
-boundary grants no stack, type, lifetime, effect or host authority. Full paired
-producer/platform qualification remains pending.
+boundary grants no stack, type, lifetime, effect or host authority. My Linux test matches1325 complete reports through five routes, with1197 explicit validity expectations, using the actual native Stage1 source compiler. I retain generated products and complete reports for the final receipt. Full paired producer/platform qualification remains pending.

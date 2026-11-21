@@ -18,6 +18,10 @@ on:
         description: I qualify a private Ubuntu Clang 21.1.8 report candidate through original capture controls.
         type: boolean
         default: false
+      qualify_response_grammar:
+        description: I qualify actual selected-driver response grammar with original transport controls.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -46,13 +50,17 @@ jobs:
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py
       - name: Diagnose native debug provenance in an isolated candidate
-        if: inputs.diagnose_native_debug && !inputs.qualify_as_246 && !inputs.qualify_clang_2118
+        if: inputs.diagnose_native_debug && !inputs.qualify_as_246 && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py --native-debug-only
       - name: Qualify the isolated Ubuntu Clang 21.1.8 report candidate
-        if: inputs.qualify_clang_2118 && !inputs.qualify_as_246
+        if: inputs.qualify_clang_2118 && !inputs.qualify_as_246 && !inputs.qualify_response_grammar
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py --clang-2118-only
+      - name: Qualify selected-driver response grammar in an isolated assembler candidate
+        if: inputs.qualify_response_grammar && !inputs.qualify_as_246
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py --response-only
       - name: Upload Linux capture evidence
         if: always()
         uses: actions/upload-artifact@v4

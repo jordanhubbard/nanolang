@@ -39,7 +39,8 @@
 
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
-static char *module_capture_response_fragment(const char *fragment);
+static char *module_capture_response_fragment(const char *fragment, const ModuleBuildMetadata *meta);
+static unsigned module_response_grammar(const ModuleBuildMetadata *meta);
 static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
 static void module_response_metadata_free(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
 static bool module_response_driver(const ModuleBuildMetadata *meta);
@@ -1697,7 +1698,7 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         char **source = group ? flags->libs : flags->cflags;
         for (size_t i = 0; i < flags->count && success; i++) {
             if (!source[i]) continue;
-            expanded[group][i] = module_capture_response_fragment(source[i]);
+            expanded[group][i] = module_capture_response_fragment(source[i], meta);
             if (!expanded[group][i]) success = false;
             else if (module_response_pending(expanded[group][i])) complete = false;
         }
@@ -2534,9 +2535,10 @@ static int module_flag_word(const char **cursor, char *word, size_t capacity) {
     return started ? 1 : 0;
 }
 
-/* GNU response words are not shell words: dollar signs and operators are
- * literal, and a backslash quotes the next byte even inside single quotes. */
-static int module_response_word(const char **cursor, char *word, size_t capacity) {
+/* I keep response words separate from shell words. Quoted backslashes use
+ * the actual selected driver grammar; an unmeasured grammar stays pending. */
+static int module_response_word(const char **cursor, char *word, size_t capacity,
+                                const ModuleBuildMetadata *meta, unsigned *grammar) {
     const unsigned char *p = (const unsigned char *)*cursor;
     while (*p && strchr(" \t\r\n\v\f", *p)) p++;
     if (!*p) { *cursor = (const char *)p; return 0; }
@@ -2546,7 +2548,14 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
         unsigned char c = *p++;
         if (c == '\\') {
             if (!*p) { errno = EINVAL; return -1; }
-            c = *p++;
+            if (quote && !*grammar) {
+                *grammar = module_response_grammar(meta);
+                if (!*grammar) { errno = EINVAL; return -1; }
+            }
+            /* My measured quoted-literal grammar preserves every backslash
+             * inside single quotes. Double quotes escape only quote/slash. */
+            if (!(*grammar == 2 && (quote == '\'' ||
+                    (quote == '"' && *p != '\\' && *p != '"')))) c = *p++;
         } else if (quote) {
             if (c == quote) { quote = 0; continue; }
         } else if (c == '\'' || c == '"') { quote = c; continue; }
@@ -2561,7 +2570,8 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
 }
 
 static bool module_expand_response_word(const char *word, char *output, size_t capacity,
-                                       unsigned depth, size_t *bytes) {
+                                       unsigned depth, size_t *bytes,
+                                       const ModuleBuildMetadata *meta, unsigned *grammar) {
     if (word[0] != '@') {
         if (!module_append_path_flag(output, capacity, "", word)) { errno = E2BIG; return false; }
         return true;
@@ -2599,8 +2609,8 @@ static bool module_expand_response_word(const char *word, char *output, size_t c
         const char *cursor = data;
         char argument[4096];
         int status = 0;
-        while (ok && (status = module_response_word(&cursor, argument, sizeof(argument))) > 0)
-            ok = module_expand_response_word(argument, output, capacity, depth + 1, bytes);
+        while (ok && (status = module_response_word(&cursor, argument, sizeof(argument), meta, grammar)) > 0)
+            ok = module_expand_response_word(argument, output, capacity, depth + 1, bytes, meta, grammar);
         if (status < 0) ok = false;
     }
     int failure = errno;
@@ -2609,7 +2619,7 @@ static bool module_expand_response_word(const char *word, char *output, size_t c
     return ok;
 }
 
-static char *module_capture_response_fragment(const char *fragment) {
+static char *module_capture_response_fragment(const char *fragment, const ModuleBuildMetadata *meta) {
     if (!fragment) return NULL;
     if (!strchr(fragment, '@') || strstr(fragment, "--driver-mode")) return strdup(fragment);
     const char *cursor = fragment;
@@ -2622,8 +2632,9 @@ static char *module_capture_response_fragment(const char *fragment) {
     if (!output) return NULL;
     cursor = fragment;
     size_t bytes = 0;
+    unsigned grammar = 0;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!module_expand_response_word(word, output, 65536, 0, &bytes)) {
+        if (!module_expand_response_word(word, output, 65536, 0, &bytes, meta, &grammar)) {
             int failure = errno;
             free(output);
             /* Large command fragments and noncanonical response quoting keep
@@ -2940,7 +2951,7 @@ static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuil
         *slot = count ? calloc(count, sizeof(char *)) : NULL;
         if (count && !*slot) goto failed;
         for (size_t i = 0; i < count; i++)
-            if (!((*slot)[i] = module_capture_response_fragment(flags[i]))) goto failed;
+            if (!((*slot)[i] = module_capture_response_fragment(flags[i], meta))) goto failed;
     }
     if (module_response_metadata_pending(copy)) {
         module_response_metadata_free(meta, copy);
@@ -3440,6 +3451,59 @@ static bool module_process_output(char **args, char *output, size_t capacity, in
 
 static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
     return module_process_output(args, output, capacity, deadline, false, true);
+}
+
+
+/* I observe four literal macro arguments through the actual selected driver.
+ * This is a bounded preprocessing request, never a version-major inference or
+ * execution of compiler output. Unknown output leaves the original response
+ * pending. I perform it only when quoted backslashes require disambiguation. */
+static unsigned module_response_grammar(const ModuleBuildMetadata *meta) {
+    char *driver = module_compiler_path(module_selected_compiler(meta));
+    if (!driver) return 0;
+    int64_t deadline;
+    if (!module_capture_deadline(&deadline)) { free(driver); return 0; }
+    const char *temporary = getenv("TMPDIR");
+    if (!temporary || !*temporary) temporary = "/tmp";
+    char directory[2048] = {0}, response[2048] = {0}, source[2048] = {0}, argument[2050] = {0};
+    bool made = module_build_append(directory, sizeof(directory), "%s/nano-response-check-XXXXXX", temporary)
+        && mkdtemp(directory);
+    bool ok = made && module_build_append(response, sizeof(response), "%s/flags.rsp", directory)
+        && module_build_append(source, sizeof(source), "%s/input.c", directory)
+        && module_build_append(argument, sizeof(argument), "@%s", response);
+    if (ok) {
+        FILE *file = fopen(response, "wx");
+        ok = file != NULL;
+        if (file) {
+            ok = fputs("'-DNANO_RSP_A=a\\b' '-DNANO_RSP_B=a\\\\b' "
+                       "\"-DNANO_RSP_C=a\\qb\" \"-DNANO_RSP_D=a\\\\b\"\n", file) >= 0;
+            if (fclose(file)) ok = false;
+        }
+    }
+    if (ok) {
+        FILE *file = fopen(source, "wx");
+        ok = file != NULL;
+        if (file) {
+            ok = fputs("NANO_RSP_A\nNANO_RSP_B\nNANO_RSP_C\nNANO_RSP_D\n", file) >= 0;
+            if (fclose(file)) ok = false;
+        }
+    }
+    char output[256] = {0};
+    char *args[] = {driver, "-E", "-P", "-x", "c", argument, source, NULL};
+    if (ok) ok = module_link_query_output(args, output, sizeof(output), deadline);
+    unsigned grammar = 0;
+    if (ok) {
+        size_t first = strspn(output, " \t\r\n"), size = strlen(output);
+        while (size > first && strchr(" \t\r\n", output[size - 1])) size--;
+        output[size] = 0;
+        if (!strcmp(output + first, "ab\na\\b\naqb\na\\b")) grammar = 1;
+        else if (!strcmp(output + first, "a\\b\na\\\\b\na\\qb\na\\b")) grammar = 2;
+    }
+    if (response[0]) unlink(response);
+    if (source[0]) unlink(source);
+    if (made) rmdir(directory);
+    free(driver);
+    return grammar;
 }
 
 static ModuleLinkResponseGrammar module_link_response_grammar_command(const char *command) {
