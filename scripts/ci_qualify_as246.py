@@ -24,9 +24,10 @@ def command(argv, label, timeout):
 
 
 def main():
-    if sys.argv[1:] not in ([], ['--native-debug-only']):
+    if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only']):
         raise ValueError('I require an explicit supported diagnostic mode.')
-    native_debug_only = bool(sys.argv[1:])
+    native_debug_only = sys.argv[1:] == ['--native-debug-only']
+    clang_only = sys.argv[1:] == ['--clang-2118-only']
     OUT.mkdir(parents=True, exist_ok=False)
     previous = json.loads((capture.OUT / 'observation.json').read_text())
     if not previous['assembler_version'].splitlines()[0].endswith(') 2.46'):
@@ -35,7 +36,7 @@ def main():
     test = ROOT / 'tests/test_source_snapshots.py'
     original = {path: path.read_bytes() for path in (source, test)}
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
-              'native_debug_only': native_debug_only,
+              'native_debug_only': native_debug_only, 'clang_2118_only': clang_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
                          'Original unittest temporary products retain their original cleanup.']}
@@ -62,6 +63,31 @@ def main():
         if text.count(old) != 1:
             raise RuntimeError('I refuse an unexpected refusal-control fixture.')
         test.write_text(text.replace(old, new))
+        if clang_only:
+            text = source.read_text()
+            old = '? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;'
+            new = ('? "Ubuntu clang version 18.1.3 (1ubuntu1)" : '
+                   '!strncmp(report, "Ubuntu clang version 21.1.8 (6ubuntu1)\\n", 39)\n'
+                   '        ? "Ubuntu clang version 21.1.8 (6ubuntu1)" : NULL;')
+            if text.count(old) != 1:
+                raise RuntimeError('I refuse an unexpected Clang report table.')
+            source.write_text(text.replace(old, new))
+            text = test.read_text()
+            old = '        accepted_reports.extend((apple15 + command, ubuntu18 + command))'
+            new = ('        ubuntu21 = debian.replace("Debian clang version 14.0.6", '
+                   '"Ubuntu clang version 21.1.8 (6ubuntu1)")\n'
+                   '        accepted_reports.extend((apple15 + command, ubuntu18 + command, ubuntu21 + command))')
+            if text.count(old) != 1:
+                raise RuntimeError('I refuse an unexpected Clang report control.')
+            text = text.replace(old, new)
+            old = '        reports = accepted_reports + [apple15.replace'
+            new = ('        reports = accepted_reports + [ubuntu21.replace("21.1.8", "21.1.80") + command,\n'
+                   '                   ubuntu21.replace("(6ubuntu1)", "(6ubuntu2)") + command,\n'
+                   '                   ubuntu21 + command + command,\n'
+                   '                   apple15.replace')
+            if text.count(old) != 1:
+                raise RuntimeError('I refuse an unexpected Clang refusal control.')
+            test.write_text(text.replace(old, new))
         patch = subprocess.check_output(['git', 'diff', '--', str(source), str(test)], cwd=ROOT)
         (OUT / 'candidate.patch').write_bytes(patch)
         record['candidate_patch_sha256'] = hashlib.sha256(patch).hexdigest()
@@ -90,7 +116,25 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                                     'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
             runner = runner.replace('discovered==128 and result.testsRun==128',
                                     'discovered==4 and result.testsRun==4')
+        if clang_only:
+            methods = ['test_selected_clang_assembler_report_boundaries',
+                       'test_integrated_native_unit_post_capture_reads',
+                       'test_integrated_native_unit_failure_recovery',
+                       'test_integrated_native_unit_debug_identity',
+                       'test_integrated_units_preserve_c_assembler_search',
+                       'test_integrated_instruction_and_location_provenance',
+                       'test_equals_path_post_capture_reads',
+                       'test_selected_tool_fifo_failure_recovery']
+            selection = ['tests.test_source_snapshots.SourceSnapshots.' + name for name in methods]
+            runner = runner.replace("unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')",
+                                    'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
+            runner = runner.replace('discovered==128 and result.testsRun==128',
+                                    'discovered==8 and result.testsRun==8')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
+        if clang_only:
+            record['clang_2118_observation_passed'] = True
+            record['private_candidate_qualification_passed'] = False
+            return
         if native_debug_only:
             record['native_debug_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
