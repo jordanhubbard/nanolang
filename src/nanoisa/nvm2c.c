@@ -148,6 +148,19 @@ static int record_field_converts(uint8_t destination, uint8_t source) {
 }
 
 
+/* A record join owns tagged destination storage. Scalar producers convert
+ * into that storage; their exact shapes remain independent and checked. */
+static int merge_record_join_field(uint8_t *current, uint8_t incoming) {
+    if (*current == NVM2C_VK_UNK) { *current = incoming; return 1; }
+    if (incoming == NVM2C_VK_UNK || incoming == *current) return 1;
+    if (variant_field(*current) && variant_field(incoming)) { *current |= incoming; return 1; }
+    if ((*current == NVM2C_VK_VALUE && variant_scalar_kind(incoming)) ||
+        (incoming == NVM2C_VK_VALUE && variant_scalar_kind(*current))) {
+        *current = NVM2C_VK_VALUE; return 1;
+    }
+    return 0;
+}
+
 static int boolean_result(uint8_t opcode) {
     switch (opcode) {
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
@@ -1370,9 +1383,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             if (!fields) return 0;
             for (size_t f = 0; f < b->record_width; ++f) {
                 uint8_t incoming = stack[i].rec_k[f];
-                if (fields[f] == NVM2C_VK_UNK) fields[f] = incoming;
-                else if (variant_field(fields[f]) && variant_field(incoming)) fields[f] |= incoming;
-                else if (incoming != NVM2C_VK_UNK && incoming != fields[f]) {
+                if (!merge_record_join_field(&fields[f], incoming)) {
                     nvm2c_fail(b, "I found incompatible aggregate fields at a join in function %u", idx);
                     return 0;
                 }
@@ -1413,6 +1424,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             for (size_t field = 0; field < b->record_width; field++) {
                 uint8_t incoming = stack[i].rec_k[field];
                 uint8_t *current = &join->slots[i].rec_k[field];
+                if (stack[i].kind == NVM2C_VK_REC && merge_record_join_field(current, incoming)) continue;
                 if (*current == NVM2C_VK_UNK) *current = incoming;
                 else if (variant_field(*current) && variant_field(incoming)) *current |= incoming;
                 else if (incoming != NVM2C_VK_UNK && incoming != *current) {

@@ -6503,15 +6503,18 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             (Diagnostics.diag_list_add diags diag)
         } else { (print "") }
 
-        /* Infer type from the then-branch block's last expression */
-        let then_block: ASTBlock = (parser_get_block parser if_node.then_body)
-        let then_stmts_len: int = (list_ASTStmtRef_length then_block.statements)
-        if (> then_stmts_len 0) {
-            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get then_block.statements (- then_stmts_len 1))
-            return (check_expr_node parser last_stmt.node_id last_stmt.node_type symbols diags file_name)
-        } else {
-            return (type_int)
+        let context: NSType = (type_from_string_with_parser parser tc_enclosing_return)
+        let left: CheckedBlock = (check_block_value parser if_node.then_body symbols context diags file_name "if value")
+        if (< if_node.else_body 0) { return left.value_type }
+        let right: CheckedBlock = (check_block_value parser if_node.else_body symbols context diags file_name "if value")
+        if (parser_always_returns parser if_node.then_body ParseNodeType.PNODE_BLOCK) { return right.value_type }
+        if (parser_always_returns parser if_node.else_body ParseNodeType.PNODE_BLOCK) { return left.value_type }
+        if (not (types_equal left.value_type right.value_type)) {
+            let msg: string = (+ "I require matching if branch values: " (+ (type_to_string left.value_type) (+ " and " (type_to_string right.value_type))))
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" msg (Diagnostics.diag_location file_name if_node.line if_node.column)))
         }
+        if (== left.value_type.kind TypeKind.TYPE_UNKNOWN) { return right.value_type }
+        return left.value_type
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         /* Block expression: infer type from last statement */
@@ -7062,6 +7065,12 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
 }
 
 shadow check_return_statement {
+    let mixed: Parser = (resource_test_parser "struct Left{n:int} struct Right{n:int} fn choose(flag:bool)->Left{return (if flag {Left{n:1}} else {Right{n:2}})}")
+    assert (not mixed.has_error)
+    assert (typecheck_phase mixed "mixed-return.nano").had_error
+    let same: Parser = (resource_test_parser "struct Left{n:int} fn choose(flag:bool)->Left{return (if flag {Left{n:1}} else {Left{n:2}})}")
+    assert (not same.has_error)
+    assert (not (typecheck_phase same "same-return.nano").had_error)
     let anonymous: Parser = (resource_test_parser "struct Point{x:int} fn make()->Point{return {x:7}}")
     assert (not anonymous.has_error)
     assert (not (typecheck_phase anonymous "anonymous.nano").had_error)

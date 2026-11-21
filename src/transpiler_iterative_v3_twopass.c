@@ -2876,14 +2876,30 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_IF: {
-            /* Ternary operator */
-            emit_literal(list, "(");
+            Type result = check_expression(expr, env);
+            const char *name = get_struct_type_name(expr, env);
+            const char *out_type = effect_c_type(result, name, env);
+            emit_literal(list, "({ ");
+            if (result != TYPE_VOID) emit_formatted(list, "%s _out; ", out_type);
+            emit_literal(list, "if (");
             build_expr(list, expr->as.if_stmt.condition, env);
-            emit_literal(list, " ? ");
-            build_expr(list, expr->as.if_stmt.then_branch, env);
-            emit_literal(list, " : ");
-            build_expr(list, expr->as.if_stmt.else_branch, env);
-            emit_literal(list, ")");
+            emit_literal(list, ") { ");
+            if (result == TYPE_VOID) {
+                ScopeStack *scopes = scope_stack_create();
+                scope_stack_push(scopes, list);
+                build_stmt(list, scopes, expr->as.if_stmt.then_branch, 0, env, list->fn_registry);
+                scope_stack_pop(scopes, list); scope_stack_free(scopes);
+            } else build_match_arm_value(list, expr->as.if_stmt.then_branch, env);
+            emit_literal(list, "} else { ");
+            if (expr->as.if_stmt.else_branch) {
+                if (result == TYPE_VOID) {
+                    ScopeStack *scopes = scope_stack_create();
+                    scope_stack_push(scopes, list);
+                    build_stmt(list, scopes, expr->as.if_stmt.else_branch, 0, env, list->fn_registry);
+                    scope_stack_pop(scopes, list); scope_stack_free(scopes);
+                } else build_match_arm_value(list, expr->as.if_stmt.else_branch, env);
+            }
+            emit_literal(list, result == TYPE_VOID ? "} (void)0; })" : "} _out; })");
             break;
         }
 

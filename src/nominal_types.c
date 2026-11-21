@@ -334,7 +334,10 @@ static bool bind_nominal_records_owned(ASTNode *program, Environment *env) {
             bool resembles_formal = source_name[0] >= 'A' && source_name[0] <= 'Z' &&
                 source_name[1] == '\0' && !item->as.struct_def.is_extern;
             StructDef *existing = env_get_struct(env, source_name);
-            if (!existing && !resembles_formal) continue;
+            /* I assign module records an owned identity before an importer can
+             * normalize a qualified constructor to their short source name. */
+            if (!existing && item->as.struct_def.is_extern) continue;
+            if (!existing && !resembles_formal && !owner) continue;
             bool same_owner = existing && ((!owner && !existing->module_name) ||
                 (owner && existing->module_name && strcmp(owner, existing->module_name) == 0));
             if (same_owner) continue;

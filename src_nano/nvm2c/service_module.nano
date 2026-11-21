@@ -98,6 +98,14 @@ shadow nominal_status {
     assert (== (nominal_status [2,0] [] model [] 0 0) 8)
 }
 
+pub fn legacy_entry(model: owned.Module, entry: nominal.Import, ordinal: int) -> bool {
+    return (and (== entry.kind 3) (and (name_matches model entry.module_name (catalog.text 1 0 0 0 0)) (and (name_matches model entry.symbol (catalog.text 1 2 ordinal 0 0)) (legacy_signature entry ordinal))))
+}
+shadow legacy_entry {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (legacy_entry model nominal.Import { module_name: 0, symbol: 0, kind: 3, arity: 0, result: 10, params: [] } 0))
+}
+
 pub fn validate(bytes: array<u8>, ownership: array<u8>, model: owned.Module, imports: array<nominal.Import>, refs: int, callbacks: int) -> int {
     let nominal_claim: bool = (nominal_version bytes)
     if (and (file_instructions model) (not nominal_claim)) { return 8 }
@@ -112,7 +120,7 @@ pub fn validate(bytes: array<u8>, ownership: array<u8>, model: owned.Module, imp
         let index: int = (at instance.imports i)
         if (>= index (array_length imports)) { return 13 }
         let entry: nominal.Import = (at imports index)
-        if (or (!= entry.kind 3) (or (not (name_matches model entry.module_name (catalog.text 1 0 0 0 0))) (or (not (name_matches model entry.symbol (catalog.text 1 2 i 0 0))) (not (legacy_signature entry i))))) { return 8 }
+        if (not (legacy_entry model entry i)) { return 8 }
         set i (+ i 1)
     }
     return 0

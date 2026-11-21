@@ -1,0 +1,107 @@
+module "src_nano/nvm2c/service_v2.nano" as rich
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn tags(c: read.Cursor, count: int) -> array<int> {
+    let start: int = (read.skip c count)
+    let mut values: array<int> = []
+    if (!= (read.status c) 0) { return values }
+    let mut i: int = 0
+    while (< i count) { set values (array_push values (cast_int (at c.data (+ start i)))) set i (+ i 1) }
+    return values
+}
+shadow tags { assert (== (at (tags (read.open [255]) 1) 0) 255) }
+fn blob(c: read.Cursor, count: int) -> array<u8> {
+    let start: int = (read.skip c count)
+    if (!= (read.status c) 0) { return [] }
+    return (array_slice c.data start count)
+}
+shadow blob { assert (== (array_length (blob (read.open []) 1)) 0) }
+fn offset(c: read.Cursor) -> int {
+    let start: int = (read.skip c 8)
+    if (!= (read.status c) 0) { return -1 }
+    return (wire.read_offset c.data start)
+}
+shadow offset { assert (== (offset (read.open [255,255,255,255,255,255,255,255])) -1) }
+fn analyze(bytes: array<u8>, websocket: bool) -> string {
+    let c: read.Cursor = (read.open bytes)
+    let features: int = (read.read_u32 c)
+    let links: int = (read.read_u32 c)
+    let callbacks: int = (read.read_u32 c)
+    let nc: int = (read.read_u32 c)
+    let ns: int = (read.read_u32 c)
+    let nl: int = (read.read_u32 c)
+    let nf: int = (read.read_u32 c)
+    let ni: int = (read.read_u32 c)
+    let code_size: int = (read.read_u32 c)
+    let service_size: int = (read.read_u32 c)
+    let own_size: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (> (+ (+ nc ns) (+ nf ni)) (/ (array_length bytes) 4))) { return "99" }
+    let mut constants: array<rich.Constant> = []
+    let mut i: int = 0
+    while (< i nc) {
+        let tag: int = (read.read_u32 c)
+        let size: int = (read.read_u32 c)
+        if (> tag 255) { return "99" }
+        let data: array<u8> = (blob c size)
+        set constants (array_push constants rich.Constant { tag: tag, bytes: data })
+        set i (+ i 1)
+    }
+    let mut signatures: array<rich.Signature> = []
+    set i 0
+    while (< i ns) {
+        let arity: int = (read.read_u32 c)
+        let results: int = (read.read_u32 c)
+        let pn: int = (read.read_u32 c)
+        let rn: int = (read.read_u32 c)
+        if (or (> arity 65535) (or (> results 65535) (or (and (!= pn 0) (!= pn arity)) (and (!= rn 0) (!= rn results))))) { return "99" }
+        let params: array<int> = (tags c pn)
+        let returns: array<int> = (tags c rn)
+        set signatures (array_push signatures rich.Signature { arity: arity, results: results, params: params, returns: returns })
+        set i (+ i 1)
+    }
+    let mut functions: array<rich.Function> = []
+    set i 0
+    while (< i nf) {
+        let signature: int = (read.read_u32 c)
+        let locals: int = (read.read_u32 c)
+        let start: int = (offset c)
+        let length: int = (offset c)
+        if (> locals 65535) { return "99" }
+        set functions (array_push functions rich.Function { signature: signature, locals: locals, start: start, length: length })
+        set i (+ i 1)
+    }
+    let mut imports: array<rich.Import> = []
+    set i 0
+    while (< i ni) {
+        let module_name: int = (read.read_u32 c)
+        let symbol: int = (read.read_u32 c)
+        let signature: int = (read.read_u32 c)
+        let kind: int = (read.read_u32 c)
+        if (> kind 255) { return "99" }
+        set imports (array_push imports rich.Import { module_name: module_name, symbol: symbol, signature: signature, kind: kind })
+        set i (+ i 1)
+    }
+    let layouts: array<u8> = (blob c nl)
+    let code: array<u8> = (blob c code_size)
+    let service: array<u8> = (blob c service_size)
+    let ownership: array<u8> = (blob c own_size)
+    if (or (!= (read.status c) 0) (!= (read.position c) (array_length bytes))) { return "99" }
+    let view: rich.View = rich.View { features: features, constants: constants, signatures: signatures, layouts: layouts, functions: functions, imports: imports, code: code, service: service, ownership: ownership, links: links, callbacks: callbacks }
+    let status: int = (rich.validate view websocket)
+    let presence: int = (cond ((rich.present view) 1) (else 0))
+    let file: int = (cond ((rich.file_instructions view) 1) (else 0))
+    return (+ (+ (+ (+ (int_to_string status) "|") (int_to_string presence)) ",") (int_to_string file))
+}
+shadow analyze { assert (== (analyze [] false) "99") }
+fn main() -> int {
+    unsafe {
+        let websocket: bool = (== (get_argv 1) "1")
+        let mut i: int = 2
+        while (< i (get_argc)) { (println (analyze (file_read_bytes (get_argv i)) websocket)) set i (+ i 1) }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

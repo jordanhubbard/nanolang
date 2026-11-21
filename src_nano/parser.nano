@@ -3032,6 +3032,13 @@ fn parse_primary(p: Parser) -> Parser {
             if (== (parser_current operand).value "perform") { return (parse_effect_perform operand true) }
         }
 
+        if (== tok.token_type (token_if)) { return (parse_if_statement p) }
+        if (and (== tok.token_type (token_lparen)) (== (parser_peek p 1) (token_if))) {
+            let selected: Parser = (parse_if_statement (parser_advance p))
+            if (parser_has_error selected) { return selected }
+            return (parser_expect selected (token_rparen))
+        }
+
         # I inspect the type component after any module qualifier.
         # Lowercase fields retain their ordinary comparison grammar.
         if (== tok.token_type (token_identifier)) {
@@ -6414,6 +6421,11 @@ fn parse_if_statement(p: Parser) -> Parser {
 }
 
 shadow parse_if_statement {
+    let expression_tokens: List<LexerToken> = (tokenize_string "(if true {1} else {2})" "if-value.nano" (list_CompilerDiagnostic_new))
+    let expression: Parser = (parse_primary (parser_new expression_tokens (list_LexerToken_length expression_tokens) "if-value.nano"))
+    assert (not expression.has_error)
+    assert (== expression.last_expr_node_type ParseNodeType.PNODE_IF)
+    assert (parser_is_at_end expression)
     let bodies: array<string> = ["return 1", "let value:int=1 return value", "if true {return 1}", "while false {}", "for index in (range 0 1) {}"]
     for body in bodies {
         let source: string = (+ "if DEBUG_MODE {" (+ body "} else {return 2}"))

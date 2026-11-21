@@ -750,7 +750,7 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
             const char *child_name = get_struct_type_name(child, env);
             if (!child_name || env_get_struct(env, child_name) != expected) {
                 emit_context_error("E001 TYPE MISMATCH", child->line, child->column, 1,
-                    "I require every record array element to retain its declared nominal identity.",
+                    "I require the declared nominal record type for every array element.",
                     "Match the array element declaration, including its module identity.");
                 return false;
             }
@@ -1136,6 +1136,17 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                 if (ast_is_value_expression(tail->type)) return get_struct_type_name(tail, env);
             }
             return NULL;
+        case AST_IF: {
+            const char *name = ast_always_returns(expr->as.if_stmt.then_branch) ? NULL :
+                get_struct_type_name(expr->as.if_stmt.then_branch, env);
+            return name ? name : get_struct_type_name(expr->as.if_stmt.else_branch, env);
+        }
+        case AST_COND:
+            for (int i = 0; i < expr->as.cond_expr.clause_count; ++i) {
+                const char *name = get_struct_type_name(expr->as.cond_expr.values[i], env);
+                if (name) return name;
+            }
+            return get_struct_type_name(expr->as.cond_expr.else_value, env);
         case AST_MATCH:
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *name = get_struct_type_name(expr->as.match_expr.arm_bodies[i], env);
@@ -2464,6 +2475,32 @@ static bool effect_argument_matches(ASTNode *value, const TypeInfo *expected, En
 }
 
 /* I compare every resumed value branch against its complete declared identity. */
+/* I retain record identity through every value-producing return branch. */
+static bool record_return_matches(ASTNode *value, Environment *env,
+                                  StructDef *expected, unsigned depth) {
+    if (!value || depth > 128) return false;
+    if (ast_always_returns(value)) return true;
+    if (value->type == AST_BLOCK) {
+        int count = value->as.block.count;
+        return count && record_return_matches(value->as.block.statements[count - 1], env, expected, depth + 1);
+    }
+    if (value->type == AST_IF)
+        return record_return_matches(value->as.if_stmt.then_branch, env, expected, depth + 1) &&
+            record_return_matches(value->as.if_stmt.else_branch, env, expected, depth + 1);
+    if (value->type == AST_COND) {
+        for (int i = 0; i < value->as.cond_expr.clause_count; ++i)
+            if (!record_return_matches(value->as.cond_expr.values[i], env, expected, depth + 1)) return false;
+        return record_return_matches(value->as.cond_expr.else_value, env, expected, depth + 1);
+    }
+    if (value->type == AST_MATCH) {
+        for (int i = 0; i < value->as.match_expr.arm_count; ++i)
+            if (!record_return_matches(value->as.match_expr.arm_bodies[i], env, expected, depth + 1)) return false;
+        return true;
+    }
+    const char *name = get_struct_type_name(value, env);
+    return name && env_get_struct(env, name) == expected;
+}
+
 static bool effect_value_matches(ASTNode *value, const TypeInfo *expected,
                                  Environment *env, unsigned depth) {
     if (!value || depth > 128) return false;
@@ -4504,10 +4541,30 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 );
             }
 
-            /* For if expressions, we need to infer the type from the blocks */
-            /* This is simplified - just return UNKNOWN for now */
-            /* A proper implementation would need to analyze the blocks */
-            return TYPE_UNKNOWN;
+            Type left = check_expression(expr->as.if_stmt.then_branch, env);
+            Type right = expr->as.if_stmt.else_branch ? check_expression(expr->as.if_stmt.else_branch, env) : TYPE_VOID;
+            if (ast_always_returns(expr->as.if_stmt.then_branch)) return right;
+            if (expr->as.if_stmt.else_branch && ast_always_returns(expr->as.if_stmt.else_branch)) return left;
+            if (!types_match(left, right)) {
+                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                    "I require compatible values from both if branches.",
+                    "Give both value branches the same declared type.");
+                return TYPE_UNKNOWN;
+            }
+            if (left == TYPE_STRUCT) {
+                const char *name = get_struct_type_name(expr->as.if_stmt.then_branch, env);
+                StructDef *record = name ? env_get_struct(env, name) : NULL;
+                if (record && !record_return_matches(expr->as.if_stmt.else_branch, env, record, 0))
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the same nominal record type in both if branches.",
+                        "Keep the record declaration and module identity.");
+            }
+            if (left == TYPE_UNKNOWN) return right;
+            if ((left == TYPE_U8 && right == TYPE_INT) || (left == TYPE_INT && right == TYPE_U8)) return TYPE_INT;
+            if ((left == TYPE_FLOAT || right == TYPE_FLOAT) &&
+                (left == TYPE_INT || left == TYPE_U8 || left == TYPE_FLOAT) &&
+                (right == TYPE_INT || right == TYPE_U8 || right == TYPE_FLOAT)) return TYPE_FLOAT;
+            return left;
         }
 
         case AST_COND: {
@@ -6479,6 +6536,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.return_stmt.value->type == AST_ARRAY_LITERAL)
                     check_array_literal_annotation(tc, stmt->as.return_stmt.value,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name);
+                if (tc->current_function_return_type == TYPE_STRUCT &&
+                    tc->current_function_return_struct_name) {
+                    StructDef *expected_record = env_get_struct(tc->env, tc->current_function_return_struct_name);
+                    if (expected_record && !record_return_matches(stmt->as.return_stmt.value, tc->env, expected_record, 0)) {
+                        emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                            "I require the declared nominal record type for this return.",
+                            "Return the declared record, including its module identity.");
+                        tc->has_error = true;
+                    }
+                }
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;
