@@ -770,6 +770,26 @@ test-nanolang-translator-declarations: $(COMPILER_C) nano_virt nano_vm nvm2c nvm
 test-nanolang-translator-routes: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference
 	python3 -m unittest -v tests.test_nanolang_translator_routes
 
+$(OBJ_DIR)/nvm2c_service_nominal_reference: tests/nvm2c_service_nominal_reference.c $(NANOISA_DIR)/services_nominal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_DIR)/services_nominal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+SERVICE_NOMINAL_UNITS = service_file_nominal service_socket_nominal service_websocket_nominal service_multi_nominal service_file_nominal_plan service_socket_nominal_plan service_websocket_nominal_plan service_multi_nominal_plan services_nominal nvm_v2_cursor
+SERVICE_NOMINAL_SOURCES = $(addprefix $(NANOISA_DIR)/,$(addsuffix .c,$(SERVICE_NOMINAL_UNITS))) $(addprefix $(SRC_DIR)/,nsi_file_plan.c nsi_socket_plan.c nsi_websocket_plan.c)
+SERVICE_NOMINAL_HEADERS = $(wildcard $(NANOISA_DIR)/service*nominal*.h) $(NANOISA_DIR)/service_nominal_plan.inc $(NANOISA_DIR)/service_nominal_codec.inc
+$(OBJ_DIR)/nvm2c_service_nominal_reference_asan: tests/nvm2c_service_nominal_reference.c $(SERVICE_NOMINAL_SOURCES) $(SERVICE_NOMINAL_HEADERS) $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -Isrc -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_NOMINAL_SOURCES) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,$(addsuffix .o,$(SERVICE_NOMINAL_UNITS))),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-service-nominal
+test-nanolang-translator-service-nominal: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime check-nvm2c-service-catalog $(OBJ_DIR)/nvm2c_service_nominal_reference $(OBJ_DIR)/nvm2c_service_nominal_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_service_nominal
+
+$(OBJ_DIR)/nvm2c_service_catalog_reference: tests/nvm2c_service_catalog_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: check-nvm2c-service-catalog
+check-nvm2c-service-catalog: $(OBJ_DIR)/nvm2c_service_catalog_reference
+	python3 scripts/generate_nvm2c_service_catalog.py --check
+
 SERVICE_WIRE_SOURCES = $(addprefix $(NANOISA_DIR)/,service_bindings.c service_file_nominal.c service_socket_nominal.c service_websocket_nominal.c service_multi_nominal.c)
 SERVICE_WIRE_HEADERS = $(addprefix $(NANOISA_DIR)/,service_bindings.h service_file_nominal.h service_socket_nominal.h service_websocket_nominal.h service_multi_nominal.h service_nominal_codec.inc service_file_nominal_config.h service_socket_nominal_config.h service_websocket_nominal_config.h)
 $(OBJ_DIR)/nvm2c_service_reference: tests/nvm2c_service_reference.c $(SERVICE_WIRE_SOURCES) $(SERVICE_WIRE_HEADERS) | $(OBJ_DIR)

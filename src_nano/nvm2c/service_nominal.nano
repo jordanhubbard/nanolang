@@ -1,0 +1,320 @@
+module nvm2c_service_nominal
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/service_wire.nano" as service
+module "src_nano/nvm2c/service_catalog.nano" as catalog
+
+# I describe exact nominal metadata, never code flow or host authority.
+pub struct Import { module_name: int, symbol: int, kind: int, arity: int, result: int, params: array<int> }
+pub struct Row { found: bool, global_index: int, instance: int, catalog: int, ordinal: int, source: int, kind: int, flags: int, category: int }
+pub struct Plan { status: int, instances: array<service.Instance>, rows: array<Row>, record_rows: array<int>, union_rows: array<int> }
+
+fn missing() -> Row {
+    return Row { found: false, global_index: 4294967295, instance: 4294967295, catalog: 0, ordinal: 4294967295, source: 4294967295, kind: 0, flags: 0, category: 0 }
+}
+shadow missing { assert (not (missing).found) assert (== (missing).instance 4294967295) }
+fn refused(status: int) -> Plan { return Plan { status: status, instances: [], rows: [], record_rows: [], union_rows: [] } }
+shadow refused { assert (== (refused 2).status 2) assert (== (array_length (refused 2).rows) 0) }
+
+fn type_kind(cat: int, ordinal: int) -> int {
+    if (== (catalog.number cat 1 ordinal 0 0) 2) { return 2 }
+    return 0
+}
+shadow type_kind { assert (== (type_kind 1 0) 0) assert (== (type_kind 1 3) 2) }
+fn type_tag(cat: int, ordinal: int) -> int {
+    if (== (type_kind cat ordinal) 2) { return 10 }
+    return 8
+}
+shadow type_tag { assert (== (type_tag 2 0) 8) assert (== (type_tag 3 3) 10) }
+fn flags(ordinal: int) -> int {
+    if (== ordinal 4294967295) { return 0 }
+    if (or (== ordinal 0) (== ordinal 3)) { return 3 }
+    return 1
+}
+shadow flags { assert (== (flags 4294967295) 0) assert (== (flags 3) 3) assert (== (flags 4) 1) }
+fn category(ordinal: int, kind: int) -> int {
+    if (== ordinal 4294967295) { return 0 }
+    if (== ordinal 0) { return 1 }
+    if (== ordinal 3) { return 2 }
+    if (== kind 0) { return 4 }
+    return 3
+}
+shadow category { assert (== (category 0 0) 1) assert (== (category 3 2) 2) assert (== (category 2 0) 4) }
+
+fn text(model: owned.Module, index: int, wanted: string) -> bool {
+    if (or (< index 0) (>= index (array_length model.strings))) { return false }
+    let bytes: array<u8> = (at model.strings index)
+    if (!= (array_length bytes) (str_length wanted)) { return false }
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        if (!= (cast_int (at bytes i)) (char_at wanted i)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow text {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [[65,0,66]], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (text model 0 "A")) assert (not (text model 1 ""))
+}
+fn name_index(model: owned.Module, index: int) -> bool {
+    return (or (== index 4294967295) (and (>= index 0) (< index (array_length model.strings))))
+}
+shadow name_index {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (name_index model 4294967295) assert (not (name_index model 0))
+}
+
+# I resolve references only within the selected immutable catalog instance.
+fn member_tag(cat: int, id: string) -> int {
+    if (== id "") { return 0 }
+    if (== id "nsi:core/int") { return 1 }
+    if (== id "nsi:core/bool") { return 4 }
+    if (== id "nsi:core/string") { return 5 }
+    let mut i: int = 0
+    while (< i (service.catalog_types cat)) {
+        if (== id (catalog.text cat 1 i 0 0)) { return (type_tag cat i) }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow member_tag { assert (== (member_tag 1 "nsi:core/int") 1) assert (== (member_tag 2 "nsi:nanolang/net#Conn") 8) assert (== (member_tag 1 "nsi:nanolang/net#Conn") -1) }
+fn member_layout(instance: service.Instance, id: string) -> int {
+    let mut i: int = 0
+    while (< i (service.catalog_types instance.catalog)) {
+        if (== id (catalog.text instance.catalog 1 i 0 0)) { return (at instance.layouts i) }
+        set i (+ i 1)
+    }
+    return 4294967295
+}
+shadow member_layout {
+    let row: service.Instance = service.Instance { catalog: 1, imports: [], layouts: [7,6,5,4,3,2,1,0] }
+    assert (== (member_layout row "nsi:nanolang/filesystem#File") 7)
+    assert (== (member_layout row "nsi:core/int") 4294967295)
+}
+
+fn imports_valid(model: owned.Module, instances: array<service.Instance>, imports: array<Import>, refs: int, callbacks: int) -> bool {
+    if (or (!= refs 0) (!= callbacks 0)) { return false }
+    let mut methods: int = 0
+    let mut instance: int = 0
+    while (< instance (array_length instances)) { set methods (+ methods (service.catalog_methods (at instances instance).catalog)) set instance (+ instance 1) }
+    if (!= (array_length imports) methods) { return false }
+    set instance 0
+    while (< instance (array_length instances)) {
+        let row: service.Instance = (at instances instance)
+        let cat: int = row.catalog
+        let mut i: int = 0
+        while (< i (service.catalog_methods cat)) {
+            let index: int = (at row.imports i)
+            if (or (< index 0) (>= index methods)) { return false }
+            let entry: Import = (at imports index)
+            let count: int = (catalog.number cat 2 i 4 0)
+            if (or (<= count 0) (or (!= (- count 1) entry.arity) (or (!= entry.kind 3) (!= entry.result 10)))) { return false }
+            if (not (and (text model entry.module_name (catalog.text cat 0 0 0 0)) (text model entry.symbol (catalog.text cat 2 i 0 0)))) { return false }
+            if (< (array_length entry.params) entry.arity) { return false }
+            let mut j: int = 0
+            while (< j entry.arity) {
+                let tag: int = (member_tag cat (catalog.text cat 2 i 6 j))
+                if (or (!= (catalog.number cat 2 i 5 j) 0) (or (< tag 0) (!= (at entry.params j) tag))) { return false }
+                set j (+ j 1)
+            }
+            if (or (!= (catalog.number cat 2 i 5 entry.arity) 3) (!= (member_tag cat (catalog.text cat 2 i 6 entry.arity)) 10)) { return false }
+            set i (+ i 1)
+        }
+        set instance (+ instance 1)
+    }
+    return true
+}
+shadow imports_valid {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (imports_valid model [] [] 1 0)) assert (imports_valid model [] [] 0 0)
+}
+
+fn layouts_read(model: owned.Module, instances: array<service.Instance>) -> Plan {
+    let c: read.Cursor = (read.open model.layouts)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (refused 1) }
+    if (> count 65536) { return (refused 2) }
+    let mut minimum: int = 0
+    let mut instance: int = 0
+    while (< instance (array_length instances)) { set minimum (+ minimum (service.catalog_types (at instances instance).catalog)) set instance (+ instance 1) }
+    if (or (< count minimum) (> count (/ (- (array_length model.layouts) 4) 8))) { return (refused 1) }
+    let mut owners: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set owners (array_push owners 4294967295) set i (+ i 1) }
+    set instance 0
+    while (< instance (array_length instances)) {
+        let row: service.Instance = (at instances instance)
+        set i 0
+        while (< i (service.catalog_types row.catalog)) {
+            let index: int = (at row.layouts i)
+            if (or (< index 0) (>= index count)) { return (refused 1) }
+            (array_set owners index (+ (* instance 9) i))
+            set i (+ i 1)
+        }
+        set instance (+ instance 1)
+    }
+    let mut records: int = 0
+    let mut enums: int = 0
+    let mut unions: int = 0
+    let mut rows: array<Row> = []
+    let mut record_rows: array<int> = []
+    let mut union_rows: array<int> = []
+    set i 0
+    while (< i count) {
+        let kind: int = (read.read_byte c)
+        let padding: int = (read.read_byte c)
+        let fields: int = (read.read_u16 c)
+        let name: int = (read.read_u32 c)
+        if (or (!= (read.status c) 0) (or (!= padding 0) (or (> kind 3) (or (not (name_index model name)) (> fields (/ (- (array_length model.layouts) (read.position c)) 12)))))) { return (refused 1) }
+        let owner: int = (at owners i)
+        let mut source: int = 4294967295
+        if (== kind 0) { set source records set records (+ records 1) set record_rows (array_push record_rows i) }
+        if (== kind 3) { set enums (+ enums 1) }
+        if (== kind 2) { set source unions set unions (+ unions 1) set union_rows (array_push union_rows i) }
+        let mut which: int = 4294967295
+        let mut cat: int = 0
+        let mut ordinal: int = 4294967295
+        if (!= owner 4294967295) {
+            set which (/ owner 9) set ordinal (% owner 9) set cat (at instances which).catalog
+            if (or (!= kind (type_kind cat ordinal)) (or (!= fields (catalog.number cat 1 ordinal 1 0)) (not (text model name (catalog.text cat 1 ordinal 0 0))))) { return (refused 1) }
+        }
+        let mut j: int = 0
+        while (< j fields) {
+            let tag: int = (read.read_byte c)
+            let p0: int = (read.read_byte c)
+            let p1: int = (read.read_byte c)
+            let p2: int = (read.read_byte c)
+            let nested: int = (read.read_u32 c)
+            let field_name: int = (read.read_u32 c)
+            if (or (!= (read.status c) 0) (or (>= tag 16) (or (!= (+ (+ p0 p1) p2) 0) (or (not (name_index model field_name)) (and (!= nested 4294967295) (>= nested i)))))) { return (refused 1) }
+            if (!= owner 4294967295) {
+                let id: string = (catalog.text cat 1 ordinal 4 j)
+                if (or (!= tag (member_tag cat id)) (or (!= nested (member_layout (at instances which) id)) (not (text model field_name (catalog.text cat 1 ordinal 2 j))))) { return (refused 1) }
+            }
+            set j (+ j 1)
+        }
+        set rows (array_push rows Row { found: true, global_index: i, instance: which, catalog: cat, ordinal: ordinal, source: source, kind: kind, flags: (flags ordinal), category: (category ordinal kind) })
+        set i (+ i 1)
+    }
+    if (or (!= (read.position c) (array_length model.layouts)) (or (!= records model.records) (or (!= enums model.enums) (!= unions model.unions)))) { return (refused 1) }
+    return Plan { status: 0, instances: instances, rows: rows, record_rows: record_rows, union_rows: union_rows }
+}
+shadow layouts_read {
+    let model: owned.Module = owned.Module { layouts: [1,0,1,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (layouts_read model []).status 2)
+}
+
+fn descriptor(c: read.Cursor, plan: Plan, parameter: bool, signature: int) -> bool {
+    let tag: int = (read.read_byte c)
+    let mode: int = (read.read_byte c)
+    let padding: int = (read.read_u16 c)
+    let layout: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (!= padding 0) (or (>= tag 16) (or (> mode 2) (or (and (not parameter) (!= mode 0)) (and (>= signature 0) (!= tag signature))))))) { return false }
+    let mut ordinal: int = 4294967295
+    if (!= layout 4294967295) {
+        if (>= layout (array_length plan.rows)) { return false }
+        let row: Row = (at plan.rows layout)
+        set ordinal row.ordinal
+        if (or (== ordinal 4294967295) (!= tag (type_tag row.catalog ordinal))) { return false }
+    }
+    if (and (!= mode 0) (!= ordinal 0)) { return false }
+    return true
+}
+shadow descriptor {
+    let c: read.Cursor = (read.open [8,0,0,0,255,255,255,255])
+    assert (descriptor c (refused 1) false 8)
+    assert (not (descriptor (read.open [8,1,0,0,255,255,255,255]) (refused 1) true 8))
+}
+
+fn ownership_valid(bytes: array<u8>, model: owned.Module, plan: Plan) -> bool {
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (!= version 1) (!= count (array_length plan.rows)))) { return false }
+    let flags_at: int = (read.skip c count)
+    if (!= (read.align c) 0) { return false }
+    let mut i: int = 0
+    while (< i count) {
+        if (!= (at bytes (+ flags_at i)) (at plan.rows i).flags) { return false }
+        set i (+ i 1)
+    }
+    let functions: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (!= functions (array_length model.functions)) (> functions (/ (- (array_length bytes) (read.position c)) 12)))) { return false }
+    set i 0
+    while (< i functions) {
+        let locals: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        let fn_info = (at model.functions i)
+        if (or (!= (read.status c) 0) (or (!= locals fn_info.locals) (or (!= params fn_info.arity) (or (> params locals) (or (> fn_info.results 1) (> (+ locals 1) (/ (- (array_length bytes) (read.position c)) 8))))))) { return false }
+        let mut result_tag: int = 0
+        if (> fn_info.results 0) {
+            if (>= i (array_length model.results)) { return false }
+            set result_tag (at model.results i)
+        }
+        if (not (descriptor c plan false result_tag)) { return false }
+        let mut tags: array<int> = []
+        if (> params 0) {
+            if (>= i (array_length model.params)) { return false }
+            set tags (at model.params i)
+            if (< (array_length tags) params) { return false }
+        }
+        let mut j: int = 0
+        while (< j locals) {
+            let mut signature: int = -1
+            if (< j params) { set signature (at tags j) }
+            if (not (descriptor c plan (< j params) signature)) { return false }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return (== (read.position c) (array_length bytes))
+}
+shadow ownership_valid {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (ownership_valid [1,0,0,0,0,0,0,0,0,0,0,0] model Plan { status: 0, instances: [], rows: [], record_rows: [], union_rows: [] })
+    assert (not (ownership_valid [] model (refused 1)))
+}
+
+pub fn prepare(bytes: array<u8>, ownership: array<u8>, model: owned.Module, imports: array<Import>, refs: int, callbacks: int, profile: int) -> Plan {
+    if (or (< profile 2) (> profile 5)) { return (refused 1) }
+    let bindings: service.Bindings = (service.decode bytes profile)
+    if (!= bindings.status 0) { return (refused 1) }
+    if (not (imports_valid model bindings.instances imports refs callbacks)) { return (refused 1) }
+    let plan: Plan = (layouts_read model bindings.instances)
+    if (!= plan.status 0) { return plan }
+    if (not (ownership_valid ownership model plan)) { return (refused 1) }
+    return plan
+}
+shadow prepare {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (prepare [] [] model [] 0 0 2).status 1)
+}
+
+pub fn layout(plan: Plan, index: int) -> Row {
+    if (or (!= plan.status 0) (or (< index 0) (>= index (array_length plan.rows)))) { return (missing) }
+    return (at plan.rows index)
+}
+shadow layout { assert (not (layout (refused 1) 0).found) }
+pub fn type_at(plan: Plan, instance: int, ordinal: int) -> Row {
+    if (or (!= plan.status 0) (or (< instance 0) (>= instance (array_length plan.instances)))) { return (missing) }
+    let row: service.Instance = (at plan.instances instance)
+    if (or (< ordinal 0) (>= ordinal (service.catalog_types row.catalog))) { return (missing) }
+    return (layout plan (at row.layouts ordinal))
+}
+shadow type_at { assert (not (type_at (refused 1) 0 0).found) }
+pub fn source(plan: Plan, kind: int, ordinal: int) -> Row {
+    if (or (!= plan.status 0) (and (!= kind 0) (!= kind 2))) { return (missing) }
+    let mut indices: array<int> = plan.record_rows
+    if (== kind 2) { set indices plan.union_rows }
+    if (or (< ordinal 0) (>= ordinal (array_length indices))) { return (missing) }
+    return (layout plan (at indices ordinal))
+}
+shadow source { assert (not (source (refused 1) 1 0).found) }
+pub fn import_index(plan: Plan, instance: int, ordinal: int) -> int {
+    if (or (!= plan.status 0) (or (< instance 0) (>= instance (array_length plan.instances)))) { return -1 }
+    let row: service.Instance = (at plan.instances instance)
+    if (or (< ordinal 0) (>= ordinal (service.catalog_methods row.catalog))) { return -1 }
+    return (at row.imports ordinal)
+}
+shadow import_index { assert (== (import_index (refused 1) 0 0) -1) }
