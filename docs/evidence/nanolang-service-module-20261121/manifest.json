@@ -4,26 +4,10 @@
     {
       "path": ".test_output/service-module-archive.py",
       "artifact": "inputs/.test_output_service-module-archive.py.gz",
-      "sha256": "8818fc4fed7a338be21c5ad01916d786fb4bd2b83dbba12297eb2f7d18a6bf01",
-      "bytes": 1764,
-      "compressed_sha256": "a77bd8dc1b9235e3666413a9cc0eac6f4ddce2a1443bed5a5310114642055915",
-      "compressed_bytes": 800
-    },
-    {
-      "path": ".test_output/service-module-capture-existing-issue.json",
-      "artifact": "inputs/.test_output_service-module-capture-existing-issue.json.gz",
-      "sha256": "5701b1bf9e66a68af693b54854ddf3653a4f81047a9b5017bfc72369601f3fd8",
-      "bytes": 1674,
-      "compressed_sha256": "393e25a9daa2e42008894b640a374353be01a240fc00bccc58fc6b24425e78f1",
-      "compressed_bytes": 880
-    },
-    {
-      "path": ".test_output/service-module-capture-linux-controls.log",
-      "artifact": "inputs/.test_output_service-module-capture-linux-controls.log.gz",
-      "sha256": "c71db606cf61c46893dec5c69f382d036b1215b77711c232df8e071db8908945",
-      "bytes": 2055,
-      "compressed_sha256": "7df30fcc6b816bd4687fea1f4c1580eecee3560e540c771da7769eefe14e45f9",
-      "compressed_bytes": 468
+      "sha256": "2906be9ce729f3c68b97572fac652273d8647ceeb8eaa05d05f99f3ac2e110c6",
+      "bytes": 1924,
+      "compressed_sha256": "2ed79e00d4951b2e4c1be8a779115d8ce2d95ad7c05274068bf350eee9fd8732",
+      "compressed_bytes": 866
     },
     {
       "path": ".test_output/service-module-catalog.log",
@@ -400,14 +384,6 @@
       "bytes": 342,
       "compressed_sha256": "0ccdd36e0d37652e9ec16d3192b0a31b12301ab1390b45a375b08096a481d0c8",
       "compressed_bytes": 207
-    },
-    {
-      "path": ".test_output/service-module-probe-build.log",
-      "artifact": "inputs/.test_output_service-module-probe-build.log.gz",
-      "sha256": "16dd0b3d1872bcb8e94c434e8edb44c9ac1d8e1f038a1bf3d2ed1e214774ec55",
-      "bytes": 56,
-      "compressed_sha256": "1ff8f5e1a25252b6180a14442473c0cbea8e5e55f6d8924ade8884f08a896a5a",
-      "compressed_bytes": 76
     },
     {
       "path": ".test_output/service-module-shadows.json",
