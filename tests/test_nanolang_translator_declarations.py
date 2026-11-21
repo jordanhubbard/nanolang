@@ -120,8 +120,9 @@ def corpus(large=True):
     return cases
 
 
-def producer_cases(work):
-    root=Path(tempfile.mkdtemp(prefix='declaration-producer-products-',dir=ROOT/'.test_output'))
+def producer_cases(work, root=None):
+    root=Path(root) if root is not None else Path(tempfile.mkdtemp(prefix='declaration-producer-products-',dir=ROOT/'.test_output'))
+    root.mkdir(parents=True,exist_ok=True)
     print('I retain actual producer modules/models at',root,flush=True)
     producers=[('c',ROOT/'bin/nano_virt')]
     if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):

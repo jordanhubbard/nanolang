@@ -5,6 +5,8 @@ module "src_nano/nvm2c/isa_metadata.nano" as isa
 module "src_nano/nvm2c/instructions.nano" as instructions
 module "src_nano/nvm2c/passive.nano" as passive
 module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/routes.nano" as routes
 
 # Status -1 marks a profile I have not implemented, never successful admission.
 pub struct ModuleView {
@@ -14,6 +16,7 @@ pub struct ModuleView {
     isa_version: int,
     code: array<u8>,
     passive: array<u8>,
+    ownership: array<u8>,
     tables: array<payload.PayloadTable>,
     present: array<bool>
 }
@@ -30,7 +33,7 @@ fn blank(status: int) -> ModuleView {
         set i (+ i 1)
     }
     let code: array<u8> = []
-    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, passive: [], tables: tables, present: present }
+    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, passive: [], ownership: [], tables: tables, present: present }
 }
 shadow blank {
     let view: ModuleView = (blank 13)
@@ -315,7 +318,7 @@ fn features(view: ModuleView) -> int {
         set i (+ i 1)
     }
     if (!= (has_feature flags 64) (> (array_length view.passive) 0)) { return 14 }
-    if (has_feature flags 256) { return 14 }
+    if (!= (has_feature flags 256) (> (array_length view.ownership) 0)) { return 14 }
     return 0
 }
 shadow features {
@@ -344,9 +347,9 @@ shadow same_string {
     assert (same_string constants 1 1)
 }
 
-# I preserve the complete conversion checks before a passive module decision.
+# I preserve conversion, routing, ownership and passive order before publication.
 # Core references/features and unsupported-profile selection have already run.
-fn convert_passive(view: ModuleView) -> int {
+fn convert_claims(view: ModuleView) -> int {
     let constants: payload.PayloadTable = (table view 2)
     let mut i: int = 0
     while (< i (array_length constants.starts)) {
@@ -362,6 +365,14 @@ fn convert_passive(view: ModuleView) -> int {
     if (> (array_length view.code) 4294967295) { return 13 }
     let signatures: payload.PayloadTable = (table view 3)
     let mut functions: array<calls.Function> = []
+    let mut results_tags: array<int> = []
+    let mut names: array<array<u8>> = []
+    let mut string_index: int = 0
+    while (< string_index (count view 2)) {
+        let row: int = (at constants.starts string_index)
+        set names (array_push names (array_slice constants.data (+ row 8) (wire.read_u32 constants.data (+ row 4))))
+        set string_index (+ string_index 1)
+    }
     let mut params: array<array<int>> = []
     set i 0
     while (< i (count view 5)) {
@@ -380,6 +391,9 @@ fn convert_passive(view: ModuleView) -> int {
         set functions (array_push functions calls.Function {
             start: start, length: length, arity: arity, results: results,
             locals: (field view 5 i 24 2), upvalues: (field view 5 i 26 2) })
+        let mut result_tag: int = 0
+        if (> results 0) { set result_tag (cast_int (at signatures.data (+ (+ (+ row 4) arity) (% (- 4 (% arity 4)) 4)))) }
+        set results_tags (array_push results_tags result_tag)
         set params (array_push params tags)
         set i (+ i 1)
     }
@@ -402,17 +416,34 @@ fn convert_passive(view: ModuleView) -> int {
             set i (+ i 1)
         }
     }
-    # No ownership/service section is selected here. The C shared ownership
-    # declaration validator returns success for that exact absent contract.
+    let mut retained: array<u8> = []
+    if (has_feature view.features 128) { set retained (payload.reencode (table view 4)) }
+    let mut records: int = 0
+    let mut enums: int = 0
+    let mut unions: int = 0
+    set i 0
+    while (< i (count view 4)) {
+        let kind: int = (field view 4 i 0 1)
+        if (== kind 0) { set records (+ records 1) }
+        if (== kind 1) { set enums (+ enums 1) }
+        if (== kind 2) { set unions (+ unions 1) }
+        set i (+ i 1)
+    }
+    let model: owned.Module = owned.Module { layouts: retained, code: view.code, strings: names, functions: functions, params: params, results: results_tags, records: records, enums: enums, unions: unions }
+    let selection: routes.Selection = (routes.classify view.ownership model false false 0)
+    if (or (== selection.maps 2) (or (== selection.maps 3) (== selection.owners 2))) { return 13 }
+    if (or (== selection.maps 1) (or selection.arrays (or (== selection.owners 1) selection.mixed))) { return -1 }
+    let declarations: owned.Declaration = (owned.validate view.ownership model)
+    if (!= declarations.status 0) { return declarations.status }
     if (not (passive.validate view.passive view.code functions params)) { return 13 }
     return 0
 }
-shadow convert_passive {
+shadow convert_claims {
     let view: ModuleView = (blank 0)
-    assert (== (convert_passive view) 0)
+    assert (== (convert_claims view) 0)
     let bytes: array<u8> = [2,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0]
     (array_set view.tables 2 (payload.decode bytes 2))
-    assert (== (convert_passive view) 13)
+    assert (== (convert_claims view) 13)
 }
 
 # Private array/map layout profiles must not pass through the public decoder.
@@ -452,17 +483,24 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
     let mut passive_bytes: array<u8> = []
     let sections: int = (wire.read_u32 bytes 24)
     let mut i: int = 0
-    # I identify unimplemented profiles before publishing any decoded view.
+    let mut ownership_bytes: array<u8> = []
+    let mut raw_layouts: array<u8> = []
+    let mut layout_present: bool = false
+    let mut owned_present: bool = false
+    let mut service_present: bool = false
     while (< i sections) {
         let entry: int = (+ 40 (* i 24))
         let kind: int = (wire.read_u32 bytes entry)
-        if (>= kind 13) { return (blank -1) }
-        if (== kind 4) {
-            let data: array<u8> = (array_slice bytes (wire.read_offset bytes (+ entry 8)) (wire.read_offset bytes (+ entry 16)))
-            if (profile_layout data) { return (blank -1) }
-        }
+        let start: int = (wire.read_offset bytes (+ entry 8))
+        let length: int = (wire.read_offset bytes (+ entry 16))
+        if (== kind 4) { set layout_present true set raw_layouts (array_slice bytes start length) }
+        if (== kind 13) { set owned_present true set ownership_bytes (array_slice bytes start length) }
+        if (== kind 14) { set service_present true }
         set i (+ i 1)
     }
+    let map_route: int = (routes.map_route raw_layouts ownership_bytes layout_present owned_present)
+    if (or (== map_route 2) (== map_route 3)) { return (blank 13) }
+    if (or service_present (or (== map_route 1) (profile_layout raw_layouts))) { return (blank -1) }
     set i 0
     while (< i sections) {
         let entry: int = (+ 40 (* i 24))
@@ -473,6 +511,8 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         (array_set present kind true)
         if (== kind 6) {
             set code data
+        } else if (== kind 13) {
+            if (or (== length 0) (> length 4294967295)) { return (blank 9) }
         } else if (== kind 12) {
             if (or (== length 0) (> length 4294967295)) { return (blank 9) }
             set passive_bytes data
@@ -483,13 +523,13 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         }
         set i (+ i 1)
     }
-    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, passive: passive_bytes, tables: tables, present: present }
+    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, passive: passive_bytes, ownership: ownership_bytes, tables: tables, present: present }
     let reference_status: int = (references view)
     if (!= reference_status 0) { return (blank reference_status) }
     let feature_status: int = (features view)
     if (!= feature_status 0) { return (blank feature_status) }
-    if (> (array_length passive_bytes) 0) {
-        let converted: int = (convert_passive view)
+    if (or (> (array_length passive_bytes) 0) (> (array_length ownership_bytes) 0)) {
+        let converted: int = (convert_claims view)
         if (!= converted 0) { return (blank converted) }
     }
     return view
