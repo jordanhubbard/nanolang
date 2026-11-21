@@ -1368,6 +1368,15 @@ void test_eval_enum_access(void) {
         "}\n"
     );
     ASSERT(ok);
+    EnumDef *registered = env_get_enum(ctx.env, "Direction");
+    ASSERT(registered != NULL);
+    ASSERT_EQ(registered->variant_count, 4);
+    for (int repetition = 0; repetition < 3; ++repetition) {
+        ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+        ASSERT(env_get_enum(ctx.env, "Direction") == registered);
+        ASSERT_EQ(registered->variant_values[0], 0);
+        ASSERT_EQ(registered->variant_values[3], 3);
+    }
     run_ctx_free(&ctx);
 }
 

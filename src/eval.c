@@ -6502,6 +6502,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             
+            /* I retain the declaration already registered by checking or shadows. */
+            if (env_get_enum(env, stmt->as.enum_def.name)) return create_void();
             EnumDef edef = {0};
             edef.name = strdup(stmt->as.enum_def.name);
             edef.variant_count = stmt->as.enum_def.variant_count;

@@ -1,0 +1,524 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/archive-enum-ownership.py",
+      "artifact": "inputs/000-archive-enum-ownership.py.gz",
+      "sha256": "4dc7311779068334fd06c28463b4dd41351568cff0faf639767aa994f3083709",
+      "bytes": 1368,
+      "compressed_sha256": "499929208301a1e1ff437a012c3acd6d3687db32793e8d39eeb48f5cbcf61370",
+      "compressed_bytes": 703
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/actual-driver",
+      "artifact": "inputs/001-actual-driver.gz",
+      "sha256": "f6a5353a7397511a817f7500721ac557a96f44f6b56412c5ae0eaab87a2825b5",
+      "bytes": 32850272,
+      "compressed_sha256": "89b2b4f5a063e956b987f049780b7a9da9c91cc2b2a80f72d1c94f05e4d38752",
+      "compressed_bytes": 6225045
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/actual-eval-provider.o",
+      "artifact": "inputs/002-actual-eval-provider.o.gz",
+      "sha256": "1de0f97a3f00533ad597f4d7efa8607049722009b38ea1b89d2ea26d0549b8b8",
+      "bytes": 3327480,
+      "compressed_sha256": "e18f21868a5b7c4f3cf2dfdd4a61dfd75aff51cc9937c71a1f231acd120d2626",
+      "compressed_bytes": 642272
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/control.stderr",
+      "artifact": "inputs/003-control.stderr.gz",
+      "sha256": "a7de8cfe0a80714ce25b1393f3d5730ac652f54bd2d8e95589cd6078b5eb2d10",
+      "bytes": 8554,
+      "compressed_sha256": "45f80d323019760a312e49723ddce4e2f020d5c5d04975df4fb7d3ed3b131275",
+      "compressed_bytes": 832
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/control.stdout",
+      "artifact": "inputs/004-control.stdout.gz",
+      "sha256": "eb27c39c3b47f132f2690cde72d035c384e2b11df316ae4165b634d663248b0e",
+      "bytes": 43437,
+      "compressed_sha256": "73a5ac866a1977af11927e72d4390a8368028b66d4c5fb90f0773de0586a04a6",
+      "compressed_bytes": 2513
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/manifest.json",
+      "artifact": "inputs/005-manifest.json.gz",
+      "sha256": "16cf71bcb991915a80d611e74bebe51a4bcb25a5c56d545c5382d8a7d498f40d",
+      "bytes": 618,
+      "compressed_sha256": "771317d962c0e2e5adb8b6f7bea0310f431fe5b78d9a5abc20650722558796cc",
+      "compressed_bytes": 412
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-Makefile.gnu",
+      "artifact": "inputs/006-source-Makefile.gnu.gz",
+      "sha256": "d216e980a9acda3adb2204904252e5e12c0ccb9ebf64b734cfc5387c2d0a035c",
+      "bytes": 432882,
+      "compressed_sha256": "639ac7b754e76dd48ab805b3d2ad852acb35b355c69c487305fa4fd055db691c",
+      "compressed_bytes": 73022
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-env.c",
+      "artifact": "inputs/007-source-env.c.gz",
+      "sha256": "1bb2c1459a0191e0b9881e60c4832f52e7871fe949b7ee285cb4a9f72364eaaf",
+      "bytes": 115586,
+      "compressed_sha256": "e06dbe5e08b9e8f74ef6b46daf95b1fb864b9262f0231b3322945336ec4ba221",
+      "compressed_bytes": 22569
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-eval.c",
+      "artifact": "inputs/008-source-eval.c.gz",
+      "sha256": "6b7af759976892c157a276c957a22804248e99ce451a461958fb619ea9c22858",
+      "bytes": 311934,
+      "compressed_sha256": "345da72ae02af84a340bcd9fd1ab5ed0bc8c95bd77b618b18cb5b3603802b121",
+      "compressed_bytes": 48107
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-identities.json",
+      "artifact": "inputs/009-source-identities.json.gz",
+      "sha256": "b291490d3a94bc211129896c986f8bdf7d5568a39f7a6cd3347ffa72c34e4799",
+      "bytes": 544,
+      "compressed_sha256": "ca81640fe007f937dd6565721dd6aa6c494bdc1446b4082180c66dc85b5bd623",
+      "compressed_bytes": 347
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-test_eval.c",
+      "artifact": "inputs/010-source-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "3850ab5ba73318d5e6cd2f0bdaf13cc5e5a3b025c22e33c5d97b30a5b8c7d3d5",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-test_eval_enum_ownership.c",
+      "artifact": "inputs/011-source-test_eval_enum_ownership.c.gz",
+      "sha256": "104b4029684b6f99d8b3ed8658dc5960cf5106f3d5c507ef3a72c435f4983366",
+      "bytes": 319,
+      "compressed_sha256": "056f49023707538aa7ae19d4404e1c1d899ccadc378e56e82681d1691675f7a8",
+      "compressed_bytes": 238
+    },
+    {
+      "path": ".test_output/enum-ownership-baseline/source-typechecker.c",
+      "artifact": "inputs/012-source-typechecker.c.gz",
+      "sha256": "c1ccf7b6a11d36a19c86d4818af33a8eec2adf0fce86d35e7c84568caaf9142f",
+      "bytes": 518432,
+      "compressed_sha256": "377d5b5437c6b3f640b0f1fbdda0a99a4c055f0b9a706e523be813e4029cf8ca",
+      "compressed_bytes": 83550
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/actual-complete-driver",
+      "artifact": "inputs/013-actual-complete-driver.gz",
+      "sha256": "79449cb884b28be829990bb289800957a8e69902a81a9eb7bbbe2e5dc2b265d2",
+      "bytes": 32175672,
+      "compressed_sha256": "37d60fd3ae60a57d2a9e84759b4e2dd586a2e24cce546777bd8546d778c2952f",
+      "compressed_bytes": 6112513
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/complete-original.stderr",
+      "artifact": "inputs/014-complete-original.stderr.gz",
+      "sha256": "e1dd84f64e59df08ecb07257989177f77b75d43837bc3399f1cbace022b89c77",
+      "bytes": 255143,
+      "compressed_sha256": "cee53496e72b8035581ab890ea978d9ec6c4009f0ee797c0812b83da160bd954",
+      "compressed_bytes": 11592
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/complete-original.stdout",
+      "artifact": "inputs/015-complete-original.stdout.gz",
+      "sha256": "95b90cab6257912dc21f6ca2890ac1d2df3e21e5b67c5bff038a340c853873a3",
+      "bytes": 9564,
+      "compressed_sha256": "25c3bd77328e326db8825bbe3ede0c1b8316613c08fbfc39bb5fe6d306b37683",
+      "compressed_bytes": 1870
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/manifest.json",
+      "artifact": "inputs/016-manifest.json.gz",
+      "sha256": "a9ad4962b8c884cb9c0651ce1b9b295a2f45836d94747a08a342cbcc6111a513",
+      "bytes": 1454,
+      "compressed_sha256": "7e5e8c8e797c9a58ae2119097ccc55a272d9117b22e6b3f8ef5f8917f6067e22",
+      "compressed_bytes": 604
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/matching-native-helper.so",
+      "artifact": "inputs/017-matching-native-helper.so.gz",
+      "sha256": "2cc6776acd22dc35dcd7675c01aa73e3eb355995bc0a11e789dc6ce53d339590",
+      "bytes": 80856,
+      "compressed_sha256": "b88a62362978bd9342e870b2b10ef86fc8fc5f0cdb95cdfae80c8511e077ad6d",
+      "compressed_bytes": 8120
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/matching-native-helper.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-full-sanitizers/matching-native-helper.stdout",
+      "artifact": "inputs/019-matching-native-helper.stdout.gz",
+      "sha256": "66cb4f49710a684ea96958d6f452469558570a103b7413c3c6d8e56bf3e03f75",
+      "bytes": 290,
+      "compressed_sha256": "19351a1dbd48faea193aa367a7bb89d89aff346fbf2a2ddeba497927936da4ff",
+      "compressed_bytes": 213
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/complete-functional.stderr",
+      "artifact": "inputs/020-complete-functional.stderr.gz",
+      "sha256": "ca5429375b91cd2a37ec31585fee1d37badcac4e7eb39b8a87a671f43521a6f1",
+      "bytes": 202,
+      "compressed_sha256": "6609d5451e0f28585baafaded6a0535a100cb1c1fed95175ce2b118dcbc88425",
+      "compressed_bytes": 135
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/complete-functional.stdout",
+      "artifact": "inputs/021-complete-functional.stdout.gz",
+      "sha256": "9ce70cde022b1d834631595bf2c738de4db30f6468127a72c95067f3db1681c5",
+      "bytes": 71172,
+      "compressed_sha256": "7b5f679bcd837d14852157ab99d800e70a42bca87e62064a9975d315e770eb22",
+      "compressed_bytes": 5420
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/execute-retained-driver.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/execute-retained-driver.stdout",
+      "artifact": "inputs/023-execute-retained-driver.stdout.gz",
+      "sha256": "8d66ab0e19fac320d3cac2ef9a0a589ee28c650e25d38c0ca9829daaffbfb66e",
+      "bytes": 7925,
+      "compressed_sha256": "60639df35a6673fcd946d54fad91032dfd1c3295b238c98b85d4e647cd02d32a",
+      "compressed_bytes": 1511
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/execute-with-retained-helper.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/execute-with-retained-helper.stdout",
+      "artifact": "inputs/023-execute-retained-driver.stdout.gz",
+      "sha256": "8d66ab0e19fac320d3cac2ef9a0a589ee28c650e25d38c0ca9829daaffbfb66e",
+      "bytes": 7925,
+      "compressed_sha256": "60639df35a6673fcd946d54fad91032dfd1c3295b238c98b85d4e647cd02d32a",
+      "compressed_bytes": 1511
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/link-retained-driver.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/link-retained-driver.stdout",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/manifest.json",
+      "artifact": "inputs/028-manifest.json.gz",
+      "sha256": "9d3190f822bc8ff6fb0f2ce426b9a78bd67c8bc60f6a1488260279492fd5bc95",
+      "bytes": 1389,
+      "compressed_sha256": "2110d60bb79351c493cb4986f8940b398aa83137de8a444de40eb22a7db594dd",
+      "compressed_bytes": 634
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/matching-native-helper.so",
+      "artifact": "inputs/029-matching-native-helper.so.gz",
+      "sha256": "3cd03e2431a365afa0d992209a69bc9641d20a92ce94220b9cf5680c9acd2c83",
+      "bytes": 73656,
+      "compressed_sha256": "d94e0162fd4a4f1f3f1cca18c07b81601d4bd60af2e8ce6d3d4d6fdb0c0158cc",
+      "compressed_bytes": 4766
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/matching-native-helper.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/matching-native-helper.stdout",
+      "artifact": "inputs/031-matching-native-helper.stdout.gz",
+      "sha256": "23884134f295df37ba2d5988ebf92f37bdb313dd0795eb10ffd6bba95273b9f9",
+      "bytes": 196,
+      "compressed_sha256": "eedc457558831a69cc803e0d52da1f2b501d25ddd90da3be4de33539b6e8b64f",
+      "compressed_bytes": 160
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/restore-retained-native-helper.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/restore-retained-native-helper.stdout",
+      "artifact": "inputs/031-matching-native-helper.stdout.gz",
+      "sha256": "23884134f295df37ba2d5988ebf92f37bdb313dd0795eb10ffd6bba95273b9f9",
+      "bytes": 196,
+      "compressed_sha256": "eedc457558831a69cc803e0d52da1f2b501d25ddd90da3be4de33539b6e8b64f",
+      "compressed_bytes": 160
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/retained-driver.json",
+      "artifact": "inputs/034-retained-driver.json.gz",
+      "sha256": "0563a4c4ac62cbe16da099188b2558906074275ed3ac16c87643c4c3129e4fcc",
+      "bytes": 8056,
+      "compressed_sha256": "93af29ddb2dab2cfe50567f258955cce882f2f74fe08e2280e462134fc8406bc",
+      "compressed_bytes": 1363
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/retained-enum-controls",
+      "artifact": "inputs/035-retained-enum-controls.gz",
+      "sha256": "ffc4d5538e7243ddadb40334cf5c21fcb93ade5af14f24248e03a3937af16fed",
+      "bytes": 16596824,
+      "compressed_sha256": "30a14c4692e1fa9063cb8e88acdbbeaa1351099d386b35c6748c1d75dcdd76e5",
+      "compressed_bytes": 3371728
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/retained-native-helper.json",
+      "artifact": "inputs/036-retained-native-helper.json.gz",
+      "sha256": "663b35a310dc6409a8b2eed7d619f34117a9410ae79fbfa9900786e4db36d425",
+      "bytes": 691,
+      "compressed_sha256": "5ca2d3510ab4d9d5aab5695fb893017c8d9216e08d9f5663b8520529bcca18ef",
+      "compressed_bytes": 413
+    },
+    {
+      "path": ".test_output/enum-ownership-functional/retained-test-eval",
+      "artifact": "inputs/037-retained-test-eval.gz",
+      "sha256": "bbffeb3e42db450baf39379c82ba8a1e94f792f9dcb9c2e82639828e15195e90",
+      "bytes": 16661952,
+      "compressed_sha256": "5ad9ddadacab9ff2c41115777af0373160a9c8dd11a1dff9de2fc0c62af3a448",
+      "compressed_bytes": 3371201
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/actual-driver",
+      "artifact": "inputs/038-actual-driver.gz",
+      "sha256": "a3ef499ab300deabc7c3c1af1c051f9f0ba07db8d6dbdd3a9a1c8ac6cb3e2414",
+      "bytes": 32850168,
+      "compressed_sha256": "63cc89f81b9c09cb93508286cad3a1def80921636b0c4f07378101cfaa06925b",
+      "compressed_bytes": 6225570
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/actual-eval-provider.o",
+      "artifact": "inputs/039-actual-eval-provider.o.gz",
+      "sha256": "f13bfb9ee694608dd779e33e1390f12e68eb694f8a7e8ae8f0e5753c1cbdebbe",
+      "bytes": 3328256,
+      "compressed_sha256": "2748c3aab491f8b05c35dad00c4fda7840e3e394a5f803b3d474bb6215ebe0e2",
+      "compressed_bytes": 642322
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/control.stderr",
+      "artifact": "inputs/018-matching-native-helper.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/control.stdout",
+      "artifact": "inputs/041-control.stdout.gz",
+      "sha256": "5b84fbab8dc8629d5ebb9c46cd94d0b410874d0cdc5fe2e52607bc267fa887ab",
+      "bytes": 6496,
+      "compressed_sha256": "bd9be18350c5c2b6fd7d344877d04a3b2f5ad1396c99385398420e8697f5d090",
+      "compressed_bytes": 1141
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/manifest.json",
+      "artifact": "inputs/042-manifest.json.gz",
+      "sha256": "5c8a4ddac56652dfa3483b8e80ec6900343a4b2faf09bac49ca1d151a2d6b14e",
+      "bytes": 618,
+      "compressed_sha256": "a37a81c1046f6a16eb61f85d57729112d05543fccb85473698d95b4a070c32f0",
+      "compressed_bytes": 412
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-Makefile.gnu",
+      "artifact": "inputs/006-source-Makefile.gnu.gz",
+      "sha256": "d216e980a9acda3adb2204904252e5e12c0ccb9ebf64b734cfc5387c2d0a035c",
+      "bytes": 432882,
+      "compressed_sha256": "639ac7b754e76dd48ab805b3d2ad852acb35b355c69c487305fa4fd055db691c",
+      "compressed_bytes": 73022
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-env.c",
+      "artifact": "inputs/007-source-env.c.gz",
+      "sha256": "1bb2c1459a0191e0b9881e60c4832f52e7871fe949b7ee285cb4a9f72364eaaf",
+      "bytes": 115586,
+      "compressed_sha256": "e06dbe5e08b9e8f74ef6b46daf95b1fb864b9262f0231b3322945336ec4ba221",
+      "compressed_bytes": 22569
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-eval.c",
+      "artifact": "inputs/045-source-eval.c.gz",
+      "sha256": "229792a657f16ab71da1fc46cbacdb12032ce32e387b54b263ff22a322a610f8",
+      "bytes": 312101,
+      "compressed_sha256": "7d6e07e2f77a0a7de8efcf5c90e9df9a95e4ce61595c1432d9b38497f8b1ed5c",
+      "compressed_bytes": 48150
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-identities.json",
+      "artifact": "inputs/046-source-identities.json.gz",
+      "sha256": "66da8bbda455d9ebf5a04ad0e84df5c88d46796a877b0787bf56f4cfe70edbba",
+      "bytes": 544,
+      "compressed_sha256": "b59fe7ac310239822f8565bf9a04bde5d967850bb48ee418b280b27a7a00a316",
+      "compressed_bytes": 348
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-test_eval.c",
+      "artifact": "inputs/010-source-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "3850ab5ba73318d5e6cd2f0bdaf13cc5e5a3b025c22e33c5d97b30a5b8c7d3d5",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-test_eval_enum_ownership.c",
+      "artifact": "inputs/011-source-test_eval_enum_ownership.c.gz",
+      "sha256": "104b4029684b6f99d8b3ed8658dc5960cf5106f3d5c507ef3a72c435f4983366",
+      "bytes": 319,
+      "compressed_sha256": "056f49023707538aa7ae19d4404e1c1d899ccadc378e56e82681d1691675f7a8",
+      "compressed_bytes": 238
+    },
+    {
+      "path": ".test_output/enum-ownership-repair/source-typechecker.c",
+      "artifact": "inputs/012-source-typechecker.c.gz",
+      "sha256": "c1ccf7b6a11d36a19c86d4818af33a8eec2adf0fce86d35e7c84568caaf9142f",
+      "bytes": 518432,
+      "compressed_sha256": "377d5b5437c6b3f640b0f1fbdda0a99a4c055f0b9a706e523be813e4029cf8ca",
+      "compressed_bytes": 83550
+    },
+    {
+      "path": ".test_output/retain-enum-functional-driver.log",
+      "artifact": "inputs/050-retain-enum-functional-driver.log.gz",
+      "sha256": "460541ef824a5515997e9fe1898de5655d54b52fcce69e4d0f6fdb824605e281",
+      "bytes": 65,
+      "compressed_sha256": "f3dc48784e28614e7db11b4ece157c03d2f1c92ee0c5b01f8fe19939b89a3840",
+      "compressed_bytes": 72
+    },
+    {
+      "path": ".test_output/retain-enum-functional-driver.py",
+      "artifact": "inputs/051-retain-enum-functional-driver.py.gz",
+      "sha256": "f7fb10b4ed8bc80371aa213f9e649309ddceac92d834b63f3583e126dcf518f5",
+      "bytes": 1490,
+      "compressed_sha256": "4da9b61cf42df9da6b5d4ab67ac3a9b5a8d071346ffa7a75b463c0f6b90ff322",
+      "compressed_bytes": 800
+    },
+    {
+      "path": ".test_output/run-enum-baseline.log",
+      "artifact": "inputs/052-run-enum-baseline.log.gz",
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+      "bytes": 2,
+      "compressed_sha256": "f1a9167da95f47199794723039f492a7278e7c57e9cbc775b17755453b16ceb1",
+      "compressed_bytes": 22
+    },
+    {
+      "path": ".test_output/run-enum-baseline.py",
+      "artifact": "inputs/053-run-enum-baseline.py.gz",
+      "sha256": "2035d7babe76ea3df0c2628a56b6952692822c7f4977c96e86eb8ae6d6ecf7f6",
+      "bytes": 779,
+      "compressed_sha256": "f886df8d032ff077ccc3ca9415d7f949f8bbd840c3133c8351fa4dfa64278c5b",
+      "compressed_bytes": 444
+    },
+    {
+      "path": ".test_output/run-enum-full-sanitizers.log",
+      "artifact": "inputs/054-run-enum-full-sanitizers.log.gz",
+      "sha256": "02fa15e260e19a915668de4c7e10fe6b77a5ceca5b36cc43774fb7b32d698d3c",
+      "bytes": 58,
+      "compressed_sha256": "c7ca3526dc2da376af6920e79f37ed88e96273b721481bf69e19a721f048eb71",
+      "compressed_bytes": 78
+    },
+    {
+      "path": ".test_output/run-enum-full-sanitizers.py",
+      "artifact": "inputs/055-run-enum-full-sanitizers.py.gz",
+      "sha256": "eeddc063e8de496200432fe4355af738a2ce78964fcace22133b223604d27689",
+      "bytes": 1323,
+      "compressed_sha256": "1f03f711f18bd38de204dac1c3cc8c30c9604c7b0c1dc5a41ef6687467de00dc",
+      "compressed_bytes": 738
+    },
+    {
+      "path": ".test_output/run-enum-functional.log",
+      "artifact": "inputs/056-run-enum-functional.log.gz",
+      "sha256": "9c1d2fdd7f65ea2587bb970604b88c92b8f27a1cabb7226f09623be2d21d6beb",
+      "bytes": 94,
+      "compressed_sha256": "00b1cd0bc05647bf5fe1364509ff206ecf1a29ce37dd123ca730c8ce4eece1cc",
+      "compressed_bytes": 97
+    },
+    {
+      "path": ".test_output/run-enum-functional.py",
+      "artifact": "inputs/057-run-enum-functional.py.gz",
+      "sha256": "324a4bc3be1abc75c4503718e057f3e613a48d0a6a9feb5c819807b219e4955c",
+      "bytes": 1436,
+      "compressed_sha256": "e709af6e8e8cffd3bb5273912e8eef550da90cb1603b101efa762f3de5598196",
+      "compressed_bytes": 815
+    },
+    {
+      "path": ".test_output/run-enum-repair.log",
+      "artifact": "inputs/058-run-enum-repair.log.gz",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "compressed_sha256": "7f263c77ae02ddc3d97e11239a2b2f34ffcf1acbf5bc5eef487d51f5c03744c3",
+      "compressed_bytes": 22
+    },
+    {
+      "path": ".test_output/run-enum-repair.py",
+      "artifact": "inputs/059-run-enum-repair.py.gz",
+      "sha256": "80bbeef667df6d4a67e45e56abdd56897e53c6ef7189d18808fa492ca5fb57bd",
+      "bytes": 777,
+      "compressed_sha256": "37cb57d1fe913f5d94edb257132488311b7b143b29f2b677e9f6e97df3cb1428",
+      "compressed_bytes": 446
+    },
+    {
+      "path": "Makefile.gnu",
+      "artifact": "inputs/006-source-Makefile.gnu.gz",
+      "sha256": "d216e980a9acda3adb2204904252e5e12c0ccb9ebf64b734cfc5387c2d0a035c",
+      "bytes": 432882,
+      "compressed_sha256": "639ac7b754e76dd48ab805b3d2ad852acb35b355c69c487305fa4fd055db691c",
+      "compressed_bytes": 73022
+    },
+    {
+      "path": "src/env.c",
+      "artifact": "inputs/007-source-env.c.gz",
+      "sha256": "1bb2c1459a0191e0b9881e60c4832f52e7871fe949b7ee285cb4a9f72364eaaf",
+      "bytes": 115586,
+      "compressed_sha256": "e06dbe5e08b9e8f74ef6b46daf95b1fb864b9262f0231b3322945336ec4ba221",
+      "compressed_bytes": 22569
+    },
+    {
+      "path": "src/eval.c",
+      "artifact": "inputs/045-source-eval.c.gz",
+      "sha256": "229792a657f16ab71da1fc46cbacdb12032ce32e387b54b263ff22a322a610f8",
+      "bytes": 312101,
+      "compressed_sha256": "7d6e07e2f77a0a7de8efcf5c90e9df9a95e4ce61595c1432d9b38497f8b1ed5c",
+      "compressed_bytes": 48150
+    },
+    {
+      "path": "tests/test_eval.c",
+      "artifact": "inputs/010-source-test_eval.c.gz",
+      "sha256": "18fe30b1fbbab6f6dcca8e18fc63ff1a94528e9e13047b2153ab9266471b7da2",
+      "bytes": 145472,
+      "compressed_sha256": "3850ab5ba73318d5e6cd2f0bdaf13cc5e5a3b025c22e33c5d97b30a5b8c7d3d5",
+      "compressed_bytes": 25795
+    },
+    {
+      "path": "tests/test_eval_enum_ownership.c",
+      "artifact": "inputs/011-source-test_eval_enum_ownership.c.gz",
+      "sha256": "104b4029684b6f99d8b3ed8658dc5960cf5106f3d5c507ef3a72c435f4983366",
+      "bytes": 319,
+      "compressed_sha256": "056f49023707538aa7ae19d4404e1c1d899ccadc378e56e82681d1691675f7a8",
+      "compressed_bytes": 238
+    }
+  ]
+}
