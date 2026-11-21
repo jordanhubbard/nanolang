@@ -10,6 +10,10 @@ on:
         description: I qualify a private GNU as 2.46 candidate without changing product admission.
         type: boolean
         default: false
+      diagnose_native_debug:
+        description: I retain the four native debug failures in a private candidate, without qualifying admission.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -37,6 +41,10 @@ jobs:
         if: inputs.qualify_as_246
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py
+      - name: Diagnose native debug provenance in an isolated candidate
+        if: inputs.diagnose_native_debug && !inputs.qualify_as_246
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py --native-debug-only
       - name: Upload Linux capture evidence
         if: always()
         uses: actions/upload-artifact@v4

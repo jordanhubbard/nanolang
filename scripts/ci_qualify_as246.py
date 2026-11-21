@@ -24,6 +24,9 @@ def command(argv, label, timeout):
 
 
 def main():
+    if sys.argv[1:] not in ([], ['--native-debug-only']):
+        raise ValueError('I require an explicit supported diagnostic mode.')
+    native_debug_only = bool(sys.argv[1:])
     OUT.mkdir(parents=True, exist_ok=False)
     previous = json.loads((capture.OUT / 'observation.json').read_text())
     if not previous['assembler_version'].splitlines()[0].endswith(') 2.46'):
@@ -32,6 +35,7 @@ def main():
     test = ROOT / 'tests/test_source_snapshots.py'
     original = {path: path.read_bytes() for path in (source, test)}
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
+              'native_debug_only': native_debug_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
                          'Original unittest temporary products retain their original cleanup.']}
@@ -76,7 +80,21 @@ report=dict(discovered=discovered,ran=result.testsRun,errors=len(result.errors),
 open(sys.argv[1],'w').write(json.dumps(report,indent=2)+'\\n')
 sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==128 else 1)
 '''
+        if native_debug_only:
+            methods = ['test_assembler_instruction_and_location_provenance',
+                       'test_equals_path_native_debug_identity',
+                       'test_integrated_instruction_and_location_provenance',
+                       'test_integrated_native_unit_debug_identity']
+            selection = ['tests.test_source_snapshots.SourceSnapshots.' + name for name in methods]
+            runner = runner.replace("unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')",
+                                    'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
+            runner = runner.replace('discovered==128 and result.testsRun==128',
+                                    'discovered==4 and result.testsRun==4')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
+        if native_debug_only:
+            record['native_debug_observation_passed'] = True
+            record['private_candidate_qualification_passed'] = False
+            return
         report = json.loads((OUT / 'tests.json').read_text())
         required = ('test_gcc_macro_argument_replays_captured_reads',
                     'test_gcc_missing_capture_helper_preserves_generation_and_recovers',
