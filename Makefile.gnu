@@ -730,6 +730,14 @@ $(OBJ_DIR)/nvm2c_instruction_reference: tests/nvm2c_instruction_reference.c $(NA
 test-nanolang-translator-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference
 	python3 -m unittest -v tests.test_nanolang_translator_instructions
 
+# I use the actual private copier as a descriptive test oracle.
+$(OBJ_DIR)/nvm2c_record_instructions_reference: tests/nvm2c_record_instructions_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-record-instructions
+test-nanolang-translator-record-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference $(OBJ_DIR)/nvm2c_record_instructions_reference
+	NANOLANG_RECORD_INSTRUCTIONS_REFERENCE="$(OBJ_DIR)/nvm2c_record_instructions_reference" NANOLANG_PRIMARY_REFERENCE="$(OBJ_DIR)/nvm2c_instruction_reference" python3 -m unittest -v tests.test_nanolang_translator_record_instructions
+
 $(OBJ_DIR)/nvm2c_functions_reference: tests/nvm2c_functions_reference.c $(VM_DECODE_OBJECT) $(OBJ_DIR)/nanoisa/isa.o | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(VM_DECODE_OBJECT) $(OBJ_DIR)/nanoisa/isa.o $(LDFLAGS)
 

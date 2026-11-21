@@ -654,3 +654,37 @@ name bytes before that terminal boundary. Handler decoding preserves its
 ordinary terminal-boundary behavior; executable handler-arm validation belongs
 to the verifier. I clear every partial view on refusal. This immutable decode
 boundary grants no stack, type, lifetime, effect or host authority. My Linux test matches1325 complete reports through five routes, with1197 explicit validity expectations, using the actual native Stage1 source compiler. I retain generated products and complete reports for the final receipt. Full paired producer/platform qualification remains pending.
+
+## My copied record instruction recipes
+
+`record_instructions.nano` describes the existing ARRAY/MAP instruction copier
+before full profile analysis. I retain all94 ordinary record/array opcode recipes
+and the six additional MAP operations. My recipe kind and obligation bits copy
+the existing root, tag/bounds/nominal, safepoint, operand-staging, retain-before-
+release and first-error cleanup requirements. These are runtime obligations;
+I have not discharged them by copying their names.
+
+I use my pure function decoder, then resolve literal/aggregate field counts,
+call arities/results and current-function returns into exact stack counts.
+CALL retains its continuation and a separate callee; TAIL_CALL and RET have no
+successor. Conditional branches retain target before fallthrough. I copy every
+instruction, including dead code, with relative edges and lossless operand
+halves. My descriptive bounds are256 functions,65536 instructions,256 stack
+operands/results and256 derived global slots. I clear partial output on refusal.
+
+This low-level copier preserves its existing unsigned global-index increment,
+including UINT32 wrap. Full profile analysis separately rejects invalid globals
+before execution. A copied result does not establish valid globals, types,
+origins, lifetimes, stack-flow consistency, complete resource accounting or
+executable admission. Inferred MAP key/value/result tag sets also remain part of full profile analysis.
+I keep those gates open; this module is not selected by
+my product driver or whole-module decoder.
+
+My Linux differential gate matches2014 reports through direct C-seed native
+execution and both producers in NanoVM/sanitized C AOT, with994 explicit validity
+expectations. Reports contain the relative instruction descriptors and operand halves for functions
+up to1024 instructions; the65536/65537 boundary controls return the final
+validity/count summary after complete copying. Both producers execute useful
+shadows under their existing component deadline. My original identifier gate
+passes five controls and3308 static fragments. Darwin and full checked-profile
+analysis remain required.
