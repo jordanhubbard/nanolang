@@ -153,6 +153,29 @@ for number, (compiler, developer) in enumerate(compilers):
             if reader and output_case.is_file():
                 run([reader, '--debug-dump=info', output_case], label+'-info', cwd=case)
                 run([reader, '--debug-dump=decodedline', output_case], label+'-lines', cwd=case)
+            if not raw and (case/'preprocessed.s').is_file():
+                # I replay actual preprocessing bytes separately from native
+                # acceptance, then isolate marker effects without changing it.
+                expanded = (case/'preprocessed.s').read_text()
+                lines = expanded.splitlines(keepends=True)
+                variants = {
+                    'actual': expanded,
+                    'without-directory': ''.join(line for line in lines
+                                                 if not (line.startswith('# ') and '//"' in line)),
+                    'without-predef': ''.join(line for line in lines
+                                              if not (line.startswith('# ') and 'stdc-predef.h' in line)),
+                    'source-marker-only': '# 1 "' + str(source_case) + '"\n' +
+                                          ''.join(line for line in lines if not line.startswith('# ')),
+                }
+                for replay, text in variants.items():
+                    replay_source = case/('replay-' + replay + '.s')
+                    replay_object = case/('replay-' + replay + '.o')
+                    replay_source.write_text(text)
+                    run([compiler, '-c', '-x', 'assembler', '-fPIC', '-g',
+                         replay_source, '-o', replay_object], label+'-replay-'+replay, cwd=case)
+                    if reader and replay_object.is_file():
+                        run([reader, '--debug-dump=info', replay_object],
+                            label+'-replay-'+replay+'-info', cwd=case)
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):
