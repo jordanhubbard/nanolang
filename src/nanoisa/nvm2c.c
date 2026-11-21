@@ -1356,8 +1356,17 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 plan->next = b->scalar_joins; b->scalar_joins = plan;
             }
             if (plan->tags[i] != tags) {
-                if (facts->final) {
-                    nvm2c_fail(b, "I require stable scalar join facts before shape emission"); return 0;
+                /* I can finish an unchanged tagged join when shape construction
+                 * resolves a caller's optional scalar mask. Both incoming edges
+                 * already have identical finite tags and carrier storage; this
+                 * exception cannot widen an exact or unproved representation. */
+                int unchanged_carriers = join->slots[i].kind == NVM2C_VK_VALUE &&
+                    stack[i].kind == NVM2C_VK_VALUE &&
+                    join->slots[i].scalar_tags == tags && stack[i].scalar_tags == tags;
+                if (facts->final && !unchanged_carriers) {
+                    nvm2c_fail(b, "I require stable scalar join facts before shape emission "
+                        "(function %u, target %zu, slot %d, plan 0x%x, actual 0x%x)",
+                        idx, target, i, plan->tags[i], tags); return 0;
                 }
                 plan->tags[i] = tags; facts->changed = 1;
             }

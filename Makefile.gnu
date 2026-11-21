@@ -695,6 +695,13 @@ test-nominal-owner-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nominal_owner_context tests/test_nominal_owner_context.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_nominal_owner_context
 
+# I retain my actual Stage1 optional-carrier counterexample without invoking its host imports.
+.PHONY: test-native-late-scalar-joins
+test-native-late-scalar-joins: nvm2c nano_vm
+	python3 -m unittest -v tests.test_native_late_scalar_joins
+
+test-native-scalar-joins test-nvm2c: test-native-late-scalar-joins
+
 .PHONY: test-imported-constructor-identity test-native-record-join-values
 test-imported-constructor-identity: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_imported_constructor_identity
