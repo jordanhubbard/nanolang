@@ -215,13 +215,14 @@ shadow fixed {
     assert (== trailing.status 9)
 }
 
-# Forward-containing public layout tables require exact scalar/record DAGs.
-fn forward_graph(bytes: array<u8>, starts: array<int>) -> int {
+# I keep the selected forward-layout grammar separate from transport.
+fn forward_graph(bytes: array<u8>, starts: array<int>, array_leaves: bool, mixed_unions: bool, map_leaves: bool) -> int {
     let count: int = (array_length starts)
     let mut i: int = 0
     while (< i count) {
         let row: int = (at starts i)
-        if (!= (at bytes row) 0) { return 13 }
+        let kind: int = (at bytes row)
+        if (and (!= kind 0) (not (and mixed_unions (== kind 2)))) { return 13 }
         let fields: int = (wire.read_u16 bytes (+ row 2))
         let mut f: int = 0
         while (< f fields) {
@@ -230,8 +231,12 @@ fn forward_graph(bytes: array<u8>, starts: array<int>) -> int {
             let nested: int = (wire.read_u32 bytes (+ field 4))
             if (== tag 8) {
                 if (>= nested count) { return 13 }
+                if (and mixed_unions (or (!= kind 0) (!= (at bytes (at starts nested)) 0))) { return 13 }
             } else {
-                if (or (< tag 1) (> tag 5)) { return 13 }
+                let scalar_leaf: bool = (and (>= tag 1) (<= tag 5))
+                let array_leaf: bool = (and array_leaves (and (== tag 7) (or (not mixed_unions) (== kind 0))))
+                let map_leaf: bool = (and map_leaves (and (== tag 13) (== kind 0)))
+                if (not (or scalar_leaf (or array_leaf map_leaf))) { return 13 }
                 if (!= nested 4294967295) { return 13 }
             }
             set f (+ f 1)
@@ -285,13 +290,13 @@ fn forward_graph(bytes: array<u8>, starts: array<int>) -> int {
 shadow forward_graph {
     let empty: array<u8> = []
     let starts: array<int> = []
-    assert (== (forward_graph empty starts) 0)
+    assert (== (forward_graph empty starts false false false) 0)
     let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0]
     let one: array<int> = [0]
-    assert (== (forward_graph bytes one) 13)
+    assert (== (forward_graph bytes one false false false) 13)
 }
 
-pub fn layouts(bytes: array<u8>) -> PayloadTable {
+pub fn layouts_profile(bytes: array<u8>, array_leaves: bool, mixed_unions: bool, map_leaves: bool) -> PayloadTable {
     let count: int = (table_count bytes 8)
     if (< count 0) { return (refused bytes 1) }
     let mut starts: array<int> = []
@@ -327,10 +332,20 @@ pub fn layouts(bytes: array<u8>) -> PayloadTable {
         set i (+ i 1)
     }
     if forward {
-        let status: int = (forward_graph bytes starts)
+        let status: int = (forward_graph bytes starts array_leaves mixed_unions map_leaves)
         if (!= status 0) { return (refused bytes status) }
     }
     return PayloadTable { status: 0, data: bytes, starts: starts, ends: ends, end: cursor }
+}
+shadow layouts_profile {
+    let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255]
+    assert (== (layouts_profile bytes true true true).status 0)
+    let broken: array<u8> = [1, 0, 0, 0]
+    assert (== (layouts_profile broken true true true).status 1)
+}
+
+pub fn layouts(bytes: array<u8>) -> PayloadTable {
+    return (layouts_profile bytes false false false)
 }
 shadow layouts {
     let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255]

@@ -745,6 +745,13 @@ $(OBJ_DIR)/nvm2c_ownership_reference: tests/nvm2c_ownership_reference.c $(NANOIS
 test-nanolang-translator-ownership: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_reference
 	python3 -m unittest -v tests.test_nanolang_translator_ownership
 
+$(OBJ_DIR)/nvm2c_private_layout_reference: tests/nvm2c_private_layout_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-private-layouts
+test-nanolang-translator-private-layouts: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_private_layout_reference
+	python3 -m unittest -v tests.test_nanolang_translator_private_layouts
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container
