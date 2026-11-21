@@ -1203,6 +1203,12 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
 
         case AST_CALL: {
+            FunctionSignature *checked = expr->as.call.checked_signature;
+            TypeInfo *result_info = checked ? checked->return_type_info : NULL;
+            if (result_info && result_info->generic_name &&
+                (result_info->base_type == TYPE_STRUCT || result_info->base_type == TYPE_UNION || result_info->base_type == TYPE_ENUM))
+                return result_info->generic_name;
+            if (checked && checked->return_struct_name) return checked->return_struct_name;
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
                 return array_record_name(expr->as.call.args[0], env);

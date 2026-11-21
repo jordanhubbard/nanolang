@@ -695,6 +695,16 @@ test-nominal-owner-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nominal_owner_context tests/test_nominal_owner_context.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_nominal_owner_context
 
+.PHONY: test-imported-constructor-identity test-native-record-join-values
+test-imported-constructor-identity: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_imported_constructor_identity
+
+test-native-record-join-values: $(BIN_DIR)/nanoisa nano_vm nvm2c
+	python3 -m unittest -v tests.test_native_record_join_values
+
+test-quick: test-imported-constructor-identity
+test-nvm2c: test-native-record-join-values
+
 # I compare my NanoLang container decoder with the existing C boundary.
 $(OBJ_DIR)/nvm2c_container_reference: tests/nvm2c_container_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
