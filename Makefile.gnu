@@ -783,6 +783,15 @@ $(OBJ_DIR)/nvm2c_service_nominal_reference_asan: tests/nvm2c_service_nominal_ref
 test-nanolang-translator-service-nominal: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime check-nvm2c-service-catalog $(OBJ_DIR)/nvm2c_service_nominal_reference $(OBJ_DIR)/nvm2c_service_nominal_reference_asan
 	python3 -m unittest -v tests.test_nanolang_translator_service_nominal
 
+SERVICE_MODULE_UNITS = $(SERVICE_NOMINAL_UNITS) service_bindings service_bindings_module nvm_format isa
+SERVICE_MODULE_SOURCES = $(addprefix $(NANOISA_DIR)/,$(addsuffix .c,$(SERVICE_MODULE_UNITS))) $(addprefix $(SRC_DIR)/,nsi_file_plan.c nsi_socket_plan.c nsi_websocket_plan.c)
+$(OBJ_DIR)/nvm2c_service_module_reference_asan: tests/nvm2c_service_nominal_reference.c $(SERVICE_MODULE_SOURCES) $(SERVICE_NOMINAL_HEADERS) $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -Isrc -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_MODULE_SOURCES) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,$(addsuffix .o,$(SERVICE_MODULE_UNITS))),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-service-module
+test-nanolang-translator-service-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime check-nvm2c-service-catalog $(OBJ_DIR)/nvm2c_service_nominal_reference $(OBJ_DIR)/nvm2c_service_module_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_service_module
+
 $(OBJ_DIR)/nvm2c_service_catalog_reference: tests/nvm2c_service_catalog_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 

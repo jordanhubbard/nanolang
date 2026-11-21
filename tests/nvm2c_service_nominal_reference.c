@@ -3,6 +3,7 @@
 #include "../src/nanoisa/service_socket_nominal.h"
 #include "../src/nanoisa/service_websocket_nominal.h"
 #include "../src/nanoisa/services_nominal.h"
+#include "../src/nanoisa/service_bindings_module.h"
 #include "../src/nanoisa/nvm_v2_sections.h"
 #include "../src/nanoisa/websocket_codec.h"
 #include <assert.h>
@@ -165,10 +166,15 @@ static void analyze_model(const unsigned char *bytes,size_t size,unsigned profil
         model.layout_data = layout_size ? (uint8_t *)(bytes + layout_at) : NULL; model.layout_size = layout_size;
         model.ownership_data = own_size ? (uint8_t *)(bytes + own_at) : NULL; model.ownership_size = own_size;
         model.code_size = (uint32_t)(size - cursor); model.code = model.code_size ? (uint8_t *)(bytes + cursor) : NULL;
-        model.service_data=(uint8_t *)service;model.service_size=service_size;
+        model.service_data=service_size?(uint8_t *)service:NULL;model.service_size=service_size;
         model.imports=imports;model.import_param_types=import_params;model.import_count=import_count;
         model.module_ref_count=refs;model.callback_contract_count=callbacks;
-        report(profile,&model);
+        if(profile==0) {
+            printf("%u|%u,%u,%u\n",(unsigned)nvm_service_bindings_validate(&model),
+                   nvm_service_bindings_present(&model)?1u:0u,
+                   nvm_file_instructions_present(&model)?1u:0u,
+                   nvm_service_execution_pending(&model)?1u:0u);
+        } else report(profile,&model);
     } else puts("99");
     if (names) for (uint32_t i = 0; i < strings; ++i) free(names[i]);
     free(names); free(lengths); free(entries); free(params);

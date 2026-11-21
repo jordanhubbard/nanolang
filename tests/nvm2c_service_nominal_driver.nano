@@ -1,4 +1,5 @@
 module "src_nano/nvm2c/service_nominal.nano" as nominal
+module "src_nano/nvm2c/service_module.nano" as shared
 module "src_nano/nvm2c/service_catalog.nano" as catalog
 module "src_nano/nvm2c/service_wire.nano" as service
 module "src_nano/nvm2c/ownership.nano" as owner
@@ -106,6 +107,20 @@ fn report(plan: nominal.Plan, profile: int) -> string {
 }
 shadow report { assert (== (report nominal.Plan { status: 2, instances: [], rows: [], record_rows: [], union_rows: [] } 5) "2") }
 
+fn shared_report(bytes: array<u8>, ownership: array<u8>, model: owner.Module, imports: array<nominal.Import>, refs: int, callbacks: int) -> string {
+    let status: int = (shared.validate bytes ownership model imports refs callbacks)
+    let present: bool = (shared.present bytes imports)
+    let file: bool = (shared.file_instructions model)
+    let first: string = (+ (+ (int_to_string status) "|") (int_to_string (cond (present 1) (else 0))))
+    let second: string = (+ "," (int_to_string (cond (file 1) (else 0))))
+    let third: string = (+ "," (int_to_string (cond ((or present file) 1) (else 0))))
+    return (+ (+ first second) third)
+}
+shadow shared_report {
+    let model: owner.Module = owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (shared_report [] [] model [] 0 0) "0|0,0,0")
+}
+
 fn analyze(input: array<u8>, profile: int) -> string {
     let pre: read.Cursor = (read.open input)
     let service_size: int = (read.read_u32 pre)
@@ -190,6 +205,7 @@ fn analyze(input: array<u8>, profile: int) -> string {
         layouts: (array_slice bytes layout_at layout_size),
         code: (array_slice bytes (read.position c) (- (array_length bytes) (read.position c))),
         strings: names, functions: entries, params: params, results: results, records: records, enums: enums, unions: unions }
+    if (== profile 0) { return (shared_report service_bytes (array_slice bytes own_at own_size) model imports refs callbacks) }
     return (report (nominal.prepare service_bytes (array_slice bytes own_at own_size) model imports refs callbacks profile) profile)
 }
 shadow analyze { assert (== (analyze [] 2) "99") }
