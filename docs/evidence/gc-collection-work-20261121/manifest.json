@@ -1,0 +1,420 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/retain-gc-work.py",
+      "artifact": "inputs/000-retain-gc-work.py.gz",
+      "sha256": "89924e6c70d5d3fc11e620180086ee172916d779883dacd25b27c3bc359ad905",
+      "bytes": 2466,
+      "compressed_sha256": "0f75af28b176bcea745b3d35bb51443ecd9a63299d7a8a9cfe0fdd072012a1ef",
+      "compressed_bytes": 1172
+    },
+    {
+      "path": ".test_output/cycle-work-generation/candidate-collector.c",
+      "artifact": "inputs/001-candidate-collector.c.gz",
+      "sha256": "819fdb76a56409cd52a7fbf8f5291200ed8157f70dc1440ecaa0dedeb923bd7f",
+      "bytes": 19131,
+      "compressed_sha256": "6ea6e6c0b9581e63a9befb0684bb7443b5194397f6539b92c5cc3d9d2a8db8ad",
+      "compressed_bytes": 5625
+    },
+    {
+      "path": ".test_output/cycle-work-generation/link-candidate-vm.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-generation/link-candidate-vm.stdout",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-generation/manifest.json",
+      "artifact": "inputs/004-manifest.json.gz",
+      "sha256": "84a66d119c7484e3d5d067dae4a08cad8296e58a51f32daaa81c5f6e9cd605f5",
+      "bytes": 7154,
+      "compressed_sha256": "e1f76aa4585e0f85f0b575ffc335110330fd5e35fbda98617cd69dbaefa3a650",
+      "compressed_bytes": 1886
+    },
+    {
+      "path": ".test_output/cycle-work-generation/nano_vm",
+      "artifact": "inputs/005-nano_vm.gz",
+      "sha256": "322551ab52e4f8edfeaec8e02d41e345156eb38cd066bdc9b1555cdfee017a17",
+      "bytes": 25344960,
+      "compressed_sha256": "7c0dbf283f1838ea8d29b8ed5455b32feb684b73ab80d88ef866292df1b742b5",
+      "compressed_bytes": 7306394
+    },
+    {
+      "path": ".test_output/cycle-work-observer/compile-collector.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-observer/compile-collector.stdout",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-observer/complete-original-and-new-vm-tests.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-observer/complete-original-and-new-vm-tests.stdout",
+      "artifact": "inputs/009-complete-original-and-new-vm-tests.stdout.gz",
+      "sha256": "6104e2402629dfcdd7c204e0debc68a295c56a486c116b6123dae51393d99d8c",
+      "bytes": 6359,
+      "compressed_sha256": "6a7b7343bdb6645b983e90b7d3453b6960c0916847d6fca53d49a9c58713ee31",
+      "compressed_bytes": 2125
+    },
+    {
+      "path": ".test_output/cycle-work-observer/heap_cycles.c",
+      "artifact": "inputs/001-candidate-collector.c.gz",
+      "sha256": "819fdb76a56409cd52a7fbf8f5291200ed8157f70dc1440ecaa0dedeb923bd7f",
+      "bytes": 19131,
+      "compressed_sha256": "6ea6e6c0b9581e63a9befb0684bb7443b5194397f6539b92c5cc3d9d2a8db8ad",
+      "compressed_bytes": 5625
+    },
+    {
+      "path": ".test_output/cycle-work-observer/heap_cycles.o",
+      "artifact": "inputs/011-heap_cycles.o.gz",
+      "sha256": "77ac66a9db0ab72f4fb8fa79b415b5d4cfbf7b8de226d6b4615d65202fa4a1eb",
+      "bytes": 96832,
+      "compressed_sha256": "494adfcffda37fee1d7360a06339015df6406f482a3d421c340545712de9b946",
+      "compressed_bytes": 29888
+    },
+    {
+      "path": ".test_output/cycle-work-observer/link-tests.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-observer/link-tests.stdout",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/cycle-work-observer/manifest.json",
+      "artifact": "inputs/014-manifest.json.gz",
+      "sha256": "74704947ba01c02e03f31b35441a6aeb4cc639b7fb341f147027172dda72aa63",
+      "bytes": 7240,
+      "compressed_sha256": "cb6aeecb635675bf310eb3720b3652feb5b9306e52728eedd8c48816040e9506",
+      "compressed_bytes": 1559
+    },
+    {
+      "path": ".test_output/cycle-work-observer/test_vm",
+      "artifact": "inputs/015-test_vm.gz",
+      "sha256": "e5fd4fac584af66885e637afb658eb9c5b126e0aa99aa3ab01c6fd222265acd6",
+      "bytes": 22746280,
+      "compressed_sha256": "7b971809c7d17cf135394d87434da3fbc6b1165786275cb193e5274b5bd8d143",
+      "compressed_bytes": 6061546
+    },
+    {
+      "path": ".test_output/cycle-work-observer/test_vm.c",
+      "artifact": "inputs/016-test_vm.c.gz",
+      "sha256": "256d0463439173b6bd9c7e1ccacd05b5de7f32b1a5d7700866b9b709fa457f8f",
+      "bytes": 264027,
+      "compressed_sha256": "742487daca6d02b915fe941cf2df1de6dcd4fb9a12e206438b9a31b5ccf89701",
+      "compressed_bytes": 47054
+    },
+    {
+      "path": ".test_output/link-cycle-work-vm.py",
+      "artifact": "inputs/017-link-cycle-work-vm.py.gz",
+      "sha256": "9c68b8277f5ee9218e678e344c60f0d8983c0dd0f3c8dc3033a5b02fce3a80e4",
+      "bytes": 2588,
+      "compressed_sha256": "c4584b2f1973c6095b2b401630943ebd52f1b1345dbe4d9d197002817f984df7",
+      "compressed_bytes": 1251
+    },
+    {
+      "path": ".test_output/prepare-gc-work-observer.py",
+      "artifact": "inputs/018-prepare-gc-work-observer.py.gz",
+      "sha256": "c5b5eec368b60e9032997296553d51aed22548c54ae52ed282b2bbfb4393d371",
+      "bytes": 3697,
+      "compressed_sha256": "bbfa9942376dc9e2141370cdc8cd298f3d85f5960ae86b1ff44d449c12a27109",
+      "compressed_bytes": 1205
+    },
+    {
+      "path": ".test_output/profile-vm-cpu-work.log",
+      "artifact": "inputs/019-profile-vm-cpu-work.log.gz",
+      "sha256": "8e5f4b83dd5b52dcd11ec7c942dee3605611954382f5d28c684e535999ad1636",
+      "bytes": 116,
+      "compressed_sha256": "f425420593c025f98bd7d8136ebb20be9dcde5ffc9eff6f91637f21ef567e82a",
+      "compressed_bytes": 114
+    },
+    {
+      "path": ".test_output/profile-vm-cpu-work.py",
+      "artifact": "inputs/020-profile-vm-cpu-work.py.gz",
+      "sha256": "aa63d487dded9096009a05d7317f5c39bb087bc1dd45e0608caeb5c86f98f6e2",
+      "bytes": 7314,
+      "compressed_sha256": "adab93b04a31f6f30f94284eb19040fafb8add9960243178c4d78a6b15a798b1",
+      "compressed_bytes": 2825
+    },
+    {
+      "path": ".test_output/run-cycle-work-regression.log",
+      "artifact": "inputs/021-run-cycle-work-regression.log.gz",
+      "sha256": "fff406623fed3d236cdbf7dae755bb61c9ec0e857a79dc6da121a01746f3db0e",
+      "bytes": 111,
+      "compressed_sha256": "9b904151a270b5b4363c5ee728e5bae5326d28c083b5287f63560dded0c12bc5",
+      "compressed_bytes": 110
+    },
+    {
+      "path": ".test_output/run-cycle-work-regression.py",
+      "artifact": "inputs/022-run-cycle-work-regression.py.gz",
+      "sha256": "a19c639fde04bb1b1f0dc3c03ad831936c1cb2c3ad31d196ca1f2d8aecb9861c",
+      "bytes": 1866,
+      "compressed_sha256": "7bc197d0003e1d22c53ff8c2857bade0f20b10b156067b58b728f89ad1d9eb9c",
+      "compressed_bytes": 879
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/collection-analysis.json",
+      "artifact": "inputs/023-collection-analysis.json.gz",
+      "sha256": "925a50abae827d1ad0821dfeb5ec2988213c9a58a7539f92f168197fa1e2313a",
+      "bytes": 648,
+      "compressed_sha256": "7e63e67c2ea58c6cef389fd8aea133c228b3fad4a464de2cfeef3292cb7168dd",
+      "compressed_bytes": 388
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/collections.jsonl",
+      "artifact": "inputs/024-collections.jsonl.gz",
+      "sha256": "987bbd4caf5976bac7cf5d811c4042d6dd5756dea84b35a1dae582f11f17f75a",
+      "bytes": 5940,
+      "compressed_sha256": "421268a7d0d29beb11c7f56e4464e982f1b263a6684075f46fb5d75740ef061b",
+      "compressed_bytes": 1305
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/compile.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/compile.stdout",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/complete-window.py",
+      "artifact": "inputs/027-complete-window.py.gz",
+      "sha256": "0df2396803718e29c10aa05e0020a1499b163a52f41649d017ba53c6d8de2c95",
+      "bytes": 336,
+      "compressed_sha256": "1042583b762a7746be3a39d39c4d6d1c97568637de9b1765366b5423df389f0a",
+      "compressed_bytes": 225
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/control-status.json",
+      "artifact": "inputs/028-control-status.json.gz",
+      "sha256": "90d24dfee48c0ac3e71412a30f6106a19ad55be93ec7ac8ae203e040af42b5ec",
+      "bytes": 78,
+      "compressed_sha256": "f60493e96eeb23cbfd6964e21a36f6441eeecae3506e4d36732548588d354321",
+      "compressed_bytes": 82
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/control.bin",
+      "artifact": "inputs/029-control.bin.gz",
+      "sha256": "abb0a97d69da49ff3997866f2b94d68bf8959fc83cd454823689cbe84e318ad4",
+      "bytes": 1280,
+      "compressed_sha256": "8b410075cf1bccca7de2061a2c97642ada8e1317c651fe913b349c7cc02e7a1c",
+      "compressed_bytes": 391
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/control.nvm",
+      "artifact": "inputs/030-control.nvm.gz",
+      "sha256": "19e5bc5db16a39b0a9f7929c34792a221f0b0d024a27a1121470cd6b18fc2ea7",
+      "bytes": 512,
+      "compressed_sha256": "82d8c8168b9d38e0cdc8b7cc061544b2eda8bde1cc529a79de78367159720bcd",
+      "compressed_bytes": 225
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/control.stderr",
+      "artifact": "inputs/031-control.stderr.gz",
+      "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+      "bytes": 21,
+      "compressed_sha256": "d8bda6abf08d3c9890e47a27e21608a9596bdda95e7451b610a541a714bfec4e",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/control.stdout",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/manifest.json",
+      "artifact": "inputs/033-manifest.json.gz",
+      "sha256": "aae242f15bc1daa80018a9815941424ae3b3ce2ab8d911b5480250c2de35dab3",
+      "bytes": 10139,
+      "compressed_sha256": "08beaded819fbec3d9877ae5d0e8e2bd3b1c57cd75f2f0349de3ce2a3baa7177",
+      "compressed_bytes": 2684
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/observer-control.json",
+      "artifact": "inputs/034-observer-control.json.gz",
+      "sha256": "5e14e40959fca7910afc84bc78fef3e3d399d79cf1d430b7dba7edd558f1d3c5",
+      "bytes": 15,
+      "compressed_sha256": "92299b382f9c7f59990f26794b5816e7b757bf0ae041a4def97d3246aa697627",
+      "compressed_bytes": 35
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/observer-control.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/observer-control.stdout",
+      "artifact": "inputs/036-observer-control.stdout.gz",
+      "sha256": "6eacd37058d6a1913b2bdaeb83233ca0cfd66886bb5132d6689c0194ba9d6df3",
+      "bytes": 86,
+      "compressed_sha256": "ad00097ba897a715d3625bed569337ecb05c949c56b0c3083d76c70cdf791c6b",
+      "compressed_bytes": 91
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/phases.jsonl",
+      "artifact": "inputs/037-phases.jsonl.gz",
+      "sha256": "7a9fc1793bf7ab3659b700807a85be2aea3dcd1f2d320e773eb4c44e8efaae04",
+      "bytes": 555,
+      "compressed_sha256": "e355ce72724c670b9a6fb86ad73e6cb62425b17b41b6cd8f9e3c897b5889d8e2",
+      "compressed_bytes": 214
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/recorder.py",
+      "artifact": "inputs/038-recorder.py.gz",
+      "sha256": "3d40670ba6ad3ddde68159f87029dc56a6405f1412125541ccdb4f539546892b",
+      "bytes": 800,
+      "compressed_sha256": "7e5181aec10ea61d5b6fbb0e94d87b95728545ce153664ca65284da7fdfee3bf",
+      "compressed_bytes": 475
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/sampler.c",
+      "artifact": "inputs/039-sampler.c.gz",
+      "sha256": "3cacbbdbe08560d3292f5f90554512e5ffdf90a627a2115dd80ba1f5f8706ec4",
+      "bytes": 2454,
+      "compressed_sha256": "7724a72eda88f122a26c829d67d57b770eec7647749ef15bebfc8153b4f34d57",
+      "compressed_bytes": 1132
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/sampler.so",
+      "artifact": "inputs/040-sampler.so.gz",
+      "sha256": "fd2b3e57cad2536ce912492069e953d20437611185e07d548ed97a5d6792f176",
+      "bytes": 82408,
+      "compressed_sha256": "e5c876edb5fc7be31bf77045f813644d178c951da62f185882c672258e9f2f65",
+      "compressed_bytes": 10143
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/samples.bin",
+      "artifact": "inputs/041-samples.bin.gz",
+      "sha256": "ed78b2ebb22c803acb513edd8cf8683e16e8a6d71d64abe092b49c4d1b60aff0",
+      "bytes": 1410816,
+      "compressed_sha256": "9f03749d521c5c1c1f8adce5a2db55761aaf4fa103aef2afd39f759c3165f649",
+      "compressed_bytes": 268314
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/status.json",
+      "artifact": "inputs/042-status.json.gz",
+      "sha256": "ccba6a0a998d9d3d6cf3e7f5d1d89c05c77947d95441c420c9764b2ee891a751",
+      "bytes": 78,
+      "compressed_sha256": "14b878fbd9980dbc8acfe97cb085db50f18f5c1d866133526b4d6c6dc8cc2f7e",
+      "compressed_bytes": 82
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/stop.maps",
+      "artifact": "inputs/043-stop.maps.gz",
+      "sha256": "87806e21af28180a73f5398ce46d9e76335c1996285270b98395f184e808a619",
+      "bytes": 10969,
+      "compressed_sha256": "144bb928cf29b36b7827b0b9a8fefcf857eab79f009a64d42b9627593c238100",
+      "compressed_bytes": 1500
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/target.pid",
+      "artifact": "inputs/044-target.pid.gz",
+      "sha256": "4d36515697432b65665930fe6bfa4e32ee186278328b9ffa3b1bbae78ac6ced0",
+      "bytes": 7,
+      "compressed_sha256": "3df5b96c92a312f451a5d269a3d6462e40a6c34ddbed34de08a2c8211d940d3e",
+      "compressed_bytes": 27
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/typecheck-start.maps",
+      "artifact": "inputs/045-typecheck-start.maps.gz",
+      "sha256": "19c541c21319db994c4de0362734817de9311a2730b88432014d699b295f1cfe",
+      "bytes": 10969,
+      "compressed_sha256": "88700205cb177e5a174a6151c7ea6a075a5bf0540486a8ce0d32507123c7455d",
+      "compressed_bytes": 1500
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/wait.stderr",
+      "artifact": "inputs/002-link-candidate-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/wait.stdout",
+      "artifact": "inputs/047-wait.stdout.gz",
+      "sha256": "bd1ebc728fb0e81465163a737882da6dee2ba78111a611f4e9ba3a092d147368",
+      "bytes": 85,
+      "compressed_sha256": "af5cd0e4459b23e6527b1db828fb7555f90c2a54fb3cc621ab2ff3a831cec01f",
+      "compressed_bytes": 92
+    },
+    {
+      "path": ".test_output/stage2-vm-cpu-work-profile/window-complete.json",
+      "artifact": "inputs/048-window-complete.json.gz",
+      "sha256": "4b7612c3a4c2182bd3a382e874d59bbd8be55f5bf69a95de156645e4e52d047b",
+      "bytes": 71,
+      "compressed_sha256": "319ad143b6c0abb8ee4650a115d98498bd2839186555058511506ba72444f2fd",
+      "compressed_bytes": 81
+    }
+  ],
+  "analysis": {
+    "records": 27,
+    "window": {
+      "start_ns": 38906908376652,
+      "end_ns": 38936908970298,
+      "pid": 2339488
+    },
+    "delta": {
+      "mono_ns": 28907403723,
+      "passes": 81,
+      "roots": 331776,
+      "visits": 133693815,
+      "slots": 724507731,
+      "allocated": 51669922,
+      "freed": 50354954,
+      "objects": 9780,
+      "allocations": 304271
+    },
+    "initial_retained": 116354888,
+    "final_retained": 117669856,
+    "limits": [
+      "I count actual object/child-slot inspections in completed collections of one observed heap. My private instrumentation changes timing; these are workload counts, not uninstrumented performance qualification."
+    ]
+  }
+}
