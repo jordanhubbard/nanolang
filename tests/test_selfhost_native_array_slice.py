@@ -54,6 +54,16 @@ assert (== chosen.value 9)''',
 }
 
 class NativeArraySlice(unittest.TestCase):
+    def source_compilers(self, bytecode=False):
+        variable = 'NANOLANG_SLICE_PRODUCERS' if bytecode else 'NANOLANG_SLICE_COMPILERS'
+        defaults = ('nano_virt', 'nanoc_stage1', 'nanoc_stage2') if bytecode else ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2')
+        names = shlex.split(os.environ[variable]) if variable in os.environ else defaults
+        if not names:
+            raise AssertionError('I require at least one selected source compiler.')
+        for index, name in enumerate(names):
+            path = Path(name)
+            yield f'{index}-{path.name}', path if path.is_absolute() else BIN / path
+
     @classmethod
     def setUpClass(cls):
         cls.work = Path(tempfile.mkdtemp(prefix='nano-native-slice-qualified-'))
@@ -77,10 +87,10 @@ class NativeArraySlice(unittest.TestCase):
             source.write_text(('struct Item { value: int }\n' if name=='record' else '')+
                               'fn main() -> int {\n'+body+'\nreturn 0\n}\n'
                               'shadow main { assert (== (main) 0) }\n')
-            for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
-                with self.subTest(case=name,compiler=compiler):
-                    binary = self.work/(name+'-'+compiler)
-                    self.command(BIN/compiler,source,'-o',binary)
+            for label, compiler in self.source_compilers():
+                with self.subTest(case=name,compiler=str(compiler)):
+                    binary = self.work/(name+'-'+label)
+                    self.command(compiler,source,'-o',binary)
                     self.command(binary)
             with self.subTest(case=name,compiler='NanoVirt comparison'):
                 module = self.work/(name+'.nvm')
@@ -108,10 +118,10 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 """)
-        for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
-            with self.subTest(compiler=compiler):
-                binary = self.work/('once-'+compiler)
-                self.command(BIN/compiler,source,'-o',binary)
+        for label, compiler in self.source_compilers():
+            with self.subTest(compiler=str(compiler)):
+                binary = self.work/('once-'+label)
+                self.command(compiler,source,'-o',binary)
                 self.command(binary)
 
     def native_compilers(self):
@@ -127,20 +137,20 @@ shadow main { assert (== (main) 0) }
 
     def test_generated_helper_all_kinds_and_bits(self):
         source = ROOT / 'tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt'
-        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
-            with self.subTest(producer=compiler):
+        for label, compiler in self.source_compilers(bytecode=True):
+            with self.subTest(producer=str(compiler)):
                 # I retain a .nano suffix for both installed compiler drivers.
                 program = self.work / 'all-kinds.nano'
                 program.write_text(source.read_text())
-                module = self.work / ('all-kinds-' + compiler + '.nvm')
-                self.command(BIN/compiler, program, '--emit-nvm', '-o', module)
+                module = self.work / ('all-kinds-' + label + '.nvm')
+                self.command(compiler, program, '--emit-nvm', '-o', module)
                 self.command(BIN/'nano_vm', '--verify-only', module)
                 self.command(BIN/'nano_vm', module)
                 generated = module.with_suffix('.c')
                 self.command(NVM2C, module, '-o', generated)
                 for name, cc in self.native_compilers():
                     with self.subTest(native=name):
-                        binary = self.work / ('all-kinds-' + compiler + '-' + name)
+                        binary = self.work / ('all-kinds-' + label + '-' + name)
                         self.command(*cc, '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
                                      '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                      generated, '-lm', '-o', binary)

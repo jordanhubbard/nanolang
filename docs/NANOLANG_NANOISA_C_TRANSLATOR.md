@@ -288,6 +288,32 @@ modules. The updated 5489-case decoder gate and prior passive/call gates pass;
 four profiles remain pending. I retain the missing-PyYAML setup failure and
 the corrected system-Python schema result separately.
 
+## My shared ownership declarations
+
+`src_nano/nvm2c/ownership.nano` implements the shared
+`nvm_ownership_contracts_validate` boundary for versions 1, 2 and 3. I retain
+exact status and `requires_verifier` results. The bounded model supplies retained
+layout bytes, string identities, narrow function/parameter/result descriptors
+and code for constructor-site checks. My pure cursor/path/extension transport
+is in `ownership_wire.nano`; it preserves truncation, padding and framing order.
+
+I check complete/resource layout authority, reference descriptors, path tables,
+concrete union variants, dense global declarations, effect signatures and
+backward-linked element types. Revision-3 constructor bindings must name exact
+empty ARRAY instruction sites and matching element tags. I preserve the shared
+validator's private ARRAY_FIELDS/MAP_FIELDS refusals; their separate private
+projections and executable profiles still need implementation. Declarations
+grant no borrow lifetime, storage initialization, handler or execution authority.
+
+The ownership fixture exposed an array-slice prerequisite under #979. My
+NanoLang checker now preserves the slice receiver's complete type and checks
+the receiver and integer bounds; complete array mutation checks remain strict.
+My C checker also rejects invalid operands before bytecode publication and
+retains receiver TypeInfo at nested storage boundaries. The original slicing
+test defaults still select the actual installed stages. Explicit compiler
+selection lets development qualification name its real tools without aliasing
+them as Stage1/Stage2 or deleting any product assertion.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,

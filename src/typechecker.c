@@ -419,6 +419,13 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         }
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
+        if (!expr->as.call.func_expr && !strcmp(expr->as.call.name, "array_slice") &&
+            expr->as.call.arg_count == 3 &&
+            !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)) {
+            Function *slice = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
+            if (!slice || (!slice->body && !slice->is_extern))
+                return try_get_expr_type_info(expr->as.call.args[0], env);
+        }
         if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
             (strcmp(expr->as.call.name, "at") == 0 ||
              strcmp(expr->as.call.name, "array_get") == 0)) {
@@ -2549,6 +2556,25 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     return valid;
 }
 
+static Type check_array_slice_call(ASTNode *call, Environment *env) {
+    if (call->as.call.arg_count != 3) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require an array, start and length for array_slice.",
+                           "Pass exactly three arguments.");
+        return TYPE_UNKNOWN;
+    }
+    bool valid = check_expression(call->as.call.args[0], env) == TYPE_ARRAY;
+    for (int i = 1; i < 3; ++i)
+        if (check_expression(call->as.call.args[i], env) != TYPE_INT) valid = false;
+    if (!valid) {
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+                           "I require an array, integer start and integer length for array_slice.",
+                           "Use the declared array slicing operand types.");
+        return TYPE_UNKNOWN;
+    }
+    return TYPE_ARRAY;
+}
+
 /* Internal implementation of check_expression */
 /* I compare substituted payload annotations structurally; array annotations may carry
  * their element's name redundantly, which strict annotation equality rejects. */
@@ -3444,20 +3470,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_STRING;
                 }
 
-                /* Special handling for array_slice */
-                if (strcmp(expr->as.call.name, "array_slice") == 0) {
-                    if (expr->as.call.arg_count >= 1) {
-                        check_expression(expr->as.call.args[0], env);
-                    }
-                    if (expr->as.call.arg_count >= 2) {
-                        check_expression(expr->as.call.args[1], env);
-                    }
-                    if (expr->as.call.arg_count >= 3) {
-                        check_expression(expr->as.call.args[2], env);
-                    }
-                    return TYPE_ARRAY;
-                }
-                
+                if (strcmp(expr->as.call.name, "array_slice") == 0)
+                    return check_array_slice_call(expr, env);
+
                 /* Special handling for bstring operations */
                 if (strcmp(expr->as.call.name, "bstr_new") == 0 ||
                     strcmp(expr->as.call.name, "bstr_new_binary") == 0 ||
@@ -4246,19 +4261,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_STRING;
             }
 
-            if (strcmp(expr->as.call.name, "array_slice") == 0) {
-                if (expr->as.call.arg_count >= 1) {
-                    check_expression(expr->as.call.args[0], env);
-                }
-                if (expr->as.call.arg_count >= 2) {
-                    check_expression(expr->as.call.args[1], env);
-                }
-                if (expr->as.call.arg_count >= 3) {
-                    check_expression(expr->as.call.args[2], env);
-                }
-                return TYPE_ARRAY;
-            }
-            
+            if (strcmp(expr->as.call.name, "array_slice") == 0 &&
+                !func->body && !func->is_extern)
+                return check_array_slice_call(expr, env);
+
             /* I check cached generic array operands after lexical calls resolve. */
             if (!func->body && !func->is_extern && !func->params &&
                 (strcmp(expr->as.call.name, "array_reverse") == 0 ||

@@ -1,0 +1,135 @@
+module nvm2c_ownership_wire
+module "src_nano/nvm2c/container.nano" as wire
+
+# I preserve cursor failure and position without foreign decoding helpers.
+pub struct Cursor { data: array<u8>, state: array<int> }
+pub struct Extension { kind: int, revision: int, data: array<u8> }
+pub struct Extensions { status: int, values: array<Extension> }
+
+pub fn open(bytes: array<u8>) -> Cursor {
+    return Cursor { data: bytes, state: [0, 0] }
+}
+shadow open { assert (== (at (open []).state 0) 0) }
+
+pub fn status(c: Cursor) -> int { return (at c.state 0) }
+shadow status { assert (== (status (open [])) 0) }
+
+pub fn position(c: Cursor) -> int { return (at c.state 1) }
+shadow position { assert (== (position (open [1])) 0) }
+
+pub fn skip(c: Cursor, size: int) -> int {
+    let start: int = (position c)
+    if (!= (status c) 0) { return start }
+    if (not (wire.contains c.data start size)) { (array_set c.state 0 1) return start }
+    (array_set c.state 1 (+ start size))
+    return start
+}
+shadow skip {
+    let c: Cursor = (open [1,2])
+    assert (== (skip c 1) 0)
+    assert (== (skip c 2) 1)
+    assert (== (status c) 1)
+    assert (== (position c) 1)
+}
+
+pub fn read_byte(c: Cursor) -> int {
+    let start: int = (skip c 1)
+    if (!= (status c) 0) { return 0 }
+    return (cast_int (at c.data start))
+}
+shadow read_byte {
+    let c: Cursor = (open [255])
+    assert (== (read_byte c) 255)
+    assert (== (read_byte c) 0)
+    assert (== (status c) 1)
+}
+
+pub fn read_u16(c: Cursor) -> int {
+    let start: int = (skip c 2)
+    if (!= (status c) 0) { return 0 }
+    return (wire.read_u16 c.data start)
+}
+shadow read_u16 { assert (== (read_u16 (open [255,255])) 65535) }
+
+pub fn read_u32(c: Cursor) -> int {
+    let start: int = (skip c 4)
+    if (!= (status c) 0) { return 0 }
+    return (wire.read_u32 c.data start)
+}
+shadow read_u32 { assert (== (read_u32 (open [255,255,255,255])) 4294967295) }
+
+pub fn align(c: Cursor) -> int {
+    while (and (== (status c) 0) (!= (% (position c) 4) 0)) {
+        let value: int = (read_byte c)
+        if (and (== (status c) 0) (!= value 0)) { (array_set c.state 0 9) }
+    }
+    return (status c)
+}
+shadow align {
+    let c: Cursor = (open [1,0,0,0])
+    let first: int = (read_byte c)
+    assert (== (align c) 0)
+    assert (== (position c) 4)
+    let bad: Cursor = (open [1,2])
+    let other: int = (read_byte bad)
+    assert (== (align bad) 9)
+    assert (== (align (open [])) 0)
+}
+
+pub fn paths(bytes: array<u8>) -> int {
+    let c: Cursor = (open bytes)
+    let count: int = (read_u32 c)
+    if (!= (status c) 0) { return (status c) }
+    if (> count 256) { return 13 }
+    let mut i: int = 0
+    while (< i count) {
+        let length: int = (read_u16 c)
+        let reserved: int = (read_u16 c)
+        if (!= (status c) 0) { return (status c) }
+        if (!= reserved 0) { return 7 }
+        if (or (== length 0) (> length 32)) { return 13 }
+        let ignored: int = (skip c (* length 2))
+        if (!= (align c) 0) { return (status c) }
+        set i (+ i 1)
+    }
+    if (!= (position c) (array_length bytes)) { return 9 }
+    return 0
+}
+shadow paths {
+    assert (== (paths [0,0,0,0]) 0)
+    assert (== (paths [1,0,0,0,1,0,0,0,255,255,0,0]) 0)
+    assert (== (paths [1,0,0,0,0,0,0,0]) 13)
+    assert (== (paths [0,0,0,0,0]) 9)
+}
+
+pub fn extensions(c: Cursor) -> Extensions {
+    let mut values: array<Extension> = []
+    let count: int = (read_u32 c)
+    if (!= (status c) 0) { return Extensions { status: (status c), values: [] } }
+    if (or (== count 0) (> count 4)) { return Extensions { status: 13, values: [] } }
+    let mut prior: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let kind: int = (read_u16 c)
+        let revision: int = (read_u16 c)
+        let size: int = (read_u32 c)
+        let start: int = (skip c size)
+        if (!= (align c) 0) { return Extensions { status: (status c), values: [] } }
+        if (<= kind prior) { return Extensions { status: 8, values: [] } }
+        if (!= revision 1) {
+            if (not (and (== kind 4) (or (== revision 2) (== revision 3)))) { return Extensions { status: 3, values: [] } }
+        }
+        if (> kind 4) { return Extensions { status: 3, values: [] } }
+        set values (array_push values Extension { kind: kind, revision: revision, data: (array_slice c.data start size) })
+        set prior kind set i (+ i 1)
+    }
+    if (!= (position c) (array_length c.data)) { return Extensions { status: 9, values: [] } }
+    return Extensions { status: 0, values: values }
+}
+shadow extensions {
+    let valid: Extensions = (extensions (open [1,0,0,0,3,0,1,0,0,0,0,0]))
+    assert (== valid.status 0)
+    assert (== (at valid.values 0).kind 3)
+    assert (== (extensions (open [1,0,0,0,5,0,1,0,0,0,0,0])).status 3)
+    assert (== (extensions (open [0,0,0,0])).status 13)
+}
