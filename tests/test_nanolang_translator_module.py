@@ -119,6 +119,11 @@ def corpus():
     pending += [('pending-array-layout', packet([(4, table(layout(fields=[(7,NONE,NONE)])))]), -1),
                 ('pending-map-profile',packet([(4,table(layout(fields=[(13,NONE,NONE)]))),
                   (13,record(3,[1],extensions=[extension(5,u32(0))]))],features=384),-1)]
+    for kind in (1, 3):
+        for version in (1, 2):
+            cases.append((f'retained-wire-kind-{kind}-v{version}',
+                          packet([(4, table(layout(kind=kind))),
+                                  (13, record(version, [0]))], features=384), 0))
     return cases, pending
 
 

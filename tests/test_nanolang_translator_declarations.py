@@ -7,7 +7,7 @@ import random
 import struct
 import tempfile
 import unittest
-from tests.nanolang_translator_routes import build_routes, checked
+from tests.nanolang_translator_routes import build_routes, checked, source_compiler_command
 from tests.native_process import run_captured
 from tests.test_nanolang_translator_ownership import corpus as shared_corpus, image, record, desc, extension, function, union_data, u32, NONE
 from tests.test_nanolang_translator_payloads import table, layout, change
@@ -34,6 +34,12 @@ def corpus(large=True):
     for name,data,_ in shared_corpus():cases.append(('shared-'+name,bytes(16)+data,None))
     add('absent',b'',{1:1,2:1,3:0},raw_layouts=b'')
     add('missing-owned',b'',{1:1,2:1,3:2})
+    for kind, valid_enums in ((1, 0), (3, 1)):
+        for enums in (0, 1, 2):
+            status = 1 if enums == valid_enums else 2
+            add(f'wire-kind-{kind}-enums-{enums}', record(flags=[0]),
+                {1:status, 2:status, 3:0}, rows=[(kind,NONE,[])], counts=(0,enums,0))
+
     for version in (1,2):
         add(f'scalar-v{version}',record(version,[1]),{1:0,2:0,3:0},rows=scalar)
     add('ordinary-array',record(3,[1],extensions=[arr]),{1:0,2:0,3:0},rows=array)
@@ -124,9 +130,10 @@ def producer_cases(work, root=None):
     root=Path(root) if root is not None else Path(tempfile.mkdtemp(prefix='declaration-producer-products-',dir=ROOT/'.test_output'))
     root.mkdir(parents=True,exist_ok=True)
     print('I retain actual producer modules/models at',root,flush=True)
-    producers=[('c',ROOT/'bin/nano_virt')]
-    if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):
-        producers.append(('nanolang',Path(os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER'])))
+    producers=[('c',[ROOT/'bin/nano_virt'])]
+    source_command = source_compiler_command()
+    if source_command:
+        producers.append(('nanolang',source_command))
     cases=[];records=[]
     fixtures=[('array_record_fields.nano',0,''),('empty_array_append.nano',0,'first\nsecond\n'),
               ('affine_scalar_union_instances.nano',0,'right\nsemantic-source-parity-pass\n'),
@@ -137,7 +144,7 @@ def producer_cases(work, root=None):
         for label,compiler in producers:
             stem=label+'-'+source.replace('/','_').removesuffix('.nano')
             module=root/(stem+'.nvm');model=root/(stem+'.bin')
-            command=[compiler,fixture,'--emit-nvm','-o',module]
+            command=[*compiler,fixture,'--emit-nvm','-o',module]
             checked(command,build=True,timeout=180)
             result=run_captured([ROOT/'bin/nano_vm',module],cwd=ROOT,timeout=120)
             assert result.returncode==expected_exit,(source,label,result.returncode,result.stderr.decode(errors='replace'))

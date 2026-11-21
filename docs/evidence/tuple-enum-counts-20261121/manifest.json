@@ -1,0 +1,1718 @@
+{
+  "base_commit": "3bf3e8538",
+  "original_candidate_patch_sha256": "d82687f704867dfa1f28fe6048dbe41e25aee724f3e3594e03b8ef99391b8b7f",
+  "files": [
+    {
+      "path": ".test_output/enum-tuple-archive.py",
+      "artifact": "inputs/000-enum-tuple-archive.py.gz",
+      "sha256": "c96c3ed5ece5dadacb898959385bc50b7718a6a35c4ca7b7ffcc8c59e3c9b1f7",
+      "bytes": 3145,
+      "compressed_sha256": "a9657fe8c57693c5143e797e40b5c5f37196f5abc6374d70db4a8a93e26a9000",
+      "compressed_bytes": 1312
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/build.log",
+      "artifact": "inputs/001-build.log.gz",
+      "sha256": "4d344b89833857d54255d68139d24448f4cdf653092664137e29bee39cf724cd",
+      "bytes": 453,
+      "compressed_sha256": "2fba57cf48f96a858fe6da5dbc7cc15a47a325aa566065e0b4fa4b512aa40be4",
+      "compressed_bytes": 95
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/c-reference.log",
+      "artifact": "inputs/002-c-reference.log.gz",
+      "sha256": "71299f6a6561d9c283460c664eab7df894a71370ea4c19e1798fb7ecd3e93c10",
+      "bytes": 16,
+      "compressed_sha256": "fbea9b84c23fb617db3808e1a37938e727d2d3d6190a059e273c334ca9177875",
+      "compressed_bytes": 30
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/driver",
+      "artifact": "inputs/003-driver.gz",
+      "sha256": "f1a0cb2e034bc61da52f15394b2f2189105c270d0cf96516bb6ca9119485f325",
+      "bytes": 9533456,
+      "compressed_sha256": "cdbdf8c5ec30173ef251301d5e121527f7a7d0aa1dade4f2605ad6df3f7f78de",
+      "compressed_bytes": 317762
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/enum-0.bin",
+      "artifact": "inputs/004-enum-0.bin.gz",
+      "sha256": "dfe6be7303de07e3f504623a8050b771b7a7482c442717cde06318636bcee6d7",
+      "bytes": 56,
+      "compressed_sha256": "8bcc81a97fd452411cd7fe9d24d6a1fead3260a1a20b1af853b91e3960855fee",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/enum-1.bin",
+      "artifact": "inputs/005-enum-1.bin.gz",
+      "sha256": "37840bd4f7bc3bed418c1b4c911fe0428b11180c142b164503d56effe7a7fca9",
+      "bytes": 56,
+      "compressed_sha256": "ac0f3067ac64eed15ab4a16ec4bfdc45e509205fe50116ee904a49df8bfc9c5b",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/explicit-count-before.log",
+      "artifact": "inputs/006-explicit-count-before.log.gz",
+      "sha256": "240f8f8f0dd596c5535de9b9e976bfed7b0ee017f81e32613d6ca5f3e60ba175",
+      "bytes": 990,
+      "compressed_sha256": "b35aecc34c1ef1749ee7a045e4800ec2d38e3434938de750724a4068eabb4ff1",
+      "compressed_bytes": 171
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/initial-setup.json",
+      "artifact": "inputs/007-initial-setup.json.gz",
+      "sha256": "973d07dce5c957028872733c8646308ec0f88d08f17cd69a83d12794752522d0",
+      "bytes": 495,
+      "compressed_sha256": "f48392bcde431f605ca5f0529bb8f21a9f1c966a8913074d0922961b6334a4c5",
+      "compressed_bytes": 287
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/nanolang.log",
+      "artifact": "inputs/008-nanolang.log.gz",
+      "sha256": "d698a3a2745746b1ee5889ca0e8fdbe9f55c5f6cda6d7773a71f198963474700",
+      "bytes": 16,
+      "compressed_sha256": "4e6b04695ef00692e09acc33555940d44fc0a257ca0d7c96d23b4e8e06258065",
+      "compressed_bytes": 30
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-field-kind-1.bin",
+      "artifact": "inputs/009-projection-field-kind-1.bin.gz",
+      "sha256": "78689d680e1b76199e06db76fa96cd4dfc004bf3205317b66c1db4bee6204286",
+      "bytes": 92,
+      "compressed_sha256": "8f4057838617f17c7c232f601b1083983b9ff092c2b33dd6580075bd603c3a9f",
+      "compressed_bytes": 53
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-field-kind-3.bin",
+      "artifact": "inputs/010-projection-field-kind-3.bin.gz",
+      "sha256": "e7f02d56a71410e17ddd72f1494808708d9756432e527cd1f2d3e623953d0564",
+      "bytes": 92,
+      "compressed_sha256": "b1f6b6dd7327763c8a2a94947491edc0113e67bbeabe5c36ab99f02c6ae31a86",
+      "compressed_bytes": 60
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-kind-1-enums-0.bin",
+      "artifact": "inputs/011-projection-kind-1-enums-0.bin.gz",
+      "sha256": "029b3a5654101ae51612221a2aa8f3871ef9477941ca826dd20cf56313a94156",
+      "bytes": 72,
+      "compressed_sha256": "316e9591720b60dd6cb17fa1818d3c9f561995ef27ea66b7ca54b0a530461df2",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-kind-1-enums-1.bin",
+      "artifact": "inputs/012-projection-kind-1-enums-1.bin.gz",
+      "sha256": "516b51896a5f5107d2ac5f2eadafe495fe18ef9ad72743eaffce32770dbdf1ba",
+      "bytes": 72,
+      "compressed_sha256": "6579e7f25ba973b4a49081adaa0e09944d3800faf42651c77d50b0520934a2f5",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-kind-3-enums-0.bin",
+      "artifact": "inputs/013-projection-kind-3-enums-0.bin.gz",
+      "sha256": "2fe8fa0a70ba86896a4f6525ec79b97f4df7087a7526751dfe44160aabe266bc",
+      "bytes": 72,
+      "compressed_sha256": "aabe343b83b02de253816f051738dc2cadab9df16a140f0ae84b1091b6ac8ca3",
+      "compressed_bytes": 48
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/projection-kind-3-enums-1.bin",
+      "artifact": "inputs/014-projection-kind-3-enums-1.bin.gz",
+      "sha256": "50228afeb9c7e30bf4b8822034a964b8f9079a07fd58b432a464796380ab2f43",
+      "bytes": 72,
+      "compressed_sha256": "dab19366fb6f8f67e559beb8edf39a59afa0a3dd157a8a1aa3606329a928fc13",
+      "compressed_bytes": 46
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/tuple-0.bin",
+      "artifact": "inputs/015-tuple-0.bin.gz",
+      "sha256": "0a06a86b5983023f4205f3cffde1011b3d758845d878e8b9e5dd2cee0b2d59f4",
+      "bytes": 56,
+      "compressed_sha256": "1f993bd5ded59c7dbf8d03c54e67977f93040dbdb3128fbe185a8d394d1c6c4f",
+      "compressed_bytes": 38
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/tuple-1.bin",
+      "artifact": "inputs/016-tuple-1.bin.gz",
+      "sha256": "8a6a6c92af1a735832f465f1f9dee4a4ebb98789f9726a6a9f97f608110beca2",
+      "bytes": 56,
+      "compressed_sha256": "34f1f9acbcc83ca4d08d76c45861eda73bc42995df39308cb6bbd9a22774ee5f",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-0-v1.bin",
+      "artifact": "inputs/017-wire-kind-1-enums-0-v1.bin.gz",
+      "sha256": "0a06a86b5983023f4205f3cffde1011b3d758845d878e8b9e5dd2cee0b2d59f4",
+      "bytes": 56,
+      "compressed_sha256": "1f993bd5ded59c7dbf8d03c54e67977f93040dbdb3128fbe185a8d394d1c6c4f",
+      "compressed_bytes": 38
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-0-v2.bin",
+      "artifact": "inputs/018-wire-kind-1-enums-0-v2.bin.gz",
+      "sha256": "dad5f2bfded4c3faf82df6100c1af415258998c7a789b6563c07a21998e26ce7",
+      "bytes": 60,
+      "compressed_sha256": "e77014329b079005788b92c6d50432bde353c4e113fc5695498d2ecfa8079079",
+      "compressed_bytes": 39
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-0-v3.bin",
+      "artifact": "inputs/019-wire-kind-1-enums-0-v3.bin.gz",
+      "sha256": "9a83787a658434303120aa9d8d0955bf7d55c3dba0384446d092b094154db4d5",
+      "bytes": 88,
+      "compressed_sha256": "3e6d12479ef00af7fe26cd1fd8ea82c68510ad0921c22e12e8ea12dfd3ec0b3a",
+      "compressed_bytes": 49
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-1-v1.bin",
+      "artifact": "inputs/020-wire-kind-1-enums-1-v1.bin.gz",
+      "sha256": "8a6a6c92af1a735832f465f1f9dee4a4ebb98789f9726a6a9f97f608110beca2",
+      "bytes": 56,
+      "compressed_sha256": "34f1f9acbcc83ca4d08d76c45861eda73bc42995df39308cb6bbd9a22774ee5f",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-1-v2.bin",
+      "artifact": "inputs/021-wire-kind-1-enums-1-v2.bin.gz",
+      "sha256": "6118c6950d6ad2da9358f41cc75b53fe1ae5aad0555e8ce2fa682f46d4dcd7dc",
+      "bytes": 60,
+      "compressed_sha256": "f11ffe80ac4ccf5e88ac54cad9716a3439cb5be45a47d378475ee87427c7a4b1",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-1-v3.bin",
+      "artifact": "inputs/022-wire-kind-1-enums-1-v3.bin.gz",
+      "sha256": "0a6f66f15f498d5d5d53636299d93481d34c2613e2fa80b543018d78660cc4ab",
+      "bytes": 88,
+      "compressed_sha256": "595e325c70806148fe1886eb87ce48313be5e6cd9da82e67bc0ec2dd8d84850f",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-2-v1.bin",
+      "artifact": "inputs/023-wire-kind-1-enums-2-v1.bin.gz",
+      "sha256": "e41c889490599e123ac01cd4fbd2f77128cdc6fa8f53bba24d49514580c2a612",
+      "bytes": 56,
+      "compressed_sha256": "14d63c9f94d9c23eff258f941349a5e5875751599845ffbe576774e0879e2a28",
+      "compressed_bytes": 40
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-2-v2.bin",
+      "artifact": "inputs/024-wire-kind-1-enums-2-v2.bin.gz",
+      "sha256": "70280281fa8229b9cceb67c1b9945de997b2ef39e7da519a6595aaae30752082",
+      "bytes": 60,
+      "compressed_sha256": "69ddf662ea771bcb2b1eb1a259742e1713bf5796566ec6cc2dc8e258ba7921b2",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-1-enums-2-v3.bin",
+      "artifact": "inputs/025-wire-kind-1-enums-2-v3.bin.gz",
+      "sha256": "7d27f725ab7ff0aad924ac73257d3d5aa336477f7a59ee167612bcc576d04016",
+      "bytes": 88,
+      "compressed_sha256": "ab209cf4a5561e90c3972a5822f36e4ffb6d54abf3ed96ea5fc5407721464c17",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-0-v1.bin",
+      "artifact": "inputs/026-wire-kind-3-enums-0-v1.bin.gz",
+      "sha256": "dfe6be7303de07e3f504623a8050b771b7a7482c442717cde06318636bcee6d7",
+      "bytes": 56,
+      "compressed_sha256": "8bcc81a97fd452411cd7fe9d24d6a1fead3260a1a20b1af853b91e3960855fee",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-0-v2.bin",
+      "artifact": "inputs/027-wire-kind-3-enums-0-v2.bin.gz",
+      "sha256": "a4916377aad66f2516b886edd1d08d37c5c037d9b3ab3c38ea8457d6cbdcf732",
+      "bytes": 60,
+      "compressed_sha256": "9862fcf374e215c272f186d412e929c9b1abf0879ab49a0ae114e2bcaec3b36f",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-0-v3.bin",
+      "artifact": "inputs/028-wire-kind-3-enums-0-v3.bin.gz",
+      "sha256": "0f8f31c4e54cf6ecceb0ef6050a9f7b320a24ccd84fc043b9cd02854754d8506",
+      "bytes": 88,
+      "compressed_sha256": "6574218e3ca03bbfbd76bb4e38de7086e1c2deec1e50311f900b919eb740b998",
+      "compressed_bytes": 55
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-1-v1.bin",
+      "artifact": "inputs/029-wire-kind-3-enums-1-v1.bin.gz",
+      "sha256": "37840bd4f7bc3bed418c1b4c911fe0428b11180c142b164503d56effe7a7fca9",
+      "bytes": 56,
+      "compressed_sha256": "ac0f3067ac64eed15ab4a16ec4bfdc45e509205fe50116ee904a49df8bfc9c5b",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-1-v2.bin",
+      "artifact": "inputs/030-wire-kind-3-enums-1-v2.bin.gz",
+      "sha256": "c97f3a36c8fda30c321cbe43f0ab35086ced48e6c555558d1c780d16eb7baccd",
+      "bytes": 60,
+      "compressed_sha256": "0fdc0f7037cb24019627b1d05499bb089079d717735c058a480cfee5f78f03d8",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-1-v3.bin",
+      "artifact": "inputs/031-wire-kind-3-enums-1-v3.bin.gz",
+      "sha256": "edf0fe1fc77b40fb18165010edbffce86320a01f4aa6f1620cb74584972db994",
+      "bytes": 88,
+      "compressed_sha256": "6a36007f8ac8855099e54a7680c57a0ab1dd30ed4c685a297e7dd16d091fb5a8",
+      "compressed_bytes": 54
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-2-v1.bin",
+      "artifact": "inputs/032-wire-kind-3-enums-2-v1.bin.gz",
+      "sha256": "8d8844d73ede3be3241bf07241aec15b47239c4a5c0c2984926858e4e6492c1f",
+      "bytes": 56,
+      "compressed_sha256": "357cdd3c5e48f957c3617e8545dad097d433a4ff0aeff8af2882e98f740ba8dd",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-2-v2.bin",
+      "artifact": "inputs/033-wire-kind-3-enums-2-v2.bin.gz",
+      "sha256": "30c8d7835edfb955ff76a35febb683154f9d14f7d3132567e2def9a441fd99ed",
+      "bytes": 60,
+      "compressed_sha256": "ded47937bd3b677c92128954f883c1b59f375824a1bedf9d1c4d13c296c7e260",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-boundary/wire-kind-3-enums-2-v3.bin",
+      "artifact": "inputs/034-wire-kind-3-enums-2-v3.bin.gz",
+      "sha256": "40027b4435bf31aad143c1d300b454bda6e60355a8b47cac12810758fa5b4754",
+      "bytes": 88,
+      "compressed_sha256": "47b632fe2518d8bb7091afb21d503c77246d427446c918a286122e60193603f2",
+      "compressed_bytes": 57
+    },
+    {
+      "path": ".test_output/enum-tuple-candidate.patch",
+      "artifact": "inputs/035-enum-tuple-candidate.patch.gz",
+      "sha256": "d82687f704867dfa1f28fe6048dbe41e25aee724f3e3594e03b8ef99391b8b7f",
+      "bytes": 7776,
+      "compressed_sha256": "0889424b4552c5c7855d2ce9f8ad09f13775c544e1e38a099f011d54ee4d0e3e",
+      "compressed_bytes": 2231
+    },
+    {
+      "path": ".test_output/enum-tuple-collect.py",
+      "artifact": "inputs/036-enum-tuple-collect.py.gz",
+      "sha256": "6c76426d1303dafe4820e74c21680a39fda19b7f8cf34b44f61813145ca2091b",
+      "bytes": 2436,
+      "compressed_sha256": "7dec5962ed9c95e2a03100db7c2ad66367b023621516124e8a5014d4d525bdc8",
+      "compressed_bytes": 1154
+    },
+    {
+      "path": ".test_output/enum-tuple-module-products-darwin.log",
+      "artifact": "inputs/037-enum-tuple-module-products-darwin.log.gz",
+      "sha256": "86470bad098471d19700ada4703483a68963ae8532c786e39936a2340363ead2",
+      "bytes": 109,
+      "compressed_sha256": "360f7555be680f16111ce7c3c3e67cf73ac1d26d80f6dd4ea777bb00a8631cb1",
+      "compressed_bytes": 114
+    },
+    {
+      "path": ".test_output/enum-tuple-module-products.py",
+      "artifact": "inputs/038-enum-tuple-module-products.py.gz",
+      "sha256": "8c18e1b4bd1d69c4cc335f0fa9880c4a92c7652d83beca50d0985e37ee8700a4",
+      "bytes": 1365,
+      "compressed_sha256": "54861f199bc7fe4154cb59a4cde39858e894c94398eaafbd723e827a297c1069",
+      "compressed_bytes": 711
+    },
+    {
+      "path": ".test_output/enum-tuple-module-qualified-darwin.log",
+      "artifact": "inputs/039-enum-tuple-module-qualified-darwin.log.gz",
+      "sha256": "802aa6c694a1cf8281d2dabfa55924b47a6cd4ebb66c947668f307241dea47d3",
+      "bytes": 570,
+      "compressed_sha256": "c7a19808fe525d6bfbec5491b91bfcbd3dd8fcb72d4e12bc61636e017e4d1534",
+      "compressed_bytes": 325
+    },
+    {
+      "path": ".test_output/enum-tuple-module-qualified-linux.log",
+      "artifact": "inputs/040-enum-tuple-module-qualified-linux.log.gz",
+      "sha256": "1409cc8141ba968c711398588bedb9136f30a95f4575c9fc7c636d8d21d0be6f",
+      "bytes": 552,
+      "compressed_sha256": "e2ec7de698d06009b7a7ad59bab3c110615d9aaba000a81bbdb142a5fd444db8",
+      "compressed_bytes": 310
+    },
+    {
+      "path": ".test_output/enum-tuple-paired-audit.json",
+      "artifact": "inputs/041-enum-tuple-paired-audit.json.gz",
+      "sha256": "eb404f446b360bc2416f898544311e71ace102f0c966e44af3e084325e8c0edc",
+      "bytes": 835,
+      "compressed_sha256": "6483400c3b74ff8797ec6193893c5235159fdfab2cf702e1b61758e72b3027ad",
+      "compressed_bytes": 445
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/0.bin",
+      "artifact": "inputs/042-0.bin.gz",
+      "sha256": "d05d2db6a4d9fdb0b7bd73cf288cd82b25b7e3e3d6c1bd366425c9a0598e1210",
+      "bytes": 1148,
+      "compressed_sha256": "2d49bc70bd0a926eb9319a5fc3c0912b49605fcfdba7801f220944ffd1b50e4b",
+      "compressed_bytes": 538
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/1.bin",
+      "artifact": "inputs/043-1.bin.gz",
+      "sha256": "0b491b07443b73bd9765c3b07be56bf64453aef4f10116ff12a5135781f84a11",
+      "bytes": 1017,
+      "compressed_sha256": "dd0fdb11c7b078b66441a40b23fb8d734c4bd2d70b219f5abf715e7968af7f97",
+      "compressed_bytes": 446
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/10.bin",
+      "artifact": "inputs/044-10.bin.gz",
+      "sha256": "a24e1c0fd044938f4822187c0cbaf1257d18e726ea43714775a311034b1d7bad",
+      "bytes": 803,
+      "compressed_sha256": "b21dfc86e1e8c1094ee1e668fad832b5df1db41a87aee9e0a8415ab720b014b5",
+      "compressed_bytes": 382
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/11.bin",
+      "artifact": "inputs/045-11.bin.gz",
+      "sha256": "71dc20799a4ae1fed346d63a4fe8b4794c3e763f9b36fb6e947bfb754c536419",
+      "bytes": 669,
+      "compressed_sha256": "784f1ff22a8abb4e30d830603670325c20aca1e86cd8e48c5377d277eb0ecaf6",
+      "compressed_bytes": 280
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/12.bin",
+      "artifact": "inputs/046-12.bin.gz",
+      "sha256": "6caf5612ecabbd71d162f9e543c09a5a0cf8537e0a57792f8c4b2a1df31eb9c1",
+      "bytes": 1015,
+      "compressed_sha256": "077151f9a90f4deb42a6335f118368a5a3c833787ebbe04a66e4d8defc9b4a24",
+      "compressed_bytes": 417
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/13.bin",
+      "artifact": "inputs/047-13.bin.gz",
+      "sha256": "1b7c40d4a41f71865b0eea9b6d93f081bffc719f0b7fe676a332be496f66b328",
+      "bytes": 1015,
+      "compressed_sha256": "f9545ea6714e0fc96f0cba01b2bce9abd1066e83622d40aee607d2b50a19e2f5",
+      "compressed_bytes": 417
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/2.bin",
+      "artifact": "inputs/048-2.bin.gz",
+      "sha256": "902468900e990d3e7dc6799db9b15305f219a00eb8a2c6cf1d921fd6ee863769",
+      "bytes": 934,
+      "compressed_sha256": "878b1de969d24a2fb79e884dc47c00b903ed550b222f125c93e52d357b4fe0e4",
+      "compressed_bytes": 459
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/3.bin",
+      "artifact": "inputs/049-3.bin.gz",
+      "sha256": "2ca4725ac70e90526cf5b9549bc2b8d0f6afb3554b7839386359c4a863068bb9",
+      "bytes": 804,
+      "compressed_sha256": "b0bafdb73505ea41ada6ca348380b56273a98fa5e210ea3a3a60ccffd5f165c1",
+      "compressed_bytes": 359
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/4.bin",
+      "artifact": "inputs/050-4.bin.gz",
+      "sha256": "62ccf2cd667be8a780e5551260b885aaa5ec449e5b61740b6267ab4735fe7205",
+      "bytes": 3042,
+      "compressed_sha256": "87fc00c6d8bdae25a11c2e9e36a7a94ceeeb8dbe9fd4c839a80c45ec2e6582d4",
+      "compressed_bytes": 1107
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/5.bin",
+      "artifact": "inputs/051-5.bin.gz",
+      "sha256": "449fe6a728a3c2009d60b7c385df65a848aa020c7465c502b9cc2be56300b1a1",
+      "bytes": 3004,
+      "compressed_sha256": "811fdb3ca364baeed82a1c48b3a8d60af235cea57f9505596004c0b9e4a6772a",
+      "compressed_bytes": 1094
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/6.bin",
+      "artifact": "inputs/052-6.bin.gz",
+      "sha256": "c545f0b7895f1ad64ff16e0a3c38cbf4552af56f5d732cd8e5f48afaf0c7cf14",
+      "bytes": 1330,
+      "compressed_sha256": "9a6d09d9c9498177323ad400ed0730f1f09b73b4a037047f1670c3cbfa477869",
+      "compressed_bytes": 531
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/7.bin",
+      "artifact": "inputs/053-7.bin.gz",
+      "sha256": "fea323530b4368ac0bb603439bcdd6767d628aeea6c1c104d4768eeeb2328325",
+      "bytes": 1203,
+      "compressed_sha256": "f2ddf05ec9ef5023ad3502bbe82021e3c60e4e8a99a256c197562d9cc224a0b0",
+      "compressed_bytes": 434
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/8.bin",
+      "artifact": "inputs/054-8.bin.gz",
+      "sha256": "c0a3c7b9e62ecf8ea7235955d02f2061cbc0e9422be29695c90bab3a220a8794",
+      "bytes": 1586,
+      "compressed_sha256": "825c2f01847d2ec5674d1aa969755e4c2a27f16ca22809913d34355e18f003af",
+      "compressed_bytes": 661
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/9.bin",
+      "artifact": "inputs/055-9.bin.gz",
+      "sha256": "6f9f4966933f267be1ec7fd3227f1fd94b1f608928cc6c1c7b39a8b947404774",
+      "bytes": 1456,
+      "compressed_sha256": "5f59877579c1f3589161fd38eb7a2764d3c6c6d0bac0f12d660062d4b77ae02d",
+      "compressed_bytes": 564
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder-aot",
+      "artifact": "inputs/056-decoder-aot.gz",
+      "sha256": "03b33973e739ca0fd1552be9477767536f2792a4eed62b157448649e8dacb74c",
+      "bytes": 9701064,
+      "compressed_sha256": "cecb19ef7ccf74d7c20d2bddfe102faeb781d046202037bcb1c72848f1a7f882",
+      "compressed_bytes": 485241
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder-aot.dSYM/Contents/Info.plist",
+      "artifact": "inputs/057-Info.plist.gz",
+      "sha256": "9b599094029e11408b310dfbd1cb9fe9dabc38da8b7abcfca6f51fdcd95b69fb",
+      "bytes": 640,
+      "compressed_sha256": "1c2a152e3a3a0d322bc4672afc777abbfcc449ed9f4c405b5930393e9630d60e",
+      "compressed_bytes": 326
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder-aot.dSYM/Contents/Resources/DWARF/decoder-aot",
+      "artifact": "inputs/058-decoder-aot.gz",
+      "sha256": "3658e0ab1c7dcc489525887bd022caa28001c29fc971c8a1039d38d21bfb27b1",
+      "bytes": 900648,
+      "compressed_sha256": "958d5ea7f6c13bd2504e1bd6b4bbabf02561cb2d3593b973a302b7bc67da8bdf",
+      "compressed_bytes": 332605
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder-aot.dSYM/Contents/Resources/Relocations/aarch64/decoder-aot.yml",
+      "artifact": "inputs/059-decoder-aot.yml.gz",
+      "sha256": "8d1afb62d7a543941b651f9dd64e20b40e66ad179503aac06371bf34ca50389c",
+      "bytes": 197,
+      "compressed_sha256": "b79e2e0a7697e2d3192cfd01c2c6f4bf0a161ebb57624c55e33e5e28fa4d90dd",
+      "compressed_bytes": 165
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder-native",
+      "artifact": "inputs/060-decoder-native.gz",
+      "sha256": "31da32782dd37069c68d7b64253189368a74b0cdb86624add001903fa078ab16",
+      "bytes": 9062784,
+      "compressed_sha256": "7170ace471b324b376770561c49809c921d3fa7242e78e4a78e0152b79166cd0",
+      "compressed_bytes": 255530
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder.c",
+      "artifact": "inputs/061-decoder.c.gz",
+      "sha256": "074161ee34b97f3c7f045d5e3e6ee5892c882ffff710f824c354e113960f308b",
+      "bytes": 1043451,
+      "compressed_sha256": "6fa4e4fb9ed91f785d908fab7f63cd771ed09f05f309e13cacf7360709f04095",
+      "compressed_bytes": 135156
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/decoder.nvm",
+      "artifact": "inputs/062-decoder.nvm.gz",
+      "sha256": "6396534818a0d886722947e89098d07968ecefb2963c6a221a9bfd6a6a4d96db",
+      "bytes": 162016,
+      "compressed_sha256": "bb10c9748bb20b0743474d1abbce0e33a886bd2963c3d59e3e28758be4b9d8b9",
+      "compressed_bytes": 39341
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder-aot",
+      "artifact": "inputs/063-decoder-aot.gz",
+      "sha256": "ae59a954a89a787593a7b33b4e1744b70562138174ce26fb36397c9e7908bf4f",
+      "bytes": 10025144,
+      "compressed_sha256": "3f51b57bd4b1fd3c59a04c6d6912ee563b4016541ba703a0ddbd8af3b5758dd4",
+      "compressed_bytes": 627594
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder-aot.dSYM/Contents/Info.plist",
+      "artifact": "inputs/064-Info.plist.gz",
+      "sha256": "9b599094029e11408b310dfbd1cb9fe9dabc38da8b7abcfca6f51fdcd95b69fb",
+      "bytes": 640,
+      "compressed_sha256": "1c2a152e3a3a0d322bc4672afc777abbfcc449ed9f4c405b5930393e9630d60e",
+      "compressed_bytes": 326
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder-aot.dSYM/Contents/Resources/DWARF/decoder-aot",
+      "artifact": "inputs/065-decoder-aot.gz",
+      "sha256": "d4702292c3c54ea5446b6810aca9946db5e4dfda12d99df15af8790cc27bc467",
+      "bytes": 1155520,
+      "compressed_sha256": "a83e910027fc89cc69b16de921d0953bfc24e1b248707904e6801d3e139bd6c6",
+      "compressed_bytes": 442764
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder-aot.dSYM/Contents/Resources/Relocations/aarch64/decoder-aot.yml",
+      "artifact": "inputs/066-decoder-aot.yml.gz",
+      "sha256": "9ac405e0de4d0de77b67816802fe435f6b51d0ab792a4cc6caa743a58d89ab08",
+      "bytes": 212,
+      "compressed_sha256": "b088aa2868607b56396238699bb5afe14cc046f114ccc36dcfb00347959bc2b4",
+      "compressed_bytes": 175
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder-native",
+      "artifact": "inputs/067-decoder-native.gz",
+      "sha256": "1be08ec6175e06c29c3be680c426f2880d5e1b7b5cfb4bb4b4cd8dac71c58eaf",
+      "bytes": 9026528,
+      "compressed_sha256": "94c50a4256d291f73461cdd09552c8a98b97d20fcb957ae8d32981da6bd2cb47",
+      "compressed_bytes": 237169
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder.c",
+      "artifact": "inputs/068-decoder.c.gz",
+      "sha256": "703cae962b167ce154238fd696141427499267909a96242473c05fe7becadde6",
+      "bytes": 967453,
+      "compressed_sha256": "7617f5b53b523d7020f751ebc3f2a9c8e1f0176844f1fe16d2397454556e039e",
+      "compressed_bytes": 127377
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/decoder.nvm",
+      "artifact": "inputs/069-decoder.nvm.gz",
+      "sha256": "e04d994e2563cea741b53a61f9a37ddf29f4cee60317dab14f359ff4278505c0",
+      "bytes": 162288,
+      "compressed_sha256": "c4b6352197fbb50125c02dd8c97421a01d72972a00dfda6a1994202500907dc5",
+      "compressed_bytes": 39727
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder-aot",
+      "artifact": "inputs/070-source-decoder-aot.gz",
+      "sha256": "dd7e8d8c84d3fd7536d2ed5cd055972cccf14daeb6cfcf1dfd67c3920ef9b71e",
+      "bytes": 10013056,
+      "compressed_sha256": "8bcf95f0d16358793dc6ee484a1a9221f04ae9c11df110275e6af8ad25f2fc47",
+      "compressed_bytes": 624055
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder-aot.dSYM/Contents/Info.plist",
+      "artifact": "inputs/071-Info.plist.gz",
+      "sha256": "151b0d0877babd177857546c526d0647233af49cd3ba3d843c17de60078ebd0d",
+      "bytes": 647,
+      "compressed_sha256": "b595267788f02fc3e1d666a0bbb7c95ac816db387ce832c85a5610bda9edf59c",
+      "compressed_bytes": 331
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder-aot.dSYM/Contents/Resources/DWARF/source-decoder-aot",
+      "artifact": "inputs/072-source-decoder-aot.gz",
+      "sha256": "237625f2bc5123e155544ed39a71c297eda5df0149fc6ed2ae3a973ebfe98810",
+      "bytes": 1156080,
+      "compressed_sha256": "a675aea8be859ce7557cba40926e46b574814f5d2141bd24b4c25027b051e6bb",
+      "compressed_bytes": 444339
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder-aot.dSYM/Contents/Resources/Relocations/aarch64/source-decoder-aot.yml",
+      "artifact": "inputs/073-source-decoder-aot.yml.gz",
+      "sha256": "0c1a2ce11b5a06ad75e3411fe9ccb8b1ffe73722941966297c6d66c6e9139bbe",
+      "bytes": 219,
+      "compressed_sha256": "cc5f728937ee9e4ec574cb85afad555d0b77a562a41dd04049e677d6bac6c2b1",
+      "compressed_bytes": 178
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder.c",
+      "artifact": "inputs/074-source-decoder.c.gz",
+      "sha256": "8e368c14155a54c7bb0176bc423f982777f38561852aa77fe2bba712bf0fe4fd",
+      "bytes": 967322,
+      "compressed_sha256": "5ab08cd6c5bdbfd3bcf73b0a9de67f6dd25898f11fdb0410912d41d47dc7fed5",
+      "compressed_bytes": 128287
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-drivers/source-decoder.nvm",
+      "artifact": "inputs/075-source-decoder.nvm.gz",
+      "sha256": "da68b38021a9ee977ad4f75285f3f66428717f61d3d9cf2a7d71754fea8212ce",
+      "bytes": 112824,
+      "compressed_sha256": "70f00df41c190087861606471d919b2fe8146539d0bd5686404beb02096a043d",
+      "compressed_bytes": 27414
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/module-qualification.json",
+      "artifact": "inputs/076-module-qualification.json.gz",
+      "sha256": "df12ee81b40be5d8f0e292d6726d1c2d2808beae6fa0df4a2d9935707bd14df3",
+      "bytes": 16751,
+      "compressed_sha256": "529e86d86bcd30711afa90c01ece49f182a485da63f6f97721238f209ce9226c",
+      "compressed_bytes": 595
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-affine_scalar_union_instances.bin",
+      "artifact": "inputs/077-c-affine_scalar_union_instances.bin.gz",
+      "sha256": "62ccf2cd667be8a780e5551260b885aaa5ec449e5b61740b6267ab4735fe7205",
+      "bytes": 3042,
+      "compressed_sha256": "87fc00c6d8bdae25a11c2e9e36a7a94ceeeb8dbe9fd4c839a80c45ec2e6582d4",
+      "compressed_bytes": 1107
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-affine_scalar_union_instances.nvm",
+      "artifact": "inputs/078-c-affine_scalar_union_instances.nvm.gz",
+      "sha256": "150acba42b4909a412f9d8a4513dc7169fc3247f333e322dfe1d75dbb24e9872",
+      "bytes": 3968,
+      "compressed_sha256": "796e67a5d104b496a99314addcd4e7f5995e84fb7ebcd604c695cf98f5f47f2e",
+      "compressed_bytes": 1331
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-array_record_fields.bin",
+      "artifact": "inputs/079-c-array_record_fields.bin.gz",
+      "sha256": "d05d2db6a4d9fdb0b7bd73cf288cd82b25b7e3e3d6c1bd366425c9a0598e1210",
+      "bytes": 1148,
+      "compressed_sha256": "2d49bc70bd0a926eb9319a5fc3c0912b49605fcfdba7801f220944ffd1b50e4b",
+      "compressed_bytes": 538
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-array_record_fields.nvm",
+      "artifact": "inputs/080-c-array_record_fields.nvm.gz",
+      "sha256": "5d4fb989681c9694e76f6f83740f65c0e9e70dfbad963776f2063f59c3f024da",
+      "bytes": 2152,
+      "compressed_sha256": "b3f96fc2df37a9835237d9250d3fb861ff43b2984886c47fc4a4654efa170fc0",
+      "compressed_bytes": 836
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-empty_array_append.bin",
+      "artifact": "inputs/081-c-empty_array_append.bin.gz",
+      "sha256": "902468900e990d3e7dc6799db9b15305f219a00eb8a2c6cf1d921fd6ee863769",
+      "bytes": 934,
+      "compressed_sha256": "878b1de969d24a2fb79e884dc47c00b903ed550b222f125c93e52d357b4fe0e4",
+      "compressed_bytes": 459
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-empty_array_append.nvm",
+      "artifact": "inputs/082-c-empty_array_append.nvm.gz",
+      "sha256": "54beb747cbe94fe849455c1052a0e9d239310d17ce00f5595e9dfc084c7fcd8f",
+      "bytes": 1792,
+      "compressed_sha256": "841fcc12fe371369f8dfb53902e318ac5e0bd103fe18047f96a3a180c6851485",
+      "compressed_bytes": 721
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-map_nested_u8_borrowed.bin",
+      "artifact": "inputs/083-c-map_nested_u8_borrowed.bin.gz",
+      "sha256": "a24e1c0fd044938f4822187c0cbaf1257d18e726ea43714775a311034b1d7bad",
+      "bytes": 803,
+      "compressed_sha256": "b21dfc86e1e8c1094ee1e668fad832b5df1db41a87aee9e0a8415ab720b014b5",
+      "compressed_bytes": 382
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-map_nested_u8_borrowed.nvm",
+      "artifact": "inputs/084-c-map_nested_u8_borrowed.nvm.gz",
+      "sha256": "289719503851f9c788d84c5c835b0e5b6fc07e514370cca656c81a9833888e1f",
+      "bytes": 1356,
+      "compressed_sha256": "cdd8231323d5ed3b16b1fa4ed624128add879a0677ff1b4f3b197157a5ef1b0c",
+      "compressed_bytes": 555
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-owned_mixed_basic.bin",
+      "artifact": "inputs/085-c-owned_mixed_basic.bin.gz",
+      "sha256": "6caf5612ecabbd71d162f9e543c09a5a0cf8537e0a57792f8c4b2a1df31eb9c1",
+      "bytes": 1015,
+      "compressed_sha256": "077151f9a90f4deb42a6335f118368a5a3c833787ebbe04a66e4d8defc9b4a24",
+      "compressed_bytes": 417
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-owned_mixed_basic.nvm",
+      "artifact": "inputs/086-c-owned_mixed_basic.nvm.gz",
+      "sha256": "b9c2c816a2389e7c707a5d1602c10f1cf37f72185e9b7d752ea917fccd226f8b",
+      "bytes": 1456,
+      "compressed_sha256": "e4377ca17dabaa9fbf921e3de42d0cb3a7c4b11f91bafc47f21e84ac98878060",
+      "compressed_bytes": 541
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-string_int_maps.bin",
+      "artifact": "inputs/087-c-string_int_maps.bin.gz",
+      "sha256": "c545f0b7895f1ad64ff16e0a3c38cbf4552af56f5d732cd8e5f48afaf0c7cf14",
+      "bytes": 1330,
+      "compressed_sha256": "9a6d09d9c9498177323ad400ed0730f1f09b73b4a037047f1670c3cbfa477869",
+      "compressed_bytes": 531
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-string_int_maps.nvm",
+      "artifact": "inputs/088-c-string_int_maps.nvm.gz",
+      "sha256": "16078760ddf1997f135d5ce5149e789d6e872b738def4c98c6294afa16ff664c",
+      "bytes": 2520,
+      "compressed_sha256": "eaa8ad63ab6a8ac79e516cbf1aee498053923f1a064a1daf2a1d7ddc1664e6c9",
+      "compressed_bytes": 872
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-string_string_maps.bin",
+      "artifact": "inputs/089-c-string_string_maps.bin.gz",
+      "sha256": "c0a3c7b9e62ecf8ea7235955d02f2061cbc0e9422be29695c90bab3a220a8794",
+      "bytes": 1586,
+      "compressed_sha256": "825c2f01847d2ec5674d1aa969755e4c2a27f16ca22809913d34355e18f003af",
+      "compressed_bytes": 661
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/c-string_string_maps.nvm",
+      "artifact": "inputs/090-c-string_string_maps.nvm.gz",
+      "sha256": "cab7a1b80da9df1231035dc2ed3a56d8cccb021c31fc213deb4a90dbaddb0000",
+      "bytes": 2952,
+      "compressed_sha256": "23480302bd50c2e2ef3b27b6ade8cd9fb377c981c41117e3f86c47f250d49186",
+      "compressed_bytes": 1065
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-affine_scalar_union_instances.bin",
+      "artifact": "inputs/091-nanolang-affine_scalar_union_instances.bin.gz",
+      "sha256": "449fe6a728a3c2009d60b7c385df65a848aa020c7465c502b9cc2be56300b1a1",
+      "bytes": 3004,
+      "compressed_sha256": "811fdb3ca364baeed82a1c48b3a8d60af235cea57f9505596004c0b9e4a6772a",
+      "compressed_bytes": 1094
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-affine_scalar_union_instances.nvm",
+      "artifact": "inputs/092-nanolang-affine_scalar_union_instances.nvm.gz",
+      "sha256": "5718808e2b67edc931529f4d42af593ad40f940d01de81a6cf5d209a559c5e2f",
+      "bytes": 3928,
+      "compressed_sha256": "c135b63d00c50df0701bb790a78457639f7a2a4016d9e5875a4fa793abca0ea2",
+      "compressed_bytes": 1316
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-array_record_fields.bin",
+      "artifact": "inputs/093-nanolang-array_record_fields.bin.gz",
+      "sha256": "0b491b07443b73bd9765c3b07be56bf64453aef4f10116ff12a5135781f84a11",
+      "bytes": 1017,
+      "compressed_sha256": "dd0fdb11c7b078b66441a40b23fb8d734c4bd2d70b219f5abf715e7968af7f97",
+      "compressed_bytes": 446
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-array_record_fields.nvm",
+      "artifact": "inputs/094-nanolang-array_record_fields.nvm.gz",
+      "sha256": "d0f39439855fbe4de8202aec0fc547ce203f1431709122032a57064cd3d0da74",
+      "bytes": 1640,
+      "compressed_sha256": "59adca436702596d0319aba0d085dd1e0657fbe829899c9759bbb367215f0851",
+      "compressed_bytes": 618
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-empty_array_append.bin",
+      "artifact": "inputs/095-nanolang-empty_array_append.bin.gz",
+      "sha256": "2ca4725ac70e90526cf5b9549bc2b8d0f6afb3554b7839386359c4a863068bb9",
+      "bytes": 804,
+      "compressed_sha256": "b0bafdb73505ea41ada6ca348380b56273a98fa5e210ea3a3a60ccffd5f165c1",
+      "compressed_bytes": 359
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-empty_array_append.nvm",
+      "artifact": "inputs/096-nanolang-empty_array_append.nvm.gz",
+      "sha256": "303cfc007abc8fc8eae18186547cd08175f07d9061e8e18572f7759812505f6d",
+      "bytes": 1344,
+      "compressed_sha256": "a61d7725d77d217c3f1c2de5424cab4631e9bc54073678c76e8d5643a1c89d45",
+      "compressed_bytes": 521
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-map_nested_u8_borrowed.bin",
+      "artifact": "inputs/097-nanolang-map_nested_u8_borrowed.bin.gz",
+      "sha256": "71dc20799a4ae1fed346d63a4fe8b4794c3e763f9b36fb6e947bfb754c536419",
+      "bytes": 669,
+      "compressed_sha256": "784f1ff22a8abb4e30d830603670325c20aca1e86cd8e48c5377d277eb0ecaf6",
+      "compressed_bytes": 280
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-map_nested_u8_borrowed.nvm",
+      "artifact": "inputs/098-nanolang-map_nested_u8_borrowed.nvm.gz",
+      "sha256": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923",
+      "bytes": 1032,
+      "compressed_sha256": "8aeac981a8b57e21233bee54d60540de8144c7509e50fc41a274f6d11e58afd5",
+      "compressed_bytes": 383
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-owned_mixed_basic.bin",
+      "artifact": "inputs/099-nanolang-owned_mixed_basic.bin.gz",
+      "sha256": "1b7c40d4a41f71865b0eea9b6d93f081bffc719f0b7fe676a332be496f66b328",
+      "bytes": 1015,
+      "compressed_sha256": "f9545ea6714e0fc96f0cba01b2bce9abd1066e83622d40aee607d2b50a19e2f5",
+      "compressed_bytes": 417
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-owned_mixed_basic.nvm",
+      "artifact": "inputs/100-nanolang-owned_mixed_basic.nvm.gz",
+      "sha256": "4b63336d62c26f73b2634dc698019042bc3eac619788cf68b7449eb5586eb6f1",
+      "bytes": 1456,
+      "compressed_sha256": "521bbba86f26f86b47c223133fe929b07c71d84930ca67edb4025dd92780b48f",
+      "compressed_bytes": 540
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-string_int_maps.bin",
+      "artifact": "inputs/101-nanolang-string_int_maps.bin.gz",
+      "sha256": "fea323530b4368ac0bb603439bcdd6767d628aeea6c1c104d4768eeeb2328325",
+      "bytes": 1203,
+      "compressed_sha256": "f2ddf05ec9ef5023ad3502bbe82021e3c60e4e8a99a256c197562d9cc224a0b0",
+      "compressed_bytes": 434
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-string_int_maps.nvm",
+      "artifact": "inputs/102-nanolang-string_int_maps.nvm.gz",
+      "sha256": "7d869a11fcd90c01d2762a4a19ba944fdfa89e2bf8b394ace519cfd1289ebd10",
+      "bytes": 1980,
+      "compressed_sha256": "8b96e24dc7728726018af7b8fd8fc2fafe943209630099565e0cfdbc631750df",
+      "compressed_bytes": 653
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-string_string_maps.bin",
+      "artifact": "inputs/103-nanolang-string_string_maps.bin.gz",
+      "sha256": "6f9f4966933f267be1ec7fd3227f1fd94b1f608928cc6c1c7b39a8b947404774",
+      "bytes": 1456,
+      "compressed_sha256": "5f59877579c1f3589161fd38eb7a2764d3c6c6d0bac0f12d660062d4b77ae02d",
+      "compressed_bytes": 564
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/nanolang-string_string_maps.nvm",
+      "artifact": "inputs/104-nanolang-string_string_maps.nvm.gz",
+      "sha256": "a84fc24c2e0b37350f24834199c60c473629a1e3186d927a67eff8c89258c078",
+      "bytes": 2360,
+      "compressed_sha256": "15239e936fd5292b8266a6deca885f4cf76f13d9ac0df47f13fe2a049fc23288",
+      "compressed_bytes": 820
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/products/records.json",
+      "artifact": "inputs/105-records.json.gz",
+      "sha256": "71e294285ae91b040ecb35af079baa9a3a03c4bd3d58872c1c294c246d86efba",
+      "bytes": 7502,
+      "compressed_sha256": "3f95499e04e1417b59ae40f39de6f0a21a9f341833f323dfabd9f5ce9ff6c50c",
+      "compressed_bytes": 1863
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/qualification.json",
+      "artifact": "inputs/106-qualification.json.gz",
+      "sha256": "132689c4a7e883cce25d96b596880b0f611408f022895ea52cc16870d391705b",
+      "bytes": 6403,
+      "compressed_sha256": "31b27e53d9a971965c63194b80c897f5bd9ba8578720f6696df3dbdb6c801573",
+      "compressed_bytes": 2205
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder-aot",
+      "artifact": "inputs/107-source-decoder-aot.gz",
+      "sha256": "41222818cdf5e63ce2a4832139101e70a49d0aaddebdd00fd0d5401ad43050df",
+      "bytes": 9704336,
+      "compressed_sha256": "8ffa846c349485a1f27ddd044858cf964f1d256039a8f0fb15f14fa514efdf4b",
+      "compressed_bytes": 486370
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder-aot.dSYM/Contents/Info.plist",
+      "artifact": "inputs/108-Info.plist.gz",
+      "sha256": "151b0d0877babd177857546c526d0647233af49cd3ba3d843c17de60078ebd0d",
+      "bytes": 647,
+      "compressed_sha256": "b595267788f02fc3e1d666a0bbb7c95ac816db387ce832c85a5610bda9edf59c",
+      "compressed_bytes": 331
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder-aot.dSYM/Contents/Resources/DWARF/source-decoder-aot",
+      "artifact": "inputs/109-source-decoder-aot.gz",
+      "sha256": "02d2f944eb9f647c67f4a38981df87178977a64836efe852e47b1288d754147b",
+      "bytes": 901872,
+      "compressed_sha256": "189fcd2fa260247fdf0f26030c743b955b191014f3710115f4f1570a39db5852",
+      "compressed_bytes": 334016
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder-aot.dSYM/Contents/Resources/Relocations/aarch64/source-decoder-aot.yml",
+      "artifact": "inputs/110-source-decoder-aot.yml.gz",
+      "sha256": "2e5745ff5b1905aa8e79538b3fbbcc6c6fb3038a3ed249f7d429824855642a1b",
+      "bytes": 204,
+      "compressed_sha256": "d059ef69ea550d428cf6069b47a46a35f6ef1af1e951a291a8de0f42a56af59c",
+      "compressed_bytes": 169
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder.c",
+      "artifact": "inputs/111-source-decoder.c.gz",
+      "sha256": "6210bb21f7c3b0deb5609429b72d17cde5563bad8802e3dfe88fb6e7f5ad479e",
+      "bytes": 751898,
+      "compressed_sha256": "b4641b3e42240ac8d9a98440e53cfc686b7fd6feef0f25415fda3b972169e717",
+      "compressed_bytes": 99864
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin/source-decoder.nvm",
+      "artifact": "inputs/112-source-decoder.nvm.gz",
+      "sha256": "de97b4866fe37667cdff23ffbc66ce573840b84248621c4f23da92cfccea534e",
+      "bytes": 78992,
+      "compressed_sha256": "e43b688ff2826a4ddfc052d39015aba8058aaeff2e08ca41c1e242aa4adf13b8",
+      "compressed_bytes": 17964
+    },
+    {
+      "path": ".test_output/enum-tuple-products-darwin.log",
+      "artifact": "inputs/113-enum-tuple-products-darwin.log.gz",
+      "sha256": "932c45c5c97ce8c0ab5a05d9c59cc0fc4384c90d2e2d6f12b44ef9933fd39e66",
+      "bytes": 231,
+      "compressed_sha256": "523257e0a5a6450ee8b3a01976e65ba211920f96f5f35d8658763c25653f3209",
+      "compressed_bytes": 186
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/0.bin",
+      "artifact": "inputs/114-0.bin.gz",
+      "sha256": "17620c1fd1a237ec11fd1a0b2752af8e4330573a4b215817e01f6da38efde909",
+      "bytes": 1130,
+      "compressed_sha256": "136157cb627509330dc64bdebc71d111f7cab80a8bd86fe1d0b297090c2c3d6c",
+      "compressed_bytes": 524
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/1.bin",
+      "artifact": "inputs/115-1.bin.gz",
+      "sha256": "0b491b07443b73bd9765c3b07be56bf64453aef4f10116ff12a5135781f84a11",
+      "bytes": 1017,
+      "compressed_sha256": "dd0fdb11c7b078b66441a40b23fb8d734c4bd2d70b219f5abf715e7968af7f97",
+      "compressed_bytes": 446
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/10.bin",
+      "artifact": "inputs/116-10.bin.gz",
+      "sha256": "a4adc68c53bd07c306551b306ca6e9b4bdc8540d812f49b26221a8fcc5263c65",
+      "bytes": 785,
+      "compressed_sha256": "21eb158b6e229fb4faabdbc028e47e896adb56cc9050185af1ae9f4e4b6df4fc",
+      "compressed_bytes": 370
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/11.bin",
+      "artifact": "inputs/117-11.bin.gz",
+      "sha256": "71dc20799a4ae1fed346d63a4fe8b4794c3e763f9b36fb6e947bfb754c536419",
+      "bytes": 669,
+      "compressed_sha256": "784f1ff22a8abb4e30d830603670325c20aca1e86cd8e48c5377d277eb0ecaf6",
+      "compressed_bytes": 280
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/12.bin",
+      "artifact": "inputs/118-12.bin.gz",
+      "sha256": "05d66f401a84e8035bb31eed5a324ca3078e0c4442eeda47610f3e85bd8323b2",
+      "bytes": 961,
+      "compressed_sha256": "8f01bd03ca054c80a20e6308d1c33a47aea03ff6f4f8500a162eb8a7b18edb81",
+      "compressed_bytes": 397
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/13.bin",
+      "artifact": "inputs/119-13.bin.gz",
+      "sha256": "8419d054cbeb908826a6c9bd1b2fcf61e21b49474be9abaee8823eabe16d1713",
+      "bytes": 961,
+      "compressed_sha256": "bad12ed19c7f813ea08f3863f433bd8d5fcf51a542ab44ea8a3a1178ba807a3e",
+      "compressed_bytes": 397
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/2.bin",
+      "artifact": "inputs/120-2.bin.gz",
+      "sha256": "f121999e3cefd370108ee0ceafb57ac155ea74b4e011ff958fbcae05d8c2566d",
+      "bytes": 916,
+      "compressed_sha256": "d8d04caefc0dfbe9a7ff1ee319c9c00ba0ec9f4bf88822dd1db21af9b439d6a2",
+      "compressed_bytes": 443
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/3.bin",
+      "artifact": "inputs/121-3.bin.gz",
+      "sha256": "2ca4725ac70e90526cf5b9549bc2b8d0f6afb3554b7839386359c4a863068bb9",
+      "bytes": 804,
+      "compressed_sha256": "b0bafdb73505ea41ada6ca348380b56273a98fa5e210ea3a3a60ccffd5f165c1",
+      "compressed_bytes": 359
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/4.bin",
+      "artifact": "inputs/122-4.bin.gz",
+      "sha256": "33d2c95efd75993699ed8979cddad14b55962d6eb893c20c55f296e6f7921412",
+      "bytes": 3024,
+      "compressed_sha256": "aa829078441f754f66a2a7b71fdce6b8318976a945fc0142673ff46378701a6e",
+      "compressed_bytes": 1092
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/5.bin",
+      "artifact": "inputs/123-5.bin.gz",
+      "sha256": "1533a2c37aa18ef9b86fedf6074646509321bee6a9e188c82c168b7d2a36f502",
+      "bytes": 2986,
+      "compressed_sha256": "7ec0db4951eb0ed5ad290682b290d1b899e5b9f18d196f2dde7be07ca53ce120",
+      "compressed_bytes": 1078
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/6.bin",
+      "artifact": "inputs/124-6.bin.gz",
+      "sha256": "7d296090b30414c68f381f5d2b5b0252d931fe3edded64486fcef5568443c59b",
+      "bytes": 1312,
+      "compressed_sha256": "07723b139e8438245b8c57aed81663e1a3b85684f69448e614057d8a99e2d0fc",
+      "compressed_bytes": 517
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/7.bin",
+      "artifact": "inputs/125-7.bin.gz",
+      "sha256": "fea323530b4368ac0bb603439bcdd6767d628aeea6c1c104d4768eeeb2328325",
+      "bytes": 1203,
+      "compressed_sha256": "f2ddf05ec9ef5023ad3502bbe82021e3c60e4e8a99a256c197562d9cc224a0b0",
+      "compressed_bytes": 434
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/8.bin",
+      "artifact": "inputs/126-8.bin.gz",
+      "sha256": "376cddbd5e5311a0946c3847f426c7d286aa9ba6cf742aa668058bf82ba59c92",
+      "bytes": 1568,
+      "compressed_sha256": "f275670a3ea8166980c70f9b184e105f64f3a16523c2327dfb7041aa0cb61855",
+      "compressed_bytes": 648
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/9.bin",
+      "artifact": "inputs/127-9.bin.gz",
+      "sha256": "6f9f4966933f267be1ec7fd3227f1fd94b1f608928cc6c1c7b39a8b947404774",
+      "bytes": 1456,
+      "compressed_sha256": "5f59877579c1f3589161fd38eb7a2764d3c6c6d0bac0f12d660062d4b77ae02d",
+      "compressed_bytes": 564
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/decoder-aot",
+      "artifact": "inputs/128-decoder-aot.gz",
+      "sha256": "8042daba4ee944cfbfe7889f4e4fddc9f61f09c9c6d1f2325ebe138333910a83",
+      "bytes": 13730688,
+      "compressed_sha256": "f897e579c3dfc1847da728d769a4a8c13ca90ff7e680557e0d9687aceb83cb74",
+      "compressed_bytes": 1357809
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/decoder-native",
+      "artifact": "inputs/129-decoder-native.gz",
+      "sha256": "1a106fa855f3c594e1e44eadcaa64b9ba0d50dc4cc736743bf988a81b4e43d00",
+      "bytes": 10376648,
+      "compressed_sha256": "b8a41eb723f11bea756ee968f08ff002679ef6f33bf344f4d00f312167c84f37",
+      "compressed_bytes": 513582
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/decoder.c",
+      "artifact": "inputs/130-decoder.c.gz",
+      "sha256": "b4da363c824dd2dd303f4dab4adc3ad8e79ac59fce108f78ac7c235a20ab64c5",
+      "bytes": 1043264,
+      "compressed_sha256": "ec72deedd091c309af3c279c9441a8b30379cc776389edaec088692b9c13b9b7",
+      "compressed_bytes": 135090
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/decoder.nvm",
+      "artifact": "inputs/131-decoder.nvm.gz",
+      "sha256": "b68ad09beea044407975db0192b3e84447da2454c56bb04f42a8a76f3bb7e2d2",
+      "bytes": 162000,
+      "compressed_sha256": "ec1a2a22f25e3a46acdb7e227cd118bba6986e7c1856719eeeb2fcc93e705b43",
+      "compressed_bytes": 39310
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-affine_scalar_union_instances.bin",
+      "artifact": "inputs/132-c-affine_scalar_union_instances.bin.gz",
+      "sha256": "33d2c95efd75993699ed8979cddad14b55962d6eb893c20c55f296e6f7921412",
+      "bytes": 3024,
+      "compressed_sha256": "aa829078441f754f66a2a7b71fdce6b8318976a945fc0142673ff46378701a6e",
+      "compressed_bytes": 1092
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-affine_scalar_union_instances.nvm",
+      "artifact": "inputs/133-c-affine_scalar_union_instances.nvm.gz",
+      "sha256": "77f8c4da58bfd2179d22bb100e277963ec5b223f5a3d1a523a7df4a4710f4d5c",
+      "bytes": 3948,
+      "compressed_sha256": "92420f8e099139ded5d4fdd05d81b51d27d004c3dbeb02f37c2be8078883b7ca",
+      "compressed_bytes": 1315
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-array_record_fields.bin",
+      "artifact": "inputs/134-c-array_record_fields.bin.gz",
+      "sha256": "17620c1fd1a237ec11fd1a0b2752af8e4330573a4b215817e01f6da38efde909",
+      "bytes": 1130,
+      "compressed_sha256": "136157cb627509330dc64bdebc71d111f7cab80a8bd86fe1d0b297090c2c3d6c",
+      "compressed_bytes": 524
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-array_record_fields.nvm",
+      "artifact": "inputs/135-c-array_record_fields.nvm.gz",
+      "sha256": "80efe3cf15e0ccb7de60a59ff106fc196c217f9e409615f7f3e72dcbf8c0e934",
+      "bytes": 2136,
+      "compressed_sha256": "b940d8e87a5aee8856170fb4b312f4735f05726ef9f9ac96a1a1bbc9697ca762",
+      "compressed_bytes": 822
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-empty_array_append.bin",
+      "artifact": "inputs/136-c-empty_array_append.bin.gz",
+      "sha256": "f121999e3cefd370108ee0ceafb57ac155ea74b4e011ff958fbcae05d8c2566d",
+      "bytes": 916,
+      "compressed_sha256": "d8d04caefc0dfbe9a7ff1ee319c9c00ba0ec9f4bf88822dd1db21af9b439d6a2",
+      "compressed_bytes": 443
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-empty_array_append.nvm",
+      "artifact": "inputs/137-c-empty_array_append.nvm.gz",
+      "sha256": "b5c6a4086d6ade06d52a8316ea3fe1425de521208554046609554aab386da8d4",
+      "bytes": 1772,
+      "compressed_sha256": "03a7a605ccb1f94017ee52f8bf88d23b61925a93ffe80bc495da104e5eed4cdc",
+      "compressed_bytes": 702
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-map_nested_u8_borrowed.bin",
+      "artifact": "inputs/138-c-map_nested_u8_borrowed.bin.gz",
+      "sha256": "a4adc68c53bd07c306551b306ca6e9b4bdc8540d812f49b26221a8fcc5263c65",
+      "bytes": 785,
+      "compressed_sha256": "21eb158b6e229fb4faabdbc028e47e896adb56cc9050185af1ae9f4e4b6df4fc",
+      "compressed_bytes": 370
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-map_nested_u8_borrowed.nvm",
+      "artifact": "inputs/139-c-map_nested_u8_borrowed.nvm.gz",
+      "sha256": "a2fb5a2c57e86d304a5f02abe5a5dabdee0ef8bfeb37a0d1b0fd1eec6e704acb",
+      "bytes": 1336,
+      "compressed_sha256": "262c2839a7eb13e87f25a602fce68bc701bd229efbad2009f59681040050502d",
+      "compressed_bytes": 538
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-owned_mixed_basic.bin",
+      "artifact": "inputs/140-c-owned_mixed_basic.bin.gz",
+      "sha256": "05d66f401a84e8035bb31eed5a324ca3078e0c4442eeda47610f3e85bd8323b2",
+      "bytes": 961,
+      "compressed_sha256": "8f01bd03ca054c80a20e6308d1c33a47aea03ff6f4f8500a162eb8a7b18edb81",
+      "compressed_bytes": 397
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-owned_mixed_basic.nvm",
+      "artifact": "inputs/141-c-owned_mixed_basic.nvm.gz",
+      "sha256": "8065b2d79b5c2fdae126ce735f98b385279d25d60b2336e4cfcb43eb1beb077b",
+      "bytes": 1400,
+      "compressed_sha256": "15232a0278ffadca9c1b8937fadd08e1ba3b2afc5564e9107636f01af7236662",
+      "compressed_bytes": 519
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-string_int_maps.bin",
+      "artifact": "inputs/142-c-string_int_maps.bin.gz",
+      "sha256": "7d296090b30414c68f381f5d2b5b0252d931fe3edded64486fcef5568443c59b",
+      "bytes": 1312,
+      "compressed_sha256": "07723b139e8438245b8c57aed81663e1a3b85684f69448e614057d8a99e2d0fc",
+      "compressed_bytes": 517
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-string_int_maps.nvm",
+      "artifact": "inputs/143-c-string_int_maps.nvm.gz",
+      "sha256": "5c713411a87d7bfa701272c6504ae87a5281eecce3b7a329c8416e04917f78af",
+      "bytes": 2504,
+      "compressed_sha256": "c8950946bd8938452652c6cc157548eed9ac78ed44b869f78b30288effafca8b",
+      "compressed_bytes": 860
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-string_string_maps.bin",
+      "artifact": "inputs/144-c-string_string_maps.bin.gz",
+      "sha256": "376cddbd5e5311a0946c3847f426c7d286aa9ba6cf742aa668058bf82ba59c92",
+      "bytes": 1568,
+      "compressed_sha256": "f275670a3ea8166980c70f9b184e105f64f3a16523c2327dfb7041aa0cb61855",
+      "compressed_bytes": 648
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/c-string_string_maps.nvm",
+      "artifact": "inputs/145-c-string_string_maps.nvm.gz",
+      "sha256": "84500aed864d831e36c8d4cd035d76111a997fa2b3391cc3875045f0c5b29579",
+      "bytes": 2932,
+      "compressed_sha256": "4c0a356d81c10d41ddc931933f1af7e937b0d56f6bfcc9e349032a8eaf726bdc",
+      "compressed_bytes": 1050
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-affine_scalar_union_instances.bin",
+      "artifact": "inputs/146-nanolang-affine_scalar_union_instances.bin.gz",
+      "sha256": "1533a2c37aa18ef9b86fedf6074646509321bee6a9e188c82c168b7d2a36f502",
+      "bytes": 2986,
+      "compressed_sha256": "7ec0db4951eb0ed5ad290682b290d1b899e5b9f18d196f2dde7be07ca53ce120",
+      "compressed_bytes": 1078
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-affine_scalar_union_instances.nvm",
+      "artifact": "inputs/147-nanolang-affine_scalar_union_instances.nvm.gz",
+      "sha256": "e900c4cdaa3deabac7e72371209f16948e251cbbb850bbdac5b774c86d670cf1",
+      "bytes": 3908,
+      "compressed_sha256": "79e4db8feabf1e14866a0448dd9826c61e9e390a64002ea85dd54264e991e41e",
+      "compressed_bytes": 1298
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-array_record_fields.bin",
+      "artifact": "inputs/148-nanolang-array_record_fields.bin.gz",
+      "sha256": "0b491b07443b73bd9765c3b07be56bf64453aef4f10116ff12a5135781f84a11",
+      "bytes": 1017,
+      "compressed_sha256": "dd0fdb11c7b078b66441a40b23fb8d734c4bd2d70b219f5abf715e7968af7f97",
+      "compressed_bytes": 446
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-array_record_fields.nvm",
+      "artifact": "inputs/149-nanolang-array_record_fields.nvm.gz",
+      "sha256": "d0f39439855fbe4de8202aec0fc547ce203f1431709122032a57064cd3d0da74",
+      "bytes": 1640,
+      "compressed_sha256": "59adca436702596d0319aba0d085dd1e0657fbe829899c9759bbb367215f0851",
+      "compressed_bytes": 618
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-empty_array_append.bin",
+      "artifact": "inputs/150-nanolang-empty_array_append.bin.gz",
+      "sha256": "2ca4725ac70e90526cf5b9549bc2b8d0f6afb3554b7839386359c4a863068bb9",
+      "bytes": 804,
+      "compressed_sha256": "b0bafdb73505ea41ada6ca348380b56273a98fa5e210ea3a3a60ccffd5f165c1",
+      "compressed_bytes": 359
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-empty_array_append.nvm",
+      "artifact": "inputs/151-nanolang-empty_array_append.nvm.gz",
+      "sha256": "303cfc007abc8fc8eae18186547cd08175f07d9061e8e18572f7759812505f6d",
+      "bytes": 1344,
+      "compressed_sha256": "a61d7725d77d217c3f1c2de5424cab4631e9bc54073678c76e8d5643a1c89d45",
+      "compressed_bytes": 521
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-map_nested_u8_borrowed.bin",
+      "artifact": "inputs/152-nanolang-map_nested_u8_borrowed.bin.gz",
+      "sha256": "71dc20799a4ae1fed346d63a4fe8b4794c3e763f9b36fb6e947bfb754c536419",
+      "bytes": 669,
+      "compressed_sha256": "784f1ff22a8abb4e30d830603670325c20aca1e86cd8e48c5377d277eb0ecaf6",
+      "compressed_bytes": 280
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-map_nested_u8_borrowed.nvm",
+      "artifact": "inputs/153-nanolang-map_nested_u8_borrowed.nvm.gz",
+      "sha256": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923",
+      "bytes": 1032,
+      "compressed_sha256": "8aeac981a8b57e21233bee54d60540de8144c7509e50fc41a274f6d11e58afd5",
+      "compressed_bytes": 383
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-owned_mixed_basic.bin",
+      "artifact": "inputs/154-nanolang-owned_mixed_basic.bin.gz",
+      "sha256": "8419d054cbeb908826a6c9bd1b2fcf61e21b49474be9abaee8823eabe16d1713",
+      "bytes": 961,
+      "compressed_sha256": "bad12ed19c7f813ea08f3863f433bd8d5fcf51a542ab44ea8a3a1178ba807a3e",
+      "compressed_bytes": 397
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-owned_mixed_basic.nvm",
+      "artifact": "inputs/155-nanolang-owned_mixed_basic.nvm.gz",
+      "sha256": "2e145753210be0277f6b10a985f0336b6d4efe9eb3cd62d4e3d0ca4315635d8a",
+      "bytes": 1400,
+      "compressed_sha256": "8111987007bee03797356ef956bc476453c1f568c70237d0c32be42eaba9b793",
+      "compressed_bytes": 521
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-string_int_maps.bin",
+      "artifact": "inputs/156-nanolang-string_int_maps.bin.gz",
+      "sha256": "fea323530b4368ac0bb603439bcdd6767d628aeea6c1c104d4768eeeb2328325",
+      "bytes": 1203,
+      "compressed_sha256": "f2ddf05ec9ef5023ad3502bbe82021e3c60e4e8a99a256c197562d9cc224a0b0",
+      "compressed_bytes": 434
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-string_int_maps.nvm",
+      "artifact": "inputs/157-nanolang-string_int_maps.nvm.gz",
+      "sha256": "7d869a11fcd90c01d2762a4a19ba944fdfa89e2bf8b394ace519cfd1289ebd10",
+      "bytes": 1980,
+      "compressed_sha256": "8b96e24dc7728726018af7b8fd8fc2fafe943209630099565e0cfdbc631750df",
+      "compressed_bytes": 653
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-string_string_maps.bin",
+      "artifact": "inputs/158-nanolang-string_string_maps.bin.gz",
+      "sha256": "6f9f4966933f267be1ec7fd3227f1fd94b1f608928cc6c1c7b39a8b947404774",
+      "bytes": 1456,
+      "compressed_sha256": "5f59877579c1f3589161fd38eb7a2764d3c6c6d0bac0f12d660062d4b77ae02d",
+      "compressed_bytes": 564
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/nanolang-string_string_maps.nvm",
+      "artifact": "inputs/159-nanolang-string_string_maps.nvm.gz",
+      "sha256": "a84fc24c2e0b37350f24834199c60c473629a1e3186d927a67eff8c89258c078",
+      "bytes": 2360,
+      "compressed_sha256": "15239e936fd5292b8266a6deca885f4cf76f13d9ac0df47f13fe2a049fc23288",
+      "compressed_bytes": 820
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/products/records.json",
+      "artifact": "inputs/160-records.json.gz",
+      "sha256": "831934b6aca8c67cc6c97b805f0763051a1af545e835e1735f58bb1abb655123",
+      "bytes": 7502,
+      "compressed_sha256": "71b31b05bf955f0c506e8e9aa5c6b0a0ae72f9f3ee8f15e4a31c6568ff09e896",
+      "compressed_bytes": 1862
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/qualification.json",
+      "artifact": "inputs/161-qualification.json.gz",
+      "sha256": "0ef1ba67f91fb1eb68483162a32ab43d701b31929b43e60f11dfa1e560f21b66",
+      "bytes": 5592,
+      "compressed_sha256": "6fbc3cfbdced30c6beb3f42f87640ca373103d41a9fe18edcff6a5081bd5d6f8",
+      "compressed_bytes": 1868
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/source-decoder-aot",
+      "artifact": "inputs/162-source-decoder-aot.gz",
+      "sha256": "c57cb6044e1ef096d82ca42039466a1c4c60ca7903619f6e3da0e6e8ac0f11e6",
+      "bytes": 13730312,
+      "compressed_sha256": "04477633604e9522adff326cf00d79ac5ab9a8a845c7e8573582b36312eda2f3",
+      "compressed_bytes": 1358123
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/source-decoder.c",
+      "artifact": "inputs/163-source-decoder.c.gz",
+      "sha256": "3ccc6a16076f29425450913daaf7ec01dccd4ec41887624545348547576bd6e6",
+      "bytes": 751711,
+      "compressed_sha256": "62630685facebf7aeb9a757498e677c46ae73144f11782f603cbc2ca76ab5c14",
+      "compressed_bytes": 99792
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux/source-decoder.nvm",
+      "artifact": "inputs/164-source-decoder.nvm.gz",
+      "sha256": "de97b4866fe37667cdff23ffbc66ce573840b84248621c4f23da92cfccea534e",
+      "bytes": 78992,
+      "compressed_sha256": "e43b688ff2826a4ddfc052d39015aba8058aaeff2e08ca41c1e242aa4adf13b8",
+      "compressed_bytes": 17964
+    },
+    {
+      "path": ".test_output/enum-tuple-products-linux.log",
+      "artifact": "inputs/165-enum-tuple-products-linux.log.gz",
+      "sha256": "59e1c7fa6cd02aadb2c95437de14c01c45e126d333019721ec0cb5ad8d7a7f86",
+      "bytes": 212,
+      "compressed_sha256": "72f45d8afd6bf6fed62c9de56fe7bd0cf9d9dc8b29c4d8b7462761e92e374952",
+      "compressed_bytes": 173
+    },
+    {
+      "path": ".test_output/enum-tuple-products.py",
+      "artifact": "inputs/166-enum-tuple-products.py.gz",
+      "sha256": "9af31efa71162478406c94f1c393591718d65b71f73d65cfa2f898cdea52796b",
+      "bytes": 1205,
+      "compressed_sha256": "89f92fbda701f0233add1fcbd5009ad788a21562462ffafdbed37b66619517c6",
+      "compressed_bytes": 656
+    },
+    {
+      "path": ".test_output/enum-tuple-qualified-darwin.log",
+      "artifact": "inputs/167-enum-tuple-qualified-darwin.log.gz",
+      "sha256": "7e6d193addeff636b5747c952325df2815794585cdde5d22924f534183a6cdc2",
+      "bytes": 1827,
+      "compressed_sha256": "d761f965f4ac14a201b86d6415c7fe138c579e5ed3713f51013e7c36119095df",
+      "compressed_bytes": 691
+    },
+    {
+      "path": ".test_output/enum-tuple-qualified-linux.log",
+      "artifact": "inputs/168-enum-tuple-qualified-linux.log.gz",
+      "sha256": "dfd18020ab85500e3610eed399b3f7400e56dfebb0d30c284ee229d552db4279",
+      "bytes": 1809,
+      "compressed_sha256": "a0b8e49714405e04e783da8202acdad5c1717418675999acb065327660357888",
+      "compressed_bytes": 679
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/manifest.json",
+      "artifact": "inputs/169-manifest.json.gz",
+      "sha256": "d3a0b62698e3a2344594730a5e259aae5d0508abd0ec463335d36726d257282a",
+      "bytes": 145811,
+      "compressed_sha256": "60ca56355d928247f5ae7a4755b3408990b75fe9e3aaa564fb037b96f3eb57de",
+      "compressed_bytes": 60590
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-0-v1.bin",
+      "artifact": "inputs/170-wire-kind-1-enums-0-v1.bin.gz",
+      "sha256": "0a06a86b5983023f4205f3cffde1011b3d758845d878e8b9e5dd2cee0b2d59f4",
+      "bytes": 56,
+      "compressed_sha256": "1f993bd5ded59c7dbf8d03c54e67977f93040dbdb3128fbe185a8d394d1c6c4f",
+      "compressed_bytes": 38
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-0-v2.bin",
+      "artifact": "inputs/171-wire-kind-1-enums-0-v2.bin.gz",
+      "sha256": "dad5f2bfded4c3faf82df6100c1af415258998c7a789b6563c07a21998e26ce7",
+      "bytes": 60,
+      "compressed_sha256": "e77014329b079005788b92c6d50432bde353c4e113fc5695498d2ecfa8079079",
+      "compressed_bytes": 39
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-0-v3.bin",
+      "artifact": "inputs/172-wire-kind-1-enums-0-v3.bin.gz",
+      "sha256": "9a83787a658434303120aa9d8d0955bf7d55c3dba0384446d092b094154db4d5",
+      "bytes": 88,
+      "compressed_sha256": "3e6d12479ef00af7fe26cd1fd8ea82c68510ad0921c22e12e8ea12dfd3ec0b3a",
+      "compressed_bytes": 49
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-1-v1.bin",
+      "artifact": "inputs/173-wire-kind-1-enums-1-v1.bin.gz",
+      "sha256": "8a6a6c92af1a735832f465f1f9dee4a4ebb98789f9726a6a9f97f608110beca2",
+      "bytes": 56,
+      "compressed_sha256": "34f1f9acbcc83ca4d08d76c45861eda73bc42995df39308cb6bbd9a22774ee5f",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-1-v2.bin",
+      "artifact": "inputs/174-wire-kind-1-enums-1-v2.bin.gz",
+      "sha256": "6118c6950d6ad2da9358f41cc75b53fe1ae5aad0555e8ce2fa682f46d4dcd7dc",
+      "bytes": 60,
+      "compressed_sha256": "f11ffe80ac4ccf5e88ac54cad9716a3439cb5be45a47d378475ee87427c7a4b1",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-1-v3.bin",
+      "artifact": "inputs/175-wire-kind-1-enums-1-v3.bin.gz",
+      "sha256": "0a6f66f15f498d5d5d53636299d93481d34c2613e2fa80b543018d78660cc4ab",
+      "bytes": 88,
+      "compressed_sha256": "595e325c70806148fe1886eb87ce48313be5e6cd9da82e67bc0ec2dd8d84850f",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-2-v1.bin",
+      "artifact": "inputs/176-wire-kind-1-enums-2-v1.bin.gz",
+      "sha256": "e41c889490599e123ac01cd4fbd2f77128cdc6fa8f53bba24d49514580c2a612",
+      "bytes": 56,
+      "compressed_sha256": "14d63c9f94d9c23eff258f941349a5e5875751599845ffbe576774e0879e2a28",
+      "compressed_bytes": 40
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-2-v2.bin",
+      "artifact": "inputs/177-wire-kind-1-enums-2-v2.bin.gz",
+      "sha256": "70280281fa8229b9cceb67c1b9945de997b2ef39e7da519a6595aaae30752082",
+      "bytes": 60,
+      "compressed_sha256": "69ddf662ea771bcb2b1eb1a259742e1713bf5796566ec6cc2dc8e258ba7921b2",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-1-enums-2-v3.bin",
+      "artifact": "inputs/178-wire-kind-1-enums-2-v3.bin.gz",
+      "sha256": "7d27f725ab7ff0aad924ac73257d3d5aa336477f7a59ee167612bcc576d04016",
+      "bytes": 88,
+      "compressed_sha256": "ab209cf4a5561e90c3972a5822f36e4ffb6d54abf3ed96ea5fc5407721464c17",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-0-v1.bin",
+      "artifact": "inputs/179-wire-kind-3-enums-0-v1.bin.gz",
+      "sha256": "dfe6be7303de07e3f504623a8050b771b7a7482c442717cde06318636bcee6d7",
+      "bytes": 56,
+      "compressed_sha256": "8bcc81a97fd452411cd7fe9d24d6a1fead3260a1a20b1af853b91e3960855fee",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-0-v2.bin",
+      "artifact": "inputs/180-wire-kind-3-enums-0-v2.bin.gz",
+      "sha256": "a4916377aad66f2516b886edd1d08d37c5c037d9b3ab3c38ea8457d6cbdcf732",
+      "bytes": 60,
+      "compressed_sha256": "9862fcf374e215c272f186d412e929c9b1abf0879ab49a0ae114e2bcaec3b36f",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-0-v3.bin",
+      "artifact": "inputs/181-wire-kind-3-enums-0-v3.bin.gz",
+      "sha256": "0f8f31c4e54cf6ecceb0ef6050a9f7b320a24ccd84fc043b9cd02854754d8506",
+      "bytes": 88,
+      "compressed_sha256": "6574218e3ca03bbfbd76bb4e38de7086e1c2deec1e50311f900b919eb740b998",
+      "compressed_bytes": 55
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-1-v1.bin",
+      "artifact": "inputs/182-wire-kind-3-enums-1-v1.bin.gz",
+      "sha256": "37840bd4f7bc3bed418c1b4c911fe0428b11180c142b164503d56effe7a7fca9",
+      "bytes": 56,
+      "compressed_sha256": "ac0f3067ac64eed15ab4a16ec4bfdc45e509205fe50116ee904a49df8bfc9c5b",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-1-v2.bin",
+      "artifact": "inputs/183-wire-kind-3-enums-1-v2.bin.gz",
+      "sha256": "c97f3a36c8fda30c321cbe43f0ab35086ced48e6c555558d1c780d16eb7baccd",
+      "bytes": 60,
+      "compressed_sha256": "0fdc0f7037cb24019627b1d05499bb089079d717735c058a480cfee5f78f03d8",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-1-v3.bin",
+      "artifact": "inputs/184-wire-kind-3-enums-1-v3.bin.gz",
+      "sha256": "edf0fe1fc77b40fb18165010edbffce86320a01f4aa6f1620cb74584972db994",
+      "bytes": 88,
+      "compressed_sha256": "6a36007f8ac8855099e54a7680c57a0ab1dd30ed4c685a297e7dd16d091fb5a8",
+      "compressed_bytes": 54
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-2-v1.bin",
+      "artifact": "inputs/185-wire-kind-3-enums-2-v1.bin.gz",
+      "sha256": "8d8844d73ede3be3241bf07241aec15b47239c4a5c0c2984926858e4e6492c1f",
+      "bytes": 56,
+      "compressed_sha256": "357cdd3c5e48f957c3617e8545dad097d433a4ff0aeff8af2882e98f740ba8dd",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-2-v2.bin",
+      "artifact": "inputs/186-wire-kind-3-enums-2-v2.bin.gz",
+      "sha256": "30c8d7835edfb955ff76a35febb683154f9d14f7d3132567e2def9a441fd99ed",
+      "bytes": 60,
+      "compressed_sha256": "ded47937bd3b677c92128954f883c1b59f375824a1bedf9d1c4d13c296c7e260",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-darwin/wire-kind-3-enums-2-v3.bin",
+      "artifact": "inputs/187-wire-kind-3-enums-2-v3.bin.gz",
+      "sha256": "40027b4435bf31aad143c1d300b454bda6e60355a8b47cac12810758fa5b4754",
+      "bytes": 88,
+      "compressed_sha256": "47b632fe2518d8bb7091afb21d503c77246d427446c918a286122e60193603f2",
+      "compressed_bytes": 57
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/manifest.json",
+      "artifact": "inputs/188-manifest.json.gz",
+      "sha256": "ddb15ebc2033a26c3ac797ae5c5e080159e5e75b058115d50a9a1e4cf26dd604",
+      "bytes": 145810,
+      "compressed_sha256": "4f07af3fead792b5fc63cdfba2838b39da72bdd264f52e4657abd23d807ffc63",
+      "compressed_bytes": 60592
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-0-v1.bin",
+      "artifact": "inputs/189-wire-kind-1-enums-0-v1.bin.gz",
+      "sha256": "0a06a86b5983023f4205f3cffde1011b3d758845d878e8b9e5dd2cee0b2d59f4",
+      "bytes": 56,
+      "compressed_sha256": "1f993bd5ded59c7dbf8d03c54e67977f93040dbdb3128fbe185a8d394d1c6c4f",
+      "compressed_bytes": 38
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-0-v2.bin",
+      "artifact": "inputs/190-wire-kind-1-enums-0-v2.bin.gz",
+      "sha256": "dad5f2bfded4c3faf82df6100c1af415258998c7a789b6563c07a21998e26ce7",
+      "bytes": 60,
+      "compressed_sha256": "e77014329b079005788b92c6d50432bde353c4e113fc5695498d2ecfa8079079",
+      "compressed_bytes": 39
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-0-v3.bin",
+      "artifact": "inputs/191-wire-kind-1-enums-0-v3.bin.gz",
+      "sha256": "9a83787a658434303120aa9d8d0955bf7d55c3dba0384446d092b094154db4d5",
+      "bytes": 88,
+      "compressed_sha256": "3e6d12479ef00af7fe26cd1fd8ea82c68510ad0921c22e12e8ea12dfd3ec0b3a",
+      "compressed_bytes": 49
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-1-v1.bin",
+      "artifact": "inputs/192-wire-kind-1-enums-1-v1.bin.gz",
+      "sha256": "8a6a6c92af1a735832f465f1f9dee4a4ebb98789f9726a6a9f97f608110beca2",
+      "bytes": 56,
+      "compressed_sha256": "34f1f9acbcc83ca4d08d76c45861eda73bc42995df39308cb6bbd9a22774ee5f",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-1-v2.bin",
+      "artifact": "inputs/193-wire-kind-1-enums-1-v2.bin.gz",
+      "sha256": "6118c6950d6ad2da9358f41cc75b53fe1ae5aad0555e8ce2fa682f46d4dcd7dc",
+      "bytes": 60,
+      "compressed_sha256": "f11ffe80ac4ccf5e88ac54cad9716a3439cb5be45a47d378475ee87427c7a4b1",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-1-v3.bin",
+      "artifact": "inputs/194-wire-kind-1-enums-1-v3.bin.gz",
+      "sha256": "0a6f66f15f498d5d5d53636299d93481d34c2613e2fa80b543018d78660cc4ab",
+      "bytes": 88,
+      "compressed_sha256": "595e325c70806148fe1886eb87ce48313be5e6cd9da82e67bc0ec2dd8d84850f",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-2-v1.bin",
+      "artifact": "inputs/195-wire-kind-1-enums-2-v1.bin.gz",
+      "sha256": "e41c889490599e123ac01cd4fbd2f77128cdc6fa8f53bba24d49514580c2a612",
+      "bytes": 56,
+      "compressed_sha256": "14d63c9f94d9c23eff258f941349a5e5875751599845ffbe576774e0879e2a28",
+      "compressed_bytes": 40
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-2-v2.bin",
+      "artifact": "inputs/196-wire-kind-1-enums-2-v2.bin.gz",
+      "sha256": "70280281fa8229b9cceb67c1b9945de997b2ef39e7da519a6595aaae30752082",
+      "bytes": 60,
+      "compressed_sha256": "69ddf662ea771bcb2b1eb1a259742e1713bf5796566ec6cc2dc8e258ba7921b2",
+      "compressed_bytes": 41
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-1-enums-2-v3.bin",
+      "artifact": "inputs/197-wire-kind-1-enums-2-v3.bin.gz",
+      "sha256": "7d27f725ab7ff0aad924ac73257d3d5aa336477f7a59ee167612bcc576d04016",
+      "bytes": 88,
+      "compressed_sha256": "ab209cf4a5561e90c3972a5822f36e4ffb6d54abf3ed96ea5fc5407721464c17",
+      "compressed_bytes": 51
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-0-v1.bin",
+      "artifact": "inputs/198-wire-kind-3-enums-0-v1.bin.gz",
+      "sha256": "dfe6be7303de07e3f504623a8050b771b7a7482c442717cde06318636bcee6d7",
+      "bytes": 56,
+      "compressed_sha256": "8bcc81a97fd452411cd7fe9d24d6a1fead3260a1a20b1af853b91e3960855fee",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-0-v2.bin",
+      "artifact": "inputs/199-wire-kind-3-enums-0-v2.bin.gz",
+      "sha256": "a4916377aad66f2516b886edd1d08d37c5c037d9b3ab3c38ea8457d6cbdcf732",
+      "bytes": 60,
+      "compressed_sha256": "9862fcf374e215c272f186d412e929c9b1abf0879ab49a0ae114e2bcaec3b36f",
+      "compressed_bytes": 44
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-0-v3.bin",
+      "artifact": "inputs/200-wire-kind-3-enums-0-v3.bin.gz",
+      "sha256": "0f8f31c4e54cf6ecceb0ef6050a9f7b320a24ccd84fc043b9cd02854754d8506",
+      "bytes": 88,
+      "compressed_sha256": "6574218e3ca03bbfbd76bb4e38de7086e1c2deec1e50311f900b919eb740b998",
+      "compressed_bytes": 55
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-1-v1.bin",
+      "artifact": "inputs/201-wire-kind-3-enums-1-v1.bin.gz",
+      "sha256": "37840bd4f7bc3bed418c1b4c911fe0428b11180c142b164503d56effe7a7fca9",
+      "bytes": 56,
+      "compressed_sha256": "ac0f3067ac64eed15ab4a16ec4bfdc45e509205fe50116ee904a49df8bfc9c5b",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-1-v2.bin",
+      "artifact": "inputs/202-wire-kind-3-enums-1-v2.bin.gz",
+      "sha256": "c97f3a36c8fda30c321cbe43f0ab35086ced48e6c555558d1c780d16eb7baccd",
+      "bytes": 60,
+      "compressed_sha256": "0fdc0f7037cb24019627b1d05499bb089079d717735c058a480cfee5f78f03d8",
+      "compressed_bytes": 43
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-1-v3.bin",
+      "artifact": "inputs/203-wire-kind-3-enums-1-v3.bin.gz",
+      "sha256": "edf0fe1fc77b40fb18165010edbffce86320a01f4aa6f1620cb74584972db994",
+      "bytes": 88,
+      "compressed_sha256": "6a36007f8ac8855099e54a7680c57a0ab1dd30ed4c685a297e7dd16d091fb5a8",
+      "compressed_bytes": 54
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-2-v1.bin",
+      "artifact": "inputs/204-wire-kind-3-enums-2-v1.bin.gz",
+      "sha256": "8d8844d73ede3be3241bf07241aec15b47239c4a5c0c2984926858e4e6492c1f",
+      "bytes": 56,
+      "compressed_sha256": "357cdd3c5e48f957c3617e8545dad097d433a4ff0aeff8af2882e98f740ba8dd",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-2-v2.bin",
+      "artifact": "inputs/205-wire-kind-3-enums-2-v2.bin.gz",
+      "sha256": "30c8d7835edfb955ff76a35febb683154f9d14f7d3132567e2def9a441fd99ed",
+      "bytes": 60,
+      "compressed_sha256": "ded47937bd3b677c92128954f883c1b59f375824a1bedf9d1c4d13c296c7e260",
+      "compressed_bytes": 47
+    },
+    {
+      "path": ".test_output/enum-tuple-retained-linux/wire-kind-3-enums-2-v3.bin",
+      "artifact": "inputs/206-wire-kind-3-enums-2-v3.bin.gz",
+      "sha256": "40027b4435bf31aad143c1d300b454bda6e60355a8b47cac12810758fa5b4754",
+      "bytes": 88,
+      "compressed_sha256": "47b632fe2518d8bb7091afb21d503c77246d427446c918a286122e60193603f2",
+      "compressed_bytes": 57
+    },
+    {
+      "path": "src_nano/nvm2c/declarations.nano",
+      "artifact": "inputs/207-declarations.nano.gz",
+      "sha256": "c56ac4a6b37fea9bcc4e5d3e82c807c3196dfa003dc6532097c6279dd8ee3d8a",
+      "bytes": 14608,
+      "compressed_sha256": "ad1f3bcf8314932414f7c8482b8966fb10ab4e3e2a244358ce23b5353836c58b",
+      "compressed_bytes": 3366
+    },
+    {
+      "path": "src_nano/nvm2c/module.nano",
+      "artifact": "inputs/208-module.nano.gz",
+      "sha256": "fe9eb5396df82b2345736c8a2860e6e058fedf70835d47729f8c43c280dcfebb",
+      "bytes": 22201,
+      "compressed_sha256": "480f8de658b79fb2e90c8223d11aaa996245171448a7035c4d3392a2ce544d66",
+      "compressed_bytes": 4466
+    },
+    {
+      "path": "src_nano/nvm2c/ownership.nano",
+      "artifact": "inputs/209-ownership.nano.gz",
+      "sha256": "4e6dab6e90a8ce5a230118c448b17be38be6f5b17d9f7ec491ab7e89a1437137",
+      "bytes": 27467,
+      "compressed_sha256": "2de653f3d2b918291d9f400ff468ca319428ebd4155dc287ca9fff867145f902",
+      "compressed_bytes": 4826
+    },
+    {
+      "path": "tests/test_nanolang_translator_declarations.py",
+      "artifact": "inputs/210-test_nanolang_translator_declarations.py.gz",
+      "sha256": "5e4b8f0c6595202e91b52776e19dd9975d5e04ba71de2bcef40ca5c4438fe899",
+      "bytes": 13548,
+      "compressed_sha256": "0076d6e8dde7d3061bc58ce94db2ae915000cb5d5ee93d8213175d5ce4b455b1",
+      "compressed_bytes": 4147
+    },
+    {
+      "path": "tests/test_nanolang_translator_module.py",
+      "artifact": "inputs/211-test_nanolang_translator_module.py.gz",
+      "sha256": "b587f545e07cc81968cb3ae7ec3005424d436128ecc93ebba225e409d1e8b91f",
+      "bytes": 13705,
+      "compressed_sha256": "4da1cc211fc113d38d1b80bbbe7e9b72610b35466be618efd8c4de3e7b1dad18",
+      "compressed_bytes": 3879
+    },
+    {
+      "path": "tests/test_nanolang_translator_ownership.py",
+      "artifact": "inputs/212-test_nanolang_translator_ownership.py.gz",
+      "sha256": "39930e221784054297802ab081e9d4b3c8fa724aaba4413eeed90c634feec7d7",
+      "bytes": 19235,
+      "compressed_sha256": "0621ee099baa1d435b1c7996302f0ac5d9130fb2ca3d9efd131289c984e888ab",
+      "compressed_bytes": 5185
+    },
+    {
+      "path": "tests/test_nanolang_translator_ownership_module.py",
+      "artifact": "inputs/213-test_nanolang_translator_ownership_module.py.gz",
+      "sha256": "423cbb2ef16cae9c6d989b1238b16d2e4d48192514e700567505e6c9c92c5b46",
+      "bytes": 8735,
+      "compressed_sha256": "2d3a9cff66a6817eb501ec7969beaea6f177ef972de51f8f99b78e19498554fc",
+      "compressed_bytes": 3055
+    }
+  ]
+}

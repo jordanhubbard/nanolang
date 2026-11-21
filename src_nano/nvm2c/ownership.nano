@@ -65,7 +65,7 @@ fn retained(model: Module, layouts: payload.PayloadTable) -> bool {
     while (< i (array_length layouts.starts)) {
         let kind: int = (layout_kind layouts i)
         if (== kind 0) { set records (+ records 1) }
-        if (== kind 1) { set enums (+ enums 1) }
+        if (== kind 3) { set enums (+ enums 1) }
         if (== kind 2) { set unions (+ unions 1) }
         let name: int = (wire.read_u32 layouts.data (+ (at layouts.starts i) 4))
         if (and (!= name 4294967295) (>= name (array_length model.strings))) { return false }
@@ -84,6 +84,11 @@ shadow retained {
     assert (retained model (payload.decode model.layouts 4))
     let bad: Module = Module { layouts: [0,0,0,0,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
     assert (not (retained bad (payload.decode bad.layouts 4)))
+    let enum_model: Module = Module { layouts: [1,0,0,0,3,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 1, unions: 0 }
+    assert (retained enum_model (payload.decode enum_model.layouts 4))
+    let tuple_model: Module = Module { layouts: [1,0,0,0,1,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (retained tuple_model (payload.decode tuple_model.layouts 4))
+
 }
 
 pub fn layout_profile(layouts: payload.PayloadTable, flags: array<int>, version: int, facts: array<int>, profile: int) -> int {

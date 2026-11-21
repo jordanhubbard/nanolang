@@ -51,7 +51,7 @@ def function(locals_=0, arity=0, results=0, result_tag=0, params=(), start=0, le
 def image(owned, rows=(), strings=(), functions=(), code=b'', raw_layouts=None, counts=None):
     layouts = table(*(layout(kind, fields, name) for kind, name, fields in rows)) if raw_layouts is None else raw_layouts
     if counts is None:
-        counts = tuple(sum(row[0] == kind for row in rows) for kind in range(3))
+        counts = tuple(sum(row[0] == kind for row in rows) for kind in (0, 3, 2))
     return (struct.pack('<7I', len(layouts), len(owned), len(strings), len(functions), *counts)
             + b''.join(u32(len(name)) + name for name in strings) + b''.join(functions) + layouts + owned + code)
 
@@ -110,6 +110,16 @@ def corpus():
         add(f'unknown-field-tag-{tag}', record(flags=[0]), None, rows=rows)
     add('retained-tail-is-not-canonical', record(), expected(8), raw_layouts=table() + b'\0')
     add('retained-count-mismatch', record(flags=[0]), expected(8), rows=row, counts=(0, 0, 0))
+    # I specify wire enum counts independently: tuple=1, enum=3.
+    for kind, valid_enums in ((1, 0), (3, 1)):
+        for version in (1, 2, 3):
+            extensions = [scalar_global] if version == 3 else []
+            for enums in (0, 1, 2):
+                add(f'wire-kind-{kind}-enums-{enums}-v{version}',
+                    record(version, flags=[0], extensions=extensions),
+                    expected(0, version == 3) if enums == valid_enums else expected(8),
+                    rows=[(kind, NONE, [])], counts=(0, enums, 0))
+
     add('retained-name-index', record(flags=[0]), expected(8), rows=[(0, 0, [])])
     forward = [(0, NONE, [(8, 1, NONE)]), (0, NONE, [])]
     for flags, status in [([0, 1], 0), ([0, 3], 8), ([5, 3], 8), ([5, 1], 7), ([1, 1], 0)]:

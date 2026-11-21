@@ -425,7 +425,7 @@ fn convert_claims(view: ModuleView) -> int {
     while (< i (count view 4)) {
         let kind: int = (field view 4 i 0 1)
         if (== kind 0) { set records (+ records 1) }
-        if (== kind 1) { set enums (+ enums 1) }
+        if (== kind 3) { set enums (+ enums 1) }
         if (== kind 2) { set unions (+ unions 1) }
         set i (+ i 1)
     }

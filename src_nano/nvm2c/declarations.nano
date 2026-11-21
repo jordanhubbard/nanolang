@@ -94,7 +94,7 @@ pub fn prepare(bytes: array<u8>, model: owned.Module, profile: int, foreign: arr
         let name: int = (wire.read_u32 layouts.data (+ row 4))
         if (and (!= name 4294967295) (>= name (array_length model.strings))) { return (failed 2 profile) }
         if (== kind 0) { set records (+ records 1) }
-        if (== kind 1) { set enums (+ enums 1) }
+        if (== kind 3) { set enums (+ enums 1) }
         if (== kind 2) { set unions (+ unions 1) }
         if (and (!= kind 0) (not (and (> profile 1) (== kind 2)))) { set unknown true }
         let mut f: int = 0
@@ -221,6 +221,12 @@ shadow prepare {
     assert (ready (prepare bytes m 1 [0,0,0,0]))
     assert (== (prepare [] m 1 [0,0,0,0]).status 1)
     assert (not (ready (prepare bytes m 3 [0,0,0,0])))
+    let enum_model: owned.Module = owned.Module { layouts: [1,0,0,0,3,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 1, unions: 0 }
+    let unknown: array<u8> = [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
+    assert (== (prepare unknown enum_model 1 [0,0,0,0]).status 1)
+    let tuple_model: owned.Module = owned.Module { layouts: [1,0,0,0,1,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (prepare unknown tuple_model 2 [0,0,0,0]).status 1)
+
 }
 
 pub struct Variant { found: bool, layout: int, name: int, offset: int, fields: int }
