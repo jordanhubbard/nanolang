@@ -346,6 +346,41 @@ including 4640 explicit status expectations, exact field/byte limits and
 complete C-provider ASan/UBSan. The original public payload and dependent
 module/ownership gates pass; I retain the two corrected oracle expectations.
 
+## My private declaration projections
+
+`src_nano/nvm2c/declarations.nano` projects ordinary ARRAY, mixed record/union
+and MAP declarations in NanoLang. I retain their distinct described, unknown,
+absent, invalid and limit outcomes. My shared ownership helpers select explicit
+private layout/descriptor rules; the public validator retains its original
+profile. A later malformed declaration still takes precedence over an earlier
+unknown fact where the C reader continues checking.
+
+I preserve conservative descriptor/union work precharges, 4096 element types,
+65536 bindings, depth64 coloring, exact array-field coverage, union variant
+partitions, canonical map scalar/pair usage, and both declaration work limits.
+`variant` supplies checked union slices; `map_field` searches the complete
+sorted binding table. I expose no partial inventories on refusal or absence.
+
+These are immutable views and numeric facts, without C pointer/allocator
+ownership emulation. I require immutable input. On my qualified64-bit hosts, the fixed cardinality ceilings keep the C
+ordinary/mixed copies below16MiB and map sidecars below2MiB, so their default
+copy-byte ceilings cannot add a refusal.
+My NanoLang heap representation has its own costs. I retain the C refusal
+decisions and logical work bounds without claiming identical heap usage or
+allocation-denial behavior.
+
+Private declaration success supplies no instruction-flow, initialization,
+borrowing, handler or execution authority. Whole-module profile conversion and
+executable verification remain required before representation analysis and C
+emission may replace my reference translator.
+
+My [paired declaration evidence](evidence/nanolang-declarations-20261121/README.md)
+matches 3988 complete reports per profile on three profiles and five routes
+on Linux/Darwin, including 1728 explicit statuses and fourteen original producer
+models. Full C-provider instrumentation and original declaration/public
+ownership regressions pass. I retain the initial oracle/expectation failures;
+whole-module and product cutover gates remain open.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
