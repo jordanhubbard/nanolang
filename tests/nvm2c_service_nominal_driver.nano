@@ -23,7 +23,41 @@ fn row_numbers(row: nominal.Row) -> array<int> {
     return [(cond (row.found 1) (else 0)),row.global_index,row.instance,row.catalog,row.ordinal,row.source,row.kind,row.flags,row.category]
 }
 shadow row_numbers { assert (== (at (row_numbers (nominal.layout nominal.Plan { status: 1, instances: [], rows: [], record_rows: [], union_rows: [] } 0)) 0) 0) }
-fn report(plan: nominal.Plan) -> string {
+fn unified_numbers(row: nominal.Row) -> array<int> {
+    return [(cond (row.found 1) (else 0)),row.global_index,(nominal.logical_id row),row.source,row.kind,row.flags,row.category]
+}
+shadow unified_numbers { assert (== (at (unified_numbers (nominal.logical_type nominal.Plan { status: 1, instances: [], rows: [], record_rows: [], union_rows: [] } 0)) 2) 4294967295) }
+fn unified(plan: nominal.Plan) -> array<int> {
+    let mut values: array<int> = []
+    let mut i: int = 0
+    while (<= i (array_length plan.rows)) {
+        let row: array<int> = (unified_numbers (nominal.layout plan i))
+        let mut j: int = 0
+        while (< j 7) { set values (array_push values (at row j)) set j (+ j 1) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (<= i (* (array_length plan.instances) 9)) {
+        let row: array<int> = (unified_numbers (nominal.logical_type plan i))
+        let mut j: int = 0
+        while (< j 7) { set values (array_push values (at row j)) set j (+ j 1) }
+        let cat: int = (nominal.instance_catalog plan (/ i 9))
+        set values (array_push values (cond ((< (% i 9) (service.catalog_types cat)) 1) (else 0)))
+        set values (array_push values (nominal.logical_types plan i))
+        set values (array_push values (cond ((nominal.logical_endpoint plan i) 1) (else 0)))
+        set i (+ i 1)
+    }
+    set i 0
+    while (<= i (* (array_length plan.instances) 5)) {
+        set values (array_push values (nominal.logical_import plan i))
+        let cat: int = (nominal.instance_catalog plan (/ i 5))
+        set values (array_push values (cond ((< (% i 5) (service.catalog_methods cat)) 1) (else 0)))
+        set i (+ i 1)
+    }
+    return values
+}
+shadow unified { assert (> (array_length (unified nominal.Plan { status: 1, instances: [], rows: [], record_rows: [], union_rows: [] })) 0) }
+fn report(plan: nominal.Plan, profile: int) -> string {
     if (!= plan.status 0) { return (int_to_string plan.status) }
     let mut values: array<int> = [(array_length plan.rows),(array_length plan.instances)]
     let mut i: int = 0
@@ -63,9 +97,14 @@ fn report(plan: nominal.Plan) -> string {
         }
         set kind (+ kind 1)
     }
+    if (== profile 5) {
+        let extra: array<int> = (unified plan)
+        set i 0
+        while (< i (array_length extra)) { set values (array_push values (at extra i)) set i (+ i 1) }
+    }
     return (+ "0|" (numbers values 0 (array_length values)))
 }
-shadow report { assert (== (report nominal.Plan { status: 2, instances: [], rows: [], record_rows: [], union_rows: [] }) "2") }
+shadow report { assert (== (report nominal.Plan { status: 2, instances: [], rows: [], record_rows: [], union_rows: [] } 5) "2") }
 
 fn analyze(input: array<u8>, profile: int) -> string {
     let pre: read.Cursor = (read.open input)
@@ -151,7 +190,7 @@ fn analyze(input: array<u8>, profile: int) -> string {
         layouts: (array_slice bytes layout_at layout_size),
         code: (array_slice bytes (read.position c) (- (array_length bytes) (read.position c))),
         strings: names, functions: entries, params: params, results: results, records: records, enums: enums, unions: unions }
-    return (report (nominal.prepare service_bytes (array_slice bytes own_at own_size) model imports refs callbacks profile))
+    return (report (nominal.prepare service_bytes (array_slice bytes own_at own_size) model imports refs callbacks profile) profile)
 }
 shadow analyze { assert (== (analyze [] 2) "99") }
 

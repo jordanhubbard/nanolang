@@ -477,6 +477,34 @@ guards. This establishes a declared development runtime closure, not installed
 stages or a raw bootstrap fixed point. Service metadata and complete profile
 admission remain required before C emission and product cutover.
 
+## My nominal service metadata plans
+
+`service_nominal.nano` describes exact File, TCP, WebSocket and multi-instance
+metadata after the caller selects raw profiles2 through5. I validate complete
+catalog imports, exact nominal names and members, prior-only layout edges,
+per-kind counts and version1 ownership descriptors before returning any rows.
+Repeated instances retain distinct layout identities even when their catalog
+names match. Unknown layouts retain zero ownership flags and their actual kind;
+my wire kinds distinguish tuple1 from enum3.
+
+`service_catalog.nano` contains generated immutable NanoLang data. Its generator
+reads the canonical C catalog views at development time. My running NanoLang
+reader calls no C getter and requests no per-program C plan. I reconstruct the
+complete canonical catalog view from the pure getters in my route tests, and
+`make check-nvm2c-service-catalog` checks generation parity.
+
+I expose layout, instance/type, source and import queries. My unified private
+queries preserve `instance*9+type` and `instance*5+method` identities, including
+missing slots, catalog counts and TCP endpoint classification. These are
+metadata identities, not host handles or code-flow admission. Invalid plans
+return no partial rows. Normal immutable value carriers model the C APIs'
+valid storage; original C tests separately exercise pointer and allocation
+failure contracts. C allocation denial is not a claim about NanoLang's heap.
+
+My legacy File v1 metadata adapter and whole-module service selection remain
+required. The shared module decoder still marks service profiles pending;
+this library does not change installed products or translator selection.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,

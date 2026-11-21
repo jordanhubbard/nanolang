@@ -65,6 +65,28 @@ static unsigned build(unsigned profile,const NvmModule *m,void **out){
 static uint32_t layout_count(unsigned profile,const void *p){switch(profile){case 2:return nvm_file_nominal_layout_count(p);case 3:return nvm_socket_nominal_layout_count(p);case 4:return nvm_websocket_nominal_layout_count(p);default:return nvm_multi_nominal_layout_count(p);}}
 static void release(unsigned profile,void *p){switch(profile){case 2:nvm_file_nominal_plan_free(p);break;case 3:nvm_socket_nominal_plan_free(p);break;case 4:nvm_websocket_nominal_plan_free(p);break;default:nvm_multi_nominal_plan_free(p);}}
 static void row_print(Row r){printf("%u,%u,%u,%u,%u,%u,%u,%u,%u,",(unsigned)r.found,r.global,r.instance,r.catalog,r.ordinal,r.source,r.kind,r.flags,r.category);}
+static void unified_row(bool found,const NvmServicesNominalLayout *v) {
+ printf("%u,%u,%u,%u,%u,%u,%u,",found?1u:0u,found?v->global_index:UINT32_MAX,
+ found?v->catalog_ordinal:UINT32_MAX,found?v->source_ordinal:UINT32_MAX,
+ found?v->layout_kind:0,found?v->ownership_flags:0,found?(unsigned)v->category:0);
+}
+static void unified_report(const NvmServicesNominalPlan *plan,uint32_t count,uint32_t instances) {
+ for(uint32_t i=0;i<=count;i++) {
+  NvmServicesNominalLayout v,prior;memset(&v,0xa5,sizeof v);memcpy(&prior,&v,sizeof v);
+  bool found=nvm_services_nominal_layout(plan,i,&v);if(!found)assert(!memcmp(&prior,&v,sizeof v));
+  unified_row(found,&v);
+ }
+ for(uint32_t i=0;i<=instances*9;i++) {
+  NvmServicesNominalLayout v,prior;memset(&v,0xa5,sizeof v);memcpy(&prior,&v,sizeof v);
+  bool found=nvm_services_nominal_type(plan,i,&v);if(!found)assert(!memcmp(&prior,&v,sizeof v));
+  unified_row(found,&v);
+  printf("%u,%u,%u,",nvm_services_catalog_type(plan,i)?1u:0u,nvm_services_catalog_types(plan,i),nvm_services_catalog_endpoint(plan,i)?1u:0u);
+ }
+ for(uint32_t i=0;i<=instances*5;i++) {
+  uint32_t index=123456;bool found=nvm_services_nominal_import(plan,i,&index);if(!found)assert(index==123456);
+  printf("%lld,%u,",found?(long long)index:-1LL,nvm_services_catalog_method(plan,i)?1u:0u);
+ }
+}
 static void report(unsigned profile,const NvmModule *m){
  void *plan=NULL;unsigned status=build(profile,m,&plan);if(status){assert(!plan);printf("%u\n",status);return;}
  uint32_t count=layout_count(profile,plan),instances=profile==5?nvm_multi_nominal_instance_count(plan):1;
@@ -80,6 +102,7 @@ static void report(unsigned profile,const NvmModule *m){
   uint32_t end=kind==0?m->struct_count:kind==2?m->union_count:0;
   for(uint32_t i=0;i<=end;i++)row_print(get_source(profile,plan,kind,i));
  }
+ if(profile==5)unified_report(plan,count,instances);
  putchar('\n');release(profile,plan);
 }
 static uint32_t read32(const unsigned char *p) {

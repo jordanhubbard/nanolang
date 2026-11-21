@@ -318,3 +318,35 @@ pub fn import_index(plan: Plan, instance: int, ordinal: int) -> int {
     return (at row.imports ordinal)
 }
 shadow import_index { assert (== (import_index (refused 1) 0 0) -1) }
+
+# I preserve private logical identifiers without granting flow authority.
+pub fn logical_id(row: Row) -> int {
+    if (or (not row.found) (== row.instance 4294967295)) { return 4294967295 }
+    return (+ (* row.instance 9) row.ordinal)
+}
+shadow logical_id { assert (== (logical_id (missing)) 4294967295) }
+pub fn logical_type(plan: Plan, id: int) -> Row {
+    if (< id 0) { return (missing) }
+    return (type_at plan (/ id 9) (% id 9))
+}
+shadow logical_type { assert (not (logical_type (refused 1) 0).found) assert (not (logical_type (refused 1) -1).found) }
+pub fn logical_import(plan: Plan, id: int) -> int {
+    if (< id 0) { return -1 }
+    return (import_index plan (/ id 5) (% id 5))
+}
+shadow logical_import { assert (== (logical_import (refused 1) 0) -1) assert (== (logical_import (refused 1) -1) -1) }
+pub fn instance_catalog(plan: Plan, instance: int) -> int {
+    if (or (!= plan.status 0) (or (< instance 0) (>= instance (array_length plan.instances)))) { return 0 }
+    return (at plan.instances instance).catalog
+}
+shadow instance_catalog { assert (== (instance_catalog (refused 1) 0) 0) }
+pub fn logical_types(plan: Plan, id: int) -> int {
+    if (< id 0) { return 0 }
+    return (service.catalog_types (instance_catalog plan (/ id 9)))
+}
+shadow logical_types { assert (== (logical_types (refused 1) 0) 0) }
+pub fn logical_endpoint(plan: Plan, id: int) -> bool {
+    if (< id 0) { return false }
+    return (and (== (% id 9) 8) (== (instance_catalog plan (/ id 9)) 2))
+}
+shadow logical_endpoint { assert (not (logical_endpoint (refused 1) 8)) }
