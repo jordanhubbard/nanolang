@@ -1,6 +1,7 @@
 """I preserve actual selected-driver response quoting and bounded refusal."""
 from pathlib import Path
 import os
+import json
 import shlex
 import shutil
 import subprocess
@@ -46,6 +47,33 @@ class ResponseDriverGrammar(unittest.TestCase):
                         self.assertEqual(native.returncode, 0, native.stderr)
                         self.assertEqual((replay.returncode, replay.stdout),
                                          (native.returncode, native.stdout), replay.stderr)
+            observations = []
+            for compiler in compilers:
+                env = dict(os.environ, NANO_CC=compiler)
+                for quote in ("", "'", '"'):
+                    for octet in (9, 10, 11, 12, 13, *range(32, 127)):
+                        fragment = quote + '-DVALUE=a' + chr(92) + chr(octet) + 'b' + quote
+                        response.write_text(fragment + '\n')
+                        captured = subprocess.run([str(self.probe), 'capture-response',
+                                                   shlex.quote('@' + str(response))],
+                                                  env=env, capture_output=True, timeout=35)
+                        arguments = shlex.split(captured.stdout.decode()) if captured.returncode == 0 else []
+                        prefix = [compiler, '-E', '-P', str(source)]
+                        native = subprocess.run([*prefix, '@' + str(response)], capture_output=True, timeout=10)
+                        replay = subprocess.run([*prefix, *arguments], capture_output=True, timeout=10)
+                        observations.append(dict(compiler=compiler, quote=quote, octet=octet,
+                            fragment=fragment, captured_returncode=captured.returncode,
+                            captured=captured.stdout.decode(), captured_stderr=captured.stderr.decode(),
+                            native_returncode=native.returncode, native_stdout=native.stdout.decode(),
+                            native_stderr=native.stderr.decode(), replay_returncode=replay.returncode,
+                            replay_stdout=replay.stdout.decode(), replay_stderr=replay.stderr.decode()))
+                        with self.subTest(compiler=compiler, quote=quote, octet=octet):
+                            self.assertEqual(captured.returncode, 0, captured.stderr)
+                            self.assertEqual((replay.returncode, replay.stdout),
+                                             (native.returncode, native.stdout), replay.stderr)
+            output = ROOT / '.test_output/response-driver-grammar-matrix.json'
+            output.parent.mkdir(exist_ok=True)
+            output.write_text(json.dumps(observations, indent=2) + '\n')
             marker = directory / 'queried'
             wrapper = directory / 'selected-cc'
             for fault in ('unknown', 'timeout'):

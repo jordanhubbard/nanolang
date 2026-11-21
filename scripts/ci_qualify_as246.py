@@ -215,6 +215,9 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
         record['error'] = repr(error)
         raise
     finally:
+        matrix = ROOT / '.test_output/response-driver-grammar-matrix.json'
+        if response_only and matrix.is_file():
+            shutil.copy2(matrix, OUT / matrix.name)
         for path, raw in original.items():
             path.write_bytes(raw)
         record['checkout_sources_restored'] = all(path.read_bytes() == raw for path, raw in original.items())

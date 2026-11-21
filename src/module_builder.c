@@ -2553,9 +2553,9 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
                 if (!*grammar) { errno = EINVAL; return -1; }
             }
             /* My measured quoted-literal grammar preserves every backslash
-             * inside single quotes. Double quotes escape only quote/slash. */
+             * inside single quotes. Double quotes also escape dollar/backtick. */
             if (!(*grammar == 2 && (quote == '\'' ||
-                    (quote == '"' && *p != '\\' && *p != '"')))) c = *p++;
+                    (quote == '"' && !strchr("\\$`\"", *p))))) c = *p++;
         } else if (quote) {
             if (c == quote) { quote = 0; continue; }
         } else if (c == '\'' || c == '"') { quote = c; continue; }
