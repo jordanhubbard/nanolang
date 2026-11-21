@@ -751,6 +751,10 @@ $(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJE
 test-nanolang-translator-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference test-nominal-owner-context
 	python3 -m unittest -v tests.test_nanolang_translator_module
 
+.PHONY: test-nanolang-translator-service-modules
+test-nanolang-translator-service-modules: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_service_nominal_reference
+	python3 -m unittest -v tests.test_nanolang_translator_service_modules
+
 .PHONY: test-nanolang-translator-ownership-module
 test-nanolang-translator-ownership-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_declaration_reference
 	python3 -m unittest -v tests.test_nanolang_translator_ownership_module

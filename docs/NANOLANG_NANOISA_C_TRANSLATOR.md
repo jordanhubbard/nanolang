@@ -290,12 +290,11 @@ Core references, callback shapes and layout DAGs have already been checked.
 Ordinary import construction adds no result-count restriction beyond the
 existing wire contract; I preserve that distinction from function conversion.
 
-These conversion checks run for a present passive or ownership payload. A core
-module without extension payloads retains its existing nonconversion decisions.
-Service sections and private array/map profiles still return pending until
-their complete profile checks are implemented. I do not silently accept
-them through the passive path or reinterpret successful deserialization as
-instruction/host execution authority.
+These conversion checks run for a present passive, ownership or shared service
+payload. A core module without extension payloads retains its existing
+nonconversion decisions. Shared service decoding now follows the boundary
+below; private ARRAY/MAP profiles retain their quantified pending decisions.
+Successful deserialization does not establish instruction/host execution authority.
 
 My [paired passive-module evidence](evidence/nanolang-passive-modules-20261120/README.md)
 matches 2240 complete module decisions and exact claim bytes per route on
@@ -451,8 +450,9 @@ including their original products, prior-output refusals, widths and File scans.
 This shared conversion path mirrors the C decoder's declaration boundary; it
 does not run ordinary instruction verification. An explicit unknown-opcode case
 therefore deserializes successfully on both sides without gaining execution
-authority. Service14, private flow admission, ordinary executable verification
-and my NanoLang C emitter remain required before cutover.
+authority. Shared service14 decoding now follows the boundary below. Private
+flow admission, ordinary executable verification and my NanoLang C emitter
+remain required before cutover.
 
 ## My service wire codecs
 
@@ -518,9 +518,10 @@ valid storage; original C tests separately exercise pointer and allocation
 failure contracts. C allocation denial is not a claim about NanoLang's heap.
 
 My legacy File v1 narrow and rich-v2 metadata adapters are implemented below.
-Whole-module service selection remains required. The shared
-module decoder still marks service profiles pending;
-this library does not change installed products or translator selection.
+My shared module decoder now connects this metadata boundary to ordinary
+module framing and narrow conversion as described below. Private WebSocket
+codec selection remains separate. This library does not change installed
+products or translator selection.
 
 ## My shared service metadata boundary
 
@@ -550,8 +551,8 @@ does not remove it.
 My pure input arrays represent canonical normal storage: absent service bytes
 have no separate nonnull empty pointer. C-only malformed pointer/count graphs,
 allocation failures and destination preservation retain their original C test
-scope. Whole-module service conversion and full flow/host/execution admission
-remain required before product cutover.
+scope. Shared whole-module service conversion follows the boundary below;
+full flow/host/execution admission remains required before product cutover.
 
 ## My rich service metadata adapter
 
@@ -600,3 +601,39 @@ translation after cutover.
 
 I keep every unfinished payload, verifier, analysis, emitter, service, driver,
 bootstrap and platform requirement open until its own acceptance passes.
+
+
+## My shared service module boundary
+
+`module.nano` retains raw service14 bytes in `ModuleView.services`. I preserve
+section-directory framing order: legacy56-byte, nominal File120-byte,
+nominal TCP128-byte and bounded version3 multi-instance service frames. The
+public decoder refuses a standalone WebSocket104-byte frame; its private codec
+requires its own future entry point and qualification.
+
+After structural table decoding I adapt typed constants, signatures, function
+spans, imports and canonical re-encoded layouts to `service_v2.nano`. Rich
+service preflight and exact service feature consistency run before ordinary
+cross-table references. Function names/ranges, callbacks and the remaining
+features keep their original order. Successful shared service presence also
+triggers the existing narrow conversion checks, including duplicate/string
+constants, narrow spans/results/debug fields and canonical retained layouts.
+
+I run narrow service validation before ownership/passive declarations. Valid
+nominal File/TCP/multi metadata preserves descriptive ownership bytes without
+passing it through the ordinary shared ownership validator; legacy File keeps
+that validator. This matches the C transport boundary and grants no instruction
+lifetime or host authority. I continue to quantify unimplemented private
+ARRAY/MAP decisions instead of accepting them through this path.
+
+My current Linux development gate matches704 synthetic complete decisions and
+exact service/ownership/passive bytes through five routes, including128 explicit
+C expectations and directory/error-priority controls. A separate retained eight
+actual C/NanoLang File/TCP/WebSocket/mixed producer-product gate passes the same
+five routes. The combined permanent fixture now includes both groups; paired
+Darwin acceptance and original module/claim regressions remain pending.
+I retain the initial rich-only UINT32_MAX span fixture refusal, isolated
+name-mutation correction, default-shadow deadline refusal, successful traced
+169-shadow observation and excluded stale-artifact diagnostic. A later success
+does not identify the historical timeout's cause or establish reliable source
+creation. Product selection, the pure C emitter and installed stages remain open.

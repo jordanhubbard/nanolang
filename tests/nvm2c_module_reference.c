@@ -18,7 +18,8 @@ int main(int argc, char **argv) {
     bool scan = argc > 1 && !strcmp(argv[1], "--scan");
     bool passive = argc > 1 && !strcmp(argv[1], "--passive");
     bool claims = argc > 1 && !strcmp(argv[1], "--claims");
-    for (int i = scan || passive || claims ? 2 : 1; i < argc; ++i) {
+    bool services = argc > 1 && !strcmp(argv[1], "--services");
+    for (int i = scan || passive || claims || services ? 2 : 1; i < argc; ++i) {
         FILE *input = fopen(argv[i], "rb");
         if (!input || fseek(input, 0, SEEK_END)) return 2;
         long length = ftell(input);
@@ -31,7 +32,18 @@ int main(int argc, char **argv) {
         else {
             NvmV2Module module = {0};
             NvmV2Result result = nvm_v2_module_deserialize(bytes, (size_t)length, &module);
-            if (claims) {
+            if (services) {
+                uint32_t service = result == NVM_V2_OK ? module.service_size : 0;
+                uint32_t own = result == NVM_V2_OK ? module.ownership_size : 0;
+                uint32_t pass = result == NVM_V2_OK ? module.passive_size : 0;
+                printf("%u:%u:", (unsigned)result, service);
+                for(uint32_t j=0;j<service;j++)printf("%02x",module.service_data[j]);
+                printf(":%u:",own);
+                for(uint32_t j=0;j<own;j++)printf("%02x",module.ownership_data[j]);
+                printf(":%u:",pass);
+                for(uint32_t j=0;j<pass;j++)printf("%02x",module.passive_data[j]);
+                putchar('\n');
+            } else if (claims) {
                 uint32_t own = result == NVM_V2_OK ? module.ownership_size : 0;
                 uint32_t pass = result == NVM_V2_OK ? module.passive_size : 0;
                 printf("%u:%u:", (unsigned)result, own);

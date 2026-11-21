@@ -7,6 +7,9 @@ module "src_nano/nvm2c/passive.nano" as passive
 module "src_nano/nvm2c/passive_calls.nano" as calls
 module "src_nano/nvm2c/ownership.nano" as owned
 module "src_nano/nvm2c/routes.nano" as routes
+module "src_nano/nvm2c/service_v2.nano" as service_v2
+module "src_nano/nvm2c/service_module.nano" as service_module
+module "src_nano/nvm2c/service_nominal.nano" as service_nominal
 
 # Status -1 marks a profile I have not implemented, never successful admission.
 pub struct ModuleView {
@@ -17,6 +20,7 @@ pub struct ModuleView {
     code: array<u8>,
     passive: array<u8>,
     ownership: array<u8>,
+    services: array<u8>,
     tables: array<payload.PayloadTable>,
     present: array<bool>
 }
@@ -33,7 +37,7 @@ fn blank(status: int) -> ModuleView {
         set i (+ i 1)
     }
     let code: array<u8> = []
-    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, passive: [], ownership: [], tables: tables, present: present }
+    return ModuleView { status: status, features: 0, entry: 4294967295, isa_version: 0, code: code, passive: [], ownership: [], services: [], tables: tables, present: present }
 }
 shadow blank {
     let view: ModuleView = (blank 13)
@@ -225,21 +229,62 @@ shadow callbacks {
     assert (== (callbacks view) 0)
 }
 
-fn references(view: ModuleView) -> int {
-    if (has_feature view.features 512) { return 8 }
+# I adapt structurally decoded tables before general cross-section references.
+fn service_view(view: ModuleView) -> service_v2.View {
+    let constants: payload.PayloadTable = (table view 2)
+    let mut values: array<service_v2.Constant> = []
     let mut i: int = 0
-    while (< i (count view 8)) {
-        if (== (field view 8 i 12 1) 3) { return 8 }
+    while (< i (count view 2)) {
+        let row: int = (at constants.starts i)
+        set values (array_push values service_v2.Constant { tag: (field view 2 i 0 1), bytes: (array_slice constants.data (+ row 8) (field view 2 i 4 4)) })
         set i (+ i 1)
     }
+    let signatures: payload.PayloadTable = (table view 3)
+    let mut shapes: array<service_v2.Signature> = []
+    set i 0
+    while (< i (count view 3)) {
+        let row: int = (at signatures.starts i)
+        let arity: int = (field view 3 i 0 2)
+        let results: int = (field view 3 i 2 2)
+        let mut params: array<int> = []
+        let mut returns: array<int> = []
+        let mut j: int = 0
+        while (< j arity) {
+            set params (array_push params (cast_int (at signatures.data (+ (+ row 4) j))))
+            set j (+ j 1)
+        }
+        let result_start: int = (+ (+ row 4) (+ arity (% (- 4 (% arity 4)) 4)))
+        set j 0
+        while (< j results) {
+            set returns (array_push returns (cast_int (at signatures.data (+ result_start j))))
+            set j (+ j 1)
+        }
+        set shapes (array_push shapes service_v2.Signature { arity: arity, results: results, params: params, returns: returns })
+        set i (+ i 1)
+    }
+    let mut functions: array<service_v2.Function> = []
     set i 0
     while (< i (count view 5)) {
-        let start: int = (field view 5 i 8 8)
-        let length: int = (field view 5 i 16 8)
-        if (file_instructions view.code start length) { return 8 }
+        set functions (array_push functions service_v2.Function { signature: (field view 5 i 4 4), locals: (field view 5 i 24 2), start: (field view 5 i 8 8), length: (field view 5 i 16 8) })
         set i (+ i 1)
     }
+    let mut imports: array<service_v2.Import> = []
     set i 0
+    while (< i (count view 8)) {
+        set imports (array_push imports service_v2.Import { module_name: (field view 8 i 0 4), symbol: (field view 8 i 4 4), signature: (field view 8 i 8 4), kind: (field view 8 i 12 1) })
+        set i (+ i 1)
+    }
+    return service_v2.View { features: view.features, constants: values, signatures: shapes, layouts: (payload.reencode (table view 4)), functions: functions, imports: imports, code: view.code, service: view.services, ownership: view.ownership, links: (count view 9), callbacks: (count view 11) }
+}
+shadow service_view {
+    let view: service_v2.View = (service_view (blank 0))
+    assert (== (array_length view.constants) 0)
+    assert (== (array_length view.layouts) 4)
+    assert (== (service_v2.validate view false) 0)
+}
+
+fn references(view: ModuleView) -> int {
+    let mut i: int = 0
     while (< i (count view 5)) {
         if (not (index_ok (field view 5 i 0 4) (count view 2) false)) { return 13 }
         if (not (index_ok (field view 5 i 4 4) (count view 3) false)) { return 13 }
@@ -430,9 +475,30 @@ fn convert_claims(view: ModuleView) -> int {
         set i (+ i 1)
     }
     let model: owned.Module = owned.Module { layouts: retained, code: view.code, strings: names, functions: functions, params: params, results: results_tags, records: records, enums: enums, unions: unions }
-    let selection: routes.Selection = (routes.classify view.ownership model false false 0)
+    let rich: service_v2.View = (service_view view)
+    let selection: routes.Selection = (routes.classify view.ownership model (> (array_length view.services) 0) false 0)
     if (or (== selection.maps 2) (or (== selection.maps 3) (== selection.owners 2))) { return 13 }
     if (or (== selection.maps 1) (or selection.arrays (or (== selection.owners 1) selection.mixed))) { return -1 }
+    if (service_v2.present rich) {
+        let imports: array<service_v2.Import> = rich.imports
+        let signatures: array<service_v2.Signature> = rich.signatures
+        let mut entries: array<service_nominal.Import> = []
+        set i 0
+        while (< i (array_length imports)) {
+            let item: service_v2.Import = (at imports i)
+            let shape: service_v2.Signature = (at signatures item.signature)
+            let mut result: int = 0
+            if (> shape.results 0) { set result (at shape.returns 0) }
+            set entries (array_push entries service_nominal.Import { module_name: item.module_name, symbol: item.symbol, kind: item.kind, arity: shape.arity, result: result, params: shape.params })
+            set i (+ i 1)
+        }
+        let service_status: int = (service_module.validate view.services view.ownership model entries (count view 9) (count view 11))
+        if (!= service_status 0) { return service_status }
+        if (service_module.nominal_version view.services) {
+            if (not (passive.validate view.passive view.code functions params)) { return 13 }
+            return 0
+        }
+    }
     let declarations: owned.Declaration = (owned.validate view.ownership model)
     if (!= declarations.status 0) { return declarations.status }
     if (not (passive.validate view.passive view.code functions params)) { return 13 }
@@ -487,7 +553,7 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
     let mut raw_layouts: array<u8> = []
     let mut layout_present: bool = false
     let mut owned_present: bool = false
-    let mut service_present: bool = false
+    let mut service_bytes: array<u8> = []
     while (< i sections) {
         let entry: int = (+ 40 (* i 24))
         let kind: int = (wire.read_u32 bytes entry)
@@ -495,12 +561,12 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         let length: int = (wire.read_offset bytes (+ entry 16))
         if (== kind 4) { set layout_present true set raw_layouts (array_slice bytes start length) }
         if (== kind 13) { set owned_present true set ownership_bytes (array_slice bytes start length) }
-        if (== kind 14) { set service_present true }
+        if (== kind 14) { set service_bytes (array_slice bytes start length) }
         set i (+ i 1)
     }
     let map_route: int = (routes.map_route raw_layouts ownership_bytes layout_present owned_present)
     if (or (== map_route 2) (== map_route 3)) { return (blank 13) }
-    if (or service_present (or (== map_route 1) (profile_layout raw_layouts))) { return (blank -1) }
+    if (or (== map_route 1) (profile_layout raw_layouts)) { return (blank -1) }
     set i 0
     while (< i sections) {
         let entry: int = (+ 40 (* i 24))
@@ -511,6 +577,10 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         (array_set present kind true)
         if (== kind 6) {
             set code data
+        } else if (== kind 14) {
+            let fixed: bool = (or (== length 56) (or (== length 120) (== length 128)))
+            let multiple: bool = (and (and (>= length 80) (<= length 4112)) (and (== (at data 0) 3) (== (at data 1) 0)))
+            if (not (or fixed multiple)) { return (blank 9) }
         } else if (== kind 13) {
             if (or (== length 0) (> length 4294967295)) { return (blank 9) }
         } else if (== kind 12) {
@@ -523,12 +593,15 @@ pub fn decode_core(bytes: array<u8>) -> ModuleView {
         }
         set i (+ i 1)
     }
-    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, passive: passive_bytes, ownership: ownership_bytes, tables: tables, present: present }
+    let view: ModuleView = ModuleView { status: 0, features: (wire.read_u32 bytes 8), entry: (wire.read_u32 bytes 28), isa_version: (wire.read_u16 bytes 6), code: code, passive: passive_bytes, ownership: ownership_bytes, services: service_bytes, tables: tables, present: present }
+    let service_status: int = (service_v2.validate (service_view view) false)
+    if (!= service_status 0) { return (blank service_status) }
+    if (!= (has_feature view.features 512) (> (array_length service_bytes) 0)) { return (blank 14) }
     let reference_status: int = (references view)
     if (!= reference_status 0) { return (blank reference_status) }
     let feature_status: int = (features view)
     if (!= feature_status 0) { return (blank feature_status) }
-    if (or (> (array_length passive_bytes) 0) (> (array_length ownership_bytes) 0)) {
+    if (or (> (array_length service_bytes) 0) (or (> (array_length passive_bytes) 0) (> (array_length ownership_bytes) 0))) {
         let converted: int = (convert_claims view)
         if (!= converted 0) { return (blank converted) }
     }

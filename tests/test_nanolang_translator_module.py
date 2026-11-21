@@ -114,7 +114,8 @@ def corpus():
               ('passive-empty-section', packet([(12, b'')], features=64), 9)]
     cases += [('ownership-short-missing-feature', packet([(13,b'\0')]),14),
               ('map-field-missing-ownership',packet([(4,table(layout(fields=[(13,NONE,NONE)])))]),13)]
-    pending = [('pending-service',packet([(14,b'\0')]),-1)]
+    cases.append(('malformed-service-framing',packet([(14,b'\0')]),9))
+    pending = []
     from tests.test_nanolang_translator_ownership import record,extension,u32
     pending += [('pending-array-layout', packet([(4, table(layout(fields=[(7,NONE,NONE)])))]), -1),
                 ('pending-map-profile',packet([(4,table(layout(fields=[(13,NONE,NONE)]))),

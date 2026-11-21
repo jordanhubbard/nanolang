@@ -16,7 +16,7 @@ fn passive_report(view: decoder.ModuleView) -> string {
     return result
 }
 shadow passive_report {
-    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], passive: [0,255], ownership: [], tables: [], present: [] }
+    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], passive: [0,255], ownership: [], services: [], tables: [], present: [] }
     assert (== (passive_report view) "0:2:00ff")
     assert (== (passive_report (decoder.decode_core [])) "1:0:")
 }
@@ -45,9 +45,19 @@ fn claims_report(view: decoder.ModuleView) -> string {
     return (+ a b)
 }
 shadow claims_report {
-    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], ownership: [255], passive: [0], tables: [], present: [] }
+    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], ownership: [255], services: [], passive: [0], tables: [], present: [] }
     assert (== (claims_report view) "0:1:ff:1:00")
     assert (== (claims_report (decoder.decode_core [])) "1:0::0:")
+}
+
+fn services_report(view: decoder.ModuleView) -> string {
+    let prefix: string = (+ (+ (+ (+ (int_to_string view.status) ":") (int_to_string (array_length view.services))) ":") (hexadecimal view.services 0 (array_length view.services)))
+    let ownership: string = (+ (+ (+ ":" (int_to_string (array_length view.ownership))) ":") (hexadecimal view.ownership 0 (array_length view.ownership)))
+    let passive: string = (+ (+ (+ ":" (int_to_string (array_length view.passive))) ":") (hexadecimal view.passive 0 (array_length view.passive)))
+    return (+ prefix (+ ownership passive))
+}
+shadow services_report {
+    assert (== (services_report (decoder.decode_core [])) "1:0::0::0:")
 }
 
 fn main() -> int {
@@ -66,13 +76,14 @@ fn main() -> int {
         if (== option "--scan") { set i 2 }
         if (== option "--passive") { set i 2 }
         if (== option "--claims") { set i 2 }
+        if (== option "--services") { set i 2 }
         while (< i (get_argc)) {
             let bytes: array<u8> = (file_read_bytes (get_argv i))
             if (== option "--scan") {
                 if (decoder.file_instructions bytes 0 (array_length bytes)) { (println 1) } else { (println 0) }
             } else {
                 let view: decoder.ModuleView = (decoder.decode_core bytes)
-                if (== option "--passive") { (println (passive_report view)) } else if (== option "--claims") { (println (claims_report view)) } else { (println view.status) }
+                if (== option "--services") { (println (services_report view)) } else if (== option "--passive") { (println (passive_report view)) } else if (== option "--claims") { (println (claims_report view)) } else { (println view.status) }
             }
             set i (+ i 1)
         }
