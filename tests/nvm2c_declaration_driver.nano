@@ -1,0 +1,175 @@
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/declarations.nano" as declarations
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn numbers(values: array<int>, start: int, length: int) -> string {
+    if (> length 64) {
+        let left: int = (/ length 2)
+        return (+ (numbers values start left) (numbers values (+ start left) (- length left)))
+    }
+    let mut result: string = ""
+    let mut i: int = start
+    while (< i (+ start length)) { set result (+ (+ result (int_to_string (at values i))) ",") set i (+ i 1) }
+    return result
+}
+shadow numbers { assert (== (numbers [0,4294967295] 0 2) "0,4294967295,") }
+
+fn report(p: declarations.Projection) -> string {
+    if (not (declarations.ready p)) { return (int_to_string p.status) }
+    let mut total_variants: int = 0
+    let mut i: int = 0
+    while (< i (array_length p.variant_counts)) { set total_variants (+ total_variants (at p.variant_counts i)) set i (+ i 1) }
+    let mut values: array<int> = [(array_length p.layouts.starts), (array_length p.types), (array_length p.bindings), (array_length p.variant_counts), total_variants, (array_length p.scalars), (array_length p.pairs), (array_length p.map_bindings)]
+    set i 0
+    while (< i (array_length p.layouts.starts)) {
+        let row: int = (at p.layouts.starts i)
+        let fields: int = (wire.read_u16 p.layouts.data (+ row 2))
+        set values (array_push values (cast_int (at p.layouts.data row)))
+        set values (array_push values (at p.flags i))
+        set values (array_push values fields)
+        set values (array_push values (wire.read_u32 p.layouts.data (+ row 4)))
+        let mut f: int = 0
+        while (< f fields) {
+            let field: int = (+ (+ row 8) (* f 12))
+            set values (array_push values (cast_int (at p.layouts.data field)))
+            set values (array_push values (wire.read_u32 p.layouts.data (+ field 4)))
+            set values (array_push values (wire.read_u32 p.layouts.data (+ field 8)))
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length p.types)) {
+        set values (array_push values (at p.types i).tag) set values (array_push values (at p.types i).referent) set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length p.bindings)) {
+        let b = (at p.bindings i)
+        set values (array_push values b.layout) set values (array_push values b.field) set values (array_push values b.target) set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length p.variant_counts)) {
+        let count: int = (at p.variant_counts i)
+        set values (array_push values count)
+        let mut v: int = 0
+        while (< v count) {
+            let row = (declarations.variant p i v)
+            assert row.found
+            set values (array_push values row.layout) set values (array_push values row.name) set values (array_push values row.offset) set values (array_push values row.fields) set v (+ v 1)
+        }
+        assert (not (declarations.variant p i count).found)
+        set i (+ i 1)
+    }
+    assert (not (declarations.variant p (array_length p.variant_counts) 0).found)
+    set i 0
+    while (< i (array_length p.scalars)) { set values (array_push values (at p.scalars i)) set i (+ i 1) }
+    set i 0
+    while (< i (array_length p.pairs)) {
+        set values (array_push values (at p.pairs i).key) set values (array_push values (at p.pairs i).value) set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length p.map_bindings)) {
+        let b = (at p.map_bindings i)
+        set values (array_push values b.layout) set values (array_push values b.field) set values (array_push values b.target) set i (+ i 1)
+    }
+    if (== p.profile 3) {
+        set i 0
+        while (< i (array_length p.layouts.starts)) {
+            let fields: int = (wire.read_u16 p.layouts.data (+ (at p.layouts.starts i) 2))
+            let mut f: int = 0
+            while (<= f fields) {
+                let pair = (declarations.map_field p i f)
+                set values (array_push values (cond (pair.found 1) (else 0)))
+                set values (array_push values pair.key) set values (array_push values pair.value)
+                set f (+ f 1)
+            }
+            set i (+ i 1)
+        }
+        assert (not (declarations.map_field p (array_length p.layouts.starts) 0).found)
+    }
+    return (+ (+ (int_to_string p.status) "|") (numbers values 0 (array_length values)))
+}
+shadow report {
+    let model: owner.Module = owner.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (report (declarations.prepare [] model 1 [0,0,0,0])) "1")
+}
+
+fn analyze(input: array<u8>, profile: int) -> string {
+    if (< (array_length input) 16) { return "99:0" }
+    let foreign: array<int> = [(wire.read_u32 input 0), (wire.read_u32 input 4), (wire.read_u32 input 8), (wire.read_u32 input 12)]
+    let bytes: array<u8> = (array_slice input 16 (- (array_length input) 16))
+    let c: read.Cursor = (read.open bytes)
+    let layout_size: int = (read.read_u32 c)
+    let own_size: int = (read.read_u32 c)
+    let strings: int = (read.read_u32 c)
+    let functions: int = (read.read_u32 c)
+    let records: int = (read.read_u32 c)
+    let enums: int = (read.read_u32 c)
+    let unions: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return "99:0" }
+    if (> strings (/ (- (array_length bytes) (read.position c)) 4)) { return "99:0" }
+    let mut names: array<array<u8>> = []
+    let mut i: int = 0
+    while (< i strings) {
+        let length: int = (read.read_u32 c)
+        let start: int = (read.skip c length)
+        if (!= (read.status c) 0) { return "99:0" }
+        set names (array_push names (array_slice bytes start length))
+        set i (+ i 1)
+    }
+    if (> functions (/ (- (array_length bytes) (read.position c)) 32)) { return "99:0" }
+    let mut entries: array<calls.Function> = []
+    let mut params: array<array<int>> = []
+    let mut results: array<int> = []
+    set i 0
+    while (< i functions) {
+        let start: int = (read.read_u32 c)
+        let length: int = (read.read_u32 c)
+        let arity: int = (read.read_u32 c)
+        let locals: int = (read.read_u32 c)
+        let upvalues: int = (read.read_u32 c)
+        let result_count: int = (read.read_u32 c)
+        let result_tag: int = (read.read_u32 c)
+        let types: int = (read.read_u32 c)
+        if (!= (read.status c) 0) { return "99:0" }
+        if (or (> arity 65535) (or (> locals 65535) (or (> upvalues 65535) (or (> result_count 255) (> result_tag 255))))) { return "99:0" }
+        if (and (!= types 0) (!= types arity)) { return "99:0" }
+        let at_position: int = (read.skip c types)
+        if (!= (read.status c) 0) { return "99:0" }
+        let mut tags: array<int> = []
+        let mut j: int = 0
+        while (< j types) {
+            set tags (array_push tags (cast_int (at bytes (+ at_position j)))) set j (+ j 1)
+        }
+        set entries (array_push entries calls.Function { start: start, length: length, arity: arity, locals: locals, upvalues: upvalues, results: result_count })
+        set params (array_push params tags)
+        set results (array_push results result_tag)
+        set i (+ i 1)
+    }
+    let layout_at: int = (read.skip c layout_size)
+    let own_at: int = (read.skip c own_size)
+    if (or (!= (read.status c) 0) (> (- (array_length bytes) (read.position c)) 4294967295)) { return "99:0" }
+    let model: owner.Module = owner.Module {
+        layouts: (array_slice bytes layout_at layout_size),
+        code: (array_slice bytes (read.position c) (- (array_length bytes) (read.position c))),
+        strings: names, functions: entries, params: params, results: results, records: records, enums: enums, unions: unions }
+    return (report (declarations.prepare (array_slice bytes own_at own_size) model profile foreign))
+}
+shadow analyze { assert (== (analyze [] 1) "99:0") }
+
+fn main() -> int {
+    unsafe {
+        let profile: int = (string_to_int (get_argv 1))
+        let mut i: int = 2
+        while (< i (get_argc)) {
+            (println (analyze (file_read_bytes (get_argv i)) profile))
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -3,7 +3,7 @@ module "src_nano/nvm2c/container.nano" as wire
 module "src_nano/nvm2c/payloads.nano" as payload
 
 # I bound exact private transport before checking any row's semantic fields.
-fn preflight(bytes: array<u8>) -> int {
+pub fn preflight(bytes: array<u8>) -> int {
     let size: int = (array_length bytes)
     if (== size 0) { return 9 }
     if (> size 16777216) { return 13 }

@@ -752,6 +752,16 @@ $(OBJ_DIR)/nvm2c_private_layout_reference: tests/nvm2c_private_layout_reference.
 test-nanolang-translator-private-layouts: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_private_layout_reference
 	python3 -m unittest -v tests.test_nanolang_translator_private_layouts
 
+$(OBJ_DIR)/nvm2c_declaration_reference: tests/nvm2c_declaration_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_declaration_reference_asan: tests/nvm2c_declaration_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c99 -D_GNU_SOURCE -Isrc -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(addprefix $(NANOISA_DIR)/,ownership_contracts.c retained_layouts.c reference_places.c nvm_v2_layouts.c nvm_v2_cursor.c isa.c) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,ownership_contracts.o retained_layouts.o reference_places.o nvm_v2_layouts.o nvm_v2_cursor.o isa.o),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-declarations
+test-nanolang-translator-declarations: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference $(OBJ_DIR)/nvm2c_declaration_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_declarations
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container

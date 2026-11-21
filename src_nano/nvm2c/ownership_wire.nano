@@ -102,7 +102,7 @@ shadow paths {
     assert (== (paths [0,0,0,0,0]) 9)
 }
 
-pub fn extensions(c: Cursor) -> Extensions {
+pub fn extensions_profile(c: Cursor, maps: bool) -> Extensions {
     let mut values: array<Extension> = []
     let count: int = (read_u32 c)
     if (!= (status c) 0) { return Extensions { status: (status c), values: [] } }
@@ -119,17 +119,50 @@ pub fn extensions(c: Cursor) -> Extensions {
         if (!= revision 1) {
             if (not (and (== kind 4) (or (== revision 2) (== revision 3)))) { return Extensions { status: 3, values: [] } }
         }
-        if (> kind 4) { return Extensions { status: 3, values: [] } }
+        if (and (> kind 4) (not (and maps (== kind 5)))) { return Extensions { status: 3, values: [] } }
         set values (array_push values Extension { kind: kind, revision: revision, data: (array_slice c.data start size) })
         set prior kind set i (+ i 1)
     }
     if (!= (position c) (array_length c.data)) { return Extensions { status: 9, values: [] } }
     return Extensions { status: 0, values: values }
 }
+shadow extensions_profile {
+    assert (== (extensions_profile (open [1,0,0,0,5,0,1,0,0,0,0,0]) true).status 0)
+    assert (== (extensions_profile (open [1,0,0,0,5,0,1,0,0,0,0,0]) false).status 3)
+}
+pub fn extensions(c: Cursor) -> Extensions { return (extensions_profile c false) }
 shadow extensions {
     let valid: Extensions = (extensions (open [1,0,0,0,3,0,1,0,0,0,0,0]))
     assert (== valid.status 0)
     assert (== (at valid.values 0).kind 3)
     assert (== (extensions (open [1,0,0,0,5,0,1,0,0,0,0,0])).status 3)
     assert (== (extensions (open [0,0,0,0])).status 13)
+}
+
+pub fn suffix(c: Cursor, version: int, maps: bool) -> Extensions {
+    if (!= (status c) 0) { return Extensions { status: (status c), values: [] } }
+    if (== version 2) {
+        let result: int = (paths (array_slice c.data (position c) (- (array_length c.data) (position c))))
+        if (!= result 0) { return Extensions { status: result, values: [] } }
+        let ignored: int = (skip c (- (array_length c.data) (position c)))
+    } else if (== version 3) {
+        let size: int = (read_u32 c)
+        if (!= (status c) 0) { return Extensions { status: (status c), values: [] } }
+        if (or (< size 4) (!= (% size 4) 0)) { return Extensions { status: 9, values: [] } }
+        let start: int = (skip c size)
+        if (!= (status c) 0) { return Extensions { status: (status c), values: [] } }
+        let result: int = (paths (array_slice c.data start size))
+        if (!= result 0) { return Extensions { status: result, values: [] } }
+        return (extensions_profile c maps)
+    }
+    if (!= (position c) (array_length c.data)) { return Extensions { status: 9, values: [] } }
+    return Extensions { status: 0, values: [] }
+}
+shadow suffix {
+    let failed: Cursor = (open [])
+    let ignored: int = (skip failed 1)
+    assert (== (suffix failed 1 false).status 1)
+    assert (== (suffix (open []) 1 false).status 0)
+    assert (== (suffix (open [0,0,0,0]) 2 false).status 0)
+    assert (== (suffix (open [0]) 1 false).status 9)
 }
