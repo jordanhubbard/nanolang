@@ -2,6 +2,7 @@ module nvm2c_module
 module "src_nano/nvm2c/container.nano" as wire
 module "src_nano/nvm2c/payloads.nano" as payload
 module "src_nano/nvm2c/isa_metadata.nano" as isa
+module "src_nano/nvm2c/instructions.nano" as instructions
 module "src_nano/nvm2c/passive.nano" as passive
 module "src_nano/nvm2c/passive_calls.nano" as calls
 
@@ -120,17 +121,7 @@ shadow text_constant {
 }
 
 pub fn file_instructions(code: array<u8>, start: int, length: int) -> bool {
-    if (not (wire.contains code start length)) { return false }
-    let mut cursor: int = start
-    let end: int = (+ start length)
-    while (< cursor end) {
-        let opcode: int = (at code cursor)
-        if (and (>= opcode 145) (<= opcode 152)) { return true }
-        let width: int = (isa.primary_width opcode)
-        if (or (== width 0) (> width (- end cursor))) { return false }
-        set cursor (+ cursor width)
-    }
-    return false
+    return (instructions.has_file code start length)
 }
 shadow file_instructions {
     let operand: array<u8> = [1, 145, 0, 0, 0, 0, 0, 0, 0]

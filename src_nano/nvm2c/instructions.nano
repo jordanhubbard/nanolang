@@ -146,3 +146,25 @@ shadow reencode {
     }
     assert (== (array_length (reencode (empty))) 0)
 }
+
+pub fn has_file(code: array<u8>, start: int, length: int) -> bool {
+    if (not (wire.contains code start length)) { return false }
+    let mut cursor: int = start
+    let end: int = (+ start length)
+    while (< cursor end) {
+        let opcode: int = (at code cursor)
+        if (and (>= opcode 145) (<= opcode 152)) { return true }
+        let width: int = (isa.primary_width opcode)
+        if (or (== width 0) (> width (- end cursor))) { return false }
+        set cursor (+ cursor width)
+    }
+    return false
+}
+shadow has_file {
+    let operand: array<u8> = [1, 145, 0, 0, 0, 0, 0, 0, 0]
+    assert (not (has_file operand 0 9))
+    let file: array<u8> = [145]
+    assert (has_file file 0 1)
+    let unknown: array<u8> = [255, 145]
+    assert (not (has_file unknown 0 2))
+}

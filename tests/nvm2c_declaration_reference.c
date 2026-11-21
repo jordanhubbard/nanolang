@@ -10,10 +10,21 @@
 #include "../src/nanoisa/record_map_structure_private.h"
 #include "../src/nanoisa/ownership_layouts_private.h"
 #include <stdint.h>
+#include "../src/nanoisa/record_array_admission.h"
+#include "../src/nanoisa/record_map_admission.h"
+#include "../src/nanoisa/owned_array_admission.h"
+#include "../src/nanoisa/mixed_samples_internal.h"
+#include "../src/nanoisa/service_bindings_module.h"
 static int selected_profile;
 static void need(bool value) {if(!value)exit(7);}
 static void number(uint32_t value) {printf("%u,",(unsigned)value);}
 static void declaration_report(NvmModule *m) {
+    if(selected_profile==0) {
+        printf("R|%u,%u,%u,%u,%u,\n",nvm_service_execution_pending(m)?1u:0u,
+            nvm_record_array_candidate(m)?1u:0u,(unsigned)nvm_record_map_route(m),
+            (unsigned)nvm_owned_array_route(m),nvm_mixed_samples_candidate(m)?1u:0u);
+        return;
+    }
     int profile=selected_profile;unsigned status;
     NvmOrdinaryArrayAuthority *ordinary=(void *)(uintptr_t)1;
     NvmOwnershipDeclarationPlan *base=(void *)(uintptr_t)1;
@@ -169,8 +180,16 @@ static void analyze(const unsigned char *bytes, size_t size) {
         model.import_count=imports;model.module_ref_count=modules;
         model.service_data=service?&marker:NULL;model.service_size=service?1:0;
         model.passive_data=passive?&marker:NULL;model.passive_size=passive?1:0;
+        NvmImportEntry imported={0};
+        if(selected_profile==0) {
+            if(imports>256){puts("99:0");goto cleanup;}
+            if(imports){model.import_count=1;imported.kind=(uint8_t)(imports-1);model.imports=&imported;}
+            if(!layout_size && (modules&1u))model.layout_data=&marker;
+            if(!own_size && (modules&2u))model.ownership_data=&marker;
+        }
         declaration_report(&model);
     } else puts("99:0");
+cleanup:
     if (names) for (uint32_t i = 0; i < strings; ++i) free(names[i]);
     free(names); free(lengths); free(entries); free(params);
 }
@@ -213,7 +232,7 @@ int main(int argc, char **argv) {
     if(argc==4 && !strcmp(argv[1],"--extract"))return extract_module(argv[2],argv[3]);
     if(argc<2)return 2;
     selected_profile=atoi(argv[1]);
-    if(selected_profile<1 || selected_profile>3)return 2;
+    if(selected_profile<0 || selected_profile>3)return 2;
     for (int i = 2; i < argc; ++i) {
         FILE *input = fopen(argv[i], "rb");
         if (!input || fseek(input, 0, SEEK_END)) return 2;

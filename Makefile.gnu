@@ -762,6 +762,10 @@ $(OBJ_DIR)/nvm2c_declaration_reference_asan: tests/nvm2c_declaration_reference.c
 test-nanolang-translator-declarations: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference $(OBJ_DIR)/nvm2c_declaration_reference_asan
 	python3 -m unittest -v tests.test_nanolang_translator_declarations
 
+.PHONY: test-nanolang-translator-routes
+test-nanolang-translator-routes: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference
+	python3 -m unittest -v tests.test_nanolang_translator_routes
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container
