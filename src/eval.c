@@ -1195,8 +1195,7 @@ static Value builtin_array_set(Value *args) {
                     index, (long long)dyn_array_length(arr));
             exit(1);
         }
-        bool byte_value = dyn_array_get_elem_type(arr) == ELEM_U8 && args[2].type == VAL_INT &&
-                          args[2].as.int_val >= 0 && args[2].as.int_val <= UINT8_MAX;
+        bool byte_value = dyn_array_get_elem_type(arr) == ELEM_U8 && args[2].type == VAL_INT;
         if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr) && !byte_value) {
             fprintf(stderr, "I cannot assign a different element type to this array.\n");
             exit(1);
@@ -1270,7 +1269,8 @@ static Value builtin_array_set(Value *args) {
                 fprintf(stderr, "Error: Type mismatch in array_set\n");
                 return create_void();
             }
-            ((long long*)arr->data)[index] = args[2].as.int_val;
+            ((long long*)arr->data)[index] = arr->is_byte_array
+                ? (long long)(uint8_t)args[2].as.int_val : args[2].as.int_val;
             break;
         case VAL_FLOAT:
             if (args[2].type != VAL_FLOAT) {
@@ -1500,7 +1500,7 @@ static Value builtin_array_push(Value *args) {
         Array *arr = args[0].as.array_val;
         /* I keep the shared Array identity when its first value establishes
          * storage. Empty literals start with an integer placeholder type. */
-        ValueType element_type = arr->length == 0
+        ValueType element_type = arr->length == 0 && !arr->is_byte_array
             ? (args[1].type == VAL_DYN_ARRAY ? VAL_ARRAY : args[1].type)
             : arr->element_type;
         size_t width = static_array_element_width(element_type);
@@ -1542,8 +1542,7 @@ static Value builtin_array_push(Value *args) {
     ElementType expected_type = dyn_array_get_elem_type(arr);
     ValueType value_type = args[1].type;
     
-    bool byte_value = expected_type == ELEM_U8 && value_type == VAL_INT &&
-                      args[1].as.int_val >= 0 && args[1].as.int_val <= UINT8_MAX;
+    bool byte_value = expected_type == ELEM_U8 && value_type == VAL_INT;
     if (value_type_to_elem_type(value_type) != expected_type && !byte_value) {
         fprintf(stderr, "Error: Type mismatch in array_push\n");
         return create_void();

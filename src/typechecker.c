@@ -3317,6 +3317,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 check_expression(array, env);
                 TypeInfo *info = try_get_expr_type_info(array, env);
                 ASTNode *stored = expr->as.call.args[stored_index];
+                /* I keep declared byte storage at builtin mutation boundaries.
+                 * Computed integers narrow at runtime; other known types do
+                 * not become byte values through an unchecked generic call. */
+                if ((!func || (!func->body && !func->is_extern)) &&
+                    !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column) &&
+                    infer_array_element_type(array, env) == TYPE_U8) {
+                    Type actual = check_expression(stored, env);
+                    if (actual != TYPE_INT && actual != TYPE_U8 &&
+                        actual != TYPE_UNKNOWN && actual != TYPE_OPEN_RECORD) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require an integer or byte at a byte-array write.",
+                            "Store an integer value in the declared byte array.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
                 /* I carry exact nested storage through builtin mutation,
                  * without treating a declared or lexical function as a builtin. */
                 if ((!func || (!func->body && !func->is_extern)) &&
