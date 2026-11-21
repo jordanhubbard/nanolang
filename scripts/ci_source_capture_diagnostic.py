@@ -84,6 +84,27 @@ for number, (compiler, developer) in enumerate(compilers):
         'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest()}, indent=2)+'\n')
     version = run([compiler, '--version'], f'{number}-compiler-version')
     run([compiler, '-print-prog-name=as'], f'{number}-assembler-path')
+    # I measure each actual driver's response grammar without a shell or a
+    # version-derived parser choice. These observations do not admit a tool.
+    response_source = work/'response-source.c'
+    response_source.write_text('VALUE\n')
+    response_forms = [
+        '-DVALUE=42', "'-DVALUE=two words'", '"-DVALUE=cost$HOME"',
+        r"'-DVALUE=a\b'", r'"-DVALUE=a\qb"', r'-DVALUE=one\ two',
+        r'-DVALUE=\"literal\ text\"', '-DVALUE=42\r\n-U VALUE\n-D VALUE=43',
+        r"'-DVALUE=a\\b'", r'"-DVALUE=a\\b"',
+        r"'-DVALUE=a\'b'", r'"-DVALUE=a\"b"',
+        r"'-DVALUE=a\"b'", r'"-DVALUE=a\'b"',
+    ]
+    for form_index, form in enumerate(response_forms):
+        response = work/f'response-{form_index}.rsp'
+        response.write_text(form + '\n')
+        run([compiler, '-E', '-P', '-x', 'c', response_source, '@'+str(response)],
+            f'{number}-response-grammar-{form_index}')
+    nested_response = work/'response-nested.rsp'
+    nested_response.write_text('@'+str(work/'response-3.rsp')+'\n')
+    run([compiler, '-E', '-P', '-x', 'c', response_source, '@'+str(nested_response)],
+        f'{number}-response-grammar-nested')
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):
