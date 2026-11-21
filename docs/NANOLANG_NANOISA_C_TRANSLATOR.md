@@ -438,6 +438,45 @@ therefore deserializes successfully on both sides without gaining execution
 authority. Service14, private flow admission, ordinary executable verification
 and my NanoLang C emitter remain required before cutover.
 
+## My service wire codecs
+
+`service_wire.nano` implements all five raw codec profiles: legacy File v1,
+nominal File/TCP/WebSocket v2 and multi-instance v3. I decode complete tables,
+check their normal narrow carriers and emit canonical bytes without calling
+the C codecs. The caller selects the exact codec profile; this API does not
+authorize section14 or choose a fallback after a malformed identity.
+
+I preserve size/version/catalog/count/reserved/ordinal/index status precedence.
+For v3 I check every entry's framing before semantic validation, then validate
+catalogs, inactive slots and distinct active indices in instance order. Import
+indices and layout indices have separate uniqueness domains; duplicates across
+instances in either domain are errors. All64 instances and the4112-byte bound
+remain intact. Failure publishes no partial decoded values or encoded bytes.
+My arrays represent normal uint32 carriers, not arbitrary C pointers or overlap.
+
+My [paired service-wire evidence](evidence/nanolang-service-wire-20261121/README.md)
+matches9208 complete reports with7311 explicit expectations across five profiles
+and five Linux/Darwin routes. I instrument all five actual C codec providers;
+original C raw/nominal and allocation-denial controls retain their separate
+scope. Fourteen real products from both producers preserve VM and instrumented
+native results, including byte mutation and the unchanged generic/u8/conversion
+fixtures. Raw success grants no module, code-flow, execution or host authority.
+
+The fixture exposes prerequisites that I repair rather than change its byte
+model. Native inference waits for caller storage before interpreting a computed
+integer write (#1150); the shared C checker refuses known noninteger byte
+writes, and its interpreter preserves byte identity and modulo256 mutation
+(#1151). `bytes_from_string` now returns its advertised byte storage in NanoVM
+(#1110). I retain all original failures and strict prior-output controls.
+
+The genuine development NanoLang compiler remains outside `bin`. Its Linux GNU
+assembler fallback therefore needs the real `NANO_AS_CAPTURE_HELPER` explicitly
+configured (#1152). I retain that missing-companion failure, configure the
+actual helper and pass the complete dependency shadows without changing capture
+guards. This establishes a declared development runtime closure, not installed
+stages or a raw bootstrap fixed point. Service metadata and complete profile
+admission remain required before C emission and product cutover.
+
 ## My cutover gate
 
 I must execute my translator both in NanoVM and as a standalone native product,
