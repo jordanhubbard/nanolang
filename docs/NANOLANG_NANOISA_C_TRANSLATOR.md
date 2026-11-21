@@ -501,8 +501,8 @@ return no partial rows. Normal immutable value carriers model the C APIs'
 valid storage; original C tests separately exercise pointer and allocation
 failure contracts. C allocation denial is not a claim about NanoLang's heap.
 
-My legacy File v1 narrow metadata adapter is implemented below. Rich v2
-adaptation and whole-module service selection remain required. The shared
+My legacy File v1 narrow and rich-v2 metadata adapters are implemented below.
+Whole-module service selection remains required. The shared
 module decoder still marks service profiles pending;
 this library does not change installed products or translator selection.
 
@@ -534,9 +534,40 @@ does not remove it.
 My pure input arrays represent canonical normal storage: absent service bytes
 have no separate nonnull empty pointer. C-only malformed pointer/count graphs,
 allocation failures and destination preservation retain their original C test
-scope. Rich v2 tables, their adapter/constant/signature prechecks, whole-module
-service conversion, private WebSocket routing and full flow/host/execution
-admission remain required before product cutover.
+scope. Whole-module service conversion and full flow/host/execution admission
+remain required before product cutover.
+
+## My rich service metadata adapter
+
+`service_v2.nano` accepts typed constant, signature, function and import tables,
+canonical normal layout rows, code and extension bytes. I preserve the shared
+rich validator's legacy signature-index ordering, nominal preflight limits,
+prior-layout-edge checks, STRING constant requirement and referenced signature
+storage checks. I reuse my pure narrow validator after conversion. I scan the
+original function spans for File instructions before dropping code offsets
+from the metadata-only narrow view.
+
+I expose ordinary shared validation and the separate private WebSocket adapter.
+Private WebSocket success does not change ordinary shared transport selection.
+My presence query includes the service feature bit, raw bytes and service-kind
+imports. Classification and metadata validation grant no executable authority.
+My arrays represent normal C storage; they do not model arbitrary invalid
+pointer/count graphs. I explicitly exercise absent signature storage. Existing
+C tests retain allocation-failure and malformed-pointer coverage.
+
+The component fixture compares actual C rich-provider status and classification
+against five execution routes, including actual File/TCP/WebSocket/mixed source
+products. Paired qualification and its retained failure evidence belong to the
+roadmap receipt; this implementation is not an installed compiler cutover.
+
+The same fixture exposed constructor and value-transport defects. I register
+internal imported records with their canonical owner from first registration,
+check declared record returns before publication, and carry typed/scoped
+conditional and ordinary record-match values through both producers. My native
+record join widens exact scalar fields into tagged destinations while preserving
+missing tags and payloads. Exact incompatible and aggregate fields remain
+refused. These repairs do not authorize resource record results or numeric
+array-write joins under #1148.
 
 ## My cutover gate
 

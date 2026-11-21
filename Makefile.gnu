@@ -5966,8 +5966,12 @@ test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-service-module
 # I exercise real container/consumer objects; only the allocation-prefix variant
 # replaces three translation units with named malloc/calloc/realloc hooks.
+# I put archives after instrumented users appended by the Python drivers.
+SERVICE_MODULE_TEST_OBJECTS = $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+SERVICE_MODULE_TEST_PROVIDERS = $(filter-out %.a,$(SERVICE_MODULE_TEST_OBJECTS))
+SERVICE_MODULE_TEST_LIBRARIES = $(filter %.a,$(SERVICE_MODULE_TEST_OBJECTS))
 test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2llvm nvm2hl nvm2c
-	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
 .PHONY: mixed-samples-runtime-fixture
 mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -6017,7 +6021,7 @@ test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 .PHONY: test-file-nominal-module
 test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2llvm nvm2hl nvm2c
-	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal_module
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal_module
 
 .PHONY: test-owned-array-authority
 test-units: test-owned-array-authority
@@ -6771,7 +6775,7 @@ test-units: test-socket-body
 
 .PHONY: test-socket-nominal-module
 test-socket-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2llvm nvm2hl nvm2c
-	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_nominal_module
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_nominal_module
 
 test-units: test-socket-nominal-module
 
@@ -6871,7 +6875,7 @@ test-units: test-socket-service-drivers
 
 .PHONY: test-multi-nominal
 test-multi-nominal: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_multi_nominal
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -v tests.test_multi_nominal
 
 test-units: test-multi-nominal
 
@@ -6880,7 +6884,7 @@ $(OBJ_DIR)/nanoisa/services_flow.o: $(wildcard src/nanoisa/service_*.inc) $(wild
 
 .PHONY: test-services-flow
 test-services-flow: lib/libnano_services_runtime.a $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_services_flow
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -v tests.test_services_flow
 
 test-units: test-services-flow
 
@@ -7066,7 +7070,7 @@ test-units: test-mixed-websocket-values
 
 .PHONY: test-mixed-websocket-runtime
 test-mixed-websocket-runtime: lib/libnano_services_runtime.a $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_mixed_websocket_runtime
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(SERVICE_MODULE_TEST_PROVIDERS)" SERVICE_MODULE_LDFLAGS="$(SERVICE_MODULE_TEST_LIBRARIES) $(LDFLAGS)" python3 -m unittest -v tests.test_mixed_websocket_runtime
 
 test-units: test-mixed-websocket-runtime
 
