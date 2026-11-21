@@ -15,6 +15,9 @@
  */
 bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size);
 
+/* I let native object builders choose a controlled root with the same canonical key. */
+bool nano_module_build_dir_at(const char *module_dir, const char *cache, char *dest, size_t dest_size);
+
 /* I resolve current once to a retained generation. With no current pointer,
  * I expose the legacy flat directory for runtime compatibility. */
 bool nano_module_artifact_dir(const char *module_dir, char *dest, size_t dest_size);

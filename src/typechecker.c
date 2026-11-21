@@ -419,6 +419,13 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         }
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
+        if (!expr->as.call.func_expr && !strcmp(expr->as.call.name, "array_slice") &&
+            expr->as.call.arg_count == 3 &&
+            !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)) {
+            Function *slice = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
+            if (!slice || (!slice->body && !slice->is_extern))
+                return try_get_expr_type_info(expr->as.call.args[0], env);
+        }
         if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
             (strcmp(expr->as.call.name, "at") == 0 ||
              strcmp(expr->as.call.name, "array_get") == 0)) {
@@ -743,7 +750,7 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
             const char *child_name = get_struct_type_name(child, env);
             if (!child_name || env_get_struct(env, child_name) != expected) {
                 emit_context_error("E001 TYPE MISMATCH", child->line, child->column, 1,
-                    "I require every record array element to retain its declared nominal identity.",
+                    "I require the declared nominal record type for every array element.",
                     "Match the array element declaration, including its module identity.");
                 return false;
             }
@@ -1105,6 +1112,10 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
+    if (expr && (expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) && expr->checked_global) {
+        Symbol *global = env_get_declared_global(env, expr->checked_global);
+        if (global) return global->struct_type_name;
+    }
     if (expr && expr->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (symbol && (symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT)) return symbol->struct_type_name;
@@ -1125,6 +1136,17 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                 if (ast_is_value_expression(tail->type)) return get_struct_type_name(tail, env);
             }
             return NULL;
+        case AST_IF: {
+            const char *name = ast_always_returns(expr->as.if_stmt.then_branch) ? NULL :
+                get_struct_type_name(expr->as.if_stmt.then_branch, env);
+            return name ? name : get_struct_type_name(expr->as.if_stmt.else_branch, env);
+        }
+        case AST_COND:
+            for (int i = 0; i < expr->as.cond_expr.clause_count; ++i) {
+                const char *name = get_struct_type_name(expr->as.cond_expr.values[i], env);
+                if (name) return name;
+            }
+            return get_struct_type_name(expr->as.cond_expr.else_value, env);
         case AST_MATCH:
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *name = get_struct_type_name(expr->as.match_expr.arm_bodies[i], env);
@@ -1181,6 +1203,12 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
 
         case AST_CALL: {
+            FunctionSignature *checked = expr->as.call.checked_signature;
+            TypeInfo *result_info = checked ? checked->return_type_info : NULL;
+            if (result_info && result_info->generic_name &&
+                (result_info->base_type == TYPE_STRUCT || result_info->base_type == TYPE_UNION || result_info->base_type == TYPE_ENUM))
+                return result_info->generic_name;
+            if (checked && checked->return_struct_name) return checked->return_struct_name;
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
                 return array_record_name(expr->as.call.args[0], env);
@@ -2453,6 +2481,32 @@ static bool effect_argument_matches(ASTNode *value, const TypeInfo *expected, En
 }
 
 /* I compare every resumed value branch against its complete declared identity. */
+/* I retain record identity through every value-producing return branch. */
+static bool record_return_matches(ASTNode *value, Environment *env,
+                                  StructDef *expected, unsigned depth) {
+    if (!value || depth > 128) return false;
+    if (ast_always_returns(value)) return true;
+    if (value->type == AST_BLOCK) {
+        int count = value->as.block.count;
+        return count && record_return_matches(value->as.block.statements[count - 1], env, expected, depth + 1);
+    }
+    if (value->type == AST_IF)
+        return record_return_matches(value->as.if_stmt.then_branch, env, expected, depth + 1) &&
+            record_return_matches(value->as.if_stmt.else_branch, env, expected, depth + 1);
+    if (value->type == AST_COND) {
+        for (int i = 0; i < value->as.cond_expr.clause_count; ++i)
+            if (!record_return_matches(value->as.cond_expr.values[i], env, expected, depth + 1)) return false;
+        return record_return_matches(value->as.cond_expr.else_value, env, expected, depth + 1);
+    }
+    if (value->type == AST_MATCH) {
+        for (int i = 0; i < value->as.match_expr.arm_count; ++i)
+            if (!record_return_matches(value->as.match_expr.arm_bodies[i], env, expected, depth + 1)) return false;
+        return true;
+    }
+    const char *name = get_struct_type_name(value, env);
+    return name && env_get_struct(env, name) == expected;
+}
+
 static bool effect_value_matches(ASTNode *value, const TypeInfo *expected,
                                  Environment *env, unsigned depth) {
     if (!value || depth > 128) return false;
@@ -2545,6 +2599,25 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     return valid;
 }
 
+static Type check_array_slice_call(ASTNode *call, Environment *env) {
+    if (call->as.call.arg_count != 3) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require an array, start and length for array_slice.",
+                           "Pass exactly three arguments.");
+        return TYPE_UNKNOWN;
+    }
+    bool valid = check_expression(call->as.call.args[0], env) == TYPE_ARRAY;
+    for (int i = 1; i < 3; ++i)
+        if (check_expression(call->as.call.args[i], env) != TYPE_INT) valid = false;
+    if (!valid) {
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+                           "I require an array, integer start and integer length for array_slice.",
+                           "Use the declared array slicing operand types.");
+        return TYPE_UNKNOWN;
+    }
+    return TYPE_ARRAY;
+}
+
 /* Internal implementation of check_expression */
 /* I compare substituted payload annotations structurally; array annotations may carry
  * their element's name redundantly, which strict annotation equality rejects. */
@@ -2591,11 +2664,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_FUNCTION;
             }
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
+            expr->checked_global = sym ? sym->global_declaration : NULL;
+            expr->checked_function_name = false;
             if (!sym) {
                 /* Not a variable - check if it's a function name */
                 Function *func = env_get_function_at(env, expr->as.identifier, expr->line, expr->column);
                 if (func) {
                     /* Function name used as value (for passing/returning) */
+                    expr->checked_function_name = true;
                     return TYPE_FUNCTION;
                 }
                 char message[256];
@@ -3045,6 +3121,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* I resolve a lexical binding before a same-named declaration or builtin. */
             {
                 Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
+                expr->checked_global = binding ? binding->global_declaration : NULL;
+                expr->checked_function_name = binding == NULL;
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
@@ -3282,6 +3360,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 check_expression(array, env);
                 TypeInfo *info = try_get_expr_type_info(array, env);
                 ASTNode *stored = expr->as.call.args[stored_index];
+                /* I keep declared byte storage at builtin mutation boundaries.
+                 * Computed integers narrow at runtime; other known types do
+                 * not become byte values through an unchecked generic call. */
+                if ((!func || (!func->body && !func->is_extern)) &&
+                    !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column) &&
+                    infer_array_element_type(array, env) == TYPE_U8) {
+                    Type actual = check_expression(stored, env);
+                    if (actual != TYPE_INT && actual != TYPE_U8 &&
+                        actual != TYPE_UNKNOWN && actual != TYPE_OPEN_RECORD) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require an integer or byte at a byte-array write.",
+                            "Store an integer value in the declared byte array.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
                 /* I carry exact nested storage through builtin mutation,
                  * without treating a declared or lexical function as a builtin. */
                 if ((!func || (!func->body && !func->is_extern)) &&
@@ -3435,20 +3528,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_STRING;
                 }
 
-                /* Special handling for array_slice */
-                if (strcmp(expr->as.call.name, "array_slice") == 0) {
-                    if (expr->as.call.arg_count >= 1) {
-                        check_expression(expr->as.call.args[0], env);
-                    }
-                    if (expr->as.call.arg_count >= 2) {
-                        check_expression(expr->as.call.args[1], env);
-                    }
-                    if (expr->as.call.arg_count >= 3) {
-                        check_expression(expr->as.call.args[2], env);
-                    }
-                    return TYPE_ARRAY;
-                }
-                
+                if (strcmp(expr->as.call.name, "array_slice") == 0)
+                    return check_array_slice_call(expr, env);
+
                 /* Special handling for bstring operations */
                 if (strcmp(expr->as.call.name, "bstr_new") == 0 ||
                     strcmp(expr->as.call.name, "bstr_new_binary") == 0 ||
@@ -4010,6 +4092,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             func->params[i].type == TYPE_STRUCT &&
                             func->params[i].struct_type_name &&
                             env_get_opaque_type(env, func->params[i].struct_type_name);
+                        /* I preserve the declared record identity before a backend
+                         * can flatten both arguments to the same value tag. */
+                        if (func->params[i].type == TYPE_STRUCT && !named_opaque &&
+                            func->params[i].struct_type_name && arg_type == TYPE_STRUCT) {
+                            TypeInfo parameter_view;
+                            const TypeInfo *expected = generic_parameter(&func->params[i], &parameter_view);
+                            if (!indirect_argument_matches(arg, env, expected, TYPE_STRUCT, 0)) {
+                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                    "I require the declared nominal record argument.",
+                                    "Pass a value from the same record declaration and generic instance.");
+                                return TYPE_UNKNOWN;
+                            }
+                        }
                         if (func->params[i].type == TYPE_OPAQUE || named_opaque) {
                                 const char *opaque_name = func->params[i].struct_type_name
                                     ? func->params[i].struct_type_name : "opaque";
@@ -4224,19 +4319,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_STRING;
             }
 
-            if (strcmp(expr->as.call.name, "array_slice") == 0) {
-                if (expr->as.call.arg_count >= 1) {
-                    check_expression(expr->as.call.args[0], env);
-                }
-                if (expr->as.call.arg_count >= 2) {
-                    check_expression(expr->as.call.args[1], env);
-                }
-                if (expr->as.call.arg_count >= 3) {
-                    check_expression(expr->as.call.args[2], env);
-                }
-                return TYPE_ARRAY;
-            }
-            
+            if (strcmp(expr->as.call.name, "array_slice") == 0 &&
+                !func->body && !func->is_extern)
+                return check_array_slice_call(expr, env);
+
             /* I check cached generic array operands after lexical calls resolve. */
             if (!func->body && !func->is_extern && !func->params &&
                 (strcmp(expr->as.call.name, "array_reverse") == 0 ||
@@ -4375,6 +4461,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             call.as.call.args = expr->as.module_qualified_call.args;
             call.as.call.arg_count = expr->as.module_qualified_call.arg_count;
             Type result = check_expression(&call, env);
+            expr->checked_global = call.checked_global;
             if (!call.as.call.checked_signature)
                 call.as.call.checked_signature = function_signature_from_function(env_get_function(env, qualified_name));
             free_function_signature(expr->as.module_qualified_call.checked_signature);
@@ -4460,10 +4547,30 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 );
             }
 
-            /* For if expressions, we need to infer the type from the blocks */
-            /* This is simplified - just return UNKNOWN for now */
-            /* A proper implementation would need to analyze the blocks */
-            return TYPE_UNKNOWN;
+            Type left = check_expression(expr->as.if_stmt.then_branch, env);
+            Type right = expr->as.if_stmt.else_branch ? check_expression(expr->as.if_stmt.else_branch, env) : TYPE_VOID;
+            if (ast_always_returns(expr->as.if_stmt.then_branch)) return right;
+            if (expr->as.if_stmt.else_branch && ast_always_returns(expr->as.if_stmt.else_branch)) return left;
+            if (!types_match(left, right)) {
+                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                    "I require compatible values from both if branches.",
+                    "Give both value branches the same declared type.");
+                return TYPE_UNKNOWN;
+            }
+            if (left == TYPE_STRUCT) {
+                const char *name = get_struct_type_name(expr->as.if_stmt.then_branch, env);
+                StructDef *record = name ? env_get_struct(env, name) : NULL;
+                if (record && !record_return_matches(expr->as.if_stmt.else_branch, env, record, 0))
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the same nominal record type in both if branches.",
+                        "Keep the record declaration and module identity.");
+            }
+            if (left == TYPE_UNKNOWN) return right;
+            if ((left == TYPE_U8 && right == TYPE_INT) || (left == TYPE_INT && right == TYPE_U8)) return TYPE_INT;
+            if ((left == TYPE_FLOAT || right == TYPE_FLOAT) &&
+                (left == TYPE_INT || left == TYPE_U8 || left == TYPE_FLOAT) &&
+                (right == TYPE_INT || right == TYPE_U8 || right == TYPE_FLOAT)) return TYPE_FLOAT;
+            return left;
         }
 
         case AST_COND: {
@@ -4772,6 +4879,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            expr->checked_global = NULL;
             ASTNode *receiver = expr->as.field_access.object;
             if (receiver && receiver->type == AST_IDENTIFIER &&
                 !env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) {
@@ -4782,7 +4890,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 snprintf(qualified, length, "%s.%s", receiver->as.identifier, field);
                 Symbol *imported = env_global_import_symbol(env, qualified);
                 free(qualified);
-                if (imported) return imported->type;
+                if (imported) {
+                    expr->checked_global = imported->global_declaration;
+                    return imported->type;
+                }
             }
             /* Check object is not NULL */
             assert(expr->as.field_access.object != NULL);
@@ -6156,6 +6267,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_SET: {
             Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
+            stmt->checked_global = NULL;
+            stmt->as.set.qualified_global = false;
             bool qualified_global = false;
             if (!sym && stmt->as.set.field_name) {
                 size_t length = strlen(stmt->as.set.name) + strlen(stmt->as.set.field_name) + 2;
@@ -6181,6 +6294,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
                 return TYPE_VOID;
             }
+
+            stmt->checked_global = sym->global_declaration;
+            stmt->as.set.qualified_global = qualified_global;
 
             if (stmt->as.set.field_name && !qualified_global) {
                 StructDef *record = sym->struct_type_name ? env_get_struct(tc->env, sym->struct_type_name) : NULL;
@@ -6426,6 +6542,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.return_stmt.value->type == AST_ARRAY_LITERAL)
                     check_array_literal_annotation(tc, stmt->as.return_stmt.value,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name);
+                if (tc->current_function_return_type == TYPE_STRUCT &&
+                    tc->current_function_return_struct_name) {
+                    StructDef *expected_record = env_get_struct(tc->env, tc->current_function_return_struct_name);
+                    if (expected_record && !record_return_matches(stmt->as.return_stmt.value, tc->env, expected_record, 0)) {
+                        emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                            "I require the declared nominal record type for this return.",
+                            "Return the declared record, including its module identity.");
+                        tc->has_error = true;
+                    }
+                }
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;
@@ -9091,6 +9217,7 @@ register_function_pass1:;
             if (sym) {
                 sym->is_global = true;
                 sym->global_declaration = item;
+                item->checked_global = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -9877,6 +10004,7 @@ register_function_pass2:;
             if (sym) {
                 sym->is_global = true;
                 sym->global_declaration = item;
+                item->checked_global = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }

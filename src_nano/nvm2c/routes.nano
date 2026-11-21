@@ -1,0 +1,245 @@
+module nvm2c_routes
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/ownership_wire.nano" as read
+
+# I classify immutable normal carriers. None of these results grants admission.
+pub struct Selection { service: bool, arrays: bool, maps: int, owners: int, mixed: bool }
+struct Scan { valid: bool, found: bool, count: int }
+
+fn bounded(bytes: array<u8>) -> array<u8> {
+    if (> (array_length bytes) 16777216) { return (array_slice bytes 0 16777216) }
+    return bytes
+}
+shadow bounded { assert (== (array_length (bounded [0,255])) 2) }
+
+fn layout_scan(bytes: array<u8>, present: bool) -> Scan {
+    if (not present) { return Scan { valid: (== (array_length bytes) 0), found: false, count: 0 } }
+    let c: read.Cursor = (read.open (bounded bytes))
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return Scan { valid: false, found: false, count: 0 } }
+    let mut valid: bool = true
+    let mut found: bool = false
+    let mut i: int = 0
+    while (< i count) {
+        let h: int = (read.skip c 8)
+        if (!= (read.status c) 0) { return Scan { valid: false, found: found, count: count } }
+        if (or (!= (at c.data (+ h 1)) 0) (> (at c.data h) 3)) { set valid false }
+        let fields: int = (wire.read_u16 c.data (+ h 2))
+        let mut f: int = 0
+        while (< f fields) {
+            let row: int = (read.skip c 12)
+            if (!= (read.status c) 0) { return Scan { valid: false, found: found, count: count } }
+            let tag: int = (cast_int (at c.data row))
+            if (== tag 13) { set found true }
+            if (or (>= tag 16) (or (!= (at c.data (+ row 1)) 0) (!= (wire.read_u16 c.data (+ row 2)) 0))) { set valid false }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    return Scan { valid: (and valid (== (read.position c) (array_length c.data))), found: found, count: count }
+}
+shadow layout_scan {
+    assert (layout_scan [] false).valid
+    assert (not (layout_scan [] true).valid)
+    assert (== (layout_scan [0,0,0,0] true).count 0)
+}
+
+fn ownership_scan(bytes: array<u8>, present: bool, layouts: int) -> Scan {
+    if (not present) { return Scan { valid: (== (array_length bytes) 0), found: false, count: 0 } }
+    let c: read.Cursor = (read.open (bounded bytes))
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    let flags: int = (read.skip c count)
+    if (!= (read.status c) 0) { return Scan { valid: false, found: false, count: 0 } }
+    let mut valid: bool = (and (>= version 1) (and (<= version 3) (== count layouts)))
+    let mut i: int = 0
+    while (< i count) { if (> (at c.data (+ flags i)) 3) { set valid false } set i (+ i 1) }
+    let aligned: int = (read.align c)
+    let functions: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return Scan { valid: false, found: false, count: 0 } }
+    set i 0
+    while (< i functions) {
+        let locals: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        let ignored: int = (read.skip c (* (+ locals 1) 8))
+        if (!= (read.status c) 0) { return Scan { valid: false, found: false, count: 0 } }
+        if (> params locals) { set valid false }
+        set i (+ i 1)
+    }
+    let mut found: bool = false
+    if (== version 3) {
+        # I discover kind5 before revision, extent, padding and suffix validation.
+        let probe: read.Cursor = (read.open c.data)
+        let moved: int = (read.skip probe (read.position c))
+        let path_bytes: int = (read.read_u32 probe)
+        let paths: int = (read.skip probe path_bytes)
+        let extensions: int = (read.read_u32 probe)
+        if (!= (read.status probe) 0) { return Scan { valid: false, found: found, count: 0 } }
+        set i 0
+        while (< i extensions) {
+            let kind: int = (read.read_u16 probe)
+            if (!= (read.status probe) 0) { return Scan { valid: false, found: found, count: 0 } }
+            if (== kind 5) { set found true }
+            let revision: int = (read.read_u16 probe)
+            let length: int = (read.read_u32 probe)
+            let ignored: int = (read.skip probe length)
+            if (!= (read.align probe) 0) { return Scan { valid: false, found: found, count: 0 } }
+            set i (+ i 1)
+        }
+    }
+    let suffix: read.Extensions = (read.suffix c version true)
+    if (!= suffix.status 0) { set valid false }
+    return Scan { valid: (and valid (== (read.position c) (array_length c.data))), found: found, count: 0 }
+}
+shadow ownership_scan {
+    assert (ownership_scan [] false 0).valid
+    assert (not (ownership_scan [] true 0).valid)
+    assert (ownership_scan [1,0,0,0,0,0,0,0,0,0,0,0] true 0).valid
+}
+
+pub fn map_route(layouts: array<u8>, bytes: array<u8>, layout_present: bool, owned_present: bool) -> int {
+    let lp: bool = (or layout_present (> (array_length layouts) 0))
+    let op: bool = (or owned_present (> (array_length bytes) 0))
+    if (and (not lp) (not op)) { return 0 }
+    let a: Scan = (layout_scan layouts lp)
+    let b: Scan = (ownership_scan bytes op a.count)
+    if (not (or a.found b.found)) {
+        if (and a.valid b.valid) { return 0 }
+        return 4
+    }
+    if (or (> (array_length layouts) 16777216) (> (array_length bytes) 16777216)) { return 3 }
+    if (or (== (array_length layouts) 0) (or (== (array_length bytes) 0) (or (not a.valid) (not b.valid)))) { return 2 }
+    return 1
+}
+shadow map_route {
+    assert (== (map_route [] [] false false) 0)
+    assert (== (map_route [] [] true false) 4)
+    assert (== (map_route [1] [] true false) 4)
+}
+
+pub fn service_pending(model: owned.Module, service: bool, service_import: bool) -> bool {
+    if (or service service_import) { return true }
+    let mut i: int = 0
+    while (< i (array_length model.functions)) {
+        let f = (at model.functions i)
+        if (instructions.has_file model.code f.start f.length) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow service_pending {
+    let m: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (service_pending m true false)
+    assert (not (service_pending m false false))
+}
+
+fn candidate(bytes: array<u8>, model: owned.Module, pending: bool, mixed: bool, owned_present: bool, layout_present: bool) -> bool {
+    if (or pending (or (not owned_present) (not layout_present))) { return false }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    let flags: int = (read.skip c count)
+    if (or (!= (read.status c) 0) (> count 256)) { return false }
+    if mixed { if (or (< version 1) (> version 2)) { return false } }
+    else { if (!= version 3) { return false } }
+    let mut resources: bool = false
+    let mut i: int = 0
+    while (< i count) { if (== (% (/ (at bytes (+ flags i)) 2) 2) 1) { set resources true } set i (+ i 1) }
+    if (!= resources mixed) { return false }
+    let d: read.Cursor = (read.open model.layouts)
+    let layouts: int = (read.read_u32 d)
+    if (or (!= (read.status d) 0) (!= layouts count)) { return false }
+    let mut total: int = 0
+    set i 0
+    while (< i count) {
+        let header: int = (read.skip d 8)
+        if (!= (read.status d) 0) { return false }
+        let fields: int = (wire.read_u16 d.data (+ header 2))
+        if (> fields (- 65536 total)) { return false }
+        set total (+ total fields)
+        let mut f: int = 0
+        while (< f fields) {
+            let field: int = (read.skip d 12)
+            if (!= (read.status d) 0) { return false }
+            if (== (at d.data field) 7) { return true }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow candidate {
+    let m: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (candidate [] m false false false false))
+}
+
+pub fn owner_route(bytes: array<u8>, model: owned.Module, pending: bool, owned_present: bool) -> int {
+    if pending { return 0 }
+    if (not owned_present) { return 0 }
+    if (== (array_length bytes) 0) { return 2 }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (< version 1) (or (> version 3) (> count 256)))) { return 2 }
+    let flags: int = (read.skip c count)
+    if (!= (read.status c) 0) { return 2 }
+    let mut resources: bool = false
+    let mut i: int = 0
+    while (< i count) { if (== (% (/ (at bytes (+ flags i)) 2) 2) 1) { set resources true } set i (+ i 1) }
+    if (not resources) { return 0 }
+    set i 0
+    while (< i count) {
+        let flag: int = (cast_int (at bytes (+ flags i)))
+        if (or (> flag 3) (and (== (% (/ flag 2) 2) 1) (== (% flag 2) 0))) { return 2 }
+        set i (+ i 1)
+    }
+    let aligned: int = (read.align c)
+    let functions: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (!= functions (array_length model.functions))) { return 2 }
+    if (== (array_length model.layouts) 0) { return 2 }
+    let d: read.Cursor = (read.open model.layouts)
+    let layouts: int = (read.read_u32 d)
+    if (or (!= (read.status d) 0) (!= layouts count)) { return 2 }
+    let mut total: int = 0
+    let mut selected: bool = false
+    set i 0
+    while (< i count) {
+        let header: int = (read.skip d 8)
+        if (!= (read.status d) 0) { return 2 }
+        let fields: int = (wire.read_u16 d.data (+ header 2))
+        if (or (> fields (- 65536 total)) (or (!= (at d.data (+ header 1)) 0) (> (at d.data header) 3))) { return 2 }
+        set total (+ total fields)
+        let mut f: int = 0
+        while (< f fields) {
+            let field: int = (read.skip d 12)
+            if (!= (read.status d) 0) { return 2 }
+            if (or (>= (at d.data field) 16) (or (!= (at d.data (+ field 1)) 0) (!= (wire.read_u16 d.data (+ field 2)) 0))) { return 2 }
+            if (and (== (% (/ (at bytes (+ flags i)) 2) 2) 1) (== (at d.data field) 7)) { set selected true }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= (read.position d) (array_length d.data)) { return 2 }
+    if (and selected (== version 3)) { return 2 }
+    return (cond (selected 1) (else 0))
+}
+shadow owner_route {
+    let m: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (owner_route [] m false false) 0)
+    assert (== (owner_route [] m false true) 2)
+    assert (== (owner_route [255] m true true) 0)
+}
+
+pub fn classify(bytes: array<u8>, model: owned.Module, service: bool, service_import: bool, presence: int) -> Selection {
+    let lp: bool = (or (> (array_length model.layouts) 0) (== (% presence 2) 1))
+    let op: bool = (or (> (array_length bytes) 0) (== (% (/ presence 2) 2) 1))
+    let pending: bool = (service_pending model service service_import)
+    return Selection { service: pending, arrays: (candidate bytes model pending false op lp), maps: (map_route model.layouts bytes lp op), owners: (owner_route bytes model pending op), mixed: (candidate bytes model pending true op lp) }
+}
+shadow classify {
+    let m: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    let s: Selection = (classify [] m false false 0)
+    assert (== s.maps 0) assert (== s.owners 0) assert (not s.arrays)
+}

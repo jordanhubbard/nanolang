@@ -21,12 +21,12 @@ class MultiNominal(unittest.TestCase):
                       '-Dmalloc=service_test_malloc', '-Dcalloc=service_test_calloc',
                       '-Drealloc=service_test_realloc'] if instrument else [])
             self.command(f'{name}-{source}-build', [*self.compiler, *self.flags, *hooks,
-                '-c', f'src/nanoisa/{source}.c', '-o', str(obj)])
+                '-c', f'src/nanoisa/{source}.c', '-o', str(obj)], build=True)
             objects.insert(0, str(obj))
         exe = self.artifacts / name
         self.command(f'{name}-build', [*self.compiler, *self.flags,
             *(['-DSERVICE_ALLOC_TEST'] if instrument else []),
-            'tests/nanoisa/test_multi_nominal.c', *objects, *self.linkflags, '-o', str(exe)])
+            'tests/nanoisa/test_multi_nominal.c', *objects, *self.linkflags, '-o', str(exe)], build=True)
         output = self.command(f'{name}-run', [str(exe)], extra={'MULTI_MODULE_WIRE': str(self.artifacts / f'{name}.nvm')})
         self.assertIn('PASS', output)
         print(output.strip(), flush=True)

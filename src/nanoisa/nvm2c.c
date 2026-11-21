@@ -148,6 +148,19 @@ static int record_field_converts(uint8_t destination, uint8_t source) {
 }
 
 
+/* A record join owns tagged destination storage. Scalar producers convert
+ * into that storage; their exact shapes remain independent and checked. */
+static int merge_record_join_field(uint8_t *current, uint8_t incoming) {
+    if (*current == NVM2C_VK_UNK) { *current = incoming; return 1; }
+    if (incoming == NVM2C_VK_UNK || incoming == *current) return 1;
+    if (variant_field(*current) && variant_field(incoming)) { *current |= incoming; return 1; }
+    if ((*current == NVM2C_VK_VALUE && variant_scalar_kind(incoming)) ||
+        (incoming == NVM2C_VK_VALUE && variant_scalar_kind(*current))) {
+        *current = NVM2C_VK_VALUE; return 1;
+    }
+    return 0;
+}
+
 static int boolean_result(uint8_t opcode) {
     switch (opcode) {
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
@@ -1343,8 +1356,17 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 plan->next = b->scalar_joins; b->scalar_joins = plan;
             }
             if (plan->tags[i] != tags) {
-                if (facts->final) {
-                    nvm2c_fail(b, "I require stable scalar join facts before shape emission"); return 0;
+                /* I can finish an unchanged tagged join when shape construction
+                 * resolves a caller's optional scalar mask. Both incoming edges
+                 * already have identical finite tags and carrier storage; this
+                 * exception cannot widen an exact or unproved representation. */
+                int unchanged_carriers = join->slots[i].kind == NVM2C_VK_VALUE &&
+                    stack[i].kind == NVM2C_VK_VALUE &&
+                    join->slots[i].scalar_tags == tags && stack[i].scalar_tags == tags;
+                if (facts->final && !unchanged_carriers) {
+                    nvm2c_fail(b, "I require stable scalar join facts before shape emission "
+                        "(function %u, target %zu, slot %d, plan 0x%x, actual 0x%x)",
+                        idx, target, i, plan->tags[i], tags); return 0;
                 }
                 plan->tags[i] = tags; facts->changed = 1;
             }
@@ -1370,9 +1392,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             if (!fields) return 0;
             for (size_t f = 0; f < b->record_width; ++f) {
                 uint8_t incoming = stack[i].rec_k[f];
-                if (fields[f] == NVM2C_VK_UNK) fields[f] = incoming;
-                else if (variant_field(fields[f]) && variant_field(incoming)) fields[f] |= incoming;
-                else if (incoming != NVM2C_VK_UNK && incoming != fields[f]) {
+                if (!merge_record_join_field(&fields[f], incoming)) {
                     nvm2c_fail(b, "I found incompatible aggregate fields at a join in function %u", idx);
                     return 0;
                 }
@@ -1413,6 +1433,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             for (size_t field = 0; field < b->record_width; field++) {
                 uint8_t incoming = stack[i].rec_k[field];
                 uint8_t *current = &join->slots[i].rec_k[field];
+                if (stack[i].kind == NVM2C_VK_REC && merge_record_join_field(current, incoming)) continue;
                 if (*current == NVM2C_VK_UNK) *current = incoming;
                 else if (variant_field(*current) && variant_field(incoming)) *current |= incoming;
                 else if (incoming != NVM2C_VK_UNK && incoming != *current) {
@@ -2761,10 +2782,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
                 break;
             }
-            if (arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_VALUE) {
+            if (arr.kind == NVM2C_VK_UNK &&
+                (val.kind == NVM2C_VK_VALUE ||
+                 (!facts->final && val.kind == NVM2C_VK_INT))) {
                 /* A tagged element does not determine the array's storage.
-                 * Recursive callers may supply that fact on a later pass;
-                 * defaulting to integer storage poisons the return contract. */
+                 * A computed integer also fits both integer and byte arrays;
+                 * I wait for caller facts before choosing either storage.
+                 * Defaulting here poisons a returned byte-array contract. */
                 Nvm2cSimSlot pushed = arr;
                 pushed.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed) ||
@@ -6298,17 +6322,19 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
-                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
                              rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR,
-                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL);
+                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL,
+                             rec, (unsigned)fi, NVM2C_VK_FLOAT);
             else if (st.rec_k[rec][fi] == NVM2C_VK_STR ||
                      st.rec_k[rec][fi] == NVM2C_VK_INT ||
-                     st.rec_k[rec][fi] == NVM2C_VK_BOOL) {
+                     st.rec_k[rec][fi] == NVM2C_VK_BOOL || st.rec_k[rec][fi] == NVM2C_VK_FLOAT) {
                 /* Inferred storage can retain a boxed present scalar even
                  * when this projection has an exact scalar consumer. I check
                  * its payload tag before reading the same record slot. */
                 unsigned tag = st.rec_k[rec][fi] == NVM2C_VK_STR ? TAG_STRING :
-                               st.rec_k[rec][fi] == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT;
+                               st.rec_k[rec][fi] == NVM2C_VK_BOOL ? TAG_BOOL :
+                               st.rec_k[rec][fi] == NVM2C_VK_FLOAT ? TAG_FLOAT : TAG_INT;
                 nvm2c_printf(b, "    if (r[%d].k[%u] != %u && !(r[%d].k[%u] == %u && r[%d].vk[%u] == %u)) NVM2C_ABORT();\n",
                              rec, (unsigned)fi, (unsigned)st.rec_k[rec][fi],
                              rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, tag);
@@ -6332,9 +6358,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     stack_push_function(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
-                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].k[%u] == %u ? 1 : r[%d].k[%u] == %u ? 4 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].k[%u] == %u ? 1 : r[%d].k[%u] == %u ? 4 : r[%d].k[%u] == %u ? 3 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
                              rec, (unsigned)fi, NVM2C_VK_STR,
                              rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL,
+                             rec, (unsigned)fi, NVM2C_VK_FLOAT,
                              rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
                     stack_push_value(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_MAP) {
@@ -8207,6 +8234,18 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
  * recover an unresolved scalar field when constructors of that same declared
  * type, variant and width agree. Conflicting or aggregate evidence is not a
  * scalar layout; I leave it unresolved rather than choose a constructor. */
+/* Optional storage still supplies scalar payload evidence. I do not rewrite
+ * that optional producer or infer from an unknown/aggregate payload. */
+static NvmShapeKind nominal_scalar_evidence(Nvm2cBuf *b, NvmShapeId shape) {
+    NvmShapeKind kind = nvm_shape_kind(&b->shapes, shape);
+    if (kind != NVM_SHAPE_OPTIONAL) return kind;
+    NvmShapeId payload = nvm_shape_lookup(&b->shapes, shape, 0);
+    NvmShapeKind inner = payload ? nvm_shape_kind(&b->shapes, payload) : NVM_SHAPE_UNKNOWN;
+    if (inner == NVM_SHAPE_INT || inner == NVM_SHAPE_BOOL ||
+        inner == NVM_SHAPE_FLOAT || inner == NVM_SHAPE_STRING) return inner;
+    return kind;
+}
+
 static int infer_nominal_scalar_fields(Nvm2cBuf *b, const NvmModule *mod) {
     typedef struct {
         uint8_t kind;
@@ -8263,7 +8302,7 @@ static int infer_nominal_scalar_fields(Nvm2cBuf *b, const NvmModule *mod) {
                         packs[i].variant != packs[j].variant || packs[i].width != packs[j].width) continue;
                     NvmShapeId candidate = nvm_shape_lookup(&b->shapes, packs[j].shape, field);
                     if (!candidate) continue;
-                    NvmShapeKind kind = nvm_shape_kind(&b->shapes, candidate);
+                    NvmShapeKind kind = nominal_scalar_evidence(b, candidate);
                     if (kind == NVM_SHAPE_UNKNOWN) continue;
                     if ((kind != NVM_SHAPE_INT && kind != NVM_SHAPE_BOOL &&
                          kind != NVM_SHAPE_FLOAT && kind != NVM_SHAPE_STRING) ||
@@ -8293,7 +8332,7 @@ static int infer_nominal_scalar_fields(Nvm2cBuf *b, const NvmModule *mod) {
             for (size_t j = 0; j < count; ++j) {
                 if (packs[i].kind != packs[j].kind || packs[i].type != packs[j].type ||
                     packs[i].variant != packs[j].variant || packs[i].width != packs[j].width) continue;
-                NvmShapeKind kind = nvm_shape_kind(&b->shapes,
+                NvmShapeKind kind = nominal_scalar_evidence(b,
                     nvm_shape_lookup(&b->shapes, packs[j].shape, field));
                 if (kind != NVM_SHAPE_UNKNOWN && kind != expected) {
                     nvm2c_fail(b, "I found conflicting nominal scalar field evidence"); goto done;

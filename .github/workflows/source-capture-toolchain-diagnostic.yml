@@ -1,17 +1,69 @@
 name: Source capture selected-tool diagnostics
 on:
   workflow_dispatch:
+    inputs:
+      linux_only:
+        description: I observe Linux capture without starting the Apple qualification job.
+        type: boolean
+        default: false
+      qualify_as_246:
+        description: I qualify a private GNU as 2.46 candidate without changing product admission.
+        type: boolean
+        default: false
+      diagnose_native_debug:
+        description: I retain the four native debug failures in a private candidate, without qualifying admission.
+        type: boolean
+        default: false
+      qualify_clang_2118:
+        description: I qualify a private Ubuntu Clang 21.1.8 report candidate through original capture controls.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
       - '.github/workflows/source-capture-toolchain-diagnostic.yml'
       - 'scripts/ci_source_capture_diagnostic.py'
+      - 'scripts/ci_source_capture_linux.py'
       - 'src/module_builder.c'
       - 'tests/test_source_snapshots.py'
 permissions:
   contents: read
 jobs:
+  linux-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retain selected Linux compiler and assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the actual capture probe and helper
+        run: |
+          make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so > .test_output/source-capture-diagnostic/linux-probe-build.log 2>&1
+      - name: Observe a cold compiler support capture without changing admission
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify the isolated GNU assembler 2.46 candidate
+        if: inputs.qualify_as_246
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py
+      - name: Diagnose native debug provenance in an isolated candidate
+        if: inputs.diagnose_native_debug && !inputs.qualify_as_246 && !inputs.qualify_clang_2118
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py --native-debug-only
+      - name: Qualify the isolated Ubuntu Clang 21.1.8 report candidate
+        if: inputs.qualify_clang_2118 && !inputs.qualify_as_246
+        timeout-minutes: 25
+        run: python3 scripts/ci_qualify_as246.py --clang-2118-only
+      - name: Upload Linux capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-capture-tools-linux
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
   selected-tools:
+    if: ${{ !inputs.linux_only }}
     strategy:
       fail-fast: false
       matrix:

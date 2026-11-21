@@ -1,0 +1,82 @@
+module "src_nano/nvm2c/module.nano" as decoder
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn passive_report(view: decoder.ModuleView) -> string {
+    let hex: string = "0123456789abcdef"
+    let mut result: string = (+ (+ (int_to_string view.status) ":") (+ (int_to_string (array_length view.passive)) ":"))
+    let mut i: int = 0
+    while (< i (array_length view.passive)) {
+        let value: int = (cast_int (at view.passive i))
+        set result (+ result (str_substring hex (/ value 16) 1))
+        set result (+ result (str_substring hex (% value 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow passive_report {
+    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], passive: [0,255], ownership: [], tables: [], present: [] }
+    assert (== (passive_report view) "0:2:00ff")
+    assert (== (passive_report (decoder.decode_core [])) "1:0:")
+}
+
+fn hexadecimal(bytes: array<u8>, start: int, length: int) -> string {
+    if (> length 256) {
+        let left: int = (/ length 2)
+        return (+ (hexadecimal bytes start left) (hexadecimal bytes (+ start left) (- length left)))
+    }
+    let alphabet: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = start
+    while (< i (+ start length)) {
+        let value: int = (cast_int (at bytes i))
+        set result (+ result (str_substring alphabet (/ value 16) 1))
+        set result (+ result (str_substring alphabet (% value 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow hexadecimal { assert (== (hexadecimal [0,255] 0 2) "00ff") }
+
+fn claims_report(view: decoder.ModuleView) -> string {
+    let a: string = (+ (+ (+ (+ (int_to_string view.status) ":") (int_to_string (array_length view.ownership))) ":") (hexadecimal view.ownership 0 (array_length view.ownership)))
+    let b: string = (+ (+ (+ ":" (int_to_string (array_length view.passive))) ":") (hexadecimal view.passive 0 (array_length view.passive)))
+    return (+ a b)
+}
+shadow claims_report {
+    let view: decoder.ModuleView = decoder.ModuleView { status: 0, features: 0, entry: 4294967295, isa_version: 2, code: [], ownership: [255], passive: [0], tables: [], present: [] }
+    assert (== (claims_report view) "0:1:ff:1:00")
+    assert (== (claims_report (decoder.decode_core [])) "1:0::0:")
+}
+
+fn main() -> int {
+    unsafe {
+        if (<= (get_argc) 1) { return 0 }
+        let option: string = (get_argv 1)
+        if (== option "--widths") {
+            let mut opcode: int = 0
+            while (< opcode 256) {
+                (println (isa.primary_width opcode))
+                set opcode (+ opcode 1)
+            }
+            return 0
+        }
+        let mut i: int = 1
+        if (== option "--scan") { set i 2 }
+        if (== option "--passive") { set i 2 }
+        if (== option "--claims") { set i 2 }
+        while (< i (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv i))
+            if (== option "--scan") {
+                if (decoder.file_instructions bytes 0 (array_length bytes)) { (println 1) } else { (println 0) }
+            } else {
+                let view: decoder.ModuleView = (decoder.decode_core bytes)
+                if (== option "--passive") { (println (passive_report view)) } else if (== option "--claims") { (println (claims_report view)) } else { (println view.status) }
+            }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

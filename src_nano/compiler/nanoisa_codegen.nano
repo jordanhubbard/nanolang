@@ -2430,7 +2430,9 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
         let arm_type: string = (nisa_match_arm_type parser (at node.arm_body_ids i) (at node.arm_body_types i))
         set nisa_names saved_names
         set nisa_types saved_types
-        if (not (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))) { return "" }
+        let scalar: bool = (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))
+        let record: bool = (and (nisa_is_pin_record parser arm_type) (nisa_union_value_type_seen parser arm_type []))
+        if (not (or scalar record)) { return "" }
         if (== result "") { set result arm_type }
         if (!= arm_type result) { return "" }
         set i (+ i 1)
@@ -2438,6 +2440,14 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     return result
 }
 shadow nisa_match_result_type {
+    let record_reset: int = (nisa_reset)
+    let records: List<LexerToken> = (tokenize_string "struct Item{n:int} union Choice{Yes{} No{}} fn make(value:Choice)->Item{return match value{Yes(v)=>Item{n:1} No(v)=>Item{n:2}}}" "record-match.nano" (diag_list_new))
+    let record_parser: Parser = (parse_program records (list_LexerToken_length records) "record-match.nano")
+    set nisa_names ["value"] set nisa_types ["Choice"]
+    assert (== (nisa_match_result_type record_parser 0) "Item")
+    let resource_tokens: List<LexerToken> = (tokenize_string "resource struct Item{n:int} union Choice{Yes{} No{}} fn make(value:Choice)->Item{return match value{Yes(v)=>Item{n:1} No(v)=>Item{n:2}}}" "resource-match.nano" (diag_list_new))
+    let resource_parser: Parser = (parse_program resource_tokens (list_LexerToken_length resource_tokens) "resource-match.nano")
+    assert (== (nisa_match_result_type resource_parser 0) "")
     let _: int = (nisa_reset)
     let or_tokens: List<LexerToken> = (tokenize_string "union Choice{First{} Second{}} fn main()->int{return match Choice.First{}{First | Second => 7}}" "or.nano" (diag_list_new))
     let grouped: Parser = (parse_program or_tokens (list_LexerToken_length or_tokens) "or.nano")
@@ -2468,7 +2478,7 @@ shadow nisa_match_result_type {
 
 fn nisa_emit_match_value(parser: Parser, node_id: int) -> string {
     let result: string = (nisa_match_result_type parser node_id)
-    if (== result "") { return (nisa_fail "I require exhaustive match expression arms with one exact scalar result type") }
+    if (== result "") { return (nisa_fail "I require exhaustive match expression arms with one exact admitted result type") }
     return (nisa_emit_match_body parser node_id result)
 }
 shadow nisa_emit_match_value {
@@ -5307,7 +5317,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         # I give each value arm the declared union so a generic constructor has one exact identity.
         let selection: ASTMatch = (parser_get_match parser node_id)
         if (not (nisa_match_domain_covered parser selection (nisa_expr_type parser selection.scrutinee selection.scrutinee_type))) {
-            return (nisa_fail "I require exhaustive match expression arms with one exact scalar result type")
+            return (nisa_fail "I require exhaustive match expression arms with one exact admitted result type")
         }
         return (nisa_emit_match_body parser node_id expected)
     }
@@ -7741,13 +7751,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                             }
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_BLOCK) {
-                                                let blk: ASTBlock = (parser_get_block parser node_id)
-                                                if (!= (list_ASTStmtRef_length blk.statements) 1) {
-                                                    return (nisa_fail "expression block needs 1 statement")
-                                                } else {
-                                                    let st: ASTStmtRef = (list_ASTStmtRef_get blk.statements 0)
-                                                    return (nisa_emit_expr parser st.node_id st.node_type)
-                                                }
+                                                return (nisa_effect_value parser node_id node_type)
                                             } else {
                                                 return (nisa_fail "expression outside the pinned subset")
                                             }
@@ -9903,6 +9907,12 @@ shadow nisa_effect_value {
     let text: string = (nisa_effect_value p (parser_get_function p 0).body ParseNodeType.PNODE_BLOCK)
     assert (str_contains text "LOAD_LOCAL 0")
     assert (str_contains text ".local_end 0")
+    assert (== (nisa_reset) 0)
+    let expression: string = (nisa_emit_expr p (parser_get_function p 0).body ParseNodeType.PNODE_BLOCK)
+    assert nisa_ok
+    assert (str_contains expression "LOAD_LOCAL 0")
+    assert (str_contains expression ".local_end 0")
+    assert (== (at nisa_names 0) "")
     assert (== (nisa_reset) 0)
 }
 

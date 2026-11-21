@@ -139,7 +139,23 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 native_location = requested_location(''.join(physical_text)) if explicit_locations else None
                 if debug_options and debug_options[-1] != "-g0" and (not expected["sections"] or
                         not (expected["source_named"] or expected["escaped_source_named"])):
-                    raise RuntimeError("I need a native object with debug sections and source provenance")
+                    retained = ROOT / ".test_output/source-capture-diagnostic/native-debug-failures"
+                    retained.mkdir(parents=True, exist_ok=True)
+                    failure = Path(tempfile.mkdtemp(prefix="native-", dir=retained))
+                    shutil.copytree(directory, failure / "fixture")
+                    (failure / "native.debug.txt").write_text(''.join(native_text))
+                    (failure / "physical-native.debug.txt").write_text(''.join(physical_text))
+                    observation = {"compiler": compiler, "version": version, "flags": flags,
+                        "source": str(source), "debug_source": str(debug_source),
+                        "native": expected, "physical_native": physical_expected,
+                        "native_sha256": hashlib.sha256(native.read_bytes()).hexdigest(),
+                        "physical_sha256": hashlib.sha256(physical_native.read_bytes()).hexdigest(),
+                        "integrated": integrated, "suffix": suffix, "shared": shared,
+                        "macro_read": macro_read, "nested_read": nested_read,
+                        "explicit_locations": explicit_locations, "source_stem": source_stem}
+                    (failure / "observation.json").write_text(json.dumps(observation, indent=2) + "\n")
+                    raise RuntimeError("I need a native object with debug sections and source provenance; "
+                                       + "I retain the failed fixture at " + str(failure))
                 probe = ROOT / "obj/test_module_generation_probe"
                 build_diagnostics = []
                 run([probe, "build", requested_module], directory, env, build_diagnostics)

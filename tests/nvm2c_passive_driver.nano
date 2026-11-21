@@ -1,0 +1,59 @@
+module "src_nano/nvm2c/passive.nano" as passive
+module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn analyze(bytes: array<u8>) -> bool {
+    if (not (wire.contains bytes 0 8)) { return false }
+    let size: int = (wire.read_u32 bytes 0)
+    let count: int = (wire.read_u32 bytes 4)
+    if (> count (/ (- (array_length bytes) 8) 28)) { return false }
+    let mut cursor: int = 8
+    let mut functions: array<calls.Function> = []
+    let mut params: array<array<int>> = []
+    let mut i: int = 0
+    while (< i count) {
+        if (not (wire.contains bytes cursor 28)) { return false }
+        let f: calls.Function = calls.Function {
+            start: (wire.read_u32 bytes cursor), length: (wire.read_u32 bytes (+ cursor 4)),
+            arity: (wire.read_u32 bytes (+ cursor 8)), locals: (wire.read_u32 bytes (+ cursor 12)),
+            upvalues: (wire.read_u32 bytes (+ cursor 16)), results: (wire.read_u32 bytes (+ cursor 20)) }
+        let tags: int = (wire.read_u32 bytes (+ cursor 24))
+        set cursor (+ cursor 28)
+        if (or (> f.arity 65535) (or (> f.locals 65535) (or (> f.upvalues 65535) (> f.results 255)))) { return false }
+        if (or (and (!= tags 0) (!= tags f.arity)) (not (wire.contains bytes cursor tags))) { return false }
+        let mut types: array<int> = []
+        let mut j: int = 0
+        while (< j tags) {
+            set types (array_push types (cast_int (at bytes (+ cursor j))))
+            set j (+ j 1)
+        }
+        set cursor (+ cursor tags)
+        set functions (array_push functions f)
+        set params (array_push params types)
+        set i (+ i 1)
+    }
+    if (not (wire.contains bytes cursor size)) { return false }
+    let payload: array<u8> = (array_slice bytes cursor size)
+    set cursor (+ cursor size)
+    let code: array<u8> = (array_slice bytes cursor (- (array_length bytes) cursor))
+    return (passive.validate payload code functions params)
+}
+shadow analyze {
+    assert (analyze [0,0,0,0,0,0,0,0])
+    assert (not (analyze [1,0,0,0,0,0,0,0]))
+    assert (not (analyze []))
+}
+
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            if (analyze (file_read_bytes (get_argv i))) { (println 1) } else { (println 0) }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

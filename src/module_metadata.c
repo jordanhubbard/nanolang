@@ -369,7 +369,7 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
 }
 
 /* Serialize module metadata to C code that can be embedded */
-char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
+static char *serialize_module_metadata_named(ModuleMetadata *meta, const char *identity) {
     if (!meta) return NULL;
     MetadataGraph graph = {0};
     if (!metadata_graph_collect(&graph, meta)) {
@@ -404,7 +404,7 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
      * symbol does not collide when several module objects are linked into a
      * single binary (previously every module exported `_module_metadata`,
      * causing multiple-definition link errors). */
-    const char *module_ident = module_symbol_suffix(meta->module_name ? meta->module_name : "unknown");
+    const char *module_ident = module_symbol_suffix(identity ? identity : "unknown");
     
     /* Count and declare FunctionSignature arrays */
     int fn_sig_count = graph.signatures.count;
@@ -601,6 +601,19 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     buffer[pos] = '\0';
     metadata_graph_free(&graph);
     return buffer;
+}
+
+char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
+    return serialize_module_metadata_named(meta, meta ? meta->module_name : NULL);
+}
+
+/* I retain the reported name while giving separately linked source tables unique symbols. */
+char *serialize_module_metadata_for_source(ModuleMetadata *meta, const char *source) {
+    if (!source) return NULL;
+    char *canonical = realpath(source, NULL);
+    char *result = serialize_module_metadata_named(meta, canonical ? canonical : source);
+    free(canonical);
+    return result;
 }
 
 /* Embed metadata in module C code */

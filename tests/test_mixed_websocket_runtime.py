@@ -24,7 +24,7 @@ class MixedWebSocketRuntime(unittest.TestCase):
         if not self.prepared:
             prefix = self.artifacts / 'installed'
             self.command('install', ['make', '-f', 'Makefile.gnu', 'install-services-public-runtime',
-                f'PREFIX={prefix}', f'CC={shlex.join(self.compiler)}'])
+                f'PREFIX={prefix}', f'CC={shlex.join(self.compiler)}'], build=True)
             type(self).prefix = self.artifacts / 'relocated'
             shutil.move(prefix, self.prefix)
             sources = ['nanoisa/services_runtime', 'nanoisa/services_host_grant',
@@ -34,7 +34,7 @@ class MixedWebSocketRuntime(unittest.TestCase):
             for source in sources:
                 obj = self.artifacts / (Path(source).name+'.o')
                 self.command(obj.stem+'-build', [*self.compiler, *self.flags,
-                    '-c', 'src/'+source+'.c', '-o', str(obj)])
+                    '-c', 'src/'+source+'.c', '-o', str(obj)], build=True)
                 self.providers.append(str(obj))
             type(self).ordinary = [p for p in self.objects if not any(p.endswith('/'+s+'.o') for s in sources)]
             type(self).prepared = True
@@ -46,13 +46,13 @@ class MixedWebSocketRuntime(unittest.TestCase):
                 obj = self.artifacts / (name+'-allocated.o')
                 self.command(obj.stem+'-build', [*self.compiler, *self.flags,
                     '-include', 'tests/nanoisa/mixed_websocket_runtime_alloc.h',
-                    '-Dmalloc=mixed_runtime_malloc', '-Dcalloc=mixed_runtime_calloc', '-c', source, '-o', str(obj)])
+                    '-Dmalloc=mixed_runtime_malloc', '-Dcalloc=mixed_runtime_calloc', '-c', source, '-o', str(obj)], build=True)
                 self.allocated_providers.append(str(obj))
         fixture = self.artifacts / ('fixture-allocated' if allocated else 'fixture-real' if real else 'fixture-controlled')
         flags = ['-DMIXED_RUNTIME_REAL_TRANSPORT'] if real else []
         self.command(fixture.name+'-build', [*self.compiler, *self.flags, *flags,
             'tests/nanoisa/test_mixed_websocket_runtime.c', *(self.allocated_providers if allocated else self.providers), *self.ordinary,
-            'lib/libnano_services_runtime.a', *self.linkflags, '-o', str(fixture)])
+            'lib/libnano_services_runtime.a', *self.linkflags, '-o', str(fixture)], build=True)
         return fixture
 
     def native(self, graph, real=False, allocated=False, installed=False):
@@ -79,7 +79,7 @@ int main(int argc,char **argv){
         self.command(exe.name+'-build', [*self.compiler, *flags,
             *(['-DMIXED_RUNTIME_REAL_TRANSPORT'] if real else []), '-I'+str(self.prefix/'include'),
             str(self.artifacts/(label+'.c')), str(driver), *([] if installed else self.allocated_providers if allocated else self.providers),
-            str(self.prefix/'lib/libnano_services_runtime.a'), *self.linkflags, '-o', str(exe)])
+            str(self.prefix/'lib/libnano_services_runtime.a'), *self.linkflags, '-o', str(exe)], build=True)
         return exe
 
     def compare(self, fixture, native, graph, mode=0, fuel=100000, real=False):
@@ -202,5 +202,5 @@ int main(int argc,char **argv){
         self.command('portable-c99-build', [*compiler, '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror',
             '-I'+str(self.prefix/'include'), str(self.artifacts/(label+'.c')),
             str(self.artifacts/(label+'-driver.c')), str(self.prefix/'lib/libnano_services_runtime.a'),
-            *self.linkflags, '-o', str(exe)])
+            *self.linkflags, '-o', str(exe)], build=True)
         self.compare(fixture, exe, graph)

@@ -24,13 +24,13 @@ class ServicesFlow(unittest.TestCase):
                       '-Dmalloc=service_test_malloc', '-Dcalloc=service_test_calloc',
                       '-Drealloc=service_test_realloc'] if instrument else [])
             self.command(f'{name}-{source}-build', [*self.compiler, *self.flags, *hooks,
-                '-c', f'src/nanoisa/{source}.c', '-o', str(obj)])
+                '-c', f'src/nanoisa/{source}.c', '-o', str(obj)], build=True)
             objects.insert(0, str(obj))
         exe = self.artifacts / name
         self.command(f'{name}-build', [*self.compiler, *self.flags,
             *(['-DSERVICE_ALLOC_TEST'] if instrument else []),
             'tests/nanoisa/test_mixed_websocket_flow.c' if websocket else 'tests/nanoisa/test_services_flow.c',
-            *objects, *(['lib/libnano_services_runtime.a'] if websocket else []), *self.linkflags, '-o', str(exe)])
+            *objects, *(['lib/libnano_services_runtime.a'] if websocket else []), *self.linkflags, '-o', str(exe)], build=True)
         output = self.command(f'{name}-run', [str(exe)], extra={})
         self.assertIn('PASS', output)
         print(output.strip(), flush=True)
@@ -50,7 +50,7 @@ class ServicesFlow(unittest.TestCase):
     def test_installed_websocket_grants(self):
         prefix = self.artifacts / 'grants-installed'
         self.command('grant-install', ['make', '-f', 'Makefile.gnu', 'install-services-public-runtime',
-            f'PREFIX={prefix}', f'CC={shlex.join(self.compiler)}'])
+            f'PREFIX={prefix}', f'CC={shlex.join(self.compiler)}'], build=True)
         relocated = self.artifacts / 'grants-relocated'
         shutil.move(prefix, relocated)
         source = self.artifacts / 'grant-consumer.c'
@@ -83,5 +83,5 @@ int main(void) {
         exe = self.artifacts / 'grant-consumer'
         self.command('grant-consumer-build', [*self.compiler, '-std=c99', '-Wall', '-Wextra', '-Werror',
             '-fsanitize=address,undefined', '-I'+str(relocated / 'include'), str(source),
-            str(relocated / 'lib/libnano_services_runtime.a'), *crypto, '-o', str(exe)])
+            str(relocated / 'lib/libnano_services_runtime.a'), *crypto, '-o', str(exe)], build=True)
         self.assertIn('PASS', self.command('grant-consumer-run', [str(exe)]))

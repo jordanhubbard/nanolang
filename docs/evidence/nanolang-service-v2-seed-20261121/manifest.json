@@ -1,0 +1,613 @@
+{
+  "code_commit": "02f3f05c9",
+  "files": [
+    {
+      "path": ".test_output/service-build-budget-darwin.log",
+      "artifact": "inputs/000-service-build-budget-darwin.log.gz",
+      "sha256": "c991fdfb78a6e532b06f4e4df2d0d43cc7d8bfe0e81ed3c167ceec6ecd3f675a",
+      "bytes": 47264,
+      "compressed_sha256": "258f01649c9f93964e4ebb9224d83867df34b5b4e3cc797e3da9f0e2d56d888b",
+      "compressed_bytes": 4572
+    },
+    {
+      "path": ".test_output/service-build-budget-helper.log",
+      "artifact": "inputs/001-service-build-budget-helper.log.gz",
+      "sha256": "7ea8385aa2828aae0e7c0f407a4f7d10e7fb420618508fa55b261487206f2edf",
+      "bytes": 891,
+      "compressed_sha256": "33ba8b0ca31c38b9556e9837a3c2908a734240ebdfa1b6646ddd1f9877f84d76",
+      "compressed_bytes": 267
+    },
+    {
+      "path": ".test_output/service-build-budget-linux.log",
+      "artifact": "inputs/002-service-build-budget-linux.log.gz",
+      "sha256": "23e1f77084e39bca3b057ed59dd3da3ec7d4415bcad579c7381dd09b166b420b",
+      "bytes": 31653,
+      "compressed_sha256": "1898ee61f675745e37f465162609107112bb524583ba12888b579715c679a837",
+      "compressed_bytes": 2607
+    },
+    {
+      "path": ".test_output/service-link-order-darwin-corrected.log",
+      "artifact": "inputs/003-service-link-order-darwin-corrected.log.gz",
+      "sha256": "b061569af86d70f0346edb8a7bd8b85a4dad777c8d4c7654cc68d4ec1968efdc",
+      "bytes": 9486,
+      "compressed_sha256": "195f2218dbd98456177f120e97807569184ade25816a22db1b2868fe65bc54cf",
+      "compressed_bytes": 1651
+    },
+    {
+      "path": ".test_output/service-link-order-darwin.log",
+      "artifact": "inputs/004-service-link-order-darwin.log.gz",
+      "sha256": "d328de2b2d6055c25c1a991cb787d088cc3fe4cc52335b83baf74677dced05f1",
+      "bytes": 28494,
+      "compressed_sha256": "4e081b5b5079811d50d9bb6d22874cf9ee5828fd554eebf0a89f4903b1a1d7cc",
+      "compressed_bytes": 2990
+    },
+    {
+      "path": ".test_output/service-link-order-diagnose-build.py",
+      "artifact": "inputs/005-service-link-order-diagnose-build.py.gz",
+      "sha256": "e310265764daf3a6e05e6505d594b2ee3aeabb1c0115c45d26e0e6fb23bdbff4",
+      "bytes": 1560,
+      "compressed_sha256": "b8dfdd3d388900fc5f8eb124265c5368474f10a405c0b2a803a5aad54a631563",
+      "compressed_bytes": 741
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-diagnostic",
+      "artifact": "inputs/006-service-link-order-graph5-diagnostic.gz",
+      "sha256": "4bde6e455d079375b7ba6f6e5b7880a2d7c6961d48bcc71a8f7094b3cbbe2186",
+      "bytes": 14114672,
+      "compressed_sha256": "8a367ec47558904267b81001c3f2300363ba99ebb79b31944591c67b8970ae83",
+      "compressed_bytes": 3287728
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-execution.json",
+      "artifact": "inputs/007-service-link-order-graph5-execution.json.gz",
+      "sha256": "de6c6ad0e144ccdfa939328095c0cd443ed16c71dbf7144b33899a549e364242",
+      "bytes": 561,
+      "compressed_sha256": "da51cb7b94134cc4138df6a9f33c43f91990fa2e4c3544fa0a254f52bb193464",
+      "compressed_bytes": 163
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-native.stderr",
+      "artifact": "inputs/008-service-link-order-graph5-native.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-native.stdout",
+      "artifact": "inputs/009-service-link-order-graph5-native.stdout.gz",
+      "sha256": "8a6ccb213f23aced0555bc47180ed650769cc94d72ed0acc93ed1041ada7acc8",
+      "bytes": 153,
+      "compressed_sha256": "3fc904cf2d0cd36adb79192c637bb07d9c3292eb4a8bc8919814834ca7c86703",
+      "compressed_bytes": 126
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-vm.stderr",
+      "artifact": "inputs/010-service-link-order-graph5-vm.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-link-order-graph5-vm.stdout",
+      "artifact": "inputs/011-service-link-order-graph5-vm.stdout.gz",
+      "sha256": "8a6ccb213f23aced0555bc47180ed650769cc94d72ed0acc93ed1041ada7acc8",
+      "bytes": 153,
+      "compressed_sha256": "3fc904cf2d0cd36adb79192c637bb07d9c3292eb4a8bc8919814834ca7c86703",
+      "compressed_bytes": 126
+    },
+    {
+      "path": ".test_output/service-link-order-linux.log",
+      "artifact": "inputs/012-service-link-order-linux.log.gz",
+      "sha256": "c425c122a24cd2a2d83543ee92c3a0c2761468b25cfd707421f47d993c5a70d1",
+      "bytes": 9056,
+      "compressed_sha256": "4e28571e646c9c65a5d662ffddc907218978928f192a129e385f92b86f95e129",
+      "compressed_bytes": 1722
+    },
+    {
+      "path": ".test_output/service-link-order-neighbors-linux.log",
+      "artifact": "inputs/013-service-link-order-neighbors-linux.log.gz",
+      "sha256": "f4c871da7a25d1ff68790a9ce7ee02fdec7b3c79726fb0722a5f98ba1a3a8cef",
+      "bytes": 44169,
+      "compressed_sha256": "ee5188a18946ede5d279a98b077c44a835e43156eb58b8bfa7b035964f21dd9f",
+      "compressed_bytes": 3709
+    },
+    {
+      "path": ".test_output/service-link-order-slow-build.json",
+      "artifact": "inputs/014-service-link-order-slow-build.json.gz",
+      "sha256": "c3da9e8116bbfb2e0d350c5511c475ca53b87a9b6ad09ebf4d2f96341f085639",
+      "bytes": 1836,
+      "compressed_sha256": "df0e8b840914ecb19a920d3b0539d57125456bafc9e1eded453fc6bee54e0bf3",
+      "compressed_bytes": 683
+    },
+    {
+      "path": ".test_output/service-link-order-slow-build.log",
+      "artifact": "inputs/015-service-link-order-slow-build.log.gz",
+      "sha256": "c3da9e8116bbfb2e0d350c5511c475ca53b87a9b6ad09ebf4d2f96341f085639",
+      "bytes": 1836,
+      "compressed_sha256": "df0e8b840914ecb19a920d3b0539d57125456bafc9e1eded453fc6bee54e0bf3",
+      "compressed_bytes": 683
+    },
+    {
+      "path": ".test_output/service-link-order-slow-build.stderr",
+      "artifact": "inputs/016-service-link-order-slow-build.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-link-order-slow-build.stdout",
+      "artifact": "inputs/017-service-link-order-slow-build.stdout.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/00-seed.log",
+      "artifact": "inputs/018-00-seed.log.gz",
+      "sha256": "f74c73c73faf8ae637da375bbcaf5b74aedfdfe955ad7c6506104690b9fe82b5",
+      "bytes": 3951,
+      "compressed_sha256": "d5c969e18bba64568ac02523b820dab26f32cb6cef4cef44bdda47ffcb1ea177",
+      "compressed_bytes": 1368
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/01-seed-verify.log",
+      "artifact": "inputs/019-01-seed-verify.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/02-stage1.log",
+      "artifact": "inputs/020-02-stage1.log.gz",
+      "sha256": "4f81171990c60b904031386d0fe59de034c8f55ed58d864a5bc686a95af5e4a4",
+      "bytes": 3184,
+      "compressed_sha256": "b683caf83de744578253aff7f645c12b93a26004fde76e154290bafe9fa424b2",
+      "compressed_bytes": 1239
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/03-stage1-verify.log",
+      "artifact": "inputs/021-03-stage1-verify.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/04-stage1-translate.log",
+      "artifact": "inputs/022-04-stage1-translate.log.gz",
+      "sha256": "979c95e5d7b9d87d9d4dcce9dbfa12b1087dd79c824041be8474a78d525c8b67",
+      "bytes": 160,
+      "compressed_sha256": "cf1220e168b244198d4281595f51c0c3b930ea5876d575d804b18537a5590684",
+      "compressed_bytes": 145
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/guard-native-compiler",
+      "artifact": "inputs/023-guard-native-compiler.gz",
+      "sha256": "ea323cf8810e3709d312d4f0aa912d0438173e0c25ebc7dabd6381aaf1fa2084",
+      "bytes": 17681,
+      "compressed_sha256": "538a26a1d79559e57dcd5c08a31ec0597f7f1580d5a0e58a57b54241cdb8e4e4",
+      "compressed_bytes": 2322
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/host-cache-probes.log",
+      "artifact": "inputs/024-host-cache-probes.log.gz",
+      "sha256": "f79a01ffea1761440dc6a9f11096dcd77843d415f27a8b63bac827e3ee111a31",
+      "bytes": 6464,
+      "compressed_sha256": "46e9998a078711e05a44baeeda3c1a534a456d1bac586b29ee2ef75867fa3f04",
+      "compressed_bytes": 128
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/manifest.json",
+      "artifact": "inputs/025-manifest.json.gz",
+      "sha256": "9af067e3e4f596e129a67c00fea32b1895d8ffb44a86ba7fa7d1d26f5bfb14b4",
+      "bytes": 145766,
+      "compressed_sha256": "baefa6a2831a33bb4a4ce1b46fc0186834d4f34a1816f6d5fb5819eb2faff7dc",
+      "compressed_bytes": 60197
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/nanoc_stage1.nvm",
+      "artifact": "inputs/026-nanoc_stage1.nvm.gz",
+      "sha256": "f3b0f758884a6baeec8052c1f946d3ff6bb9a7947fdbf3c308a719098e624d8f",
+      "bytes": 1033160,
+      "compressed_sha256": "ae6272d9a41fd9fb3c07e38da93499d38a156782bf971e510de3a79259265f04",
+      "compressed_bytes": 289617
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap-darwin-retained/retained-host-inputs.json",
+      "artifact": "inputs/027-retained-host-inputs.json.gz",
+      "sha256": "7270253a978e66eeec0ce28ea26c5ba4022608a56abc620da701d06ddf2368eb",
+      "bytes": 15915,
+      "compressed_sha256": "f6170e55990738d198e28689fa76ac139a11ff9081c7ec1e9c1f6e96989af71b",
+      "compressed_bytes": 1484
+    },
+    {
+      "path": ".test_output/service-v2-bootstrap1-linux.log",
+      "artifact": "inputs/028-service-v2-bootstrap1-linux.log.gz",
+      "sha256": "807ff62eb87f2e2a59aada13320d0e5d4cee822fed9877fae004b52e757110f4",
+      "bytes": 11696,
+      "compressed_sha256": "9418223a8651f5b7aaafac5786d4fb9fa89dabbcf6719dac9670c877d17c2651",
+      "compressed_bytes": 2085
+    },
+    {
+      "path": ".test_output/service-v2-native-option-linux.log",
+      "artifact": "inputs/029-service-v2-native-option-linux.log.gz",
+      "sha256": "ae4ed713dcd4e8ec5b684d3a7833c02003c87a12ac8cb572a7a390cb245cbafc",
+      "bytes": 459,
+      "compressed_sha256": "8e30ecc5408bdf6559dc395c730aae92668b315035e8eb10fd66f20ecd26c5e0",
+      "compressed_bytes": 183
+    },
+    {
+      "path": ".test_output/service-v2-raw-seed-constructor-linux.log",
+      "artifact": "inputs/030-service-v2-raw-seed-constructor-linux.log.gz",
+      "sha256": "598c1fcc3ecbd71d830a74d22773aa6061a41301b93c5d2418e760edfd22da4f",
+      "bytes": 459,
+      "compressed_sha256": "2dbe58293af63cff762c7dad783fd2ae6a01d785636372d74816f0c9024a5aa0",
+      "compressed_bytes": 185
+    },
+    {
+      "path": ".test_output/service-v2-seed-archive.py",
+      "artifact": "inputs/031-service-v2-seed-archive.py.gz",
+      "sha256": "01caf7da607d22007307f142cc33fa6c00f03777fa1e31db941f144cffcce58c",
+      "bytes": 1856,
+      "compressed_sha256": "c46c48204a7aba392ee8a4e28c1f8668019bd7131576c816bdc80fcf632e1875",
+      "compressed_bytes": 913
+    },
+    {
+      "path": ".test_output/service-v2-seed-audit.py",
+      "artifact": "inputs/032-service-v2-seed-audit.py.gz",
+      "sha256": "efb40c0539c970a65d0d7daff0ab26e6df6399762c4f7cd335131ecd63888533",
+      "bytes": 2836,
+      "compressed_sha256": "6480f7f1529f43a40826184b4ebe107228d295cef8e35a55a9a2816dc6afe84c",
+      "compressed_bytes": 1243
+    },
+    {
+      "path": ".test_output/service-v2-seed-collect.py",
+      "artifact": "inputs/033-service-v2-seed-collect.py.gz",
+      "sha256": "3fe8118c86880f146f318251ebcdc6a5606193d9c0fcf41fdd07061d63e89a6e",
+      "bytes": 8477,
+      "compressed_sha256": "28af27f3d26fefa588c7e1e5ceca68ef170ffcdc607e584f86160b30cbd1aaab",
+      "compressed_bytes": 3195
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-compiler.nvm.gz",
+      "artifact": "inputs/034-service-v2-seed-darwin-compiler.nvm.gz.gz",
+      "sha256": "2b31979194e7f17285e53a6a505409a049935015899d655b58c96a8e9ff68966",
+      "bytes": 295221,
+      "compressed_sha256": "4fdf67ad6ecc0786bb1c0cd60506a53018b02b106755d477b585d4818d62b663",
+      "compressed_bytes": 282317
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-corpus.json.gz",
+      "artifact": "inputs/035-service-v2-seed-darwin-corpus.json.gz.gz",
+      "sha256": "973af76db9fc18821f82111281a21a502467013106e03f5af790e82329d3c44e",
+      "bytes": 603373,
+      "compressed_sha256": "e2069e03822ca2844c66d2ecee3bef9c13968783a88adf51ea6dfdf60c597a5c",
+      "compressed_bytes": 363861
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-corpus.log",
+      "artifact": "inputs/036-service-v2-seed-darwin-corpus.log.gz",
+      "sha256": "c4cde532f8790a689d8f1e2aec86c17a656315375ea7c5767933d01ea0c3a77a",
+      "bytes": 78,
+      "compressed_sha256": "f2417083180ca37000dcec27ada9ed1ff71a0295b45d394ef2fd03ead6fad8c5",
+      "compressed_bytes": 92
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-manifest.json",
+      "artifact": "inputs/037-service-v2-seed-darwin-manifest.json.gz",
+      "sha256": "8ab1b91bb84c4b6c446a613679777d8fd1cbb6329411d80561d2ea8f127a1719",
+      "bytes": 256155,
+      "compressed_sha256": "799a27c4b6998bd8883ba26fab29f94e0a19572178692939efdcc9da1391a153",
+      "compressed_bytes": 105553
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-manifest.log",
+      "artifact": "inputs/038-service-v2-seed-darwin-manifest.log.gz",
+      "sha256": "47cf697647708f83095ae4cf4e901874b18749eb86540269be4c70c7f0bb7285",
+      "bytes": 52,
+      "compressed_sha256": "4389ea64e83658c01e297aea65892cffaa31cf4e7ec222e34cbb94cb0127c546",
+      "compressed_bytes": 72
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-products.json.gz",
+      "artifact": "inputs/039-service-v2-seed-darwin-products.json.gz.gz",
+      "sha256": "9f1f53edc1957511ef1fde89b85919244fd1ccb2f091c8c97fa42be9bc40d012",
+      "bytes": 27097,
+      "compressed_sha256": "6b78a1f0c3782f6eac4c584b8b4151714866895ac38410bf947a2a1f4624714f",
+      "compressed_bytes": 26673
+    },
+    {
+      "path": ".test_output/service-v2-seed-darwin-products.log",
+      "artifact": "inputs/040-service-v2-seed-darwin-products.log.gz",
+      "sha256": "930fdb2bd558d9c60e0d207980f6a18c1838dfe5def065f84e64e54dd9fae796",
+      "bytes": 248,
+      "compressed_sha256": "8e6c5c1fa0f97aaa5dab0661f62b4825982d040b40c500e2923380e6ee5b1006",
+      "compressed_bytes": 187
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-compiler.nvm.gz",
+      "artifact": "inputs/041-service-v2-seed-linux-compiler.nvm.gz.gz",
+      "sha256": "8f0796973277bbf92e4003518ec46a56034033f665d6676b7c2dc8cd2bb26209",
+      "bytes": 292813,
+      "compressed_sha256": "35605e1c638c7071d9f023dcc4399f2fc7eaa421f40e7c44349b78231157608e",
+      "compressed_bytes": 280205
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-corpus.json.gz",
+      "artifact": "inputs/042-service-v2-seed-linux-corpus.json.gz.gz",
+      "sha256": "ba1f7b90ff0be2ee2032df05efdf8ecc7b3f2c7a2c6db66aad1b26b8d5b8355e",
+      "bytes": 564636,
+      "compressed_sha256": "8fe7772dc9ea478ce1ac1040c92cb5c5528b2882fdbf54ace3ecffb31f982818",
+      "compressed_bytes": 328774
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-corpus.log",
+      "artifact": "inputs/043-service-v2-seed-linux-corpus.log.gz",
+      "sha256": "c4cde532f8790a689d8f1e2aec86c17a656315375ea7c5767933d01ea0c3a77a",
+      "bytes": 78,
+      "compressed_sha256": "f2417083180ca37000dcec27ada9ed1ff71a0295b45d394ef2fd03ead6fad8c5",
+      "compressed_bytes": 92
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-manifest.json",
+      "artifact": "inputs/044-service-v2-seed-linux-manifest.json.gz",
+      "sha256": "6056ad1e14916b236f79d7098237161d6a8f2552a513f8ba0718e90c26241f4b",
+      "bytes": 255767,
+      "compressed_sha256": "59d1ca26edc64582b0726e3630c01d4475c7dc716531c15c39e2593ff5bcb48c",
+      "compressed_bytes": 105654
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-manifest.log",
+      "artifact": "inputs/045-service-v2-seed-linux-manifest.log.gz",
+      "sha256": "3f622a8d25ab7cfc53e0f970ab9f69167a98224996867c2141bc3a5c17befb73",
+      "bytes": 53,
+      "compressed_sha256": "138f4492cdacbe5391e259a95805012743fae7b111046b7ba3c9864b4a638fc5",
+      "compressed_bytes": 73
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-products.json.gz",
+      "artifact": "inputs/046-service-v2-seed-linux-products.json.gz.gz",
+      "sha256": "49d860c7ed895a997aba30001d3aca19e365187f9a4aa0737bd07826ca2a6e32",
+      "bytes": 28515,
+      "compressed_sha256": "b139b3036b656667eba686e208b54b72dc7a2125d15d37239e5a93d136d13791",
+      "compressed_bytes": 27978
+    },
+    {
+      "path": ".test_output/service-v2-seed-linux-products.log",
+      "artifact": "inputs/047-service-v2-seed-linux-products.log.gz",
+      "sha256": "886342249a2011df9d5c86d8ba4800f69c1ac64fa77864f851a0bc4907eb0363",
+      "bytes": 230,
+      "compressed_sha256": "b15d0627326ae863ebb73cc8260c01b8aefe72209e2e199588d809f669eb4b55",
+      "compressed_bytes": 174
+    },
+    {
+      "path": ".test_output/service-v2-seed-paired-audit.json",
+      "artifact": "inputs/048-service-v2-seed-paired-audit.json.gz",
+      "sha256": "1738477511b0737d96e062f61eb6043328d690f6f7a6687a1becfecb32e783d9",
+      "bytes": 700,
+      "compressed_sha256": "f29ec2c9648a5ad25399b604233b8c1d8fad62227f3ee800e6b89721e5e3f0c0",
+      "compressed_bytes": 396
+    },
+    {
+      "path": ".test_output/service-v2-seed-qualified-darwin.log",
+      "artifact": "inputs/049-service-v2-seed-qualified-darwin.log.gz",
+      "sha256": "84a40b13a6d061c4d47a08e09a0d5e7c88562a2d0bca43f2061e2671182601f1",
+      "bytes": 3777,
+      "compressed_sha256": "f08743e2191230fc6d5eab210b59640a4ce4a0de3a2e52c31a86d55469ddae6b",
+      "compressed_bytes": 896
+    },
+    {
+      "path": ".test_output/service-v2-seed-qualified-linux.log",
+      "artifact": "inputs/050-service-v2-seed-qualified-linux.log.gz",
+      "sha256": "3b12e4b2296f154ddfe412a730babbefe195eb20cfbd5e509d0b632841abb893",
+      "bytes": 3689,
+      "compressed_sha256": "247de07ca4971448ba209a78b172db47b8551c30b8c9843adcff75b64e00d03f",
+      "compressed_bytes": 859
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/0-libfile_product.dylib.gz",
+      "artifact": "inputs/051-0-libfile_product.dylib.gz.gz",
+      "sha256": "d2667a5ffe5ccea2cb7077e84f365511892627a0e619a9efbe31b29ad0c422ef",
+      "bytes": 611718,
+      "compressed_sha256": "c61d6f38b3dfa2cf755b8ed5c4d8d05e8c1aa587d07aef42952aa00dc92ecc8c",
+      "compressed_bytes": 611154
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/1-libcompiler_support.dylib.gz",
+      "artifact": "inputs/052-1-libcompiler_support.dylib.gz.gz",
+      "sha256": "24ab5ba188e026a74b9bacdb8badba0e9f4f7683ca284d7acfc7de0e3cd069c4",
+      "bytes": 86766,
+      "compressed_sha256": "0e137f8f080f6570bbeff250c6bb40ec57b776a3c07d89f7d01fe2d62716939e",
+      "compressed_bytes": 86548
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/2-libfile_source_catalog.dylib.gz",
+      "artifact": "inputs/053-2-libfile_source_catalog.dylib.gz.gz",
+      "sha256": "6fa626aae7854bc7f55e0976bbd6f5df274501f555a92bda3e1ada7c6c9fff1a",
+      "bytes": 9450,
+      "compressed_sha256": "03cd77b962408e57524d6321773986692f29a211a21a7b5aae4dd81e797cbf73",
+      "compressed_bytes": 9349
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/3-libstd.dylib.gz",
+      "artifact": "inputs/054-3-libstd.dylib.gz.gz",
+      "sha256": "fad13068f47068e7ad08c15b16c20ddfa53e9602d1ebf46210685b488c31dd0d",
+      "bytes": 10085,
+      "compressed_sha256": "61ab8272de37f860efc90270ff46592c07deddf1432accc1121a481dbc4727b9",
+      "compressed_bytes": 9949
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/4-libfile_source_inputs.dylib.gz",
+      "artifact": "inputs/055-4-libfile_source_inputs.dylib.gz.gz",
+      "sha256": "e8792d6c74cec0a622a1dfa1570dfd2ca21054929072e85c241263c8ed1e7c90",
+      "bytes": 34166,
+      "compressed_sha256": "dc2e444167a5fb53879a74ccd09aa8c5262ea4d5264c61fc63f38f8d39f6ab3e",
+      "compressed_bytes": 34018
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-darwin/5-libnanoisa.dylib.gz",
+      "artifact": "inputs/056-5-libnanoisa.dylib.gz.gz",
+      "sha256": "901c8963c8aff8fe09b397d2d5453550857ea52056c150c621a5786a8a64eb48",
+      "bytes": 333954,
+      "compressed_sha256": "01dd0e78a42785c2851d070b20c60bef27c7f06dbf1ba254d6a692b966e0421c",
+      "compressed_bytes": 333836
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/0-libcompiler_support.so.gz",
+      "artifact": "inputs/057-0-libcompiler_support.so.gz.gz",
+      "sha256": "c11df4720d4451a089f041f0a7c7894c7df8a0662aea28c5130626cdc4d3383c",
+      "bytes": 88070,
+      "compressed_sha256": "bfabdc1bb5dea759aa9d134877e30bce672159d062c4348290dd0923fc571c5f",
+      "compressed_bytes": 87776
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/1-libfile_source_catalog.so.gz",
+      "artifact": "inputs/058-1-libfile_source_catalog.so.gz.gz",
+      "sha256": "2a4f4ee1e7c95a5d87742cbca0cccf7329050b5e6c80bef8f5bf93e05cf0b38f",
+      "bytes": 13768,
+      "compressed_sha256": "36528235b0d551f8fb2d1cd66cf3156aa579acc65a71e4908797d107732fd677",
+      "compressed_bytes": 13375
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/2-libfile_product.so.gz",
+      "artifact": "inputs/059-2-libfile_product.so.gz.gz",
+      "sha256": "ce015cfd46353709bb2492d29df3f323476a44723a4ff3cf86fa4aaea14268e0",
+      "bytes": 748677,
+      "compressed_sha256": "954eaa8aab259c8dd5c098c03d6483f833947dfb998af6a46c2aa3e97ec4d873",
+      "compressed_bytes": 746320
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/3-libstd.so.gz",
+      "artifact": "inputs/060-3-libstd.so.gz.gz",
+      "sha256": "e28102b5c92c786dd92aa5e4b92159e2e887577456205f173ac4471479d324f2",
+      "bytes": 11900,
+      "compressed_sha256": "f332450c6961ef27a08348fa822b541a84424e881aa0b508ba5bfe9e9a626e2b",
+      "compressed_bytes": 11731
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/4-libfile_source_inputs.so.gz",
+      "artifact": "inputs/061-4-libfile_source_inputs.so.gz.gz",
+      "sha256": "54f7c25471984c16c9a1ac35e48f5c48a43928b71329e743d7320341188d2ff4",
+      "bytes": 42500,
+      "compressed_sha256": "5db97a52abac93add68cbca60a05d6f60fe8cf03a51d43ca06c45966c9d85289",
+      "compressed_bytes": 42135
+    },
+    {
+      "path": ".test_output/service-v2-seed-retained-hosts-linux/5-libnanoisa.so.gz",
+      "artifact": "inputs/062-5-libnanoisa.so.gz.gz",
+      "sha256": "252e2aeb16bc89d5ab671a27c4a23c5043f1f2e20674b89cbf58fee18ac3efc2",
+      "bytes": 444519,
+      "compressed_sha256": "3152f491b9acf50ce7e57134ea8cbff98d68b75f2adfa7e61d70ef2f61cf0daa",
+      "compressed_bytes": 410946
+    },
+    {
+      "path": "Makefile.gnu",
+      "artifact": "inputs/063-Makefile.gnu.gz",
+      "sha256": "71e19eff37f025f48ef27534ca0c0627173037aa93736801ca7a63c3dc674629",
+      "bytes": 430517,
+      "compressed_sha256": "662bef8af6039be9e94fba20257460eb60caaebe7df4141cf79f65f54d45fc2b",
+      "compressed_bytes": 72782
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/00-seed.log",
+      "artifact": "inputs/064-00-seed.log.gz",
+      "sha256": "2f58966e554a2a3b83cfb8a777d038962916f063d3b2c7bbd0cc3fb0c576ca03",
+      "bytes": 3764,
+      "compressed_sha256": "9e32b3aed987b4cbc1d7322eba6cc0cd8a8a89d60f3ee7e5b8c76c1227e926bd",
+      "compressed_bytes": 1325
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/01-seed-verify.log",
+      "artifact": "inputs/065-01-seed-verify.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/02-stage1.log",
+      "artifact": "inputs/066-02-stage1.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/guard-native-compiler",
+      "artifact": "inputs/067-guard-native-compiler.gz",
+      "sha256": "80eba1f61586ed76fc2d3519cce014be2555693ac6f9d5111b20bf2f3a8957f2",
+      "bytes": 14922,
+      "compressed_sha256": "adeca40ede7b7b66c6bd4042243b7adff6f464e062798c0f6302678d4031c0b5",
+      "compressed_bytes": 2288
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/manifest.json",
+      "artifact": "inputs/068-manifest.json.gz",
+      "sha256": "e8a0473ca13937c28686bc8f2cb5c034bc7f075e699635e449b236191f39b9f3",
+      "bytes": 144012,
+      "compressed_sha256": "c8ac2222fb6023a1201e7d11348e913ebfef24f6e0d465d078d16c55a2379d99",
+      "compressed_bytes": 59983
+    },
+    {
+      "path": "obj/bootstrap-nanoisa/run-51lant1s/retained-host-inputs.json",
+      "artifact": "inputs/069-retained-host-inputs.json.gz",
+      "sha256": "873c5007bdfa7a8f9188a897a8d3d9bc265231408939bc4b6718c6f0d5d755ec",
+      "bytes": 15699,
+      "compressed_sha256": "a400568c46d24253a3fca6b2610246052af991d67773e15098108e4ee859ab30",
+      "compressed_bytes": 1485
+    },
+    {
+      "path": "scripts/bootstrap_nanoisa.py",
+      "artifact": "inputs/070-bootstrap_nanoisa.py.gz",
+      "sha256": "6d24cbb53a029be632dc4a50d144856f355ca410b4ad145dcc909867e1881836",
+      "bytes": 14683,
+      "compressed_sha256": "fd50ba0d995653906442e9c4cb2ff37c721f2a1d33ecfe638c4c590e8d1d8f78",
+      "compressed_bytes": 4399
+    },
+    {
+      "path": "tests/nanolang_translator_routes.py",
+      "artifact": "inputs/071-nanolang_translator_routes.py.gz",
+      "sha256": "aadeafd425458d33e9c0fe59c0daed47bf5fbd53d76a55adf5bbfc34c924019c",
+      "bytes": 2922,
+      "compressed_sha256": "205cfcf1a923aaa36ca3bf14d6133aaf2977f76ef2d431b96d508966cb3152ed",
+      "compressed_bytes": 1057
+    },
+    {
+      "path": "tests/native_process.py",
+      "artifact": "inputs/072-native_process.py.gz",
+      "sha256": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+      "bytes": 1967,
+      "compressed_sha256": "bb928f152e8bfc013edb053087d3fc75aa48783b6e5a37c6220443be8a7f1999",
+      "compressed_bytes": 870
+    },
+    {
+      "path": "tests/nvm2c_service_v2_driver.nano",
+      "artifact": "inputs/073-nvm2c_service_v2_driver.nano.gz",
+      "sha256": "368566e42dd84f46108c239eaa0a8f87ae09694988f4d980d245dcb490f3226e",
+      "bytes": 4830,
+      "compressed_sha256": "7681bb66432b1cad66be7ed4e072dcfdbbc7dcf15c8f033b591fe4101c1c8d5e",
+      "compressed_bytes": 1267
+    },
+    {
+      "path": "tests/nvm2c_service_v2_reference.c",
+      "artifact": "inputs/074-nvm2c_service_v2_reference.c.gz",
+      "sha256": "0bc1f2c4ceef66e01a6e53f1c696a0c0d19017e166f09d5b384c603b46d1cb61",
+      "bytes": 5168,
+      "compressed_sha256": "5541891a0a38b268b3e1b10a35e1652d6c84d0d69a8c3c42f1409dda6349b05e",
+      "compressed_bytes": 1946
+    },
+    {
+      "path": "tests/test_nanolang_translator_service_v2.py",
+      "artifact": "inputs/075-test_nanolang_translator_service_v2.py.gz",
+      "sha256": "f0d9731499ac896785f52926262e82f2cf1408b746fa8f63200c52187734927f",
+      "bytes": 10916,
+      "compressed_sha256": "c85a25f5810d4e977f478b2bd21e5de448f91421d5b124bcbc7b8054a9c05e9f",
+      "compressed_bytes": 3475
+    }
+  ]
+}

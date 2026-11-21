@@ -1,0 +1,400 @@
+module nvm2c_payloads
+module "src_nano/nvm2c/container.nano" as wire
+
+# I retain validated row spans in the caller's unchanged section bytes.
+# Full unsigned fields remain byte-exact; module admission bounds them later.
+pub struct PayloadTable {
+    status: int,
+    data: array<u8>,
+    starts: array<int>,
+    ends: array<int>,
+    end: int
+}
+
+fn refused(bytes: array<u8>, status: int) -> PayloadTable {
+    let empty: array<int> = []
+    return PayloadTable { status: status, data: bytes, starts: empty, ends: empty, end: 0 }
+}
+shadow refused {
+    let bytes: array<u8> = [255]
+    let result: PayloadTable = (refused bytes 1)
+    assert (== result.status 1)
+    assert (== (array_length result.starts) 0)
+    assert (== result.end 0)
+}
+
+fn table_count(bytes: array<u8>, stride: int) -> int {
+    if (or (<= stride 0) (not (wire.contains bytes 0 4))) { return -1 }
+    let count: int = (wire.read_u32 bytes 0)
+    if (> count (/ (- (array_length bytes) 4) stride)) { return -1 }
+    return count
+}
+shadow table_count {
+    let empty: array<u8> = [0, 0, 0, 0]
+    let huge: array<u8> = [255, 255, 255, 255]
+    assert (== (table_count empty 8) 0)
+    assert (== (table_count huge 8) -1)
+    assert (== (table_count empty 0) -1)
+}
+
+# A negative position carries the negated NvmV2Result, never a clamped read.
+fn align4(bytes: array<u8>, position: int) -> int {
+    if (not (wire.contains bytes position 0)) { return -1 }
+    let mut cursor: int = position
+    while (!= (% cursor 4) 0) {
+        if (not (wire.contains bytes cursor 1)) { return -1 }
+        if (!= (at bytes cursor) 0) { return -9 }
+        set cursor (+ cursor 1)
+    }
+    return cursor
+}
+shadow align4 {
+    let zero: array<u8> = [0, 0, 0, 0]
+    let nonzero: array<u8> = [0, 0, 1, 0]
+    assert (== (align4 zero 1) 4)
+    assert (== (align4 zero 4) 4)
+    assert (== (align4 zero 5) -1)
+    assert (== (align4 nonzero 1) -9)
+}
+
+pub fn constants(bytes: array<u8>) -> PayloadTable {
+    let count: int = (table_count bytes 8)
+    if (< count 0) { return (refused bytes 1) }
+    let mut starts: array<int> = []
+    let mut ends: array<int> = []
+    let mut cursor: int = 4
+    let mut i: int = 0
+    while (< i count) {
+        let start: int = cursor
+        if (not (wire.contains bytes cursor 4)) { return (refused bytes 1) }
+        if (!= (at bytes (+ cursor 1)) 0) { return (refused bytes 7) }
+        if (!= (at bytes (+ cursor 2)) 0) { return (refused bytes 7) }
+        if (!= (at bytes (+ cursor 3)) 0) { return (refused bytes 7) }
+        if (>= (at bytes cursor) 16) { return (refused bytes 8) }
+        set cursor (+ cursor 4)
+        let length: int = (wire.read_u32 bytes cursor)
+        if (< length 0) { return (refused bytes 1) }
+        set cursor (+ cursor 4)
+        if (not (wire.contains bytes cursor length)) { return (refused bytes 1) }
+        set cursor (align4 bytes (+ cursor length))
+        if (< cursor 0) { return (refused bytes (- 0 cursor)) }
+        set starts (array_push starts start)
+        set ends (array_push ends cursor)
+        set i (+ i 1)
+    }
+    return PayloadTable { status: 0, data: bytes, starts: starts, ends: ends, end: cursor }
+}
+shadow constants {
+    let bytes: array<u8> = [1, 0, 0, 0, 5, 0, 0, 0, 3, 0, 0, 0, 65, 0, 255, 0]
+    let table: PayloadTable = (constants bytes)
+    assert (== table.status 0)
+    assert (== (at table.starts 0) 4)
+    assert (== (at table.ends 0) 16)
+    assert (== (at table.data 13) 0)
+    let short: array<u8> = [1, 0, 0, 0]
+    let failed: PayloadTable = (constants short)
+    assert (== failed.status 1)
+    assert (== (array_length failed.starts) 0)
+}
+
+fn take_tags(bytes: array<u8>, cursor: int, count: int) -> int {
+    if (not (wire.contains bytes cursor count)) { return -1 }
+    let mut i: int = 0
+    while (< i count) {
+        if (>= (at bytes (+ cursor i)) 16) { return -8 }
+        set i (+ i 1)
+    }
+    return (align4 bytes (+ cursor count))
+}
+shadow take_tags {
+    let bytes: array<u8> = [1, 2, 15, 0]
+    assert (== (take_tags bytes 0 3) 4)
+    let bad: array<u8> = [16, 0, 0, 0]
+    assert (== (take_tags bad 0 1) -8)
+    assert (== (take_tags bytes 3 2) -1)
+}
+
+pub fn signatures(bytes: array<u8>) -> PayloadTable {
+    let count: int = (table_count bytes 4)
+    if (< count 0) { return (refused bytes 1) }
+    let mut starts: array<int> = []
+    let mut ends: array<int> = []
+    let mut cursor: int = 4
+    let mut i: int = 0
+    while (< i count) {
+        let start: int = cursor
+        if (not (wire.contains bytes cursor 4)) { return (refused bytes 1) }
+        let params: int = (wire.read_u16 bytes cursor)
+        let results: int = (wire.read_u16 bytes (+ cursor 2))
+        if (or (< params 0) (< results 0)) { return (refused bytes 1) }
+        set cursor (take_tags bytes (+ cursor 4) params)
+        if (< cursor 0) { return (refused bytes (- 0 cursor)) }
+        set cursor (take_tags bytes cursor results)
+        if (< cursor 0) { return (refused bytes (- 0 cursor)) }
+        set starts (array_push starts start)
+        set ends (array_push ends cursor)
+        set i (+ i 1)
+    }
+    return PayloadTable { status: 0, data: bytes, starts: starts, ends: ends, end: cursor }
+}
+shadow signatures {
+    let bytes: array<u8> = [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 5, 0, 0, 0]
+    let table: PayloadTable = (signatures bytes)
+    assert (== table.status 0)
+    assert (== (at table.ends 0) 16)
+    assert (== (at table.data 12) 5)
+}
+
+# I share fixed-stride traversal, retaining each codec's own flag/tag order.
+# Kinds are the v2 section identifiers; CODE is not a table.
+pub fn fixed(bytes: array<u8>, kind: int) -> PayloadTable {
+    let mut stride: int = 0
+    if (== kind 1) { set stride 8 }
+    if (== kind 5) { set stride 32 }
+    if (== kind 7) { set stride 12 }
+    if (or (== kind 8) (== kind 9)) { set stride 16 }
+    if (or (== kind 10) (== kind 11)) { set stride 16 }
+    if (== stride 0) { return (refused bytes 8) }
+    let count: int = (table_count bytes stride)
+    if (< count 0) { return (refused bytes 1) }
+    if (== kind 11) {
+        if (!= (- (array_length bytes) 4) (* count stride)) { return (refused bytes 9) }
+    }
+    let mut starts: array<int> = []
+    let mut ends: array<int> = []
+    let mut i: int = 0
+    while (< i count) {
+        let cursor: int = (+ 4 (* i stride))
+        if (== kind 5) {
+            if (!= (wire.read_u16 bytes (+ cursor 30)) 0) { return (refused bytes 7) }
+        }
+        if (== kind 7) {
+            if (>= (at bytes (+ cursor 4)) 16) { return (refused bytes 8) }
+            if (> (at bytes (+ cursor 5)) 1) { return (refused bytes 7) }
+            if (!= (wire.read_u16 bytes (+ cursor 6)) 0) { return (refused bytes 7) }
+        }
+        if (== kind 8) {
+            if (> (at bytes (+ cursor 12)) 3) { return (refused bytes 8) }
+            if (!= (at bytes (+ cursor 13)) 0) { return (refused bytes 7) }
+            if (!= (at bytes (+ cursor 14)) 0) { return (refused bytes 7) }
+            if (!= (at bytes (+ cursor 15)) 0) { return (refused bytes 7) }
+        }
+        if (== kind 9) {
+            if (> (wire.read_u32 bytes (+ cursor 12)) 1) { return (refused bytes 7) }
+        }
+        if (== kind 11) {
+            if (!= (at bytes (+ cursor 6)) 1) { return (refused bytes 7) }
+            if (> (at bytes (+ cursor 7)) 1) { return (refused bytes 7) }
+            if (> i 0) {
+                let previous: int = (- cursor stride)
+                let owner: int = (wire.read_u32 bytes cursor)
+                let prior: int = (wire.read_u32 bytes previous)
+                if (< owner prior) { return (refused bytes 13) }
+                if (== owner prior) {
+                    if (<= (wire.read_u16 bytes (+ cursor 4)) (wire.read_u16 bytes (+ previous 4))) {
+                        return (refused bytes 13)
+                    }
+                }
+            }
+        }
+        set starts (array_push starts cursor)
+        set ends (array_push ends (+ cursor stride))
+        set i (+ i 1)
+    }
+    return PayloadTable { status: 0, data: bytes, starts: starts, ends: ends, end: (+ 4 (* count stride)) }
+}
+shadow fixed {
+    let empty: array<u8> = [0, 0, 0, 0]
+    let table: PayloadTable = (fixed empty 5)
+    assert (== table.status 0)
+    assert (== table.end 4)
+    let failed: PayloadTable = (fixed empty 6)
+    assert (== failed.status 8)
+    let callback: array<u8> = [0, 0, 0, 0, 0]
+    let trailing: PayloadTable = (fixed callback 11)
+    assert (== trailing.status 9)
+}
+
+# I keep the selected forward-layout grammar separate from transport.
+fn forward_graph(bytes: array<u8>, starts: array<int>, array_leaves: bool, mixed_unions: bool, map_leaves: bool) -> int {
+    let count: int = (array_length starts)
+    let mut i: int = 0
+    while (< i count) {
+        let row: int = (at starts i)
+        let kind: int = (at bytes row)
+        if (and (!= kind 0) (not (and mixed_unions (== kind 2)))) { return 13 }
+        let fields: int = (wire.read_u16 bytes (+ row 2))
+        let mut f: int = 0
+        while (< f fields) {
+            let field: int = (+ (+ row 8) (* f 12))
+            let tag: int = (at bytes field)
+            let nested: int = (wire.read_u32 bytes (+ field 4))
+            if (== tag 8) {
+                if (>= nested count) { return 13 }
+                if (and mixed_unions (or (!= kind 0) (!= (at bytes (at starts nested)) 0))) { return 13 }
+            } else {
+                let scalar_leaf: bool = (and (>= tag 1) (<= tag 5))
+                let array_leaf: bool = (and array_leaves (and (== tag 7) (or (not mixed_unions) (== kind 0))))
+                let map_leaf: bool = (and map_leaves (and (== tag 13) (== kind 0)))
+                if (not (or scalar_leaf (or array_leaf map_leaf))) { return 13 }
+                if (!= nested 4294967295) { return 13 }
+            }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    let mut colors: array<int> = []
+    let mut stack: array<int> = []
+    let mut next_field: array<int> = []
+    set i 0
+    while (< i count) {
+        set colors (array_push colors 0)
+        set stack (array_push stack 0)
+        set next_field (array_push next_field 0)
+        set i (+ i 1)
+    }
+    let mut root: int = 0
+    while (< root count) {
+        if (== (at colors root) 0) {
+            let mut depth: int = 1
+            (array_set stack 0 root)
+            (array_set next_field 0 0)
+            (array_set colors root 1)
+            while (> depth 0) {
+                let top: int = (- depth 1)
+                let node: int = (at stack top)
+                let row: int = (at starts node)
+                let field: int = (at next_field top)
+                if (== field (wire.read_u16 bytes (+ row 2))) {
+                    (array_set colors node 2)
+                    set depth (- depth 1)
+                } else {
+                    (array_set next_field top (+ field 1))
+                    let child: int = (wire.read_u32 bytes (+ (+ row 12) (* field 12)))
+                    if (!= child 4294967295) {
+                        if (== (at colors child) 1) { return 13 }
+                        if (== (at colors child) 0) {
+                            (array_set stack depth child)
+                            (array_set next_field depth 0)
+                            (array_set colors child 1)
+                            set depth (+ depth 1)
+                        }
+                    }
+                }
+            }
+        }
+        set root (+ root 1)
+    }
+    return 0
+}
+shadow forward_graph {
+    let empty: array<u8> = []
+    let starts: array<int> = []
+    assert (== (forward_graph empty starts false false false) 0)
+    let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0]
+    let one: array<int> = [0]
+    assert (== (forward_graph bytes one false false false) 13)
+}
+
+pub fn layouts_profile(bytes: array<u8>, array_leaves: bool, mixed_unions: bool, map_leaves: bool) -> PayloadTable {
+    let count: int = (table_count bytes 8)
+    if (< count 0) { return (refused bytes 1) }
+    let mut starts: array<int> = []
+    let mut ends: array<int> = []
+    let mut cursor: int = 4
+    let mut forward: bool = false
+    let mut i: int = 0
+    while (< i count) {
+        let start: int = cursor
+        if (not (wire.contains bytes cursor 2)) { return (refused bytes 1) }
+        if (!= (at bytes (+ cursor 1)) 0) { return (refused bytes 7) }
+        if (> (at bytes cursor) 3) { return (refused bytes 8) }
+        if (not (wire.contains bytes cursor 8)) { return (refused bytes 1) }
+        let fields: int = (wire.read_u16 bytes (+ cursor 2))
+        set cursor (+ cursor 8)
+        if (> fields (/ (- (array_length bytes) cursor) 12)) { return (refused bytes 1) }
+        let mut f: int = 0
+        while (< f fields) {
+            if (!= (at bytes (+ cursor 1)) 0) { return (refused bytes 7) }
+            if (!= (at bytes (+ cursor 2)) 0) { return (refused bytes 7) }
+            if (!= (at bytes (+ cursor 3)) 0) { return (refused bytes 7) }
+            if (>= (at bytes cursor) 16) { return (refused bytes 8) }
+            let nested: int = (wire.read_u32 bytes (+ cursor 4))
+            if (!= nested 4294967295) {
+                if (or (>= nested count) (== nested i)) { return (refused bytes 13) }
+                if (> nested i) { set forward true }
+            }
+            set cursor (+ cursor 12)
+            set f (+ f 1)
+        }
+        set starts (array_push starts start)
+        set ends (array_push ends cursor)
+        set i (+ i 1)
+    }
+    if forward {
+        let status: int = (forward_graph bytes starts array_leaves mixed_unions map_leaves)
+        if (!= status 0) { return (refused bytes status) }
+    }
+    return PayloadTable { status: 0, data: bytes, starts: starts, ends: ends, end: cursor }
+}
+shadow layouts_profile {
+    let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255]
+    assert (== (layouts_profile bytes true true true).status 0)
+    let broken: array<u8> = [1, 0, 0, 0]
+    assert (== (layouts_profile broken true true true).status 1)
+}
+
+pub fn layouts(bytes: array<u8>) -> PayloadTable {
+    return (layouts_profile bytes false false false)
+}
+shadow layouts {
+    let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255]
+    let table: PayloadTable = (layouts bytes)
+    assert (== table.status 0)
+    assert (== (at table.starts 0) 4)
+    assert (== table.end 12)
+}
+
+pub fn decode(bytes: array<u8>, kind: int) -> PayloadTable {
+    if (== kind 2) { return (constants bytes) }
+    if (== kind 3) { return (signatures bytes) }
+    if (== kind 4) { return (layouts bytes) }
+    return (fixed bytes kind)
+}
+shadow decode {
+    let bytes: array<u8> = [0, 0, 0, 0, 255]
+    let table: PayloadTable = (decode bytes 2)
+    assert (== table.status 0)
+    assert (== table.end 4)
+    let callback: PayloadTable = (decode bytes 11)
+    assert (== callback.status 9)
+}
+
+# I encode the decoded spans, omitting tolerated trailing bytes.
+pub fn reencode(table: PayloadTable) -> array<u8> {
+    let mut result: array<u8> = []
+    if (!= table.status 0) { return result }
+    let mut i: int = 0
+    while (< i 4) {
+        set result (array_push result (at table.data i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length table.starts)) {
+        let mut cursor: int = (at table.starts i)
+        while (< cursor (at table.ends i)) {
+            set result (array_push result (at table.data cursor))
+            set cursor (+ cursor 1)
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+shadow reencode {
+    let bytes: array<u8> = [0, 0, 0, 0, 255]
+    let table: PayloadTable = (decode bytes 2)
+    let encoded: array<u8> = (reencode table)
+    assert (== (array_length encoded) 4)
+    let bad: PayloadTable = (refused bytes 1)
+    assert (== (array_length (reencode bad)) 0)
+}

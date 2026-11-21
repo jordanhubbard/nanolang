@@ -1,0 +1,215 @@
+{
+  "implementation_commit": "a471982ca",
+  "inputs": [
+    {
+      "path": "inputs/ownership-modules-corpus.json.gz",
+      "raw_bytes": 7881438,
+      "raw_sha256": "af2efd12c11b3ec789c725362973cb86ce87099c88c97e63e391e4f4494ea7ab",
+      "compressed_bytes": 494265,
+      "compressed_sha256": "95f093bea4c7e41148dd8343fbfb65747f170e50fedde00aa8c97a4165b1dc55"
+    },
+    {
+      "path": "inputs/ownership-modules-darwin-corpus.json.gz",
+      "raw_bytes": 7881438,
+      "raw_sha256": "af2efd12c11b3ec789c725362973cb86ce87099c88c97e63e391e4f4494ea7ab",
+      "compressed_bytes": 503419,
+      "compressed_sha256": "f7d1a347e19f6637717a1977efdb91fad984571eb08ccc718df9c4f8584f654c"
+    },
+    {
+      "path": "inputs/ownership-modules-linux-products.json.gz",
+      "raw_bytes": 108187,
+      "raw_sha256": "ed126076c3e4a9edec31ccc310d3c563aae0d31c6a9a1e6b76f2b3297fcfdf7a",
+      "compressed_bytes": 11107,
+      "compressed_sha256": "e0736cb18f1e63ba411c42f79fdc3a1583f32cb0c6569792add890e25a136b20"
+    },
+    {
+      "path": "inputs/ownership-modules-darwin-products.json.gz",
+      "raw_bytes": 109143,
+      "raw_sha256": "dfe8f3c6887544ec4e047977bc8b9e45458aa305bd8fabd7af4688e30818cead",
+      "compressed_bytes": 11274,
+      "compressed_sha256": "e8af464c657b0aeafb32fbd2f618ed8bb5293eb17ec9dbd8b933469d1188cc6b"
+    },
+    {
+      "path": "inputs/ownership-modules-linux-manifest.json.gz",
+      "raw_bytes": 51020,
+      "raw_sha256": "e26c3a9d1f57e643525e7382c662cd3dd3242716fbfff718b7eedd4da2a936cd",
+      "compressed_bytes": 21015,
+      "compressed_sha256": "6d2ba3aed3a4904a0834f4a3e4df15f5ba3aa79f20587b58fe007ef4124e0391"
+    },
+    {
+      "path": "inputs/ownership-modules-darwin-manifest.json.gz",
+      "raw_bytes": 51332,
+      "raw_sha256": "789d33957146b4bb787a735666d5e4c5a8bcac0db8265377332c7268006a4abe",
+      "compressed_bytes": 21057,
+      "compressed_sha256": "e4f39374c930d29381569b5df2be18130868b8c3bce7b4bed7b2f4afe3f8aa4e"
+    },
+    {
+      "path": "inputs/ownership-modules-collect.py.gz",
+      "raw_bytes": 5652,
+      "raw_sha256": "16199256a2ea55d3a0376508db09c5c75e7e0c526107b1df3396a238c20385b1",
+      "compressed_bytes": 2336,
+      "compressed_sha256": "29ae9015569ecd53afb0d70406ddbfc238544adb9e049a914f64f1ddff28c340"
+    },
+    {
+      "path": "inputs/ownership-modules-archive.py.gz",
+      "raw_bytes": 4956,
+      "raw_sha256": "447236d59f0d3d068f605f4d06669c5093490e3db2c1564c27faabd6a949d543",
+      "compressed_bytes": 1589,
+      "compressed_sha256": "bca130bbd89744b290ee6d4cc033033b3d9472ffc421e7a9575e50ad90f76b2e"
+    },
+    {
+      "path": "inputs/ownership-modules-terminal-results.json.gz",
+      "raw_bytes": 2774,
+      "raw_sha256": "abb3d6d03b8fff23e45782fad3d7ea0e963cd745718dffaf6041d73ec697845c",
+      "compressed_bytes": 886,
+      "compressed_sha256": "9c46301ac76deff601f0f611d632570cc20b3dcc75f892c3e824ba2d9bc07d35"
+    },
+    {
+      "path": "inputs/ownership-modules-corpus.log.gz",
+      "raw_bytes": 92,
+      "raw_sha256": "c7694985df99d79f1bfc1656ce959019e943c07cd9c09448142d150bc76ce9ea",
+      "compressed_bytes": 102,
+      "compressed_sha256": "c2b32add6ba64e1301344232a8bf0439b63e5039813637cf73b5390d1c3484f1"
+    },
+    {
+      "path": "inputs/ownership-module-first-test.py.gz",
+      "raw_bytes": 7263,
+      "raw_sha256": "b5206b4a00bd2f757c36caf5083dbd87fcf77134ccf9314458bade29559d9ce0",
+      "compressed_bytes": 2655,
+      "compressed_sha256": "0d51ecd459665289139bcc68405ff44569aaf3fa420c19fc4d0015c99c2bf1d7"
+    },
+    {
+      "path": "inputs/ownership-module-first-build.log.gz",
+      "raw_bytes": 1969,
+      "raw_sha256": "01bb1f4cc0f49495bafe2c3c27aa162d1f74e2a19d96a330d83caff9709d4365",
+      "compressed_bytes": 172,
+      "compressed_sha256": "9522cb343de72acefe16722f3eb7286dba52106bcc80eda372c8f6453e5aaff5"
+    },
+    {
+      "path": "inputs/ownership-module-reference-build.log.gz",
+      "raw_bytes": 1243,
+      "raw_sha256": "75c6e66194e9b1ff053fa633a2938439f29db22178208c8ab5e251d42f7d27c5",
+      "compressed_bytes": 446,
+      "compressed_sha256": "727083d9b5ba4d0f8a076a98369bc16831239ccae967371c91e50d08c7924d51"
+    },
+    {
+      "path": "inputs/ownership-module-reports-build.log.gz",
+      "raw_bytes": 1969,
+      "raw_sha256": "01bb1f4cc0f49495bafe2c3c27aa162d1f74e2a19d96a330d83caff9709d4365",
+      "compressed_bytes": 172,
+      "compressed_sha256": "9522cb343de72acefe16722f3eb7286dba52106bcc80eda372c8f6453e5aaff5"
+    },
+    {
+      "path": "inputs/ownership-module-linux-first.log.gz",
+      "raw_bytes": 419,
+      "raw_sha256": "1db1834e316065928ca0ca68999d853c4d6df7bfbe81e71a25bdb410531cf33f",
+      "compressed_bytes": 243,
+      "compressed_sha256": "dcadb680313bc8a346288ad4e7bef27d552a6b871a70d1bd17cbfef0a93eddd9"
+    },
+    {
+      "path": "inputs/ownership-module-linux-final.log.gz",
+      "raw_bytes": 552,
+      "raw_sha256": "d4e1cbcfbb768c5b7f1049b84bfdddd258d486bf511a8c0b4701193e7182af52",
+      "compressed_bytes": 311,
+      "compressed_sha256": "43ddc77786b77664cec21d3bfd6f48056da505fe36ca99cc38976faab9813813"
+    },
+    {
+      "path": "inputs/ownership-module-linux-regression.log.gz",
+      "raw_bytes": 928,
+      "raw_sha256": "184acd589b57437d747f8fe7342ed95b4f4c1217f91408879d93af62415014c8",
+      "compressed_bytes": 381,
+      "compressed_sha256": "0f875bb593a2d43dc4a120d7ae776312a9cbe32ceb30563bacf065c34ffcb3f5"
+    },
+    {
+      "path": "inputs/ownership-module-linux-identifiers.log.gz",
+      "raw_bytes": 1429,
+      "raw_sha256": "27c5fc0822331a0b262719dae25e271bbaf75fd21be19a7114420f75d39b2f93",
+      "compressed_bytes": 469,
+      "compressed_sha256": "332ef64f493fcb5e55d0cf68c8578f9c8bf7b40477a3fc33dc3aec562abea38f"
+    },
+    {
+      "path": "inputs/ownership-module-darwin-build.log.gz",
+      "raw_bytes": 1495,
+      "raw_sha256": "1d83fb25b5c4a570779d0c5f99cbc785d5987b9e6efeb357886b678e7d5cad72",
+      "compressed_bytes": 582,
+      "compressed_sha256": "6cefe700aa3ebe544f65821a8983b19eed3bf5b2c162b17fa532a1240c1a6bac"
+    },
+    {
+      "path": "inputs/ownership-module-darwin-final.log.gz",
+      "raw_bytes": 1399,
+      "raw_sha256": "0478c5ff27b74c3c33e261a6794615ced9e771fbe2d1d9aa1ce7353b54eb75ad",
+      "compressed_bytes": 556,
+      "compressed_sha256": "33e9395ff8d6232b190cc7b08795f2e75930e05f3cede227e52bfd452cbf191b"
+    },
+    {
+      "path": "inputs/ownership-module-darwin-identifiers.log.gz",
+      "raw_bytes": 1447,
+      "raw_sha256": "a565f0c9cf9d174515597bfa89fd99f88decaa5a89f1fab13a3824b40c2afa7c",
+      "compressed_bytes": 482,
+      "compressed_sha256": "ad041802eb53df1ef693c3c57263635d92d17f17c0922baa889f61d7869e185f"
+    },
+    {
+      "path": "inputs/ownership-module-wait-corrected.log.gz",
+      "raw_bytes": 54,
+      "raw_sha256": "8ca156b5d055116cd0c6a94fc3e8b218ac6a88f8fc371e6d199bd7b6a7096a9b",
+      "compressed_bytes": 72,
+      "compressed_sha256": "5a54be1e1fd0348108562b4fffc55ce01601d20d645b6838a4ab9839b9590604"
+    },
+    {
+      "path": "inputs/ownership-module-wait-final.log.gz",
+      "raw_bytes": 111,
+      "raw_sha256": "d15ab943537a69570c90c84277e7aea17c0de3fdd3e7ae333e9a268b33c45bb6",
+      "compressed_bytes": 111,
+      "compressed_sha256": "5931691783eab551fb13d90e947ac0dc693e46ac001b6ea9f3cb6631838704d0"
+    },
+    {
+      "path": "inputs/qualified-src_nano_nvm2c_module.nano.gz",
+      "raw_bytes": 22201,
+      "raw_sha256": "7b7cdfe19ff140f2831209a8b106d72ff127d3d674a6380756dae4cdf43f6860",
+      "compressed_bytes": 4465,
+      "compressed_sha256": "3e0b6bf26701867e4028b601bc974e1eb8160367666e5533f9a8948aa96073ed"
+    },
+    {
+      "path": "inputs/qualified-tests_nvm2c_module_driver.nano.gz",
+      "raw_bytes": 3574,
+      "raw_sha256": "2b306d21b7c57b0a57677e62b2a058b2200cce56dd33a994e47d30b62052f7cc",
+      "compressed_bytes": 973,
+      "compressed_sha256": "f2eb59fb618608aebb13d975a5047d9d148d827efd59f53c0859e07559825411"
+    },
+    {
+      "path": "inputs/qualified-tests_nvm2c_module_reference.c.gz",
+      "raw_bytes": 2390,
+      "raw_sha256": "d4c64437f02100c1f23eda0791e33cbaf89fae75cbef6656833bcb0ab5c24fd8",
+      "compressed_bytes": 833,
+      "compressed_sha256": "0af7ff4d1eb14383f883892599ac5bd6736e429007bc9d13b73870c93fe298e6"
+    },
+    {
+      "path": "inputs/qualified-tests_test_nanolang_translator_ownership_module.py.gz",
+      "raw_bytes": 8735,
+      "raw_sha256": "423cbb2ef16cae9c6d989b1238b16d2e4d48192514e700567505e6c9c92c5b46",
+      "compressed_bytes": 3055,
+      "compressed_sha256": "2d3a9cff66a6817eb501ec7969beaea6f177ef972de51f8f99b78e19498554fc"
+    },
+    {
+      "path": "inputs/qualified-tests_test_nanolang_translator_module.py.gz",
+      "raw_bytes": 13441,
+      "raw_sha256": "39856c66f0547aeff9bae060f6e33ab71302c1f7c0b5eccbf378e1666bfeb1f9",
+      "compressed_bytes": 3840,
+      "compressed_sha256": "f5f942153d98562c1d4b6a08104152695a430f06411c8b2ff2d3822120c77153"
+    },
+    {
+      "path": "inputs/qualified-tests_test_nanolang_translator_declarations.py.gz",
+      "raw_bytes": 13263,
+      "raw_sha256": "8b9ffb50d09a6beba2c0988ee5ef3d51921aaa84c6fdc57cc940118146692c4b",
+      "compressed_bytes": 4072,
+      "compressed_sha256": "57a66fefbad0bf9f070eec774b01a9a4e764144584cad74dcc4f53b5a01c58ee"
+    },
+    {
+      "path": "inputs/qualified-Makefile.gnu.gz",
+      "raw_bytes": 424104,
+      "raw_sha256": "dbc9fea83cd781bc74a05c3bbee14d386dd6729597997a9deba148008def0d4a",
+      "compressed_bytes": 71980,
+      "compressed_sha256": "7716fb85e59acb782bc3a90096ec314767217cf94695d354238e1d803499de65"
+    }
+  ]
+}

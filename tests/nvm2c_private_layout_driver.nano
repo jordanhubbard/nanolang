@@ -1,0 +1,55 @@
+module "src_nano/nvm2c/private_layouts.nano" as private_layout
+module "src_nano/nvm2c/payloads.nano" as payload
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+# I build large exact reports with bounded leaf copies and balanced joins.
+fn hexadecimal(bytes: array<u8>, start: int, length: int) -> string {
+    if (> length 256) {
+        let left: int = (/ length 2)
+        return (+ (hexadecimal bytes start left) (hexadecimal bytes (+ start left) (- length left)))
+    }
+    let alphabet: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut index: int = start
+    while (< index (+ start length)) {
+        let octet: int = (cast_int (at bytes index))
+        set result (+ result (str_substring alphabet (/ octet 16) 1))
+        set result (+ result (str_substring alphabet (% octet 16) 1))
+        set index (+ index 1)
+    }
+    return result
+}
+shadow hexadecimal {
+    let bytes: array<u8> = [0,255,128]
+    assert (== (hexadecimal bytes 0 3) "00ff80")
+    assert (== (hexadecimal bytes 1 1) "ff")
+    assert (== (hexadecimal bytes 0 0) "")
+}
+
+fn report(bytes: array<u8>, profile: int) -> string {
+    let mut view: payload.PayloadTable = payload.PayloadTable { status: 0, data: [], starts: [], ends: [], end: 0 }
+    if (== profile 0) { set view (payload.layouts bytes) } else { set view (private_layout.decode bytes profile) }
+    let encoded: array<u8> = (payload.reencode view)
+    let status_count: string = (+ (+ (int_to_string view.status) ":") (int_to_string (array_length view.starts)))
+    let length_hash: string = (+ (+ (int_to_string (array_length encoded)) ":") (hexadecimal encoded 0 (array_length encoded)))
+    return (+ (+ status_count ":") length_hash)
+}
+shadow report {
+    let bytes: array<u8> = []
+    assert (== (report bytes 1) "9:0:0:")
+    assert (== (report bytes 0) "1:0:0:")
+}
+
+fn main() -> int {
+    unsafe {
+        let profile: int = (string_to_int (get_argv 1))
+        let mut index: int = 2
+        while (< index (get_argc)) {
+            (println (report (file_read_bytes (get_argv index)) profile))
+            set index (+ index 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (hexadecimal [] 0 0) "") }

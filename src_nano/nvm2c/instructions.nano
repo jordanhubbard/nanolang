@@ -1,0 +1,170 @@
+module nvm2c_instructions
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I preserve 64-bit operands as two unsigned halves, including every NaN bit.
+# A zero length is a decode refusal. It grants no executable admission.
+pub struct Instruction {
+    length: int,
+    opcode: int,
+    pops: int,
+    pushes: int,
+    kinds: array<int>,
+    low: array<int>,
+    high: array<int>
+}
+
+fn empty() -> Instruction {
+    return Instruction { length: 0, opcode: -1, pops: -1, pushes: -1,
+                         kinds: [], low: [], high: [] }
+}
+shadow empty {
+    let refused: Instruction = (empty)
+    assert (== refused.length 0)
+    assert (== (array_length refused.kinds) 0)
+}
+
+pub fn operand_width(kind: int) -> int {
+    if (== kind 1) { return 1 }
+    if (== kind 2) { return 2 }
+    if (or (== kind 3) (== kind 4)) { return 4 }
+    if (or (== kind 5) (== kind 6)) { return 8 }
+    return 0
+}
+shadow operand_width {
+    assert (== (operand_width 0) 0)
+    assert (== (operand_width 2) 2)
+    assert (== (operand_width 6) 8)
+    assert (== (operand_width -1) 0)
+}
+
+pub fn decode(bytes: array<u8>, offset: int, available: int) -> Instruction {
+    if (or (not (wire.contains bytes offset available)) (< available 1)) { return (empty) }
+    let opcode: int = (at bytes offset)
+    let width: int = (isa.primary_width opcode)
+    if (or (== width 0) (> width available)) { return (empty) }
+    let count: int = (isa.primary_operands opcode)
+    let mut kinds: array<int> = []
+    let mut low: array<int> = []
+    let mut high: array<int> = []
+    let mut cursor: int = (+ offset 1)
+    let mut i: int = 0
+    while (< i count) {
+        let kind: int = (isa.primary_kind opcode i)
+        let size: int = (operand_width kind)
+        let mut lo: int = 0
+        let mut hi: int = 0
+        if (== size 1) { set lo (cast_int (at bytes cursor)) }
+        if (== size 2) { set lo (wire.read_u16 bytes cursor) }
+        if (>= size 4) { set lo (wire.read_u32 bytes cursor) }
+        if (== size 8) { set hi (wire.read_u32 bytes (+ cursor 4)) }
+        set kinds (array_push kinds kind)
+        set low (array_push low lo)
+        set high (array_push high hi)
+        set cursor (+ cursor size)
+        set i (+ i 1)
+    }
+    return Instruction { length: width, opcode: opcode,
+                         pops: (isa.primary_pops opcode), pushes: (isa.primary_pushes opcode),
+                         kinds: kinds, low: low, high: high }
+}
+shadow decode {
+    let bytes: array<u8> = [255, 16, 255, 128, 0]
+    let item: Instruction = (decode bytes 1 3)
+    assert (== item.length 3)
+    assert (== item.opcode 16)
+    assert (== (at item.low 0) 33023)
+    assert (== (at item.high 0) 0)
+    assert (== (at item.kinds 0) 2)
+    let short: Instruction = (decode bytes 1 2)
+    assert (== short.length 0)
+    let invalid: Instruction = (decode bytes 0 5)
+    assert (== invalid.opcode -1)
+    let negative: Instruction = (decode bytes -1 1)
+    assert (== negative.length 0)
+    let huge: Instruction = (decode bytes 1 9223372036854775807)
+    assert (== huge.length 0)
+}
+
+# I expose signed integers only for integer operands. Float bits stay in halves.
+pub fn integer(item: Instruction, operand: int) -> int {
+    if (or (< operand 0) (>= operand (array_length item.kinds))) { return 0 }
+    let kind: int = (at item.kinds operand)
+    let lo: int = (at item.low operand)
+    if (and (>= kind 1) (<= kind 3)) { return lo }
+    if (== kind 4) {
+        if (>= lo 2147483648) { return (- lo 4294967296) }
+        return lo
+    }
+    if (== kind 5) {
+        let mut hi: int = (at item.high operand)
+        if (>= hi 2147483648) { set hi (- hi 4294967296) }
+        return (+ (* hi 4294967296) lo)
+    }
+    return 0
+}
+shadow integer {
+    let bytes: array<u8> = [1, 0, 0, 0, 0, 0, 0, 0, 128]
+    let item: Instruction = (decode bytes 0 9)
+    assert (== (integer item 0) (- -9223372036854775807 1))
+    let backwards: array<u8> = [80, 0]
+    let small: Instruction = (decode backwards 0 2)
+    assert (== (integer small 0) 0)
+    assert (== (integer item -1) 0)
+    assert (== (integer item 1) 0)
+    let branch: array<u8> = [56, 255, 255, 255, 255]
+    assert (== (integer (decode branch 0 5) 0) -1)
+}
+
+pub fn reencode(item: Instruction) -> array<u8> {
+    let mut bytes: array<u8> = []
+    if (== item.length 0) { return bytes }
+    set bytes (array_push bytes item.opcode)
+    let mut i: int = 0
+    while (< i (array_length item.kinds)) {
+        let size: int = (operand_width (at item.kinds i))
+        let mut value: int = (at item.low i)
+        let mut j: int = 0
+        while (< j size) {
+            if (== j 4) { set value (at item.high i) }
+            set bytes (array_push bytes (% value 256))
+            set value (/ value 256)
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return bytes
+}
+shadow reencode {
+    let bytes: array<u8> = [2, 255, 255, 255, 255, 0, 0, 248, 127]
+    let encoded: array<u8> = (reencode (decode bytes 0 9))
+    assert (== (array_length encoded) 9)
+    let mut i: int = 0
+    while (< i 9) {
+        assert (== (at encoded i) (at bytes i))
+        set i (+ i 1)
+    }
+    assert (== (array_length (reencode (empty))) 0)
+}
+
+pub fn has_file(code: array<u8>, start: int, length: int) -> bool {
+    if (not (wire.contains code start length)) { return false }
+    let mut cursor: int = start
+    let end: int = (+ start length)
+    while (< cursor end) {
+        let opcode: int = (at code cursor)
+        if (and (>= opcode 145) (<= opcode 152)) { return true }
+        let width: int = (isa.primary_width opcode)
+        if (or (== width 0) (> width (- end cursor))) { return false }
+        set cursor (+ cursor width)
+    }
+    return false
+}
+shadow has_file {
+    let operand: array<u8> = [1, 145, 0, 0, 0, 0, 0, 0, 0]
+    assert (not (has_file operand 0 9))
+    let file: array<u8> = [145]
+    assert (has_file file 0 1)
+    let unknown: array<u8> = [255, 145]
+    assert (not (has_file unknown 0 2))
+}

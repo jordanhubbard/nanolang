@@ -1,0 +1,59 @@
+module nvm2c_private_layouts
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+
+# I bound exact private transport before checking any row's semantic fields.
+pub fn preflight(bytes: array<u8>) -> int {
+    let size: int = (array_length bytes)
+    if (== size 0) { return 9 }
+    if (> size 16777216) { return 13 }
+    if (< size 4) { return 1 }
+    let count: int = (wire.read_u32 bytes 0)
+    if (> count 256) { return 13 }
+    let mut total: int = 0
+    let mut cursor: int = 4
+    let mut index: int = 0
+    while (< index count) {
+        if (not (wire.contains bytes cursor 8)) { return 1 }
+        let fields: int = (wire.read_u16 bytes (+ cursor 2))
+        if (> fields (- 65536 total)) { return 13 }
+        set total (+ total fields)
+        set cursor (+ cursor 8)
+        let length: int = (* fields 12)
+        if (not (wire.contains bytes cursor length)) { return 1 }
+        set cursor (+ cursor length)
+        set index (+ index 1)
+    }
+    if (!= cursor size) { return 9 }
+    return 0
+}
+shadow preflight {
+    let empty: array<u8> = []
+    assert (== (preflight empty) 9)
+    let zero: array<u8> = [0,0,0,0]
+    assert (== (preflight zero) 0)
+    let count: array<u8> = [1,1,0,0]
+    assert (== (preflight count) 13)
+    let trailing: array<u8> = [0,0,0,0,0]
+    assert (== (preflight trailing) 9)
+}
+
+# Profiles 1/2/3 describe ARRAY, mixed and MAP structure, without authority.
+# I retain an immutable byte view; callers keep these input bytes immutable.
+pub fn decode(bytes: array<u8>, profile: int) -> payload.PayloadTable {
+    let status: int = (preflight bytes)
+    if (!= status 0) {
+        return payload.PayloadTable { status: status, data: bytes, starts: [], ends: [], end: 0 }
+    }
+    if (or (< profile 1) (> profile 3)) {
+        return payload.PayloadTable { status: 8, data: bytes, starts: [], ends: [], end: 0 }
+    }
+    return (payload.layouts_profile bytes true (> profile 1) (== profile 3))
+}
+shadow decode {
+    let bytes: array<u8> = [0,0,0,0]
+    assert (== (decode bytes 1).status 0)
+    assert (== (decode bytes 2).end 4)
+    assert (== (decode bytes 3).status 0)
+    assert (== (decode bytes 4).status 8)
+}

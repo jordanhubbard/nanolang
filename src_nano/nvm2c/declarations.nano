@@ -1,0 +1,262 @@
+module nvm2c_declarations
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/private_layouts.nano" as private_layout
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/array_declarations.nano" as arrays
+module "src_nano/nvm2c/map_declarations.nano" as maps
+
+pub struct Projection {
+    status: int, profile: int, layouts: payload.PayloadTable, flags: array<int>,
+    types: array<arrays.Element>, bindings: array<arrays.Binding>,
+    variant_data: array<u8>, variant_starts: array<int>, variant_counts: array<int>,
+    scalars: array<int>, pairs: array<maps.Pair>, map_bindings: array<arrays.Binding>
+}
+fn failed(status: int, profile: int) -> Projection {
+    return Projection { status: status, profile: profile, layouts: (payload.layouts [0,0,0,0]), flags: [], types: [], bindings: [], variant_data: [], variant_starts: [], variant_counts: [], scalars: [], pairs: [], map_bindings: [] }
+}
+shadow failed { assert (== (array_length (failed 2 1).flags) 0) }
+
+pub fn ready(p: Projection) -> bool {
+    if (== p.profile 3) { return (== p.status 1) }
+    return (and (or (== p.profile 1) (== p.profile 2)) (== p.status 0))
+}
+shadow ready { assert (not (ready (failed 0 3))) assert (ready (failed 0 1)) }
+
+fn field_count(layouts: payload.PayloadTable, index: int) -> int {
+    return (wire.read_u16 layouts.data (+ (at layouts.starts index) 2))
+}
+shadow field_count { assert (== (field_count (payload.layouts [1,0,0,0,0,0,0,0,255,255,255,255]) 0) 0) }
+
+# I return a negative status or the complete conservative precharged work.
+fn budget(bytes: array<u8>, model: owned.Module, profile: int) -> int {
+    if (or (> (array_length model.layouts) 16777216) (> (array_length bytes) 16777216)) { return -3 }
+    let check: int = (private_layout.preflight model.layouts)
+    if (== check 13) { return -3 }
+    if (!= check 0) { return -2 }
+    let count: int = (wire.read_u32 model.layouts 0)
+    let mut total: int = 0
+    let mut cursor: int = 4
+    let mut i: int = 0
+    while (< i count) {
+        let fields: int = (wire.read_u16 model.layouts (+ cursor 2))
+        set total (+ total fields) set cursor (+ (+ cursor 8) (* fields 12)) set i (+ i 1)
+    }
+    let mut used: int = (+ (* total 4) (* count 4))
+    let cost: int = (+ (+ (* total 3) count) 33)
+    if (> (array_length model.functions) (/ (- 1048576 used) cost)) { return -3 }
+    set i 0
+    while (< i (array_length model.functions)) {
+        let descriptors: int = (+ (at model.functions i).locals 1)
+        if (> descriptors (/ (- 1048576 used) cost)) { return -3 }
+        set used (+ used (* descriptors cost)) set i (+ i 1)
+    }
+    let union_work: int = (cond ((== profile 1) 65536) (else 131072))
+    if (> model.unions (/ (- 1048576 used) union_work)) { return -3 }
+    return (+ used (* model.unions union_work))
+}
+shadow budget {
+    let m: owned.Module = owned.Module { layouts: [0,0,0,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (budget [] m 1) 0)
+}
+
+fn extension_index(values: array<read.Extension>, kind: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length values)) { if (== (at values i).kind kind) { return i } set i (+ i 1) }
+    return -1
+}
+shadow extension_index { assert (== (extension_index [] 2) -1) }
+
+pub fn prepare(bytes: array<u8>, model: owned.Module, profile: int, foreign: array<int>) -> Projection {
+    if (or (< profile 1) (or (> profile 3) (!= (array_length foreign) 4))) { return (failed 2 profile) }
+    let mut map_work: int = 0
+    if (== profile 3) {
+        let route: maps.Route = (maps.route bytes model)
+        if (!= route.status 1) { return (failed route.status profile) }
+        set map_work route.work
+    } else {
+        if (or (== (array_length bytes) 0) (== (array_length model.layouts) 0)) { return (failed 1 profile) }
+    }
+    let steps: int = (budget bytes model profile)
+    if (< steps 0) { return (failed (- 0 steps) profile) }
+    let layouts: payload.PayloadTable = (private_layout.decode model.layouts profile)
+    if (!= layouts.status 0) { return (failed (cond ((and (!= profile 3) (== layouts.status 1)) 1) (else 2)) profile) }
+    let mut unknown: bool = false
+    let mut records: int = 0
+    let mut enums: int = 0
+    let mut unions: int = 0
+    let mut array_fields: int = 0
+    let mut i: int = 0
+    while (< i (array_length layouts.starts)) {
+        let row: int = (at layouts.starts i)
+        let kind: int = (cast_int (at layouts.data row))
+        let name: int = (wire.read_u32 layouts.data (+ row 4))
+        if (and (!= name 4294967295) (>= name (array_length model.strings))) { return (failed 2 profile) }
+        if (== kind 0) { set records (+ records 1) }
+        if (== kind 3) { set enums (+ enums 1) }
+        if (== kind 2) { set unions (+ unions 1) }
+        if (and (!= kind 0) (not (and (> profile 1) (== kind 2)))) { set unknown true }
+        let mut f: int = 0
+        while (< f (field_count layouts i)) {
+            let field: int = (+ (+ row 8) (* f 12))
+            let tag: int = (cast_int (at layouts.data field))
+            let ref: int = (wire.read_u32 layouts.data (+ field 4))
+            let field_name: int = (wire.read_u32 layouts.data (+ field 8))
+            if (and (!= field_name 4294967295) (>= field_name (array_length model.strings))) { return (failed 2 profile) }
+            if (or (== tag 8) (and (== tag 9) (!= ref 4294967295))) {
+                if (>= ref (array_length layouts.starts)) { return (failed 2 profile) }
+                let expected: int = (cond ((== tag 8) 0) (else 1))
+                if (!= (at layouts.data (at layouts.starts ref)) expected) { return (failed 2 profile) }
+            } else if (!= ref 4294967295) { return (failed 2 profile) }
+            if (not (or (and (>= tag 1) (<= tag 5)) (or (== tag 8) (or (== tag 7) (and (== profile 3) (== tag 13)))))) { set unknown true }
+            if (== tag 7) { set array_fields (+ array_fields 1) }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    if (or (!= records model.records) (or (!= enums model.enums) (!= unions model.unions))) { return (failed 2 profile) }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (< version 1) (> version 3))) { return (failed 2 profile) }
+    if (!= count (array_length layouts.starts)) { return (failed 2 profile) }
+    let flag_start: int = (read.skip c count)
+    if (!= (read.align c) 0) { return (failed 2 profile) }
+    let mut flags: array<int> = []
+    set i 0
+    while (< i count) { set flags (array_push flags (cast_int (at bytes (+ flag_start i)))) set i (+ i 1) }
+    let facts: array<int> = [0,0,0,0]
+    if (!= (owned.layout_profile layouts flags version facts profile) 0) { return (failed 2 profile) }
+    let functions: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (!= functions (array_length model.functions))) { return (failed 2 profile) }
+    set i 0
+    while (< i functions) {
+        let locals: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        let f = (at model.functions i)
+        if (or (!= (read.status c) 0) (or (!= locals f.locals) (or (!= params f.arity) (or (> params locals) (> f.results 1))))) { return (failed 2 profile) }
+        let mut local: int = -1
+        while (< local locals) {
+            let mut tag: int = -1
+            if (== local -1) {
+                set tag 0
+                if (> f.results 0) { if (< i (array_length model.results)) { set tag (at model.results i) } }
+            } else if (< local params) {
+                set tag 0
+                if (< i (array_length model.params)) {
+                    let types: array<int> = (at model.params i)
+                    if (< local (array_length types)) { set tag (at types local) }
+                }
+            }
+            if (and (== profile 3) (and (< local params) (== tag 13))) { return (failed 2 profile) }
+            (array_set facts 3 0)
+            let status: int = (owned.descriptor_profile c layouts flags version (and (>= local 0) (< local params)) tag facts profile)
+            if (!= status 0) {
+                if (== (at facts 3) 0) { return (failed 2 profile) }
+                if (== profile 1) { return (failed 1 profile) }
+                set unknown true
+            }
+            set local (+ local 1)
+        }
+        set i (+ i 1)
+    }
+    let extensions: read.Extensions = (read.suffix c version (== profile 3))
+    if (!= extensions.status 0) { return (failed 2 profile) }
+    let union_index: int = (extension_index extensions.values 1)
+    let mut variant_data: array<u8> = []
+    let mut variant_starts: array<int> = []
+    let mut variant_counts: array<int> = []
+    if (== version 3) {
+        if (!= (>= union_index 0) (> model.unions 0)) { return (failed 2 profile) }
+        if (>= union_index 0) {
+            set variant_data (at extensions.values union_index).data
+            if (!= (owned.union_facts variant_data model layouts flags) 0) { return (failed 2 profile) }
+            (array_set facts 0 1)
+            let d: read.Cursor = (read.open variant_data)
+            let total: int = (read.read_u32 d)
+            set i 0
+            while (< i total) {
+                let start: int = (read.position d)
+                let layout_index: int = (read.read_u32 d)
+                let variants: int = (read.read_u16 d)
+                let reserved: int = (read.read_u16 d)
+                set variant_starts (array_push variant_starts start)
+                set variant_counts (array_push variant_counts variants)
+                let ignored: int = (read.skip d (* variants 8))
+                set i (+ i 1)
+            }
+        }
+        if (or (>= (extension_index extensions.values 3) 0) (>= (extension_index extensions.values 4) 0)) { return (failed 2 profile) }
+    }
+    let mut elements: arrays.Elements = arrays.Elements { status: 0, unknown: false, steps: steps, types: [], bindings: [] }
+    let array_index: int = (extension_index extensions.values 2)
+    if (>= array_index 0) {
+        set elements (arrays.decode (at extensions.values array_index).data layouts flags steps)
+        if (!= elements.status 0) { return (failed elements.status profile) }
+    }
+    let mut map_rows: maps.Maps = maps.Maps { status: 0, scalars: [], pairs: [], bindings: [] }
+    if (== profile 3) {
+        let index: int = (extension_index extensions.values 5)
+        if (< index 0) { return (failed 2 profile) }
+        set map_rows (maps.decode (at extensions.values index) layouts flags map_work)
+        if (!= map_rows.status 0) { return (failed map_rows.status profile) }
+    }
+    if (or elements.unknown (and (== profile 1) (!= (at facts 0) 0))) { set unknown true }
+    set i 0
+    while (< i 4) { if (!= (at foreign i) 0) { set unknown true } set i (+ i 1) }
+    set i 0
+    while (< i count) {
+        let expected: int = (cond ((and (> profile 1) (== (at layouts.data (at layouts.starts i)) 2)) 0) (else 1))
+        if (!= (at flags i) expected) { set unknown true } set i (+ i 1)
+    }
+    if (and (> array_fields 0) (== (array_length elements.bindings) 0)) { set unknown true }
+    if (and (> profile 1) (and (> model.unions 0) (< union_index 0))) { set unknown true }
+    if unknown { return (failed (cond ((== profile 3) 2) (else 1)) profile) }
+    return Projection { status: (cond ((== profile 3) 1) (else 0)), profile: profile, layouts: layouts, flags: flags, types: elements.types, bindings: elements.bindings, variant_data: variant_data, variant_starts: variant_starts, variant_counts: variant_counts, scalars: map_rows.scalars, pairs: map_rows.pairs, map_bindings: map_rows.bindings }
+}
+shadow prepare {
+    let m: owned.Module = owned.Module { layouts: [0,0,0,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    let bytes: array<u8> = [1,0,0,0,0,0,0,0,0,0,0,0]
+    assert (ready (prepare bytes m 1 [0,0,0,0]))
+    assert (== (prepare [] m 1 [0,0,0,0]).status 1)
+    assert (not (ready (prepare bytes m 3 [0,0,0,0])))
+    let enum_model: owned.Module = owned.Module { layouts: [1,0,0,0,3,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 1, unions: 0 }
+    let unknown: array<u8> = [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
+    assert (== (prepare unknown enum_model 1 [0,0,0,0]).status 1)
+    let tuple_model: owned.Module = owned.Module { layouts: [1,0,0,0,1,0,0,0,255,255,255,255], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (prepare unknown tuple_model 2 [0,0,0,0]).status 1)
+
+}
+
+pub struct Variant { found: bool, layout: int, name: int, offset: int, fields: int }
+pub fn variant(p: Projection, ordinal: int, index: int) -> Variant {
+    if (or (not (ready p)) (or (< ordinal 0) (or (>= ordinal (array_length p.variant_counts)) (or (< index 0) (>= index (at p.variant_counts ordinal)))))) {
+        return Variant { found: false, layout: 0, name: 0, offset: 0, fields: 0 }
+    }
+    let header: int = (at p.variant_starts ordinal)
+    let row: int = (+ (+ header 8) (* index 8))
+    return Variant { found: true, layout: (wire.read_u32 p.variant_data header), name: (wire.read_u32 p.variant_data row), offset: (wire.read_u16 p.variant_data (+ row 4)), fields: (wire.read_u16 p.variant_data (+ row 6)) }
+}
+shadow variant { assert (not (variant (failed 2 2) 0 0).found) }
+
+pub struct MapField { found: bool, key: int, value: int }
+pub fn map_field(p: Projection, layout: int, field: int) -> MapField {
+    if (or (!= p.profile 3) (or (not (ready p)) (or (< layout 0) (>= layout (array_length p.layouts.starts))))) {
+        return MapField { found: false, key: 0, value: 0 }
+    }
+    let mut low: int = 0
+    let mut high: int = (array_length p.map_bindings)
+    while (< low high) {
+        let mid: int = (+ low (/ (- high low) 2))
+        let row: arrays.Binding = (at p.map_bindings mid)
+        if (and (== row.layout layout) (== row.field field)) {
+            let pair: maps.Pair = (at p.pairs row.target)
+            return MapField { found: true, key: pair.key, value: pair.value }
+        }
+        if (or (< row.layout layout) (and (== row.layout layout) (< row.field field))) { set low (+ mid 1) }
+        else { set high mid }
+    }
+    return MapField { found: false, key: 0, value: 0 }
+}
+shadow map_field { assert (not (map_field (failed 0 3) 0 0).found) }

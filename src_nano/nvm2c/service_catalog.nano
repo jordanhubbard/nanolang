@@ -1,0 +1,3491 @@
+module nvm2c_service_catalog
+# I generate immutable data with scripts/generate_nvm2c_service_catalog.py.
+# I call no C catalog getter at runtime. Unknown selectors stay empty/-1.
+
+pub fn count(catalog: int, kind: int) -> int {
+    if (== catalog 1) {
+        if (== kind 1) { return 8 }
+        if (== kind 2) { return 5 }
+    }
+    if (== catalog 2) {
+        if (== kind 1) { return 9 }
+        if (== kind 2) { return 5 }
+    }
+    if (== catalog 3) {
+        if (== kind 1) { return 7 }
+        if (== kind 2) { return 4 }
+    }
+    return -1
+}
+shadow count { assert (== (count 1 1) 8) assert (== (count 3 2) 4) assert (== (count 0 1) -1) }
+
+pub fn text(catalog: int, kind: int, ordinal: int, field: int, member: int) -> string {
+    if (== catalog 1) {
+        if (== kind 0) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem"
+                    }
+                }
+            }
+        }
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "File"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "FileError"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#FileError.status"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError.host_errno"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/filesystem#FileError.cleanup_errno"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/filesystem#FileError.bytes"
+                    }
+                    if (== member 4) {
+                        return "nsi:nanolang/filesystem#FileError.eof"
+                    }
+                    if (== member 5) {
+                        return "nsi:nanolang/filesystem#FileError.consumed"
+                    }
+                    if (== member 6) {
+                        return "nsi:nanolang/filesystem#FileError.cleanup_failed"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "status"
+                    }
+                    if (== member 1) {
+                        return "host_errno"
+                    }
+                    if (== member 2) {
+                        return "cleanup_errno"
+                    }
+                    if (== member 3) {
+                        return "bytes"
+                    }
+                    if (== member 4) {
+                        return "eof"
+                    }
+                    if (== member 5) {
+                        return "consumed"
+                    }
+                    if (== member 6) {
+                        return "cleanup_failed"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 3) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 4) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 5) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 6) {
+                        return "nsi:core/bool"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#ReadByte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ReadByte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#ReadByte.value"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#ReadByte.eof"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "value"
+                    }
+                    if (== member 1) {
+                        return "eof"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/bool"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#OpenResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "OpenResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#OpenResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#OpenResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#WriteResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "WriteResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#WriteResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#WriteResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#PositionResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "PositionResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#PositionResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#PositionResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#ReadResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ReadResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#ReadResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#ReadResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#ReadByte"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+            }
+            if (== ordinal 7) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#CloseResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "CloseResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#CloseResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#CloseResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#FileError"
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#temp"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "temp"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_filesystem_temp"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.local-file.v1.temp"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#temp.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#OpenResult"
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#write_byte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "write_byte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_filesystem_write_byte"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.local-file.v1.write_byte"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#write_byte.file"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#write_byte.value"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/filesystem#write_byte.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "file"
+                    }
+                    if (== member 1) {
+                        return "value"
+                    }
+                    if (== member 2) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/filesystem#WriteResult"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#rewind"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "rewind"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_filesystem_rewind"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.local-file.v1.rewind"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#rewind.file"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#rewind.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "file"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#PositionResult"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#read_byte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "read_byte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_filesystem_read_byte"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.local-file.v1.read_byte"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#read_byte.file"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#read_byte.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "file"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#ReadResult"
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#close"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "close"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_filesystem_close"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.local-file.v1.close"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#close.file"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#close.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "file"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/filesystem#File"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/filesystem#CloseResult"
+                    }
+                }
+            }
+        }
+    }
+    if (== catalog 2) {
+        if (== kind 0) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net"
+                    }
+                }
+            }
+        }
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "Conn"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "SocketError"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#SocketError.status"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError.host_errno"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/net#SocketError.cleanup_errno"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/net#SocketError.bytes"
+                    }
+                    if (== member 4) {
+                        return "nsi:nanolang/net#SocketError.close_attempts"
+                    }
+                    if (== member 5) {
+                        return "nsi:nanolang/net#SocketError.closed_count"
+                    }
+                    if (== member 6) {
+                        return "nsi:nanolang/net#SocketError.eof"
+                    }
+                    if (== member 7) {
+                        return "nsi:nanolang/net#SocketError.consumed"
+                    }
+                    if (== member 8) {
+                        return "nsi:nanolang/net#SocketError.cleanup_failed"
+                    }
+                    if (== member 9) {
+                        return "nsi:nanolang/net#SocketError.closure_unknown"
+                    }
+                    if (== member 10) {
+                        return "nsi:nanolang/net#SocketError.connect_pending"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "status"
+                    }
+                    if (== member 1) {
+                        return "host_errno"
+                    }
+                    if (== member 2) {
+                        return "cleanup_errno"
+                    }
+                    if (== member 3) {
+                        return "bytes"
+                    }
+                    if (== member 4) {
+                        return "close_attempts"
+                    }
+                    if (== member 5) {
+                        return "closed_count"
+                    }
+                    if (== member 6) {
+                        return "eof"
+                    }
+                    if (== member 7) {
+                        return "consumed"
+                    }
+                    if (== member 8) {
+                        return "cleanup_failed"
+                    }
+                    if (== member 9) {
+                        return "closure_unknown"
+                    }
+                    if (== member 10) {
+                        return "connect_pending"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 3) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 4) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 5) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 6) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 7) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 8) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 9) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 10) {
+                        return "nsi:core/bool"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ReadByte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ReadByte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ReadByte.value"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ReadByte.eof"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "value"
+                    }
+                    if (== member 1) {
+                        return "eof"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/bool"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ConnectResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ConnectResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ConnectResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ConnectResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#SendResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "SendResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#SendResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SendResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ConnectStatus"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ConnectStatus"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ConnectStatus.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ConnectStatus.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ReceiveResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ReceiveResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ReceiveResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ReceiveResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#ReadByte"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+            }
+            if (== ordinal 7) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#CloseResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "CloseResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#CloseResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#CloseResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 1) {
+                        return "nsi:nanolang/net#SocketError"
+                    }
+                }
+            }
+            if (== ordinal 8) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Endpoint"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "Endpoint"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Endpoint.family"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#Endpoint.address0"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/net#Endpoint.address1"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/net#Endpoint.address2"
+                    }
+                    if (== member 4) {
+                        return "nsi:nanolang/net#Endpoint.address3"
+                    }
+                    if (== member 5) {
+                        return "nsi:nanolang/net#Endpoint.port"
+                    }
+                    if (== member 6) {
+                        return "nsi:nanolang/net#Endpoint.scope_id"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "family"
+                    }
+                    if (== member 1) {
+                        return "address0"
+                    }
+                    if (== member 2) {
+                        return "address1"
+                    }
+                    if (== member 3) {
+                        return "address2"
+                    }
+                    if (== member 4) {
+                        return "address3"
+                    }
+                    if (== member 5) {
+                        return "port"
+                    }
+                    if (== member 6) {
+                        return "scope_id"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 3) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 4) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 5) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 6) {
+                        return "nsi:core/int"
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#begin_connect"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "begin_connect"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_net_begin_connect"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.tcp.v1.begin_connect"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#begin_connect.endpoint"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#begin_connect.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "endpoint"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Endpoint"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ConnectResult"
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#send_byte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "send_byte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_net_send_byte"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.tcp.v1.send_byte"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#send_byte.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#send_byte.value"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/net#send_byte.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "value"
+                    }
+                    if (== member 2) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/net#SendResult"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#finish_connect"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "finish_connect"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_net_finish_connect"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.tcp.v1.finish_connect"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#finish_connect.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#finish_connect.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ConnectStatus"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#receive_byte"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "receive_byte"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_net_receive_byte"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.tcp.v1.receive_byte"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#receive_byte.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#receive_byte.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#ReceiveResult"
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#close"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "close"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_net_close"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.tcp.v1.close"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#close.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#close.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/net#Conn"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/net#CloseResult"
+                    }
+                }
+            }
+        }
+    }
+    if (== catalog 3) {
+        if (== kind 0) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket"
+                    }
+                }
+            }
+        }
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "Connection"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#WebSocketError"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "WebSocketError"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#WebSocketError.status"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#WebSocketError.host_errno"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#WebSocketError.resolver_error"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/websocket#WebSocketError.supervisor_status"
+                    }
+                    if (== member 4) {
+                        return "nsi:nanolang/websocket#WebSocketError.close_code"
+                    }
+                    if (== member 5) {
+                        return "nsi:nanolang/websocket#WebSocketError.cleanup_errno"
+                    }
+                    if (== member 6) {
+                        return "nsi:nanolang/websocket#WebSocketError.cleanup_failed"
+                    }
+                    if (== member 7) {
+                        return "nsi:nanolang/websocket#WebSocketError.closure_unknown"
+                    }
+                    if (== member 8) {
+                        return "nsi:nanolang/websocket#WebSocketError.terminal"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "status"
+                    }
+                    if (== member 1) {
+                        return "host_errno"
+                    }
+                    if (== member 2) {
+                        return "resolver_error"
+                    }
+                    if (== member 3) {
+                        return "supervisor_status"
+                    }
+                    if (== member 4) {
+                        return "close_code"
+                    }
+                    if (== member 5) {
+                        return "cleanup_errno"
+                    }
+                    if (== member 6) {
+                        return "cleanup_failed"
+                    }
+                    if (== member 7) {
+                        return "closure_unknown"
+                    }
+                    if (== member 8) {
+                        return "terminal"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 3) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 4) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 5) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 6) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 7) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 8) {
+                        return "nsi:core/bool"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Message"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "Message"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Message.binary"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#Message.data"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "binary"
+                    }
+                    if (== member 1) {
+                        return "data"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/bool"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/string"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#ConnectResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ConnectResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#ConnectResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#ConnectResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#WebSocketError"
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#SendResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "SendResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#SendResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#SendResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#WebSocketError"
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#ReceiveResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "ReceiveResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#ReceiveResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#ReceiveResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Message"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#WebSocketError"
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#CloseResult"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "CloseResult"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#CloseResult.Ok"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#CloseResult.Error"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "Ok"
+                    }
+                    if (== member 1) {
+                        return "Error"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#WebSocketError"
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#connect"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "connect"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_websocket_connect"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.websocket.v1.connect"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#connect.url"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#connect.timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#connect.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "url"
+                    }
+                    if (== member 1) {
+                        return "timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:core/string"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#ConnectResult"
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#send"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "send"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_websocket_send"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.websocket.v1.send"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#send.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#send.message"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#send.timeout_ms"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/websocket#send.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "message"
+                    }
+                    if (== member 2) {
+                        return "timeout_ms"
+                    }
+                    if (== member 3) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#Message"
+                    }
+                    if (== member 2) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 3) {
+                        return "nsi:nanolang/websocket#SendResult"
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#receive"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "receive"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_websocket_receive"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.websocket.v1.receive"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#receive.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#receive.timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#receive.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#ReceiveResult"
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#close"
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return "close"
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return "nsi_nanolang_websocket_close"
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return "nsi.websocket.v1.close"
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#close.connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:nanolang/websocket#close.timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#close.result"
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return "connection"
+                    }
+                    if (== member 1) {
+                        return "timeout_ms"
+                    }
+                    if (== member 2) {
+                        return "result"
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return "nsi:nanolang/websocket#Connection"
+                    }
+                    if (== member 1) {
+                        return "nsi:core/int"
+                    }
+                    if (== member 2) {
+                        return "nsi:nanolang/websocket#CloseResult"
+                    }
+                }
+            }
+        }
+    }
+    return ""
+}
+shadow text { assert (== (text 1 0 0 0 0) "nsi:nanolang/filesystem") assert (== (text 3 1 0 1 0) "Connection") assert (== (text -1 1 0 0 0) "") }
+
+pub fn number(catalog: int, kind: int, ordinal: int, field: int, member: int) -> int {
+    if (== catalog 1) {
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 6
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 7
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 0
+                    }
+                    if (== member 4) {
+                        return 0
+                    }
+                    if (== member 5) {
+                        return 0
+                    }
+                    if (== member 6) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 7) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 19
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+            }
+        }
+    }
+    if (== catalog 2) {
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 6
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 11
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 0
+                    }
+                    if (== member 4) {
+                        return 0
+                    }
+                    if (== member 5) {
+                        return 0
+                    }
+                    if (== member 6) {
+                        return 0
+                    }
+                    if (== member 7) {
+                        return 0
+                    }
+                    if (== member 8) {
+                        return 0
+                    }
+                    if (== member 9) {
+                        return 0
+                    }
+                    if (== member 10) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 7) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 8) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 7
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 4
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                    if (== member 3) {
+                        return 2
+                    }
+                    if (== member 4) {
+                        return 2
+                    }
+                    if (== member 5) {
+                        return 3
+                    }
+                    if (== member 6) {
+                        return 2
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 19
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+            }
+        }
+    }
+    if (== catalog 3) {
+        if (== kind 1) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 6
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 9
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 0
+                    }
+                    if (== member 4) {
+                        return 0
+                    }
+                    if (== member 5) {
+                        return 0
+                    }
+                    if (== member 6) {
+                        return 0
+                    }
+                    if (== member 7) {
+                        return 0
+                    }
+                    if (== member 8) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 4) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 5) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 6) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+        }
+        if (== kind 2) {
+            if (== ordinal 0) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 19
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 1
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 5
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                }
+            }
+            if (== ordinal 1) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 4
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                    if (== member 3) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                    if (== member 3) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 5
+                    }
+                    if (== member 3) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 2) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 5
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 1
+                    }
+                }
+            }
+            if (== ordinal 3) {
+                if (== field 0) {
+                    if (== member 0) {
+                        return 1
+                    }
+                }
+                if (== field 1) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 2) {
+                    if (== member 0) {
+                        return 0
+                    }
+                }
+                if (== field 3) {
+                    if (== member 0) {
+                        return 2
+                    }
+                }
+                if (== field 4) {
+                    if (== member 0) {
+                        return 3
+                    }
+                }
+                if (== field 5) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 3
+                    }
+                }
+                if (== field 6) {
+                    if (== member 0) {
+                        return 1
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                    if (== member 2) {
+                        return 2
+                    }
+                }
+                if (== field 7) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 1
+                    }
+                }
+                if (== field 8) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 0
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 9) {
+                    if (== member 0) {
+                        return 0
+                    }
+                    if (== member 1) {
+                        return 5
+                    }
+                    if (== member 2) {
+                        return 0
+                    }
+                }
+                if (== field 10) {
+                    if (== member 0) {
+                        return 2
+                    }
+                    if (== member 1) {
+                        return 2
+                    }
+                }
+            }
+        }
+    }
+    return -1
+}
+shadow number { assert (== (number 2 1 8 1 0) 7) assert (== (number 3 2 1 4 0) 4) assert (== (number 4 1 0 0 0) -1) }

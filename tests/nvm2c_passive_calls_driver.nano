@@ -1,0 +1,55 @@
+module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn analyze(bytes: array<u8>) -> bool {
+    if (not (wire.contains bytes 0 8)) { return false }
+    let root: int = (wire.read_u32 bytes 0)
+    let count: int = (wire.read_u32 bytes 4)
+    if (> count (/ (- (array_length bytes) 8) 24)) { return false }
+    let mut functions: array<calls.Function> = []
+    let mut i: int = 0
+    while (< i count) {
+        let row: int = (+ 8 (* i 24))
+        set functions (array_push functions calls.Function {
+            start: (wire.read_u32 bytes row), length: (wire.read_u32 bytes (+ row 4)),
+            arity: (wire.read_u32 bytes (+ row 8)), locals: (wire.read_u32 bytes (+ row 12)),
+            upvalues: (wire.read_u32 bytes (+ row 16)), results: (wire.read_u32 bytes (+ row 20)) })
+        set i (+ i 1)
+    }
+    let begin: int = (+ 8 (* count 24))
+    let code: array<u8> = (array_slice bytes begin (- (array_length bytes) begin))
+    return (calls.closed code functions root)
+}
+shadow analyze {
+    let bytes: array<u8> = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61]
+    assert (analyze bytes)
+    assert (not (analyze []))
+}
+
+fn main() -> int {
+    unsafe {
+        if (> (get_argc) 1) {
+            if (== (get_argv 1) "--allowed") {
+                let mut version: int = 1
+                while (<= version 2) {
+                    let mut op: int = 0
+                    while (< op 256) {
+                        if (calls.scalar_op op version) { (println 1) } else { (println 0) }
+                        set op (+ op 1)
+                    }
+                    set version (+ version 1)
+                }
+                return 0
+            }
+        }
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            if (analyze (file_read_bytes (get_argv i))) { (println 1) } else { (println 0) }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

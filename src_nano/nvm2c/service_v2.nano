@@ -1,0 +1,207 @@
+module nvm2c_service_v2
+module "src_nano/nvm2c/service_module.nano" as shared
+module "src_nano/nvm2c/service_nominal.nano" as nominal
+module "src_nano/nvm2c/service_wire.nano" as service
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/container.nano" as wire
+
+# My layout bytes represent canonical, structurally normal rich layout rows.
+# Counts follow array lengths; only signature storage can be explicitly absent.
+pub struct Constant { tag: int, bytes: array<u8> }
+pub struct Signature { arity: int, results: int, params: array<int>, returns: array<int> }
+pub struct Function { signature: int, locals: int, start: int, length: int }
+pub struct Import { module_name: int, symbol: int, signature: int, kind: int }
+pub struct View {
+    features: int, constants: array<Constant>, signatures: array<Signature>,
+    layouts: array<u8>, functions: array<Function>, imports: array<Import>,
+    code: array<u8>, service: array<u8>, ownership: array<u8>, links: int, callbacks: int
+}
+
+fn empty_view() -> View {
+    return View { features: 0, constants: [], signatures: [], layouts: [0,0,0,0], functions: [], imports: [], code: [], service: [], ownership: [], links: 0, callbacks: 0 }
+}
+shadow empty_view { assert (== (array_length (empty_view).layouts) 4) }
+
+pub fn present(view: View) -> bool {
+    if (or (> (array_length view.service) 0) (== (% (/ view.features 512) 2) 1)) { return true }
+    let mut i: int = 0
+    while (< i (array_length view.imports)) {
+        if (== (at view.imports i).kind 3) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow present { assert (not (present (empty_view))) }
+pub fn file_instructions(view: View) -> bool {
+    let mut functions: array<calls.Function> = []
+    let mut i: int = 0
+    while (< i (array_length view.functions)) {
+        let entry: Function = (at view.functions i)
+        set functions (array_push functions calls.Function { start: entry.start, length: entry.length, arity: 0, locals: entry.locals, upvalues: 0, results: 0 })
+        set i (+ i 1)
+    }
+    return (shared.file_instructions owned.Module { layouts: [], code: view.code, strings: [], functions: functions, params: [], results: [], records: 0, enums: 0, unions: 0 })
+}
+shadow file_instructions { assert (not (file_instructions (empty_view))) }
+
+fn string_constant(view: View, index: int) -> bool {
+    if (or (< index 0) (>= index (array_length view.constants))) { return false }
+    return (== (at view.constants index).tag 5)
+}
+shadow string_constant { assert (not (string_constant (empty_view) 0)) }
+
+# I check prior edges before constants/signatures, without interpreting tags.
+fn layout_preflight(bytes: array<u8>) -> int {
+    let c: read.Cursor = (read.open bytes)
+    let count: int = (read.read_u32 c)
+    let mut encoded_bytes: int = 4
+    let mut index: int = 0
+    while (< index count) {
+        let kind: int = (read.read_byte c)
+        let padding: int = (read.read_byte c)
+        let fields: int = (read.read_u16 c)
+        let name: int = (read.read_u32 c)
+        if (or (!= (read.status c) 0) (or (> kind 3) (!= padding 0))) { return 8 }
+        set encoded_bytes (+ encoded_bytes (+ 8 (* fields 12)))
+        if (> encoded_bytes 4294967295) { return 13 }
+        let mut j: int = 0
+        while (< j fields) {
+            let start: int = (read.skip c 12)
+            if (!= (read.status c) 0) { return 8 }
+            let nested: int = (wire.read_u32 bytes (+ start 4))
+            if (and (!= nested 4294967295) (>= nested index)) { return 13 }
+            set j (+ j 1)
+        }
+        set index (+ index 1)
+    }
+    if (or (!= (read.status c) 0) (!= (read.position c) (array_length bytes))) { return 8 }
+    return 0
+}
+shadow layout_preflight {
+    assert (== (layout_preflight [0,0,0,0]) 0)
+    assert (== (layout_preflight []) 8)
+}
+
+fn adapt(view: View, minimum_imports: int, minimum_layouts: int, websocket: bool) -> int {
+    let imports_count: int = (array_length view.imports)
+    let layouts_count: int = (wire.read_u32 view.layouts 0)
+    if (or (<= minimum_imports 0) (<= minimum_layouts 0)) { return 8 }
+    if (or (< imports_count minimum_imports) (> imports_count 320)) { return 8 }
+    if (or (!= view.links 0) (!= view.callbacks 0)) { return 8 }
+    if (or (== (array_length view.ownership) 0) (> (array_length view.functions) (/ (array_length view.ownership) 12))) { return 8 }
+    if (or (< layouts_count minimum_layouts) (> layouts_count 65536)) { return 8 }
+    let layout_status: int = (layout_preflight view.layouts)
+    if (!= layout_status 0) { return layout_status }
+    let mut names: array<array<u8>> = []
+    let mut i: int = 0
+    while (< i (array_length view.constants)) {
+        let value: Constant = (at view.constants i)
+        if (!= value.tag 5) { return 8 }
+        set names (array_push names value.bytes)
+        set i (+ i 1)
+    }
+    let mut functions: array<calls.Function> = []
+    let mut params: array<array<int>> = []
+    let mut results: array<int> = []
+    set i 0
+    while (< i (array_length view.functions)) {
+        let entry: Function = (at view.functions i)
+        if (or (< entry.signature 0) (>= entry.signature (array_length view.signatures))) { return 8 }
+        let sig: Signature = (at view.signatures entry.signature)
+        if (or (> sig.results 1) (or (< (array_length sig.returns) sig.results) (< (array_length sig.params) sig.arity))) { return 8 }
+        let mut tag: int = 0
+        if (> sig.results 0) { set tag (at sig.returns 0) }
+        set functions (array_push functions calls.Function { start: 0, length: 0, arity: sig.arity, locals: entry.locals, upvalues: 0, results: sig.results })
+        set params (array_push params sig.params) set results (array_push results tag)
+        set i (+ i 1)
+    }
+    let mut imports: array<nominal.Import> = []
+    set i 0
+    while (< i imports_count) {
+        let entry: Import = (at view.imports i)
+        if (or (!= entry.kind 3) (or (< entry.signature 0) (>= entry.signature (array_length view.signatures)))) { return 8 }
+        let sig: Signature = (at view.signatures entry.signature)
+        if (or (!= sig.results 1) (or (== (array_length sig.returns) 0) (< (array_length sig.params) sig.arity))) { return 8 }
+        set imports (array_push imports nominal.Import { module_name: entry.module_name, symbol: entry.symbol, kind: 3, arity: sig.arity, result: (at sig.returns 0), params: sig.params })
+        set i (+ i 1)
+    }
+    let mut records: int = 0
+    let mut enums: int = 0
+    let mut unions: int = 0
+    let c: read.Cursor = (read.open view.layouts)
+    let count: int = (read.read_u32 c)
+    set i 0
+    while (< i count) {
+        let kind: int = (read.read_byte c)
+        let unused_padding: int = (read.read_byte c)
+        let fields: int = (read.read_u16 c)
+        let unused_name: int = (read.read_u32 c)
+        let unused_fields: int = (read.skip c (* fields 12))
+        if (== kind 0) { set records (+ records 1) }
+        if (== kind 3) { set enums (+ enums 1) }
+        if (== kind 2) { set unions (+ unions 1) }
+        set i (+ i 1)
+    }
+    let model: owned.Module = owned.Module { layouts: view.layouts, code: [], strings: names, functions: functions, params: params, results: results, records: records, enums: enums, unions: unions }
+    if websocket {
+        let plan: nominal.Plan = (nominal.prepare view.service view.ownership model imports view.links view.callbacks 4)
+        if (== plan.status 0) { return 0 }
+        if (== plan.status 2) { return 13 }
+        return 8
+    }
+    return (shared.validate view.service view.ownership model imports view.links view.callbacks)
+}
+shadow adapt { assert (== (adapt (empty_view) 5 8 false) 8) }
+
+# I preserve legacy signature indices before kind/name/signature shape checks.
+pub fn validate(view: View, websocket: bool) -> int {
+    if websocket { return (adapt view 4 7 true) }
+    let nominal_claim: bool = (shared.nominal_version view.service)
+    if (and (file_instructions view) (not nominal_claim)) { return 8 }
+    if (not (present view)) { return 0 }
+    if nominal_claim {
+        let mut minimum_imports: int = 5
+        let mut minimum_layouts: int = 8
+        if (== (at view.service 0) 3) {
+            let bindings: service.Bindings = (service.decode view.service 5)
+            if (!= bindings.status 0) { return 8 }
+            set minimum_imports 0 set minimum_layouts 0
+            let mut i: int = 0
+            while (< i (array_length bindings.instances)) {
+                let cat: int = (at bindings.instances i).catalog
+                set minimum_imports (+ minimum_imports (service.catalog_methods cat))
+                set minimum_layouts (+ minimum_layouts (service.catalog_types cat))
+                set i (+ i 1)
+            }
+        }
+        return (adapt view minimum_imports minimum_layouts false)
+    }
+    let bindings: service.Bindings = (service.decode view.service 1)
+    if (!= bindings.status 0) { return 8 }
+    if (or (!= (array_length view.imports) 5) (or (!= view.links 0) (!= view.callbacks 0))) { return 14 }
+    let indices: array<int> = (at bindings.instances 0).imports
+    let mut names: array<array<u8>> = []
+    let mut i: int = 0
+    while (< i (array_length view.constants)) { set names (array_push names (at view.constants i).bytes) set i (+ i 1) }
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: names, functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    set i 0
+    while (< i 5) {
+        let index: int = (at indices i)
+        if (>= index (array_length view.imports)) { return 13 }
+        let entry: Import = (at view.imports index)
+        if (or (< entry.signature 0) (>= entry.signature (array_length view.signatures))) { return 13 }
+        let sig: Signature = (at view.signatures entry.signature)
+        if (or (not (string_constant view entry.module_name)) (not (string_constant view entry.symbol))) { return 8 }
+        if (or (!= sig.results 1) (or (== (array_length sig.returns) 0) (< (array_length sig.params) sig.arity))) { return 8 }
+        let selected: nominal.Import = nominal.Import { module_name: entry.module_name, symbol: entry.symbol, kind: entry.kind, arity: sig.arity, result: (at sig.returns 0), params: sig.params }
+        if (not (shared.legacy_entry model selected i)) { return 8 }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow validate {
+    assert (== (validate (empty_view) false) 0)
+    assert (== (validate (empty_view) true) 8)
+}

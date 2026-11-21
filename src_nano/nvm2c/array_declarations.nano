@@ -1,0 +1,144 @@
+module nvm2c_array_declarations
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/ownership_wire.nano" as read
+
+pub struct Element { tag: int, referent: int }
+pub struct Binding { layout: int, field: int, target: int }
+pub struct Elements { status: int, unknown: bool, steps: int, types: array<Element>, bindings: array<Binding> }
+
+fn failed(status: int, steps: int) -> Elements {
+    return Elements { status: status, unknown: false, steps: steps, types: [], bindings: [] }
+}
+shadow failed { assert (== (array_length (failed 3 7).types) 0) }
+
+fn fields(layouts: payload.PayloadTable, index: int) -> int {
+    return (wire.read_u16 layouts.data (+ (at layouts.starts index) 2))
+}
+shadow fields { assert (== (fields (payload.layouts [1,0,0,0,0,0,0,0,255,255,255,255]) 0) 0) }
+
+fn charge(state: array<int>, amount: int) -> bool {
+    if (> amount (- 1048576 (at state 0))) { return false }
+    (array_set state 0 (+ (at state 0) amount))
+    return true
+}
+shadow charge { let state: array<int> = [1048575] assert (charge state 1) assert (not (charge state 1)) }
+
+pub fn decode(bytes: array<u8>, layouts: payload.PayloadTable, flags: array<int>, steps: int) -> Elements {
+    let c: read.Cursor = (read.open bytes)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (failed 2 steps) }
+    if (> count 4096) { return (failed 3 steps) }
+    let type_start: int = (read.skip c (* count 8))
+    let bindings: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (failed 2 steps) }
+    if (> bindings 65536) { return (failed 3 steps) }
+    let binding_start: int = (read.skip c (* bindings 12))
+    if (or (!= (read.status c) 0) (!= (read.position c) (array_length bytes))) { return (failed 2 steps) }
+    # All copied C tables fit below16MiB under these fixed count ceilings.
+    let state: array<int> = [steps]
+    let mut unknown: bool = false
+    let mut types: array<Element> = []
+    let mut rows: array<Binding> = []
+    let mut i: int = 0
+    while (< i count) {
+        if (not (charge state 1)) { return (failed 3 (at state 0)) }
+        let row: int = (+ type_start (* i 8))
+        let tag: int = (cast_int (at bytes row))
+        let ref: int = (wire.read_u32 bytes (+ row 4))
+        if (or (!= (at bytes (+ row 1)) 0) (!= (wire.read_u16 bytes (+ row 2)) 0)) { return (failed 2 (at state 0)) }
+        if (and (>= tag 1) (<= tag 5)) {
+            if (!= ref 4294967295) { return (failed 2 (at state 0)) }
+        } else if (== tag 7) {
+            if (>= ref count) { return (failed 2 (at state 0)) }
+        } else if (== tag 8) {
+            if (>= ref (array_length layouts.starts)) { return (failed 2 (at state 0)) }
+            if (or (!= (at layouts.data (at layouts.starts ref)) 0) (!= (at flags ref) 1)) { return (failed 2 (at state 0)) }
+            set unknown true
+        } else { return (failed 2 (at state 0)) }
+        set types (array_push types Element { tag: tag, referent: ref })
+        set i (+ i 1)
+    }
+    let mut colors: array<int> = []
+    let mut depths: array<int> = []
+    set i 0
+    while (< i count) { set colors (array_push colors 0) set depths (array_push depths 0) set i (+ i 1) }
+    let mut root: int = 0
+    while (< root count) {
+        let mut at_index: int = root
+        let mut path: array<int> = []
+        let mut depth: int = 0
+        while (== (at colors at_index) 0) {
+            if (not (charge state 1)) { return (failed 3 (at state 0)) }
+            if (== (array_length path) 64) { return (failed 3 (at state 0)) }
+            (array_set colors at_index 1)
+            set path (array_push path at_index)
+            if (!= (at types at_index).tag 7) { break }
+            set at_index (at types at_index).referent
+            if (== (at colors at_index) 1) { return (failed 2 (at state 0)) }
+        }
+        if (== (at colors at_index) 2) { set depth (at depths at_index) }
+        let mut n: int = (array_length path)
+        while (> n 0) {
+            set n (- n 1) set depth (+ depth 1)
+            if (> depth 64) { return (failed 3 (at state 0)) }
+            let item: int = (at path n)
+            (array_set colors item 2) (array_set depths item depth)
+        }
+        set root (+ root 1)
+    }
+    set i 0
+    while (< i count) {
+        if (== (at types i).tag 7) {
+            if (not (charge state 1)) { return (failed 3 (at state 0)) }
+            let mut child: Element = (at types (at types i).referent)
+            if (== child.tag 7) {
+                if (not (charge state 1)) { return (failed 3 (at state 0)) }
+                set child (at types child.referent)
+            }
+            if (or (< child.tag 1) (or (> child.tag 5) (!= child.referent 4294967295))) { set unknown true }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i bindings) {
+        if (not (charge state 1)) { return (failed 3 (at state 0)) }
+        let row: int = (+ binding_start (* i 12))
+        let layout: int = (wire.read_u32 bytes row)
+        let field: int = (wire.read_u16 bytes (+ row 4))
+        let target: int = (wire.read_u32 bytes (+ row 8))
+        if (!= (wire.read_u16 bytes (+ row 6)) 0) { return (failed 2 (at state 0)) }
+        if (or (>= layout (array_length layouts.starts)) (>= target count)) { return (failed 2 (at state 0)) }
+        if (or (!= (at flags layout) 1) (or (!= (at layouts.data (at layouts.starts layout)) 0) (>= field (fields layouts layout)))) { return (failed 2 (at state 0)) }
+        if (!= (at layouts.data (+ (+ (at layouts.starts layout) 8) (* field 12))) 7) { return (failed 2 (at state 0)) }
+        if (> i 0) {
+            let prior: Binding = (at rows (- i 1))
+            if (or (< layout prior.layout) (and (== layout prior.layout) (<= field prior.field))) { return (failed 2 (at state 0)) }
+        }
+        set rows (array_push rows Binding { layout: layout, field: field, target: target })
+        set i (+ i 1)
+    }
+    let mut next: int = 0
+    set i 0
+    while (< i (array_length layouts.starts)) {
+        let mut f: int = 0
+        while (< f (fields layouts i)) {
+            if (not (charge state 1)) { return (failed 3 (at state 0)) }
+            if (and (== (at flags i) 1) (== (at layouts.data (+ (+ (at layouts.starts i) 8) (* f 12))) 7)) {
+                if (>= next bindings) { return (failed 2 (at state 0)) }
+                if (or (!= (at rows next).layout i) (!= (at rows next).field f)) { return (failed 2 (at state 0)) }
+                set next (+ next 1)
+            }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= next bindings) { return (failed 2 (at state 0)) }
+    return Elements { status: 0, unknown: unknown, steps: (at state 0), types: types, bindings: rows }
+}
+shadow decode {
+    let layouts: payload.PayloadTable = (payload.layouts [0,0,0,0])
+    assert (== (decode [0,0,0,0,0,0,0,0] layouts [] 0).status 0)
+    assert (== (decode [1,16,0,0] layouts [] 0).status 3)
+    assert (== (decode [0,0,0,0,1,0,0,0] layouts [] 0).status 2)
+}

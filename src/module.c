@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
 #include "module_builder.h"
+#include "runtime/module_build_dir.h"
 #include "shell_path.h"
 #include "stdlib_runtime.h"
 #include "utf8.h"
@@ -1521,25 +1522,29 @@ static bool compile_module_object(const char *module_path,
         return false;
     }
     
-    /* Embed metadata in C code */
+    /* I keep source identity separate from the module's reported public name. */
     if (meta) {
-        assert(c_code != NULL);
-        size_t c_code_len = safe_strlen(c_code);
-        char *metadata_c = serialize_module_metadata_to_c(meta);
+        size_t code_size = safe_strlen(c_code);
+        bool embedded = false;
+        char *metadata_c = serialize_module_metadata_for_source(meta, module_path);
         if (metadata_c) {
-            size_t meta_len = safe_strlen(metadata_c);
-            /* Reserve room for the original code, the metadata, a separator
-             * and the NUL terminator. embed_metadata_in_module_c() performs its
-             * own bounds check against this size. */
-            size_t buffer_size = c_code_len + meta_len + 128;
-            char *c_code_with_meta = realloc(c_code, buffer_size);
-            if (c_code_with_meta) {
-                c_code = c_code_with_meta;
-                /* On failure (should not happen given the sizing above) the
-                 * un-augmented C code is still valid, so ignore the result. */
-                (void)embed_metadata_in_module_c(c_code, meta, buffer_size);
+            size_t metadata_size = safe_strlen(metadata_c);
+            if (code_size <= SIZE_MAX - metadata_size - 1) {
+                char *combined = realloc(c_code, code_size + metadata_size + 1);
+                if (combined) {
+                    c_code = combined;
+                    memcpy(c_code + code_size, metadata_c, metadata_size + 1);
+                    embedded = true;
+                }
             }
             free(metadata_c);
+        }
+        if (!embedded) {
+            fprintf(stderr, "I cannot retain source-identified module metadata\n");
+            free(c_code); free_module_metadata(meta);
+            clear_module_cache(); module_cache = saved_cache;
+            free_environment(module_env);
+            return false;
         }
     }
     if (meta) {
@@ -1835,44 +1840,20 @@ bool compile_module_to_object(const char *module_path, const char *output_obj,
 }
 
 /* Check if a module is FFI-only (only extern declarations, no implementation) */
-static bool is_ffi_only_module(const char *module_path) {
-    FILE *file = fopen(module_path, "r");
-    if (!file) return false;
-    
-    char line[1024];
+/* I share parsed source facts with native initialization; globals require storage. */
+bool module_is_ffi_only(const char *module_path) {
+    ASTNode *program = get_cached_module_ast(module_path);
+    if (!program || program->type != AST_PROGRAM) return false;
     bool has_extern = false;
-    bool has_implementation = false;
-    
-    while (fgets(line, sizeof(line), file)) {
-        /* Skip comments and empty lines */
-        char *trimmed = line;
-        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        if (*trimmed == '#' || *trimmed == '\n' || *trimmed == '\0') continue;
-        
-        /* Check for extern declarations */
-        if (strstr(trimmed, "extern fn") != NULL) {
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
             has_extern = true;
-        }
-        
-        /* Check for function implementations (non-extern functions) */
-        if (strstr(trimmed, "fn ") != NULL && strstr(trimmed, "extern") == NULL) {
-            has_implementation = true;
-            break;
-        }
-        
-        /* Check for struct/enum/union definitions */
-        if (strstr(trimmed, "struct ") != NULL || 
-            strstr(trimmed, "enum ") != NULL || 
-            strstr(trimmed, "union ") != NULL) {
-            has_implementation = true;
-            break;
+        } else if (item->type != AST_MODULE_DECL && item->type != AST_OPAQUE_TYPE) {
+            return false;
         }
     }
-    
-    fclose(file);
-    
-    /* FFI-only if it has extern declarations but no implementations */
-    return has_extern && !has_implementation;
+    return has_extern;
 }
 
 /* Helper: Extract module directory from module path */
@@ -1886,6 +1867,25 @@ static char* get_module_dir(const char *module_path) {
         dir = strdup(".");
     }
     return dir;
+}
+
+/* I keep equal basenames in different canonical module-directory namespaces. */
+static bool native_module_object_path(const char *module_dir, const char *base,
+                                      char *destination, size_t size) {
+    char directory[256];
+    if (!nano_module_build_dir_at(module_dir, "obj/nano_modules", directory, sizeof directory) ||
+        (mkdir("obj", 0777) != 0 && errno != EEXIST) ||
+        (mkdir("obj/nano_modules", 0777) != 0 && errno != EEXIST) ||
+        (mkdir(directory, 0777) != 0 && errno != EEXIST)) {
+        fprintf(stderr, "I cannot prepare the native module object directory\n");
+        return false;
+    }
+    int length = snprintf(destination, size, "%s/nanolang_%s.o", directory, base);
+    if (length < 0 || (size_t)length >= size) {
+        fprintf(stderr, "I cannot represent the native module object path\n");
+        return false;
+    }
+    return true;
 }
 
 /* Compile all modules in the list to object files using the module builder */
@@ -1980,7 +1980,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
              * IMPORTANT: If the module ALSO has a .nano file with implementations 
              * (not just externs), we must compile it too!
              */
-            if (!is_ffi_only_module(module_path)) {
+            if (!module_is_ffi_only(module_path)) {
                 if (verbose) {
                     printf("[Modules] Also compiling nanolang parts of C module '%s'\n", meta->name);
                 }
@@ -1995,10 +1995,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                  * earlier ones and we end up linking only the last compiled Nano object, causing
                  * undefined references on strict linkers (Linux CI).
                  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-                system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
 
                 const char *last_slash = strrchr(module_path, '/');
                 const char *base_name = last_slash ? last_slash + 1 : module_path;
@@ -2010,10 +2006,10 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                     *dot = '\0';
                 }
 
-                char nano_obj[512];
-                snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
+                char nano_obj[2048];
                 
-                if (!compile_module_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count, build_infos, (size_t)build_info_count)) {
+                if (!native_module_object_path(module_dir, base_without_ext, nano_obj, sizeof nano_obj) ||
+                    !compile_module_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count, build_infos, (size_t)build_info_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -2039,7 +2035,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             module_metadata_free(meta);
         } else {
             /* No module.json - check if it's FFI-only (just extern declarations) */
-            if (is_ffi_only_module(module_path)) {
+            if (module_is_ffi_only(module_path)) {
                 if (verbose) {
                     printf("[Modules] Skipping FFI-only module '%s'\n", module_path);
                 }
@@ -2054,7 +2050,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             }
             
             /* Generate object file name from module path */
-            char obj_file[512];
+            char obj_file[2048];
             const char *last_slash = strrchr(module_path, '/');
             const char *base_name = last_slash ? last_slash + 1 : module_path;
             
@@ -2073,16 +2069,12 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
              * If we also emit modules to obj/<name>.o (e.g. lexer.nano -> obj/lexer.o),
              * we can clobber C objects and break linking.
              */
-            snprintf(obj_file, sizeof(obj_file), "obj/nano_modules/%s.o", base_without_ext);
 
-            /* Ensure obj directory exists */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-            system("mkdir -p obj/nano_modules 2>/dev/null");
-#pragma GCC diagnostic pop
+
 
             /* Compile module to object file */
-            if (!compile_module_object(module_path, obj_file, env, verbose, NULL, 0, build_infos, (size_t)build_info_count)) {
+            if (!native_module_object_path(module_dir, base_without_ext, obj_file, sizeof obj_file) ||
+                !compile_module_object(module_path, obj_file, env, verbose, NULL, 0, build_infos, (size_t)build_info_count)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);

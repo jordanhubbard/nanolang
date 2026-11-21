@@ -1,0 +1,64 @@
+{
+  "component_commit": {
+    "returncode": 0,
+    "stdout": "0cf0765e3bbd47e5eef50bb6823530ec8e054f5b\n",
+    "stderr": ""
+  },
+  "status": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "platform": "Linux-7.0.0-1025-nvidia-aarch64-with-glibc2.39",
+  "uname": {
+    "returncode": 0,
+    "stdout": "Linux sparky 7.0.0-1025-nvidia #26~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov  3 19:27:25 UTC 2 aarch64 aarch64 aarch64 GNU/Linux\n",
+    "stderr": ""
+  },
+  "cc": {
+    "returncode": 0,
+    "stdout": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "stderr": ""
+  },
+  "clang": {
+    "returncode": 0,
+    "stdout": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/local/bin\n",
+    "stderr": "clang: warning: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Wgcc-install-dir-libstdcxx]\n"
+  },
+  "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [GCC 13.3.0]",
+  "source_sha256": {
+    "src/nanolang.h": "acb38e14f5ed53044867f15bb514856bc26851f2ee67233a1dee0f6de0b4fdad",
+    "src/env.c": "a3362ab7890151c0abf037b17a38900fedd85dc846fd3c269b75c429fb77a46a",
+    "src/eval.c": "3aeaa1d2927ae5300a0bcfe1ba63d8211cb20e78e1a13991557f252bdabcdecc",
+    "src/typechecker.c": "6186465d11c312f293d3c7dc07019f23753c60fa5aaf9f95eef809e8b10e1363",
+    "tests/test_eval.c": "8e414cf7d6d20cb6565e30c06d459cedf0a3791ac2cd5a59459d1997eb5b64fd",
+    "tests/test_eval_global_binding_ownership.c": "a7cf2669b26fcc5add4b0c3a4fd579e36acd50cb9d7c5197ca21fd5273b832ee",
+    "tests/eval_global_bindings.nano": "93627ab28ef2876e5e8f138697f9169fb17be89e35e0565645699778e456d7b4",
+    "tests/test_eval_global_bindings.py": "844dbddfe08493ea9bad89e0c96e223ee8a706c21cfd08ee067a29d4db221332",
+    "tests/nanolang_translator_routes.py": "06e2cb844b9852c9aecc2934ebc83ad60fd5561dccfefc94beb73a9ac9c5c7a9",
+    "tests/test_imported_globals.py": "a5029abae4ba9778cdbb761f654a530c549eca8beb7361c40e85f711b867320b",
+    "tests/native_process.py": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+    "Makefile.gnu": "5872b9b4def3251a688172bc69b73f479cec2f62c483860dc7deffe1020344a1",
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/instructions.nano": "ce7c1d20d42b65772c0b63a4377943e8a69195e1129b945d905d1a381b7eedef",
+    "src_nano/nvm2c/isa_metadata.nano": "8da2f93d5b5755f844e88a2205dca0744cca1f1f0384e3fa8eabb687af8d2a00",
+    "src_nano/nvm2c/module.nano": "17c849fc3f5dcb2ad05ef31ac8cb90d830022dd4ec06ddbdf9adfac3c7e5d81d",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3"
+  },
+  "post_run_tool_sha256": {
+    "bin/nanoc_c": "2776e30729c04e3fa518acd7bcc0f1aabb4a239c28bbd7c3e60cda6894f9b0fa",
+    "bin/nano_virt": "c2e1a851fac34c58a7646a2532a42b108cfce2a9ce391ee80bad938d579c5281",
+    "bin/nano_vm": "bfedad0ad51362532550858a5159bf395130586ebbd6d17e27f2c783cfe6543c",
+    "bin/nvm2c": "26f003c17623e36b1ae2550340a30461993c610b5b6bebb9f224785a2292d072",
+    "bin/nano_aot_runtime.o": "0b19465ec8fad9f36cba9f82f4e3823f9a3b25b04b4a910a037c754fd92b8ce8",
+    ".test_output/global-bindings-source-compiler": "7928f5133ac5197e4ce515c89e5f8d49be9a8d9450f873d36a99d612768c4fb6",
+    ".test_output/obj-global-bindings-asan/test_eval_global_binding_ownership": "f8fc0d355da371321934855e05bf58be5f33cf0dd39e68b38d4955fcaadb6656"
+  },
+  "limits": [
+    "I record hashes after the runs, not a complete before/after SDK closure.",
+    "My unittest products are temporary and not archived.",
+    "I instrument generated C while using the ordinary AOT runtime.",
+    "My C-seed-built development NanoLang driver is not a raw Stage1/Stage2 bootstrap.",
+    "My full original LeakSanitizer suite and legacy qualified-global AST-to-C route remain failed."
+  ]
+}
