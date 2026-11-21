@@ -533,6 +533,24 @@ void free_environment(Environment *env) {
         free(env->structs[i].module_name);
     }
     free(env->structs);
+
+    /* I own these registered copies. Complete parameter/result annotations
+     * remain borrowed from the AST; original_name is checker-owned below. */
+    for (int i = 0; i < env->effect_count; i++) {
+        EffectDef *effect = &env->effects[i];
+        for (int j = 0; j < effect->op_count; j++) {
+            EffectOp *operation = &effect->ops[j];
+            for (int k = 0; k < operation->param_count; k++)
+                free(operation->params[k].name);
+            free(operation->params);
+            free(operation->name);
+            free(operation->return_type_name);
+        }
+        free(effect->ops);
+        free(effect->name);
+        free(effect->module_name);
+    }
+    free(env->effects);
     
     while (env->effect_imports) {
         EffectImport *item = env->effect_imports;

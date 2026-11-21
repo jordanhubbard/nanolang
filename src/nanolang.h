@@ -746,7 +746,8 @@ typedef struct {
     char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
 } OpaqueTypeDef;
 
-/* Effect operation signature */
+/* I own operation/result names, parameter arrays and copied parameter names.
+ * I borrow complete parameter/result annotations from the declaration AST. */
 typedef struct {
     char *name;              /* Operation name (e.g., "print") */
     Parameter *params;       /* Parameters */
@@ -759,7 +760,7 @@ typedef struct {
 /* Effect definition entry: effect IO { print : String -> Unit } */
 typedef struct {
     char *name;              /* Effect name (e.g., "IO") */
-    char *original_name;     /* I retain the source spelling before module qualification. */
+    char *original_name;     /* My checker allocation list owns the source spelling. */
     EffectOp *ops;           /* Operations */
     int op_count;
     bool is_pub;
