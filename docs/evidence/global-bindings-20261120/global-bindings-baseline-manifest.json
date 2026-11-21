@@ -1,0 +1,16 @@
+{
+  "commit": "cf925d41604bffb9c1ca88d7783d4ab5ed8dc592",
+  "status": "?? tests/test_eval",
+  "post_run_sha256": {
+    "src/nanolang.h": "9f71f2c21912ea7bb6d0483e5055260be977e9c050786bc6b22d65c7b84442ab",
+    "src/env.c": "52a754e9afd60b8a48d32fbf12bd076ef29b7eff4233e17ae1e541a1d55e3a3f",
+    "src/eval.c": "0d2a32223e01dd975f425fa8eac10a588cd704401719d9559539447ba19e5dcd",
+    "src/typechecker.c": "e6fc3be8e1e67833d58d90a78e521020a24c066df7fa1bab56fa081ca0a14722",
+    "tests/test_eval.c": "ff43f5af98bbf9890d4bdca8e3e38c992293445c07e3c2a679380ed2125cc8d4",
+    "tests/test_eval": "6dac8fbd528d8652b2931ef0678e20ec18098795535a42d7d8b8fb910c124c93"
+  },
+  "limits": [
+    "I retain hashes and the complete failed build log; I do not archive this executable.",
+    "I compare different test sets and AST sizes, not an allocation delta under identical input."
+  ]
+}

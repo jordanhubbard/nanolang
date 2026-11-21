@@ -1,0 +1,383 @@
+module nvm2c_passive
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/instructions.nano" as insn
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+# I validate the passive claim, not ordinary instruction or module admission.
+struct Node {
+    entry: int, end: int, result: int, deps: array<int>, inputs: array<int>
+}
+struct Check {
+    ok: bool, next: int, function: int, end: int, roots: array<int>
+}
+
+fn failed() -> Check {
+    return Check { ok: false, next: 0, function: 0, end: 0, roots: [] }
+}
+shadow failed { assert (not (failed).ok) }
+
+fn contains(values: array<int>, value: int) -> bool {
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        if (== (at values i) value) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow contains {
+    assert (contains [1, 3] 3)
+    assert (not (contains [1, 3] 2))
+    assert (not (contains [] 0))
+}
+
+fn flags(count: int) -> array<bool> {
+    let mut values: array<bool> = []
+    let mut i: int = 0
+    while (< i count) { set values (array_push values false) set i (+ i 1) }
+    return values
+}
+shadow flags {
+    assert (== (array_length (flags 2)) 2)
+    assert (not (at (flags 2) 1))
+}
+
+fn guarded(code: array<u8>, f: calls.Function, tags: array<int>, input: int, entry: int) -> bool {
+    if (< (array_length tags) f.arity) { return false }
+    let mut pc: int = f.start
+    let mut previous: int = -1
+    while (< pc entry) {
+        let load: insn.Instruction = (insn.decode code pc (- entry pc))
+        if (!= load.opcode 16) { return false }
+        set pc (+ pc load.length)
+        let check: insn.Instruction = (insn.decode code pc (- entry pc))
+        if (!= check.opcode 140) { return false }
+        set pc (+ pc check.length)
+        let assertion: insn.Instruction = (insn.decode code pc (- entry pc))
+        if (!= assertion.opcode 161) { return false }
+        set pc (+ pc assertion.length)
+        let parameter: int = (at load.low 0)
+        if (or (>= parameter f.arity) (<= parameter previous)) { return false }
+        let tag: int = (at tags parameter)
+        if (or (not (or (== tag 1) (or (== tag 3) (or (== tag 4) (== tag 5))))) (!= (at check.low 0) tag)) { return false }
+        if (== parameter input) { return true }
+        if (> parameter input) { return false }
+        set previous parameter
+    }
+    return false
+}
+shadow guarded {
+    let f: calls.Function = calls.Function { start: 0, length: 6, arity: 1, locals: 2, upvalues: 0, results: 0 }
+    let code: array<u8> = [16, 0, 0, 140, 1, 161]
+    assert (guarded code f [1] 0 6)
+    assert (not (guarded code f [2] 0 6))
+    assert (not (guarded code f [] 0 6))
+    assert (not (guarded code f [1] 0 5))
+}
+
+fn position(pcs: array<int>, destination: int) -> int {
+    let mut low: int = 0
+    let mut high: int = (array_length pcs)
+    while (< low high) {
+        let mid: int = (+ low (/ (- high low) 2))
+        if (< (at pcs mid) destination) { set low (+ mid 1) } else { set high mid }
+    }
+    if (< low (array_length pcs)) {
+        if (== (at pcs low) destination) { return low }
+    }
+    return (array_length pcs)
+}
+shadow position {
+    assert (== (position [0, 3, 9] 3) 1)
+    assert (== (position [0, 3, 9] 4) 3)
+    assert (== (position [] 0) 0)
+}
+
+fn node_code(code: array<u8>, functions: array<calls.Function>, owner: int, nodes: array<Node>, index: int, version: int) -> Check {
+    let n: Node = (at nodes index)
+    let f: calls.Function = (at functions owner)
+    let mut entries: array<insn.Instruction> = []
+    let mut pcs: array<int> = []
+    let mut heights: array<int> = []
+    let mut pc: int = n.entry
+    while (< pc n.end) {
+        let item: insn.Instruction = (insn.decode code pc (- n.end pc))
+        if (or (== item.length 0) (and (== version 2) (== (array_length entries) 65536))) { return (failed) }
+        set entries (array_push entries item)
+        set pcs (array_push pcs pc)
+        set heights (array_push heights -1)
+        set pc (+ pc item.length)
+    }
+    let count: int = (array_length entries)
+    if (== count 0) { return (failed) }
+    (array_set heights 0 0)
+    let seen_deps: array<bool> = (flags (array_length nodes))
+    let seen_inputs: array<bool> = (flags f.arity)
+    let mut roots: array<int> = []
+    let mut depth: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let item: insn.Instruction = (at entries i)
+        let op: int = item.opcode
+        let branch: bool = (and (>= op 56) (<= op 58))
+        if (== version 2) { set depth (at heights i) }
+        if (< depth 0) { return (failed) }
+        if (not (calls.scalar_op op version)) {
+            if (or (!= version 2) (not (or (== op 59) branch))) { return (failed) }
+        }
+        let mut pop: int = item.pops
+        let mut push: int = item.pushes
+        if (== op 59) {
+            let callee: int = (at item.low 0)
+            if (>= callee (array_length functions)) { return (failed) }
+            let called: calls.Function = (at functions callee)
+            set pop called.arity set push called.results
+            set roots (array_push roots callee)
+        }
+        if (or (< pop 0) (or (< push 0) (or (< depth pop) (> (- depth pop) (- 4294967295 push))))) { return (failed) }
+        set depth (+ (- depth pop) push)
+        if (== op 17) {
+            if (or (!= (+ i 1) count) (or (!= (at item.low 0) n.result) (!= depth 0))) { return (failed) }
+        } else {
+            if (== (+ i 1) count) { return (failed) }
+            if (== op 16) {
+                let local: int = (at item.low 0)
+                let mut producer: int = (array_length nodes)
+                let mut j: int = 0
+                while (< j (array_length nodes)) {
+                    if (== (at nodes j).result local) { set producer j }
+                    set j (+ j 1)
+                }
+                if (< producer (array_length nodes)) {
+                    if (not (contains n.deps producer)) { return (failed) }
+                    (array_set seen_deps producer true)
+                } else {
+                    if (or (>= local f.arity) (not (contains n.inputs local))) { return (failed) }
+                    (array_set seen_inputs local true)
+                }
+            }
+            if (== version 2) {
+                let mut next: array<int> = []
+                if branch {
+                    let destination: int = (+ (at pcs i) (insn.integer item 0))
+                    if (or (<= destination (at pcs i)) (>= destination n.end)) { return (failed) }
+                    set next (array_push next (position pcs destination))
+                }
+                if (!= op 56) { set next (array_push next (+ i 1)) }
+                let mut edge: int = 0
+                while (< edge (array_length next)) {
+                    let j: int = (at next edge)
+                    if (>= j count) { return (failed) }
+                    if (and (>= (at heights j) 0) (!= (at heights j) depth)) { return (failed) }
+                    (array_set heights j depth)
+                    set edge (+ edge 1)
+                }
+            }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length n.deps)) {
+        if (not (at seen_deps (at n.deps i))) { return (failed) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length n.inputs)) {
+        if (not (at seen_inputs (at n.inputs i))) { return (failed) }
+        set i (+ i 1)
+    }
+    if (and (== version 1) (!= depth 0)) { return (failed) }
+    return Check { ok: true, next: 0, function: owner, end: n.end, roots: roots }
+}
+shadow node_code {
+    let f: calls.Function = calls.Function { start: 0, length: 5, arity: 0, locals: 1, upvalues: 0, results: 0 }
+    let n: Node = Node { entry: 0, end: 5, result: 0, deps: [], inputs: [] }
+    let code: array<u8> = [3, 1, 17, 0, 0]
+    assert (node_code code [f] 0 [n] 0 1).ok
+    assert (node_code code [f] 0 [n] 0 2).ok
+    assert (not (node_code [3, 1, 17, 1, 0] [f] 0 [n] 0 2).ok)
+}
+
+fn internal_edge(nodes: array<Node>, pc: int, destination: int, version: int) -> bool {
+    if (!= version 2) { return false }
+    let mut i: int = 0
+    while (< i (array_length nodes)) {
+        let n: Node = (at nodes i)
+        if (and (>= pc n.entry) (and (< pc n.end) (and (> destination pc) (< destination n.end)))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow internal_edge {
+    let n: Node = Node { entry: 0, end: 5, result: 0, deps: [], inputs: [] }
+    assert (internal_edge [n] 0 3 2)
+    assert (not (internal_edge [n] 0 3 1))
+    assert (not (internal_edge [n] 5 3 2))
+}
+
+fn owner_code(code: array<u8>, f: calls.Function, nodes: array<Node>, entry: int, end: int, version: int) -> bool {
+    let mut pc: int = f.start
+    let limit: int = (+ f.start f.length)
+    let mut saw_entry: bool = false
+    let mut saw_end: bool = (== end limit)
+    while (< pc limit) {
+        let item: insn.Instruction = (insn.decode code pc (- limit pc))
+        if (== item.length 0) { return false }
+        let op: int = item.opcode
+        let branch: bool = (and (>= op 56) (<= op 58))
+        if (not (calls.scalar_op op version)) {
+            if (not (or branch (or (== op 61) (or (== op 163) (or (== op 160) (or (== op 164) (or (== op 161) (and (== version 2) (or (== op 140) (== op 59)))))))))) { return false }
+        }
+        if (== pc entry) { set saw_entry true }
+        if (== pc end) { set saw_end true }
+        if branch {
+            let destination: int = (+ pc (insn.integer item 0))
+            if (and (> destination entry) (< destination end)) {
+                if (not (internal_edge nodes pc destination version)) { return false }
+            }
+        }
+        if (== op 17) {
+            let mut i: int = 0
+            while (< i (array_length nodes)) {
+                if (contains (at nodes i).inputs (at item.low 0)) { return false }
+                set i (+ i 1)
+            }
+        }
+        set pc (+ pc item.length)
+    }
+    return (and saw_entry saw_end)
+}
+shadow owner_code {
+    let f: calls.Function = calls.Function { start: 0, length: 6, arity: 0, locals: 1, upvalues: 0, results: 0 }
+    let n: Node = Node { entry: 0, end: 5, result: 0, deps: [], inputs: [] }
+    assert (owner_code [3, 1, 17, 0, 0, 61] f [n] 0 5 1)
+    assert (not (owner_code [3, 1, 17, 0, 0, 255] f [n] 0 5 1))
+}
+
+fn block(bytes: array<u8>, start: int, code: array<u8>, functions: array<calls.Function>, params: array<array<int>>, previous_function: int, previous_end: int, version: int) -> Check {
+    if (not (wire.contains bytes start 20)) { return (failed) }
+    let kind: int = (wire.read_u32 bytes start)
+    let owner: int = (wire.read_u32 bytes (+ start 4))
+    let entry: int = (wire.read_u32 bytes (+ start 8))
+    let end: int = (wire.read_u32 bytes (+ start 12))
+    let count: int = (wire.read_u32 bytes (+ start 16))
+    let mut cursor: int = (+ start 20)
+    if (or (not (or (== kind 1) (== kind 2))) (or (>= owner (array_length functions)) (or (== count 0) (or (> count (/ (- (array_length bytes) cursor) 28)) (or (>= entry end) (> end (array_length code))))))) { return (failed) }
+    let f: calls.Function = (at functions owner)
+    if (not (wire.contains code f.start f.length)) { return (failed) }
+    if (or (< entry f.start) (or (> end (+ f.start f.length)) (or (< owner previous_function) (and (== owner previous_function) (< entry previous_end))))) { return (failed) }
+    let mut nodes: array<Node> = []
+    let mut i: int = 0
+    while (< i count) {
+        if (not (wire.contains bytes cursor 28)) { return (failed) }
+        let begin: int = (wire.read_u32 bytes cursor)
+        let finish: int = (wire.read_u32 bytes (+ cursor 4))
+        let result: int = (wire.read_u32 bytes (+ cursor 8))
+        let dependencies: int = (wire.read_u32 bytes (+ cursor 12))
+        let reads: int = (wire.read_u32 bytes (+ cursor 16))
+        let effects: int = (wire.read_u32 bytes (+ cursor 20))
+        let resources: int = (wire.read_u32 bytes (+ cursor 24))
+        set cursor (+ cursor 28)
+        if (or (!= effects 0) (or (!= resources 0) (or (< begin entry) (or (> finish end) (or (>= begin finish) (or (< result f.arity) (>= result f.locals))))))) { return (failed) }
+        if (or (> dependencies count) (or (and (== version 1) (!= reads 0)) (or (> (+ dependencies reads) (/ (- (array_length bytes) cursor) 4)) (and (== kind 1) (!= dependencies 0))))) { return (failed) }
+        let mut deps: array<int> = []
+        let mut inputs: array<int> = []
+        let mut j: int = 0
+        let mut previous: int = -1
+        while (< j dependencies) {
+            let d: int = (wire.read_u32 bytes cursor)
+            if (or (>= d count) (or (== d i) (<= d previous))) { return (failed) }
+            set deps (array_push deps d) set previous d
+            set cursor (+ cursor 4) set j (+ j 1)
+        }
+        set j 0 set previous -1
+        while (< j reads) {
+            let input: int = (wire.read_u32 bytes cursor)
+            if (or (>= input f.arity) (or (<= input previous) (>= owner (array_length params)))) { return (failed) }
+            if (not (guarded code f (at params owner) input entry)) { return (failed) }
+            set inputs (array_push inputs input) set previous input
+            set cursor (+ cursor 4) set j (+ j 1)
+        }
+        set j 0
+        while (< j (array_length nodes)) {
+            if (== (at nodes j).result result) { return (failed) }
+            set j (+ j 1)
+        }
+        set nodes (array_push nodes Node { entry: begin, end: finish, result: result, deps: deps, inputs: inputs })
+        set i (+ i 1)
+    }
+    let done: array<bool> = (flags count)
+    let mut position: int = entry
+    let mut roots: array<int> = []
+    let mut step: int = 0
+    while (< step count) {
+        let mut selected: int = count
+        set i 0
+        while (< i count) {
+            if (not (at done i)) {
+                let n: Node = (at nodes i)
+                let mut ready: bool = true
+                let mut j: int = 0
+                while (< j (array_length n.deps)) {
+                    if (not (at done (at n.deps j))) { set ready false }
+                    set j (+ j 1)
+                }
+                if ready { set selected i break }
+            }
+            set i (+ i 1)
+        }
+        if (== selected count) { return (failed) }
+        let n: Node = (at nodes selected)
+        if (!= n.entry position) { return (failed) }
+        let checked: Check = (node_code code functions owner nodes selected version)
+        if (not checked.ok) { return (failed) }
+        set i 0
+        while (< i (array_length checked.roots)) {
+            set roots (array_push roots (at checked.roots i)) set i (+ i 1)
+        }
+        set position n.end
+        (array_set done selected true)
+        set step (+ step 1)
+    }
+    if (or (!= position end) (not (owner_code code f nodes entry end version))) { return (failed) }
+    return Check { ok: true, next: cursor, function: owner, end: end, roots: roots }
+}
+shadow block {
+    let f: calls.Function = calls.Function { start: 0, length: 5, arity: 0, locals: 1, upvalues: 0, results: 0 }
+    let bytes: array<u8> = [1,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,1,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    let checked: Check = (block bytes 0 [3,1,17,0,0] [f] [[]] -1 0 1)
+    assert checked.ok
+    assert (== checked.next 48)
+    assert (not (block bytes 0 [3,1,17,0,0] [f] [[]] 1 0 1).ok)
+}
+
+pub fn validate(bytes: array<u8>, code: array<u8>, functions: array<calls.Function>, params: array<array<int>>) -> bool {
+    if (== (array_length bytes) 0) { return true }
+    if (not (wire.contains bytes 0 8)) { return false }
+    let version: int = (wire.read_u32 bytes 0)
+    let count: int = (wire.read_u32 bytes 4)
+    if (or (not (or (== version 1) (== version 2))) (or (== count 0) (> count (/ (- (array_length bytes) 8) 48)))) { return false }
+    let mut cursor: int = 8
+    let mut previous_function: int = -1
+    let mut previous_end: int = 0
+    let mut roots: array<int> = []
+    let mut i: int = 0
+    while (< i count) {
+        let checked: Check = (block bytes cursor code functions params previous_function previous_end version)
+        if (not checked.ok) { return false }
+        set cursor checked.next set previous_function checked.function set previous_end checked.end
+        let mut j: int = 0
+        while (< j (array_length checked.roots)) {
+            set roots (array_push roots (at checked.roots j)) set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= cursor (array_length bytes)) { return false }
+    # I preserve C's block/node/instruction call order and shared cache. Deferral
+    # changes no boolean decision; I publish no claim until the whole batch passes.
+    return (calls.closed_sequence code functions roots)
+}
+shadow validate {
+    assert (validate [] [] [] [])
+    assert (not (validate [1,0,0,0,0,0,0,0] [] [] []))
+    assert (not (validate [2,0,0] [] [] []))
+}

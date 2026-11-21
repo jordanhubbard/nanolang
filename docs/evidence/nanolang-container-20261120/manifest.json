@@ -1,0 +1,34 @@
+{
+  "source_commit": "ac163f5d1ab9d2d2608571fac3c0b586bf3cca55",
+  "platform": "Linux sparky 7.0.0-1025-nvidia #26~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov  3 19:27:25 UTC 2 aarch64 aarch64 aarch64 GNU/Linux",
+  "post_run_sha256": {
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "tests/nvm2c_container_driver.nano": "15cb7db66b3e98864dee29ab8b4705e272ca61afd75727958b6011de3f978dbc",
+    "tests/nvm2c_container_reference.c": "1aa3e64474e69b43ef4473489433b1a3264058ba51285590c1875f5d09093e80",
+    "tests/test_nanolang_translator_container.py": "dc1c17fd6717837eaf403c2c3fd155e0a38801429e0817aaf278c394276b9e1a",
+    "Makefile.gnu": "23412a838a92933e9877f044f840d864a00e9cd319cdd07a323bbea094523117",
+    "bin/nanoc_c": "c0cf13e765e5b1a98c772089f889607423ee65766b99b8565a5d530dd47d4120",
+    "bin/nano_virt": "fab2eaa9bf5c421ae7b3c030c87d617a58574a6a317b39342f0e1d4a81af6589",
+    "bin/nano_vm": "8ac9131f5fbb5d2dda920249e787e25c403095294c1c7aa8a111ae048ddafd13",
+    "bin/nvm2c": "26f003c17623e36b1ae2550340a30461993c610b5b6bebb9f224785a2292d072",
+    "bin/nano_aot_runtime.o": "0b19465ec8fad9f36cba9f82f4e3823f9a3b25b04b4a910a037c754fd92b8ce8",
+    "obj/nvm2c_container_reference": "e0d878e1e721c6ce687ba97cb094341b2d1f0c7ad23c88dc5e7e1d5796a1cf37",
+    ".test_output/nvm2c-full-source-compiler": "5dd7469cd551cc914745c3e1818c3c6bcc680ea775dbd37e71259f0b9b49add4"
+  },
+  "case_count": 165,
+  "explicit_expected_statuses": 117,
+  "routes": [
+    "C-seed native",
+    "C producer / NanoVM",
+    "C producer / instrumented C AOT",
+    "NanoLang driver built by C seed / NanoVM",
+    "NanoLang driver built by C seed / instrumented C AOT"
+  ],
+  "limits": [
+    "I collect these hashes after the runs; this is not an unchanged before/after SDK receipt.",
+    "The unittest deletes its temporary per-case inputs and native/module products; these are not archived products.",
+    "The C AOT generated code is instrumented; bin/nano_aot_runtime.o is the ordinary existing runtime object.",
+    "The source driver is built by the C seed. This does not qualify self-hosted Stage1/Stage2 equality or no-C-seed installation.",
+    "I have not qualified Darwin, payload decoding, executable admission, C emission in NanoLang or release cutover."
+  ]
+}

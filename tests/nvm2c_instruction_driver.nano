@@ -1,0 +1,60 @@
+module "src_nano/nvm2c/instructions.nano" as decoder
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn hexadecimal(bytes: array<u8>) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        let octet: int = (at bytes i)
+        set result (+ result (str_substring digits (/ octet 16) 1))
+        set result (+ result (str_substring digits (% octet 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow hexadecimal {
+    let bytes: array<u8> = [0, 128, 255]
+    assert (== (hexadecimal bytes) "0080ff")
+}
+
+fn describe(bytes: array<u8>) -> string {
+    let offset: int = (wire.read_offset bytes 0)
+    let available: int = (wire.read_offset bytes 8)
+    let mut start: int = -1
+    if (and (>= offset 0) (<= offset (- 9223372036854775807 16))) { set start (+ offset 16) }
+    let item: decoder.Instruction = (decoder.decode bytes start available)
+    let mut result: string = (int_to_string item.length)
+    set result (+ result (+ ":" (int_to_string item.opcode)))
+    set result (+ result (+ ":" (int_to_string item.pops)))
+    set result (+ result (+ ":" (int_to_string item.pushes)))
+    set result (+ result (+ ":" (int_to_string (array_length item.kinds))))
+    let mut i: int = 0
+    while (< i (array_length item.kinds)) {
+        set result (+ result (+ ":" (int_to_string (at item.kinds i))))
+        set result (+ result (+ ":" (int_to_string (at item.low i))))
+        set result (+ result (+ ":" (int_to_string (at item.high i))))
+        set result (+ result (+ ":" (int_to_string (decoder.integer item i))))
+        set i (+ i 1)
+    }
+    return (+ (+ result ":") (hexadecimal (decoder.reencode item)))
+}
+shadow describe {
+    let bytes: array<u8> = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    assert (== (describe bytes) "1:0:0:0:0:00")
+    let short: array<u8> = []
+    assert (== (describe short) "0:-1:-1:-1:0:")
+}
+
+fn main() -> int {
+    unsafe {
+        let mut i: int = 1
+        while (< i (get_argc)) {
+            (println (describe (file_read_bytes (get_argv i))))
+            set i (+ i 1)
+        }
+    }
+    return 0
+}

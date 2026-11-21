@@ -14,6 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA = ROOT / "spec/nanoisa.yaml"
 OUTPUT = ROOT / "src/nanoisa/generated_schema.h"
+NANOLANG_OUTPUT = ROOT / "src_nano/nvm2c/isa_metadata.nano"
 
 
 # Every portable ("public") v2 instruction records why it belongs in the
@@ -205,17 +206,70 @@ def generate(schema: dict) -> str:
     return "\n".join(lines)
 
 
+def generate_nanolang(schema: dict) -> str:
+    """I share primary decode metadata with the C reader without calling it."""
+    validate(schema)
+    sizes = {"NONE": 0, "U8": 1, "U16": 2, "U32": 4, "I32": 4, "I64": 8, "F64": 8}
+    kinds = {name: index for index, name in enumerate(sizes)}
+    tables = {"widths": [0] * 256, "counts": [-1] * 256,
+              "pops": [-1] * 256, "pushes": [-1] * 256,
+              "kinds": [0] * 1024}
+    for opcode in schema["legacy_opcodes"]:
+        code = _as_int(opcode["code"])
+        operands = opcode.get("operands", [])
+        if len(operands) > 4 or any(kind not in kinds for kind in operands):
+            raise ValueError("I require at most four known primary operands")
+        tables["widths"][code] = 1 + sum(sizes[o] for o in operands)
+        tables["counts"][code] = len(operands)
+        tables["pops"][code] = opcode.get("pops", -1)
+        tables["pushes"][code] = opcode.get("pushes", -1)
+        for index, kind in enumerate(operands):
+            tables["kinds"][code * 4 + index] = kinds[kind]
+    lines = ["# I am generated from spec/nanoisa.yaml by scripts/gen_nanoisa_schema.py.",
+             "module nvm2c_isa_metadata", ""]
+    for name, values in tables.items():
+        lines.append(f"let nvm2c_primary_{name}: array<int> = [")
+        for index in range(0, len(values), 16):
+            lines.append("    " + ", ".join(map(str, values[index:index+16])) +
+                         ("," if index + 16 < len(values) else ""))
+        lines += ["]", ""]
+    for name, table, missing, controls in [
+        ("primary_width", "widths", 0, [(0, 1), (1, 9), (255, 0), (-1, 0), (256, 0)]),
+        ("primary_operands", "counts", -1, [(0, 0), (15, 2), (255, -1), (-1, -1)]),
+        ("primary_pops", "pops", -1, [(0, 0), (32, 2), (255, -1), (256, -1)]),
+        ("primary_pushes", "pushes", -1, [(0, 0), (1, 1), (255, -1), (-1, -1)]),
+    ]:
+        lines += [f"pub fn {name}(opcode: int) -> int {{",
+                  f"    if (or (< opcode 0) (> opcode 255)) {{ return {missing} }}",
+                  f"    return (at nvm2c_primary_{table} opcode)", "}", "", f"shadow {name} {{"]
+        lines += [f"    assert (== ({name} {op}) {value})" for op, value in controls]
+        lines += ["}", ""]
+    lines += ["pub fn primary_kind(opcode: int, operand: int) -> int {",
+              "    if (or (< operand 0) (>= operand (primary_operands opcode))) { return 0 }",
+              "    return (at nvm2c_primary_kinds (+ (* opcode 4) operand))", "}", "",
+              "shadow primary_kind {",
+              "    assert (== (primary_kind 1 0) 5)",
+              "    assert (== (primary_kind 15 1) 2)",
+              "    assert (== (primary_kind 1 1) 0)",
+              "    assert (== (primary_kind -1 0) 0)",
+              "    assert (== (primary_kind 1 -1) 0)", "}", ""]
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    rendered = generate(yaml.safe_load(SCHEMA.read_text()))
+    schema = yaml.safe_load(SCHEMA.read_text())
+    outputs = {OUTPUT: generate(schema), NANOLANG_OUTPUT: generate_nanolang(schema)}
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text() != rendered:
-            print(f"{OUTPUT.relative_to(ROOT)} is out of date")
-            return 1
-        return 0
-    OUTPUT.write_text(rendered)
+        stale = [p for p, rendered in outputs.items() if not p.exists() or p.read_text() != rendered]
+        for path in stale:
+            print(f"{path.relative_to(ROOT)} is out of date")
+        return int(bool(stale))
+    for path, rendered in outputs.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(rendered)
     return 0
 
 

@@ -1,0 +1,574 @@
+module nvm2c_ownership
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/instructions.nano" as insn
+module "src_nano/nvm2c/passive_calls.nano" as calls
+module "src_nano/nvm2c/ownership_wire.nano" as read
+
+# I check declarations. Successful declarations grant no instruction lifetime.
+pub struct Module {
+    layouts: array<u8>, code: array<u8>, strings: array<array<u8>>,
+    functions: array<calls.Function>, params: array<array<int>>, results: array<int>,
+    records: int, enums: int, unions: int
+}
+pub struct Declaration { status: int, requires_verifier: bool }
+
+fn empty_module() -> Module {
+    return Module { layouts: [0,0,0,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+}
+shadow empty_module { assert (== (empty_module).records 0) }
+
+fn outcome(status: int, needs: bool) -> Declaration {
+    return Declaration { status: status, requires_verifier: (and (== status 0) needs) }
+}
+shadow outcome { assert (not (outcome 8 true).requires_verifier) assert (outcome 0 true).requires_verifier }
+
+fn scalar(tag: int) -> bool { return (and (>= tag 1) (<= tag 4)) }
+shadow scalar { assert (scalar 2) assert (not (scalar 5)) }
+
+fn complete(flag: int) -> bool { return (== (% flag 2) 1) }
+shadow complete { assert (complete 3) assert (not (complete 2)) }
+
+fn is_resource(flag: int) -> bool { return (== (% (/ flag 2) 2) 1) }
+shadow is_resource { assert (is_resource 3) assert (not (is_resource 1)) }
+
+fn layout_kind(layouts: payload.PayloadTable, index: int) -> int {
+    return (cast_int (at layouts.data (at layouts.starts index)))
+}
+shadow layout_kind {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,2,0,0,0,255,255,255,255] 4)
+    assert (== (layout_kind table 0) 2)
+}
+
+fn field_count(layouts: payload.PayloadTable, index: int) -> int {
+    return (wire.read_u16 layouts.data (+ (at layouts.starts index) 2))
+}
+shadow field_count {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,0,0,0,0,255,255,255,255] 4)
+    assert (== (field_count table 0) 0)
+}
+
+fn field_at(layouts: payload.PayloadTable, index: int, field: int) -> int {
+    return (+ (+ (at layouts.starts index) 8) (* field 12))
+}
+shadow field_at {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,0,0,0,0,255,255,255,255] 4)
+    assert (== (field_at table 0 0) 12)
+}
+
+fn retained(model: Module, layouts: payload.PayloadTable) -> bool {
+    if (or (!= layouts.status 0) (!= layouts.end (array_length model.layouts))) { return false }
+    let mut records: int = 0
+    let mut enums: int = 0
+    let mut unions: int = 0
+    let mut i: int = 0
+    while (< i (array_length layouts.starts)) {
+        let kind: int = (layout_kind layouts i)
+        if (== kind 0) { set records (+ records 1) }
+        if (== kind 1) { set enums (+ enums 1) }
+        if (== kind 2) { set unions (+ unions 1) }
+        let name: int = (wire.read_u32 layouts.data (+ (at layouts.starts i) 4))
+        if (and (!= name 4294967295) (>= name (array_length model.strings))) { return false }
+        let mut j: int = 0
+        while (< j (field_count layouts i)) {
+            let field_name: int = (wire.read_u32 layouts.data (+ (field_at layouts i j) 8))
+            if (and (!= field_name 4294967295) (>= field_name (array_length model.strings))) { return false }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return (and (== records model.records) (and (== enums model.enums) (== unions model.unions)))
+}
+shadow retained {
+    let model: Module = (empty_module)
+    assert (retained model (payload.decode model.layouts 4))
+    let bad: Module = Module { layouts: [0,0,0,0,0], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (retained bad (payload.decode bad.layouts 4)))
+}
+
+pub fn layout_profile(layouts: payload.PayloadTable, flags: array<int>, version: int, facts: array<int>, profile: int) -> int {
+    let count: int = (array_length layouts.starts)
+    let mut resources: bool = false
+    let mut i: int = 0
+    while (< i count) { if (is_resource (at flags i)) { set resources true } set i (+ i 1) }
+    if resources {
+        set i 0
+        while (< i count) {
+            let mut j: int = 0
+            while (< j (field_count layouts i)) {
+                let child: int = (wire.read_u32 layouts.data (+ (field_at layouts i j) 4))
+                if (and (!= child 4294967295) (>= child i)) { return 8 }
+                set j (+ j 1)
+            }
+            set i (+ i 1)
+        }
+    }
+    set i 0
+    while (< i count) {
+        let flag: int = (at flags i)
+        if (> flag 3) { return 7 }
+        if (and (is_resource flag) (not (complete flag))) { return 8 }
+        if (complete flag) {
+            let kind: int = (layout_kind layouts i)
+            if (not (or (== kind 0) (and (== profile 0) (and (== version 3) (== kind 2))))) { return 8 }
+            let mut j: int = 0
+            while (< j (field_count layouts i)) {
+                let field: int = (field_at layouts i j)
+                let tag: int = (cast_int (at layouts.data field))
+                let child: int = (wire.read_u32 layouts.data (+ field 4))
+                if (or (scalar tag) (== tag 5)) {
+                    if (!= child 4294967295) { return 8 }
+                } else if (or (and (> profile 0) (and (== tag 7) (not (is_resource flag)))) (and (== profile 3) (and (== tag 13) (and (== kind 0) (== flag 1))))) {
+                    if (!= child 4294967295) { return 8 }
+                } else {
+                    if (not (or (== tag 8) (and (== profile 0) (and (== version 3) (== tag 10))))) { return 8 }
+                    if (or (>= child count) (and resources (>= child i))) { return 8 }
+                    let expected_kind: int = (cond ((== tag 8) 0) (else 2))
+                    if (!= (layout_kind layouts child) expected_kind) { return 8 }
+                    if (not (complete (at flags child))) { return 8 }
+                    if (and (is_resource (at flags child)) (not (is_resource flag))) { return 8 }
+                }
+                set j (+ j 1)
+            }
+            if (is_resource flag) { (array_set facts 0 1) }
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow layout_profile {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,0,0,0,0,255,255,255,255] 4)
+    assert (== (layout_profile table [1] 3 [0,0,0] 1) 0)
+    assert (== (layout_profile table [4] 3 [0,0,0] 3) 7)
+}
+fn check_layouts(layouts: payload.PayloadTable, flags: array<int>, version: int, facts: array<int>) -> int {
+    return (layout_profile layouts flags version facts 0)
+}
+shadow check_layouts {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,0,0,0,0,255,255,255,255] 4)
+    let facts: array<int> = [0,0,0]
+    assert (== (check_layouts table [3] 1 facts) 0)
+    assert (== (at facts 0) 1)
+    assert (== (check_layouts table [4] 1 [0,0,0]) 7)
+    assert (== (check_layouts table [2] 1 [0,0,0]) 8)
+}
+
+fn flat_reference(layouts: payload.PayloadTable, index: int) -> bool {
+    # The shared descriptor selects an empty field path and the root referent.
+    # C's final referent check therefore requires scalar leaves at this root.
+    if (!= (layout_kind layouts index) 0) { return false }
+    let mut j: int = 0
+    while (< j (field_count layouts index)) {
+        let field: int = (field_at layouts index j)
+        if (or (not (scalar (cast_int (at layouts.data field)))) (!= (wire.read_u32 layouts.data (+ field 4)) 4294967295)) { return false }
+        set j (+ j 1)
+    }
+    return true
+}
+shadow flat_reference {
+    let table: payload.PayloadTable = (payload.decode [1,0,0,0,0,0,0,0,255,255,255,255] 4)
+    assert (flat_reference table 0)
+}
+
+pub fn descriptor_profile(c: read.Cursor, layouts: payload.PayloadTable, flags: array<int>, version: int, parameter: bool, signature_tag: int, facts: array<int>, profile: int) -> int {
+    let tag: int = (read.read_byte c)
+    let mode: int = (read.read_byte c)
+    let reserved: int = (read.read_u16 c)
+    let layout: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (read.status c) }
+    if (!= reserved 0) { return 7 }
+    if (or (>= tag 16) (or (> mode 2) (or (and (not parameter) (!= mode 0)) (and (>= signature_tag 0) (!= tag signature_tag))))) { return 8 }
+    if (and (== profile 0) (== tag 7)) {
+        if (== layout 4294967295) { (array_set facts 2 1) }
+        else {
+            if (or (!= version 3) (!= mode 0)) { return 8 }
+            if (< (at facts 1) (+ layout 1)) { (array_set facts 1 (+ layout 1)) }
+            (array_set facts 0 1)
+            return 0
+        }
+    }
+    if (!= layout 4294967295) {
+        if (>= layout (array_length layouts.starts)) { return 13 }
+        let record: bool = (and (== tag 8) (and (complete (at flags layout)) (== (layout_kind layouts layout) 0)))
+        let union_value: bool = (and (== version 3) (and (== tag 10) (and (or (== (at flags layout) 0) (complete (at flags layout))) (== (layout_kind layouts layout) 2))))
+        if (not (or record union_value)) { return 8 }
+        if union_value { (array_set facts 0 1) }
+    }
+    if (!= mode 0) {
+        if (== layout 4294967295) { return 8 }
+        if (not (is_resource (at flags layout))) { return 8 }
+        if (not (flat_reference layouts layout)) {
+            if (> profile 0) { (array_set facts 3 1) }
+            return 8
+        }
+        (array_set facts 0 1)
+    }
+    return 0
+}
+shadow descriptor_profile {
+    let table: payload.PayloadTable = (payload.decode [0,0,0,0] 4)
+    assert (== (descriptor_profile (read.open [7,0,0,0,255,255,255,255]) table [] 3 false 7 [0,0,0,0] 1) 0)
+    assert (== (descriptor_profile (read.open [7,0,0,0,0,0,0,0]) table [] 3 false 7 [0,0,0,0] 1) 13)
+}
+fn descriptor(c: read.Cursor, layouts: payload.PayloadTable, flags: array<int>, version: int, parameter: bool, signature_tag: int, facts: array<int>) -> int {
+    return (descriptor_profile c layouts flags version parameter signature_tag facts 0)
+}
+shadow descriptor {
+    let table: payload.PayloadTable = (payload.decode [0,0,0,0] 4)
+    assert (== (descriptor (read.open [1,0,0,0,255,255,255,255]) table [] 1 false 1 [0,0,0]) 0)
+    assert (== (descriptor (read.open [1,0,1,0,255,255,255,255]) table [] 1 false 1 [0,0,0]) 7)
+    assert (== (descriptor (read.open [1,0]) table [] 1 false 1 [0,0,0]) 1)
+}
+
+fn nominal_value(c: read.Cursor, layouts: payload.PayloadTable, flags: array<int>, result_value: bool, earlier: int, arrays: bool) -> int {
+    let tag: int = (read.read_byte c)
+    let mode: int = (read.read_byte c)
+    let reserved: int = (read.read_u16 c)
+    let layout: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (read.status c) }
+    if (or (!= mode 0) (!= reserved 0)) { return 7 }
+    if (or (scalar tag) (or (== tag 5) (and result_value (== tag 0)))) {
+        if (!= layout 4294967295) { return 8 }
+    } else if (or (== tag 8) (== tag 10)) {
+        if (>= layout (array_length layouts.starts)) { return 13 }
+        let kind: int = (cond ((== tag 8) 0) (else 2))
+        if (or (!= (layout_kind layouts layout) kind) (not (complete (at flags layout)))) { return 8 }
+    } else if (and arrays (== tag 7)) {
+        if (>= layout earlier) { return 13 }
+    } else { return 8 }
+    return 0
+}
+shadow nominal_value {
+    let table: payload.PayloadTable = (payload.decode [0,0,0,0] 4)
+    assert (== (nominal_value (read.open [0,0,0,0,255,255,255,255]) table [] true 0 false) 0)
+    assert (== (nominal_value (read.open [0,0,0,0,255,255,255,255]) table [] false 0 false) 8)
+    assert (== (nominal_value (read.open [7,0,0,0,0,0,0,0]) table [] false 1 true) 0)
+}
+
+pub fn union_facts(bytes: array<u8>, model: Module, layouts: payload.PayloadTable, flags: array<int>) -> int {
+    let c: read.Cursor = (read.open bytes)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (read.status c) }
+    if (or (!= count model.unions) (> count 256)) { return 13 }
+    let mut ordinal: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let layout: int = (read.read_u32 c)
+        let variants: int = (read.read_u16 c)
+        let reserved: int = (read.read_u16 c)
+        if (!= (read.status c) 0) { return (read.status c) }
+        while (< ordinal (array_length layouts.starts)) {
+            if (== (layout_kind layouts ordinal) 2) { break }
+            set ordinal (+ ordinal 1)
+        }
+        if (or (!= reserved 0) (or (== variants 0) (or (> variants 256) (or (>= ordinal (array_length layouts.starts)) (!= layout ordinal))))) { return 8 }
+        if (== (wire.read_u32 layouts.data (+ (at layouts.starts layout) 4)) 4294967295) { return 8 }
+        let mut names: array<int> = []
+        let mut next: int = 0
+        let mut v: int = 0
+        while (< v variants) {
+            let name: int = (read.read_u32 c)
+            let offset: int = (read.read_u16 c)
+            let fields: int = (read.read_u16 c)
+            if (!= (read.status c) 0) { return (read.status c) }
+            if (or (>= name (array_length model.strings)) (or (!= offset next) (> fields (- (field_count layouts layout) offset)))) { return 13 }
+            let mut j: int = 0
+            while (< j (array_length names)) {
+                if (== (at names j) name) { return 8 }
+                set j (+ j 1)
+            }
+            set names (array_push names name)
+            set j 0
+            while (< j fields) {
+                let field: int = (field_at layouts layout (+ offset j))
+                let tag: int = (cast_int (at layouts.data field))
+                let child: int = (wire.read_u32 layouts.data (+ field 4))
+                let leaf: bool = (and (or (scalar tag) (== tag 5)) (== child 4294967295))
+                let mut nested: bool = false
+                if (and (complete (at flags layout)) (< child layout)) {
+                    if (complete (at flags child)) {
+                        set nested (or (and (== tag 8) (== (layout_kind layouts child) 0)) (and (== tag 10) (== (layout_kind layouts child) 2)))
+                    }
+                }
+                if (or (not (or leaf nested)) (== (wire.read_u32 layouts.data (+ field 8)) 4294967295)) { return 8 }
+                set j (+ j 1)
+            }
+            set next (+ offset fields) set v (+ v 1)
+        }
+        if (!= next (field_count layouts layout)) { return 13 }
+        set ordinal (+ ordinal 1) set i (+ i 1)
+    }
+    while (< ordinal (array_length layouts.starts)) {
+        if (== (layout_kind layouts ordinal) 2) { return 13 }
+        set ordinal (+ ordinal 1)
+    }
+    if (!= (read.position c) (array_length bytes)) { return 9 }
+    return 0
+}
+shadow union_facts {
+    let model: Module = (empty_module)
+    let table: payload.PayloadTable = (payload.decode model.layouts 4)
+    assert (== (union_facts [0,0,0,0] model table []) 0)
+    assert (== (union_facts [1,0,0,0] model table []) 13)
+}
+
+fn globals(bytes: array<u8>, layouts: payload.PayloadTable, flags: array<int>) -> int {
+    let c: read.Cursor = (read.open bytes)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (read.status c) }
+    if (or (== count 0) (> count 256)) { return 13 }
+    let mut i: int = 0
+    while (< i count) {
+        let tag: int = (read.read_byte c)
+        let mutable: int = (read.read_byte c)
+        let reserved: int = (read.read_u16 c)
+        let layout: int = (read.read_u32 c)
+        if (!= (read.status c) 0) { return (read.status c) }
+        if (or (!= reserved 0) (> mutable 1)) { return 7 }
+        if (or (scalar tag) (== tag 5)) {
+            if (!= layout 4294967295) { return 8 }
+        } else if (or (== tag 8) (== tag 10)) {
+            if (>= layout (array_length layouts.starts)) { return 13 }
+            let kind: int = (cond ((== tag 8) 0) (else 2))
+            if (or (!= (layout_kind layouts layout) kind) (not (complete (at flags layout)))) { return 8 }
+        } else { return 8 }
+        set i (+ i 1)
+    }
+    if (!= (read.position c) (array_length bytes)) { return 9 }
+    return 0
+}
+shadow globals {
+    let table: payload.PayloadTable = (payload.decode [0,0,0,0] 4)
+    assert (== (globals [1,0,0,0,1,0,0,0,255,255,255,255] table []) 0)
+    assert (== (globals [0,0,0,0] table []) 13)
+}
+
+fn constructors(c: read.Cursor, model: Module, tags: array<int>) -> int {
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (read.status c) }
+    if (> count 32768) { return 13 }
+    let mut prior_function: int = -1
+    let mut prior_site: int = 0
+    let mut pc: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let function: int = (read.read_u32 c)
+        let site: int = (read.read_u32 c)
+        let element: int = (read.read_u32 c)
+        if (!= (read.status c) 0) { return (read.status c) }
+        if (or (>= function (array_length model.functions)) (>= element (array_length tags))) { return 13 }
+        if (or (< function prior_function) (and (== function prior_function) (<= site prior_site))) { return 8 }
+        let f: calls.Function = (at model.functions function)
+        if (or (not (wire.contains model.code f.start f.length)) (>= site f.length)) { return 13 }
+        if (!= function prior_function) { set pc 0 }
+        while (< pc site) {
+            let item: insn.Instruction = (insn.decode model.code (+ f.start pc) (- f.length pc))
+            if (== item.length 0) { return 8 }
+            set pc (+ pc item.length)
+        }
+        if (!= pc site) { return 8 }
+        let item: insn.Instruction = (insn.decode model.code (+ f.start pc) (- f.length pc))
+        if (== item.length 0) { return 8 }
+        if (!= item.opcode 80) {
+            if (!= item.opcode 88) { return 8 }
+            if (!= (at item.low 1) 0) { return 8 }
+        }
+        if (!= (at item.low 0) (at tags element)) { return 8 }
+        set prior_function function set prior_site site set pc (+ pc item.length)
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow constructors {
+    assert (== (constructors (read.open [0,0,0,0]) (empty_module) []) 0)
+    assert (== (constructors (read.open [1,128,0,0]) (empty_module) []) 13)
+}
+
+fn same_bytes(a: array<u8>, b: array<u8>) -> bool {
+    if (!= (array_length a) (array_length b)) { return false }
+    let mut i: int = 0
+    while (< i (array_length a)) {
+        if (!= (at a i) (at b i)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow same_bytes { assert (same_bytes [255] [255]) assert (not (same_bytes [0] [0,1])) }
+
+fn effects(view: read.Extension, model: Module, layouts: payload.PayloadTable, flags: array<int>) -> int {
+    let c: read.Cursor = (read.open view.data)
+    let mut types: int = 0
+    let mut tags: array<int> = []
+    if (>= view.revision 2) {
+        set types (read.read_u32 c)
+        if (!= (read.status c) 0) { return -1 }
+        if (or (== types 0) (> types 256)) { return -13 }
+        let mut i: int = 0
+        while (< i types) {
+            let at_position: int = (read.position c)
+            let status: int = (nominal_value c layouts flags false i true)
+            if (!= status 0) { return (- 0 status) }
+            set tags (array_push tags (cast_int (at view.data at_position)))
+            set i (+ i 1)
+        }
+    }
+    if (== view.revision 3) {
+        let status: int = (constructors c model tags)
+        if (!= status 0) { return (- 0 status) }
+    }
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return -1 }
+    if (or (== count 0) (> count 256)) { return -13 }
+    let mut keys: array<int> = []
+    let mut i: int = 0
+    while (< i count) {
+        let key: int = (read.read_u32 c)
+        let params: int = (read.read_u16 c)
+        let reserved: int = (read.read_u16 c)
+        if (!= (read.status c) 0) { return -1 }
+        if (!= reserved 0) { return -7 }
+        if (or (> params 256) (>= key (array_length model.strings))) { return -13 }
+        let name: array<u8> = (at model.strings key)
+        if (== (array_length name) 0) { return -8 }
+        let mut j: int = 0
+        while (< j (array_length name)) {
+            if (== (at name j) 0) { return -8 }
+            set j (+ j 1)
+        }
+        if (> i 0) { if (<= key (at keys (- i 1))) { return -8 } }
+        set j 0
+        while (< j i) {
+            if (same_bytes name (at model.strings (at keys j))) { return -8 }
+            set j (+ j 1)
+        }
+        set keys (array_push keys key)
+        let status: int = (nominal_value c layouts flags true types (>= view.revision 2))
+        if (!= status 0) { return (- 0 status) }
+        set j 0
+        while (< j params) {
+            let param_status: int = (nominal_value c layouts flags false types (>= view.revision 2))
+            if (!= param_status 0) { return (- 0 param_status) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= (read.position c) (array_length view.data)) { return -9 }
+    return types
+}
+shadow effects {
+    let table: payload.PayloadTable = (payload.decode [0,0,0,0] 4)
+    let view: read.Extension = read.Extension { kind: 4, revision: 1, data: [0,0,0,0] }
+    assert (== (effects view (empty_module) table []) -13)
+}
+
+fn extension_index(values: array<read.Extension>, kind: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        if (== (at values i).kind kind) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow extension_index {
+    let e: read.Extension = read.Extension { kind: 3, revision: 1, data: [] }
+    assert (== (extension_index [e] 3) 0)
+    assert (== (extension_index [e] 4) -1)
+}
+
+pub fn validate(bytes: array<u8>, model: Module) -> Declaration {
+    if (== (array_length bytes) 0) { return (outcome 0 false) }
+    let layouts: payload.PayloadTable = (payload.decode model.layouts 4)
+    if (not (retained model layouts)) { return (outcome 8 false) }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (outcome (read.status c) false) }
+    if (or (< version 1) (> version 3)) { return (outcome 3 false) }
+    if (!= count (array_length layouts.starts)) { return (outcome 13 false) }
+    let start: int = (read.skip c count)
+    if (!= (read.align c) 0) { return (outcome (read.status c) false) }
+    let mut flags: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set flags (array_push flags (cast_int (at bytes (+ start i)))) set i (+ i 1) }
+    # Slots are requires-verifier, maximum referenced element count, untyped ARRAY.
+    let facts: array<int> = [0,0,0]
+    let layout_status: int = (check_layouts layouts flags version facts)
+    if (!= layout_status 0) { return (outcome layout_status false) }
+    let functions: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (outcome (read.status c) false) }
+    if (!= functions (array_length model.functions)) { return (outcome 13 false) }
+    set i 0
+    while (< i functions) {
+        let locals: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        if (!= (read.status c) 0) { return (outcome (read.status c) false) }
+        let f: calls.Function = (at model.functions i)
+        if (or (!= locals f.locals) (or (!= params f.arity) (or (> params locals) (> f.results 1)))) { return (outcome 13 false) }
+        let mut result_tag: int = 0
+        if (and (> f.results 0) (< i (array_length model.results))) { set result_tag (at model.results i) }
+        let result_status: int = (descriptor c layouts flags version false result_tag facts)
+        if (!= result_status 0) { return (outcome result_status false) }
+        let mut local: int = 0
+        while (< local locals) {
+            let mut tag: int = -1
+            if (< local params) {
+                set tag 0
+                if (< i (array_length model.params)) {
+                    let types: array<int> = (at model.params i)
+                    if (< local (array_length types)) { set tag (at types local) }
+                }
+            }
+            let local_status: int = (descriptor c layouts flags version (< local params) tag facts)
+            if (!= local_status 0) { return (outcome local_status false) }
+            set local (+ local 1)
+        }
+        set i (+ i 1)
+    }
+    let mut element_count: int = 0
+    if (== version 2) {
+        let status: int = (read.paths (array_slice bytes (read.position c) (- (array_length bytes) (read.position c))))
+        if (!= status 0) { return (outcome status false) }
+        let ignored: int = (read.skip c (- (array_length bytes) (read.position c)))
+    } else if (== version 3) {
+        let size: int = (read.read_u32 c)
+        if (!= (read.status c) 0) { return (outcome (read.status c) false) }
+        if (or (< size 4) (!= (% size 4) 0)) { return (outcome 9 false) }
+        let path_start: int = (read.skip c size)
+        if (!= (read.status c) 0) { return (outcome (read.status c) false) }
+        let path_status: int = (read.paths (array_slice bytes path_start size))
+        if (!= path_status 0) { return (outcome path_status false) }
+        let extensions: read.Extensions = (read.extensions c)
+        if (!= extensions.status 0) { return (outcome extensions.status false) }
+        let union_index: int = (extension_index extensions.values 1)
+        if (!= (>= union_index 0) (> model.unions 0)) { return (outcome 8 false) }
+        if (>= union_index 0) {
+            let status: int = (union_facts (at extensions.values union_index).data model layouts flags)
+            if (!= status 0) { return (outcome status false) }
+            (array_set facts 0 1)
+        }
+        let global_index: int = (extension_index extensions.values 3)
+        if (>= global_index 0) {
+            let status: int = (globals (at extensions.values global_index).data layouts flags)
+            if (!= status 0) { return (outcome status false) }
+            (array_set facts 0 1)
+        }
+        let effect_index: int = (extension_index extensions.values 4)
+        if (>= effect_index 0) {
+            set element_count (effects (at extensions.values effect_index) model layouts flags)
+            if (< element_count 0) { return (outcome (- 0 element_count) false) }
+            (array_set facts 0 1)
+        }
+        if (>= (extension_index extensions.values 2) 0) { return (outcome 3 false) }
+    }
+    if (> (at facts 1) element_count) { return (outcome 13 false) }
+    if (and (> element_count 0) (!= (at facts 2) 0)) { return (outcome 8 false) }
+    if (!= (read.position c) (array_length bytes)) { return (outcome 9 false) }
+    return (outcome 0 (!= (at facts 0) 0))
+}
+shadow validate {
+    assert (== (validate [] (empty_module)).status 0)
+    let basic: array<u8> = [1,0,0,0,0,0,0,0,0,0,0,0]
+    assert (== (validate basic (empty_module)).status 0)
+    assert (not (validate basic (empty_module)).requires_verifier)
+    assert (== (validate [1] (empty_module)).status 1)
+}

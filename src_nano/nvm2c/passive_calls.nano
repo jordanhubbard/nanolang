@@ -1,0 +1,334 @@
+module nvm2c_passive_calls
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/instructions.nano" as insn
+
+# I analyze scalar actual arguments. Declaration tags alone establish nothing.
+# This is one passive-analysis prerequisite, not whole-module admission.
+pub struct Function {
+    start: int, length: int, arity: int, locals: int, upvalues: int, results: int
+}
+
+pub fn scalar_op(op: int, version: int) -> bool {
+    if (and (>= op 0) (<= op 10)) { return (!= op 5) }
+    if (or (== op 16) (== op 17)) { return true }
+    if (and (>= op 32) (<= op 37)) { return true }
+    if (and (>= op 40) (<= op 45)) { return true }
+    if (and (>= op 48) (<= op 50)) { return true }
+    if (!= version 2) { return false }
+    if (or (== op 65) (or (== op 141) (== op 142))) { return true }
+    if (and (>= op 192) (<= op 197)) { return true }
+    if (and (>= op 200) (<= op 204)) { return true }
+    if (and (>= op 208) (<= op 213)) { return true }
+    if (and (>= op 216) (<= op 221)) { return true }
+    return (and (>= op 224) (<= op 226))
+}
+shadow scalar_op {
+    assert (scalar_op 16 1)
+    assert (not (scalar_op 5 2))
+    assert (not (scalar_op 192 1))
+    assert (scalar_op 192 2)
+    assert (not (scalar_op 227 2))
+}
+
+struct Code {
+    ok: bool, entries: array<insn.Instruction>, pcs: array<int>
+}
+
+fn decode_code(bytes: array<u8>, start: int, length: int) -> Code {
+    let mut entries: array<insn.Instruction> = []
+    let mut pcs: array<int> = []
+    if (and (> length 0) (wire.contains bytes start length)) {
+        let mut pc: int = start
+        let end: int = (+ start length)
+        while (< pc end) {
+            let item: insn.Instruction = (insn.decode bytes pc (- end pc))
+            if (or (== item.length 0) (== (array_length entries) 65536)) {
+                return Code { ok: false, entries: [], pcs: [] }
+            }
+            set entries (array_push entries item)
+            set pcs (array_push pcs pc)
+            set pc (+ pc item.length)
+        }
+        return Code { ok: true, entries: entries, pcs: pcs }
+    }
+    return Code { ok: false, entries: entries, pcs: pcs }
+}
+shadow decode_code {
+    let bytes: array<u8> = [0, 61, 255]
+    let decoded: Code = (decode_code bytes 0 2)
+    assert decoded.ok
+    assert (== (array_length decoded.entries) 2)
+    assert (== (at decoded.pcs 1) 1)
+    assert (not (decode_code bytes 0 3).ok)
+    assert (not (decode_code bytes 0 0).ok)
+}
+
+fn target(pcs: array<int>, pc: int) -> int {
+    let mut low: int = 0
+    let mut high: int = (array_length pcs)
+    while (< low high) {
+        let mid: int = (+ low (/ (- high low) 2))
+        if (< (at pcs mid) pc) { set low (+ mid 1) } else { set high mid }
+    }
+    if (< low (array_length pcs)) {
+        if (== (at pcs low) pc) { return low }
+    }
+    return (array_length pcs)
+}
+shadow target {
+    let pcs: array<int> = [0, 3, 12]
+    assert (== (target pcs 3) 1)
+    assert (== (target pcs 2) 3)
+    assert (== (target pcs -1) 3)
+    assert (== (target [] 0) 0)
+}
+
+# I split each 64-bit set word into nonnegative halves, without foreign helpers.
+fn power(bit: int) -> int {
+    let mut result: int = 1
+    let mut i: int = 0
+    while (< i bit) { set result (* result 2) set i (+ i 1) }
+    return result
+}
+shadow power {
+    assert (== (power 0) 1)
+    assert (== (power 31) 2147483648)
+}
+
+fn common(left: int, right: int) -> int {
+    if (== left right) { return left }
+    let mut a: int = left
+    let mut b: int = right
+    let mut result: int = 0
+    let mut bit: int = 1
+    while (and (> a 0) (> b 0)) {
+        if (and (== (% a 2) 1) (== (% b 2) 1)) { set result (+ result bit) }
+        set a (/ a 2) set b (/ b 2) set bit (* bit 2)
+    }
+    return result
+}
+shadow common {
+    assert (== (common 4294967295 2147483648) 2147483648)
+    assert (== (common 170 85) 0)
+    assert (== (common 7 3) 3)
+    assert (== (common 4294967295 4294967295) 4294967295)
+}
+
+fn initialized(words: array<int>, begin: int, local: int) -> bool {
+    let word: int = (at words (+ begin (/ local 32)))
+    return (== (% (/ word (power (% local 32))) 2) 1)
+}
+shadow initialized {
+    let words: array<int> = [0, 2147483649]
+    assert (initialized words 0 32)
+    assert (initialized words 0 63)
+    assert (not (initialized words 0 31))
+    assert (not (initialized words 0 33))
+}
+
+fn initialize(words: array<int>, begin: int, local: int) -> void {
+    if (not (initialized words begin local)) {
+        let index: int = (+ begin (/ local 32))
+        (array_set words index (+ (at words index) (power (% local 32))))
+    }
+}
+shadow initialize {
+    let words: array<int> = [0, 0]
+    (initialize words 0 63)
+    (initialize words 0 63)
+    assert (== (at words 1) 2147483648)
+    assert (initialized words 0 63)
+}
+
+fn zeroes(count: int) -> array<int> {
+    let mut values: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set values (array_push values 0) set i (+ i 1) }
+    return values
+}
+shadow zeroes {
+    assert (== (array_length (zeroes 0)) 0)
+    let values: array<int> = (zeroes 3)
+    assert (== (array_length values) 3)
+    assert (== (at values 2) 0)
+}
+
+fn body(bytes: array<u8>, functions: array<Function>, index: int, state: array<int>, depth: int) -> bool {
+    let f: Function = (at functions index)
+    let code: Code = (decode_code bytes f.start f.length)
+    if (not code.ok) { return false }
+    let count: int = (array_length code.entries)
+    let mut width: int = (/ (+ f.locals 63) 64)
+    if (== width 0) { set width 1 }
+    if (> count (/ 2097152 width)) { return false }
+    set width (* width 2)
+    let known: array<int> = (zeroes (* count width))
+    let out: array<int> = (zeroes width)
+    let queue: array<int> = (zeroes count)
+    let queued: array<int> = (zeroes count)
+    let mut heights: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set heights (array_push heights -1) set i (+ i 1) }
+    set i 0
+    while (< i f.arity) { (initialize known 0 i) set i (+ i 1) }
+    (array_set heights 0 0)
+    (array_set queued 0 1)
+    let mut head: int = 0
+    let mut tail: int = (% 1 count)
+    let mut pending: int = 1
+    let mut steps: int = 0
+    let mut returns: bool = false
+    while (> pending 0) {
+        set steps (+ steps 1)
+        if (> steps 1048576) { return false }
+        set i (at queue head)
+        set head (% (+ head 1) count)
+        set pending (- pending 1)
+        (array_set queued i 0)
+        let item: insn.Instruction = (at code.entries i)
+        let op: int = item.opcode
+        let branch: bool = (and (>= op 56) (<= op 58))
+        let mut pop: int = item.pops
+        let mut push: int = item.pushes
+        let mut callee: int = -1
+        if (or (== op 59) (== op 51)) {
+            set callee (at item.low 0)
+            if (not (closed_function bytes functions callee state depth)) { return false }
+            let called: Function = (at functions callee)
+            set pop called.arity set push called.results
+        } else if (== op 61) {
+            set pop f.results set push 0
+        } else if (not (or (scalar_op op 2) (or branch (or (== op 140) (or (== op 161) (and (>= op 136) (<= op 139))))))) {
+            return false
+        }
+        let before: int = (at heights i)
+        if (or (< pop 0) (or (< push 0) (or (< before pop) (> (- before pop) (- 2147483647 push))))) { return false }
+        let height: int = (+ (- before pop) push)
+        let mut w: int = 0
+        while (< w width) {
+            (array_set out w (at known (+ (* i width) w)))
+            set w (+ w 1)
+        }
+        if (or (== op 16) (== op 17)) {
+            let local: int = (at item.low 0)
+            if (>= local f.locals) { return false }
+            if (== op 17) { (initialize out 0 local) }
+        }
+        if (or (== op 61) (== op 51)) {
+            if (== op 61) {
+                if (!= height 0) { return false }
+            } else {
+                if (or (!= height f.results) (!= (at functions callee).results f.results)) { return false }
+            }
+            set returns true
+        } else {
+            let mut next: array<int> = []
+            if branch {
+                let destination: int = (+ (at code.pcs i) (insn.integer item 0))
+                if (or (< destination f.start) (>= destination (+ f.start f.length))) { return false }
+                set next (array_push next (target code.pcs destination))
+            }
+            if (!= op 56) { set next (array_push next (+ i 1)) }
+            let mut edge: int = 0
+            while (< edge (array_length next)) {
+                let j: int = (at next edge)
+                if (>= j count) { return false }
+                let fresh: bool = (< (at heights j) 0)
+                let mut changed: bool = fresh
+                if (and (not fresh) (!= (at heights j) height)) { return false }
+                (array_set heights j height)
+                set w 0
+                while (< w width) {
+                    let slot: int = (+ (* j width) w)
+                    let mut value: int = (at out w)
+                    if (not fresh) { set value (common (at known slot) value) }
+                    if (!= (at known slot) value) { set changed true }
+                    (array_set known slot value)
+                    set w (+ w 1)
+                }
+                if (and changed (== (at queued j) 0)) {
+                    (array_set queued j 1)
+                    (array_set queue tail j)
+                    set tail (% (+ tail 1) count)
+                    set pending (+ pending 1)
+                }
+                set edge (+ edge 1)
+            }
+        }
+    }
+    # I inspect loads after every predecessor, including backedges, converges.
+    set i 0
+    while (< i count) {
+        let item: insn.Instruction = (at code.entries i)
+        if (and (>= (at heights i) 0) (== item.opcode 16)) {
+            if (not (initialized known (* i width) (at item.low 0))) { return false }
+        }
+        set i (+ i 1)
+    }
+    return returns
+}
+shadow body {
+    let f: Function = Function { start: 0, length: 4, arity: 1, locals: 1, upvalues: 0, results: 1 }
+    let bytes: array<u8> = [16, 0, 0, 61]
+    let functions: array<Function> = [f]
+    assert (body bytes functions 0 [1] 1)
+    let missing: Function = Function { start: 0, length: 4, arity: 0, locals: 1, upvalues: 0, results: 1 }
+    assert (not (body bytes [missing] 0 [1] 1))
+}
+
+fn closed_function(bytes: array<u8>, functions: array<Function>, index: int, state: array<int>, depth: int) -> bool {
+    if (or (< index 0) (or (>= index (array_length functions)) (>= depth 64))) { return false }
+    if (!= (at state index) 0) { return (== (at state index) 2) }
+    let f: Function = (at functions index)
+    if (or (!= f.upvalues 0) (or (> f.arity f.locals) (or (> f.results 1) (or (<= f.length 0) (not (wire.contains bytes f.start f.length)))))) { return false }
+    (array_set state index 1)
+    let ok: bool = (body bytes functions index state (+ depth 1))
+    if ok { (array_set state index 2) } else { (array_set state index 3) }
+    return ok
+}
+shadow closed_function {
+    let f: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }
+    let bytes: array<u8> = [61]
+    let state: array<int> = [0]
+    assert (closed_function bytes [f] 0 state 0)
+    assert (== (at state 0) 2)
+    assert (not (closed_function bytes [f] 0 state 64))
+    assert (not (closed_function bytes [f] -1 state 0))
+    assert (not (closed_function bytes [f] 0 [1] 0))
+}
+
+pub fn closed_sequence(bytes: array<u8>, functions: array<Function>, indices: array<int>) -> bool {
+    # I accept descriptors in the existing narrow function representation.
+    if (> (array_length bytes) 4294967295) { return false }
+    let mut i: int = 0
+    while (< i (array_length functions)) {
+        let f: Function = (at functions i)
+        if (or (< f.arity 0) (or (> f.arity 65535) (or (< f.locals 0) (or (> f.locals 65535) (or (< f.upvalues 0) (or (> f.upvalues 65535) (or (< f.results 0) (> f.results 255)))))))) { return false }
+        set i (+ i 1)
+    }
+    let state: array<int> = (zeroes (array_length functions))
+    set i 0
+    while (< i (array_length indices)) {
+        if (not (closed_function bytes functions (at indices i) state 0)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow closed_sequence {
+    let f: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }
+    assert (closed_sequence [61] [f] [0, 0])
+    assert (not (closed_sequence [61] [f] [0, 1]))
+    assert (closed_sequence [] [] [])
+}
+
+pub fn closed(bytes: array<u8>, functions: array<Function>, index: int) -> bool {
+    return (closed_sequence bytes functions [index])
+}
+shadow closed {
+    let f: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }
+    assert (closed [61] [f] 0)
+    assert (not (closed [0] [f] 0))
+    assert (not (closed [] [] 0))
+    let captures: Function = Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 1, results: 0 }
+    assert (not (closed [61] [captures] 0))
+}

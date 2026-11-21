@@ -1,0 +1,81 @@
+let slots: array<int> = [41]
+let mut counter: int = 41
+let mut label: string = "global"
+
+fn fetch() -> int { return (at slots 0) }
+shadow fetch { assert (== (fetch) 41) }
+
+fn base() -> int { return 41 }
+shadow base { assert (== (base) 41) }
+fn other() -> int { return 99 }
+shadow other { assert (== (other) 99) }
+
+let mut selected: fn() -> int = base
+
+fn increment() -> int {
+    set counter (+ counter 1)
+    return counter
+}
+shadow increment { set counter 41 assert (== (increment) 42) }
+
+fn read_label() -> string { return label }
+shadow read_label { set label "global" assert (== (read_label) "global") }
+fn replace_label(value: string) -> string { set label value return label }
+shadow replace_label { assert (== (replace_label "changed") "changed") }
+
+fn invoke() -> int { return (selected) }
+shadow invoke { set selected base assert (== (invoke) 41) }
+fn retain_selected() -> fn() -> int { return selected }
+shadow retain_selected {
+    set selected base
+    let retained: fn() -> int = (retain_selected)
+    assert (== (retained) 41)
+}
+fn declared() -> int { return (base) }
+shadow declared { assert (== (declared) 41) }
+fn retain_declared() -> fn() -> int { return base }
+shadow retain_declared {
+    let retained: fn() -> int = (retain_declared)
+    assert (== (retained) 41)
+}
+
+fn recursive(depth: int) -> int {
+    if (== depth 0) { return counter }
+    let counter: int = -100
+    let found: int = (recursive (- depth 1))
+    assert (== counter -100)
+    return found
+}
+shadow recursive { set counter 42 assert (== (recursive 3) 42) }
+
+fn exercise() -> int {
+    set counter 41
+    set label "global"
+    set selected base
+    let counter: int = -7
+    let slots: array<int> = []
+    let label: string = "caller"
+    let selected: fn() -> int = other
+    let base: fn() -> int = other
+    assert (== (fetch) 41)
+    assert (== (increment) 42)
+    assert (== counter -7)
+    assert (== (array_length slots) 0)
+    assert (== (read_label) "global")
+    assert (== (replace_label "changed") "changed")
+    assert (== label "caller")
+    assert (== (invoke) 41)
+    assert (== (selected) 99)
+    let retained: fn() -> int = (retain_selected)
+    assert (== (retained) 41)
+    assert (== (declared) 41)
+    let named: fn() -> int = (retain_declared)
+    assert (== (named) 41)
+    assert (== (base) 99)
+    assert (== (recursive 3) 42)
+    return 42
+}
+shadow exercise { assert (== (exercise) 42) }
+
+fn main() -> int { (println (exercise)) return 0 }
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,34 @@
+{
+  "component_commit": "2ff2f78ff53840e42d43fe82dd8921e011453992",
+  "platform": "Darwin puck 27.2.0 Darwin Kernel Version 27.2.0: Wed Oct 14 23:44:56 PDT 2026; root:xnu-13432.41.4~25/RELEASE_ARM64_T6041 arm64",
+  "post_run_sha256": {
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3",
+    "src_nano/nvm2c/module.nano": "17c849fc3f5dcb2ad05ef31ac8cb90d830022dd4ec06ddbdf9adfac3c7e5d81d",
+    "src_nano/nvm2c/isa_metadata.nano": "b3997076612899fdabf77c72114747b06b87b195be39a07cc50d189c09b128c6",
+    "src_nano/typecheck.nano": "1567184d860ac692b60480fe044e064527a9db9836b33fe7aeeab287592a7318",
+    "src/typechecker.c": "e6fc3be8e1e67833d58d90a78e521020a24c066df7fa1bab56fa081ca0a14722",
+    "src/nominal_types.c": "7496b684afdc6a4f6ec3a836c09da95f0ccd531915d65076bb43f9e38eb7336c",
+    "scripts/gen_nanoisa_schema.py": "6830a55635f059d82db3186343ee37c46b4cb94ff59f943e9e2365952c610c91",
+    "tests/test_nanolang_translator_module.py": "283c55d5f6c03599240d8f6e709ac4fc62f50af766af5cc413bb40fffb970f8b",
+    "tests/test_nominal_owner_context.c": "abed5628193ad39e4c92e98501b721ef3f5c37a1147d5d5e81e373b2a21427c4",
+    "Makefile.gnu": "fbc13e7d62200361febeaa9d2ed97b999cf887701baddbf4cbef9897340ff7cb",
+    "bin/nanoc_c": "c5f4501dc4b0767c76fe057ac86dd51bda840d2a6f0ee19ab37997332fedcc4c",
+    "bin/nano_virt": "a952782180561cd67b2d270f9e97d020253e91f9976aab56449eafda20b937d8",
+    "bin/nano_vm": "d128d3fa52343ef7b9da812c8ae6c696c319dc8097390696c38a44e500fd9858",
+    "bin/nvm2c": "174ffa231a8f8aaa335efc15fbc21531b113afa1607da166602272b44990ab1e",
+    "bin/nano_aot_runtime.o": "e01332d848b9b4f9fe639ef74b1987d4005b96daf156b27ca6a51011ce788abe",
+    "obj/nvm2c_module_reference": "6661162224db7ad94521b19af4707c2ba5728f68a1a09a26ee82e14a17ebb2e8",
+    ".test_output/nvm2c-module-darwin-source": "296bcee2e0fc364fe652722b84bf3f9fcbce457e48339801ce686a7b7222b2c3"
+  },
+  "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "sdk": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n",
+  "fixture_commit": "f193c09c268ed7e6a92f534d7a632360b4fceedb",
+  "fixture_post_run_sha256": {
+    "src/nominal_types.c": "715aa5aab6ff730d9d4c712895a38b8f70b9577cbcd891b873fa0d10cfb04c27",
+    "tests/test_nominal_owner_context.c": "74adcf6f84f80870e678ae62e78f0a30b45cefdc4a0ad1181216cae84ce3238d",
+    "obj/test_nominal_owner_context": "35112bde3a66f750474510bb2cbea7c8d0701386f12d42a9bf212056116792e6"
+  },
+  "fixture_diff": "diff --git a/src/nominal_types.c b/src/nominal_types.c\nindex 32a66c448..a5a0c0622 100644\n--- a/src/nominal_types.c\n+++ b/src/nominal_types.c\n@@ -413,7 +413,7 @@ static bool bind_nominal_records_owned(ASTNode *program, Environment *env) {\n \n \n /* I resolve aliases in the same declared owner that registered imports.\n- * The environment keeps ownership of its original context on every result. */\n+ * I restore the borrowed original context on every result. */\n bool bind_nominal_records(ASTNode *program, Environment *env) {\n     char *saved_owner = env->current_module;\n     for (int i = 0; i < program->as.program.count; ++i) {\ndiff --git a/tests/test_nominal_owner_context.c b/tests/test_nominal_owner_context.c\nindex ee86a2686..8c4a9c473 100644\n--- a/tests/test_nominal_owner_context.c\n+++ b/tests/test_nominal_owner_context.c\n@@ -36,6 +36,7 @@ int main(void) {\n     free_ast(program);\n     free_tokens(tokens, count);\n     free_environment(env);\n+    free(saved);\n \n     env = create_environment();\n     saved = strdup(\"filename\");\n@@ -54,6 +55,7 @@ int main(void) {\n     free_ast(program);\n     free_tokens(tokens, count);\n     free_environment(env);\n+    free(saved);\n     puts(\"I preserve declared-owner identity and restore context after success and refusal.\");\n     return 0;\n }\n",
+  "worktree_status": ""
+}

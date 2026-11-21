@@ -5336,6 +5336,44 @@ shadow reduce_types_exact {
     assert (reduce_types_exact parser (type_from_string_with_parser parser "array<Box<int>>") (type_from_string_with_parser parser "array<Box<int>>"))
 }
 
+fn check_array_slice_builtin(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let mut result: NSType = (type_unknown_named "array_slice")
+    let mut valid: bool = (== call.arg_count 3)
+    if valid {
+        let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        set result (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
+        set valid (== result.kind TypeKind.TYPE_ARRAY)
+        let mut i: int = 1
+        while (< i 3) {
+            let bound: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            let bound_type: NSType = (check_expr_node parser bound.node_id bound.node_type symbols diags file_name)
+            if (!= bound_type.kind TypeKind.TYPE_INT) { set valid false }
+            set i (+ i 1)
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array, integer start and integer length for array_slice." (Diagnostics.diag_location file_name call.line call.column)))
+        return (type_unknown_named "array_slice")
+    }
+    return result
+}
+shadow check_array_slice_builtin {
+    let good: Parser = (resource_test_parser "fn take(xs:array<u8>)->array<array<u8>>{let mut out:array<array<u8>> = [] set out (array_push out (array_slice xs 0 2)) (array_set out 0 (array_slice xs 1 1)) return out} fn main()->int{return 0}")
+    assert (not good.has_error)
+    let checked: TypecheckPhaseOutput = (typecheck_phase good "slice.nano")
+    if checked.had_error {
+        for index in (range 0 (list_CompilerDiagnostic_length checked.diagnostics)) {
+            (println (list_CompilerDiagnostic_get checked.diagnostics index).message)
+        }
+    }
+    assert (not checked.had_error)
+    for source in ["fn main()->int{(array_slice 1 0 1) return 0}", "fn main()->int{let xs:array<int> = [1] (array_slice xs true 1) return 0}", "fn main()->int{let xs:array<int> = [1] (array_slice xs 0) return 0}"] {
+        let bad: Parser = (resource_test_parser source)
+        assert (not bad.has_error)
+        assert (typecheck_phase bad "slice.nano").had_error
+    }
+}
+
 fn check_array_mutation_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, replacing: bool) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     let mut arity: int = 2
@@ -6109,6 +6147,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
+        if (and (== fn_name "array_slice") (< (env_lookup symbols fn_name) 0)) {
+            return (check_array_slice_builtin parser call_node symbols diags file_name)
+        }
         if (and (or (== fn_name "array_push") (== fn_name "array_set")) (< (env_lookup symbols fn_name) 0)) {
             return (check_array_mutation_call parser call_node symbols diags file_name (== fn_name "array_set"))
         }
@@ -6340,7 +6381,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {
                         let expected: NSType = (at sym.param_types j)
-                        if (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) {
+                        if (or (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) (and (== expected.kind TypeKind.TYPE_STRUCT) (not (tc_is_opaque_name parser expected.name)))) {
                             let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
                             let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
                             let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
@@ -6576,6 +6617,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    # I check record identity on qualified calls before either backend sees them.
+    let nominal_parser: Parser = (resource_test_parser "fn main()->int{return (lib.accept value)}")
+    let nominal_return: ASTReturn = (parser_get_return nominal_parser 0)
+    let nominal_function: Symbol = (symbol_new "lib.accept" (type_int) false true 1 [(type_from_string "Left")] (type_int))
+    let nominal_good: Symbol = (symbol_new "value" (type_from_string "Left") false false 0 (empty_param_types) (type_void))
+    let nominal_bad: Symbol = (symbol_new "value" (type_from_string "Right") false false 0 (empty_param_types) (type_void))
+    let good_nominal_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let bad_nominal_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let _: NSType = (check_expr_node nominal_parser nominal_return.value nominal_return.value_type [nominal_function, nominal_good] good_nominal_diags "qualified.nano")
+    let _: NSType = (check_expr_node nominal_parser nominal_return.value nominal_return.value_type [nominal_function, nominal_bad] bad_nominal_diags "qualified.nano")
+    assert (== (list_CompilerDiagnostic_length good_nominal_diags) 0)
+    assert (> (list_CompilerDiagnostic_length bad_nominal_diags) 0)
+
     let directed_argument: Parser = (resource_test_parser "fn take(value:int)->int{return value} fn main()->int{let byte_value:u8=7 return (take byte_value)}")
     assert (not (typecheck_phase directed_argument "argument.nano").had_error)
     let character_binding: Parser = (resource_test_parser "fn same(value:string)->string{return value} fn main()->int{let is_digit:fn(string)->string=same assert (== (is_digit \"ok\") \"ok\") return 0}")

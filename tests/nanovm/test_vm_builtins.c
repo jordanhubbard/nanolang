@@ -255,6 +255,9 @@ static void test_vm_bytes_roundtrip(void) {
     const char *test_name = "vm_bytes_from_string/vm_string_from_bytes: round-trip";
     DynArray *bytes = vm_bytes_from_string("hello");
     ASSERT(bytes != NULL, "vm_bytes_from_string should succeed");
+    ASSERT(bytes->elem_type == ELEM_U8, "I retain the declared byte storage");
+    ASSERT(bytes->elem_size == sizeof(uint8_t), "I retain byte-width elements");
+    ASSERT(dyn_array_get_u8(bytes, 0) == 'h', "I preserve the first byte");
     char *back = vm_string_from_bytes(bytes);
     ASSERT(back != NULL, "vm_string_from_bytes should succeed");
     ASSERT(strcmp(back, "hello") == 0, "round-trip should preserve content");

@@ -1,0 +1,278 @@
+[
+  {
+    "path": "inputs/linux-private-layout-asan-build.log.gz",
+    "uncompressed_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  {
+    "path": "inputs/linux-private-layout-corpus.log.gz",
+    "uncompressed_bytes": 94,
+    "sha256": "db9b982f9c2f9d52f4651e1d75199098b0c558607cc18c3d9e28959cab52205f",
+    "compressed_sha256": "8cf434d8317e4336c940a36f9e01d9a6644c5653ed0bf560e31fe2c0da2670e9"
+  },
+  {
+    "path": "inputs/linux-private-layout-corrected-build.log.gz",
+    "uncompressed_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  {
+    "path": "inputs/linux-private-layout-exact-build.log.gz",
+    "uncompressed_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  {
+    "path": "inputs/linux-private-layout-first-build.log.gz",
+    "uncompressed_bytes": 91,
+    "sha256": "7571999b819df9da9d9b744f51ed03c10078ebbb2fbc64ad9c81500ac58325ea",
+    "compressed_sha256": "8f0e30b51f775c35dcb008056e2e915f0799c1610c39c4200098fe893bd06509"
+  },
+  {
+    "path": "inputs/linux-private-layout-identifiers.log.gz",
+    "uncompressed_bytes": 1429,
+    "sha256": "f522e82412cf88e467a2fb6b04be2170fdced0e9a848ec16d841a2ca638a2774",
+    "compressed_sha256": "bdcd75ec74e77383050f708a5e76014711f7795e7c6969ff60a9882d6dd466d7"
+  },
+  {
+    "path": "inputs/linux-private-layout-linux-asan.log.gz",
+    "uncompressed_bytes": 92,
+    "sha256": "e0f622390dee39b2fc2b9dabc797ec78fec54dd3243fa1087aee251806decde3",
+    "compressed_sha256": "ee473f9a35ff43a5022f83f1d1c7aebdec99d25f860c9a47c80df8af39cb4401"
+  },
+  {
+    "path": "inputs/linux-private-layout-linux-final.log.gz",
+    "uncompressed_bytes": 457,
+    "sha256": "a0014ff0c6dd3314a55d4744eb95e16c1e6d1fee243b449d435a1ac6367cae4e",
+    "compressed_sha256": "4e831a315287761ba50209d603fb2e95b46462f164d1d2ececa8d7094fe0d93d"
+  },
+  {
+    "path": "inputs/linux-private-layout-linux-first.log.gz",
+    "uncompressed_bytes": 2266,
+    "sha256": "c370dbf5eed0c04716f9297e76aaf6393dd88d6f54666c1d04f537cfc6993d91",
+    "compressed_sha256": "3bbb3f5c1791f95445081d636476d0435608134268c02b40c938441a1389da13"
+  },
+  {
+    "path": "inputs/linux-private-layout-linux-regression.log.gz",
+    "uncompressed_bytes": 1427,
+    "sha256": "aadaf8f8d60ee89713686d4ee15f58a0eb53a7d03602b956e0485b925d8254dd",
+    "compressed_sha256": "3c622777b6122fce9f656ac0cb6ffe821e1727dff554ecf0b5a8c6d13696e034"
+  },
+  {
+    "path": "inputs/linux-private-layout-oracle-controls.log.gz",
+    "uncompressed_bytes": 107,
+    "sha256": "79bfc5c3fb5ad0d5664faeae8bb7d04abfad0fcc3702a564c5800e9c3621ea32",
+    "compressed_sha256": "090cfaf87ee40bef24fee065242787071b5f5641c277521eda447c299406e038"
+  },
+  {
+    "path": "inputs/linux-private-layout-public-regression.log.gz",
+    "uncompressed_bytes": 347,
+    "sha256": "dd33494e5e286aed25b296b44dc91dbdca3950ab353449a147592a514389836a",
+    "compressed_sha256": "6370b9b4ae08974fc6ef66b4a2dc30535de3e1bac7b1a9cd1c3815b83996deb2"
+  },
+  {
+    "path": "inputs/linux-private-layout-reference-build.log.gz",
+    "uncompressed_bytes": 1259,
+    "sha256": "b379dbe07d4998d487c60291470a961ed50aa4087fc6368b712fb879f57e462a",
+    "compressed_sha256": "8cce9d62150605f20dc2d39fdb49e713a0334c45d6e11201c38b5d540bb98edc"
+  },
+  {
+    "path": "inputs/linux-private-layout-reference-final-build.log.gz",
+    "uncompressed_bytes": 1259,
+    "sha256": "b379dbe07d4998d487c60291470a961ed50aa4087fc6368b712fb879f57e462a",
+    "compressed_sha256": "8cce9d62150605f20dc2d39fdb49e713a0334c45d6e11201c38b5d540bb98edc"
+  },
+  {
+    "path": "inputs/darwin-private-layout-asan-build.log.gz",
+    "uncompressed_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  {
+    "path": "inputs/darwin-private-layout-corpus.log.gz",
+    "uncompressed_bytes": 94,
+    "sha256": "db9b982f9c2f9d52f4651e1d75199098b0c558607cc18c3d9e28959cab52205f",
+    "compressed_sha256": "8cf434d8317e4336c940a36f9e01d9a6644c5653ed0bf560e31fe2c0da2670e9"
+  },
+  {
+    "path": "inputs/darwin-private-layout-darwin-asan.log.gz",
+    "uncompressed_bytes": 92,
+    "sha256": "e0f622390dee39b2fc2b9dabc797ec78fec54dd3243fa1087aee251806decde3",
+    "compressed_sha256": "ee473f9a35ff43a5022f83f1d1c7aebdec99d25f860c9a47c80df8af39cb4401"
+  },
+  {
+    "path": "inputs/darwin-private-layout-darwin-final.log.gz",
+    "uncompressed_bytes": 456,
+    "sha256": "82602adc507aa4f17671de0c8c947c06ff608daabe9234da1c3d39d39d36612c",
+    "compressed_sha256": "dfea350862b88fc1d556e19e4aafe583cd05816458536c13045f2a9a1b08e966"
+  },
+  {
+    "path": "inputs/darwin-private-layout-darwin-regression.log.gz",
+    "uncompressed_bytes": 1677,
+    "sha256": "f55833af28b093c9e7fd3fb8313b13dc9196ca8f2068d8bb921ac42e321b79e5",
+    "compressed_sha256": "254e875a62e454b77e0b979eba8ba84a9b1382f83e437393735453c9f49a6bca"
+  },
+  {
+    "path": "inputs/darwin-private-layout-identifiers.log.gz",
+    "uncompressed_bytes": 1447,
+    "sha256": "d4dbfd78ec832cd1a277b7ab2cb0b2e398a5360ab3a1f0e71efd3e9ae21a272b",
+    "compressed_sha256": "1fa33f7d98abb107fd41104bd81e8a5cbe257d6f319bcd899c3e48b4ffa92cb2"
+  },
+  {
+    "path": "inputs/darwin-private-layout-reference-build.log.gz",
+    "uncompressed_bytes": 1456,
+    "sha256": "57e4601f83c69cd017ae6f055eb34f38c8b6cf6e2af84803aef5a5c11a520109",
+    "compressed_sha256": "950b0d80427cc9b8cd7a7c59dc94e0749103a69c7ab3978b7060dc6094fd3a32"
+  },
+  {
+    "path": "inputs/private-layout-corpus.json.gz",
+    "uncompressed_bytes": 89924998,
+    "sha256": "3201b1c2a12d25ae196404cd88774fca14829a554bd7021d223fb7bb8644b4a2",
+    "compressed_sha256": "9263462f32d028ef2ad9094490fddf2b44d9b4f5fc3424106dc45b8bdc8d9d22"
+  },
+  {
+    "path": "inputs/private-layout-linux-manifest.json.gz",
+    "uncompressed_bytes": 4154,
+    "sha256": "32561e771cecf39b4f1faa9f285d06f91bfe3d7e4baa134b59324ce170983158",
+    "compressed_sha256": "d95b75e9c883e67ad7e9ce80bc75d18de1c534d9109f4cc0682085bcae9ae24a"
+  },
+  {
+    "path": "inputs/private-layout-collect.py.gz",
+    "uncompressed_bytes": 3971,
+    "sha256": "9f97f6c61dd65be3ae0a9d880a002d1b715220fdd71b6f75168750081f3edd8d",
+    "compressed_sha256": "4ba75fe44aa60f30c48e75be152f277040939279a781d4344a9be3016d5531e6"
+  },
+  {
+    "path": "inputs/private-layout-pack.py.gz",
+    "uncompressed_bytes": 2230,
+    "sha256": "ba295fc20267e9b6fa8716dfe64e6bbc99a0d28c3ec9554bc83b5295692c3a1c",
+    "compressed_sha256": "ad48486651ee2dbca7713b10146526e88f1da05f44d83ccfc1d992d735620b31"
+  },
+  {
+    "path": "inputs/private-layout-first-driver.nano.gz",
+    "uncompressed_bytes": 1553,
+    "sha256": "9db73c08efd75cf9ddd572e60044a396c9eb25c758587b8e7dfff51941734540",
+    "compressed_sha256": "f0f76dcde31eb088e6dadf674db24c7aedd72b5f9d3a9216a0071b20309fc72b"
+  },
+  {
+    "path": "inputs/private-layout-first-tests.py.gz",
+    "uncompressed_bytes": 8257,
+    "sha256": "d184fabbc41614f3944de90a7281982439bd0a5431a7faf4cfca9ed204184b4b",
+    "compressed_sha256": "b9f8c85869f10302ddc2e69db2049ee639ed99008357b26105409c3447532720"
+  },
+  {
+    "path": "inputs/private-layout-launch-results.json.gz",
+    "uncompressed_bytes": 881,
+    "sha256": "d67a6764dc0d6f16f97704400d2303474bcedf31bd7620dad4f99aa274a26464",
+    "compressed_sha256": "5565d2f66dd24a354c2d9e96c7c7fe3e84f0e58325d993c7902bbeb455ca6bd2"
+  },
+  {
+    "path": "inputs/private-layout-darwin-manifest.json.gz",
+    "uncompressed_bytes": 4433,
+    "sha256": "559386b5758b7bfb89c6e0b714a5ca867bb92ee9905ec96a8c07d090f1b82b8b",
+    "compressed_sha256": "ce91da7d312a48c92636e8b8e64e11a21a4e48bce9f5bce31f6f2b55e19432ed"
+  },
+  {
+    "path": "inputs/source-src_nano_nvm2c_payloads.nano.gz",
+    "uncompressed_bytes": 15764,
+    "sha256": "92c506921aee4020abaef27f07a8a8911a41cc40f8b0354950918458e9f381ae",
+    "compressed_sha256": "7d0c453bbb0e237ff6b38d78c53cea4ba0027101b20be87849315cefa491601a"
+  },
+  {
+    "path": "inputs/source-src_nano_nvm2c_private_layouts.nano.gz",
+    "uncompressed_bytes": 2195,
+    "sha256": "9823dadd29773cf8d1d84a8f1bb6983c4de826e6c9aa3c5e506ced11aead7f4e",
+    "compressed_sha256": "33c3175c47bd3ca6d0c4b8a65709fd98e6590fe058a5ce0bc07b3a23ece8d787"
+  },
+  {
+    "path": "inputs/source-tests_nvm2c_private_layout_driver.nano.gz",
+    "uncompressed_bytes": 2202,
+    "sha256": "377ea617b9b75a573ceb1d79c92062d60f21c3364fad5294cf3158e27a7045f2",
+    "compressed_sha256": "c50869bb7fe15546b54cf3d3a0803af6fdef1171273b9386f2c9637f63e0d340"
+  },
+  {
+    "path": "inputs/source-tests_nvm2c_private_layout_reference.c.gz",
+    "uncompressed_bytes": 2837,
+    "sha256": "a3b85117bb0a63c0347e32cc6da8555d86bdc6e3a0557b192245c2f493a78f38",
+    "compressed_sha256": "327b620c2d8f88df02b1a5262c60d64be4a91dcdf141d3365128402bf19efbc4"
+  },
+  {
+    "path": "inputs/source-tests_test_nanolang_translator_private_layouts.py.gz",
+    "uncompressed_bytes": 8504,
+    "sha256": "39583235113d34f48e5345fcc66ba7c2ccf464d303708962f9edc871b5225230",
+    "compressed_sha256": "f4787e1102c905c9fef81450196fb1a2ece66d94554ca549702ca542a4c76813"
+  },
+  {
+    "path": "inputs/source-tests_test_nanolang_translator_payloads.py.gz",
+    "uncompressed_bytes": 8421,
+    "sha256": "0124a0c3b064ae83773f09f6e30748f5a12747e961d0afc0e9557f43b6d6cb5f",
+    "compressed_sha256": "a68a7076b354e0e2a7a845d3120013ab478d1c46960d7b4d3e69c178d8fc89fd"
+  },
+  {
+    "path": "inputs/source-tests_nanolang_translator_routes.py.gz",
+    "uncompressed_bytes": 2399,
+    "sha256": "3a0cfe51fa95649a93f26eed003cd9c2b5b798fd7df83b8208c7aa7fd8c42ff4",
+    "compressed_sha256": "4e61c7bf9c6ef4c4c3041f808e01cf9cc438d41d5b0785760a46d8a48b5633bc"
+  },
+  {
+    "path": "inputs/source-tests_native_process.py.gz",
+    "uncompressed_bytes": 1967,
+    "sha256": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+    "compressed_sha256": "bb928f152e8bfc013edb053087d3fc75aa48783b6e5a37c6220443be8a7f1999"
+  },
+  {
+    "path": "inputs/source-src_nanoisa_nvm_v2_layouts.c.gz",
+    "uncompressed_bytes": 11354,
+    "sha256": "b65339952b0b328b60a96f68b9f116686418afa09dc239434aceabb4390bea82",
+    "compressed_sha256": "2e2d6f7032cf88d71614c6b18bb820d5395151f1b232f07cc6f54fc607f17326"
+  },
+  {
+    "path": "inputs/source-src_nanoisa_nvm_v2_cursor.c.gz",
+    "uncompressed_bytes": 2099,
+    "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+    "compressed_sha256": "af1a7ad225b65ab78d0c86f4b6d88df0e589c07c9c73ebcd7fc13a7304651569"
+  },
+  {
+    "path": "inputs/source-src_nanoisa_ownership_layouts_private.h.gz",
+    "uncompressed_bytes": 2055,
+    "sha256": "6f2b5c8dc7ee4072cc7072df3f0ceae0f83d286c3fd0dcdae63f78dc168529f9",
+    "compressed_sha256": "02a3010d4dea751e4a567f92bf9fba9e4c8df5aad32478e12f29ea3bf411be52"
+  },
+  {
+    "path": "inputs/source-src_nanoisa_nvm_v2_sections.h.gz",
+    "uncompressed_bytes": 18955,
+    "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+    "compressed_sha256": "2c40cf1307f678193140d50b593e52a81cf0732357b05689d0910f8a961f67a5"
+  },
+  {
+    "path": "inputs/source-src_nanoisa_isa.h.gz",
+    "uncompressed_bytes": 19280,
+    "sha256": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+    "compressed_sha256": "f391c2feef8bca3d26a0d508001c8b486ed038d9ee5651ae985bbf33bbdb29ff"
+  },
+  {
+    "path": "inputs/source-Makefile.gnu.gz",
+    "uncompressed_bytes": 422543,
+    "sha256": "95c357f68c0a0ca81e94b2efabd49a4afd8f7907fcb58da8978d05f100be6d3f",
+    "compressed_sha256": "9dc73b7fce7cd7c401b948308254c1e0004e7c7d8d1bc9ce016e986a21199b7f"
+  },
+  {
+    "path": "inputs/source-src_typechecker.c.gz",
+    "uncompressed_bytes": 512704,
+    "sha256": "a8d90b786fc1e8bd95f0a16966bed272f0d93bb7cb719d4c5204e7bc976affa7",
+    "compressed_sha256": "4c520163a77d6a1dc5f5463aba12ed9d5dcdbea365404216a171bd73c0c819e3"
+  },
+  {
+    "path": "inputs/source-src_nano_typecheck.nano.gz",
+    "uncompressed_bytes": 527560,
+    "sha256": "7beb7e00461a04742d9339cbdc025d5ccce70191c8f192d4346432b7af795ef7",
+    "compressed_sha256": "f9d9d0c7094ed2bb11438ee557142bb43757a2d318a59126f513c4efb02559ed"
+  },
+  {
+    "path": "inputs/source-src_nano_nanoc_v06.nano.gz",
+    "uncompressed_bytes": 94675,
+    "sha256": "09c86e039297c30e9338eaf52a7bb6fcd328d3c890badec3b452ec7c895fa1e4",
+    "compressed_sha256": "d1f8321ba402ea59fd73e6951967025a3d892bd49f77e4f63e6c6473c480ea65"
+  }
+]

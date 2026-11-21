@@ -1,0 +1,25 @@
+fn collect(bytes: array<u8>) -> array<array<u8>> {
+    let mut rows: array<array<u8>> = []
+    set rows (array_push rows (array_slice bytes 0 2))
+    (array_set rows 0 (array_slice bytes 1 2))
+    return rows
+}
+shadow collect {
+    let bytes: array<u8> = [0,255,7]
+    let rows: array<array<u8>> = (collect bytes)
+    let child: array<u8> = (at rows 0)
+    assert (== (array_length rows) 1)
+    assert (== (at child 0) 255)
+    assert (== (at child 1) 7)
+    (array_set child 1 8)
+    assert (== (at bytes 2) 7)
+}
+fn main() -> int {
+    let bytes: array<u8> = [0,255,7]
+    let rows: array<array<u8>> = (collect bytes)
+    let child: array<u8> = (at rows 0)
+    assert (== (at child 0) 255)
+    assert (== (at child 1) 7)
+    return 0
+}
+shadow main { assert (== (main) 0) }

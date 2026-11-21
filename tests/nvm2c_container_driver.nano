@@ -1,0 +1,16 @@
+module "src_nano/nvm2c/container.nano" as wire
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    unsafe {
+        let mut index: int = 1
+        while (< index (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv index))
+            (println (wire.validate bytes))
+            set index (+ index 1)
+        }
+    }
+    return 0
+}

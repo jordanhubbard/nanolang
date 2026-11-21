@@ -1,0 +1,260 @@
+{
+  "collectors/passive-module-collect.py": {
+    "path": "inputs/collectors/passive-module-collect.py.gz",
+    "bytes": 4341,
+    "sha256": "53f2ed13c43fb2808a59689bb87c71562670f5975c7c668122c283a5fe763534",
+    "compressed_sha256": "95e538ec1e60639b0f3a7a728a5d211d4bdab5ba1bae4fc237f7b9c6fe969be1"
+  },
+  "darwin/corpus.json": {
+    "path": "inputs/darwin/corpus.json.gz",
+    "bytes": 2556210,
+    "sha256": "30e5801ced31565bff81f0174ee93711d514c9865dc068e489effee183f255e2",
+    "compressed_sha256": "2832c03e3e528530eabcbd26f8363ae864ac99d19ccd6569f3631d6cff3d3002"
+  },
+  "darwin/manifest.json": {
+    "path": "inputs/darwin/manifest.json.gz",
+    "bytes": 5049,
+    "sha256": "4f447632e91dd1cf99b0966a7f67d3677352995af08d2e5890a1ab8cc1a805a5",
+    "compressed_sha256": "5074a9f45f83ab5f54afdd586d3b88a5cb494ef99567a0f95dab6e7f4d847feb"
+  },
+  "darwin/passive-module-corpus.log": {
+    "path": "inputs/darwin/passive-module-corpus.log.gz",
+    "bytes": 89,
+    "sha256": "80b4de3b668c789de6d3b07911a11441783c81bb8c83b3ed042bdeebdeb9b260",
+    "compressed_sha256": "f449d5285ee03cf08782c51ef7b9283afbf63579d2c5b30e5cd62a5d0fe98988"
+  },
+  "darwin/passive-module-darwin-final.log": {
+    "path": "inputs/darwin/passive-module-darwin-final.log.gz",
+    "bytes": 2181,
+    "sha256": "88e8d17a59edf97b20280c7a62a92dd3271d431da011ec47d60dff56f3c547c2",
+    "compressed_sha256": "9717c39b777a24de7b50cfd3cf0bd32b1e91b5d5b5f80619b36085eddebe7ad6"
+  },
+  "darwin/passive-module-darwin-prior.log": {
+    "path": "inputs/darwin/passive-module-darwin-prior.log.gz",
+    "bytes": 883,
+    "sha256": "4098c52279680c86501acc098aca47a223b1c57d0c662b1b2661d0fab25593b9",
+    "compressed_sha256": "82b3db6500fecd8482b41d3d751bb91b2012d71d7c7bec05b04f2e13a6953564"
+  },
+  "darwin/passive-module-embedded.log": {
+    "path": "inputs/darwin/passive-module-embedded.log.gz",
+    "bytes": 1447,
+    "sha256": "d67cae4d0ab133c5699494746bda12b85f3e2e2b695eeeb3b436dc33862373c3",
+    "compressed_sha256": "db2dcadbb6468f14936e8783ff83c3252818fbc9723b3dac811f17e48436190e"
+  },
+  "darwin/passive-module-reference-build.log": {
+    "path": "inputs/darwin/passive-module-reference-build.log.gz",
+    "bytes": 1440,
+    "sha256": "758582598f48772c7ca26b6843db779b68e3276d5ac1534b75093ba0749ca506",
+    "compressed_sha256": "07ea8ed0f24ee8f2d39fbd0de224216be66f4e09c9b1e208aaafd256df9fbe07"
+  },
+  "darwin/passive-module-schema.log": {
+    "path": "inputs/darwin/passive-module-schema.log.gz",
+    "bytes": 3560,
+    "sha256": "d2261c03699f4ab5c7e1a54a36529236a336870885f852c84de400d833504cd7",
+    "compressed_sha256": "1a3260f9ec1fe13fe80746e757a6fba8ab8675d0956166ab9f005a90f74d9d41"
+  },
+  "linux/corpus.json": {
+    "path": "inputs/linux/corpus.json.gz",
+    "bytes": 2556210,
+    "sha256": "30e5801ced31565bff81f0174ee93711d514c9865dc068e489effee183f255e2",
+    "compressed_sha256": "2832c03e3e528530eabcbd26f8363ae864ac99d19ccd6569f3631d6cff3d3002"
+  },
+  "linux/manifest.json": {
+    "path": "inputs/linux/manifest.json.gz",
+    "bytes": 4688,
+    "sha256": "4d14341efc105fd48187449877799cb858ba3789ffe147b48ee85b22b2b38432",
+    "compressed_sha256": "9753aaa4b790bb4560292c68bc7ee6261ce068e6a5b10674e2a3f85e5a528d5d"
+  },
+  "linux/passive-module-corpus.log": {
+    "path": "inputs/linux/passive-module-corpus.log.gz",
+    "bytes": 89,
+    "sha256": "80b4de3b668c789de6d3b07911a11441783c81bb8c83b3ed042bdeebdeb9b260",
+    "compressed_sha256": "f449d5285ee03cf08782c51ef7b9283afbf63579d2c5b30e5cd62a5d0fe98988"
+  },
+  "linux/passive-module-embedded.log": {
+    "path": "inputs/linux/passive-module-embedded.log.gz",
+    "bytes": 1429,
+    "sha256": "3149d755958a6c0e69316e580a206c15e90fa409db41cf724ed7adfca0e60310",
+    "compressed_sha256": "25f3558fac1fe82eff6fd7723c49e60d86257c8cee7bc6e74ce4df6d101510a8"
+  },
+  "linux/passive-module-first-build.log": {
+    "path": "inputs/linux/passive-module-first-build.log.gz",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+  },
+  "linux/passive-module-linux-core.log": {
+    "path": "inputs/linux/passive-module-linux-core.log.gz",
+    "bytes": 1820,
+    "sha256": "5d8ad4bb3cb210eb8a60994db07c38303934ddf41f180392fe8d782b63b3c38c",
+    "compressed_sha256": "e800d22002754c01cc84f86f860e7da9b5703c8efe6d5195452f210103c47993"
+  },
+  "linux/passive-module-linux-first.log": {
+    "path": "inputs/linux/passive-module-linux-first.log.gz",
+    "bytes": 460,
+    "sha256": "0acf1af6d44aaee4dbf21bbed38958918eae9d82b756fc620c5dd5fefa9e3455",
+    "compressed_sha256": "e7a1a27767a181f4971b6ad33f7240f2db05a80536779a40bf6c2d607ea5c57a"
+  },
+  "linux/passive-module-linux-prior.log": {
+    "path": "inputs/linux/passive-module-linux-prior.log.gz",
+    "bytes": 883,
+    "sha256": "084acc1de33d03a1085ffaf97e91e073f0fc3199c43c78d9e8a2555b597e8f46",
+    "compressed_sha256": "5bb8c3c45fe4bbc107dd33ca62628e6184d85ef1cf2673978c804d62c6dc6ed6"
+  },
+  "linux/passive-module-reference-build.log": {
+    "path": "inputs/linux/passive-module-reference-build.log.gz",
+    "bytes": 1243,
+    "sha256": "75c6e66194e9b1ff053fa633a2938439f29db22178208c8ab5e251d42f7d27c5",
+    "compressed_sha256": "727083d9b5ba4d0f8a076a98369bc16831239ccae967371c91e50d08c7924d51"
+  },
+  "linux/passive-module-schema-corrected.log": {
+    "path": "inputs/linux/passive-module-schema-corrected.log.gz",
+    "bytes": 5039,
+    "sha256": "8a9b0c2b96e169e77b2a6b2a012df9548c2144e12dbc19d8b5e9ba884bbf3407",
+    "compressed_sha256": "ee98222eeecac35e07dbc6baa85ddd6ffbdcbd8a59c06b422f524a726740e45a"
+  },
+  "linux/passive-module-schema.log": {
+    "path": "inputs/linux/passive-module-schema.log.gz",
+    "bytes": 837,
+    "sha256": "247c21cd341224c1f70d103654ef861992af8462f694c643e698a725384266a6",
+    "compressed_sha256": "0d0432eb90dcb148bf7070932fba237a4267d718601ec954347587efd5764948"
+  },
+  "source/Makefile.gnu": {
+    "path": "inputs/source/Makefile.gnu.gz",
+    "bytes": 421656,
+    "sha256": "8ab6fffc63f8e7e5ee7f7e13dc0cd1b8b348c7fe9c442d8f059f23aed73f871d",
+    "compressed_sha256": "ec95c2bf6ca66350f9d299be8ab4d2a15cddf6a60b6cd0cc9c3944dbc03130bf"
+  },
+  "source/src/nanoisa/nvm_format.c": {
+    "path": "inputs/source/src/nanoisa/nvm_format.c.gz",
+    "bytes": 61956,
+    "sha256": "2976a4df8a12a54a18c7891d1a8c64bce8efec084b5dfca7b0efad429b0c8789",
+    "compressed_sha256": "c47d6b91ff4b07303e2a02e6cae297c81278ec4d2885645a4a9fd5e85fd10df8"
+  },
+  "source/src/nanoisa/nvm_v2_convert.c": {
+    "path": "inputs/source/src/nanoisa/nvm_v2_convert.c.gz",
+    "bytes": 33037,
+    "sha256": "63bfe88251d3db5cbc59d769a121c395619a105488f023b3742be02f51e3557e",
+    "compressed_sha256": "803977310617510431ce561076aeb8f8a557c9058e5ef0ab8ef062ee00df0d98"
+  },
+  "source/src/nanoisa/nvm_v2_module.c": {
+    "path": "inputs/source/src/nanoisa/nvm_v2_module.c.gz",
+    "bytes": 25222,
+    "sha256": "a01a1bee91590cea4719db09257732777d9b8958d0f144d7eb4ac4448c5d4c5b",
+    "compressed_sha256": "12848f201acbba44f931b20212b55adec8e40b100c8071f29dfafcbe1f316f1f"
+  },
+  "source/src/nanoisa/ownership_contracts.c": {
+    "path": "inputs/source/src/nanoisa/ownership_contracts.c.gz",
+    "bytes": 36974,
+    "sha256": "386551c92bff6e391c0fca12052b4fbdf3f8405ff6fe2eca32649543784ca7d2",
+    "compressed_sha256": "998fbd26fe905da65ba274fed1311f46b8b4eb31140a6047983d24543c036533"
+  },
+  "source/src/nanoisa/retained_layouts.c": {
+    "path": "inputs/source/src/nanoisa/retained_layouts.c.gz",
+    "bytes": 15222,
+    "sha256": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+    "compressed_sha256": "da35c9df7b1cc9083a4024124cd9f5b0d5eee72c0a2f3d44b3dcd4900991a3a9"
+  },
+  "source/src_nano/nvm2c/container.nano": {
+    "path": "inputs/source/src_nano/nvm2c/container.nano.gz",
+    "bytes": 5808,
+    "sha256": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "compressed_sha256": "5032f45991f9bfa530cd9f82547e3dee4ca60df6090e176b15edbfec2d907e9a"
+  },
+  "source/src_nano/nvm2c/instructions.nano": {
+    "path": "inputs/source/src_nano/nvm2c/instructions.nano.gz",
+    "bytes": 5224,
+    "sha256": "ce7c1d20d42b65772c0b63a4377943e8a69195e1129b945d905d1a381b7eedef",
+    "compressed_sha256": "6f526139e2954a267f77f185e99062dca1a1563da2c9091f63ec47bdcfbb5486"
+  },
+  "source/src_nano/nvm2c/isa_metadata.nano": {
+    "path": "inputs/source/src_nano/nvm2c/isa_metadata.nano.gz",
+    "bytes": 8941,
+    "sha256": "8da2f93d5b5755f844e88a2205dca0744cca1f1f0384e3fa8eabb687af8d2a00",
+    "compressed_sha256": "8967b0c53b3ce752fc4a45f7ccfcfcd9031ee0e279671ff4f8d49db3675969b2"
+  },
+  "source/src_nano/nvm2c/module.nano": {
+    "path": "inputs/source/src_nano/nvm2c/module.nano.gz",
+    "bytes": 20074,
+    "sha256": "1c61c0d80a763a28826a784651ab4fc4218ad63bd223ede0192f503ae3b18433",
+    "compressed_sha256": "b402c659d3a628fab016f9fe4a9a3d2aef1454b80e81a151e2b0b88e4060bb1b"
+  },
+  "source/src_nano/nvm2c/passive.nano": {
+    "path": "inputs/source/src_nano/nvm2c/passive.nano.gz",
+    "bytes": 16958,
+    "sha256": "1c8b5f33ec760e2ec06c052bcc60ffa6fe90e81e9bd24672e2921f6a4eb246ca",
+    "compressed_sha256": "ae66a0c20718f0a27b287e06e91cc9cf7cf3515ee6a1f0eddf2dba54fdbf0321"
+  },
+  "source/src_nano/nvm2c/passive_calls.nano": {
+    "path": "inputs/source/src_nano/nvm2c/passive_calls.nano.gz",
+    "bytes": 13074,
+    "sha256": "a7b85dde4741b3aec344a129bbdcd666f39f3f531eb5da8db34a73224f78e187",
+    "compressed_sha256": "fed95cbc2da56bcec3e6d6bcb013e35daa2c7aaa9a2d06976458ae3e81cfe5d5"
+  },
+  "source/src_nano/nvm2c/payloads.nano": {
+    "path": "inputs/source/src_nano/nvm2c/payloads.nano.gz",
+    "bytes": 14733,
+    "sha256": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3",
+    "compressed_sha256": "bdbbd3cb8b7f67c72cef04b15cfc7b37e33632414063c5739b6301ebd3381dd6"
+  },
+  "source/tests/nanoisa/fixtures/passive_flow.nano": {
+    "path": "inputs/source/tests/nanoisa/fixtures/passive_flow.nano.gz",
+    "bytes": 1684,
+    "sha256": "93091487f07c6f150d22382fe5be8f9f96f0cdadc59dd8cebaf59a356c4b305d",
+    "compressed_sha256": "6b656bf5309cb0e876fe8f1a59fd3e8e794de98aeda0f2deb6acf1d300cc804f"
+  },
+  "source/tests/nanoisa/fixtures/passive_par.nano": {
+    "path": "inputs/source/tests/nanoisa/fixtures/passive_par.nano.gz",
+    "bytes": 675,
+    "sha256": "7f85ecc676920fc414b1bfc232a7a78c09f5d81ffe83ef9e1d95b6a2daf7e006",
+    "compressed_sha256": "993d99048d3eeced166bf8e1680dcd6318c58848178427bc70658a477decb4a3"
+  },
+  "source/tests/nanolang_translator_routes.py": {
+    "path": "inputs/source/tests/nanolang_translator_routes.py.gz",
+    "bytes": 2399,
+    "sha256": "3a0cfe51fa95649a93f26eed003cd9c2b5b798fd7df83b8208c7aa7fd8c42ff4",
+    "compressed_sha256": "4e61c7bf9c6ef4c4c3041f808e01cf9cc438d41d5b0785760a46d8a48b5633bc"
+  },
+  "source/tests/native_process.py": {
+    "path": "inputs/source/tests/native_process.py.gz",
+    "bytes": 1967,
+    "sha256": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+    "compressed_sha256": "bb928f152e8bfc013edb053087d3fc75aa48783b6e5a37c6220443be8a7f1999"
+  },
+  "source/tests/nvm2c_module_driver.nano": {
+    "path": "inputs/source/tests/nvm2c_module_driver.nano.gz",
+    "bytes": 2040,
+    "sha256": "a2d661436880c72494359cc598c966bb578d51211f5fa4700cd3d90be90639b2",
+    "compressed_sha256": "2341e93d3af68ae8f4ea086084f3ae4b0503092820ca89c32cd5537e27dc4f8b"
+  },
+  "source/tests/nvm2c_module_reference.c": {
+    "path": "inputs/source/tests/nvm2c_module_reference.c.gz",
+    "bytes": 1836,
+    "sha256": "21bbc1baaa30b4ba2336e682ec8fc55dfb4596522ee7cfdf2c893f20732bf75e",
+    "compressed_sha256": "463722175ba9d689a74030d22db9544090d3050a450c597cdfdb439c146c9ef0"
+  },
+  "source/tests/test_nanolang_translator_module.py": {
+    "path": "inputs/source/tests/test_nanolang_translator_module.py.gz",
+    "bytes": 13136,
+    "sha256": "40d77ecb0f28a91e5d042b49266eb6df9457b71b5e1b537abdb3a76934759ac6",
+    "compressed_sha256": "3b902fe7b395e422f4d7413b9c2a586f1154a2bcd8f20d82c1a6d85e1a3c111c"
+  },
+  "source/tests/test_nanolang_translator_passive.py": {
+    "path": "inputs/source/tests/test_nanolang_translator_passive.py.gz",
+    "bytes": 16210,
+    "sha256": "e150965f7bd24c64a3a0494e0f2af77c987fb2725f2a4bc8215540e9595c6035",
+    "compressed_sha256": "d4af7ea2dec99fb77c56f535e2339d4e47dcb407ce6baef77d2886ff2b001bae"
+  },
+  "source/tests/test_nanolang_translator_passive_calls.py": {
+    "path": "inputs/source/tests/test_nanolang_translator_passive_calls.py.gz",
+    "bytes": 12265,
+    "sha256": "459faeb3a183c99185491c9decf3011fba870120e871b55acba3f974b65eb5d9",
+    "compressed_sha256": "f9174f4801255ba5c8736c309c08ef55dbec84a4f0e91bebfe548c319c3d84c0"
+  },
+  "source/tests/test_nanolang_translator_passive_module.py": {
+    "path": "inputs/source/tests/test_nanolang_translator_passive_module.py.gz",
+    "bytes": 8706,
+    "sha256": "e771f286a57378019dadac9a05c583987b866208933235e9316e7c1be864dd16",
+    "compressed_sha256": "766cce668f16e8f095c29955f5d2c7bb264e766fe581b6adb2bf62d9ab077c77"
+  }
+}

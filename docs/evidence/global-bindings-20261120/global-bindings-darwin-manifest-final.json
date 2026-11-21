@@ -1,0 +1,79 @@
+{
+  "component_commit": {
+    "returncode": 0,
+    "stdout": "0cf0765e3bbd47e5eef50bb6823530ec8e054f5b\n",
+    "stderr": ""
+  },
+  "status": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "uname": {
+    "returncode": 0,
+    "stdout": "Darwin puck 27.2.0 Darwin Kernel Version 27.2.0: Wed Oct 14 23:44:56 PDT 2026; root:xnu-13432.41.4~25/RELEASE_ARM64_T6041 arm64\n",
+    "stderr": ""
+  },
+  "cc": {
+    "returncode": 0,
+    "stdout": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "stderr": ""
+  },
+  "clang": {
+    "returncode": 0,
+    "stdout": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "stderr": ""
+  },
+  "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "source_sha256": {
+    "src/nanolang.h": "acb38e14f5ed53044867f15bb514856bc26851f2ee67233a1dee0f6de0b4fdad",
+    "src/env.c": "a3362ab7890151c0abf037b17a38900fedd85dc846fd3c269b75c429fb77a46a",
+    "src/eval.c": "3aeaa1d2927ae5300a0bcfe1ba63d8211cb20e78e1a13991557f252bdabcdecc",
+    "src/typechecker.c": "6186465d11c312f293d3c7dc07019f23753c60fa5aaf9f95eef809e8b10e1363",
+    "tests/test_eval.c": "8e414cf7d6d20cb6565e30c06d459cedf0a3791ac2cd5a59459d1997eb5b64fd",
+    "tests/test_eval_global_binding_ownership.c": "a7cf2669b26fcc5add4b0c3a4fd579e36acd50cb9d7c5197ca21fd5273b832ee",
+    "tests/eval_global_bindings.nano": "93627ab28ef2876e5e8f138697f9169fb17be89e35e0565645699778e456d7b4",
+    "tests/test_eval_global_bindings.py": "844dbddfe08493ea9bad89e0c96e223ee8a706c21cfd08ee067a29d4db221332",
+    "tests/nanolang_translator_routes.py": "06e2cb844b9852c9aecc2934ebc83ad60fd5561dccfefc94beb73a9ac9c5c7a9",
+    "tests/test_imported_globals.py": "a5029abae4ba9778cdbb761f654a530c549eca8beb7361c40e85f711b867320b",
+    "tests/native_process.py": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+    "Makefile.gnu": "5872b9b4def3251a688172bc69b73f479cec2f62c483860dc7deffe1020344a1",
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/instructions.nano": "ce7c1d20d42b65772c0b63a4377943e8a69195e1129b945d905d1a381b7eedef",
+    "src_nano/nvm2c/isa_metadata.nano": "8da2f93d5b5755f844e88a2205dca0744cca1f1f0384e3fa8eabb687af8d2a00",
+    "src_nano/nvm2c/module.nano": "17c849fc3f5dcb2ad05ef31ac8cb90d830022dd4ec06ddbdf9adfac3c7e5d81d",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3"
+  },
+  "post_run_tool_sha256": {
+    "bin/nanoc_c": "b0ec6f6db3bdcf109b2ef5d3cd7c610b88ff72ff555f6be41e5dffa63e2e56c6",
+    "bin/nano_virt": "8b269032e6fd6c1ff7d91d7349ec9dc3da3cbeb3a90fc35490bbf565290985d9",
+    "bin/nano_vm": "d1b2da43a1b425820851843b52a7bca5bcc694a95fbb5d63b75ac566c33f8485",
+    "bin/nvm2c": "659fdf6733e2988276dfa022da76427196bf85cbb9afd8302464d43a7d01ea2e",
+    "bin/nano_aot_runtime.o": "18daa68405bd0004b20a4c402953c3bedaeae7c4921c4a690b0ad3309dd39afc",
+    ".test_output/global-bindings-source-compiler": "56481f5ed4dc108d8a97ded39d0020ede7df5e044b07e7f7c035d76b3c400df0",
+    ".test_output/obj-global-bindings-asan/test_eval_global_binding_ownership": "48ded310a27f1794d08c050687f5218ad87b4ed9606f12d8084cd8576e739d82"
+  },
+  "limits": [
+    "I record hashes after the runs, not a complete before/after SDK closure.",
+    "My unittest products are temporary and not archived.",
+    "I instrument generated C while using the ordinary AOT runtime.",
+    "My C-seed-built development NanoLang driver is not a raw Stage1/Stage2 bootstrap.",
+    "My full original LeakSanitizer suite and legacy qualified-global AST-to-C route remain failed."
+  ],
+  "sdk": {
+    "returncode": 0,
+    "stdout": "27.0\n",
+    "stderr": ""
+  },
+  "sdk_path": {
+    "returncode": 0,
+    "stdout": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk\n",
+    "stderr": ""
+  },
+  "os": {
+    "returncode": 0,
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B123\n",
+    "stderr": ""
+  }
+}

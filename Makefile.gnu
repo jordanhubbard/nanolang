@@ -690,6 +690,137 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 		$(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
+.PHONY: test-nominal-owner-context
+test-nominal-owner-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nominal_owner_context tests/test_nominal_owner_context.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nominal_owner_context
+
+# I compare my NanoLang container decoder with the existing C boundary.
+$(OBJ_DIR)/nvm2c_container_reference: tests/nvm2c_container_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_payload_reference: tests/nvm2c_payload_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-payloads
+test-nanolang-translator-payloads: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_payload_reference
+	python3 -m unittest -v tests.test_nanolang_translator_payloads
+
+$(OBJ_DIR)/nvm2c_instruction_reference: tests/nvm2c_instruction_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-instructions
+test-nanolang-translator-instructions: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_instruction_reference
+	python3 -m unittest -v tests.test_nanolang_translator_instructions
+
+$(OBJ_DIR)/nvm2c_passive_calls_reference: tests/nvm2c_passive_calls_reference.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/passive_calls.inc $(OBJ_DIR)/nanoisa/isa.o | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(OBJ_DIR)/nanoisa/isa.o $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-passive-calls
+test-nanolang-translator-passive-calls: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_passive_calls_reference $(OBJ_DIR)/nvm2c_module_reference
+	python3 -m unittest -v tests.test_nanolang_translator_passive_calls
+
+$(OBJ_DIR)/nvm2c_passive_reference: tests/nvm2c_passive_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-passive
+test-nanolang-translator-passive: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_passive_reference $(OBJ_DIR)/nvm2c_module_reference
+	python3 -m unittest -v tests.test_nanolang_translator_passive
+
+$(OBJ_DIR)/nvm2c_module_reference: tests/nvm2c_module_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-module
+test-nanolang-translator-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference test-nominal-owner-context
+	python3 -m unittest -v tests.test_nanolang_translator_module
+
+.PHONY: test-nanolang-translator-ownership-module
+test-nanolang-translator-ownership-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference $(OBJ_DIR)/nvm2c_declaration_reference
+	python3 -m unittest -v tests.test_nanolang_translator_ownership_module
+
+.PHONY: test-nanolang-translator-passive-module
+test-nanolang-translator-passive-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_reference
+	python3 -m unittest -v tests.test_nanolang_translator_passive_module
+
+$(OBJ_DIR)/nvm2c_ownership_reference: tests/nvm2c_ownership_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-ownership
+test-nanolang-translator-ownership: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_reference
+	python3 -m unittest -v tests.test_nanolang_translator_ownership
+
+$(OBJ_DIR)/nvm2c_private_layout_reference: tests/nvm2c_private_layout_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-private-layouts
+test-nanolang-translator-private-layouts: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_private_layout_reference
+	python3 -m unittest -v tests.test_nanolang_translator_private_layouts
+
+$(OBJ_DIR)/nvm2c_declaration_reference: tests/nvm2c_declaration_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_declaration_reference_asan: tests/nvm2c_declaration_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c99 -D_GNU_SOURCE -Isrc -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(addprefix $(NANOISA_DIR)/,ownership_contracts.c retained_layouts.c reference_places.c nvm_v2_layouts.c nvm_v2_cursor.c isa.c) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,ownership_contracts.o retained_layouts.o reference_places.o nvm_v2_layouts.o nvm_v2_cursor.o isa.o),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-declarations
+test-nanolang-translator-declarations: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference $(OBJ_DIR)/nvm2c_declaration_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_declarations
+
+.PHONY: test-nanolang-translator-routes
+test-nanolang-translator-routes: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_declaration_reference
+	python3 -m unittest -v tests.test_nanolang_translator_routes
+
+$(OBJ_DIR)/nvm2c_service_nominal_reference: tests/nvm2c_service_nominal_reference.c $(NANOISA_DIR)/services_nominal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_DIR)/services_nominal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+SERVICE_NOMINAL_UNITS = service_file_nominal service_socket_nominal service_websocket_nominal service_multi_nominal service_file_nominal_plan service_socket_nominal_plan service_websocket_nominal_plan service_multi_nominal_plan services_nominal nvm_v2_cursor
+SERVICE_NOMINAL_SOURCES = $(addprefix $(NANOISA_DIR)/,$(addsuffix .c,$(SERVICE_NOMINAL_UNITS))) $(addprefix $(SRC_DIR)/,nsi_file_plan.c nsi_socket_plan.c nsi_websocket_plan.c)
+SERVICE_NOMINAL_HEADERS = $(wildcard $(NANOISA_DIR)/service*nominal*.h) $(NANOISA_DIR)/service_nominal_plan.inc $(NANOISA_DIR)/service_nominal_codec.inc
+$(OBJ_DIR)/nvm2c_service_nominal_reference_asan: tests/nvm2c_service_nominal_reference.c $(SERVICE_NOMINAL_SOURCES) $(SERVICE_NOMINAL_HEADERS) $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -Isrc -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_NOMINAL_SOURCES) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,$(addsuffix .o,$(SERVICE_NOMINAL_UNITS))),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-service-nominal
+test-nanolang-translator-service-nominal: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime check-nvm2c-service-catalog $(OBJ_DIR)/nvm2c_service_nominal_reference $(OBJ_DIR)/nvm2c_service_nominal_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_service_nominal
+
+SERVICE_MODULE_UNITS = $(SERVICE_NOMINAL_UNITS) service_bindings service_bindings_module nvm_format isa
+SERVICE_MODULE_SOURCES = $(addprefix $(NANOISA_DIR)/,$(addsuffix .c,$(SERVICE_MODULE_UNITS))) $(addprefix $(SRC_DIR)/,nsi_file_plan.c nsi_socket_plan.c nsi_websocket_plan.c)
+$(OBJ_DIR)/nvm2c_service_module_reference_asan: tests/nvm2c_service_nominal_reference.c $(SERVICE_MODULE_SOURCES) $(SERVICE_NOMINAL_HEADERS) $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -Isrc -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_MODULE_SOURCES) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,$(addsuffix .o,$(SERVICE_MODULE_UNITS))),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-service-module
+test-nanolang-translator-service-module: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime check-nvm2c-service-catalog $(OBJ_DIR)/nvm2c_service_nominal_reference $(OBJ_DIR)/nvm2c_service_module_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_service_module
+
+$(OBJ_DIR)/nvm2c_service_catalog_reference: tests/nvm2c_service_catalog_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: check-nvm2c-service-catalog
+check-nvm2c-service-catalog: $(OBJ_DIR)/nvm2c_service_catalog_reference
+	python3 scripts/generate_nvm2c_service_catalog.py --check
+
+SERVICE_WIRE_SOURCES = $(addprefix $(NANOISA_DIR)/,service_bindings.c service_file_nominal.c service_socket_nominal.c service_websocket_nominal.c service_multi_nominal.c)
+SERVICE_WIRE_HEADERS = $(addprefix $(NANOISA_DIR)/,service_bindings.h service_file_nominal.h service_socket_nominal.h service_websocket_nominal.h service_multi_nominal.h service_nominal_codec.inc service_file_nominal_config.h service_socket_nominal_config.h service_websocket_nominal_config.h)
+$(OBJ_DIR)/nvm2c_service_reference: tests/nvm2c_service_reference.c $(SERVICE_WIRE_SOURCES) $(SERVICE_WIRE_HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -o $@ $< $(SERVICE_WIRE_SOURCES) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_service_reference_asan: tests/nvm2c_service_reference.c $(SERVICE_WIRE_SOURCES) $(SERVICE_WIRE_HEADERS) | $(OBJ_DIR)
+	$(CC) -std=c11 -D_GNU_SOURCE -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(SERVICE_WIRE_SOURCES) $(LDFLAGS)
+
+.PHONY: test-native-byte-array-results
+test-native-byte-array-results: $(COMPILER_C) nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_native_byte_array_results
+
+test-nvm2c: test-native-byte-array-results
+
+.PHONY: test-nanolang-translator-services
+test-nanolang-translator-services: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_service_reference $(OBJ_DIR)/nvm2c_service_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_services
+
+.PHONY: test-nanolang-translator-container
+test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
+	python3 -m unittest -v tests.test_nanolang_translator_container
+
 .PHONY: nvm2c
 .PHONY: check-binary64-parser
 check-binary64-parser:
@@ -1348,6 +1479,14 @@ test-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
 	@rm -f tests/test_eval
+
+.PHONY: test-eval-global-bindings test-eval-global-binding-ownership
+test-eval-global-bindings: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_eval_global_bindings
+
+test-eval-global-binding-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_global_binding_ownership tests/test_eval_global_binding_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_global_binding_ownership
 
 .PHONY: test-bench
 test-bench: stage1

@@ -1,0 +1,7 @@
+{
+  "exit_code": 127,
+  "observed_error": "FileNotFoundError: .test_output/nvm2c-module-darwin-manifest.json",
+  "cause": "The outer SSH here-document ended early, so collection/fixture commands after it ran locally.",
+  "effect": "The local checkout detached at its existing f193c09c2 commit; no tracked work was changed. The local branch was restored. The local fixture log is retained as collector-wrong-host, not Darwin evidence.",
+  "correction": "The completed remote matrices were not restarted. The remote fixture cleanup unit ran at f193c09c2 and its bundle was transferred and verified."
+}

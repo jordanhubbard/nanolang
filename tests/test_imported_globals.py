@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ImportedGlobals(unittest.TestCase):
     def check(self, source, bad=False, files=None):
+        native = os.environ.get('NANO_IMPORTED_GLOBAL_ROUTE', 'nanoisa') in ('native', 'legacy')
         override = os.environ.get('NANO_IMPORTED_GLOBAL_COMPILER')
         compilers = [shlex.split(override)] if override else [[str(ROOT/'bin'/stage)] for stage in ('nanoc_stage1', 'nanoc_stage2')]
         for compiler in compilers:
@@ -18,17 +19,24 @@ class ImportedGlobals(unittest.TestCase):
                 work = Path(tmp)
                 (work/'a.nano').write_text('pub let answer: int = 41\nlet hidden: int = 99\npub let mut count: int = 0\npub fn read_answer()->int{return answer}\nshadow read_answer {assert (== (read_answer) 41)}\n')
                 (work/'b.nano').write_text('pub let answer: string = "second"\npub fn read_answer()->string{return answer}\nshadow read_answer {assert (== (read_answer) "second")}\n')
-                for name, text in (files or {}).items(): (work/name).write_text(text)
+                for name, text in (files or {}).items():
+                    (work/name).parent.mkdir(parents=True, exist_ok=True)
+                    (work/name).write_text(text)
                 path, module, native_source, binary = [work/name for name in ('main.nano','main.nvm','main.c','main')]
                 path.write_text(source)
-                module.write_bytes(b'prior-output')
+                target = binary if native else module
+                target.write_bytes(b'prior-output')
                 env = {**os.environ, 'NANO_BUILD_CACHE': str(work/'cache')}
-                result = subprocess.run(compiler + [str(path),'--emit-nvm','-o',str(module)],cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
+                result = subprocess.run(compiler + [str(path), *([] if native else ['--emit-nvm']),'-o',str(target)],cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
                 if bad:
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
-                    self.assertEqual(module.read_bytes(),b'prior-output')
+                    self.assertEqual(target.read_bytes(),b'prior-output')
                     continue
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+                if native:
+                    result = subprocess.run([str(binary)], cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                    continue
                 cc=shlex.split(os.environ.get('NANO_NATIVE_TEST_CC',os.environ.get('CC','cc')))
                 for command in ([ROOT/'bin/nano_vm','--verify-only',module], [ROOT/'bin/nano_vm',module],
                                 [os.environ.get('NANO_IMPORTED_GLOBAL_TRANSLATOR', str(ROOT/'bin/nvm2c')),module,'-o',native_source],
@@ -170,6 +178,36 @@ class ImportedGlobals(unittest.TestCase):
                        'module "a.nano" as first\npure fn read()->int{return first.count}\nshadow read {assert true}\nfn main()->int{return 0}']:
             with self.subTest(source=source):
                 self.check(source+'\nshadow main {assert true}\n',bad=True)
+
+    def test_native_root_initializer_waits_for_private_module_state(self):
+        self.check('module "a.nano" as first\nlet observed: int = (first.read_answer)\n'
+            'fn main()->int{assert (== observed 41) assert (== (first.count) 1) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n', files={'a.nano':
+            'let mut starts: int = 0\n'
+            'fn initialize()->int{set starts (+ starts 1) return 41}\n'
+            'shadow initialize {let saved:int=starts assert (== (initialize) 41) set starts saved}\n'
+            'let hidden: int = (initialize)\n'
+            'pub fn read_answer()->int{return hidden}\n'
+            'shadow read_answer {assert (== (read_answer) 41)}\n'
+            'pub fn count()->int{return starts}\n'
+            'shadow count {assert (== (count) 1)}\n'})
+
+    def test_same_basename_modules_keep_distinct_storage(self):
+        for first, second in [('module left_values\n', 'module right_values\n'), ('', '')]:
+            with self.subTest(declared=bool(first)):
+                self.check('module "left/value.nano" as first\nmodule "right/value.nano" as second\n'
+                    'fn main()->int{assert (== first.answer 41) assert (== second.answer "second") return 0}\n'
+                    'shadow main {assert (== (main) 0)}\n', files={
+                        'left/value.nano':first+'pub let answer: int = 41\n',
+                        'right/value.nano':second+'pub let answer: string = "second"\n'}, bad=not bool(first))
+
+    def test_c_backed_extern_module_retains_public_storage(self):
+        self.check('module "bridge/api.nano" as first\n'
+            'fn main()->int{assert (== first.answer 41) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n', files={
+                'bridge/api.nano':'extern fn get_argc()->int\npub let answer: int = 41\n',
+                'bridge/module.json':'{"name":"global_bridge","version":"1.0.0","sources":["helper.c"]}',
+                'bridge/helper.c':'#include <stdint.h>\nint64_t helper(void) { return 0; }\n'})
 
 
 if __name__ == '__main__':

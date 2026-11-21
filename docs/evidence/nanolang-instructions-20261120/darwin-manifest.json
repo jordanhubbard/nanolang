@@ -1,0 +1,78 @@
+{
+  "component_commit": "d97b1ea89495ea6f680dafcef88dedc1d10dd69a",
+  "worktree_status": "",
+  "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "uname": "Darwin puck 27.2.0 Darwin Kernel Version 27.2.0: Wed Oct 14 23:44:56 PDT 2026; root:xnu-13432.41.4~25/RELEASE_ARM64_T6041 arm64",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "cwd": "/Users/jkh/.worktrees/nanolang/translator-payloads-20261120",
+  "source_sha256": {
+    "Makefile.gnu": "bcb48d6f74c22daf7912dd179b27e5f6c42828e4ec7201a3c114676c5fbb856b",
+    "spec/nanoisa.yaml": "5a629313b053ea8292d3e28b4a728539dc75eaecd4872249f613ade245258e53",
+    "scripts/gen_nanoisa_schema.py": "f4b7b842f3cad0be2bd7055f61bcf3f1e2c5a42e2f7899ac2f3c7a6ac1150930",
+    "src/nanoisa/isa.c": "267e1fd0e56d72bb45450b4138a268cf78178cc5f2e5bddafa4e6d801cd6fdc7",
+    "src/nanoisa/isa.h": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+    "src/nanoisa/generated_schema.h": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+    "tests/nanolang_translator_routes.py": "3a0cfe51fa95649a93f26eed003cd9c2b5b798fd7df83b8208c7aa7fd8c42ff4",
+    "tests/native_process.py": "49bedb9078bf06f67cbc53eb77793d9917f58ccb70e742ff393d14d0145c626e",
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/instructions.nano": "ce7c1d20d42b65772c0b63a4377943e8a69195e1129b945d905d1a381b7eedef",
+    "src_nano/nvm2c/isa_metadata.nano": "8da2f93d5b5755f844e88a2205dca0744cca1f1f0384e3fa8eabb687af8d2a00",
+    "src_nano/nvm2c/module.nano": "17c849fc3f5dcb2ad05ef31ac8cb90d830022dd4ec06ddbdf9adfac3c7e5d81d",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3",
+    "tests/nvm2c_instruction_driver.nano": "17c02d00b0c329b4e94ae2860c3c8efa7e482f302dc6828df5bfd9650e92f063",
+    "tests/nvm2c_instruction_reference.c": "75c3903684420fd811fa7656d53f6aef3b92caba0e97f4fde8773c4aab921367",
+    "tests/test_nanolang_translator_instructions.py": "9b2b6f13134610d92ad45aa39c66019bcdfa8975c58070a9f618f48896713f46",
+    "tests/test_nanolang_translator_container.py": "088206524e47eea4afe70cc9d1f6d086c23c4d35f873ce446fa46bec8cae1c4a",
+    "tests/test_nanolang_translator_payloads.py": "0124a0c3b064ae83773f09f6e30748f5a12747e961d0afc0e9557f43b6d6cb5f",
+    "tests/test_nanolang_translator_module.py": "283c55d5f6c03599240d8f6e709ac4fc62f50af766af5cc413bb40fffb970f8b"
+  },
+  "post_run_tool_sha256": {
+    "bin/nanoc_c": "c5f4501dc4b0767c76fe057ac86dd51bda840d2a6f0ee19ab37997332fedcc4c",
+    "bin/nano_virt": "a952782180561cd67b2d270f9e97d020253e91f9976aab56449eafda20b937d8",
+    "bin/nano_vm": "d128d3fa52343ef7b9da812c8ae6c696c319dc8097390696c38a44e500fd9858",
+    "bin/nvm2c": "174ffa231a8f8aaa335efc15fbc21531b113afa1607da166602272b44990ab1e",
+    "bin/nano_aot_runtime.o": "e01332d848b9b4f9fe639ef74b1987d4005b96daf156b27ca6a51011ce788abe",
+    "obj/nvm2c_instruction_reference": "b89a1a0c075fa3af51f56c965f3361b17ad70d14faec360303723b37b2d2f171",
+    "obj/nvm2c_module_reference": "6661162224db7ad94521b19af4707c2ba5728f68a1a09a26ee82e14a17ebb2e8",
+    ".test_output/nvm2c-module-darwin-source": "296bcee2e0fc364fe652722b84bf3f9fcbce457e48339801ce686a7b7222b2c3"
+  },
+  "counts": {
+    "container": 165,
+    "payload": 1585,
+    "module": 264,
+    "instructions": 3472,
+    "instruction_explicit": 721,
+    "instruction_explicit_integer_bit_window": 68,
+    "original_products": 6,
+    "widths": 256,
+    "file_scans": 256,
+    "pending_profiles": 5,
+    "routes": 5
+  },
+  "limits": [
+    "I hash after the run; I do not claim a before/after complete SDK closure.",
+    "My unittest products are temporary and are not archived.",
+    "I instrument generated C; I use the existing ordinary AOT runtime object.",
+    "My reused C-seed-built NanoLang driver does not establish Stage1/Stage2 equality.",
+    "I do not qualify extension admission, instruction verification, pure NanoLang C emission, installed products or the full release."
+  ],
+  "sdk_queries": {
+    "xcrun --show-sdk-path": {
+      "returncode": 0,
+      "stdout": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n",
+      "stderr": ""
+    },
+    "xcrun --show-sdk-version": {
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "2026-11-20 09:31:18.273 xcodebuild[15257:324880652] Writing error result bundle to /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/ResultBundle_2026-20-11_09-31-0018.xcresult\nxcodebuild: error: SDK \"/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\" cannot be located.\nxcrun: error: unable to lookup item 'SDKVersion' in SDK '/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk'\n"
+    },
+    "xcrun --sdk macosx --show-sdk-version": {
+      "returncode": 0,
+      "stdout": "27.0\n",
+      "stderr": ""
+    }
+  },
+  "os_version": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B123"
+}

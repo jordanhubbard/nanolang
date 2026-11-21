@@ -1,0 +1,207 @@
+module nvm2c_map_declarations
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/array_declarations.nano" as arrays
+
+pub struct Route { status: int, work: int }
+pub struct Pair { key: int, value: int }
+pub struct Maps { status: int, scalars: array<int>, pairs: array<Pair>, bindings: array<arrays.Binding> }
+fn failed(status: int) -> Maps { return Maps { status: status, scalars: [], pairs: [], bindings: [] } }
+shadow failed { assert (== (array_length (failed 3).pairs) 0) }
+
+pub fn route(bytes: array<u8>, model: owned.Module) -> Route {
+    let size: int = (array_length model.layouts)
+    let ownership_size: int = (array_length bytes)
+    if (and (== size 0) (== ownership_size 0)) { return Route { status: 0, work: 0 } }
+    if (or (== size 0) (== ownership_size 0)) { return Route { status: 2, work: 0 } }
+    let work: int = (+ size ownership_size)
+    if (or (> size 16777216) (or (> ownership_size 16777216) (> work 4194304))) { return Route { status: 3, work: 0 } }
+    let c: read.Cursor = (read.open model.layouts)
+    let count: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return Route { status: 2, work: work } }
+    if (> count 256) { return Route { status: 3, work: work } }
+    let mut total: int = 0
+    let mut field_map: bool = false
+    let mut i: int = 0
+    while (< i count) {
+        let h: int = (read.skip c 8)
+        if (!= (read.status c) 0) { return Route { status: 2, work: work } }
+        let n: int = (wire.read_u16 c.data (+ h 2))
+        if (or (!= (at c.data (+ h 1)) 0) (> (at c.data h) 3)) { return Route { status: 2, work: work } }
+        if (> n (- 65536 total)) { return Route { status: 3, work: work } }
+        set total (+ total n)
+        let mut j: int = 0
+        while (< j n) {
+            let f: int = (read.skip c 12)
+            if (!= (read.status c) 0) { return Route { status: 2, work: work } }
+            if (or (>= (at c.data f) 16) (or (!= (at c.data (+ f 1)) 0) (!= (wire.read_u16 c.data (+ f 2)) 0))) { return Route { status: 2, work: work } }
+            if (== (at c.data f) 13) { set field_map true }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= (read.position c) size) { return Route { status: 2, work: work } }
+    let d: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 d)
+    if (or (!= (read.status d) 0) (or (< version 1) (> version 3))) { return Route { status: 2, work: work } }
+    let layouts: int = (read.read_u32 d)
+    let flags: int = (read.skip d layouts)
+    if (or (!= (read.status d) 0) (!= layouts count)) { return Route { status: 2, work: work } }
+    set i 0
+    while (< i layouts) {
+        if (> (at bytes (+ flags i)) 3) { return Route { status: 2, work: work } }
+        set i (+ i 1)
+    }
+    let aligned: int = (read.align d)
+    let functions: int = (read.read_u32 d)
+    if (or (!= (read.status d) 0) (!= functions (array_length model.functions))) { return Route { status: 2, work: work } }
+    set i 0
+    while (< i functions) {
+        let locals: int = (read.read_u16 d)
+        let params: int = (read.read_u16 d)
+        let f: owned.Module = model
+        if (or (!= (read.status d) 0) (or (!= locals (at f.functions i).locals) (or (!= params (at f.functions i).arity) (> params locals)))) { return Route { status: 2, work: work } }
+        let start: int = (read.skip d (* (+ locals 1) 8))
+        if (!= (read.status d) 0) { return Route { status: 2, work: work } }
+        let mut j: int = 0
+        while (<= j locals) {
+            let at_position: int = (+ start (* j 8))
+            if (or (>= (at bytes at_position) 16) (or (> (at bytes (+ at_position 1)) 2) (!= (wire.read_u16 bytes (+ at_position 2)) 0))) { return Route { status: 2, work: work } }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let mut final_work: int = work
+    if (== version 3) {
+        let bound: read.Cursor = (read.open bytes)
+        let ignored: int = (read.skip bound (read.position d))
+        let size_paths: int = (read.read_u32 bound)
+        let skipped: int = (read.skip bound size_paths)
+        let extensions: int = (read.read_u32 bound)
+        if (!= (read.status bound) 0) { return Route { status: 2, work: work } }
+        if (> extensions 4) { return Route { status: 3, work: work } }
+        if (> work (- 4194304 8)) { return Route { status: 3, work: work } }
+        set final_work (+ work 8)
+    }
+    let extensions: read.Extensions = (read.suffix d version true)
+    if (!= extensions.status 0) { return Route { status: 2, work: final_work } }
+    set i 0
+    while (< i (array_length extensions.values)) {
+        if (== (at extensions.values i).kind 5) { set field_map true }
+        set i (+ i 1)
+    }
+    return Route { status: (cond (field_map 1) (else 0)), work: final_work }
+}
+shadow route {
+    let m: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (== (route [] m).status 0)
+    assert (== (route [1] m).status 2)
+}
+
+pub fn decode(view: read.Extension, layouts: payload.PayloadTable, flags: array<int>, work: int) -> Maps {
+    if (> (* (array_length view.data) 2) (- 4194304 work)) { return (failed 3) }
+    let mut used: int = (+ work (* (array_length view.data) 2))
+    if (!= view.revision 1) { return (failed 2) }
+    let c: read.Cursor = (read.open view.data)
+    let scalars: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (failed 2) }
+    if (== scalars 0) { return (failed 2) }
+    if (> scalars 5) { return (failed 3) }
+    let scalar_start: int = (read.skip c (* scalars 8))
+    let pairs: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (failed 2) }
+    if (== pairs 0) { return (failed 2) }
+    if (> pairs 25) { return (failed 3) }
+    let pair_start: int = (read.skip c (* pairs 8))
+    let bindings: int = (read.read_u32 c)
+    if (!= (read.status c) 0) { return (failed 2) }
+    if (== bindings 0) { return (failed 2) }
+    if (> bindings 65536) { return (failed 3) }
+    let binding_start: int = (read.skip c (* bindings 12))
+    if (or (!= (read.status c) 0) (!= (read.position c) (array_length view.data))) { return (failed 2) }
+    # Even the maximum numeric sidecar is smaller than the2MiB C copy bound.
+    let mut values: array<int> = []
+    let mut scalar_used: array<int> = []
+    let mut pair_rows: array<Pair> = []
+    let mut pair_used: array<int> = []
+    let mut rows: array<arrays.Binding> = []
+    let mut i: int = 0
+    while (< i scalars) {
+        set used (+ used 1) if (> used 4194304) { return (failed 3) }
+        let row: int = (+ scalar_start (* i 8))
+        let tag: int = (cast_int (at view.data row))
+        if (or (< tag 1) (or (> tag 5) (or (!= (at view.data (+ row 1)) 0) (or (!= (wire.read_u16 view.data (+ row 2)) 0) (!= (wire.read_u32 view.data (+ row 4)) 4294967295))))) { return (failed 2) }
+        if (> i 0) { if (<= tag (at values (- i 1))) { return (failed 2) } }
+        set values (array_push values tag) set scalar_used (array_push scalar_used 0) set i (+ i 1)
+    }
+    set i 0
+    while (< i pairs) {
+        set used (+ used 4) if (> used 4194304) { return (failed 3) }
+        let row: int = (+ pair_start (* i 8))
+        let key: int = (wire.read_u32 view.data row)
+        let value: int = (wire.read_u32 view.data (+ row 4))
+        if (or (>= key scalars) (>= value scalars)) { return (failed 2) }
+        if (> i 0) {
+            let prior: Pair = (at pair_rows (- i 1))
+            if (or (< key prior.key) (and (== key prior.key) (<= value prior.value))) { return (failed 2) }
+        }
+        set pair_rows (array_push pair_rows Pair { key: key, value: value })
+        set pair_used (array_push pair_used 0)
+        (array_set scalar_used key 1) (array_set scalar_used value 1) set i (+ i 1)
+    }
+    set i 0
+    while (< i bindings) {
+        set used (+ used 5) if (> used 4194304) { return (failed 3) }
+        let row: int = (+ binding_start (* i 12))
+        let layout: int = (wire.read_u32 view.data row)
+        let field: int = (wire.read_u16 view.data (+ row 4))
+        let target: int = (wire.read_u32 view.data (+ row 8))
+        if (or (!= (wire.read_u16 view.data (+ row 6)) 0) (or (>= layout (array_length layouts.starts)) (>= target pairs))) { return (failed 2) }
+        let header: int = (at layouts.starts layout)
+        if (>= field (wire.read_u16 layouts.data (+ header 2))) { return (failed 2) }
+        if (> i 0) {
+            let prior: arrays.Binding = (at rows (- i 1))
+            if (or (< layout prior.layout) (and (== layout prior.layout) (<= field prior.field))) { return (failed 2) }
+        }
+        let f: int = (+ (+ header 8) (* field 12))
+        if (or (!= (at layouts.data header) 0) (or (!= (at flags layout) 1) (or (!= (at layouts.data f) 13) (!= (wire.read_u32 layouts.data (+ f 4)) 4294967295)))) { return (failed 2) }
+        set rows (array_push rows arrays.Binding { layout: layout, field: field, target: target })
+        (array_set pair_used target 1) set i (+ i 1)
+    }
+    let mut next: int = 0
+    set i 0
+    while (< i (array_length layouts.starts)) {
+        set used (+ used 1) if (> used 4194304) { return (failed 3) }
+        let header: int = (at layouts.starts i)
+        let mut f: int = 0
+        while (< f (wire.read_u16 layouts.data (+ header 2))) {
+            set used (+ used 2) if (> used 4194304) { return (failed 3) }
+            if (== (at layouts.data (+ (+ header 8) (* f 12))) 13) {
+                if (>= next bindings) { return (failed 2) }
+                if (or (!= (at rows next).layout i) (!= (at rows next).field f)) { return (failed 2) }
+                set next (+ next 1)
+            }
+            set f (+ f 1)
+        }
+        set i (+ i 1)
+    }
+    if (!= next bindings) { return (failed 2) }
+    set i 0
+    while (< i scalars) {
+        set used (+ used 1) if (> used 4194304) { return (failed 3) }
+        if (== (at scalar_used i) 0) { return (failed 2) } set i (+ i 1)
+    }
+    set i 0
+    while (< i pairs) {
+        set used (+ used 1) if (> used 4194304) { return (failed 3) }
+        if (== (at pair_used i) 0) { return (failed 2) } set i (+ i 1)
+    }
+    return Maps { status: 0, scalars: values, pairs: pair_rows, bindings: rows }
+}
+shadow decode {
+    let table: payload.PayloadTable = (payload.layouts [0,0,0,0])
+    assert (== (decode read.Extension { kind: 5, revision: 1, data: [0,0,0,0] } table [] 0).status 2)
+    assert (== (decode read.Extension { kind: 5, revision: 1, data: [6,0,0,0] } table [] 0).status 3)
+}

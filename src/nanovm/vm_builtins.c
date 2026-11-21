@@ -357,11 +357,12 @@ DynArray *vm_array_sort(DynArray *array) {
 }
 
 DynArray *vm_bytes_from_string(const char *str) {
-    DynArray *arr = dyn_array_new(ELEM_INT);
+    /* I return the declared byte identity so later VM writes keep narrowing. */
+    DynArray *arr = dyn_array_new(ELEM_U8);
     if (!str) return arr;
     size_t len = strlen(str);
     for (size_t i = 0; i < len; i++) {
-        dyn_array_push_int(arr, (int64_t)(unsigned char)str[i]);
+        dyn_array_push_u8(arr, (uint8_t)(unsigned char)str[i]);
     }
     return arr;
 }

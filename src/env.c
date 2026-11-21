@@ -811,6 +811,14 @@ Symbol *env_get_var(Environment *env, const char *name) {
     return symbol_lookup(env, name, false);
 }
 
+/* I select current storage by declaration identity, independent of caller names. */
+Symbol *env_get_declared_global(Environment *env, const ASTNode *declaration) {
+    if (!env || !declaration) return NULL;
+    for (int i = env->symbol_count - 1; i >= 0; --i)
+        if (env->symbols[i].global_declaration == declaration) return &env->symbols[i];
+    return NULL;
+}
+
 void env_set_current_file(Environment *env, const char *path) {
     if (env) env->current_file = path;
 }
@@ -981,8 +989,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 }
 
 /* Set variable value */
-static void env_set_var_impl(Environment *env, const char *name, Value value, bool retain_string_aliases) {
-    Symbol *sym = env_get_var(env, name);
+static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, bool retain_string_aliases) {
     if (sym) {
         /* I keep the binding's ownership when its STRING pointer is unchanged. */
         if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
@@ -1016,11 +1023,15 @@ static void env_set_var_impl(Environment *env, const char *name, Value value, bo
 }
 
 void env_set_var(Environment *env, const char *name, Value value) {
-    env_set_var_impl(env, name, value, true);
+    env_set_binding_impl(env, env_get_var(env, name), value, true);
 }
 
 void env_set_evaluated_var(Environment *env, const char *name, Value value, ASTNode *expression) {
-    env_set_var_impl(env, name, value, !evaluated_string_is_fresh(expression, value));
+    env_set_evaluated_binding(env, env_get_var(env, name), value, expression);
+}
+
+void env_set_evaluated_binding(Environment *env, Symbol *binding, Value value, ASTNode *expression) {
+    env_set_binding_impl(env, binding, value, !evaluated_string_is_fresh(expression, value));
 }
 
 /* Check if a name is a built-in function (known to the typechecker) */

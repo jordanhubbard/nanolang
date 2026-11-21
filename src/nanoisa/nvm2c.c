@@ -2761,10 +2761,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
                 break;
             }
-            if (arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_VALUE) {
+            if (arr.kind == NVM2C_VK_UNK &&
+                (val.kind == NVM2C_VK_VALUE ||
+                 (!facts->final && val.kind == NVM2C_VK_INT))) {
                 /* A tagged element does not determine the array's storage.
-                 * Recursive callers may supply that fact on a later pass;
-                 * defaulting to integer storage poisons the return contract. */
+                 * A computed integer also fits both integer and byte arrays;
+                 * I wait for caller facts before choosing either storage.
+                 * Defaulting here poisons a returned byte-array contract. */
                 Nvm2cSimSlot pushed = arr;
                 pushed.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed) ||

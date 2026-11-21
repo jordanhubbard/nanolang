@@ -1,0 +1,58 @@
+{
+  "component_commit": "2ff2f78ff53840e42d43fe82dd8921e011453992",
+  "fixture_commit": "f193c09c268ed7e6a92f534d7a632360b4fceedb",
+  "platform": "Linux sparky 7.0.0-1025-nvidia #26~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Nov  3 19:27:25 UTC 2 aarch64 aarch64 aarch64 GNU/Linux",
+  "post_run_sha256": {
+    "src_nano/nvm2c/container.nano": "2d259bf8fbc3406a345f9ad22df7454d1dd8c65ff488bac6f9738cfd529a91dd",
+    "src_nano/nvm2c/payloads.nano": "e24f25732a2fb7f9293b823e889e3c8adf014a7b26b191470beb0adc9aa058a3",
+    "src_nano/nvm2c/module.nano": "17c849fc3f5dcb2ad05ef31ac8cb90d830022dd4ec06ddbdf9adfac3c7e5d81d",
+    "src_nano/nvm2c/isa_metadata.nano": "b3997076612899fdabf77c72114747b06b87b195be39a07cc50d189c09b128c6",
+    "src_nano/typecheck.nano": "1567184d860ac692b60480fe044e064527a9db9836b33fe7aeeab287592a7318",
+    "src/typechecker.c": "e6fc3be8e1e67833d58d90a78e521020a24c066df7fa1bab56fa081ca0a14722",
+    "src/nominal_types.c": "715aa5aab6ff730d9d4c712895a38b8f70b9577cbcd891b873fa0d10cfb04c27",
+    "scripts/gen_nanoisa_schema.py": "6830a55635f059d82db3186343ee37c46b4cb94ff59f943e9e2365952c610c91",
+    "tests/test_nanolang_translator_module.py": "283c55d5f6c03599240d8f6e709ac4fc62f50af766af5cc413bb40fffb970f8b",
+    "tests/test_nominal_owner_context.c": "74adcf6f84f80870e678ae62e78f0a30b45cefdc4a0ad1181216cae84ce3238d",
+    "Makefile.gnu": "fbc13e7d62200361febeaa9d2ed97b999cf887701baddbf4cbef9897340ff7cb",
+    "bin/nanoc_c": "7117d55eb8a4c879ecd56bd0fdd91ec8fb054905286523d79cab24a92614a04f",
+    "bin/nano_virt": "c35d2c2aa2b79b513d4e26e4ca4a9a5bca709cdebd0857e096c1de961298d42c",
+    "bin/nano_vm": "f57b91c94bd52763cb38f8163b16779bebb99af5418ddf267badfaeaecb05de1",
+    "bin/nvm2c": "26f003c17623e36b1ae2550340a30461993c610b5b6bebb9f224785a2292d072",
+    "bin/nano_aot_runtime.o": "0b19465ec8fad9f36cba9f82f4e3823f9a3b25b04b4a910a037c754fd92b8ce8",
+    "obj/nvm2c_module_reference": "12d470f18fe26d4818e25907d8b486e937991fec19638bdb1ba34cf5f53d1600",
+    ".test_output/nvm2c-module-source-compiler-final": "af084516eb37b0401c39d2ca9f76f57518f366fe8c764751e266142e717355ab",
+    ".test_output/obj-owner-asan/test_nominal_owner_context": "e96acbb6fae9b62bd9f87507d6ebdfa917a222cd9323b0a9e2d8d8cb0a29b2b7"
+  },
+  "cross_host_source_matches": [
+    "src_nano/nvm2c/container.nano",
+    "src_nano/nvm2c/payloads.nano",
+    "src_nano/nvm2c/module.nano",
+    "src_nano/nvm2c/isa_metadata.nano",
+    "src_nano/typecheck.nano",
+    "src/typechecker.c",
+    "src/nominal_types.c",
+    "scripts/gen_nanoisa_schema.py",
+    "tests/test_nanolang_translator_module.py",
+    "tests/test_nominal_owner_context.c",
+    "Makefile.gnu"
+  ],
+  "darwin_archive_sha256": "c6f507ee1ef7ce44c6f9373ed8a0acd4c588412394cfbaa4f365427adddbafab",
+  "counts": {
+    "container": 165,
+    "payload": 1585,
+    "module": 264,
+    "module_explicit_expectations": 136,
+    "original_products": 6,
+    "primary_widths": 256,
+    "file_scans": 256,
+    "pending_profiles": 5
+  },
+  "limits": [
+    "Component matrices run at 2ff2f78ff; f193c09c2 adds only caller-owned C-unit cleanup and a borrowed-context comment. The exact diff is retained in the Darwin manifest.",
+    "These are post-run hashes, not before/after complete SDK receipts.",
+    "Unittest-native/module products are temporary and not archived.",
+    "Generated C is instrumented; the AOT runtime object is ordinary.",
+    "C-seed-built NanoLang drivers do not establish Stage1/Stage2 equality.",
+    "Extension profiles, instruction verification, C emission in NanoLang and full release qualification remain open."
+  ]
+}
