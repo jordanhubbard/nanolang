@@ -1,0 +1,220 @@
+{
+  "files": [
+    {
+      "path": ".test_output/archive-effect-products.py",
+      "artifact": "inputs/000-archive-effect-products.py.gz",
+      "sha256": "1de353ef1d01cad4deb8fed5da625c40628570ab517cadb174baef0789e0e00b",
+      "bytes": 1632,
+      "compressed_sha256": "2821c7564e6bb6ca1965ebf42557786168f2aeac43a86477755bab05c2a57eb4",
+      "compressed_bytes": 788
+    },
+    {
+      "path": ".test_output/effect-product-clean/build-original-product-providers.stderr",
+      "artifact": "inputs/001-build-original-product-providers.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/effect-product-clean/build-original-product-providers.stdout",
+      "artifact": "inputs/002-build-original-product-providers.stdout.gz",
+      "sha256": "82d9882b87eeafbdeafe7b0595b44fc0bfdc65ca9e6500da7aa4c20ea61fc33b",
+      "bytes": 71426,
+      "compressed_sha256": "d4f6ef8cfe501b077aee4954d093fbc355bb2406954325200c210b9c0b3c96a4",
+      "compressed_bytes": 4176
+    },
+    {
+      "path": ".test_output/effect-product-clean/manifest.json",
+      "artifact": "inputs/003-manifest.json.gz",
+      "sha256": "06f59c9241bb2d776c0c72704fe677d45cae13abe2bff46133634c6e1288f72b",
+      "bytes": 1228,
+      "compressed_sha256": "5985e6a45e456fd06a94dd60aad906c9f292798d11d38cf12e27d599cd1d8c2b",
+      "compressed_bytes": 555
+    },
+    {
+      "path": ".test_output/effect-product-clean/original-effect-product-clean.stderr",
+      "artifact": "inputs/004-original-effect-product-clean.stderr.gz",
+      "sha256": "73ee77f514a8541ffd6ede54105bdb21be588d9b33d30770f2de14ac43896801",
+      "bytes": 6655,
+      "compressed_sha256": "5a0a4916d45c06fef85637fcdd4764fcf9199b26337181085349ba097065f010",
+      "compressed_bytes": 1105
+    },
+    {
+      "path": ".test_output/effect-product-clean/original-effect-product-clean.stdout",
+      "artifact": "inputs/001-build-original-product-providers.stderr.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": ".test_output/effect-product-controls/build-original-product-providers.stderr",
+      "artifact": "inputs/006-build-original-product-providers.stderr.gz",
+      "sha256": "454ef2bb91d83abf25d794b302361089b82d0441e25d6f866673708f825c0cb6",
+      "bytes": 1377288,
+      "compressed_sha256": "14f49bad05b08f7157d4f52a7990e6a0b10705441804899bf6c1f9691e3df78e",
+      "compressed_bytes": 56003
+    },
+    {
+      "path": ".test_output/effect-product-controls/build-original-product-providers.stdout",
+      "artifact": "inputs/007-build-original-product-providers.stdout.gz",
+      "sha256": "a226fb06f91a61bc9dac6317b512816c92635885be81c390f0e66640da868296",
+      "bytes": 38881,
+      "compressed_sha256": "7b943052dbc63bbdfa1397bac14ebb8dad993128bde15db753cb50a6437a40b8",
+      "compressed_bytes": 2909
+    },
+    {
+      "path": ".test_output/effect-product-controls/manifest.json",
+      "artifact": "inputs/008-manifest.json.gz",
+      "sha256": "65c685cca119e0f2f8a5e8a70784d9038c725b913dbee571671b1c95ea02e785",
+      "bytes": 736,
+      "compressed_sha256": "1cb9a8c7cd08f35673822adde4a15c5f68b665b18885c5ff9bbbf8ad7dd80e15",
+      "compressed_bytes": 429
+    },
+    {
+      "path": ".test_output/run-effect-product-clean.log",
+      "artifact": "inputs/009-run-effect-product-clean.log.gz",
+      "sha256": "11e68c6ddf25f36210e18683f2bb5bf1cfc7847a9a347bc6e91fbc00908a4991",
+      "bytes": 89,
+      "compressed_sha256": "f1573ba236b2791baa79a4d55efb0f73a249b611de6b0a3c22b74282c1903409",
+      "compressed_bytes": 99
+    },
+    {
+      "path": ".test_output/run-effect-product-clean.py",
+      "artifact": "inputs/010-run-effect-product-clean.py.gz",
+      "sha256": "c4b893f439c7668e2d298c24ba3d2bc5031d425c54cfc0b971ce085f8b54f3a6",
+      "bytes": 1837,
+      "compressed_sha256": "25c555e67e749803f89381839d804cf393b0b2ab9f6e7ffcc5d824152d2d586b",
+      "compressed_bytes": 927
+    },
+    {
+      "path": ".test_output/run-effect-product-controls.log",
+      "artifact": "inputs/011-run-effect-product-controls.log.gz",
+      "sha256": "a820027b89a149ca239a5c8fd80f6292123c277d9cf23a5fbd3d433748eaefce",
+      "bytes": 1107,
+      "compressed_sha256": "898720c473200e0b7e5719093c94ddda6cddd7dcdac618d5f65831f86dc05643",
+      "compressed_bytes": 421
+    },
+    {
+      "path": ".test_output/run-effect-product-controls.py",
+      "artifact": "inputs/012-run-effect-product-controls.py.gz",
+      "sha256": "f9c86e9b7e68bd0baad9df70388277034435b4f077e7b92d71b8debbf9672bba",
+      "bytes": 1795,
+      "compressed_sha256": "e0799d0c054297b55a63f0be553f8d23595ad5bcd06a43074ccfbfc4ed7d93c9",
+      "compressed_bytes": 910
+    },
+    {
+      "path": "bin/nano_aot_runtime.o",
+      "artifact": "inputs/013-nano_aot_runtime.o.gz",
+      "sha256": "98b2647acf075a754d9affe9c54f15f9fbf99546899c6b643d0074807d88a43d",
+      "bytes": 8563288,
+      "compressed_sha256": "9ef88f1a47f08ac370704dc1dbb52dd51a3242020eab0ac58a7d24850e5c4b44",
+      "compressed_bytes": 61051
+    },
+    {
+      "path": "bin/nano_as_capture.so",
+      "artifact": "inputs/014-nano_as_capture.so.gz",
+      "sha256": "f2060744df9ec61c7b74ffc1c45cd16d221e77822519c808159819c07cda66ab",
+      "bytes": 102656,
+      "compressed_sha256": "abf1722b1a221350e1c393588ec6a40462e60f4fd522d9a6d12d9bc7ff20f62f",
+      "compressed_bytes": 21745
+    },
+    {
+      "path": "bin/nano_virt",
+      "artifact": "inputs/015-nano_virt.gz",
+      "sha256": "9df749b6367b2bc4250973572ce4096469cb442806f18fe66989ccf1dd690f4b",
+      "bytes": 27348288,
+      "compressed_sha256": "b63ed47de7687d3b4f6d280bd5482f61fd450b703e56cc2d6639fbd0d3e2e23b",
+      "compressed_bytes": 8177164
+    },
+    {
+      "path": "bin/nano_vm",
+      "artifact": "inputs/016-nano_vm.gz",
+      "sha256": "30d2fc277074e8008fdbbb86f08a2428cf81dec4c44a3a5695145c52f943eb39",
+      "bytes": 25346400,
+      "compressed_sha256": "c0b0a70095f6fcc0a380e4ea16de538f7ea040f4f3e0d65d5aa6c72fdbcb8699",
+      "compressed_bytes": 7308028
+    },
+    {
+      "path": "bin/nanoc_c",
+      "artifact": "inputs/017-nanoc_c.gz",
+      "sha256": "0d72f57b1bb7671a7d433b15cddddafbb99001b636aab6b5070543d2ffa66491",
+      "bytes": 27506880,
+      "compressed_sha256": "3d4534b6af2f248cb523a137ee9a5d9cf37458f9dfc77f5bf469574bc5d70109",
+      "compressed_bytes": 8251607
+    },
+    {
+      "path": "bin/nanoisa",
+      "artifact": "inputs/018-nanoisa.gz",
+      "sha256": "012280898adf065f472f019d97a9601c2ecc32c01a974c8df54de37a8594d9cf",
+      "bytes": 4610696,
+      "compressed_sha256": "befc0fdd5840e008427183fc30d273e9b57d616743c62e4672d486006571e239",
+      "compressed_bytes": 1997398
+    },
+    {
+      "path": "bin/nvm2c",
+      "artifact": "inputs/019-nvm2c.gz",
+      "sha256": "160aa892e30481b16d06fe4aa27268589c94eb474a12f1e9c9a3b30f5e52252d",
+      "bytes": 6554928,
+      "compressed_sha256": "4ef21967ee4bec20bb041d7a17e7e342a2dddfd5ed8d6afd0326732ec7806771",
+      "compressed_bytes": 2824946
+    },
+    {
+      "path": "src/env.c",
+      "artifact": "inputs/020-env.c.gz",
+      "sha256": "1bb2c1459a0191e0b9881e60c4832f52e7871fe949b7ee285cb4a9f72364eaaf",
+      "bytes": 115586,
+      "compressed_sha256": "e06dbe5e08b9e8f74ef6b46daf95b1fb864b9262f0231b3322945336ec4ba221",
+      "compressed_bytes": 22569
+    },
+    {
+      "path": "src/nanolang.h",
+      "artifact": "inputs/021-nanolang.h.gz",
+      "sha256": "6438019703130ae3458c1f05a37e7d9437421ef5372b6a2fc7206ad1385a0e46",
+      "bytes": 64658,
+      "compressed_sha256": "a03627f19b5d922d64c86778c50c5ae0a890ca813f7d9e1fb91d0fe06584fd2e",
+      "compressed_bytes": 16102
+    },
+    {
+      "path": "tests/test_effect_execution.py",
+      "artifact": "inputs/022-test_effect_execution.py.gz",
+      "sha256": "98a9405e0d270a79f7919f64eef6df363d8cbd44783e138804db0dcd1962c9c6",
+      "bytes": 3923,
+      "compressed_sha256": "48f594c7024d15195690dc2d63eb49dacbc16252104731bfa0c4a935296d75bf",
+      "compressed_bytes": 1245
+    },
+    {
+      "path": "tests/test_imported_effect_identity.py",
+      "artifact": "inputs/023-test_imported_effect_identity.py.gz",
+      "sha256": "c4e2a33f2f8731ae86a1024d65051ad7e84f45cb837577f83b54f127499549ad",
+      "bytes": 6894,
+      "compressed_sha256": "7624001139c5d89ca9c20475f8b2817d741cbdbd03f46ddf52965827ba91d56a",
+      "compressed_bytes": 1744
+    },
+    {
+      "path": "tests/test_native_effect_execution.py",
+      "artifact": "inputs/024-test_native_effect_execution.py.gz",
+      "sha256": "2a69c40f97bf62106442a2b422cf63f8b8d38eb62ba63e2ab4f41b62d40f331b",
+      "bytes": 9936,
+      "compressed_sha256": "d688625d4d174a3ce34691583c0b7b5dde1033b9307e5984cd29bb27737a1c03",
+      "compressed_bytes": 2328
+    },
+    {
+      "path": "tests/test_native_effects.py",
+      "artifact": "inputs/025-test_native_effects.py.gz",
+      "sha256": "39d640de801957b412490373247e0152b01c00093a8308dc3492e0a6c5227c3c",
+      "bytes": 8586,
+      "compressed_sha256": "26562b9961d5a4a8b7cb551f5cd335568b8ba4028a1c88e3e74e8655b4d6bd44",
+      "compressed_bytes": 2349
+    },
+    {
+      "path": "tests/test_selfhost_effects.py",
+      "artifact": "inputs/026-test_selfhost_effects.py.gz",
+      "sha256": "00a011d9c5c5b68b12960fa5df0ef7aaf6e5df86cfec87622709cfc1b6709503",
+      "bytes": 15949,
+      "compressed_sha256": "b6b56452422da9e66da664da2188fb8a7028a54a340821e3919b093b02ec2c7c",
+      "compressed_bytes": 3673
+    }
+  ]
+}
