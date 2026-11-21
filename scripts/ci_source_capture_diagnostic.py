@@ -17,12 +17,13 @@ selected_environment = dict(os.environ)
 backend_hashes = {}
 
 
-def run(args, label):
+def run(args, label, cwd=None):
     try:
         result = subprocess.run(list(map(str, args)), capture_output=True, text=True, timeout=30,
-                                env=selected_environment)
+                                env=selected_environment, cwd=cwd)
         record = {'label': label, 'command': list(map(str, args)), 'returncode': result.returncode,
                   'stdout': result.stdout, 'stderr': result.stderr,
+                  'cwd': str(cwd or Path.cwd()),
                   'developer_dir': selected_environment.get('DEVELOPER_DIR'),
                   'sdk_root': selected_environment.get('SDKROOT')}
     except subprocess.TimeoutExpired as error:
@@ -124,6 +125,34 @@ for number, (compiler, developer) in enumerate(compilers):
             run([reader, '--version'], f'{number}-native-debug-reader')
             run([reader, '--debug-dump=info', native_object], f'{number}-native-debug-info')
             run([reader, '--debug-dump=decodedline', native_object], f'{number}-native-debug-lines')
+    if sys.platform.startswith('linux'):
+        macros = '.macro read_payload path\n.incbin "\\path"\n.endm\n.macro step operation\n\\operation\n.endm\n'
+        for variant in ('include-plain', 'inline-step', 'include-step', 'original-includes',
+                        'marker-inline-step', 'marker-include-step', 'marker-include-restore'):
+            case = work/('native-nop-' + variant); case.mkdir(exist_ok=True)
+            (case/'debug macro.s').write_text(macros)
+            (case/'debug payload.bin').write_bytes(b'*')
+            raw = variant.startswith('marker-')
+            include = variant not in ('inline-step', 'marker-inline-step')
+            prefix = ('.include "' + ('debug macro.s' if raw else str(case/'debug macro.s')) + '"\n') if include else macros
+            if variant == 'marker-include-restore': prefix += '# 3 "payload.S"\n'
+            instruction = ('nop' if raw else 'INSTRUCTION') if variant == 'include-plain' else ('step nop' if raw else 'step INSTRUCTION')
+            data = ('read_payload "' + str(case/'debug payload.bin') + '"') if variant == 'original-includes' else '.byte 42'
+            contents = ('# 1 "payload.S"\n' if raw else '#define INSTRUCTION nop\n') + prefix
+            contents += '.text\n' + instruction + '\n.data\n.globl snapshot_payload\nsnapshot_payload:\n' + data + '\n'
+            source_case = case/('repro.s' if raw else 'payload.S'); source_case.write_text(contents)
+            output_case = case/'native.o'
+            command = [compiler, '-c', '-fPIC', '-g', source_case, '-o', output_case]
+            label = f'{number}-native-{variant}'
+            run(command, label, cwd=case)
+            run([*command, '-###'], label+'-report', cwd=case)
+            if not raw:
+                run([compiler, '-E', '-fPIC', '-g', source_case, '-o', case/'preprocessed.s'],
+                    label+'-preprocess', cwd=case)
+            reader = shutil.which('readelf')
+            if reader and output_case.is_file():
+                run([reader, '--debug-dump=info', output_case], label+'-info', cwd=case)
+                run([reader, '--debug-dump=decodedline', output_case], label+'-lines', cwd=case)
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):
