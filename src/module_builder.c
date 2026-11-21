@@ -2548,10 +2548,11 @@ static int module_response_word(const char **cursor, char *word, size_t capacity
         unsigned char c = *p++;
         if (c == '\\') {
             if (!*p) { errno = EINVAL; return -1; }
-            if (quote && !*grammar) {
+            if ((quote || *p == '\n') && !*grammar) {
                 *grammar = module_response_grammar(meta);
                 if (!*grammar) { errno = EINVAL; return -1; }
             }
+            if (*grammar == 2 && quote != '\'' && *p == '\n') { p++; continue; }
             /* My measured quoted-literal grammar preserves every backslash
              * inside single quotes. Double quotes also escape dollar/backtick. */
             if (!(*grammar == 2 && (quote == '\'' ||
@@ -3457,7 +3458,7 @@ static bool module_link_query_output(char **args, char *output, size_t capacity,
 /* I observe four literal macro arguments through the actual selected driver.
  * This is a bounded preprocessing request, never a version-major inference or
  * execution of compiler output. Unknown output leaves the original response
- * pending. I perform it only when quoted backslashes require disambiguation. */
+ * pending. I perform it only when quoted backslashes or escaped newlines require disambiguation. */
 static unsigned module_response_grammar(const ModuleBuildMetadata *meta) {
     char *driver = module_compiler_path(module_selected_compiler(meta));
     if (!driver) return 0;
