@@ -1,7 +1,7 @@
 """I compare complete nominal metadata plans without granting service execution."""
 from pathlib import Path
 import copy,hashlib,json,os,random,struct,tempfile,unittest
-from tests.nanolang_translator_routes import build_routes,checked
+from tests.nanolang_translator_routes import build_routes,checked,source_compiler_command
 from tests.test_nanolang_translator_ownership import image,record,desc,function,u32,NONE
 from tests.test_nanolang_translator_services import fixed,multi
 from tests.test_nanolang_translator_payloads import table,layout
@@ -129,9 +129,9 @@ def producer_cases(root=None):
     from tests import test_mixed_websocket_source as mixed_source
     root=Path(root) if root is not None else Path(tempfile.mkdtemp(prefix='service-nominal-products-',dir=ROOT/'.test_output'))
     root.mkdir(parents=True,exist_ok=True)
-    producers=[('c',ROOT/'bin/nano_virt')]
-    if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):
-        producers.append(('nanolang',Path(os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER'])))
+    producers=[('c',[ROOT/'bin/nano_virt'])]
+    source = source_compiler_command()
+    if source:producers.append(('nanolang',source))
     cases=[];records=[]
     for profile,catalog in [(2,'file'),(3,'socket'),(4,'websocket'),(5,'mixed')]:
         work=root/catalog;work.mkdir(exist_ok=True)
@@ -147,7 +147,7 @@ def producer_cases(root=None):
             path.write_text(text)
         for label,compiler in producers:
             module=work/(label+'.nvm');carrier=work/(label+'.bin')
-            checked([compiler,path,*flags,'--emit-nvm','-o',module],build=True,timeout=180)
+            checked([*compiler,path,*flags,'--emit-nvm','-o',module],build=True,timeout=180)
             checked([ROOT/'obj/nvm2c_service_nominal_reference','--extract',str(profile),module,carrier])
             cases.append((profile,'producer-'+catalog+'-'+label,carrier.read_bytes(),0))
             records.append(dict(profile=profile,producer=label,module=str(module.relative_to(root)),module_sha256=hashlib.sha256(module.read_bytes()).hexdigest(),carrier=str(carrier.relative_to(root)),carrier_sha256=hashlib.sha256(carrier.read_bytes()).hexdigest(),sources={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [path,*deps]},metadata_only=True))

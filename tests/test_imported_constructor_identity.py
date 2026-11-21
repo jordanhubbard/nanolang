@@ -1,7 +1,7 @@
 """I keep imported constructors distinct from a caller's same-spelled record."""
 from pathlib import Path
 import os,tempfile,unittest
-from tests.nanolang_translator_routes import build_routes,checked
+from tests.nanolang_translator_routes import build_routes,checked,source_compiler_command
 from tests.native_process import run_captured
 ROOT=Path(__file__).resolve().parents[1]
 LIBRARY='''module witness_library
@@ -84,15 +84,16 @@ class ImportedConstructorIdentity(unittest.TestCase):
             'fn wrong(flag:bool)->library.Function {return (cond (flag (library.make)) (else Function {value:42}))} shadow wrong {assert true} fn main()->int {return 0}',
 
         ]
-        compilers=[('c',ROOT/'bin/nanoc_c',[]),('vm',ROOT/'bin/nano_virt',['--emit-nvm'])]
-        if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):compilers.append(('nanolang',Path(os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER']),['--emit-nvm']))
+        compilers=[('c',[ROOT/'bin/nanoc_c'],[]),('vm',[ROOT/'bin/nano_virt'],['--emit-nvm'])]
+        source = source_compiler_command()
+        if source:compilers.append(('nanolang',source,['--emit-nvm']))
         with tempfile.TemporaryDirectory(prefix='constructor-refusals-') as directory:
             root=Path(directory);(root/'lib.nano').write_text(LIBRARY);path=root/'main.nano';output=root/'prior'
             for i,snippet in enumerate(snippets):
                 path.write_text('module witness_caller\nmodule "lib.nano" as library\nstruct Function { value: int }\n'+snippet+'\nshadow main { assert true }\n')
                 for name,compiler,flags in compilers:
                     with self.subTest(case=i,producer=name):
-                        output.write_bytes(b'prior artifact\0');result=run_captured([compiler,path,*flags,'-o',output],build=True,timeout=120,cwd=ROOT)
+                        output.write_bytes(b'prior artifact\0');result=run_captured([*compiler,path,*flags,'-o',output],build=True,timeout=120,cwd=ROOT)
                         self.assertNotEqual(result.returncode,0);self.assertEqual(output.read_bytes(),b'prior artifact\0')
                         self.assertNotIn('C compilation failed',(result.stdout+result.stderr).decode(errors='replace'))
 

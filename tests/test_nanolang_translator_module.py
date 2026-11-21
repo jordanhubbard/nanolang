@@ -6,7 +6,7 @@ import struct
 import tempfile
 import unittest
 
-from tests.nanolang_translator_routes import build_routes, checked
+from tests.nanolang_translator_routes import build_routes, checked, source_compiler_command
 from tests.test_nanolang_translator_container import container, patched
 from tests.test_nanolang_translator_payloads import constant, signature, layout, table
 
@@ -142,14 +142,15 @@ class NanoLangTranslatorModule(unittest.TestCase):
             for route, command in build_routes(fixture, directory):
                 self.assertEqual(checked(command), '', route)
             fixture.write_text(source.replace('(b.forward value)', '(b.forward other)'))
-            producers = [(ROOT/'bin/nanoc_c', []), (ROOT/'bin/nano_virt', [])]
-            if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):
-                producers.append((os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER'], ['--emit-nvm']))
+            producers = [([ROOT/'bin/nanoc_c'], []), ([ROOT/'bin/nano_virt'], [])]
+            source_command = source_compiler_command()
+            if source_command:
+                producers.append((source_command, ['--emit-nvm']))
             from tests.native_process import run_captured
             for index, (producer, flags) in enumerate(producers):
                 prior = directory / f'prior-{index}.nvm'
                 prior.write_bytes(b'I retain this prior product.')
-                result = run_captured([producer, fixture, *flags, '-o', prior], build=True, timeout=60, cwd=ROOT)
+                result = run_captured([*producer, fixture, *flags, '-o', prior], build=True, timeout=60, cwd=ROOT)
                 self.assertNotEqual(result.returncode, 0, str(producer))
                 self.assertEqual(prior.read_bytes(), b'I retain this prior product.', str(producer))
 
@@ -170,15 +171,16 @@ class NanoLangTranslatorModule(unittest.TestCase):
                 if expected is not None:
                     with self.subTest(reference=case): self.assertEqual(actual, expected)
             produced = []
-            producers = [(ROOT/'bin/nano_virt', [])]
-            if os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER'):
-                producers.append((os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER'], ['--emit-nvm']))
+            producers = [([ROOT/'bin/nano_virt'], [])]
+            source_command = source_compiler_command()
+            if source_command:
+                producers.append((source_command, ['--emit-nvm']))
             for producer_index, (producer, flags) in enumerate(producers):
                 for original in ('examples/language/nl_functions_basic.nano',
                                  'examples/language/nl_control_if_while.nano',
                                  'examples/cross_backend/hello_cross_backend.nano'):
                     module = directory/f'original-{producer_index}-{Path(original).stem}.nvm'
-                    checked([producer, ROOT/original, *flags, '-o', module], build=True)
+                    checked([*producer, ROOT/original, *flags, '-o', module], build=True)
                     self.assertEqual(checked([oracle, module]).strip(), '0')
                     produced.append(module)
             for route, command in routes:

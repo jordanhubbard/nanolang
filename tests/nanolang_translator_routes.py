@@ -9,6 +9,20 @@ from tests.native_process import native_link_flags, run_captured
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def source_compiler_command():
+    """I invoke the actual chosen native compiler or raw compiler module."""
+    native = os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER')
+    module = os.environ.get('NANOLANG_TRANSLATOR_SOURCE_MODULE')
+    if native and module:
+        raise ValueError('I require one explicit NanoLang compiler product.')
+    if module:
+        path = Path(module)
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        return [ROOT / 'bin/nano_vm', path, '--']
+    return [native] if native else []
+
+
 def checked(command, *, build=False, timeout=60):
     completed = run_captured(command, build=build, timeout=timeout, cwd=ROOT)
     if completed.returncode:
@@ -39,12 +53,12 @@ def build_routes(fixture, directory):
     routes = [('c-seed-native', [native]),
               ('c-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', module, '--']),
               ('c-producer-sanitized-native', [aot])]
-    source_compiler = os.environ.get('NANOLANG_TRANSLATOR_SOURCE_COMPILER')
+    source_compiler = source_compiler_command()
     if source_compiler:
         source_module = directory / 'source-decoder.nvm'
         source_c = directory / 'source-decoder.c'
         source_native = directory / 'source-decoder-aot'
-        checked([source_compiler, fixture, '--emit-nvm', '-o', source_module], build=True)
+        checked([*source_compiler, fixture, '--emit-nvm', '-o', source_module], build=True)
         native_from_module(source_module, source_c, source_native)
         routes.extend([
             ('nanolang-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', source_module, '--']),

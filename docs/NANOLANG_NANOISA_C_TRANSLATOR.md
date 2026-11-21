@@ -37,6 +37,22 @@ This inventory maps responsibilities. It does not claim that the C headers'
 introductory subset prose enumerates every later admitted operation; actual
 admission branches, code, fixtures and release rows remain authoritative.
 
+## My component compiler products
+
+My route harness accepts one explicit source compiler product:
+`NANOLANG_TRANSLATOR_SOURCE_COMPILER` names an actual native executable, or
+`NANOLANG_TRANSLATOR_SOURCE_MODULE` names an actual raw compiler module that I
+invoke directly in NanoVM. A verified bootstrap seed is a development producer;
+it does not establish Stage1 generation, native compiler qualification or raw
+Stage1/Stage2 equality. I record its source, host closure and tool identities
+separately. I create no wrapper or stage alias.
+
+My authoritative NanoISA bootstrap already gives the complete compiler suite a
+separate thirty-second shadow deadline and each build stage eighteen hundred
+seconds. Its receipt records both. Ordinary compiler invocations retain their
+ten-second default. A failed ordinary creation remains failed when a distinct
+bootstrap workflow succeeds.
+
 ## My container contract
 
 `src_nano/nvm2c/container.nano` is a pure NanoLang implementation of order 1.
