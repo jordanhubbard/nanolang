@@ -114,6 +114,30 @@ static void for_each_child(VmHeap *heap, NanoValue v, ChildFn fn, void *ctx) {
     }
 }
 
+/* I keep scheduling state after the root slots, preserving the heap layout. */
+typedef struct {
+    size_t allocation_mark;
+    size_t allowance;
+} CycleSchedule;
+
+static CycleSchedule cycle_schedule(void **items, uint32_t capacity) {
+    CycleSchedule result = {0};
+    if (items) memcpy(&result, (char *)items + (size_t)capacity * sizeof(*items), sizeof result);
+    return result;
+}
+
+static void cycle_schedule_store(void **items, uint32_t capacity, CycleSchedule value) {
+    memcpy((char *)items + (size_t)capacity * sizeof(*items), &value, sizeof value);
+}
+
+void vm_gc_maybe_collect(VmHeap *heap) {
+    if (!heap || heap->gc_running || heap->cycle_count < VM_GC_CYCLE_THRESHOLD || !heap->cycle_buf) return;
+    CycleSchedule schedule = cycle_schedule(heap->cycle_buf, heap->cycle_capacity);
+    size_t allocated = heap->stats.allocated;
+    if (allocated < schedule.allocation_mark || allocated - schedule.allocation_mark >= schedule.allowance)
+        vm_gc_collect_cycles(heap);
+}
+
 /* ── Suspect buffer ─────────────────────────────────────────────────────── */
 
 void vm_gc_note_suspect(VmHeap *heap, NanoValue v) {
@@ -129,12 +153,17 @@ void vm_gc_note_suspect(VmHeap *heap, NanoValue v) {
 
     if (heap->cycle_count == heap->cycle_capacity) {
         uint32_t next = heap->cycle_capacity ? heap->cycle_capacity * 2 : 64;
-        void **grown = realloc(heap->cycle_buf, (size_t)next * sizeof(*grown));
+        size_t root_bytes = (size_t)next * sizeof(void *);
+        if (next <= heap->cycle_capacity || root_bytes / sizeof(void *) != next ||
+            root_bytes > SIZE_MAX - sizeof(CycleSchedule)) return;
+        CycleSchedule schedule = cycle_schedule(heap->cycle_buf, heap->cycle_capacity);
+        void **grown = realloc(heap->cycle_buf, (size_t)next * sizeof(*grown) + sizeof(CycleSchedule));
         /* Losing a suspect costs a leak, not correctness, so a failed growth
          * is survivable: drop this one rather than abort the program. */
         if (!grown) return;
         heap->cycle_buf = grown;
         heap->cycle_capacity = next;
+        cycle_schedule_store(grown, next, schedule);
     }
     heap->cycle_buf[heap->cycle_count++] = v.as.obj;
     h->buffered = 1;
@@ -143,8 +172,7 @@ void vm_gc_note_suspect(VmHeap *heap, NanoValue v) {
      * guard is not optional: collection releases objects, and vm_release calls
      * back into here, so without it a collection would recurse into itself
      * while the buffer is mid-rewrite. */
-    if (!heap->gc_running && heap->cycle_count >= VM_GC_CYCLE_THRESHOLD)
-        vm_gc_collect_cycles(heap);
+    vm_gc_maybe_collect(heap);
 }
 
 /* Rebuild a NanoValue from a buffered pointer. The header records the tag, so
@@ -341,6 +369,7 @@ uint64_t vm_gc_collect_cycles(VmHeap *heap) {
      * during this pass is collected by the next. */
     void **buf = heap->cycle_buf;
     uint32_t count = heap->cycle_count;
+    uint32_t capacity = heap->cycle_capacity;
     heap->cycle_buf = NULL;
     heap->cycle_count = 0;
     heap->cycle_capacity = 0;
@@ -429,7 +458,21 @@ uint64_t vm_gc_collect_cycles(VmHeap *heap) {
     }
     free(dead.items);
 
-    free(buf);
+    if (!heap->cycle_buf && heap->stats.num_objects) {
+        /* I retain a small schedule carrier, never stale root membership. */
+        void **trimmed = realloc(buf, 64 * sizeof(*buf) + sizeof(CycleSchedule));
+        if (trimmed) { buf = trimmed; capacity = 64; }
+        heap->cycle_buf = buf;
+        heap->cycle_capacity = capacity;
+    } else {
+        free(buf);
+    }
+    if (heap->cycle_buf) {
+        size_t retained = heap->stats.allocated >= heap->stats.freed
+            ? heap->stats.allocated - heap->stats.freed : 0;
+        CycleSchedule schedule = {heap->stats.allocated, retained / 4};
+        cycle_schedule_store(heap->cycle_buf, heap->cycle_capacity, schedule);
+    }
     heap->cycles_collected += freed;
     heap->gc_running = false;
     return freed;

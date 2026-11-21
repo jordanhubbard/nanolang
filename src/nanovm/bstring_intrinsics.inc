@@ -118,6 +118,7 @@ static bool vm_bstring_intrinsic(const NvmModule *module, uint32_t index,
         size_t before = values[0]->capacity;
         const char *text = nl_string_to_cstr(values[0]);
         if (values[0]->capacity > before) heap->stats.allocated += values[0]->capacity - before;
+        vm_gc_maybe_collect(heap);
         if (!text || !values[0]->null_terminated) {
             snprintf(error, error_size, "I could not terminate my binary-string conversion");
             return false;

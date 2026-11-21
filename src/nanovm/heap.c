@@ -165,6 +165,7 @@ VmBString *vm_bstring_adopt(VmHeap *heap, nl_string_t *owned) {
     heap->stats.allocated += sizeof *value + sizeof *owned + owned->capacity;
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return value;
 }
 
@@ -493,6 +494,7 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
 
     return s;
 }
@@ -691,6 +693,7 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     }
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return a;
 }
 
@@ -715,6 +718,7 @@ static bool array_grow(VmHeap *heap, VmArray *a) {
     }
     heap->stats.allocated += (size_t)(new_cap - a->capacity) * esz;
     a->capacity = new_cap;
+    vm_gc_maybe_collect(heap);
     return true;
 }
 
@@ -855,6 +859,7 @@ VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count) {
     heap->stats.allocated += sizeof(VmStruct) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return s;
 }
 
@@ -880,6 +885,7 @@ VmUnion *vm_union_new(VmHeap *heap, uint32_t def_idx, uint16_t variant, uint16_t
     heap->stats.allocated += sizeof(VmUnion) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return u;
 }
 
@@ -899,6 +905,7 @@ VmTuple *vm_tuple_new(VmHeap *heap, uint32_t count) {
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return t;
 }
 
@@ -920,6 +927,7 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return c;
 }
 
@@ -960,6 +968,7 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
+    vm_gc_maybe_collect(heap);
     return m;
 }
 
@@ -1020,6 +1029,7 @@ static bool hm_resize(VmHeap *heap, VmHashMap *m, uint32_t new_count) {
      * capacity accounting; failed replacement never changes these counters. */
     if (heap) heap->stats.allocated += (size_t)(new_count - old_count) * sizeof(VmHMEntry);
     free(old_entries);
+    vm_gc_maybe_collect(heap);
     return true;
 }
 
