@@ -1,0 +1,95 @@
+{
+  "files": [
+    {
+      "path": ".test_output/conversion-projection-20261121/live-pairing/manifest.json",
+      "artifact": "inputs/000-manifest.json.gz",
+      "bytes": 2693,
+      "sha256": "50d42eb8a0a3f8a5438a3adb6329cfa6147c58a8e22183460a38d7ff42db78dc",
+      "compressed_bytes": 1046,
+      "compressed_sha256": "67937e5b323e221dac54bd95f6499e1100a315628b79ab0e6969f2288518b26e"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/live-pairing/remote.json",
+      "artifact": "inputs/001-remote.json.gz",
+      "bytes": 1109619,
+      "sha256": "a067de54ced9db436ba529bf9de0f6b733209d7000bd6861c0c24ca1ef2e20f9",
+      "compressed_bytes": 434873,
+      "compressed_sha256": "f75dccc9cdd23a5ef6608e9f6a4bda980426822d5707a52437dfea1bca086e8f"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/paired-archive-verification.json",
+      "artifact": "inputs/002-paired-archive-verification.json.gz",
+      "bytes": 782,
+      "sha256": "59edecab08d957853d82c0fbb333c432a10e8a177ec6ebc13b7c0e8a900fe30a",
+      "compressed_bytes": 308,
+      "compressed_sha256": "5bccb006c675bf529f2240d294d7169f2f89daa32b5990a27314826cc5fcbc1e"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/linux-independent-verification.json",
+      "artifact": "inputs/003-linux-independent-verification.json.gz",
+      "bytes": 392,
+      "sha256": "036ebe1433d4ec66f5640b56704a140007d78e53ef06aac7ff09e397f0a91b5e",
+      "compressed_bytes": 265,
+      "compressed_sha256": "c9f683c65ee916508eade513584ca7d08fd4cc4189308bee7d4977b3660e22e6"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/cold-archive-verification.json",
+      "artifact": "inputs/004-cold-archive-verification.json.gz",
+      "bytes": 392,
+      "sha256": "0b663318d62fa92c57e3fac7027ae9619f531857632f6e82e38f7e60d36d529b",
+      "compressed_bytes": 266,
+      "compressed_sha256": "78f87d0df2fae9c0ce2f4024654e1828c2f472a0a4ada67de7d7e90819af26f7"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/transfer-metadata.json",
+      "artifact": "inputs/005-transfer-metadata.json.gz",
+      "bytes": 263,
+      "sha256": "84fad0151c02a78cd3f38722131eef3e5b99e30ca5d8de7dd141d70c4fb8812e",
+      "compressed_bytes": 196,
+      "compressed_sha256": "07c3dbb9424b8163cacf287c12c0a0ca0844f9315e5078a931fe13305e57be2a"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/darwin-launch.log",
+      "artifact": "inputs/006-darwin-launch.log.gz",
+      "bytes": 2891,
+      "sha256": "331d5fa7ef017d36c1527fb6e1bb008e4fcd552b3e0bd516e2a7446ab85fbfdf",
+      "compressed_bytes": 752,
+      "compressed_sha256": "f230013423083e7799549179ea45d260a77574015cdf3030d804fb40a4ae5587"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/darwin-resume.log",
+      "artifact": "inputs/007-darwin-resume.log.gz",
+      "bytes": 1580,
+      "sha256": "1e3065f077d1bd25e13c5449886d94d217b6ce78394e17e74ddb3b7cb39162dc",
+      "compressed_bytes": 437,
+      "compressed_sha256": "82e15ab270285b7406ecaae4542bf9b1a648f9a6a3bab72aa7ea04b06ae5780b"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/darwin-archive.log",
+      "artifact": "inputs/008-darwin-archive.log.gz",
+      "bytes": 120,
+      "sha256": "b2f70a5ce34e9402df6530fbd46007b35305271bc53d2b449800cd3a11d678dc",
+      "compressed_bytes": 121,
+      "compressed_sha256": "ca16e85414da9b45eb3d8f0efa06cb90b3e59f1c0f23b48355d8802d57d1ab50"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/cold-output-parent.log",
+      "artifact": "inputs/009-cold-output-parent.log.gz",
+      "bytes": 1414,
+      "sha256": "2807a09dc5db7221b1ac8f17474f5d27141dc498c5eff0fb07cfe4e892a50888",
+      "compressed_bytes": 485,
+      "compressed_sha256": "466617e0f8b451c6e3e3bf677c99808c2ab8ab8b8e7885a9e6dcb46850cbb22b"
+    },
+    {
+      "path": ".test_output/conversion-projection-20261121/ci-ad2.json",
+      "artifact": "inputs/010-ci-ad2.json.gz",
+      "bytes": 346,
+      "sha256": "603b3e05d5340ab4824f4e9121992c89e5f84bebd4f75b71f6ef20fb9f5bfd5d",
+      "compressed_bytes": 220,
+      "compressed_sha256": "ac9f336741edf73971ed670dc6602386a9f4a97b42cf06084a3a6eaea7678d54"
+    }
+  ],
+  "limits": [
+    "I retain independent post-download/archive/Git-pin checks and terminal publication records. These supplement the main archive counts. The paired conversion source is ad2; the separate cold-output test-only repair is91bfd. I preserve the first failed Darwin observer and qualify its two missing methods in the separate resume observer. Transfer-only unlisted AppleDouble metadata is removed after verifying every listed payload; no qualification bytes change."
+  ]
+}

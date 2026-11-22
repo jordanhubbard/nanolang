@@ -324,8 +324,13 @@ execution. I preserve `-1` for my unimplemented private profiles.
 my actual C reverse converter. I independently classify private ownership
 routes with the existing C routing oracle, retain their C refusals separately,
 and require identical explicit deferral across my selected product routes.
-This component is under qualification; it grants no full-module, affine,
-private-profile or pure-emitter acceptance.
+My [paired ad2 checkpoint](evidence/conversion-projection-darwin-20261121/README.md)
+passes6258 complete reports,105 independent expectations and six actual source
+products through five routes per host. All3560 guarded inputs, manual carriers
+and complete reports match Linux/Darwin and their exact Git blobs. Targeted
+actual C projection/reverse-converter sanitizers and the original module methods
+pass; I retain the first observer/setup failures separately. This component
+grants no full-module, affine, private-profile or pure-emitter acceptance.
 
 ## My shared ownership declarations
 
@@ -654,7 +659,15 @@ My current Linux development gate matches704 synthetic complete decisions and
 exact service/ownership/passive bytes through five routes, including128 explicit
 C expectations and directory/error-priority controls. A separate retained eight
 actual C/NanoLang File/TCP/WebSocket/mixed producer-product gate passes the same
-five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; complete paired product-retention acceptance remains open.
+five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; the historical deleted products remain unavailable. My later exact-ad2
+[paired retained selection](evidence/conversion-projection-darwin-20261121/README.md)
+covers all five original methods and preserves every actual producer product.
+Linux passes all five in1393.071s. Darwin retains three passes from its first
+setup-failed observer and passes only the two missing methods in698.042s after
+supplying prerequisites, preserving the first failed manifest. Both hosts match
+all712 shared-service decisions through five routes. This new pair completes my
+descriptive shared-service retention requirement. Full executable/private-profile
+verification, pure C emission and final-source release gates remain open.
 I retain the initial rich-only UINT32_MAX span fixture refusal, isolated
 name-mutation correction, default-shadow deadline refusal, successful traced
 169-shadow observation and excluded stale-artifact diagnostic. A later success
