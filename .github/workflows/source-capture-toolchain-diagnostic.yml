@@ -67,6 +67,7 @@ jobs:
       - name: Check diagnostic identity refusal and timeout evidence retention
         run: |
           python3 -m unittest -v tests.test_capture_qualification_modes > .test_output/source-capture-diagnostic/diagnostic-controls.log 2>&1
+          python3 -m unittest -v tests.test_gnu_tool_queries > .test_output/source-capture-diagnostic/gnu-query-controls.log 2>&1
       - name: Observe a cold compiler support capture without changing admission
         run: python3 scripts/ci_source_capture_linux.py
       - name: Qualify the isolated GNU assembler 2.46 candidate
@@ -248,6 +249,8 @@ jobs:
         run: python3 scripts/ci_source_capture_diagnostic.py
       - name: Build the original capture probe
         run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
       - name: Observe original system capture before the private source repair
         run: python3 scripts/ci_source_capture_linux.py
       - name: Qualify fixed-source capture and original user guide
@@ -294,6 +297,8 @@ jobs:
         run: python3 scripts/ci_source_capture_diagnostic.py
       - name: Build current original capture tools
         run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
       - name: Retain current original cold observation
         run: python3 scripts/ci_source_capture_linux.py
       - name: Qualify only the ordinary user guide with matching fixed capture

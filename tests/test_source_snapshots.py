@@ -707,6 +707,8 @@ class SourceSnapshots(unittest.TestCase):
                     with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano=native-timing-" if equals_paths else "nano-native-timing-") as tmp:
                         root = Path(tmp)
                         module, _, env = self.support.support.foreign_build_fixture(root)
+                        if sys.platform == "linux" and not integrated:
+                            env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                         if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
                         payload = module / "payload.bin"
                         payload.write_bytes(b"*")
@@ -723,7 +725,8 @@ class SourceSnapshots(unittest.TestCase):
                         (module / "module.json").write_text(json.dumps(metadata))
                         marker, restored = root / "mutated", root / "restored"
                         wrapper = root / "cc-wrapper"
-                        native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
+                        native_prefix = "__as_capture" if sys.platform == "linux" and not integrated else "__native_unit"
+                        native_name = f"{native_prefix}_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
                         wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, subprocess, sys
 marker, restored = pathlib.Path({str(marker)!r}), pathlib.Path({str(restored)!r})
@@ -1383,7 +1386,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 wrapper.write_text(f'#!{sys.executable}\nimport json,os,pathlib,sys,time\n'
                     f'with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")\n'
                     f'marker=pathlib.Path({str(delayed)!r})\n'
-                    'if os.getenv("NANO_TEST_SLOW_RECOVERY") and "-###" in sys.argv and not marker.exists():\n'
+                    'if os.getenv("NANO_TEST_SLOW_RECOVERY") and any(a in sys.argv for a in ("-###", "-print-prog-name=as")) and not marker.exists():\n'
                     f'    marker.touch()\n    time.sleep({recovery_delay!r})\n'
                     f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
                 wrapper.chmod(0o700)

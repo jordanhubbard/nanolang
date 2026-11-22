@@ -4723,15 +4723,18 @@ static bool module_dynamic_elf(const char *path) {
 }
 
 static bool module_tool_output(const char *command, char *output, size_t capacity) {
-    FILE *pipe = popen(command, "r");
-    if (!pipe) return false;
-    size_t size = fread(output, 1, capacity - 1, pipe);
-    bool ok = !ferror(pipe) && feof(pipe) && !memchr(output, 0, size);
-    char discard[1024];
-    while (fread(discard, 1, sizeof(discard), pipe)) {}
-    if (pclose(pipe)) ok = false;
-    output[size] = 0;
-    return ok && size;
+    if (!command || !output || capacity < 2) return false;
+    int64_t deadline;
+    if (!module_capture_deadline(&deadline)) return false;
+    int64_t started = module_link_query_clock();
+    if (started < 0) return false;
+    char *args[] = {"/bin/sh", "-c", (char *)command, NULL};
+    /* My former fread/feof guard refused capacity-1 bytes. I retain that bound. */
+    bool ok = module_link_query_output(args, output, capacity - 1, deadline);
+    int64_t finished = module_link_query_clock();
+    module_trace_evidence("tool-query-ms", deadline > started ? (uint64_t)(deadline - started) : 0,
+                         finished >= started ? (uint64_t)(finished - started) : 0, ok);
+    return ok;
 }
 
 static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,

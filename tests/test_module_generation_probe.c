@@ -286,6 +286,28 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    /* I keep a 50ms query fixture native; interpreter startup is not its fault. */
+    const char *response_fault = getenv("NANO_TEST_RESPONSE_DRIVER_FAULT");
+    if (response_fault && argc == 7 && !strcmp(argv[1], "-E") && !strcmp(argv[2], "-P") &&
+        !strcmp(argv[3], "-x") && !strcmp(argv[4], "c") && argv[5][0] == '@') {
+        const char *marker = getenv("NANO_TEST_RESPONSE_DRIVER_MARKER");
+        FILE *file = marker ? fopen(marker, "wb") : NULL;
+        bool ok = file && fputs("queried", file) >= 0;
+        if (file && fclose(file)) ok = false;
+        if (!ok) return 125;
+        if (!strcmp(response_fault, "timeout")) sleep(30);
+        else if (!strcmp(response_fault, "unknown")) puts("unrecognized response grammar");
+        else return 125;
+        return 0;
+    }
+#ifdef __linux__
+    if (argc == 3 && !strcmp(argv[1], "gnu-tool-query")) {
+        char report[256] = {0};
+        bool ok = module_tool_output(argv[2], report, sizeof(report));
+        fputs(report, stdout);
+        return ok ? 0 : 1;
+    }
+#endif
     if (argc == 2 && !strcmp(argv[1], "capture-budget")) {
         int64_t before = module_link_query_clock(), deadline;
         if (!module_capture_deadline(&deadline)) return 1;
