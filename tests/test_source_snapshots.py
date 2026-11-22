@@ -163,8 +163,8 @@ class SourceSnapshots(unittest.TestCase):
     def test_supported_assembler_version_line(self):
         if not sys.platform.startswith("linux"): self.skipTest("I select GNU assembler replay only on Linux")
         accepted = ["GNU assembler (GNU Binutils for Debian) 2.40\nCopyright text\n",
-                    "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright text\n"]
-        rejected = ["GNU assembler (GNU Binutils) 2.41\n", "GNU assembler (GNU Binutils) 2.43\n",
+                    "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright text\n", "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210\nCopyright text\n"]
+        rejected = ["GNU assembler (GNU Binutils for NanoLang retained capture r2) 2.46.0.20260210\n", "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210", "GNU assembler (GNU Binutils) 2.46.0.20260210\n", "GNU assembler (GNU Binutils for Ubuntu) 2.46\n", "GNU assembler (GNU Binutils) 2.41\n", "GNU assembler (GNU Binutils) 2.43\n",
                     "GNU assembler (GNU Binutils) 2.42.1\n", "GNU assembler (GNU Binutils) 2.420\n",
                     "GNU assembler (GNU Binutils) 2.42", "GNU ld (GNU Binutils) 2.42\n",
                     "GNU assembler (GNU Binutils) 9.99\nPrevious version 2.42\n",
@@ -2382,8 +2382,12 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
         accepted_reports.append(debian + command)
         apple15 = banner.replace("21.0.0", "15.0.0")
         ubuntu18 = debian.replace("Debian clang version 14.0.6", "Ubuntu clang version 18.1.3 (1ubuntu1)")
-        accepted_reports.extend((apple15 + command, ubuntu18 + command))
-        reports = accepted_reports + [apple15.replace("15.0.0", "15.0.01") + command,
+        ubuntu21 = debian.replace("Debian clang version 14.0.6", "Ubuntu clang version 21.1.8 (6ubuntu1)")
+        accepted_reports.extend((apple15 + command, ubuntu18 + command, ubuntu21 + command))
+        reports = accepted_reports + [ubuntu21.replace("21.1.8", "21.1.80") + command,
+                   ubuntu21.replace("(6ubuntu1)", "(6ubuntu2)") + command,
+                   ubuntu21 + command + command,
+                   apple15.replace("15.0.0", "15.0.01") + command,
                    ubuntu18.replace("18.1.3", "18.1.30") + command,
                    ubuntu18.replace("(1ubuntu1)", "(1ubuntu2)") + command,
                    ubuntu18 + command + command] + ["", banner, command, accepted + command, accepted + "unexpected command\n",

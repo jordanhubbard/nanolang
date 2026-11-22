@@ -4251,6 +4251,8 @@ failed:
 /* I accept only tested version tokens on the GNU assembler banner's first
  * line. This is compatibility selection, not executable authentication. */
 static bool module_assembler_version_supported(const char *version) {
+    /* I qualify only this identified source repair, not generic GNU2.46. */
+    if (version && !strncmp(version, "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210\n", 78)) return true;
     static const char prefix[] = "GNU assembler (";
     static const char *versions[] = {" 2.40", " 2.42"};
     if (!version || strncmp(version, prefix, sizeof(prefix) - 1)) return false;
@@ -4467,7 +4469,8 @@ static size_t module_assembler_report(char *report, char **args, char *storage, 
         ? "Apple clang version 21.0.0 " : !strncmp(report, "Apple clang version 15.0.0 ", 27)
         ? "Apple clang version 15.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
         ? "Debian clang version 14.0.6" : !strncmp(report, "Ubuntu clang version 18.1.3 (1ubuntu1)\n", 39)
-        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;
+        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : !strncmp(report, "Ubuntu clang version 21.1.8 (6ubuntu1)\n", 39)
+        ? "Ubuntu clang version 21.1.8 (6ubuntu1)" : NULL;
     if (!banner) return 0;
     char *selected = NULL;
     for (char *line = report; line && *line;) {

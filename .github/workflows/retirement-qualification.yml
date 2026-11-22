@@ -142,6 +142,10 @@ jobs:
         if: matrix.corpus == 'contract-effects'
         run: python3 scripts/ci_qualification_storage.py run --label post-dependencies -- python3 -c 'pass'
 
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        uses: ./.github/actions/setup-capture-assembler
+
       - name: Build and verify fresh compiler generations
         timeout-minutes: 150
         run: |
