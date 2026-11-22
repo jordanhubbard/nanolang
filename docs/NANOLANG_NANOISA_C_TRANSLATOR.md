@@ -332,6 +332,47 @@ actual C projection/reverse-converter sanitizers and the original module methods
 pass; I retain the first observer/setup failures separately. This component
 grants no full-module, affine, private-profile or pure-emitter acceptance.
 
+## My ordinary whole-module verifier
+
+`src_nano/nvm2c/module_verifier.nano` composes my checked module view and
+conversion with the ordinary function-body verifier. `verify` preserves the
+loader's positive declared-depth checks before the complete ordinary unlinked
+module pass. I check every function's metadata before any function body,
+including the empty-result rule, local/signature consistency and overlapping
+nonempty spans. I preserve import limits and service-policy priority.
+
+`verify_declared` checks only the declared-depth obligation. With no positive
+declaration, I preserve the C API's absence of that obligation: success does
+not imply that malformed bodies or other structural errors were checked.
+Accordingly, its successful result has `complete=false`. A successful `verify`
+has `complete=true` only for the ordinary unlinked pipeline. I keep transport
+status, exact ordinary refusals, known malformed-body refusals and explicit
+affine/ownership/private-profile deferrals distinct. Refusals expose no partial
+depth proof. Inert ownership metadata with no functions and no required walk
+follows the C module's ordinary path.
+
+My C oracle calls the actual public declared-depth, full-module and maximum-depth
+APIs after actual v2 deserialization/conversion. I normalize malformed-body and
+affine refusals separately and retain their original public diagnostics. My
+fixtures include whole-module metadata/body priority, selected/unselected
+functions, zero-depth absence, exact bounds, overlapping/adjacent/empty spans,
+multiple-function bodies and materialized ordinary body contexts. Direct-helper
+contexts that cannot be represented by that module carrier, require a linked
+graph, or would require large artificial pools remain explicitly counted apart;
+I do not relabel the older helper corpus as whole-module coverage.
+
+My Linux checkpoint passes7132 modules in both modes through five routes,
+126/122 independent expectations and six actual source products per mode in
+1444.113s. The actual VM agrees on131 independent consumer controls. Targeted
+actual public C verifier/type/decoder/ISA/module/reverse-converter sanitizers
+match both7132-case modes. I preserve the initial four over-deferred inert
+ownership modules and their precise no-function/no-walk correction.
+
+Paired Darwin qualification remains pending during Puck's reserved capture run.
+No executable selector uses this component. Full linked-graph, affine,
+ownership/private-profile verification, pure C emission and final-source paired
+release acceptance remain required under #1142/#976.
+
 ## My shared ownership declarations
 
 `src_nano/nvm2c/ownership.nano` implements the shared

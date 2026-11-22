@@ -7764,6 +7764,16 @@ $(OBJ_DIR)/nvm2c_function_body_reference: tests/nvm2c_function_body_reference.c 
 test-nanolang-translator-function-body: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_function_body_reference
 	NANOLANG_FUNCTION_BODY_REFERENCE="$(OBJ_DIR)/nvm2c_function_body_reference" python3 -m unittest -v tests.test_nanolang_translator_function_body
 
+# I compose ordinary unlinked module structure, declared depths and bodies.
+$(OBJ_DIR)/nvm2c_module_verifier_reference: tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-module-verifier
+test-nanolang-translator-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_module_verifier
+
+test-units: test-nanolang-translator-module-verifier
+
 .PHONY: test-empty-function-results
 test-empty-function-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_empty_function_results
