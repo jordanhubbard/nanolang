@@ -998,4 +998,4 @@ producer targets. Five carriers exercise harness refusal and four exercise
 explicit private deferral;295 ordinary V2 decisions retain public C parity.
 The complete7132-module/two-mode/five-route unlinked regression also passes
 after the shared preparation/context change. No executable selector uses these
-APIs; paired Darwin qualification remains deferred during Puck's capture reservation.
+APIs. My [same-source Darwin checkpoint](evidence/linked-module-verifier-darwin-20261122/README.md) passes both full gates in658.533/1099.153s, with every corpus byte and all48 normalized report files identical to Linux. Targeted actual C sanitizers, original identifiers and all3567 guarded source inputs match; the three original examples are separately guarded. I preserve all setup refusals and original roots. Private/affine verification, pure C emission and final-source release qualification remain required.

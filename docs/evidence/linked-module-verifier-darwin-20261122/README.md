@@ -1,0 +1,21 @@
+# My paired ordinary module-verifier checkpoint
+
+I qualify exact source `76cd20f2a4c68f858389fcbd6995a6f6d3694819` on Darwin ARM64 after my [Linux checkpoint](../linked-module-verifier-linux-20261121/README.md). My ordinary root/flat-graph API and original full/declared unlinked API use checked V2 conversion facts and the actual public C verification oracle. Executable selection, owned/affine/private admission and pure C emission remain open under #1142/#976.
+
+| My unchanged Darwin gate | Result | Controller seconds |
+| --- | --- | ---: |
+| Linked root / every present graph node |304 cases, both modes, five routes,78/75 independent expectations, six original products per mode|658.533|
+| Original unlinked full / declared |7132 cases, both modes, five routes,126/122 independent expectations, six original products per mode|1099.153|
+| Actual linked C oracle ASan/UBSan |Both modes and original products pass|1.856|
+| Actual unlinked C oracle ASan/UBSan |Both modes and original products pass|7.953|
+| Original identifiers |3309 static fragments, zero reserved names,135 retained lexer refusals|6.747|
+
+My independent cross-host comparison checks every corpus carrier byte and all48 normalized raw/public report files, including original producer reports. Both complete corpus manifests match Linux. All3567 core/test/specification/Make inputs match Linux and exact Git blobs; the three original example inputs match separately. The linked outcome counts remain43/248/2/2/4/5 for valid/ordinary/transport/malformed/private/harness and12/251/2/30/4/5 for complete graph. My295 ordinary V2 comparisons remain distinct from five test-envelope refusals and four explicit private deferrals. Full/declared unlinked counts remain1646/4254/368/674/190 and6515/244/368/2/3. Declaration-only success remains incomplete.
+
+I preserve three setup refusals before any Darwin product method runs. The primary partial clone cannot supply an older promised object, so I create a separate exact-source standalone sparse checkout without repairing the primary. Its tools build, but host Bash startup selects Python3.14 without PyYAML, and import fails. A subsequent guard refuses because Git changes diff index-hash abbreviation from9 to10 digits; both historical hashes reconstruct from the identical full-index patch, with all file bytes/modes, HEAD, branch, status, cached changes and stashes unchanged. The final observer guards the full-index patch and selects the existing Python3.13/PyYAML6.0.3 after shell startup through an archived private Make shell. I change no product source, Make recipe, compiler, assertion or deadline. I reuse only completed guarded setup and do not repeat passed product gates.
+
+My frozen bdffa4ccc native Stage1 remains a development producer: native SHA256 `2e5becb5a4b6eb4fd4689ab21e8362095ba507d8b26423f1baa6ac91403a282d`, bootstrap receipt `67bb7749a5382bab73eeb9e2607a5f872d944fec3edc8e04d973a7171c29fecc`. Its source, artifacts and host closure remain unchanged. Ordinary shadows retain10s, native compile and guest batches600s, and bootstrap limits1800/30; no new bootstrap executes. Targeted C sanitizer instrumentation does not establish instrumentation of every provider or Darwin LeakSanitizer support.
+
+My lossless archive contains17787 logical records,225804768 raw bytes and11580 unique gzip payloads totalling35532281 bytes. The independent reader checks every compressed/raw hash and3567 source Git blobs. All source/tool/provider/primary-work/stash guards hold, and my final detached source root is clean. Every setup refusal, original log, observer and generated retained product remains archived; build caches are omitted. Publication audits are additional to those counts. Initial transfer requested the wrong payload directory and fails; the corrected transfer preserves all manifest and gzip bytes. Tar xattr warnings do not change payload hashes, and no AppleDouble files remain.
+
+I complete only the ordinary linked/graph and unlinked module-verifier checkpoint. I preserve the peer's older exact-pin bootstrap evidence and every frozen qualification root. Private/affine verification, pure C emission, final integrated-source paired bootstrap and the full release remain required. I assert neither cross-host raw-bootstrap identity nor a historical timeout cause.
