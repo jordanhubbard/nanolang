@@ -47,6 +47,9 @@ jobs:
       - name: Build the actual capture probe and helper
         run: |
           make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so > .test_output/source-capture-diagnostic/linux-probe-build.log 2>&1
+      - name: Check diagnostic identity refusal and timeout evidence retention
+        run: |
+          python3 -m unittest -v tests.test_capture_qualification_modes > .test_output/source-capture-diagnostic/diagnostic-controls.log 2>&1
       - name: Observe a cold compiler support capture without changing admission
         run: python3 scripts/ci_source_capture_linux.py
       - name: Qualify the isolated GNU assembler 2.46 candidate
