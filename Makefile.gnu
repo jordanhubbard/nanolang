@@ -4543,7 +4543,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
+install: $(COMPILER) vm nvm2c nvm2c-runtime install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -4552,6 +4552,7 @@ install: $(COMPILER) vm nvm2c install-resolver install-websocket-public-runtime 
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
 	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+	install -m 644 bin/nano_aot_runtime.o $(PREFIX)/bin/nano_aot_runtime.o
 ifeq ($(UNAME_S),Linux)
 	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
 endif
@@ -4559,7 +4560,7 @@ endif
 
 uninstall:
 	rm -f "$(PREFIX)/bin/nano-resolver"
-	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c" "$(PREFIX)/bin/nano_aot_runtime.o"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
 ifeq ($(UNAME_S),Linux)
 	rm -f $(PREFIX)/bin/nano_as_capture.so

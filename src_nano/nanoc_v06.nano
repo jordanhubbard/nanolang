@@ -581,6 +581,11 @@ fn compiler_tool_root() -> string {
         if (!= located "") { set executable (canonical located) }
     }
     if (!= executable "") {
+        # I discover an installed tool closure without checkout markers.
+        let prefix: string = (nl_path_dirname (nl_path_dirname executable))
+        if (and (file_exists (nl_path_join prefix "bin/nano_vm")) (file_exists (nl_path_join prefix "bin/nvm2c"))) {
+            return prefix
+        }
         let installed: string = (find_repo_root (nl_path_dirname executable))
         if (!= installed "") { return installed }
     }
@@ -590,6 +595,8 @@ shadow compiler_tool_root {
     let root: string = (compiler_tool_root)
     if (== (getenv "NANOLANG_ROOT") "") {
         assert (!= root "")
+        assert (file_exists (nl_path_join root "bin/nano_vm"))
+        assert (file_exists (nl_path_join root "bin/nvm2c"))
     } else { assert (== root (getenv "NANOLANG_ROOT")) }
 }
 
