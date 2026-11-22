@@ -1,0 +1,32 @@
+{
+  "scope": "I retain the original native failure log, not its unavailable image tar. Generated bounded tar controls reproduce the missing config edge and pass the guarded candidate; fresh native Docker transport/smoke remains required.",
+  "files": {
+    "ci-45028698749-image.log.gz": {
+      "sha256": "6c488663455c2956a9b737fe8649056a45bb0f602d1deba7bd366e4a1e252476",
+      "compressed_sha256": "d58bef732d2452c92141b7145528c22cf701de2fa4b73263f761f73e5b3f7a76",
+      "raw_bytes": 304736
+    },
+    "oci-index-controls-before.log.gz": {
+      "sha256": "db5e8052f1134babf3de2458fabf33fa7588633eaf7f63a8b71ceed58a50dcd5",
+      "compressed_sha256": "0fb9d06d80c09eeadc6f0e65985f06c44ddac132cf840b25f06efbc1cb44cd33",
+      "raw_bytes": 2409
+    },
+    "oci-index-controls-final.log.gz": {
+      "sha256": "c031f0665c9deed0a842b835125d68b73940d0816d970ef9026eb8c363ddd89f",
+      "compressed_sha256": "58a67628489c5bb8f0e96ebf6a0ccc39af29b1444bf34080ec87866ade34d63c",
+      "raw_bytes": 1980
+    },
+    "before-ci_container.py": {
+      "sha256": "a45112a6831b2b00e318f62a7a65a703ca9a06580b21bd591ee6500dfafa3a7a",
+      "raw_bytes": 11038
+    },
+    "after-ci_container.py": {
+      "sha256": "ac8eacce590fb28dedf67638e7d43d99d2bc91da1ff23b584dfffd0fb1c2e6a5",
+      "raw_bytes": 13885
+    },
+    "after-test_ci_container.py": {
+      "sha256": "1ab034221207d28040f2d2a48563ebe2ce7b1aaaac2f2c44e8053f92a3142d38",
+      "raw_bytes": 10701
+    }
+  }
+}

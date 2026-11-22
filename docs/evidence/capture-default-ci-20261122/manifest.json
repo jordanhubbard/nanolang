@@ -1,0 +1,262 @@
+{
+  "schema": "nanolang-retained-evidence/v1",
+  "scope": "I retain actual ordinary hosted native setup and all40 guide snippets from45028658551 at synthetic merged sourceed31e880676deb7a7cae6325a090f726aa5ed447. Original hosted shadow60 remains; ordinary default10 qualification remains separately retained with the complete Linux pair. No producer/GAS rerun, compiler downgrade or original deadline change.",
+  "files": [
+    {
+      "path": "native-selection/.test_output/capture-assembler-checks/build.log",
+      "sha256": "83d0b9fd935627a760252f513cd6ca1ad60b54bed4189bec7c59cb7211da6787",
+      "bytes": 1263,
+      "artifact": "../capture-diagnostic-checkpoint-20261121/inputs/83d0b9fd935627a760252f513cd6ca1ad60b54bed4189bec7c59cb7211da6787.gz",
+      "compressed_sha256": "4ccec1b9d4950af1984bf755ceeeda2b03f694a186a335707948e6d05ccc92f1",
+      "compressed_bytes": 403
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-checks/controls.log",
+      "sha256": "a0ca56d79d5a8a176c0b6584296c9903eacb9e2050100ff183dc35e910deee76",
+      "bytes": 1578,
+      "artifact": "inputs/a0ca56d79d5a8a176c0b6584296c9903eacb9e2050100ff183dc35e910deee76.gz",
+      "compressed_sha256": "a4f5cb5c77892cd58f50507b4bd1513d225806023b3846cf27c938be29d2e07e",
+      "compressed_bytes": 383
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-checks/identity.json",
+      "sha256": "3b0162e87887f6f17d6678b03cbb9fd8ff4d549adf14f27d74c1c455a27545da",
+      "bytes": 131,
+      "artifact": "inputs/3b0162e87887f6f17d6678b03cbb9fd8ff4d549adf14f27d74c1c455a27545da.gz",
+      "compressed_sha256": "cdd09fb1dab621dce23426ad030703e00eca23fc8ee25abbc5c947efae21c867",
+      "compressed_bytes": 137
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-selection.stdout",
+      "sha256": "c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05",
+      "bytes": 56,
+      "artifact": "inputs/c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05.gz",
+      "compressed_sha256": "0a11182fec475403b96a29d9c3b8b01dd1db5d3b256842968c401727aa026889",
+      "compressed_bytes": 74
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/fixed-version.stdout",
+      "sha256": "7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a",
+      "bytes": 363,
+      "artifact": "../gas246-identified-x86-20261121/inputs/7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a.gz",
+      "compressed_sha256": "77ca50f69468f79087feb4019f85b1db3a698d3407d5052468d0451de0373709",
+      "compressed_bytes": 274
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-selection.stdout",
+      "sha256": "7534b78b8f67cccb6890df272c964192a53aad2fbf50e24065b87e91f0b73f48",
+      "bytes": 29,
+      "artifact": "inputs/7534b78b8f67cccb6890df272c964192a53aad2fbf50e24065b87e91f0b73f48.gz",
+      "compressed_sha256": "b8f018ce95322f14067cc7cb24a2b00238452f38d7d2268a4de2f07b40161fb2",
+      "compressed_bytes": 49
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/original-version.stdout",
+      "sha256": "638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78",
+      "bytes": 327,
+      "artifact": "inputs/638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78.gz",
+      "compressed_sha256": "ec25b6428d761b805d05b47239c6af566d40c6a6333934b9f2121b5011a62415",
+      "compressed_bytes": 250
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/result.json",
+      "sha256": "2c5d03b3934fc1c699aaa8f3cdf64fd19371de1ea0a15867baffc6fc06e932f8",
+      "bytes": 2538,
+      "artifact": "inputs/2c5d03b3934fc1c699aaa8f3cdf64fd19371de1ea0a15867baffc6fc06e932f8.gz",
+      "compressed_sha256": "666dd35c4812d82f50042f5244b7452e1c68be7d323afa51f21e8eb85d7fa49e",
+      "compressed_bytes": 1136
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/selected-as",
+      "sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+      "bytes": 10003728,
+      "artifact": "../capture-complete-hosted-20261122/inputs/7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5.gz",
+      "compressed_sha256": "9b0ec10db29ecb6f77dbef4e1652f3a8848cd502bc55796c637704dfdcd00b47",
+      "compressed_bytes": 5061150
+    },
+    {
+      "path": "native-selection/.test_output/capture-assembler-ci/validated-profile.json",
+      "sha256": "5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd",
+      "bytes": 4429,
+      "artifact": "../capture-complete-hosted-20261122/inputs/5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd.gz",
+      "compressed_sha256": "3514492cc33eb080099d308ad38b91a35bcbdbf68e2fb1b9cd180c9ab532d258",
+      "compressed_bytes": 1660
+    },
+    {
+      "path": "native-selection/bin/nano_as_capture.so",
+      "sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+      "bytes": 51936,
+      "artifact": "../capture-diagnostic-checkpoint-20261121/inputs/cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7.gz",
+      "compressed_sha256": "0f97a60ef444b4fd2c5c8b752c64c5d92520bf6f93d0ca8f66b559cbfff3293a",
+      "compressed_bytes": 21257
+    },
+    {
+      "path": "native-selection/obj/test_module_generation_probe",
+      "sha256": "d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10",
+      "bytes": 1138944,
+      "artifact": "../capture-complete-hosted-20261122/inputs/d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10.gz",
+      "compressed_sha256": "005fabcf884f3b7955d5c16a26d8daaa2fec2ee9d684f72d3e33df2af344aca1",
+      "compressed_bytes": 500030
+    },
+    {
+      "path": "observer/ordinary-ci-45028658551.log",
+      "sha256": "cc9122e70ca7f8f7d34b65f6b73d9bdfb32bf6174fa138e5a5dca54f850212ae",
+      "bytes": 113392,
+      "artifact": "inputs/cc9122e70ca7f8f7d34b65f6b73d9bdfb32bf6174fa138e5a5dca54f850212ae.gz",
+      "compressed_sha256": "5590a9e94e45ef9865b071f34b8491e227eac18447769f54b8415af037ac250f",
+      "compressed_bytes": 17465
+    },
+    {
+      "path": "observer/ordinary-ci-45028658551-run.json",
+      "sha256": "92bdbaa934de2340f386e7ca2c7b696e08bdff838c72e230341813136465469a",
+      "bytes": 13217,
+      "artifact": "inputs/92bdbaa934de2340f386e7ca2c7b696e08bdff838c72e230341813136465469a.gz",
+      "compressed_sha256": "48a6517799d4c0b6acae1e21e752565f297bb58d5581f46ebf728df1e923858d",
+      "compressed_bytes": 1712
+    },
+    {
+      "path": "observer/promoted-profile-controls-complete.log",
+      "sha256": "066b357c4a663410f44909250ea8cd906d850ac7dbf40f04adc1b2f6d74c135d",
+      "bytes": 6069,
+      "artifact": "inputs/066b357c4a663410f44909250ea8cd906d850ac7dbf40f04adc1b2f6d74c135d.gz",
+      "compressed_sha256": "332fc234422399cb4a4bd9be3ced989cd332eaeda992f64bb73dec1a0358f98a",
+      "compressed_bytes": 1214
+    },
+    {
+      "path": "executed-source/f645/src/module_builder.c",
+      "sha256": "971b242622730d2581bd5d576bec8dc7ce48a05c67e4917765d4f347f346bb09",
+      "bytes": 310198,
+      "artifact": "../capture-complete-hosted-20261122/inputs/971b242622730d2581bd5d576bec8dc7ce48a05c67e4917765d4f347f346bb09.gz",
+      "compressed_sha256": "d99f098b3aaa9c95189fd1f45fbe37d359c7ad72e81197a49e7f7c78ba5d69e0",
+      "compressed_bytes": 68333
+    },
+    {
+      "path": "executed-source/f645/tests/test_source_snapshots.py",
+      "sha256": "7e80518ce26a983ec316fe161cbbf7c5a77a64724554ba3dc592f690ab7ee259",
+      "bytes": 233307,
+      "artifact": "../capture-shell-fixture-20261122/inputs/7e80518ce26a983ec316fe161cbbf7c5a77a64724554ba3dc592f690ab7ee259.gz",
+      "compressed_sha256": "3c663b444879a40fe2edce4537a99b4a09ebb7e47da6122f3a72a0cbb3926b60",
+      "compressed_bytes": 36986
+    },
+    {
+      "path": "executed-source/f645/scripts/ci_select_capture_assembler.py",
+      "sha256": "32f01a383741ec86a32fc7cfbe06fce2488eea7de0a88016488404deaf8f23bc",
+      "bytes": 10188,
+      "artifact": "inputs/32f01a383741ec86a32fc7cfbe06fce2488eea7de0a88016488404deaf8f23bc.gz",
+      "compressed_sha256": "6fd92c89f83c7ab53a4ed7e1e41c4b75286a8c7d40c10bd23b025fccfc8da3bf",
+      "compressed_bytes": 3131
+    },
+    {
+      "path": "executed-source/f645/scripts/ci_capture_assembler_profile.py",
+      "sha256": "a4ec1eadf4a2754a64080a90e9dcd699b5c36559cec0c6d5ee182107230e7202",
+      "bytes": 6470,
+      "artifact": "inputs/a4ec1eadf4a2754a64080a90e9dcd699b5c36559cec0c6d5ee182107230e7202.gz",
+      "compressed_sha256": "805aac9a1a3c6676310016ed15aca62799f49ae2377c60f0d131346c3c2355bd",
+      "compressed_bytes": 2232
+    },
+    {
+      "path": "executed-source/f645/.github/actions/setup-capture-assembler/action.yml",
+      "sha256": "9dbd6eca9c41d81ad4461750fd796a8273ef76de98ddd14b5c00724692937081",
+      "bytes": 2734,
+      "artifact": "inputs/9dbd6eca9c41d81ad4461750fd796a8273ef76de98ddd14b5c00724692937081.gz",
+      "compressed_sha256": "c86b57d0be595b812b2b9cc34bd5ed4036893107d4fab86ef935ee1fe1c7192b",
+      "compressed_bytes": 1101
+    },
+    {
+      "path": "executed-source/f645/.github/workflows/ci.yml",
+      "sha256": "1d316a9a42edcf4158d6076cfa99b79ac250ec78c5d30ba0388a72a837fcbcd9",
+      "bytes": 46710,
+      "artifact": "inputs/1d316a9a42edcf4158d6076cfa99b79ac250ec78c5d30ba0388a72a837fcbcd9.gz",
+      "compressed_sha256": "a7863dd26e23edf7ccd7206964472db0ba407b24c7d3a4215efdfafd0a876a52",
+      "compressed_bytes": 9867
+    },
+    {
+      "path": "executed-source/f645/.github/workflows/backend-matrix.yml",
+      "sha256": "95d894ffdcc36cd70fbd55f3b30a8e172f4323c0291261c4523b2ac920abebfd",
+      "bytes": 8111,
+      "artifact": "inputs/95d894ffdcc36cd70fbd55f3b30a8e172f4323c0291261c4523b2ac920abebfd.gz",
+      "compressed_sha256": "4daa7c849d0becf44ace71d119b898f43ec3fa6a7203f8c6746ae6ca78e6e9e0",
+      "compressed_bytes": 2204
+    },
+    {
+      "path": "executed-source/f645/.github/workflows/retirement-qualification.yml",
+      "sha256": "d28951c65eae052e39b4a29d8972912865b5729977373d02e83d3e5b8e3c6f74",
+      "bytes": 16217,
+      "artifact": "inputs/d28951c65eae052e39b4a29d8972912865b5729977373d02e83d3e5b8e3c6f74.gz",
+      "compressed_sha256": "3e0854b6626c7af7cbdb250253b4829dfc6bd05f5b12f204ea96197d7221c58f",
+      "compressed_bytes": 4315
+    },
+    {
+      "path": "executed-source/f645/.github/workflows/userguide_pages.yml",
+      "sha256": "e507ac856eeb43900cfea7b56c8a51095c218b37ac949eaa0ef605a330727d6f",
+      "bytes": 4576,
+      "artifact": "inputs/e507ac856eeb43900cfea7b56c8a51095c218b37ac949eaa0ef605a330727d6f.gz",
+      "compressed_sha256": "f8ea28dac1b1fab5668f3234f42fdf6e334cf57fde513bb89f620e848a3efc0e",
+      "compressed_bytes": 1312
+    }
+  ]
+}

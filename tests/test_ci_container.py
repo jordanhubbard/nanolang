@@ -67,6 +67,65 @@ class ImmutableImage(unittest.TestCase):
                 self.assertEqual(container.verify_archive(self.archive, container.digest(self.archive), image,
                                                          'linux/amd64'), config_hash)
 
+    def index_archive(self, mutation=None):
+        manifest_type = 'application/vnd.oci.image.manifest.v1+json'
+        index_type = 'application/vnd.oci.image.index.v1+json'
+        config_hash = 'sha256:' + hashlib.sha256(self.config).hexdigest()
+        leaf = {'schemaVersion': 2, 'mediaType': manifest_type,
+                'config': {'digest': config_hash, 'size': len(self.config)}}
+        if mutation == 'config': leaf['config']['digest'] = 'sha256:' + 'd' * 64
+        leaf_bytes = json.dumps(leaf).encode()
+        leaf_hash = 'sha256:' + hashlib.sha256(leaf_bytes).hexdigest()
+        selected = {'mediaType': manifest_type, 'digest': leaf_hash, 'size': len(leaf_bytes),
+                    'platform': {'os': 'linux', 'architecture': json.loads(self.config)['architecture']}}
+        if mutation == 'platform': selected['platform']['architecture'] = 'arm64'
+        if mutation == 'size': selected['size'] += 1
+        if mutation == 'attestation': selected['annotations'] = {'vnd.docker.reference.type': 'attestation-manifest'}
+        if mutation == 'nested': selected['mediaType'] = index_type
+        root = {'schemaVersion': 2, 'mediaType': index_type, 'manifests': [selected, {
+            'mediaType': manifest_type, 'digest': 'sha256:' + 'a' * 64, 'size': 123,
+            'platform': {'os': 'unknown', 'architecture': 'unknown'},
+            'annotations': {'vnd.docker.reference.type': 'attestation-manifest',
+                            'vnd.docker.reference.digest': leaf_hash}}]}
+        if mutation == 'ambiguous': root['manifests'].append(selected.copy())
+        if mutation == 'index-type': root['mediaType'] = 'unknown/index'
+        root_bytes = json.dumps(root).encode()
+        image = 'sha256:' + hashlib.sha256(root_bytes).hexdigest()
+        members = [('manifest.json', json.dumps([{'Config': 'config.json'}]).encode()),
+                   ('config.json', self.config),
+                   ('index.json', json.dumps({'manifests': [{'digest': image}]}).encode()),
+                   ('blobs/sha256/' + image.split(':')[1], root_bytes),
+                   ('blobs/sha256/' + leaf_hash.split(':')[1], leaf_bytes)]
+        with tarfile.open(self.archive, 'w:') as archive:
+            for name, raw in members:
+                if name.endswith(leaf_hash.split(':')[1]):
+                    if mutation == 'missing': continue
+                    if mutation == 'hash': raw = raw[:-1] + b']'
+                    if mutation == 'oversize': raw = b'x' * (1024 * 1024 + 1)
+                member = tarfile.TarInfo(name); member.size = len(raw)
+                if mutation == 'symlink' and name.endswith(leaf_hash.split(':')[1]):
+                    member.type = tarfile.SYMTYPE; member.linkname = 'config.json'; member.size = 0
+                    archive.addfile(member)
+                else:
+                    archive.addfile(member, io.BytesIO(raw))
+        return image, config_hash
+
+    def test_oci_index_preserves_runnable_config_and_ignores_attestation_execution(self):
+        for architecture in ('amd64', 'arm64'):
+            with self.subTest(architecture=architecture):
+                self.config = json.dumps({'architecture': architecture, 'os': 'linux'}).encode()
+                image, config = self.index_archive()
+                self.assertEqual(container.verify_archive(self.archive, container.digest(self.archive),
+                                                         image, 'linux/' + architecture), config)
+
+    def test_oci_index_refuses_changed_ambiguous_or_nonrunnable_edges(self):
+        for mutation in ('config', 'platform', 'size', 'attestation', 'nested', 'ambiguous',
+                         'index-type', 'missing', 'hash', 'oversize', 'symlink'):
+            with self.subTest(mutation=mutation):
+                image, _ = self.index_archive(mutation)
+                with self.assertRaises((ValueError, KeyError)):
+                    container.verify_archive(self.archive, container.digest(self.archive), image, 'linux/amd64')
+
     def test_changed_archive_refuses_before_docker_load(self):
         self.archive_image()
         env = {'NANO_CI_IMAGE_ID': self.image, 'NANO_CI_IMAGE_PLATFORM': 'linux/amd64',
