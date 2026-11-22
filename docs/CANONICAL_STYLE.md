@@ -184,6 +184,13 @@ boundaries, three-level integer values, uneven/empty rows and append to empty
 inner float arrays. Nominal/generic execution and unknown compatibility remain
 open; these cases do not establish complete array soundness or backend parity.
 
+My C-seed native record-array setter captures its array, index and value once
+in source order and materializes the value as the target record before taking
+its address. I test local/imported record function results, literals, aliases,
+neighboring elements and prior-output preservation for distinct record values
+on Linux and Darwin. The native typed temporary is not complete frontend/VM
+nominal mutation checking; that remaining source boundary is tracked as #1179.
+
 ## String Literals
 
 Ordinary quoted strings keep braces literally. Use the `f` prefix to interpolate:
