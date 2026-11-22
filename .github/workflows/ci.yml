@@ -188,6 +188,7 @@ jobs:
 
       - name: I select my verified native capture assembler
         if: runner.os == 'Linux'
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Build - Stage 1 (C Reference Compiler)
@@ -414,6 +415,7 @@ jobs:
 
       - name: I select my verified native capture assembler
         if: runner.os == 'Linux'
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Build C reference compiler
@@ -449,6 +451,7 @@ jobs:
 
       - name: I select my verified native capture assembler
         if: runner.os == 'Linux'
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Test and build user guide
@@ -983,6 +986,7 @@ jobs:
 
       - name: I select my verified native capture assembler
         if: runner.os == 'Linux'
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Run performance benchmarks
@@ -1127,6 +1131,7 @@ jobs:
         if: runner.os == 'Linux'
         env:
           CC: clang
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Build stage 1 with clang

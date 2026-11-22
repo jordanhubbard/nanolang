@@ -42,7 +42,6 @@ runs:
     - name: Provision and verify the actual selected assembler
       id: select
       shell: bash
-      timeout-minutes: 90
       env:
         NANO_CI_FIXED_ASSEMBLER_DIRECTORY: ${{ inputs.profile-directory }}
       run: python3 scripts/ci_select_capture_assembler.py

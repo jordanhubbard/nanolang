@@ -144,6 +144,7 @@ jobs:
 
       - name: I select my verified native capture assembler
         if: runner.os == 'Linux'
+        timeout-minutes: 90
         uses: ./.github/actions/setup-capture-assembler
 
       - name: Build and verify fresh compiler generations
