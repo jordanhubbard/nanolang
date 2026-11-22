@@ -92,4 +92,66 @@ shadow main { assert (== (main) 0) }
                     self.assertIn('same nominal record type', p.stdout+p.stderr)
                     self.assertEqual(output.read_text(),'prior-output')
 
+    def test_record_set_materializes_values_and_orders_all_three_operands(self):
+        source_text = '''from "records.nano" import Item, imported_item
+struct Holder { items: array<Item> }
+let mut events: int = 0
+let mut position: int = 0
+fn receiver(items: array<Item>) -> array<Item> {
+ set events (+ (* events 10) 1)
+ set position 0
+ return items
+}
+shadow receiver { let items: array<Item> = [] assert (== (array_length (receiver items)) 0) }
+fn index() -> int { set events (+ (* events 10) 2) return position }
+shadow index { set position 0 assert (== (index) 0) }
+fn item(number: int) -> Item {
+ set events (+ (* events 10) 3)
+ set position 1
+ return Item { number: number, label: "returned" }
+}
+shadow item { assert (== (item 7).number 7) }
+fn main() -> int {
+ let holder: Holder = Holder { items: [Item { number: 1, label: "old" }, Item { number: 2, label: "neighbor" }] }
+ let alias: array<Item> = holder.items
+ let __nl_arg_0_2: int = 42
+ let _value: int = 19
+ set events 0
+ set position 9
+ (array_set (receiver holder.items) (index) (item __nl_arg_0_2))
+ assert (== events 123)
+ assert (== position 1)
+ assert (== (at alias 0).number 42)
+ assert (== (at alias 0).label "returned")
+ assert (== (at alias 1).number 2)
+ assert (== (at alias 1).label "neighbor")
+ (array_set alias 0 Item { number: _value, label: "literal" })
+ assert (== (array_get holder.items 0).number 19)
+ assert (== (array_get holder.items 0).label "literal")
+ (array_set holder.items 0 (imported_item))
+ assert (== (at alias 0).number 52)
+ assert (== (at alias 0).label "imported")
+ let mut local: Item = Item { number: 61, label: "local" }
+ (array_set alias 0 local)
+ set local Item { number: 99, label: "replaced" }
+ assert (== (at holder.items 0).number 61)
+ assert (== (at holder.items 0).label "local")
+ assert (== (array_length alias) 2)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root/'records.nano').write_text('pub struct Item { number: int, label: string }\n'
+                'pub fn imported_item() -> Item { return Item { number: 52, label: "imported" } }\n'
+                'shadow imported_item { assert (== (imported_item).number 52) }\n')
+            source = root/'main.nano'
+            source.write_text(source_text)
+            self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
+            vm = self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
+            self.run_checked([ROOT/'bin/nanoc_c', source, '-o', root/'native'])
+            native = self.run_checked([root/'native'])
+            self.assertEqual(native.stdout, vm.stdout)
+
 if __name__=='__main__': unittest.main()

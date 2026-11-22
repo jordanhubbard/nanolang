@@ -2504,14 +2504,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.call.args[1], env);  /* index */
                         emit_literal(list, ")))");
                     } else {
-                        /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
-                        emit_literal(list, "dyn_array_set_struct(");
-                        build_expr(list, expr->as.call.args[0], env);  /* array */
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, ", &(");
-                        build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(%s))", get_prefixed_type_name(struct_name));
+                        /* I capture each operand once before taking the record's address. */
+                        emit_literal(list, "({ ");
+                        unsigned call_id = build_ordered_call_args(list,
+                            expr->as.call.args, expr->as.call.arg_count, env, NULL);
+                        emit_formatted(list,
+                            "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
+                            "&__nl_arg_%u_2, sizeof(%s)); })",
+                            call_id, call_id, call_id, get_prefixed_type_name(struct_name));
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
