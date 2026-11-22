@@ -1100,7 +1100,7 @@ test-units: test-collection-aot
 
 .PHONY: test-collection-handles
 test-collection-handles:
-	python3 -m unittest tests.test_collection_handles
+	python3 -m unittest tests.test_collection_handles tests.test_builder_handles
 
 test-units: test-collection-handles
 
