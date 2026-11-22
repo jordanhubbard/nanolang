@@ -7789,3 +7789,13 @@ test-nanolang-translator-linked-module-verifier: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest -v tests.test_nanolang_translator_linked_module_verifier
 
 test-units: test-nanolang-translator-linked-module-verifier
+
+# I qualify the affine walk's place dependency before local/bytecode admission.
+$(OBJ_DIR)/nvm2c_reference_places_reference: tests/nvm2c_reference_places_reference.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/reference_places.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $@ $< $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-reference-places
+test-nanolang-translator-reference-places: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_reference_places_reference
+	NANOLANG_REFERENCE_PLACES_REFERENCE="$(OBJ_DIR)/nvm2c_reference_places_reference" python3 -m unittest -v tests.test_nanolang_translator_reference_places
+
+test-units: test-nanolang-translator-reference-places

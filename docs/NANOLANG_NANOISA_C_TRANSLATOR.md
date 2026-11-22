@@ -999,3 +999,33 @@ explicit private deferral;295 ordinary V2 decisions retain public C parity.
 The complete7132-module/two-mode/five-route unlinked regression also passes
 after the shared preparation/context change. No executable selector uses these
 APIs. My [same-source Darwin checkpoint](evidence/linked-module-verifier-darwin-20261122/README.md) passes both full gates in658.533/1099.153s, with every corpus byte and all48 normalized report files identical to Linux. Targeted actual C sanitizers, original identifiers and all3567 guarded source inputs match; the three original examples are separately guarded. I preserve all setup refusals and original roots. Private/affine verification, pure C emission and final-source release qualification remain required.
+
+
+### My affine reference-place dependency
+
+I implement `reference_places.nano` before the remaining local affine state and
+bytecode walk. My immutable place retains a nonzero invocation as two unsigned
+32-bit words, a local identity, claimed root/referent, a bounded field path and
+shared/exclusive mode. Explicit presence facts preserve the C descriptor's
+absent-pointer refusals; an empty path or empty record needs no field storage.
+The API expects native-width local/path/tag/layout words from checked facts.
+
+My validity query checks the separately authoritative root layout and every
+reachable scalar-only record sibling, not just the selected path. Layout edges
+must point strictly backward; the selected path must end at a record containing
+only numeric/bool scalars. A descending marked walk visits shared subgraphs
+once. I do not accept strings, arrays, unions, forward edges or merely claimed
+nominal authority through this reference contract.
+
+My overlap and conflict queries inspect descriptors independently of layout
+validity, as the C APIs do: invocation/local identify the owner, and a common
+path prefix overlaps even when a claimed layout is false. Invalid descriptors
+conservatively conflict. Shared holds coexist; exclusive holds block reads and
+writes, and direct owner writes/moves conflict with either hold mode.
+
+My actual C oracle calls the public reference-place APIs without duplicating
+their policy. My test carrier bounds65536 layout rows and65535 fields/path
+entries to preserve native widths; its D refusal describes the harness, not a
+new product acceptance decision. Five-route and original C qualification are
+pending. I keep affine state/bytecode, private-profile composition and runtime
+admission open, and no executable selector calls this new component.
