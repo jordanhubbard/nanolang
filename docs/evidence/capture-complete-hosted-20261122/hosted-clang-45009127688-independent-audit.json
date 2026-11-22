@@ -1,0 +1,14 @@
+{
+  "source_pin": "3ef446575d2b4c818c96cf83d46c1048f0edf441",
+  "source_methods": 128,
+  "source_conditional_skips": 25,
+  "response_methods": 1,
+  "native_driver_equivalences": 600,
+  "native_equals_debug_cases": 36,
+  "cold_returncode": 0,
+  "native_probe_sha256": "b8f5641e2de45b2d5c2aec472e03b1c3ad6338e50e5bdc8e9fa2542ebcd086b8",
+  "native_helper_sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+  "native_assembler_sha256": "8dcc6170c05bb9b02803ab30dca2f36186d8eace6147e6be7922c3aad96ec5a8",
+  "candidate_patch_sha256": "2b214d2913c28a268c23e0dbc31395fe1c806ee99d248a39780472551b08220f",
+  "scope": "I independently read complete original Clang reports, native equivalences/debug outcomes and actual native images. This cohort selects already-supported GNU2.42; fixedr1 external Clang and production promotion remain separate."
+}

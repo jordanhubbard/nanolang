@@ -110,12 +110,13 @@ def original_userguide(record):
 def main():
     if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'],
                            ['--clang-2118-complete'], ['--response-only'],
-                           ['--fixed-as246-complete']):
+                           ['--fixed-as246-complete'], ['--fixed-clang-complete']):
         raise ValueError('I require an explicit supported diagnostic mode.')
     native_debug_only = sys.argv[1:] == ['--native-debug-only']
     clang_only = sys.argv[1:] == ['--clang-2118-only']
-    clang_complete = sys.argv[1:] == ['--clang-2118-complete']
-    fixed_complete = sys.argv[1:] == ['--fixed-as246-complete']
+    fixed_clang_complete = sys.argv[1:] == ['--fixed-clang-complete']
+    clang_complete = sys.argv[1:] == ['--clang-2118-complete'] or fixed_clang_complete
+    fixed_complete = sys.argv[1:] == ['--fixed-as246-complete'] or fixed_clang_complete
     full_corpus = clang_complete or fixed_complete
     clang_candidate = clang_only or full_corpus
     response_only = sys.argv[1:] == ['--response-only']
@@ -129,7 +130,8 @@ def main():
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
               'native_debug_only': native_debug_only, 'clang_2118_only': clang_only,
               'clang_2118_complete': clang_complete,
-              'fixed_as246_complete': fixed_complete,
+              'fixed_as246_complete': fixed_complete and not fixed_clang_complete,
+              'fixed_clang_complete': fixed_clang_complete,
               'response_only': response_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
@@ -223,12 +225,18 @@ def main():
         patch = subprocess.check_output(['git', 'diff', '--', str(source), str(test)], cwd=ROOT)
         (OUT / 'candidate.patch').write_bytes(patch)
         record['candidate_patch_sha256'] = hashlib.sha256(patch).hexdigest()
+        if fixed_clang_complete:
+            from scripts.ci_fixed_clang_inputs import require_candidate, native_closure
+            prior = Path(os.environ['NANO_FIXED_CLANG_PRIOR']).resolve(strict=True)
+            record['fixed_clang_prior_candidate'] = require_candidate(prior, source, test, patch)
         for path in original:
             shutil.copy2(path, OUT / path.name)
         command(['make', '-f', 'Makefile.gnu', '-j2',
                  'obj/test_module_generation_probe', 'bin/nano_as_capture.so'], 'build', 600)
         for name in ('obj/test_module_generation_probe', 'bin/nano_as_capture.so'):
             shutil.copy2(ROOT / name, OUT / Path(name).name)
+        if fixed_clang_complete:
+            record['native_closure_before'] = native_closure(record, ROOT, OUT, 'before')
         runner = '''import json,sys,unittest
 suite=unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')
 discovered=suite.countTestCases()
@@ -307,11 +315,18 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                         'test_response_quoted_backslashes_follow_selected_driver')
             if any(case.endswith('.' + name) for case, _ in report['skipped'] for name in required):
                 raise RuntimeError('I require all selected Clang/response controls to execute.')
+            if fixed_clang_complete:
+                external = ('test_clang_external_assembler_cache_restored_inputs',
+                    'test_clang_external_assembler_requires_read_capture',
+                    'test_external_assembler_cache_nested_changes_and_recovery',
+                    'test_linux_clang_external_macros_replay_captured_reads')
+                if any(case.endswith('.' + name) for case, _ in report['skipped'] for name in external):
+                    raise RuntimeError('I require the original external Clang/r1 replay controls to execute.')
         if response_only:
             record['response_grammar_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
             return
-        if clang_candidate and not fixed_complete:
+        if clang_candidate and (not fixed_complete or fixed_clang_complete):
             comparisons = []
             for layout in ('source', 'cache', 'all'):
                 for macro, explicit in ((False, False), (True, False), (True, True)):
@@ -339,6 +354,15 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                     raise RuntimeError('I require actual selected-Clang cold compiler support publication.')
                 record['clang_2118_complete_observation_passed'] = True
                 record['gnu_assembler_admission_changed'] = False
+            if fixed_clang_complete:
+                original_userguide(record)
+                record['ordinary_userguide_environment']['scope'] = (
+                    'I qualify the explicit Clang/r1 pair at the ten-second default; '
+                    'the original GCC guide result remains separate.')
+                record['native_closure_after'] = native_closure(record, ROOT, OUT, 'after')
+                if record['native_closure_before'] != record['native_closure_after']:
+                    raise RuntimeError('I refuse changed native images or dependencies during qualification.')
+                record['fixed_clang_profile_qualification_passed'] = True
             record['private_candidate_qualification_passed'] = False
             return
         if native_debug_only:

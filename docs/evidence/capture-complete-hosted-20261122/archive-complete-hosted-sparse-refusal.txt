@@ -1,0 +1,1 @@
+My first new archive observer refuses a missing local shared payload e7bea5577c1de07cb7b65e62e94a05cbc188072e0c063d05e326008229c4526c.gz. git cat-file -e confirms the referenced HEAD blob exists; sparse patterns excluded response-native-fixture after reapplication. I hydrate the committed evidence directory and preserve partial payloads; no native qualification repeats.
