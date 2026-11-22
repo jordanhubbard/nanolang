@@ -1,0 +1,38 @@
+{
+  "schema": "nanolang-retained-evidence/v1",
+  "scope": "I verify actual ordinary user-guide child environment selection, not completed snippets or hosted compatibility.",
+  "files": [
+    {
+      "path": "ordinary-shadow-env-baseline.log",
+      "sha256": "fb68d05f81d2ebe57c93d7840dcda77a2359f757829759081cd1f0279168f1e2",
+      "bytes": 1013,
+      "artifact": "inputs/fb68d05f81d2ebe57c93d7840dcda77a2359f757829759081cd1f0279168f1e2.gz",
+      "compressed_sha256": "2a4ebd6025b2c1d625b9f8b7675aa9887bdf43cf6c9541756b6fe0015375b1cd",
+      "compressed_bytes": 359
+    },
+    {
+      "path": "ordinary-shadow-env-before.py",
+      "sha256": "4fd70dc1fb9dd4c7c72aee8d16c617b3c92844d7e5720ac502d56e493744cad6",
+      "bytes": 24779,
+      "artifact": "inputs/4fd70dc1fb9dd4c7c72aee8d16c617b3c92844d7e5720ac502d56e493744cad6.gz",
+      "compressed_sha256": "d41e1e9c80af41f66286623eb12192710abca6e72d66a52c96fbfde314a0fefa",
+      "compressed_bytes": 6176
+    },
+    {
+      "path": "ordinary-shadow-env-control.py",
+      "sha256": "94c2cb2cec6dcae63960f8a69142e26c7930cc31b2692df15aa628e56db4856d",
+      "bytes": 13635,
+      "artifact": "inputs/94c2cb2cec6dcae63960f8a69142e26c7930cc31b2692df15aa628e56db4856d.gz",
+      "compressed_sha256": "29e60d1b75730dd13647de5d8912758deb2784c9334057bbb6605a0db56b10c3",
+      "compressed_bytes": 3796
+    },
+    {
+      "path": "ordinary-shadow-env-corrected.log",
+      "sha256": "5360f6cabd26aa66da192debc497dc48ae0c175aa712c1a894c792bfa20a3102",
+      "bytes": 1706,
+      "artifact": "inputs/5360f6cabd26aa66da192debc497dc48ae0c175aa712c1a894c792bfa20a3102.gz",
+      "compressed_sha256": "be19a42411efa31c48851d64ff3aed727e06f4d0ee360acd3ff19315f1d0ae89",
+      "compressed_bytes": 435
+    }
+  ]
+}

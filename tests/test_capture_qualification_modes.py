@@ -11,6 +11,27 @@ from scripts import ci_qualify_as246 as qualifier
 
 
 class CaptureQualificationModes(unittest.TestCase):
+    def test_ordinary_userguide_child_uses_default_shadow_deadline(self):
+        import os
+        import shlex
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            child = ('import json,os; print(json.dumps({k:os.environ.get(k) for k in '
+                     '["NANO_SHADOW_TIMEOUT_SECONDS","CC","COMPILER_PATH"]}))')
+            (root / 'Makefile.gnu').write_text('userguide-check:\n\t@' +
+                shlex.join([sys.executable, '-c', child]) + '\n')
+            record = {}
+            with patch.dict(os.environ, NANO_SHADOW_TIMEOUT_SECONDS='60',
+                            CC='retained-original-compiler', COMPILER_PATH='/retained/profile/bin'), \
+                 patch.object(qualifier, 'ROOT', root), patch.object(qualifier, 'OUT', root):
+                qualifier.original_userguide(record)
+            actual = json.loads((root / 'original-userguide.stdout').read_text())
+            self.assertIsNone(actual['NANO_SHADOW_TIMEOUT_SECONDS'])
+            self.assertEqual(actual['CC'], 'retained-original-compiler')
+            self.assertEqual(actual['COMPILER_PATH'], '/retained/profile/bin')
+            self.assertIsNone(record['ordinary_userguide_environment']['shadow_override'])
+            self.assertTrue(record['original_userguide_passed'])
+
     @unittest.skipUnless(hasattr(__import__('os'), 'killpg'), 'I require native process groups.')
     def test_controller_kill_keeps_already_written_command_output(self):
         import os

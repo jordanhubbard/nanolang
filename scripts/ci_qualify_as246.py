@@ -95,6 +95,18 @@ def fixed_assembler_candidate(source, test, previous):
         'fixed_source_sha256': metadata['fixed_source_sha256']}
 
 
+
+def original_userguide(record):
+    env = dict(os.environ)
+    inherited = env.pop('NANO_SHADOW_TIMEOUT_SECONDS', None)
+    record['ordinary_userguide_environment'] = {
+        'inherited_shadow_override': inherited, 'shadow_override': None,
+        'scope': 'I require the ordinary ten-second guest default.'}
+    command(['make', '-f', 'Makefile.gnu', 'userguide-check'], 'original-userguide', 1800,
+            env=env)
+    record['original_userguide_passed'] = True
+
+
 def main():
     if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'],
                            ['--clang-2118-complete'], ['--response-only'],
@@ -352,9 +364,7 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
         if cold.get('returncode') != 0 or cold['supported_version_decision'] != 0:
             raise RuntimeError('I require actual cold compiler support capture and publication.')
         if fixed_complete:
-            command(['make', '-f', 'Makefile.gnu', 'userguide-check'], 'original-userguide', 1800,
-                    env=dict(os.environ, NANO_SHADOW_TIMEOUT_SECONDS='60'))
-            record['original_userguide_passed'] = True
+            original_userguide(record)
             record['fixed_identified_profile_qualification_passed'] = True
             record['generic_gnu_246_admission_changed'] = False
         record['private_candidate_qualification_passed'] = True
