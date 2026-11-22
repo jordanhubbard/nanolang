@@ -7809,3 +7809,10 @@ test-nanolang-translator-affine-state: $(COMPILER_C) nano_virt nano_vm nvm2c nvm
 	NANOLANG_AFFINE_STATE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_state_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_state
 
 test-units: test-nanolang-translator-affine-state
+
+# I require source-level nominal mutation checks before any product publication.
+.PHONY: test-nominal-record-array-mutation
+test-nominal-record-array-mutation: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG_SELFHOST_COMPILER),,bootstrap3)
+	python3 -m unittest -v tests.test_nominal_record_array_mutation
+
+test-units: test-nominal-record-array-mutation

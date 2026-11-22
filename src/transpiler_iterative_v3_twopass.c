@@ -2423,7 +2423,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for at() and array_set() - needs type-specific functions */
-            else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0 ||
+            else if (!bound_callable && (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0 ||
                       strcmp(func_name, "array_set") == 0) &&
                      expr->as.call.arg_count >= 2) {
                 /* Detect element type from array argument (first arg) */
@@ -2505,6 +2505,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         emit_literal(list, ")))");
                     } else {
                         /* I capture each operand once before taking the record's address. */
+                        char *record_type = strdup(get_prefixed_type_name(struct_name));
+                        if (!record_type) {
+                            fprintf(stderr, "I could not retain the native array element type.\n");
+                            exit(1);
+                        }
                         emit_literal(list, "({ ");
                         unsigned call_id = build_ordered_call_args(list,
                             expr->as.call.args, expr->as.call.arg_count, env, NULL);
@@ -2512,7 +2517,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             "%s _value = __nl_arg_%u_2; "
                             "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
                             "&_value, sizeof _value); })",
-                            get_prefixed_type_name(struct_name), call_id, call_id, call_id);
+                            record_type, call_id, call_id, call_id);
+                        free(record_type);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */

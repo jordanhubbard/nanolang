@@ -176,8 +176,8 @@ shadow main { assert (== (main) 0) }
                     result = subprocess.run([ROOT/'bin/nanoc_c', source, '-o', output],
                         cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
-                    self.assertTrue('invalid initializer' in result.stderr or
-                                    'incompatible' in result.stderr, result.stderr)
+                    self.assertIn('E001 TYPE MISMATCH', result.stdout+result.stderr)
+                    self.assertIn('array mutation', result.stdout+result.stderr)
                     self.assertEqual(output.read_bytes(), b'prior-output')
 
 if __name__=='__main__': unittest.main()

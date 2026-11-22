@@ -3404,6 +3404,25 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Store a callback with the declared parameter and result types.");
                     return TYPE_UNKNOWN;
                 }
+                if (callable_array_set &&
+                    (!func || (!func->body && !func->is_extern)) &&
+                    !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)) {
+                    const char *name = array_record_name(array, env);
+                    StructDef *record = name ? env_get_struct(env, name) : NULL;
+                    if (record) {
+                        /* I retain declaration identity rather than an ephemeral call signature. */
+                        const char *identity = record->name;
+                        if (!retain_anonymous_record_context(env, identity, stored)) return TYPE_UNKNOWN;
+                        check_expression(stored, env);
+                        record = env_get_struct(env, identity);
+                        if (!record || !record_return_matches(stored, env, record, 0)) {
+                            emit_context_error("E001 TYPE MISMATCH", stored->line, stored->column, 1,
+                                "I require the declared nominal record type for this array mutation.",
+                                "Match the array element declaration, including its module identity.");
+                            return TYPE_UNKNOWN;
+                        }
+                    }
+                }
             }
 
             /* If not a function, check if it's a function-typed variable (parameter) */
