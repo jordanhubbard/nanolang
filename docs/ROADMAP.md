@@ -1,5 +1,7 @@
 # My 5.1 compiler architecture and release order
 
+- [x] Under #1157 I retain a standalone one-condition upstream include-state patch and native regression report, bind it to the exact before/after source hashes and both native GAS archives, and verify clean patch application without submitting anything upstream. My [standalone report and zero-fuzz patch control](evidence/gas246-source-repair-report-20261122/README.md) reproduce the exact native-qualified after-source hash.
+
 - [ ] Under #1159 I supply the built GNU capture helper explicitly in my standalone native-unit fixture. Its probe lives under obj/ while Make builds bin/nano_as_capture.so; the supported native observer supplies that helper but the failing hosted fixture leaves it unset. I retain the provider-axis observation, choose __as_capture objects for Linux external readiness, and preserve all original mutation/restoration/native42/reuse assertions.
 - [ ] Under #1159 I supervise each GNU assembler discovery/version report with the existing configured capture deadline, output/exit/NUL/size guards and native process-group cleanup. I emit its actual tool-query timing, extend the existing21-second fault to the actual -print-prog-name=as query, retain every original assertion and compare bounded old/corrected native query controls before full source qualification. A below-budget successful sleep alone does not establish deadline enforcement.
 
