@@ -1,0 +1,350 @@
+{
+  "schema": "nanolang-retained-evidence/v1",
+  "scope": "I retain actual image build and cross-worker archive/load/original smoke from45030266230 at a2ffa846ae. This qualifies image transport and tiny instrumented provider controls, not full compiler bootstrap or sanitizer/coverage corpora.",
+  "files": [
+    {
+      "path": "producer/build.log",
+      "sha256": "c966ee59a1c28f53e8b3fad4f19b677648d7984bb892b0dea48abfd70e302bf4",
+      "bytes": 211308,
+      "artifact": "inputs/c966ee59a1c28f53e8b3fad4f19b677648d7984bb892b0dea48abfd70e302bf4.gz",
+      "compressed_sha256": "6fe7909461b913f7f1e7a3d24a6643ac1f53e5d0ffda4afe28c81d7305ef8a5a",
+      "compressed_bytes": 33195
+    },
+    {
+      "path": "producer/controls.log",
+      "sha256": "d5c1bf6fdcd0a1a32ee660b6ad90ea309015eb1cebaf219ea1b8b637673b9a81",
+      "bytes": 1980,
+      "artifact": "inputs/d5c1bf6fdcd0a1a32ee660b6ad90ea309015eb1cebaf219ea1b8b637673b9a81.gz",
+      "compressed_sha256": "46cc226b6fcfbdb20f143026e052451aa8c2678c3365c95c3dd8fbc2a61ed62c",
+      "compressed_bytes": 688
+    },
+    {
+      "path": "producer/worker.log",
+      "sha256": "babeb07513040a485c71c1481e81a6906ea76aa00cf354d26c83e7668d76ffbf",
+      "bytes": 1048,
+      "artifact": "inputs/babeb07513040a485c71c1481e81a6906ea76aa00cf354d26c83e7668d76ffbf.gz",
+      "compressed_sha256": "6bd581611e03b1b2577eec923b0dc3f6f5600c940941f7993fc171b8a977aedd",
+      "compressed_bytes": 447
+    },
+    {
+      "path": "consumer/_temp/ci-loaded-image.json",
+      "sha256": "55c81ff7c3de2aa7bc56ab20ff37d87d00384f50980e4694a9b4000aeb7c7aa0",
+      "bytes": 303,
+      "artifact": "inputs/55c81ff7c3de2aa7bc56ab20ff37d87d00384f50980e4694a9b4000aeb7c7aa0.gz",
+      "compressed_sha256": "5a13db0f16e85dc6dd0ceebaea74f8108d11c51bf4d576558ae9ef335d0a7fff",
+      "compressed_bytes": 227
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/bin/nanoc_stage1",
+      "sha256": "e6ac78b9b29c7d3d0b5bbf94e5fb55884a06c86af405dc5bd1df85cb8200f504",
+      "bytes": 25592,
+      "artifact": "inputs/e6ac78b9b29c7d3d0b5bbf94e5fb55884a06c86af405dc5bd1df85cb8200f504.gz",
+      "compressed_sha256": "75ab05965259fec11686b87e893ee05e73a5c88739f565972ae082b7c9a7ba6a",
+      "compressed_bytes": 6539
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/bin/probe",
+      "sha256": "e6ac78b9b29c7d3d0b5bbf94e5fb55884a06c86af405dc5bd1df85cb8200f504",
+      "bytes": 25592,
+      "artifact": "inputs/e6ac78b9b29c7d3d0b5bbf94e5fb55884a06c86af405dc5bd1df85cb8200f504.gz",
+      "compressed_sha256": "75ab05965259fec11686b87e893ee05e73a5c88739f565972ae082b7c9a7ba6a",
+      "compressed_bytes": 6539
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/checkpoint.tar.gz",
+      "sha256": "0f451c63659fba0a00e324cbbda84610e27e71b91366bfa1ce2845989c30eede",
+      "bytes": 8789,
+      "artifact": "inputs/0f451c63659fba0a00e324cbbda84610e27e71b91366bfa1ce2845989c30eede.gz",
+      "compressed_sha256": "143a66dda19f690c284c111df42f15e35ac2980697f286f60ad6c53919ffd057",
+      "compressed_bytes": 8671
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/coverage",
+      "sha256": "b549f11eb416b2e574ece5348d1f6990ec97c6e9252a929c9814b00048d8222e",
+      "bytes": 26984,
+      "artifact": "inputs/b549f11eb416b2e574ece5348d1f6990ec97c6e9252a929c9814b00048d8222e.gz",
+      "compressed_sha256": "ee5d4f2fc764131b99d0b3de1ab472e4a1078cbb1bec04ec0750f964d7041cb0",
+      "compressed_bytes": 10088
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/coverage-tiny.gcda",
+      "sha256": "0c51eec78ea87b886440c10293f2bdc08d270b6682eeb847f87d1baf8ae7ac96",
+      "bytes": 72,
+      "artifact": "inputs/0c51eec78ea87b886440c10293f2bdc08d270b6682eeb847f87d1baf8ae7ac96.gz",
+      "compressed_sha256": "5ff03e1a7d9f645d9ab3d19bfc2dbafb81781374b0ca401e6b9c555910bebcb8",
+      "compressed_bytes": 70
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/coverage-tiny.gcno",
+      "sha256": "e0f177342bede6127b4368faa4eb4b1b035ec1b2447710425625ba9cd44edc15",
+      "bytes": 278,
+      "artifact": "inputs/e0f177342bede6127b4368faa4eb4b1b035ec1b2447710425625ba9cd44edc15.gz",
+      "compressed_sha256": "52d2002f55f31f827731cee096f1679659d1f4687e0adad9734799502c0d5017",
+      "compressed_bytes": 166
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/coverage.info",
+      "sha256": "52dc913e11869451f9f2afd4bc7a0e27e761d5edd7132fb441ffb8210fe2490c",
+      "bytes": 117,
+      "artifact": "inputs/52dc913e11869451f9f2afd4bc7a0e27e761d5edd7132fb441ffb8210fe2490c.gz",
+      "compressed_sha256": "05d80bfa1533898c374083b36cb363cd96963a9330a0851d9e8fed098561e104",
+      "compressed_bytes": 115
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/engine.bc",
+      "sha256": "d05e495dda74759d4b8d8f7b9dd25cf83395171a7026fa582d849fc2e7643ccf",
+      "bytes": 2096,
+      "artifact": "inputs/d05e495dda74759d4b8d8f7b9dd25cf83395171a7026fa582d849fc2e7643ccf.gz",
+      "compressed_sha256": "6536e76f470f91357a42c217d7a321b723c01c1711cea2059e5b45986a145487",
+      "compressed_bytes": 1781
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/engine.c",
+      "sha256": "c845be0cba91d536abe6453c11e165c59357b7da5d77211ac34de6418f2d887d",
+      "bytes": 35,
+      "artifact": "inputs/c845be0cba91d536abe6453c11e165c59357b7da5d77211ac34de6418f2d887d.gz",
+      "compressed_sha256": "9e50909df5e883344a865c436f044588374128fa14f7411ad7c49709d8062cae",
+      "compressed_bytes": 55
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/engine.ll",
+      "sha256": "b8fbae4996be9fded81b8098adc304d1ffef7e8bd90edce8a94e7face6c17bc1",
+      "bytes": 785,
+      "artifact": "inputs/b8fbae4996be9fded81b8098adc304d1ffef7e8bd90edce8a94e7face6c17bc1.gz",
+      "compressed_sha256": "be0bffe3f5e65e417d3d2217fc9c3b9c8d89af475e733293f46c7fa7c88f1e6e",
+      "compressed_bytes": 475
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/engine.o",
+      "sha256": "e1aa562fe06d6e3941de238999bdd2b91adc5da7dd649781163e2218394dc713",
+      "bytes": 217,
+      "artifact": "inputs/e1aa562fe06d6e3941de238999bdd2b91adc5da7dd649781163e2218394dc713.gz",
+      "compressed_sha256": "a029383bb65577642372b765d4ccc0726dcc07ce2a9f82081aa0f461e6c66f78",
+      "compressed_bytes": 202
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/engine.wasm",
+      "sha256": "14ce7ebad74ab53d217026ae552776dc5189754bf56fdde396c78de746416f16",
+      "bytes": 227,
+      "artifact": "inputs/14ce7ebad74ab53d217026ae552776dc5189754bf56fdde396c78de746416f16.gz",
+      "compressed_sha256": "5b75ea185fef44234c062dd8d2a4b6e0c19805a653ebfdd551b3e248d50e02b7",
+      "compressed_bytes": 211
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/environment.json",
+      "sha256": "07b009427fb2ecf3803fea5f5b0fc0ec5e2511ae08d815a9f918f637cbc0cabc",
+      "bytes": 2755,
+      "artifact": "inputs/07b009427fb2ecf3803fea5f5b0fc0ec5e2511ae08d815a9f918f637cbc0cabc.gz",
+      "compressed_sha256": "ede5baa1658c58f15b19a560d0e75e87a59a28718660c945eb69baa6d670084a",
+      "compressed_bytes": 1495
+    },
+    {
+      "path": "consumer/_temp/container-checkpoint-probe/tiny.c",
+      "sha256": "9ae1da25929362262a9c2264e74525424193c718c1d3add3673d8f281be52a91",
+      "bytes": 62,
+      "artifact": "inputs/9ae1da25929362262a9c2264e74525424193c718c1d3add3673d8f281be52a91.gz",
+      "compressed_sha256": "0a75b504d837939d9230157aa22ffb43ebc76d1fd1a514fa63b35462cd07aadf",
+      "compressed_bytes": 77
+    },
+    {
+      "path": "consumer/_temp/container-smoke-consumer.sh",
+      "sha256": "8e19d7adafe2665cb287fa65eeaf8b256f223af282f5fd5773eb341986b44b2e",
+      "bytes": 895,
+      "artifact": "inputs/8e19d7adafe2665cb287fa65eeaf8b256f223af282f5fd5773eb341986b44b2e.gz",
+      "compressed_sha256": "4dc97a6467b76d2b3584fde817f60a7e9007a003a6fcec7f8bb79a4cf77be2ee",
+      "compressed_bytes": 505
+    },
+    {
+      "path": "consumer/_temp/container-smoke-failure.sh",
+      "sha256": "b3d5609afdf05b3fcadd7b10e328e754103e507348e7bd921618b978b3ee7a81",
+      "bytes": 8,
+      "artifact": "inputs/b3d5609afdf05b3fcadd7b10e328e754103e507348e7bd921618b978b3ee7a81.gz",
+      "compressed_sha256": "6d19ab40d7145901857c14a24b52e58a7c82df54d59f6162202a4776a25d64d6",
+      "compressed_bytes": 28
+    },
+    {
+      "path": "consumer/_temp/container-smoke-output",
+      "sha256": "7b93574f5007de8c79ad59469b7e955d107c970d0b72d117e82ca59160ab404e",
+      "bytes": 26,
+      "artifact": "inputs/7b93574f5007de8c79ad59469b7e955d107c970d0b72d117e82ca59160ab404e.gz",
+      "compressed_sha256": "b4b34af617e56ceff1947468662a290c8c576a464d03c802b5e58f349b72284a",
+      "compressed_bytes": 42
+    },
+    {
+      "path": "consumer/_temp/container-smoke-producer.sh",
+      "sha256": "a9683b0f0a1291d16b795f15b2f5ea679d201a40d3ec4ea17cf57b0e2452e59a",
+      "bytes": 3892,
+      "artifact": "inputs/a9683b0f0a1291d16b795f15b2f5ea679d201a40d3ec4ea17cf57b0e2452e59a.gz",
+      "compressed_sha256": "794d5e3d6c8c0495178d79760cfda42918f9736cd290a21315054defc15f7976",
+      "compressed_bytes": 1675
+    },
+    {
+      "path": "consumer/_temp/container-smoke-summary",
+      "sha256": "9cc551d8d333602f3cb616bcddcd4dcf6fc80916b751b928e8dc261f2e6b5ff9",
+      "bytes": 34,
+      "artifact": "inputs/9cc551d8d333602f3cb616bcddcd4dcf6fc80916b751b928e8dc261f2e6b5ff9.gz",
+      "compressed_sha256": "a536868baf94aeae6a507f71acf9a506d57161fd32468da2138261cb654cdb8e",
+      "compressed_bytes": 50
+    },
+    {
+      "path": "consumer/nanolang/nanolang/.test_output/ci-image-graph/smoke.log",
+      "sha256": "7bc499d76aeb74b0544a81de4861ad6fa5b92c22c63244352e40623ced13eb3e",
+      "bytes": 3570,
+      "artifact": "inputs/7bc499d76aeb74b0544a81de4861ad6fa5b92c22c63244352e40623ced13eb3e.gz",
+      "compressed_sha256": "81ddd05634569ae42249ea97a0d117bc633897a9ebf2e4926393f6fb8ec1b77b",
+      "compressed_bytes": 1294
+    },
+    {
+      "path": "consumer/nanolang/nanolang/.test_output/ci-image-graph/worker.log",
+      "sha256": "8b6fea1a0a4188d5b615202f8491e577094310764d75e19ae9fe3cafea443057",
+      "bytes": 1017,
+      "artifact": "inputs/8b6fea1a0a4188d5b615202f8491e577094310764d75e19ae9fe3cafea443057.gz",
+      "compressed_sha256": "11795b6ed4114c8f53c44e821f2c345f16a99714aa04f486369cd3cccf88b93a",
+      "compressed_bytes": 456
+    },
+    {
+      "path": "observer/oci-native-45030266230-producer.log",
+      "sha256": "05f0ec3f23b40e863b7a582b5bf478fe396bff49ed6c1826845eb7a70f93228a",
+      "bytes": 319155,
+      "artifact": "inputs/05f0ec3f23b40e863b7a582b5bf478fe396bff49ed6c1826845eb7a70f93228a.gz",
+      "compressed_sha256": "0443bd60a9791194c10fde89bde2bd1e0763a4b6c081c226d2f04c19d9683513",
+      "compressed_bytes": 57361
+    },
+    {
+      "path": "observer/oci-native-45030266230-consumer.log",
+      "sha256": "c119dce1ccc891be81374d19496d2bfa650e400a0eb0b545502681d3adc82c09",
+      "bytes": 34474,
+      "artifact": "inputs/c119dce1ccc891be81374d19496d2bfa650e400a0eb0b545502681d3adc82c09.gz",
+      "compressed_sha256": "208807cac5844a4625b443331281bdd90c54d8ce7f252ce6c2ca30e8b8566e27",
+      "compressed_bytes": 9426
+    },
+    {
+      "path": "executed-source/a2ff/scripts/ci_container.py",
+      "sha256": "ac8eacce590fb28dedf67638e7d43d99d2bc91da1ff23b584dfffd0fb1c2e6a5",
+      "bytes": 13885,
+      "artifact": "inputs/ac8eacce590fb28dedf67638e7d43d99d2bc91da1ff23b584dfffd0fb1c2e6a5.gz",
+      "compressed_sha256": "dff1ea0dc8fdda7ea926d62e2df0b8498ec1c3cf6856a1376de3ad15bd9e4645",
+      "compressed_bytes": 4267
+    },
+    {
+      "path": "executed-source/a2ff/scripts/ci_container_smoke.py",
+      "sha256": "16c88c717fd0007853cb9209757c42622f9c9f1ef568f7f5ddb62bf3a3fcb030",
+      "bytes": 7345,
+      "artifact": "../capture-darwin-20261121/inputs/16c88c717fd0007853cb9209757c42622f9c9f1ef568f7f5ddb62bf3a3fcb030.gz",
+      "compressed_sha256": "bb7b0dfc6169904982e0b43f53b31973b6e343443ea8acc1594e6580dd7da1e5",
+      "compressed_bytes": 2726
+    },
+    {
+      "path": "executed-source/a2ff/scripts/ci_bootstrap_checkpoint.py",
+      "sha256": "f7fd9fc98ae40222cd9cd8577c759ce9b72e769ef3a1c98be79693e5c41776ad",
+      "bytes": 19357,
+      "artifact": "../capture-darwin-20261121/inputs/f7fd9fc98ae40222cd9cd8577c759ce9b72e769ef3a1c98be79693e5c41776ad.gz",
+      "compressed_sha256": "b60db44477816d39733f1e607176bd1a373796eb6ed6be20ed7455ef943c5b70",
+      "compressed_bytes": 5742
+    },
+    {
+      "path": "executed-source/a2ff/tests/test_ci_container.py",
+      "sha256": "1ab034221207d28040f2d2a48563ebe2ce7b1aaaac2f2c44e8053f92a3142d38",
+      "bytes": 10701,
+      "artifact": "inputs/1ab034221207d28040f2d2a48563ebe2ce7b1aaaac2f2c44e8053f92a3142d38.gz",
+      "compressed_sha256": "da59e2520c272e0b877d2fa255b14bf242b5be405481e48ff79e0f1c1d6cb984",
+      "compressed_bytes": 2805
+    },
+    {
+      "path": "executed-source/a2ff/tests/test_ci_bootstrap_checkpoint.py",
+      "sha256": "49741d3e39d5834246599abc318ed2fd0141085703fecdff07df904f9fa56f96",
+      "bytes": 17135,
+      "artifact": "../capture-darwin-20261121/inputs/49741d3e39d5834246599abc318ed2fd0141085703fecdff07df904f9fa56f96.gz",
+      "compressed_sha256": "3ef2efe40b1b017a1b82f216996cc26b6e8574172dfeb5cabec06785fd5d1087",
+      "compressed_bytes": 4203
+    },
+    {
+      "path": "executed-source/a2ff/.github/workflows/ci-image-graph-qualification.yml",
+      "sha256": "20c4b0bb283db8cf9780ca03297b9843c0c8e9736b6a3df7a59c178d1eb890c3",
+      "bytes": 5030,
+      "artifact": "inputs/20c4b0bb283db8cf9780ca03297b9843c0c8e9736b6a3df7a59c178d1eb890c3.gz",
+      "compressed_sha256": "baef59e079ad2b02cb820fa4b247b9ea6656304d4c6097a25370db0d49da462f",
+      "compressed_bytes": 1373
+    },
+    {
+      "path": "executed-source/a2ff/.github/containers/instrumented/Dockerfile",
+      "sha256": "30e3e6457a63af7ca0e15791f653106999c3b50f4ef0c0194fce6f8a75118768",
+      "bytes": 2513,
+      "artifact": "../capture-darwin-20261121/inputs/30e3e6457a63af7ca0e15791f653106999c3b50f4ef0c0194fce6f8a75118768.gz",
+      "compressed_sha256": "253b46552fcfdd79b6a3637afbd24490bf6b2d098bde527cb22346e67091975e",
+      "compressed_bytes": 1188
+    },
+    {
+      "path": "executed-source/a2ff/.github/containers/instrumented/install_wasmtime.py",
+      "sha256": "3d8957cb5dbf4a1193bb8fb205d6909f686c2662ecbc39de9e69a0bd4fef8e08",
+      "bytes": 4130,
+      "artifact": "../capture-darwin-20261121/inputs/3d8957cb5dbf4a1193bb8fb205d6909f686c2662ecbc39de9e69a0bd4fef8e08.gz",
+      "compressed_sha256": "c654203268c966fa87893f14e57b5b736c1edc5929928726e937cbbbfe3e9b46",
+      "compressed_bytes": 1806
+    },
+    {
+      "path": "native-archive/archive-index.json",
+      "sha256": "9da74a8e0f106ab78e008a64ff215e29be570a61e6f811ce09282d21a80f7ab3",
+      "bytes": 237,
+      "artifact": "inputs/9da74a8e0f106ab78e008a64ff215e29be570a61e6f811ce09282d21a80f7ab3.gz",
+      "compressed_sha256": "260ad53fcd5b6d1f02b633332ce683d81f589e9b6a0827bb2edfa5c6c3093333",
+      "compressed_bytes": 174
+    },
+    {
+      "path": "native-archive/config.json",
+      "sha256": "fd7b4195239ed23831bdd3f9462327e17f9e62c3ca69a49e1d9a0a9623dd465e",
+      "bytes": 5012,
+      "artifact": "inputs/fd7b4195239ed23831bdd3f9462327e17f9e62c3ca69a49e1d9a0a9623dd465e.gz",
+      "compressed_sha256": "ef3411ae835c458a599316f22d25203fe3d1d40f2ebc5d80b59a2587b6c682e5",
+      "compressed_bytes": 1892
+    },
+    {
+      "path": "native-archive/docker-manifest.json",
+      "sha256": "154ec35ddf1c86651245db8979796af12dfbff95ae216a16b78a7ed89c745572",
+      "bytes": 919,
+      "artifact": "inputs/154ec35ddf1c86651245db8979796af12dfbff95ae216a16b78a7ed89c745572.gz",
+      "compressed_sha256": "a46519cdf8058677f1e026fbb2f37a8dd1d1355a719e8e07de5719a2984a577d",
+      "compressed_bytes": 513
+    },
+    {
+      "path": "native-archive/image-index.json",
+      "sha256": "b34b7ee6db65698acc414ea6ff2f88e149fd6b0f1e3cf01438e713f551e9b31c",
+      "bytes": 856,
+      "artifact": "inputs/b34b7ee6db65698acc414ea6ff2f88e149fd6b0f1e3cf01438e713f551e9b31c.gz",
+      "compressed_sha256": "dfc62882c834c00f05b8ad88b3faecd493ddf1609dab9e0bd315fce78071c600",
+      "compressed_bytes": 351
+    },
+    {
+      "path": "native-archive/independent-audit.json",
+      "sha256": "07a8be185eb5b59958c4a37e4ecf858fce6f06aa3e4eeb1ded14d94c1c347bd5",
+      "bytes": 3236,
+      "artifact": "inputs/07a8be185eb5b59958c4a37e4ecf858fce6f06aa3e4eeb1ded14d94c1c347bd5.gz",
+      "compressed_sha256": "bb1f5f569e0aa1955c8e856df7bd2178e1111a43611c676feedcc57af6c1f6a0",
+      "compressed_bytes": 1172
+    },
+    {
+      "path": "native-archive/platform-manifest.json",
+      "sha256": "49eb610ba1968ea3e8ac6a19db7f4c61bf39be2155c96d9369de32f821a85e3d",
+      "bytes": 2196,
+      "artifact": "inputs/49eb610ba1968ea3e8ac6a19db7f4c61bf39be2155c96d9369de32f821a85e3d.gz",
+      "compressed_sha256": "c4cdf22b2f022a3af70b80a24bd4f2386093c4269b47506b24a3e818dfddcd43",
+      "compressed_bytes": 695
+    },
+    {
+      "path": "observer/oci-native-45030266230-run.json",
+      "sha256": "8884d42e0dfeb7165865052eaa29904f4cb295fb01109834b81f1e1e35a64863",
+      "bytes": 12754,
+      "artifact": "inputs/8884d42e0dfeb7165865052eaa29904f4cb295fb01109834b81f1e1e35a64863.gz",
+      "compressed_sha256": "35d89e4201f60e6e5f9d5cf5bb9d27b548c14a9e9d4910ff1510cb4086cd95f5",
+      "compressed_bytes": 1596
+    },
+    {
+      "path": "observer/oci-native-45030266230-artifact.json",
+      "sha256": "159574a88fef9db071242abe98f5c0f36f16aa857f2858ccac2a9f4827380c60",
+      "bytes": 729,
+      "artifact": "inputs/159574a88fef9db071242abe98f5c0f36f16aa857f2858ccac2a9f4827380c60.gz",
+      "compressed_sha256": "8b037ddc13719c00ece2b70a5b056c6677e24cabad8bd4b249a3bb0a99863ffe",
+      "compressed_bytes": 432
+    }
+  ]
+}

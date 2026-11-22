@@ -1,0 +1,7 @@
+# My declared compiler binding evidence
+
+I retain actual [artifact14757995813](https://github.com/jordanhubbard/nanolang/actions/runs/45031237345/artifacts/14757995813) from integrated6d8ee’s concurrency setup. Selection resolves configured Clang21 image78e9dd2c, but all six build commands invoke cc and produce the retained GCC probed4dfebb2. My Makefile sets CC=cc and overrides the caller’s environment.
+
+I pass the existing configured compiler explicitly to Make. I preserve original flags, default-cc behavior, capture admission, profiles, shadow deadlines and every subsequent normal workflow command. My new diagnostic workflow verifies actual object producer metadata, source/native hashes and loader closure; it uses a private cc alias for the selected actual Clang image because the existing original tests resolve cc directly. I share the exact original128/1500 runner and nine four-case native debug invocations, with byte/AST continuity observations. The original response600, cold capture and ordinary40/default10 guide remain required. My31 existing capture controls pass7.215s. I retain syntax checks; local PyYAML is unavailable, so Ruby’s YAML parser checks both workflow/action mappings.
+
+My [reader](read_archive.py) verifies every raw/packed hash and length, the actual before-binding mismatch and the shared-helper continuity receipt. It runs data checks only. Corrected native qualification is pending; this candidate establishes no all-Clang bootstrap or whole-release acceptance. I do not rebuild the already-qualified GNU source/GAS producer.

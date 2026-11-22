@@ -1,0 +1,8 @@
+{
+  "observed_at_utc": "2026-11-22T14:39:27.617114+00:00",
+  "source_pin": "6d8eeacce5e9dbdda7121cd0910d81d70c4772ce",
+  "root_product": "c02766e9f133d2d9f7d044200bde6cff1632238ead8288157a0a139332cb0089",
+  "before_tests_product": "c02766e9f133d2d9f7d044200bde6cff1632238ead8288157a0a139332cb0089",
+  "helper_after": "c168849e52c24918250d5117742bcd35479bd9b917d5129c283ed890e3c10894",
+  "product_stable_after_original_target": true
+}

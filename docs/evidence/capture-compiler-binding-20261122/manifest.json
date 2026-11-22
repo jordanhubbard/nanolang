@@ -1,0 +1,238 @@
+{
+  "schema": "nanolang-retained-evidence/v1",
+  "scope": "I retain the actual mixed-compiler setup artifact14757995813 from45031237345 at6d8ee, candidate explicit-Make compiler binding, and original-runner continuity controls. Native corrected qualification remains pending.",
+  "files": [
+    {
+      "path": "before/.test_output/capture-assembler-checks/build.log",
+      "sha256": "83d0b9fd935627a760252f513cd6ca1ad60b54bed4189bec7c59cb7211da6787",
+      "bytes": 1263,
+      "artifact": "../capture-diagnostic-checkpoint-20261121/inputs/83d0b9fd935627a760252f513cd6ca1ad60b54bed4189bec7c59cb7211da6787.gz",
+      "compressed_sha256": "4ccec1b9d4950af1984bf755ceeeda2b03f694a186a335707948e6d05ccc92f1",
+      "compressed_bytes": 403
+    },
+    {
+      "path": "before/.test_output/capture-assembler-checks/controls.log",
+      "sha256": "fcbbe265b13dc181df375e09556f363e9ccfa782b92bc04f1e2a39eb2f457eb4",
+      "bytes": 1578,
+      "artifact": "inputs/fcbbe265b13dc181df375e09556f363e9ccfa782b92bc04f1e2a39eb2f457eb4.gz",
+      "compressed_sha256": "73405b2008e0187f929a5bd8318584cb8845f7921fcf6c825952d5f83956e434",
+      "compressed_bytes": 384
+    },
+    {
+      "path": "before/.test_output/capture-assembler-checks/identity.json",
+      "sha256": "4b53571e174a7f8c394e88d4fa95ae5c0043f54a96fa22dd230aa31de1c50f30",
+      "bytes": 137,
+      "artifact": "inputs/4b53571e174a7f8c394e88d4fa95ae5c0043f54a96fa22dd230aa31de1c50f30.gz",
+      "compressed_sha256": "21fd7dc4e90f9fdca25d3023e9be4d2649d39d143bbb7c87818e73afb72e9e93",
+      "compressed_bytes": 141
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-selection.stdout",
+      "sha256": "c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05",
+      "bytes": 56,
+      "artifact": "../capture-default-ci-20261122/inputs/c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05.gz",
+      "compressed_sha256": "0a11182fec475403b96a29d9c3b8b01dd1db5d3b256842968c401727aa026889",
+      "compressed_bytes": 74
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/fixed-version.stdout",
+      "sha256": "7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a",
+      "bytes": 363,
+      "artifact": "../gas246-identified-x86-20261121/inputs/7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a.gz",
+      "compressed_sha256": "77ca50f69468f79087feb4019f85b1db3a698d3407d5052468d0451de0373709",
+      "compressed_bytes": 274
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-selection.stdout",
+      "sha256": "8da608f7de858044d3e6a30591485e30b05dea2b119168771f88f44a52a59534",
+      "bytes": 12,
+      "artifact": "inputs/8da608f7de858044d3e6a30591485e30b05dea2b119168771f88f44a52a59534.gz",
+      "compressed_sha256": "94316d5b8392e04437c6cfe490254fc2797b9876796bf4e36467927086ff90e5",
+      "compressed_bytes": 32
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/original-version.stdout",
+      "sha256": "638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78",
+      "bytes": 327,
+      "artifact": "../capture-default-ci-20261122/inputs/638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78.gz",
+      "compressed_sha256": "ec25b6428d761b805d05b47239c6af566d40c6a6333934b9f2121b5011a62415",
+      "compressed_bytes": 250
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/result.json",
+      "sha256": "d0d9d9237c888827bd9c1e96583f4f25843225d5b8a51f9aac1913d15c18d04b",
+      "bytes": 2522,
+      "artifact": "inputs/d0d9d9237c888827bd9c1e96583f4f25843225d5b8a51f9aac1913d15c18d04b.gz",
+      "compressed_sha256": "c07f4e0d10b01fac2d4bcea8ff223e4e8347c5ae1faecac841fdb8f8947c4308",
+      "compressed_bytes": 1139
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/selected-as",
+      "sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+      "bytes": 10003728,
+      "artifact": "../capture-complete-hosted-20261122/inputs/7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5.gz",
+      "compressed_sha256": "9b0ec10db29ecb6f77dbef4e1652f3a8848cd502bc55796c637704dfdcd00b47",
+      "compressed_bytes": 5061150
+    },
+    {
+      "path": "before/.test_output/capture-assembler-ci/validated-profile.json",
+      "sha256": "5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd",
+      "bytes": 4429,
+      "artifact": "../capture-complete-hosted-20261122/inputs/5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd.gz",
+      "compressed_sha256": "3514492cc33eb080099d308ad38b91a35bcbdbf68e2fb1b9cd180c9ab532d258",
+      "compressed_bytes": 1660
+    },
+    {
+      "path": "before/bin/nano_as_capture.so",
+      "sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+      "bytes": 51936,
+      "artifact": "../capture-diagnostic-checkpoint-20261121/inputs/cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7.gz",
+      "compressed_sha256": "0f97a60ef444b4fd2c5c8b752c64c5d92520bf6f93d0ca8f66b559cbfff3293a",
+      "compressed_bytes": 21257
+    },
+    {
+      "path": "before/obj/test_module_generation_probe",
+      "sha256": "d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10",
+      "bytes": 1138944,
+      "artifact": "../capture-complete-hosted-20261122/inputs/d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10.gz",
+      "compressed_sha256": "005fabcf884f3b7955d5c16a26d8daaa2fec2ee9d684f72d3e33df2af344aca1",
+      "compressed_bytes": 500030
+    },
+    {
+      "path": "source-before/.github/actions/setup-capture-assembler/action.yml",
+      "sha256": "9dbd6eca9c41d81ad4461750fd796a8273ef76de98ddd14b5c00724692937081",
+      "bytes": 2734,
+      "artifact": "../capture-default-ci-20261122/inputs/9dbd6eca9c41d81ad4461750fd796a8273ef76de98ddd14b5c00724692937081.gz",
+      "compressed_sha256": "c86b57d0be595b812b2b9cc34bd5ed4036893107d4fab86ef935ee1fe1c7192b",
+      "compressed_bytes": 1101
+    },
+    {
+      "path": "source-before/Makefile.gnu",
+      "sha256": "ee41f69f74bc36c314aab032916a73e395b27e42db89896369344027086c6fba",
+      "bytes": 442319,
+      "artifact": "inputs/ee41f69f74bc36c314aab032916a73e395b27e42db89896369344027086c6fba.gz",
+      "compressed_sha256": "cbd5421ec16742cb5586f827f2c5b509726ab111565578bb789ffd42bf1ca176",
+      "compressed_bytes": 73979
+    },
+    {
+      "path": "candidate/.github/actions/setup-capture-assembler/action.yml",
+      "sha256": "c7160eabe9bb352fcce815d4922c7ed84de60e4bcdc45003227c136792f022ce",
+      "bytes": 2749,
+      "artifact": "inputs/c7160eabe9bb352fcce815d4922c7ed84de60e4bcdc45003227c136792f022ce.gz",
+      "compressed_sha256": "de62a05ae412197320193e8a1a2ebffab978134b32c2a2d741439aee27dc9b40",
+      "compressed_bytes": 1116
+    },
+    {
+      "path": "candidate/.github/workflows/ci-capture-compiler-qualification.yml",
+      "sha256": "15845e9911e5cfa5c3d73c1ecfdc52de32e1bb6e738761e44dbff3591b7d5344",
+      "bytes": 3265,
+      "artifact": "inputs/15845e9911e5cfa5c3d73c1ecfdc52de32e1bb6e738761e44dbff3591b7d5344.gz",
+      "compressed_sha256": "314391be7bfe4cc787e732b7b031baae9df1b10ae2070cfbe94458877df3937d",
+      "compressed_bytes": 1229
+    },
+    {
+      "path": "candidate/scripts/ci_current_capture_compiler.py",
+      "sha256": "cd8319cd431848505d5349349ab2ddc9aeea779a2e728c01ad22ba93af82e568",
+      "bytes": 9712,
+      "artifact": "inputs/cd8319cd431848505d5349349ab2ddc9aeea779a2e728c01ad22ba93af82e568.gz",
+      "compressed_sha256": "0a05b490cbf9e5e5c4d0c893cb1049c921e92cda9b1ada6c51e8f7d7a1073248",
+      "compressed_bytes": 3411
+    },
+    {
+      "path": "candidate/scripts/ci_qualify_as246.py",
+      "sha256": "cbd706caaba693c6268050d5389e2fd56ddaad011d95b7b45c49aebc9246b9c9",
+      "bytes": 27323,
+      "artifact": "inputs/cbd706caaba693c6268050d5389e2fd56ddaad011d95b7b45c49aebc9246b9c9.gz",
+      "compressed_sha256": "90a35a751130545d45aa8bb76c28b2b7d1dcfbfdab7e3c43c4523c134df357a8",
+      "compressed_bytes": 6674
+    },
+    {
+      "path": "observer/explicit-compiler-shared-helper-controls.log",
+      "sha256": "3784ab11f5787412bd8a1bc3296c4c41d262f09288fa09cde666650913a881c5",
+      "bytes": 6069,
+      "artifact": "inputs/3784ab11f5787412bd8a1bc3296c4c41d262f09288fa09cde666650913a881c5.gz",
+      "compressed_sha256": "d545f10775b90a34fa992b575e5514eaf1f4fe1ac9919263b77802768e353984",
+      "compressed_bytes": 1212
+    },
+    {
+      "path": "observer/shared-production-capture-helper-audit.json",
+      "sha256": "c8fe0cedde5db333da32704385020f6aa7a1936f1fbfb49c78ba9c38ffc8e4b5",
+      "bytes": 202,
+      "artifact": "inputs/c8fe0cedde5db333da32704385020f6aa7a1936f1fbfb49c78ba9c38ffc8e4b5.gz",
+      "compressed_sha256": "cdde9c373bef4ae4b388c51276222c7feb272250e66eb89cef8530ef453cc7cb",
+      "compressed_bytes": 161
+    },
+    {
+      "path": "observer/ci_qualify_before_shared_runner.py",
+      "sha256": "6003fd3a52219c218d8fd8cf43a73b20d50c85334b7ca27823a984e7c747831d",
+      "bytes": 27149,
+      "artifact": "../capture-shell-gcc-complete-20261122/inputs/6003fd3a52219c218d8fd8cf43a73b20d50c85334b7ca27823a984e7c747831d.gz",
+      "compressed_sha256": "31abe532f398876daa01d12b499aaf7e68bbce8a2c713196fe06c7211c7a5161",
+      "compressed_bytes": 6634
+    }
+  ]
+}

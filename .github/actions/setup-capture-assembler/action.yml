@@ -38,7 +38,7 @@ runs:
       shell: bash
       run: |
         set -o pipefail
-        make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so 2>&1 | tee .test_output/capture-assembler-checks/build.log
+        make -f Makefile.gnu -j2 "CC=${CC:-cc}" obj/test_module_generation_probe bin/nano_as_capture.so 2>&1 | tee .test_output/capture-assembler-checks/build.log
     - name: Provision and verify the actual selected assembler
       id: select
       shell: bash

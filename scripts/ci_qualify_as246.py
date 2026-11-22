@@ -107,6 +107,42 @@ def original_userguide(record):
     record['original_userguide_passed'] = True
 
 
+
+def original_source_runner():
+    """I share the exact original128-method discovery and result contract."""
+    return '''import json,sys,unittest
+suite=unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')
+discovered=suite.countTestCases()
+result=unittest.TextTestRunner(verbosity=2).run(suite)
+report=dict(discovered=discovered,ran=result.testsRun,errors=len(result.errors),
+ failures=len(result.failures),skipped=[(case.id(),reason) for case,reason in result.skipped])
+open(sys.argv[1],'w').write(json.dumps(report,indent=2)+'\\n')
+sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==128 else 1)
+'''
+
+
+def clang_native_comparisons(clang):
+    """I retain all nine original native equals/debug invocations and limits."""
+    comparisons = []
+    for layout in ('source', 'cache', 'all'):
+        for macro, explicit in ((False, False), (True, False), (True, True)):
+            label = 'clang-equals-' + layout + '-' + str(int(macro)) + str(int(explicit))
+            argv = [sys.executable, '-m', 'tests.characterize_assembler_debug', clang,
+                    '--integrated', '--module-alias', '--require-physical-debug',
+                    '--equals-paths', layout]
+            if macro:
+                argv += ['--macro-read', '--nested-read', '--instruction-macro']
+            if explicit:
+                argv += ['--explicit-locations']
+            command(argv, label, 180)
+            observed = json.loads((OUT / (label + '.stdout')).read_text())
+            if len(observed['cases']) != 4 or any(case['published_unit_aliases']
+                    for case in observed['cases']):
+                raise RuntimeError('I require four native debug cases without private unit aliases.')
+            comparisons.append({'label': label, 'cases': len(observed['cases'])})
+    return comparisons
+
+
 def main():
     if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'],
                            ['--clang-2118-complete'], ['--response-only'],
@@ -238,15 +274,7 @@ def main():
         if fixed_complete:
             from scripts.ci_fixed_clang_inputs import native_closure
             record['native_closure_before'] = native_closure(record, ROOT, OUT, 'before')
-        runner = '''import json,sys,unittest
-suite=unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')
-discovered=suite.countTestCases()
-result=unittest.TextTestRunner(verbosity=2).run(suite)
-report=dict(discovered=discovered,ran=result.testsRun,errors=len(result.errors),
- failures=len(result.failures),skipped=[(case.id(),reason) for case,reason in result.skipped])
-open(sys.argv[1],'w').write(json.dumps(report,indent=2)+'\\n')
-sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==128 else 1)
-'''
+        runner = original_source_runner()
         if native_debug_only:
             methods = ['test_assembler_instruction_and_location_provenance',
                        'test_equals_path_native_debug_identity',
@@ -328,24 +356,7 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
             record['private_candidate_qualification_passed'] = False
             return
         if clang_candidate and (not fixed_complete or fixed_clang_complete):
-            comparisons = []
-            for layout in ('source', 'cache', 'all'):
-                for macro, explicit in ((False, False), (True, False), (True, True)):
-                    label = 'clang-equals-' + layout + '-' + str(int(macro)) + str(int(explicit))
-                    argv = [sys.executable, '-m', 'tests.characterize_assembler_debug', clang,
-                            '--integrated', '--module-alias', '--require-physical-debug',
-                            '--equals-paths', layout]
-                    if macro:
-                        argv += ['--macro-read', '--nested-read', '--instruction-macro']
-                    if explicit:
-                        argv += ['--explicit-locations']
-                    command(argv, label, 180)
-                    observed = json.loads((OUT / (label + '.stdout')).read_text())
-                    if len(observed['cases']) != 4 or any(case['published_unit_aliases']
-                            for case in observed['cases']):
-                        raise RuntimeError('I require four native debug cases without private unit aliases.')
-                    comparisons.append({'label': label, 'cases': len(observed['cases'])})
-            record['clang_native_equals_comparisons'] = comparisons
+            record['clang_native_equals_comparisons'] = clang_native_comparisons(clang)
             record['clang_2118_observation_passed'] = True
             if clang_complete:
                 capture.OUT = OUT / 'cold-compiler-support'
