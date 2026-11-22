@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""I measure original native external-cache assertions across retained tool axes."""
+"""I measure original native assertions across retained tool axes."""
 import hashlib
 import ast
 import itertools
@@ -31,12 +31,22 @@ def cpu():
  r=resource.getrusage(resource.RUSAGE_CHILDREN);return r.ru_utime+r.ru_stime
 def observe(argv,**kwargs):
  start=time.monotonic();before=cpu()
- result=native_run(argv,**kwargs)
- records.append({'argv':list(map(str,argv)),'parent_timeout':kwargs.get('timeout'),
-  'wall_seconds':time.monotonic()-start,'child_cpu_seconds':cpu()-before,
-  'returncode':result.returncode,'stdout':result.stdout.decode(errors='replace') if isinstance(result.stdout,bytes) else result.stdout,
-  'stderr':result.stderr.decode(errors='replace') if isinstance(result.stderr,bytes) else result.stderr})
+ item={'argv':list(map(str,argv)) if not isinstance(argv,str) else argv,
+  'parent_timeout':kwargs.get('timeout'),'started_monotonic':start}
+ def persist(event):
+  with (out/'commands.jsonl').open('a') as stream:stream.write(json.dumps(event)+'\n')
+ persist({'event':'start',**item})
+ try:
+  result=native_run(argv,**kwargs)
+ except BaseException as error:
+  item.update(error=repr(error),wall_seconds=time.monotonic()-start,child_cpu_seconds=cpu()-before)
+  records.append(item);persist({'event':'exception',**item});raise
+ item.update(wall_seconds=time.monotonic()-start,child_cpu_seconds=cpu()-before,
+  returncode=result.returncode,stdout=result.stdout.decode(errors='replace') if isinstance(result.stdout,bytes) else result.stdout,
+  stderr=result.stderr.decode(errors='replace') if isinstance(result.stderr,bytes) else result.stderr)
+ records.append(item);persist({'event':'complete',**item})
  return result
+
 def retain(self):
  self._finalizer.detach();fixtures.append(self.name)
 suite=unittest.defaultTestLoader.loadTestsFromName(config['method']);discovered=suite.countTestCases()
@@ -93,14 +103,20 @@ def scheduling(out, label):
 def main():
     if not sys.platform.startswith('linux') or platform.machine() != 'x86_64':
         raise RuntimeError('I require native Linux x86_64 for these retained images.')
+    mode = os.environ.get('NANO_CAPTURE_PROFILE_METHOD', 'external-cache')
+    methods = {'external-cache': METHOD,
+        'split-search': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery'}
+    if mode not in methods:
+        raise RuntimeError('I require a declared original diagnostic method.')
+    method = methods[mode]
     out = ROOT / '.test_output/source-capture-diagnostic/capture-pair-profile'
     out.mkdir(parents=True, exist_ok=False)
     failed = ROOT / '.test_output/source-capture-diagnostic/profile-failed'
     supported = ROOT / '.test_output/source-capture-diagnostic/profile-supported'
     current, old = failed / 'as246-candidate', supported / 'as246-candidate'
     prior = failed / 'prior-fixed-clang/as246-candidate'
-    record = {'scope': 'I measure one unchanged original external-cache method, not a complete qualification or admission.',
-              'cases': []}
+    record = {'scope': 'I measure one unchanged original method, not a complete qualification or admission.',
+              'mode': mode, 'original_method': method, 'cases': []}
     try:
         if min(shutil.disk_usage(ROOT).free, shutil.disk_usage('/tmp').free) < 5 * 1024**3:
             raise RuntimeError('I require five GiB of profiling headroom.')
@@ -130,7 +146,7 @@ def main():
         def original_method(directory):
             tree = ast.parse((directory / 'test_source_snapshots.py').read_text())
             return ast.dump(next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
-                and node.name == METHOD.rsplit('.', 1)[1]), include_attributes=False)
+                and node.name == method.rsplit('.', 1)[1]), include_attributes=False)
         if original_method(current) != original_method(old):
             raise RuntimeError('I refuse different original assertions between retained controls.')
         tools = out / 'tools'
@@ -152,6 +168,8 @@ def main():
         reference = image(old / 'test_module_generation_probe', json.loads(
             (old / 'cold-compiler-support/observation.json').read_text())['tool_sha256']['obj/test_module_generation_probe'])
         combinations.insert(0, ('reference', 'gcc', 'supported'))
+        if mode == 'split-search':
+            combinations = [('reference', 'gcc', 'supported'), ('clang', 'clang', 'fixed')]
         all_images = [clang, *probes.values(), *helpers.values(), *assemblers.values(), reference]
         before_images = {str(path): digest(path) for path in all_images}
         started = time.monotonic()
@@ -175,7 +193,7 @@ def main():
             shutil.copy2(reference if probe_name == 'reference' else probes[probe_name], root / 'obj/test_module_generation_probe')
             shutil.copy2(helpers[helper_name], root / 'bin/nano_as_capture.so')
             (root / 'obj/test_module_generation_probe').chmod(0o700)
-            config = {'root': str(root), 'output': str(results), 'method': METHOD}
+            config = {'root': str(root), 'output': str(results), 'method': method}
             config_path = case / 'config.json'
             config_path.write_text(json.dumps(config, indent=2) + '\n')
             env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'],
@@ -186,7 +204,8 @@ def main():
             closure_before = native_closure(guarded, root, results, 'before')
             (results / 'inputs-before.json').write_text(json.dumps(source_before, indent=2) + '\n')
             try:
-                process.command([sys.executable, '-c', CHILD, str(config_path)], name, 180,
+                process.command([sys.executable, '-c', CHILD, str(config_path)], name,
+                                600 if mode == 'split-search' else 180,
                                 cwd=root, env=env, output=results)
             except Exception as error:
                 record['cases'].append({'name': name, 'error': repr(error)})
@@ -206,7 +225,7 @@ def main():
             (out / 'result.json').write_text(json.dumps(record, indent=2) + '\n')
         record['scheduling_after'] = scheduling(out, 'after')
         record['retained_images_unchanged'] = before_images == {str(path): digest(path) for path in all_images}
-        record['completed'] = len(record['cases']) == 9 and not any('error' in case for case in record['cases'])
+        record['completed'] = len(record['cases']) == len(combinations) and not any('error' in case for case in record['cases'])
         if not record['completed'] or not record['retained_images_unchanged']:
             raise RuntimeError('I preserve an incomplete or changed-image diagnostic without a qualification claim.')
     except BaseException as error:
