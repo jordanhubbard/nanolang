@@ -1,0 +1,34 @@
+{
+  "event": "pull_request",
+  "head_branch": "feat/5.1-service-module-integration",
+  "head_sha": "470a91cb0295ad7cc1aff00cdc7bebb525021518",
+  "path": ".github/workflows/userguide_pages.yml",
+  "run_attempt": 1,
+  "url": "https://github.com/jordanhubbard/nanolang/actions/runs/45084096671",
+  "qualification": "RETAINED_HOSTED_FAILURE_NOT_LOCAL_ACCEPTANCE",
+  "actual_checkout": "ed8a7690fca7f718fec52751979e49d39cef359d",
+  "actual_merge_base": "74644c29fb62b54fc3b1b519cfa91144cec0caaa",
+  "capture_source_blobs_matching_local": {
+    "src/module_builder.c": "4db37bd21dcef13ca6cece42919b1c860e9a140a",
+    "src/runtime/assembler_capture.c": "0ee36e308b2d92c283a35d7f6654ea3fcc1e3496"
+  },
+  "terminal": "parser/typecheck build pass; nanoisa_emitter compiler_support input capture returns build-metadata expected1/observed0; Make2; no guide snippet completion or deploy",
+  "cause": "unassigned",
+  "owner": "Puck capture/CI under #1158/#1171; no capture/workflow source edit or manual retry mine",
+  "files": [
+    {
+      "artifact": "hosted-guide-470-full.log.gz",
+      "bytes": 99651,
+      "sha256": "a48c7bcaa426ad51c3f9b07fd217a79377c99f68de87f81c9df2176a29e45df0",
+      "compressed_bytes": 13963,
+      "compressed_sha256": "76a41394357a1a5c3b9d399cb5ae76766a72c576182c0a352095a5f127e2e2f4"
+    },
+    {
+      "artifact": "hosted-guide-470-failed.log.gz",
+      "bytes": 68766,
+      "sha256": "f97666ea710433b8c8d0e4057878ca87f216432fded2f0ec0e03bcac7e20f978",
+      "compressed_bytes": 6713,
+      "compressed_sha256": "921dc664f8650143a1d5072fd38357d637eca2121507c462d94383cf11bdc1f8"
+    }
+  ]
+}
