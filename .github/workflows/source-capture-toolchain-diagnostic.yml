@@ -31,6 +31,10 @@ on:
         type: choice
         options: [system, qualified-as242]
         default: system
+      qualify_fixed_as246_complete:
+        description: I qualify an identified fixed GNU2.46 source profile through upstream GAS and original capture/user-guide gates.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -43,8 +47,11 @@ permissions:
   contents: read
 jobs:
   linux-capture:
+    if: ${{ !inputs.qualify_fixed_as246_complete }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # I allocate additional cohorts only for the newly added complete mode.
+    # Individual source, native build, debug and cold-capture limits stay fixed.
+    timeout-minutes: ${{ inputs.qualify_clang_2118_complete && 60 || 35 }}
     steps:
       - uses: actions/checkout@v4
       - name: Retain selected Linux compiler and assembler evidence
@@ -73,17 +80,20 @@ jobs:
         if: inputs.qualify_response_grammar && !inputs.qualify_as_246
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py --response-only
+      - name: Build the supported backend for private Clang compatibility
+        if: inputs.qualify_clang_2118_complete && inputs.clang_2118_backend == 'qualified-as242' && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
+        timeout-minutes: 15
+        run: python3 scripts/ci_build_qualified_as242.py
       - name: Observe complete private Clang 21 capture without changing GNU admission
         if: inputs.qualify_clang_2118_complete && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
         env:
           QUALIFICATION_BACKEND: ${{ inputs.clang_2118_backend }}
-        timeout-minutes: 25
+        timeout-minutes: 40
         shell: bash
         run: |
           # I select a driver only for this explicit private qualification step.
           # The ordinary cold/default-tool and user-guide jobs keep their tools.
           if [[ "$QUALIFICATION_BACKEND" == qualified-as242 ]]; then
-            python3 scripts/ci_build_qualified_as242.py
             export NANO_QUALIFIED_AS242_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/qualified-as242"
             export COMPILER_PATH="$NANO_QUALIFIED_AS242_DIRECTORY/bin"
           fi
@@ -103,7 +113,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   selected-tools:
-    if: ${{ !inputs.linux_only }}
+    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete }}
     strategy:
       fail-fast: false
       matrix:
@@ -193,6 +203,59 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: source-capture-tools-${{ matrix.os }}
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-assembler:
+    if: inputs.qualify_fixed_as246_complete
+    runs-on: ubuntu-latest
+    # I bound the sum of independent source build and upstream regression cohorts.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check diagnostic refusal and log retention
+        run: python3 -m unittest -v tests.test_capture_qualification_modes
+      - name: Build and compare the identified fixed assembler
+        run: python3 scripts/ci_build_capture_assembler.py --fixed-as246
+      - name: Retain fixed assembler qualification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246
+          path: .test_output/source-capture-diagnostic/fixed-as246/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-capture:
+    if: inputs.qualify_fixed_as246_complete
+    needs: fixed-assembler
+    runs-on: ubuntu-latest
+    # My original capture/test/shadow limits remain inside this additional cohort.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246
+          path: .test_output/source-capture-diagnostic/fixed-as246/
+      - name: Retain actual original compiler and assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the original capture probe
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Observe original system capture before the private source repair
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify fixed-source capture and original user guide
+        shell: bash
+        run: |
+          export NANO_FIXED_AS246_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/fixed-as246"
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_as246.py --fixed-as246-complete
+      - name: Retain complete fixed-capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-capture
           path: .test_output/source-capture-diagnostic/
           include-hidden-files: true
           if-no-files-found: error

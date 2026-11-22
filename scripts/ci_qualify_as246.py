@@ -5,42 +5,107 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from tests.native_process import run_captured
 from scripts import ci_source_capture_linux as capture
 
 OUT = ROOT / '.test_output/source-capture-diagnostic/as246-candidate'
 
 
-def command(argv, label, timeout, *, cwd=None, output=None):
+def command(argv, label, timeout, *, cwd=None, output=None, env=None):
     destination = OUT if output is None else Path(output)
-    try:
-        result = run_captured(argv, cwd=ROOT if cwd is None else cwd, timeout=timeout)
-    except subprocess.TimeoutExpired as error:
-        # I retain the original timeout and the bytes observed before it. The
-        # process helper still owns group termination and reaping.
-        (destination / (label + '.stdout')).write_bytes(error.stdout or b'')
-        (destination / (label + '.stderr')).write_bytes(error.stderr or b'')
-        raise
-    (destination / (label + '.stdout')).write_bytes(result.stdout)
-    (destination / (label + '.stderr')).write_bytes(result.stderr)
+    stdout_path, stderr_path = (destination / (label + suffix) for suffix in ('.stdout', '.stderr'))
+    # I retain bytes as the native process writes them, including controller loss.
+    with stdout_path.open('wb') as stdout, stderr_path.open('wb') as stderr:
+        process = subprocess.Popen(list(map(str, argv)), cwd=ROOT if cwd is None else cwd,
+            env=env, stdout=stdout, stderr=stderr, start_new_session=True)
+        try:
+            process.wait(timeout=timeout)
+        except BaseException as error:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.wait(timeout=10)
+            if isinstance(error, subprocess.TimeoutExpired):
+                error.output, error.stderr = stdout_path.read_bytes(), stderr_path.read_bytes()
+            raise
+    result = subprocess.CompletedProcess(list(map(str, argv)), process.returncode,
+                                        stdout_path.read_bytes(), stderr_path.read_bytes())
     if result.returncode:
         raise RuntimeError(f'I retain {label} refusal with exit {result.returncode}.')
     return result
 
 
+def fixed_assembler_candidate(source, test, previous):
+    directory = Path(os.environ['NANO_FIXED_AS246_DIRECTORY']).resolve(strict=True)
+    metadata = json.loads((directory / 'build.json').read_text())
+    expected = (directory / 'bin/as').resolve(strict=True)
+    if (not metadata.get('completed') or metadata.get('source_sha256') !=
+            'd75a94f4d73e7a4086f7513e67e439e8fcdcbb726ffe63f4661744e6256b2cf2' or
+            metadata.get('fixed_source_sha256') !=
+            '6ffe0ed82d02c8f92198b4c2b5200a8093b7eea0a07a96bf951eecabf021b036' or
+            metadata.get('assembler_sha256') != hashlib.sha256(expected.read_bytes()).hexdigest()):
+        raise RuntimeError('I require the complete fixed-source/native assembler qualification.')
+    if (metadata.get('gas_expected_passes', 0) < 1000 or len(metadata.get('witnesses', [])) != 8 or
+            any(item['original_source_identity'] != item['expected'] for item in metadata['witnesses'])):
+        raise RuntimeError('I require all native regression and source-identity outcomes.')
+    # Artifact downloads preserve bytes but can remove the executable bit.
+    expected.chmod(0o700)
+    compiler = str(Path(shutil.which('cc')).resolve(strict=True))
+    if (compiler != previous['compiler'] or hashlib.sha256(Path(compiler).read_bytes()).hexdigest()
+            != previous['tool_sha256'][compiler]):
+        raise RuntimeError('I require the unchanged original C compiler image.')
+    command([compiler, '-print-prog-name=as'], 'fixed-selected-assembler', 30)
+    selected = Path((OUT / 'fixed-selected-assembler.stdout').read_text().strip()).resolve(strict=True)
+    if selected != expected:
+        raise RuntimeError('I require the actual original compiler to select the fixed assembler.')
+    command([str(selected), '--version'], 'fixed-assembler-version', 30)
+    version = (OUT / 'fixed-assembler-version.stdout').read_text()
+    if (version != metadata['assembler_version'] or
+            'GNU Binutils for NanoLang retained capture r1' not in version.splitlines()[0]):
+        raise RuntimeError('I require the exact separately identified fixed assembler.')
+    banner = version.splitlines()[0] + '\n'
+    signature = 'static bool module_assembler_version_supported(const char *version) {\n'
+    if source.count(signature) != 1:
+        raise RuntimeError('I refuse an unexpected assembler-admission function.')
+    source = source.replace(signature, signature +
+        '    /* I qualify only this identified source repair, not generic GNU2.46. */\n' +
+        '    if (version && !strncmp(version, ' + json.dumps(banner) + ', ' +
+        str(len(banner)) + ')) return true;\n')
+    end = '"GNU assembler (GNU Binutils for Ubuntu) 2.42\\nCopyright text\\n"]'
+    if test.count(end) != 1:
+        raise RuntimeError('I require the unchanged original assembler fixtures.')
+    test = test.replace(end, end[:-1] + ', ' + json.dumps(banner + 'Copyright text\n') + ']')
+    start = 'rejected = ["GNU assembler (GNU Binutils) 2.41\\n",'
+    refused = [banner.replace('capture r1', 'capture r2'), banner.rstrip('\n'),
+               'GNU assembler (GNU Binutils) 2.46.0.20260210\n',
+               'GNU assembler (GNU Binutils for Ubuntu) 2.46\n']
+    if test.count(start) != 1:
+        raise RuntimeError('I require the unchanged original assembler refusal fixtures.')
+    test = test.replace(start, 'rejected = [' + ', '.join(map(json.dumps, refused)) +
+                        ', "GNU assembler (GNU Binutils) 2.41\\n",')
+    return source, test, {'compiler': compiler, 'assembler': str(selected),
+        'assembler_sha256': metadata['assembler_sha256'], 'version': version,
+        'source_sha256': metadata['source_sha256'],
+        'fixed_source_sha256': metadata['fixed_source_sha256']}
+
+
 def main():
     if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'],
-                           ['--clang-2118-complete'], ['--response-only']):
+                           ['--clang-2118-complete'], ['--response-only'],
+                           ['--fixed-as246-complete']):
         raise ValueError('I require an explicit supported diagnostic mode.')
     native_debug_only = sys.argv[1:] == ['--native-debug-only']
     clang_only = sys.argv[1:] == ['--clang-2118-only']
     clang_complete = sys.argv[1:] == ['--clang-2118-complete']
-    clang_candidate = clang_only or clang_complete
+    fixed_complete = sys.argv[1:] == ['--fixed-as246-complete']
+    full_corpus = clang_complete or fixed_complete
+    clang_candidate = clang_only or full_corpus
     response_only = sys.argv[1:] == ['--response-only']
     OUT.mkdir(parents=True, exist_ok=False)
     previous = json.loads((capture.OUT / 'observation.json').read_text())
@@ -52,6 +117,7 @@ def main():
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
               'native_debug_only': native_debug_only, 'clang_2118_only': clang_only,
               'clang_2118_complete': clang_complete,
+              'fixed_as246_complete': fixed_complete,
               'response_only': response_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
@@ -61,7 +127,7 @@ def main():
         token = 'static const char *versions[] = {" 2.40", " 2.42"};'
         if text.count(token) != 1:
             raise RuntimeError('I refuse an unexpected production version table.')
-        source.write_text(text if clang_complete else
+        source.write_text(text if full_corpus else
                           text.replace(token, token.replace('" 2.42"', '" 2.42", " 2.46"')))
         text = original[test].decode()
         old = '"GNU assembler (GNU Binutils for Ubuntu) 2.42\\nCopyright text\\n"]'
@@ -79,7 +145,12 @@ def main():
                '                    "GNU assembler (GNU Binutils) 2.41\\n",')
         if text.count(old) != 1:
             raise RuntimeError('I refuse an unexpected refusal-control fixture.')
-        test.write_text(original[test].decode() if clang_complete else text.replace(old, new))
+        test.write_text(original[test].decode() if full_corpus else text.replace(old, new))
+        if fixed_complete:
+            revised_source, revised_test, record['fixed_backend'] = fixed_assembler_candidate(
+                source.read_text(), test.read_text(), previous)
+            source.write_text(revised_source)
+            test.write_text(revised_test)
         if clang_candidate:
             clang = shutil.which('clang')
             if not clang:
@@ -195,18 +266,24 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                                     'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
             runner = runner.replace('discovered==128 and result.testsRun==128',
                                     'discovered==9 and result.testsRun==9')
-        if clang_complete:
-            runner = runner.replace(
-                "unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')",
-                "unittest.defaultTestLoader.loadTestsFromNames(['tests.test_source_snapshots', "
-                "'tests.test_response_driver_grammar'])")
-            runner = runner.replace('discovered==128 and result.testsRun==128',
-                                    'discovered==129 and result.testsRun==129')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
         report = json.loads((OUT / 'tests.json').read_text())
+        if full_corpus:
+            # I preserve the original 128-method allocation and budget the
+            # additional response matrix separately; neither corpus is reduced.
+            response_runner = runner.replace('tests.test_source_snapshots',
+                                             'tests.test_response_driver_grammar')
+            response_runner = response_runner.replace('discovered==128 and result.testsRun==128',
+                                                       'discovered==1 and result.testsRun==1')
+            command([sys.executable, '-c', response_runner, str(OUT / 'response-tests.json')],
+                    'response-matrix', 600)
+            response_report = json.loads((OUT / 'response-tests.json').read_text())
+            record['complete_corpus'] = {'source': report, 'response': response_report,
+                'separate_invocations': True, 'total_methods': report['ran'] + response_report['ran']}
+            report = dict(report, skipped=report['skipped'] + response_report['skipped'])
         if (clang_only or native_debug_only or response_only) and report['skipped']:
             raise RuntimeError('I require every selected native diagnostic to execute.')
-        if clang_complete:
+        if full_corpus:
             required = ('test_selected_clang_assembler_report_boundaries',
                         'test_integrated_native_unit_post_capture_reads',
                         'test_integrated_native_unit_failure_recovery',
@@ -222,7 +299,7 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
             record['response_grammar_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
             return
-        if clang_candidate:
+        if clang_candidate and not fixed_complete:
             comparisons = []
             for layout in ('source', 'cache', 'all'):
                 for macro, explicit in ((False, False), (True, False), (True, True)):
@@ -274,13 +351,19 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
         cold = json.loads((capture.OUT / 'observation.json').read_text())
         if cold.get('returncode') != 0 or cold['supported_version_decision'] != 0:
             raise RuntimeError('I require actual cold compiler support capture and publication.')
+        if fixed_complete:
+            command(['make', '-f', 'Makefile.gnu', 'userguide-check'], 'original-userguide', 1800,
+                    env=dict(os.environ, NANO_SHADOW_TIMEOUT_SECONDS='60'))
+            record['original_userguide_passed'] = True
+            record['fixed_identified_profile_qualification_passed'] = True
+            record['generic_gnu_246_admission_changed'] = False
         record['private_candidate_qualification_passed'] = True
     except BaseException as error:
         record['error'] = repr(error)
         raise
     finally:
         matrix = ROOT / '.test_output/response-driver-grammar-matrix.json'
-        if (response_only or clang_complete) and matrix.is_file():
+        if (response_only or full_corpus) and matrix.is_file():
             shutil.copy2(matrix, OUT / matrix.name)
         for path, raw in original.items():
             path.write_bytes(raw)
