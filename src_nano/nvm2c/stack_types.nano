@@ -1,0 +1,273 @@
+module nvm2c_stack_types
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instruction
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I match the shared shallow type pass. Unknown values, optional deep-stack
+# skips and successful type checks grant no height, ownership or execution proof.
+pub struct Rule { typed: bool, required: array<int>, result: int, produces: int }
+pub struct Result { decoded: bool, valid: bool, message: string }
+
+fn typed(required: array<int>, result: int, produces: int) -> Rule {
+    return Rule { typed: true, required: required, result: result, produces: produces }
+}
+shadow typed {
+    let item: Rule = (typed [1, 4] 5 1)
+    assert item.typed
+    assert (== (at item.required 1) 4)
+    assert (== item.result 5)
+}
+pub fn rule(opcode: int) -> Rule {
+    # PUSH_VOID
+    if (== opcode 5) { return (typed [] 0 1) }
+    # PUSH_I64
+    if (== opcode 1) { return (typed [] 1 1) }
+    # PUSH_U8
+    if (== opcode 6) { return (typed [] 2 1) }
+    # PUSH_F64
+    if (== opcode 2) { return (typed [] 3 1) }
+    # PUSH_BOOL
+    if (== opcode 3) { return (typed [] 4 1) }
+    # PUSH_STR
+    if (== opcode 4) { return (typed [] 5 1) }
+    # I64_ADD, I64_SUB, I64_MUL, I64_DIV_S, I64_REM_S, I64_DIV_U, I64_REM_U, I64_AND, I64_OR, I64_XOR, I64_SHL, I64_SHR_S, I64_SHR_U
+    if (or (or (or (== opcode 192) (or (== opcode 193) (== opcode 194))) (or (== opcode 195) (or (== opcode 196) (== opcode 227)))) (or (or (== opcode 228) (or (== opcode 233) (== opcode 234))) (or (or (== opcode 235) (== opcode 237)) (or (== opcode 238) (== opcode 239))))) { return (typed [1, 1] 1 1) }
+    # I64_NEG, I64_INVERT
+    if (or (== opcode 197) (== opcode 236)) { return (typed [1] 1 1) }
+    # I64_ADD_CARRY, I64_SUB_BORROW
+    if (or (== opcode 240) (== opcode 241)) { return (typed [1, 1, 1] 1 2) }
+    # I64_MUL_WIDE_S, I64_MUL_WIDE_U
+    if (or (== opcode 242) (== opcode 243)) { return (typed [1, 1] 1 2) }
+    # F64_FROM_BITS
+    if (== opcode 141) { return (typed [1] 3 1) }
+    # F64_TO_BITS
+    if (== opcode 142) { return (typed [3] 1 1) }
+    # F64_ADD, F64_SUB, F64_MUL, F64_DIV
+    if (or (or (== opcode 200) (== opcode 201)) (or (== opcode 202) (== opcode 203))) { return (typed [3, 3] 3 1) }
+    # F64_NEG
+    if (== opcode 204) { return (typed [3] 3 1) }
+    # I64_EQ, I64_NE, I64_LT_S, I64_LE_S, I64_GT_S, I64_GE_S, I64_LT_U, I64_LE_U, I64_GT_U, I64_GE_U
+    if (or (or (or (== opcode 208) (== opcode 209)) (or (== opcode 210) (or (== opcode 211) (== opcode 212)))) (or (or (== opcode 213) (== opcode 229)) (or (== opcode 230) (or (== opcode 231) (== opcode 232))))) { return (typed [1, 1] 4 1) }
+    # F64_EQ, F64_NE, F64_LT, F64_LE, F64_GT, F64_GE
+    if (or (or (== opcode 216) (or (== opcode 217) (== opcode 218))) (or (== opcode 219) (or (== opcode 220) (== opcode 221)))) { return (typed [3, 3] 4 1) }
+    # BOOL_AND, BOOL_OR
+    if (or (== opcode 224) (== opcode 225)) { return (typed [4, 4] 4 1) }
+    # BOOL_NOT
+    if (== opcode 226) { return (typed [4] 4 1) }
+    # MEM_LOAD8, MEM_LOAD16, MEM_LOAD32, MEM_LOAD64
+    if (or (or (== opcode 178) (== opcode 179)) (or (== opcode 180) (== opcode 181))) { return (typed [1] 1 1) }
+    # MEM_STORE8, MEM_STORE16, MEM_STORE32, MEM_STORE64
+    if (or (or (== opcode 182) (== opcode 183)) (or (== opcode 184) (== opcode 185))) { return (typed [1, 1] 255 0) }
+    # ARR_NEW, ARR_LITERAL, HM_KEYS, HM_VALUES, ARR_SLICE, STR_SPLIT
+    if (or (or (== opcode 80) (or (== opcode 88) (== opcode 125))) (or (== opcode 126) (or (== opcode 86) (== opcode 77)))) { return (typed [] 7 1) }
+    # HM_NEW
+    if (== opcode 120) { return (typed [] 13 1) }
+    # STRUCT_NEW, STRUCT_LITERAL
+    if (or (== opcode 96) (== opcode 99)) { return (typed [] 8 1) }
+    # UNION_CONSTRUCT
+    if (== opcode 104) { return (typed [] 10 1) }
+    # TUPLE_NEW
+    if (== opcode 112) { return (typed [] 12 1) }
+    # CLOSURE_NEW
+    if (== opcode 144) { return (typed [] 15 1) }
+    # FUNCREF
+    if (== opcode 250) { return (typed [] 11 1) }
+    # OPAQUE_NULL
+    if (== opcode 176) { return (typed [] 14 1) }
+    # STR_CONCAT, STR_SUBSTR, STR_TRIM, STR_TO_LOWER, STR_TO_UPPER, STR_REPLACE, STR_FROM_INT, STR_FROM_FLOAT, CAST_STRING
+    if (or (or (or (== opcode 65) (== opcode 66)) (or (== opcode 72) (== opcode 73))) (or (or (== opcode 74) (== opcode 78)) (or (== opcode 70) (or (== opcode 71) (== opcode 139))))) { return (typed [] 5 1) }
+    # STR_LEN, STR_CHAR_AT, CAST_INT, ARR_LEN, HM_LEN, AGG_TAG, UNION_TAG, ENUM_VAL
+    if (or (or (or (== opcode 64) (== opcode 69)) (or (== opcode 136) (== opcode 85))) (or (or (== opcode 127) (== opcode 254)) (or (== opcode 105) (== opcode 108)))) { return (typed [] 1 1) }
+    # STR_EQ, STR_CONTAINS, STR_STARTS_WITH, STR_ENDS_WITH, CAST_BOOL, TYPE_CHECK, OPAQUE_VALID, HM_HAS
+    if (or (or (or (== opcode 68) (== opcode 67)) (or (== opcode 75) (== opcode 76))) (or (or (== opcode 138) (== opcode 140)) (or (== opcode 177) (== opcode 123)))) { return (typed [] 4 1) }
+    # CAST_U8
+    if (== opcode 143) { return (typed [1] 2 1) }
+    # CAST_FLOAT
+    if (== opcode 137) { return (typed [] 3 1) }
+    return Rule { typed: false, required: [], result: 255, produces: 0 }
+}
+shadow rule {
+    assert (== (array_length (rule 192).required) 2)
+    assert (== (at (rule 192).required 0) 1)
+    assert (== (rule 192).result 1)
+    assert (== (rule 240).produces 2)
+    assert (not (rule 255).typed)
+}
+
+fn tag_name(tag: int) -> string {
+    let names: array<string> = ["void", "int", "u8", "float", "bool", "string", "bstring", "array", "struct", "enum", "union", "function", "tuple", "hashmap", "opaque", "closure"]
+    if (or (< tag 0) (>= tag (array_length names))) { return "UNKNOWN" }
+    return (at names tag)
+}
+shadow tag_name {
+    assert (== (tag_name 1) "int")
+    assert (== (tag_name 15) "closure")
+    assert (== (tag_name 255) "UNKNOWN")
+}
+
+fn passed() -> Result { return Result { decoded: true, valid: true, message: "" } }
+shadow passed { assert (passed).decoded assert (passed).valid assert (== (passed).message "") }
+fn decode_refused() -> Result { return Result { decoded: false, valid: false, message: "" } }
+shadow decode_refused { assert (not (decode_refused).decoded) assert (not (decode_refused).valid) }
+
+fn mismatch(function: int, offset: int, opcode: int, want: int, have: int) -> Result {
+    let mut expected: string = (tag_name want)
+    if (== opcode 143) { set expected "int or u8" }
+    let message: string = (+ "function[" (+ (int_to_string function) (+ "] " (+ (isa.primary_name opcode)
+        (+ " at offset " (+ (int_to_string offset) (+ " expects " (+ expected
+        (+ " but the operand is " (tag_name have))))))))))
+    return Result { decoded: true, valid: false, message: message }
+}
+shadow mismatch {
+    let item: Result = (mismatch 3 12 192 1 5)
+    assert item.decoded
+    assert (not item.valid)
+    assert (== item.message "function[3] I64_ADD at offset 12 expects int but the operand is string")
+    assert (== (mismatch 0 0 143 1 3).message "function[0] CAST_U8 at offset 0 expects int or u8 but the operand is float")
+}
+
+fn branch(opcode: int) -> bool {
+    return (or (or (or (== opcode 56) (== opcode 57)) (or (== opcode 58) (== opcode 107))) (== opcode 165))
+}
+shadow branch { assert (branch 165) assert (not (branch 146)) assert (not (branch 59)) }
+
+
+fn join(left: int, right: int) -> int {
+    if (== left right) { return left }
+    return 255
+}
+shadow join { assert (== (join 1 1) 1) assert (== (join 1 5) 255) assert (== (join 255 1) 255) }
+
+pub fn verify(code: array<u8>, start: int, length: int, functions: int, current: int, maximum: int) -> Result {
+    if (or (or (<= functions 0) (> functions 4294967295)) (or (< current 0) (>= current functions))) { return (decode_refused) }
+    if (or (< maximum 0) (> maximum 65535)) { return (decode_refused) }
+    let plan: bodies.Function = (bodies.decode code start length functions)
+    if (not plan.valid) { return (decode_refused) }
+    let count: int = (array_length plan.instructions)
+    if (or (== maximum 0) (or (> maximum 256) (== count 0))) { return (passed) }
+    let capacity: int = (+ count 1)
+    let mut state: array<int> = []
+    let mut depths: array<int> = []
+    let mut seen: array<bool> = []
+    let mut queued: array<bool> = []
+    let mut queue: array<int> = []
+    let mut i: int = 0
+    while (< i capacity) {
+        set depths (array_push depths 0)
+        set seen (array_push seen false)
+        set queued (array_push queued false)
+        set queue (array_push queue 0)
+        let mut slot: int = 0
+        while (< slot maximum) { set state (array_push state 255) set slot (+ slot 1) }
+        set i (+ i 1)
+    }
+    (array_set seen 0 true) (array_set queued 0 true)
+    let mut head: int = 0
+    let mut live: int = 1
+    while (> live 0) {
+        let index: int = (at queue head)
+        set head (% (+ head 1) capacity)
+        set live (- live 1)
+        (array_set queued index false)
+        let row: instruction.Instruction = (at plan.instructions index)
+        let expected: Rule = (rule row.opcode)
+        let depth: int = (at depths index)
+        let base: int = (* index maximum)
+        let mut argument: int = 0
+        let arguments: int = (array_length expected.required)
+        let mut checking: bool = true
+        while (and (< argument arguments) checking) {
+            let from_top: int = (- (- arguments 1) argument)
+            if (>= from_top depth) { set checking false }
+            else {
+                let have: int = (at state (+ base (- (- depth 1) from_top)))
+                let want: int = (at expected.required argument)
+                let byte_identity: bool = (and (== row.opcode 143) (== have 2))
+                if (and (and (!= have 255) (!= want 255)) (and (!= have want) (not byte_identity))) {
+                    return (mismatch current (at plan.starts index) row.opcode want have)
+                }
+            }
+            set argument (+ argument 1)
+        }
+        let mut next: array<int> = []
+        let mut slot: int = 0
+        while (< slot maximum) { set next (array_push next (at state (+ base slot))) set slot (+ slot 1) }
+        let mut pops: int = row.pops
+        if (and (and expected.typed (> arguments 0)) (< pops 0)) { set pops arguments }
+        let mut after: int = depth
+        if (or (< pops 0) (< row.pushes 0)) {
+            set after 0
+            set slot 0
+            while (< slot maximum) { (array_set next slot 255) set slot (+ slot 1) }
+        } else {
+            if (>= after pops) { set after (- after pops) } else { set after 0 }
+            let mut pushed: int = 0
+            while (and (< pushed row.pushes) (< after maximum)) {
+                let mut tag: int = 255
+                if (and expected.typed (== expected.produces row.pushes)) { set tag expected.result }
+                (array_set next after tag)
+                set after (+ after 1) set pushed (+ pushed 1)
+            }
+        }
+        let mut successors: array<int> = []
+        if (branch row.opcode) {
+            let absolute: int = (at plan.targets index)
+            if (>= absolute start) {
+                let target: int = (bodies.index_at plan (- absolute start))
+                if (>= target 0) { set successors (array_push successors target) }
+            }
+        }
+        if (and (not (or (or (== row.opcode 56) (== row.opcode 61)) (or (or (== row.opcode 51) (== row.opcode 163)) (== row.opcode 168)))) (< (+ index 1) count)) {
+            set successors (array_push successors (+ index 1))
+        }
+        let mut edge: int = 0
+        while (< edge (array_length successors)) {
+            let target: int = (at successors edge)
+            let target_base: int = (* target maximum)
+            let mut target_depth: int = after
+            if (and (== row.opcode 165) (== edge 0)) { set target_depth 0 }
+            let mut changed: bool = false
+            if (not (at seen target)) {
+                set slot 0
+                while (< slot maximum) { (array_set state (+ target_base slot) (at next slot)) set slot (+ slot 1) }
+                (array_set depths target target_depth) (array_set seen target true)
+                set changed true
+            } else {
+                let mut common: int = (at depths target)
+                if (< target_depth common) { set common target_depth }
+                set slot 0
+                while (< slot common) {
+                    let old: int = (at state (+ target_base slot))
+                    let merged: int = (join old (at next slot))
+                    if (!= old merged) { (array_set state (+ target_base slot) merged) set changed true }
+                    set slot (+ slot 1)
+                }
+                while (and (< slot (at depths target)) (< slot maximum)) {
+                    if (!= (at state (+ target_base slot)) 255) { (array_set state (+ target_base slot) 255) set changed true }
+                    set slot (+ slot 1)
+                }
+            }
+            if (and changed (not (at queued target))) {
+                (array_set queued target true)
+                (array_set queue (% (+ head live) capacity) target)
+                set live (+ live 1)
+            }
+            set edge (+ edge 1)
+        }
+    }
+    return (passed)
+}
+shadow verify {
+    let wrong: array<u8> = [4,0,0,0,0,1,0,0,0,0,0,0,0,0,192,61]
+    let bad: Result = (verify wrong 0 16 1 0 2)
+    assert bad.decoded
+    assert (not bad.valid)
+    assert (== bad.message "function[0] I64_ADD at offset 14 expects int but the operand is string")
+    assert (verify wrong 0 16 1 0 257).valid
+    let generic: array<u8> = [4,0,0,0,0,1,0,0,0,0,0,0,0,0,32,61]
+    assert (verify generic 0 16 1 0 2).valid
+    let bytes: array<u8> = [6,255,143,61]
+    assert (verify bytes 0 4 1 0 1).valid
+    assert (not (verify [] 0 1 1 0 0).decoded)
+    assert (verify [] 0 0 1 0 0).valid
+}

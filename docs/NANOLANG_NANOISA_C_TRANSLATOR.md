@@ -686,8 +686,7 @@ expectations. Reports contain the relative instruction descriptors and operand h
 up to1024 instructions; the65536/65537 boundary controls return the final
 validity/count summary after complete copying. Both producers execute useful
 shadows under their existing component deadline. My original identifier gate
-passes five controls and3308 static fragments. Darwin and full checked-profile
-analysis remain required.
+passes five controls and3308 static fragments. My separate [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) also passes the complete instruction-recipe gate. The exact source providers remain distinct; full checked-profile analysis and final-source qualification remain required.
 
 ## My closed recipe stack-height walk
 
@@ -711,5 +710,53 @@ My [Linux height checkpoint](evidence/record-stack-linux-20261121) matches1475
 reports per route,963 explicit expectations and512 randomized CFGs through five
 routes in181.116 seconds. Targeted actual C copier/shared-verifier sanitizer
 controls and original identifiers pass. I retain the initial DELETE/LEN fixture
-opcode error and correct only its byte. Paired Darwin acceptance and full
-profile/verifier integration remain required.
+opcode error and correct only its byte. My separate [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) also passes the complete height gate. The exact source providers remain distinct; full profile/verifier integration remains required.
+
+## My shared shallow operand-type walk
+
+`stack_types.nano` reuses my ordinary `functions.nano` decoder and implements the
+shared C verifier's shallow tag analysis. I retain the primary instruction
+rules, exact mismatch diagnostics, branch-target-before-fallthrough FIFO order,
+queued-state deduplication and widening of unequal tags to unknown. My ISA
+schema generates the diagnostic opcode names; no runtime C verifier call is
+part of this NanoLang implementation.
+
+My entry is `verify(code, start, length, function_count, current, maximum)`.
+`Result.decoded` distinguishes an invalid input/function frame from a completed
+helper call. A decoded result with `valid = false` carries the original typed
+mismatch message, including function index, opcode, relative byte offset,
+expected tag and actual tag. My differential carrier normalizes decoder
+refusals to `D`; I compare typed mismatch messages exactly.
+
+I preserve this helper's limits of knowledge. A zero maximum, a maximum above256
+or an empty body skips type checking after decoding. Unknown values never cause
+mismatches. Locals and dynamic call effects do not supply declared type facts;
+dynamic stack effects clear the tracked state. DUP and SWAP do not acquire new
+rules in this pass. I accept u8 identity in CAST_U8 and retain both integer
+results of carry/borrow/wide multiplication. Generic ADD0x20 remains distinct
+from typed I64_ADD0xc0. My handler edges retain the shared helper's empty-entry
+behavior; FILE_RESULT_BRANCH keeps only the helper's ordinary fallthrough type
+edge after its decoder checks.
+
+I require the independently computed height and all structural/metadata checks
+when composing the full verifier. Successful shallow analysis alone grants no
+height, signature, ownership, origin, lifetime, host or execution admission.
+The legacy unbudgeted C entry may skip analysis on allocation failure; this
+component checkpoint compares successful-allocation decisions. Counted private
+ARRAY/MAP resource accounting and allocator-failure/publication behavior remain
+separate work.
+
+My Linux corpus covers10287 reports per route,323 explicit expectations, all256
+primary rule/name slots,512 randomized CFGs and directed decoder/handler/deep-
+stack cases. An observation through the unchanged C helper's existing work
+counter confirms four queue-wrap cases:8/11,23/41,71/137 and264/523 instruction/
+visit counts. The counted side entry preserves every ordinary decision and
+message, returns its reserved bytes and reaches no budget refusal in this
+corpus. These observations establish test coverage, not private budget admission.
+I retain targeted ASan/UBSan/leak checks of the actual C type helper, function
+decoder and ISA reader separately from full-provider qualification. My exact
+products, source-provider identities and terminal outcomes belong in the
+[Linux checkpoint](evidence/stack-types-linux-20261121/README.md). Darwin
+qualification remains pending while the peer owns an active observed c908523c3
+run under #1161. Full verifier/profile integration and pure C-emitter cutover
+remain open under #1142.
