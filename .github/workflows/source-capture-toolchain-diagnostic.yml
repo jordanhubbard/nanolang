@@ -35,6 +35,10 @@ on:
         description: I qualify an identified fixed GNU2.46 source profile through upstream GAS and original capture/user-guide gates.
         type: boolean
         default: false
+      fixed_userguide_from_run:
+        description: I run only the ordinary ten-second guide gate after matching this completed fixed-capture run.
+        type: string
+        default: ''
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -45,9 +49,10 @@ on:
       - 'tests/test_source_snapshots.py'
 permissions:
   contents: read
+  actions: read
 jobs:
   linux-capture:
-    if: ${{ !inputs.qualify_fixed_as246_complete }}
+    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' }}
     runs-on: ubuntu-latest
     # I allocate additional cohorts only for the newly added complete mode.
     # Individual source, native build, debug and cold-capture limits stay fixed.
@@ -113,7 +118,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   selected-tools:
-    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete }}
+    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -208,7 +213,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-assembler:
-    if: inputs.qualify_fixed_as246_complete
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == ''
     runs-on: ubuntu-latest
     # I bound the sum of independent source build and upstream regression cohorts.
     timeout-minutes: 90
@@ -228,7 +233,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-capture:
-    if: inputs.qualify_fixed_as246_complete
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == ''
     needs: fixed-assembler
     runs-on: ubuntu-latest
     # My original capture/test/shadow limits remain inside this additional cohort.
@@ -256,6 +261,53 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-userguide:
+    if: inputs.fixed_userguide_from_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 16
+      - name: Validate the declared preceding run
+        env:
+          PRECEDING_RUN: ${{ inputs.fixed_userguide_from_run }}
+        run: |
+          python3 - <<'PYVALIDATE'
+          import os, re
+          if not re.fullmatch('[1-9][0-9]{0,19}', os.environ['PRECEDING_RUN']):
+              raise SystemExit('I require one numeric preceding fixed-capture run.')
+          PYVALIDATE
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/prior-capture/
+          run-id: ${{ inputs.fixed_userguide_from_run }}
+          github-token: ${{ github.token }}
+      - name: Check qualification refusal and actual child environment
+        run: python3 -m unittest -v tests.test_capture_qualification_modes tests.test_fixed_userguide_qualification
+      - name: Retain current original tools
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build current original capture tools
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Retain current original cold observation
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify only the ordinary user guide with matching fixed capture
+        shell: bash
+        run: |
+          export NANO_PRIOR_CAPTURE_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/prior-capture"
+          export NANO_FIXED_AS246_DIRECTORY="$NANO_PRIOR_CAPTURE_DIRECTORY/fixed-as246"
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_fixed_userguide.py
+      - name: Retain ordinary user-guide inputs and actual result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-ordinary-userguide
           path: .test_output/source-capture-diagnostic/
           include-hidden-files: true
           if-no-files-found: error
