@@ -11,6 +11,19 @@ from scripts import ci_qualify_as246 as qualifier
 
 
 class CaptureQualificationModes(unittest.TestCase):
+    def test_timed_out_command_retains_both_partial_streams(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            child = [sys.executable, '-c',
+                     'import sys,time; print("retained-out",flush=True); '
+                     'print("retained-err",file=sys.stderr,flush=True); time.sleep(30)']
+            with patch.object(qualifier, 'ROOT', output), patch.object(qualifier, 'OUT', output):
+                with self.assertRaises(subprocess.TimeoutExpired):
+                    qualifier.command(child, 'deadline', 1)
+            self.assertEqual((output / 'deadline.stdout').read_bytes(), b'retained-out\n')
+            self.assertEqual((output / 'deadline.stderr').read_bytes(), b'retained-err\n')
+
     def fixture(self, directory):
         root = Path(directory)
         source = root / 'src/module_builder.c'

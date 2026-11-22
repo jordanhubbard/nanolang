@@ -16,7 +16,14 @@ OUT = ROOT / '.test_output/source-capture-diagnostic/as246-candidate'
 
 
 def command(argv, label, timeout):
-    result = run_captured(argv, cwd=ROOT, timeout=timeout)
+    try:
+        result = run_captured(argv, cwd=ROOT, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        # I retain the original timeout and the bytes observed before it. The
+        # process helper still owns group termination and reaping.
+        (OUT / (label + '.stdout')).write_bytes(error.stdout or b'')
+        (OUT / (label + '.stderr')).write_bytes(error.stderr or b'')
+        raise
     (OUT / (label + '.stdout')).write_bytes(result.stdout)
     (OUT / (label + '.stderr')).write_bytes(result.stderr)
     if result.returncode:
