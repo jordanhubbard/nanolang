@@ -414,6 +414,12 @@ static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
         if (fn->local_count < fn->arity)
             return fail("function[%u] local_count %u is smaller than arity %u",
                         i, fn->local_count, fn->arity);
+        /* An empty body immediately takes the implicit return with an empty
+         * operand stack. I check it here before the height walk, whose empty
+         * instruction worklist has no outgoing edge to check. */
+        if (fn->code_length == 0 && fn->result_count != 0)
+            return fail("I require a body for function[%u] with %u declared result(s).",
+                        i, (unsigned)fn->result_count);
 
         /* Empty functions own no bytes. Non-empty function ranges must be
          * disjoint, but they may be adjacent or appear out of table order. */

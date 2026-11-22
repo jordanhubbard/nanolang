@@ -854,3 +854,30 @@ expectations without changing the C verifier.
 I compare successful-allocation helper behavior with no private budget selected.
 This is not full affine/owned/profile verification, pure C emission or product
 cutover. My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all6935 reports through five routes in50.974s, with identical Linux corpus bytes/reports and3558 guarded source/test/spec/Make inputs. Targeted actual C helper sanitizers pass there, with no Darwin LeakSanitizer claim. I preserve the first observer-only missing Make-target setup refusal and all frozen roots/primary dirty work/stashes.
+
+## My empty-result structural boundary
+
+Under #1174 I repair a gap in ordinary module verification. Atbf5b438c442c,
+an empty main declaring one int result passes actual verify-only execution,
+then the actual VM refuses its implicit return with zero values instead of one.
+My earlier height-component statement that structural checks owned this refusal
+was an incomplete description of that source: the helper accepted the empty
+body, and the ordinary structural guard was missing. Private record/array
+structure already rejected this case.
+
+I now reject an empty result-bearing function in the shared module-range check,
+after existing range/name/tag/parameter/signature/local checks. I preserve the
+empty-height helper, valid empty void functions and zero declared-depth absence;
+a zero declaration is still not full verification. Non-entry functions receive
+the same structural check. The C translator already refuses the invalid required
+entry and preserves prior output. Public tools already refuse legacy NVM01 wire
+files; I keep that separate refusal rather than enabling an obsolete format.
+
+My [Linux checkpoint](evidence/empty-function-results-linux-20261121/README.md)
+passes101 verifier tests, the complete original569591-assertion VM target,
+four actual product tests and targeted actual C verifier/type/decoder/ISA
+ASan/UBSan/leak controls. A real empty-void source body passes through both
+producers/five routes using the guarded qualified bdffa4ccc native Stage1.
+I preserve the baseline tools/bytes/runtime failure, red gates, first legacy
+fixture expectation and sanitizer-command observer setup refusal. Paired Darwin
+and final-source release qualification remain separate requirements.

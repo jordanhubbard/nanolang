@@ -7757,3 +7757,9 @@ $(OBJ_DIR)/nvm2c_function_body_reference: tests/nvm2c_function_body_reference.c 
 .PHONY: test-nanolang-translator-function-body
 test-nanolang-translator-function-body: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_function_body_reference
 	NANOLANG_FUNCTION_BODY_REFERENCE="$(OBJ_DIR)/nvm2c_function_body_reference" python3 -m unittest -v tests.test_nanolang_translator_function_body
+
+.PHONY: test-empty-function-results
+test-empty-function-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_empty_function_results
+
+test-units: test-empty-function-results
