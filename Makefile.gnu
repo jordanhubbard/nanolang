@@ -7749,3 +7749,11 @@ $(OBJ_DIR)/nvm2c_stack_heights_reference: tests/nvm2c_stack_heights_reference.c 
 .PHONY: test-nanolang-translator-stack-heights
 test-nanolang-translator-stack-heights: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_stack_heights_reference
 	NANOLANG_STACK_HEIGHTS_REFERENCE="$(OBJ_DIR)/nvm2c_stack_heights_reference" python3 -m unittest -v tests.test_nanolang_translator_stack_heights
+
+# I compose ordinary operand, height/retain and shallow type checks in order.
+$(OBJ_DIR)/nvm2c_function_body_reference: tests/nvm2c_function_body_reference.c $(NANOISA_DIR)/verifier.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-function-body
+test-nanolang-translator-function-body: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_function_body_reference
+	NANOLANG_FUNCTION_BODY_REFERENCE="$(OBJ_DIR)/nvm2c_function_body_reference" python3 -m unittest -v tests.test_nanolang_translator_function_body

@@ -810,3 +810,54 @@ products, source-provider identities and terminal outcomes belong in the
 qualification remains pending while the peer owns an active observed c908523c3
 run under #1161. Full verifier/profile integration and pure C-emitter cutover
 remain open under #1142.
+
+## My composed ordinary function-body checks
+
+`function_body.nano` composes my ordinary function decoder, operand checks,
+height/explicit-retain walk and shallow type pass in the same order as the shared
+C `verify_function_body`. I validate operands even in dead instructions before
+walking reachable stack/type states. I preserve tail-call result count/tag,
+linked module presence and declared arity/result counts, capture counts, string,
+import, global, local, upvalue, aggregate-layout and tag bounds. Handler names,
+parameter slots and executable target arms retain their original priorities.
+Direct/branch decode refusals still precede operand checks; complete operand
+checks precede height failures, which precede type contradictions.
+
+My entry is `verify(code, start, length, context, current)`. A context supplies
+function arity/result/tag/local/upvalue facts, import parameter/return facts,
+optional linked-module function signatures and string/record/enum/union counts.
+I first require representable fields and safe table/index/span inputs. These
+preconditions do not assert the full module's signature consistency, declared
+callee bodies, import ABI, retained layouts or execution policy. A missing
+linked table preserves the shared helper's structural-only module-call behavior.
+
+`Result.decoded = false` reports a precondition/decoder refusal. After decoding,
+`supported = false` and `valid = false` mark my explicit affine boundary at the
+instruction where the C helper invokes lifetime analysis. Earlier ordinary
+operand failures keep their priority. I do not implement or approve that
+lifetime analysis here. Supported ordinary failures retain exact C diagnostics;
+success reports the proven reachable maximum. Full module structure, profile
+selection and resource/lifetime admission remain required before execution.
+
+My [Linux checkpoint](evidence/function-body-linux-20261121/README.md) matches6935
+reports through five routes using the genuine guarded bdffa4ccc native Stage1
+producer in131.621s. I retain1184 independent expected reports, all256 primary
+bytes,2048 randomized bodies/height CFGs, linked/unresolved/signature boundaries,
+nonzero offsets, malformed/dead inputs and explicit diagnostic-priority cases.
+I distinguish1779 passes,4279 ordinary failures,691 decoder/precondition refusals
+and186 affine deferrals. My carrier normalizes only precondition/decode refusals
+to `D` and the deferred affine branch to `A`; it retains the actual C affine
+messages in stderr, and compares ordinary failures and maxima exactly.
+
+Targeted actual C body/height/type/decoder/ISA ASan/UBSan/leak checks match all6935
+reports; both generated native routes stay sanitized. All97 original verifier
+tests and the original identifier controls pass. I retain my initial new-source
+parenthesis refusal and the linked-shape coverage gap: a module-call stack
+prefill reached linked validation before the intended call. I correct that
+fixture with an indirect-call effect and add explicit shape/tag/handler
+expectations without changing the C verifier.
+
+I compare successful-allocation helper behavior with no private budget selected.
+This is not full affine/owned/profile verification, pure C emission or product
+cutover. The peer has released the Darwin deferral after its exact c908 run;
+qualification of these newer components remains pending in a separate root.

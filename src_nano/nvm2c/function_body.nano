@@ -1,0 +1,210 @@
+module nvm2c_function_body
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as primary
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+module "src_nano/nvm2c/stack_heights.nano" as heights
+module "src_nano/nvm2c/stack_types.nano" as types
+
+# I compose only ordinary function-body checks. Module policy/structure and
+# affine lifetime/profile analysis remain required before execution admission.
+pub struct Function { arity: int, results: int, result_tag: int, locals: int, upvalues: int }
+pub struct Linked { resolved: bool, functions: array<heights.Signature> }
+pub struct Context {
+    functions: array<Function>, imports: array<heights.Import>, linked: array<Linked>,
+    strings: int, records: int, enums: int, unions: int
+}
+pub struct Result { decoded: bool, supported: bool, valid: bool, maximum: int, message: string }
+
+fn invalid(message: string) -> Result {
+    return Result { decoded: true, supported: true, valid: false, maximum: 0, message: message }
+}
+shadow invalid { assert (invalid "x").decoded assert (not (invalid "x").valid) assert (== (invalid "x").message "x") }
+fn undecoded() -> Result {
+    return Result { decoded: false, supported: false, valid: false, maximum: 0, message: "" }
+}
+shadow undecoded { assert (not (undecoded).decoded) assert (not (undecoded).valid) }
+fn deferred() -> Result {
+    return Result { decoded: true, supported: false, valid: false, maximum: 0, message: "" }
+}
+shadow deferred { assert (deferred).decoded assert (not (deferred).supported) assert (not (deferred).valid) }
+fn unsigned(value: int, maximum: int) -> bool { return (and (>= value 0) (<= value maximum)) }
+shadow unsigned { assert (unsigned 255 255) assert (not (unsigned -1 255)) assert (not (unsigned 256 255)) }
+fn prefix(current: int) -> string { return (+ "function[" (+ (int_to_string current) "] ")) }
+shadow prefix { assert (== (prefix 2) "function[2] ") }
+fn site(current: int, name: string, offset: int) -> string {
+    return (+ (prefix current) (+ name (+ " at offset " (int_to_string offset))))
+}
+shadow site { assert (== (site 2 "OP_CALL" 12) "function[2] OP_CALL at offset 12") }
+fn affine(opcode: int) -> bool {
+    return (or (and (>= opcode 11) (<= opcode 14)) (and (>= opcode 22) (<= opcode 31)))
+}
+shadow affine { assert (affine 11) assert (affine 31) assert (not (affine 15)) assert (not (affine 128)) }
+
+pub fn verify(code: array<u8>, start: int, length: int, context: Context, current: int) -> Result {
+    let count: int = (array_length context.functions)
+    if (or (or (== count 0) (> count 4294967295)) (or (< current 0) (>= current count))) { return (undecoded) }
+    if (or (> (array_length code) 4294967295) (or (> (array_length context.imports) 4294967295) (> (array_length context.linked) 4294967295))) { return (undecoded) }
+    if (not (and (and (unsigned context.strings 4294967295) (unsigned context.records 4294967295)) (and (unsigned context.enums 4294967295) (unsigned context.unions 4294967295)))) { return (undecoded) }
+    let mut signatures: array<heights.Signature> = []
+    let mut i: int = 0
+    while (< i count) {
+        let f: Function = (at context.functions i)
+        if (not (and (and (unsigned f.arity 65535) (unsigned f.results 255)) (and (unsigned f.result_tag 255) (and (unsigned f.locals 65535) (unsigned f.upvalues 65535))))) { return (undecoded) }
+        set signatures (array_push signatures heights.Signature { arity: f.arity, results: f.results })
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length context.imports)) {
+        let f: heights.Import = (at context.imports i)
+        if (not (and (unsigned f.parameters 65535) (unsigned f.return_tag 255))) { return (undecoded) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length context.linked)) {
+        let link: Linked = (at context.linked i)
+        if (> (array_length link.functions) 4294967295) { return (undecoded) }
+        let mut j: int = 0
+        while (< j (array_length link.functions)) {
+            let f: heights.Signature = (at link.functions j)
+            if (not (and (unsigned f.arity 65535) (unsigned f.results 255))) { return (undecoded) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let plan: bodies.Function = (bodies.decode code start length count)
+    if (not plan.valid) { return (undecoded) }
+    let f: Function = (at context.functions current)
+    set i 0
+    while (< i (array_length plan.instructions)) {
+        let item: primary.Instruction = (at plan.instructions i)
+        let opcode: int = item.opcode
+        let pos: int = (+ start (at plan.starts i))
+        let name: string = (isa.primary_name opcode)
+        # I defer exactly where the shared C body invokes its affine analysis.
+        # Earlier ordinary operand failures keep their original priority.
+        if (affine opcode) { return (deferred) }
+        if (== opcode 165) {
+            if (or (>= (primary.integer item 0) context.strings) (> (+ (primary.integer item 2) (primary.integer item 3)) f.locals)) {
+                return (invalid "I require valid handler names and parameter slots.")
+            }
+            if (>= (at plan.targets i) (+ start length)) { return (invalid "I require an executable handler arm.") }
+        } else if (== opcode 167) {
+            if (>= (primary.integer item 0) context.strings) { return (invalid "I require a valid effect operation name.") }
+        } else if (== opcode 51) {
+            let callee: Function = (at context.functions (primary.integer item 0))
+            if (or (!= callee.results f.results) (!= callee.result_tag f.result_tag)) {
+                return (invalid (+ (site current "OP_TAIL_CALL" pos) " has incompatible result signature"))
+            }
+        } else if (== opcode 63) {
+            if (> (array_length context.linked) 0) {
+                let module_index: int = (primary.integer item 0)
+                let function_index: int = (primary.integer item 1)
+                let stem: string = (site current "OP_CALL_MODULE" pos)
+                if (>= module_index (array_length context.linked)) {
+                    return (invalid (+ stem (+ ": module_idx " (+ (int_to_string module_index) (+ " >= linked_count " (int_to_string (array_length context.linked)))))))
+                }
+                let link: Linked = (at context.linked module_index)
+                if (not link.resolved) { return (invalid (+ stem (+ ": linked module " (+ (int_to_string module_index) " is unresolved")))) }
+                if (>= function_index (array_length link.functions)) {
+                    return (invalid (+ stem (+ ": fn_idx " (+ (int_to_string function_index) (+ " >= linked function_count " (int_to_string (array_length link.functions)))))))
+                }
+                let callee: heights.Signature = (at link.functions function_index)
+                if (!= (primary.integer item 2) callee.arity) {
+                    return (invalid (+ stem (+ " declares arity " (+ (int_to_string (primary.integer item 2)) (+ " but linked callee takes " (int_to_string callee.arity))))))
+                }
+                if (!= (primary.integer item 3) callee.results) {
+                    return (invalid (+ stem (+ " declares " (+ (int_to_string (primary.integer item 3)) (+ " results but linked callee returns " (int_to_string callee.results))))))
+                }
+            }
+        } else if (or (== opcode 144) (== opcode 250)) {
+            let target: int = (primary.integer item 0)
+            let stem: string = (site current (+ "OP_" name) pos)
+            if (>= target count) {
+                return (invalid (+ stem (+ ": fn_idx " (+ (int_to_string target) (+ " >= function_count " (int_to_string count))))))
+            }
+            if (and (== opcode 144) (!= (primary.integer item 1) (at context.functions target).upvalues)) {
+                return (invalid (+ stem (+ ": capture_count " (+ (int_to_string (primary.integer item 1)) (+ " does not match upvalue_count " (int_to_string (at context.functions target).upvalues))))))
+            }
+        } else if (== opcode 4) {
+            let index: int = (primary.integer item 0)
+            if (>= index context.strings) {
+                return (invalid (+ (site current "OP_PUSH_STR" pos) (+ ": str_idx " (+ (int_to_string index) (+ " >= string_count " (int_to_string context.strings))))))
+            }
+        } else if (== opcode 62) {
+            let index: int = (primary.integer item 0)
+            if (>= index (array_length context.imports)) {
+                return (invalid (+ (site current "OP_CALL_EXTERN" pos) (+ ": import_idx " (+ (int_to_string index) (+ " >= import_count " (int_to_string (array_length context.imports)))))))
+            }
+        } else if (or (== opcode 18) (== opcode 19)) {
+            let index: int = (primary.integer item 0)
+            if (>= index 4096) {
+                return (invalid (+ (site current name pos) (+ ": global index " (+ (int_to_string index) " >= limit 4096"))))
+            }
+        } else if (or (== opcode 16) (== opcode 17)) {
+            let slot: int = (primary.integer item 0)
+            if (>= slot f.locals) {
+                return (invalid (+ (site current name pos) (+ ": slot " (+ (int_to_string slot) (+ " >= local_count " (int_to_string f.locals))))))
+            }
+        } else if (or (== opcode 20) (== opcode 21)) {
+            let index: int = (primary.integer item 1)
+            if (!= (primary.integer item 0) 0) { return (invalid (+ (site current name pos) ": upvalue depth must be zero")) }
+            if (>= index f.upvalues) {
+                return (invalid (+ (site current name pos) (+ ": upvalue index " (+ (int_to_string index) (+ " >= upvalue_count " (int_to_string f.upvalues))))))
+            }
+        } else if (or (or (== opcode 96) (== opcode 99)) (or (== opcode 108) (== opcode 104))) {
+            let mut size: int = context.records
+            let mut table: string = "struct"
+            if (== opcode 108) { set size context.enums set table "enum" }
+            if (== opcode 104) { set size context.unions set table "union" }
+            let index: int = (primary.integer item 0)
+            if (and (> size 0) (>= index size)) {
+                return (invalid (+ (site current name pos) (+ ": " (+ table (+ " def_idx " (+ (int_to_string index) (+ " >= " (+ table (+ "_count " (int_to_string size))))))))))
+            }
+        } else if (== opcode 251) {
+            let kind: int = (primary.integer item 0)
+            let layout: int = (primary.integer item 1)
+            if (> kind 2) { return (invalid (+ (site current "AGG_PACK" pos) (+ ": invalid kind " (int_to_string kind)))) }
+            if (and (== kind 0) (and (> context.records 0) (>= layout context.records))) {
+                return (invalid (+ (prefix current) (+ "AGG_PACK record layout " (+ (int_to_string layout) (+ " >= struct_count " (int_to_string context.records))))))
+            }
+            if (and (== kind 1) (and (> context.unions 0) (>= layout context.unions))) {
+                return (invalid (+ (prefix current) (+ "AGG_PACK variant layout " (+ (int_to_string layout) (+ " >= union_count " (int_to_string context.unions))))))
+            }
+        } else if (or (or (== opcode 80) (== opcode 140)) (== opcode 88)) {
+            let tag: int = (primary.integer item 0)
+            if (>= tag 16) {
+                let mut label: string = name
+                let mut description: string = ": type tag "
+                if (== opcode 88) { set label "OP_ARR_LITERAL" set description ": element tag " }
+                return (invalid (+ (site current label pos) (+ description (+ (int_to_string tag) " >= TAG_COUNT 16"))))
+            }
+        } else if (== opcode 120) {
+            let key: int = (primary.integer item 0)
+            let value: int = (primary.integer item 1)
+            if (>= key 16) {
+                return (invalid (+ (site current "OP_HM_NEW" pos) (+ ": key tag " (+ (int_to_string key) " >= TAG_COUNT 16"))))
+            }
+            if (>= value 16) {
+                return (invalid (+ (site current "OP_HM_NEW" pos) (+ ": value tag " (+ (int_to_string value) " >= TAG_COUNT 16"))))
+            }
+        }
+        set i (+ i 1)
+    }
+    let height: heights.Result = (heights.verify code start length signatures context.imports current f.locals)
+    if (not height.decoded) { return (undecoded) }
+    if (not height.valid) { return (invalid height.message) }
+    let typed: types.Result = (types.verify code start length count current height.maximum)
+    if (not typed.decoded) { return (undecoded) }
+    if (not typed.valid) { return (invalid typed.message) }
+    return Result { decoded: true, supported: true, valid: true, maximum: height.maximum, message: "" }
+}
+shadow verify {
+    let f: Function = Function { arity: 0, results: 0, result_tag: 0, locals: 0, upvalues: 0 }
+    let c: Context = Context { functions: [f], imports: [], linked: [], strings: 0, records: 0, enums: 0, unions: 0 }
+    assert (verify [163] 0 1 c 0).valid
+    assert (not (verify [255] 0 1 c 0).decoded)
+    assert (not (verify [11,0,0] 0 3 c 0).supported)
+    assert (== (verify [4,0,0,0,0,163] 0 6 c 0).message "function[0] OP_PUSH_STR at offset 0: str_idx 0 >= string_count 0")
+    assert (== (verify [8,163] 0 2 c 0).message "function[0] stack underflow at offset 0 (POP needs 1, has 0)")
+    assert (not (verify [163] 0 1 c -1).decoded)
+}
