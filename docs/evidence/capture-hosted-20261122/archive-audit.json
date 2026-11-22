@@ -1,0 +1,9 @@
+{
+  "logical_files": 2632,
+  "raw_bytes": 251431606,
+  "local_payloads": 94,
+  "shared_logical_files": 2354,
+  "local_compressed_bytes": 6389512,
+  "all_raw_and_compressed_hashes_and_lengths_match": true,
+  "exact_local_payload_set": true
+}
