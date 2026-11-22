@@ -162,6 +162,41 @@ shadow main{assert (== (main) 0)}
             with self.subTest(target=target):
                 self.exercise(template.replace('TARGET', target), True)
 
+    def test_record_value_prefixes_keep_statement_diagnostics(self):
+        prefixes = [
+            ('let mut number:int=1 set number true', r'E001|E0001'),
+            ('let number:int=1 set number 2', 'immutable'),
+            ('assert 7', 'condition must be bool'),
+            ('(receiver 7)', r'E001|E0001'),
+            ('while 7 { assert true }', r'condition must be (a )?bool'),
+        ]
+        for prefix, diagnostic in prefixes:
+            for literal in ('First{a:42}', '{a:42}'):
+                for choice in (
+                    '(if true { PREFIX VALUE } else {First{a:2}})',
+                    '(if false { PREFIX VALUE } else {First{a:2}})',
+                    '(match 1 { 1=>{ PREFIX VALUE } _=>{First{a:2}} })',
+                    '(match 1 { 0=>{ PREFIX VALUE } _=>{First{a:2}} })',
+                ):
+                    value = choice.replace('PREFIX', prefix).replace('VALUE', literal)
+                    with self.subTest(prefix=prefix, value=value):
+                        self.exercise(DECL+'fn main()->int{'+LOCALS+
+                            '(array_set items 0 '+value+') return 0}'+END,
+                            False, refusal=None, diagnostic=diagnostic)
+
+    def test_record_value_prefixes_preserve_valid_effects_and_bindings(self):
+        for value in (
+            '(if true { let mut number:int=1 set number 42 '
+            'assert (== number 42) {a:number} } else {{a:2}})',
+            '(match 1 {1=>{let mut number:int=0 '
+            'while (< number 42) {set number (+ number 1)} '
+            'assert (== number 42) {a:number}} _=>{{a:2}}})',
+        ):
+            with self.subTest(value=value):
+                self.exercise(DECL+'fn main()->int{'+LOCALS+
+                    '(array_set items 0 '+value+') '
+                    'assert (== (at items 0).a 42) return 0}'+END, True)
+
     def test_discarded_statement_branches_keep_their_types(self):
         self.exercise('''fn number()->int{return 1}
 shadow number{assert (== (number) 1)}
