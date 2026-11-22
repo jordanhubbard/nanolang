@@ -361,7 +361,8 @@ contexts that cannot be represented by that module carrier, require a linked
 graph, or would require large artificial pools remain explicitly counted apart;
 I do not relabel the older helper corpus as whole-module coverage.
 
-My Linux checkpoint passes7132 modules in both modes through five routes,
+My [Linux checkpoint](evidence/ordinary-module-verifier-linux-20261121/README.md)
+passes7132 modules in both modes through five routes,
 126/122 independent expectations and six actual source products per mode in
 1444.113s. The actual VM agrees on131 independent consumer controls. Targeted
 actual public C verifier/type/decoder/ISA/module/reverse-converter sanitizers
