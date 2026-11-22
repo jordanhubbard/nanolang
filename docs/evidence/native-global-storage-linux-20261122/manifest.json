@@ -1,0 +1,153 @@
+{
+  "source_commit": "3b4da628973830bfd48e8370a550985f76b2f1ba",
+  "scope": "I retain focused legacy native header/global storage checks; this is not current pure compiler, paired bootstrap or whole-release acceptance.",
+  "files": [
+    {
+      "path": "logs/1181-baseline-closures.log",
+      "bytes": 2525,
+      "sha256": "4434b152abe03d63b073adf3949941737eba62e9a99d34ab1327ccdce7f652e6",
+      "artifact": "objects/4434b152abe03d63b073adf3949941737eba62e9a99d34ab1327ccdce7f652e6.gz",
+      "compressed_sha256": "f6b5483761b06ef2144b5bb26bb867eed1a2bc92ee771cfd97557d9888abb905"
+    },
+    {
+      "path": "logs/1181-build-final.log",
+      "bytes": 213,
+      "sha256": "8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066",
+      "artifact": "objects/8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066.gz",
+      "compressed_sha256": "8e34b84a58232dae18055f301bf113462a6f2c7bfab82c13baddc443448e37f4"
+    },
+    {
+      "path": "logs/1181-build-r2.log",
+      "bytes": 213,
+      "sha256": "8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066",
+      "artifact": "objects/8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066.gz",
+      "compressed_sha256": "8e34b84a58232dae18055f301bf113462a6f2c7bfab82c13baddc443448e37f4"
+    },
+    {
+      "path": "logs/1181-build.log",
+      "bytes": 213,
+      "sha256": "8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066",
+      "artifact": "objects/8355c3043b2046ef335eb1b28973d2016b904147f3fc705ca3806091d2789066.gz",
+      "compressed_sha256": "8e34b84a58232dae18055f301bf113462a6f2c7bfab82c13baddc443448e37f4"
+    },
+    {
+      "path": "logs/1181-contracts.log",
+      "bytes": 984,
+      "sha256": "d77c9a3b19f50519ea9c8ac027de1f2f226ff4bb952493093014e26e0ccb392b",
+      "artifact": "objects/d77c9a3b19f50519ea9c8ac027de1f2f226ff4bb952493093014e26e0ccb392b.gz",
+      "compressed_sha256": "ff4c5ffd51b43b236a892b763f4c39c5e00b7bd668afdfaac169c7868b89a0fe"
+    },
+    {
+      "path": "logs/1181-examples-r2.log",
+      "bytes": 398,
+      "sha256": "3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920",
+      "artifact": "objects/3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920.gz",
+      "compressed_sha256": "29acfebca4c0de7595ed208b7f2433214583f5b54c035578ee909f945c070a39"
+    },
+    {
+      "path": "logs/1181-examples.log",
+      "bytes": 62353,
+      "sha256": "6966bca496ed98b07a5e420ad1f49414e39a3bfcdaedb4efcfa3db148d3b379d",
+      "artifact": "objects/6966bca496ed98b07a5e420ad1f49414e39a3bfcdaedb4efcfa3db148d3b379d.gz",
+      "compressed_sha256": "44a7622d5126a668ea552ff22eed20535eed8afd86fa5e8e1c97939759611d25"
+    },
+    {
+      "path": "logs/1181-focused-clang18.log",
+      "bytes": 1048,
+      "sha256": "22f670379cb1a9cf4fc606b87d957cf30087fb379cfc4b32549c88f4e98db50b",
+      "artifact": "objects/22f670379cb1a9cf4fc606b87d957cf30087fb379cfc4b32549c88f4e98db50b.gz",
+      "compressed_sha256": "4ddb6d5f5802f6b9c39c15f988a5fa8cc0273527a6a981ac6ac8a271e4b0754e"
+    },
+    {
+      "path": "logs/1181-focused-final.log",
+      "bytes": 1048,
+      "sha256": "8af4dcdc739ed2378c1384b02398c2892266a67b569e64be8b1fa049d19e2976",
+      "artifact": "objects/8af4dcdc739ed2378c1384b02398c2892266a67b569e64be8b1fa049d19e2976.gz",
+      "compressed_sha256": "ae43b3e6403077b87e1620fbacc03d5ef61a988a5f753f379591585d9fb4e3bf"
+    },
+    {
+      "path": "logs/1181-focused-r2.log",
+      "bytes": 848,
+      "sha256": "32dadb8c4b9ea59c8470115ef5a1b8ff305cde1f991fae73d16455e5ddc47ca5",
+      "artifact": "objects/32dadb8c4b9ea59c8470115ef5a1b8ff305cde1f991fae73d16455e5ddc47ca5.gz",
+      "compressed_sha256": "bfeb91fdda19ae4098e8f205137f90d5c3836aae8ec6f7b388ff653aab5543de"
+    },
+    {
+      "path": "logs/1181-focused.log",
+      "bytes": 848,
+      "sha256": "98b49eca8f0fa2a8264c61d56ea6f3e002676a8113f3d8237a60940ff9cec772",
+      "artifact": "objects/98b49eca8f0fa2a8264c61d56ea6f3e002676a8113f3d8237a60940ff9cec772.gz",
+      "compressed_sha256": "068dbe56ef53480bf4effddcc322a4b2881a679e0ac91da673aa34997c66f3eb"
+    },
+    {
+      "path": "logs/1181-identifiers.log",
+      "bytes": 1444,
+      "sha256": "311e5b551be412a9b131ca4cf229d908c510a1b4c91bbd3714d04a7a87948117",
+      "artifact": "objects/311e5b551be412a9b131ca4cf229d908c510a1b4c91bbd3714d04a7a87948117.gz",
+      "compressed_sha256": "feba4ceb51f5c7c1c3a8dd136a2be70981e255b17099c95837488f072952f03c"
+    },
+    {
+      "path": "logs/1181-neighbors-r2.log",
+      "bytes": 7213,
+      "sha256": "5d78d79675db80a359958aa42d1fe5160240da56446036d828472d8cec25c635",
+      "artifact": "objects/5d78d79675db80a359958aa42d1fe5160240da56446036d828472d8cec25c635.gz",
+      "compressed_sha256": "4e59fad88f7b99f1247c071cb7d7748869ea14c66182fdd30ffe0e6ffe5febce"
+    },
+    {
+      "path": "logs/1181-neighbors.log",
+      "bytes": 8864,
+      "sha256": "44e98f744dfa43cd47eeed4eb2f4bddf0f7a19e8b7fbca7e5a80a23fc971c3d3",
+      "artifact": "objects/44e98f744dfa43cd47eeed4eb2f4bddf0f7a19e8b7fbca7e5a80a23fc971c3d3.gz",
+      "compressed_sha256": "f3619f90fbc793697192d0b68cc1635ff39c576d56bcc7d72d2a3a9a6dc87ddc"
+    },
+    {
+      "path": "src/transpiler.c",
+      "bytes": 263357,
+      "sha256": "ca849e5bfcd98d05bfbe8718ea9843b033ed3d46421ee72bfc541631bb151d3c",
+      "artifact": "objects/ca849e5bfcd98d05bfbe8718ea9843b033ed3d46421ee72bfc541631bb151d3c.gz",
+      "compressed_sha256": "eebac90eccef3c03d56d2f683c7c7e400428d60ec407140c8d85515c607d2692"
+    },
+    {
+      "path": "src/transpiler_iterative_v3_twopass.c",
+      "bytes": 268578,
+      "sha256": "6466f2bfeb16f68cc2edfef6b390b96f4c97699419a26fc35597a3fa10d3291a",
+      "artifact": "objects/6466f2bfeb16f68cc2edfef6b390b96f4c97699419a26fc35597a3fa10d3291a.gz",
+      "compressed_sha256": "ce2e1f1336a06ae50bc0de0376e3f41846ef53ff86a428d78bcdf6002cbafd14"
+    },
+    {
+      "path": "tests/test_imported_callback_typedefs.py",
+      "bytes": 9127,
+      "sha256": "10932256d2a901133250ecf36557d02209e528032641c110713bc3a6a7eb1149",
+      "artifact": "objects/10932256d2a901133250ecf36557d02209e528032641c110713bc3a6a7eb1149.gz",
+      "compressed_sha256": "03f886bcb01347cdc5cc4dde629f9d3c15e4bf2ab9910a73d27bf8f73f9cbeec"
+    },
+    {
+      "path": "bin/nanoc_c",
+      "bytes": 27546520,
+      "sha256": "dde2cfef8d248a4a3feb16705818cb6168134239f0efb671a000ab93020bd236",
+      "artifact": "objects/dde2cfef8d248a4a3feb16705818cb6168134239f0efb671a000ab93020bd236.gz",
+      "compressed_sha256": "e26e1643e800dd131c295253872cc8a00c96105e39461bc2e0a895935fa2eeda"
+    },
+    {
+      "path": "logs/frozen-guards.json",
+      "bytes": 109,
+      "sha256": "117f2aafc089de0d1fb3e26ca90474b257da2ab2b1a95d20c86303a64576e117",
+      "artifact": "objects/117f2aafc089de0d1fb3e26ca90474b257da2ab2b1a95d20c86303a64576e117.gz",
+      "compressed_sha256": "127c7478b0ba4960cc4d58a4e90292003a7fde6fb62df61d185e7cb1197188a5"
+    },
+    {
+      "path": "sources.json",
+      "bytes": 138570,
+      "sha256": "7fdd012ed2b8c999831093ff5502824992f312f90aa5ead2801bd8a6155cfa4c",
+      "artifact": "objects/7fdd012ed2b8c999831093ff5502824992f312f90aa5ead2801bd8a6155cfa4c.gz",
+      "compressed_sha256": "cdc6dfa7103cccfa85e3e10ae5252ffeeb6152f226e4f9f85819cf7d1c0df63d"
+    },
+    {
+      "path": "tools.json",
+      "bytes": 1202,
+      "sha256": "97a93dc19bb010bc541d14954e88b2d36c32252319abfb4e936b243c4e21f2ee",
+      "artifact": "objects/97a93dc19bb010bc541d14954e88b2d36c32252319abfb4e936b243c4e21f2ee.gz",
+      "compressed_sha256": "2163e91486d2ac63739be27ce09a1d83c0e3ebb2b61de4960546a985a3d3a9d9"
+    }
+  ]
+}

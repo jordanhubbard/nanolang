@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "source_commit": "3b4da628973830bfd48e8370a550985f76b2f1ba",
+  "records": 21,
+  "focused_methods_per_toolchain": 5,
+  "original_examples": 5,
+  "legacy_neighbors_pass": 37,
+  "retained_baseline_closure_failures": 2
+}
