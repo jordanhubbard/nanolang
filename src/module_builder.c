@@ -3384,7 +3384,9 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         now = module_link_query_clock();
         if (now < 0 || now >= deadline) { ok = false; break; }
         struct pollfd descriptor = {.fd = eof ? -1 : descriptors[0], .events = POLLIN};
-        int ready = poll(&descriptor, 1, (int)(deadline - now < 25 ? deadline - now : 25));
+        /* I observe exit promptly once the closed output pipe cannot wake poll. */
+        int interval = eof ? 1 : 25;
+        int ready = poll(&descriptor, 1, (int)(deadline - now < interval ? deadline - now : interval));
         if (ready < 0 && errno != EINTR) { ok = false; break; }
         if (ready > 0) {
             char buffer[1024];
