@@ -4497,6 +4497,8 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 /* Collect module headers from all import statements */
 static void collect_module_headers_from_imports(ASTNode *program, const char *source_file) {
     clear_module_headers();
+    /* I need my own declared C types while compiling a module implementation. */
+    collect_headers_from_module(source_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_IMPORT) {

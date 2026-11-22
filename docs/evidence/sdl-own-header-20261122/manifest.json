@@ -1,0 +1,80 @@
+{
+  "scope": "I retain the exact current integrated hosted failure plus a corroborating isolated witness on an unchanged existing native C seed whose source association is unverified. Fresh candidate execution remains required.",
+  "archive_sha256": "d731ac33c66e9ca7ec54133195941497ced9efbd232c572063ec9eb9819d5872",
+  "archive_files": {
+    "nanolang-1181-puck-2tpqfsiq/controller.json": {
+      "bytes": 1874,
+      "sha256": "46f6414310d1dc9ec7663b273bdc73355ff50e0a7278641203b935c1098ff7b9"
+    },
+    "nanolang-1181-puck-2tpqfsiq/controller.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanolang-1181-puck-2tpqfsiq/controller.stdout": {
+      "bytes": 532,
+      "sha256": "324f2228bfc114ff2112d6b086310a61bd21ebeda6805e0ed27f13778120c102"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/cache/_tmp_nanolang-1181-puck-2tpqfsiq_observation_fixture_bridge/bridge.d": {
+      "bytes": 262,
+      "sha256": "a4a449f694d85fbfd494135afacab425b0c81cb332212dfb72167bdcebd2f7b0"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/cache/_tmp_nanolang-1181-puck-2tpqfsiq_observation_fixture_bridge/bridge.o": {
+      "bytes": 1272,
+      "sha256": "31186a1963405d768f01824ea31294ec607437487b1127fe92cf89f32ed6fffe"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/cache/_tmp_nanolang-1181-puck-2tpqfsiq_observation_fixture_bridge/libbridge.so": {
+      "bytes": 69248,
+      "sha256": "334a63440b784214cffb0444cb8c04dd34cce08567711d7203089831226ec53f"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/cache/_tmp_nanolang-1181-puck-2tpqfsiq_observation_fixture_bridge/source_hashes.json": {
+      "bytes": 261,
+      "sha256": "953be4295c39f7518754da845613ed6aab96e769032df318129f16d4875bf317"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/compile.stderr": {
+      "bytes": 582,
+      "sha256": "d5bc880018f4729c87ec628605cf69e38523e468bfb37030d5b3a4d13ad8dfc2"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/bridge/SDL.h": {
+      "bytes": 123,
+      "sha256": "ede7da7083715de5f1b3ddaa05a65b5f3bb793ad37b8931aef585bcf5b3b430b"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/bridge/anchor.c": {
+      "bytes": 58,
+      "sha256": "f93e97631008a9a15eb13b9d4a9808142868808efa94a3d304f69e432785be22"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/bridge/bridge.nano": {
+      "bytes": 117,
+      "sha256": "2d96d04361669804916092b74fccf189380477dc15991ca5745b2a63d9b16e5c"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/bridge/module.json": {
+      "bytes": 90,
+      "sha256": "d8629ebd299d40ca90163b01e7a6ff4713e87d6b055c7262fa72ad310dc036ff"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/main.nano": {
+      "bytes": 128,
+      "sha256": "994e6842f6bd76995a382a3954d5dbd09026dfb30411fd77e145df1338c2512f"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/fixture/obj/nano_modules/bridge_nano_bridge.o.c": {
+      "bytes": 124385,
+      "sha256": "ef100db18101f0e5d0a7b59f6aed06a1ee174814dacc2074fd20cb0d80e5a25b"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observation/result.json": {
+      "bytes": 570,
+      "sha256": "68191f80eea48804fe7fdc8114282675fd4049c38cdd7294fca8609e6321cd5b"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observed-nanoc_c": {
+      "bytes": 12895992,
+      "sha256": "34882a622c71da4db41b75db48bae68937cf37d0ebd556c54a81c3959891cdac"
+    },
+    "nanolang-1181-puck-2tpqfsiq/observer.py": {
+      "bytes": 1985,
+      "sha256": "05d73719e069d51bc7fa012f4b76759e931eb462a5c0ff4558ce5ba1bb3a8705"
+    }
+  },
+  "original_ci_log_sha256": "2e6d30ff30c0537570da6a0ad6a3bb4a0d6180f4fad6c9ea0975f655d681a53b",
+  "original_ci_packed_sha256": "504b1b5da88e901f0c1495f865d7001315984e82f97cc585520cf19faa333dbb"
+}
