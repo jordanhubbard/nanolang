@@ -392,22 +392,37 @@ shadow same_string {
     assert (same_string constants 1 1)
 }
 
+# I expose one shared projection for later whole-module verification. A refused
+# conversion carries no partial code, names, signatures or retained layouts.
+pub struct Conversion { status: int, model: owned.Module }
+
+fn conversion_failure(status: int) -> Conversion {
+    return Conversion { status: status, model: owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+}
+shadow conversion_failure {
+    let result: Conversion = (conversion_failure 13)
+    assert (== result.status 13)
+    assert (== (array_length result.model.functions) 0)
+    assert (== (array_length result.model.layouts) 0)
+}
+
 # I preserve conversion, routing, ownership and passive order before publication.
-# Core references/features and unsupported-profile selection have already run.
-fn convert_claims(view: ModuleView) -> int {
+# I require a decoded view; successful conversion is not executable admission.
+pub fn convert(view: ModuleView) -> Conversion {
+    if (!= view.status 0) { return (conversion_failure view.status) }
     let constants: payload.PayloadTable = (table view 2)
     let mut i: int = 0
     while (< i (array_length constants.starts)) {
         let row: int = (at constants.starts i)
-        if (!= (at constants.data row) 5) { return 8 }
+        if (!= (at constants.data row) 5) { return (conversion_failure 8) }
         let mut j: int = 0
         while (< j i) {
-            if (same_string constants i j) { return 13 }
+            if (same_string constants i j) { return (conversion_failure 13) }
             set j (+ j 1)
         }
         set i (+ i 1)
     }
-    if (> (array_length view.code) 4294967295) { return 13 }
+    if (> (array_length view.code) 4294967295) { return (conversion_failure 13) }
     let signatures: payload.PayloadTable = (table view 3)
     let mut functions: array<calls.Function> = []
     let mut results_tags: array<int> = []
@@ -426,7 +441,7 @@ fn convert_claims(view: ModuleView) -> int {
         let results: int = (wire.read_u16 signatures.data (+ row 2))
         let start: int = (field view 5 i 8 8)
         let length: int = (field view 5 i 16 8)
-        if (or (< start 0) (or (> start 4294967295) (or (< length 0) (or (> length 4294967295) (> results 255))))) { return 13 }
+        if (or (< start 0) (or (> start 4294967295) (or (< length 0) (or (> length 4294967295) (> results 255))))) { return (conversion_failure 13) }
         let mut tags: array<int> = []
         let mut j: int = 0
         while (< j arity) {
@@ -447,7 +462,7 @@ fn convert_claims(view: ModuleView) -> int {
     set i 0
     while (< i (count view 10)) {
         let offset: int = (field view 10 i 0 8)
-        if (or (< offset 0) (> offset 4294967295)) { return 13 }
+        if (or (< offset 0) (> offset 4294967295)) { return (conversion_failure 13) }
         set i (+ i 1)
     }
     # Canonical layout re-encoding drops permitted table tails. Names, kinds,
@@ -457,7 +472,7 @@ fn convert_claims(view: ModuleView) -> int {
         set i 0
         while (< i (count view 4)) {
             set bytes (+ bytes (+ 8 (* 12 (field view 4 i 2 2))))
-            if (> bytes 4294967295) { return 13 }
+            if (> bytes 4294967295) { return (conversion_failure 13) }
             set i (+ i 1)
         }
     }
@@ -477,8 +492,8 @@ fn convert_claims(view: ModuleView) -> int {
     let model: owned.Module = owned.Module { layouts: retained, code: view.code, strings: names, functions: functions, params: params, results: results_tags, records: records, enums: enums, unions: unions }
     let rich: service_v2.View = (service_view view)
     let selection: routes.Selection = (routes.classify view.ownership model (> (array_length view.services) 0) false 0)
-    if (or (== selection.maps 2) (or (== selection.maps 3) (== selection.owners 2))) { return 13 }
-    if (or (== selection.maps 1) (or selection.arrays (or (== selection.owners 1) selection.mixed))) { return -1 }
+    if (or (== selection.maps 2) (or (== selection.maps 3) (== selection.owners 2))) { return (conversion_failure 13) }
+    if (or (== selection.maps 1) (or selection.arrays (or (== selection.owners 1) selection.mixed))) { return (conversion_failure -1) }
     if (service_v2.present rich) {
         let imports: array<service_v2.Import> = rich.imports
         let signatures: array<service_v2.Signature> = rich.signatures
@@ -493,16 +508,36 @@ fn convert_claims(view: ModuleView) -> int {
             set i (+ i 1)
         }
         let service_status: int = (service_module.validate view.services view.ownership model entries (count view 9) (count view 11))
-        if (!= service_status 0) { return service_status }
+        if (!= service_status 0) { return (conversion_failure service_status) }
         if (service_module.nominal_version view.services) {
-            if (not (passive.validate view.passive view.code functions params)) { return 13 }
-            return 0
+            if (not (passive.validate view.passive view.code functions params)) { return (conversion_failure 13) }
+            return Conversion { status: 0, model: model }
         }
     }
     let declarations: owned.Declaration = (owned.validate view.ownership model)
-    if (!= declarations.status 0) { return declarations.status }
-    if (not (passive.validate view.passive view.code functions params)) { return 13 }
-    return 0
+    if (!= declarations.status 0) { return (conversion_failure declarations.status) }
+    if (not (passive.validate view.passive view.code functions params)) { return (conversion_failure 13) }
+    return Conversion { status: 0, model: model }
+}
+shadow convert {
+    let good: Conversion = (convert (blank 0))
+    assert (== good.status 0)
+    assert (== (array_length good.model.code) 0)
+    let bad: Conversion = (convert (blank -1))
+    assert (== bad.status -1)
+    assert (== (array_length bad.model.params) 0)
+    let failed: Conversion = (convert (blank 8))
+    assert (== failed.status 8)
+    assert (== (array_length failed.model.strings) 0)
+    let view: ModuleView = (blank 0)
+    (array_set view.tables 2 (payload.decode [2,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0,5,0,0,0,1,0,0,0,65,0,0,0] 2))
+    let refused: Conversion = (convert view)
+    assert (== refused.status 13)
+    assert (== (array_length refused.model.strings) 0)
+}
+
+fn convert_claims(view: ModuleView) -> int {
+    return (convert view).status
 }
 shadow convert_claims {
     let view: ModuleView = (blank 0)

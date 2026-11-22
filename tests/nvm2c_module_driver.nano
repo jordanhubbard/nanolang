@@ -60,6 +60,49 @@ shadow services_report {
     assert (== (services_report (decoder.decode_core [])) "1:0::0::0:")
 }
 
+# I report every projected fact, including byte lengths and signature order.
+fn conversion_report(view: decoder.ModuleView) -> string {
+    let converted: decoder.Conversion = (decoder.convert view)
+    let mut result: string = (int_to_string converted.status)
+    if (!= converted.status 0) { return result }
+    let model = converted.model
+    set result (+ result (+ ":" (hexadecimal model.code 0 (array_length model.code))))
+    set result (+ result (+ ":" (hexadecimal model.layouts 0 (array_length model.layouts))))
+    set result (+ result (+ ":" (int_to_string model.records)))
+    set result (+ result (+ ":" (int_to_string model.enums)))
+    set result (+ result (+ ":" (int_to_string model.unions)))
+    set result (+ result (+ ":" (int_to_string (array_length model.strings))))
+    let mut i: int = 0
+    while (< i (array_length model.strings)) {
+        let bytes: array<u8> = (at model.strings i)
+        set result (+ result (+ ":" (hexadecimal bytes 0 (array_length bytes))))
+        set i (+ i 1)
+    }
+    set result (+ result (+ ":" (int_to_string (array_length model.functions))))
+    set i 0
+    while (< i (array_length model.functions)) {
+        let item = (at model.functions i)
+        set result (+ result (+ ":" (int_to_string item.start)))
+        set result (+ result (+ "," (int_to_string item.length)))
+        set result (+ result (+ "," (int_to_string item.arity)))
+        set result (+ result (+ "," (int_to_string item.results)))
+        set result (+ result (+ "," (int_to_string item.locals)))
+        set result (+ result (+ "," (int_to_string item.upvalues)))
+        set result (+ result (+ "," (int_to_string (at model.results i))))
+        let params: array<int> = (at model.params i)
+        let mut j: int = 0
+        while (< j (array_length params)) {
+            set result (+ result (+ "," (int_to_string (at params j))))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+shadow conversion_report {
+    assert (== (conversion_report (decoder.decode_core [])) "1")
+}
+
 fn main() -> int {
     unsafe {
         if (<= (get_argc) 1) { return 0 }
@@ -77,13 +120,14 @@ fn main() -> int {
         if (== option "--passive") { set i 2 }
         if (== option "--claims") { set i 2 }
         if (== option "--services") { set i 2 }
+        if (== option "--conversion") { set i 2 }
         while (< i (get_argc)) {
             let bytes: array<u8> = (file_read_bytes (get_argv i))
             if (== option "--scan") {
                 if (decoder.file_instructions bytes 0 (array_length bytes)) { (println 1) } else { (println 0) }
             } else {
                 let view: decoder.ModuleView = (decoder.decode_core bytes)
-                if (== option "--services") { (println (services_report view)) } else if (== option "--passive") { (println (passive_report view)) } else if (== option "--claims") { (println (claims_report view)) } else { (println view.status) }
+                if (== option "--conversion") { (println (conversion_report view)) } else if (== option "--services") { (println (services_report view)) } else if (== option "--passive") { (println (passive_report view)) } else if (== option "--claims") { (println (claims_report view)) } else { (println view.status) }
             }
             set i (+ i 1)
         }

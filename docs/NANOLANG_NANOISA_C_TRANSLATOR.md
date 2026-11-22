@@ -303,6 +303,30 @@ modules. The updated 5489-case decoder gate and prior passive/call gates pass;
 four profiles remain pending. I retain the missing-PyYAML setup failure and
 the corrected system-Python schema result separately.
 
+## My reusable conversion facts
+
+`module.convert` accepts my decoded `ModuleView` and returns a `Conversion`.
+I reuse the existing constant identity, narrow-carrier, layout, routing,
+service, ownership-declaration and passive checks in their existing order.
+I expose the checked code bytes, exact string bytes, canonical retained
+layouts, layout-kind counts, function spans and parameter/result projections
+through its `owned.Module` model. A refusal retains its status and returns an
+empty model. My existing `decode_core` decision order stays unchanged.
+
+A caller may request conversion even when an ordinary module has no extension
+sections. This catches conversion-only refusals that descriptive core decoding
+intentionally does not perform. Conversion still accepts, for example, an empty
+result-bearing body or an unknown opcode when no declaration checks its body.
+I require separate complete structural and instruction verification before
+execution. I preserve `-1` for my unimplemented private profiles.
+
+`make test-nanolang-translator-conversion` compares every projected fact with
+my actual C reverse converter. I independently classify private ownership
+routes with the existing C routing oracle, retain their C refusals separately,
+and require identical explicit deferral across my selected product routes.
+This component is under qualification; it grants no full-module, affine,
+private-profile or pure-emitter acceptance.
+
 ## My shared ownership declarations
 
 `src_nano/nvm2c/ownership.nano` implements the shared
