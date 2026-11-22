@@ -1,0 +1,5 @@
+struct First{a:int}
+fn choose(flag:bool,items:array<T>)->array<T>{return (if flag{[]}else{items})}
+shadow choose{let xs:array<int> = [1] assert (== (array_length (choose true xs)) 0)}
+fn main()->int{let items:array<First> = [First{a:1}] let fresh:array<First> = (array_push (choose true items) First{a:7}) (array_set fresh 0 First{a:42}) assert (== (at fresh 0).a 42) return 0}
+shadow main{assert (== (main) 0)}

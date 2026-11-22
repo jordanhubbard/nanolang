@@ -2432,7 +2432,8 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
         set nisa_types saved_types
         let scalar: bool = (or (== arm_type "int") (or (== arm_type "bool") (or (== arm_type "float") (== arm_type "string"))))
         let record: bool = (and (nisa_is_pin_record parser arm_type) (nisa_union_value_type_seen parser arm_type []))
-        if (not (or scalar record)) { return "" }
+        let array_result: bool = (and (str_starts_with arm_type "array<") (nisa_type_ok parser arm_type))
+        if (not (or array_result (or scalar record))) { return "" }
         if (== result "") { set result arm_type }
         if (!= arm_type result) { return "" }
         set i (+ i 1)
@@ -2440,6 +2441,12 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     return result
 }
 shadow nisa_match_result_type {
+    let array_reset: int = (nisa_reset)
+    let array_tokens: List<LexerToken> = (tokenize_string "fn pick()->array<int>{return match 1{1=>{[1]} _=>{[2]}}}" "array-match.nano" (diag_list_new))
+    let array_parser: Parser = (parse_program array_tokens (list_LexerToken_length array_tokens) "array-match.nano")
+    assert (== (nisa_match_result_type array_parser 0) "array<int>")
+    assert (== (nisa_reset) 0)
+
     let record_reset: int = (nisa_reset)
     let records: List<LexerToken> = (tokenize_string "struct Item{n:int} union Choice{Yes{} No{}} fn make(value:Choice)->Item{return match value{Yes(v)=>Item{n:1} No(v)=>Item{n:2}}}" "record-match.nano" (diag_list_new))
     let record_parser: Parser = (parse_program records (list_LexerToken_length records) "record-match.nano")
@@ -4773,16 +4780,15 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_MATCH) { return (nisa_match_result_type parser node_id) }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (parser_get_union_construct parser node_id).union_name }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
-        let block: ASTBlock = (parser_get_block parser node_id)
-        if (!= (list_ASTStmtRef_length block.statements) 1) { return "" }
-        let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
-        return (nisa_expr_type parser value.node_id value.node_type)
+        return (nisa_match_arm_type parser node_id node_type)
     }
     if (== node_type ParseNodeType.PNODE_IF) {
         let choice: ASTIf = (parser_get_if parser node_id)
         if (< choice.else_body 0) { return "" }
         let left: string = (nisa_expr_type parser choice.then_body ParseNodeType.PNODE_BLOCK)
         let right: string = (nisa_expr_type parser choice.else_body ParseNodeType.PNODE_BLOCK)
+        if (parser_always_returns parser choice.then_body ParseNodeType.PNODE_BLOCK) { return right }
+        if (parser_always_returns parser choice.else_body ParseNodeType.PNODE_BLOCK) { return left }
         if (and (!= left "") (== left right)) { return left }
         return ""
     }
@@ -4816,6 +4822,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        if (and (== literal.element_count 0) (!= literal.element_type "")) {
+            let contextual: string = (+ "array<" (+ literal.element_type ">"))
+            if (nisa_type_ok parser contextual) { return contextual }
+            return ""
+        }
         let mut element: string = "int"
         let mut i: int = 0
         while (< i literal.element_count) {
@@ -5024,6 +5035,21 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
 }
 
 shadow nisa_expr_type {
+    let empty_reset: int = (nisa_reset)
+    let empty_tokens: List<LexerToken> = (tokenize_string "struct Item{n:int} fn f()->array<Item>{return []}" "empty.nano" (diag_list_new))
+    let empty_parser: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty.nano")
+    (parser_set_array_literal_element_type empty_parser 0 "Item")
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<Item>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 8 0")
+    assert (== (nisa_reset) 0)
+
+    let branch_reset: int = (nisa_reset)
+    let branch_tokens: List<LexerToken> = (tokenize_string "fn pick()->int{(if true{let local:array<int> = [1] local}else{[2]}) return 0}" "branch.nano" (diag_list_new))
+    let branch_parser: Parser = (parse_program branch_tokens (list_LexerToken_length branch_tokens) "branch.nano")
+    assert (== (nisa_expr_type branch_parser 0 ParseNodeType.PNODE_IF) "array<int>")
+    assert (== (array_length nisa_names) 0)
+    assert (== (nisa_reset) 0)
+
     let byte_literal_reset: int = (nisa_reset)
     let byte_literal_tokens: List<LexerToken> = (tokenize_string "fn values(value:u8)->array<u8>{return [value]}" "byte-literal.nano" (diag_list_new))
     let byte_literal_parser: Parser = (parse_program byte_literal_tokens (list_LexerToken_length byte_literal_tokens) "byte-literal.nano")
@@ -6439,6 +6465,14 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
     return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
 shadow nisa_emit_set_call {
+    for receiver in ["(if true {let ys:array<Item> = xs ys} else {xs})", "(cond (false xs) (true xs) (else xs))", "(match 1{1=>{xs} _=>{xs}})"] {
+        let source: string = (+ "struct Item{n:int} fn main()->int{let xs:array<Item> = [Item{n:1}] (array_set " (+ receiver " 0 Item{n:2}) return 0}"))
+        let code: string = (nanoisa_emit_nasm source)
+        assert nisa_ok
+        assert (str_contains code "ARR_SET")
+        assert (== (nisa_reset) 0)
+    }
+
     let _: int = (nisa_reset)
     let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { (array_set values 0 7) return 0 }" "set.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "set.nano")
@@ -9864,7 +9898,9 @@ fn nisa_effect_value_type(parser: Parser, id: int, kind: int) -> string {
     let count: int = (list_ASTStmtRef_length block.statements)
     if (== count 0) { return "void" }
     let tail: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
-    if (not (parser_is_value_expression tail.node_type)) { return "void" }
+    let mut value_tail: bool = (parser_is_value_expression tail.node_type)
+    if (== tail.node_type ParseNodeType.PNODE_IF) { set value_tail (>= (parser_get_if parser tail.node_id).else_body 0) }
+    if (not value_tail) { return "void" }
     return (nisa_match_arm_type parser id kind)
 }
 shadow nisa_effect_value_type {
@@ -9891,7 +9927,9 @@ fn nisa_effect_value(parser: Parser, id: int, kind: int) -> string {
     let mut index: int = 0
     while (and nisa_ok (< index count)) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements index)
-        set value (and (== index (- count 1)) (parser_is_value_expression stmt.node_type))
+        let mut value_tail: bool = (parser_is_value_expression stmt.node_type)
+        if (== stmt.node_type ParseNodeType.PNODE_IF) { set value_tail (>= (parser_get_if parser stmt.node_id).else_body 0) }
+        set value (and (== index (- count 1)) value_tail)
         if value { set out (+ out (nisa_effect_value parser stmt.node_id stmt.node_type)) }
         else { set out (+ out (nisa_emit_stmt parser stmt)) }
         if (nisa_stmt_terminates parser stmt) { break }

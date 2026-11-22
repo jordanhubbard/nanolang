@@ -5082,6 +5082,31 @@ bool ast_always_returns(const ASTNode *node) {
     return false;
 }
 
+/* I enumerate value alternatives without evaluating conditions or changing scope. */
+int ast_value_branch_count(const ASTNode *node) {
+    if (!node) return 0;
+    switch (node->type) {
+        case AST_IF: return 2;
+        case AST_COND: return node->as.cond_expr.clause_count + 1;
+        case AST_MATCH: return node->as.match_expr.arm_count;
+        case AST_BLOCK: return node->as.block.count ? 1 : 0;
+        default: return 0;
+    }
+}
+
+ASTNode *ast_value_branch(ASTNode *node, int index) {
+    if (!node || index < 0 || index >= ast_value_branch_count(node)) return NULL;
+    switch (node->type) {
+        case AST_IF: return index ? node->as.if_stmt.else_branch : node->as.if_stmt.then_branch;
+        case AST_COND:
+            return index == node->as.cond_expr.clause_count ? node->as.cond_expr.else_value
+                : node->as.cond_expr.values[index];
+        case AST_MATCH: return node->as.match_expr.arm_bodies[index];
+        case AST_BLOCK: return node->as.block.statements[node->as.block.count - 1];
+        default: return NULL;
+    }
+}
+
 /* Recursively inject implicit returns at tail positions of a block.
  * Called from parse_function when return_type is non-void.
  * Wraps bare expression statements at the end of function bodies (and

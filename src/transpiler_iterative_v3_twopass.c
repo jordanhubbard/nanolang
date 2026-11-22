@@ -620,6 +620,12 @@ static const char *map_function_name(const char *name, Environment *env) {
 }
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
+    for (int i = 0; i < ast_value_branch_count(expr); ++i) {
+        ASTNode *branch = ast_value_branch(expr, i);
+        if (ast_always_returns(branch)) continue;
+        const TypeInfo *info = array_expr_type_info(branch, env);
+        if (info) return info;
+    }
     if (expr && (expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) && expr->checked_global) {
         Symbol *global = env_get_declared_global(env, expr->checked_global);
         return global ? global->type_info : NULL;
@@ -670,6 +676,12 @@ static Type resolved_array_element(Type element, const char *name, Environment *
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    for (int i = 0; i < ast_value_branch_count(array_expr); ++i) {
+        ASTNode *branch = ast_value_branch(array_expr, i);
+        if (ast_always_returns(branch)) continue;
+        Type element = infer_array_element_type(branch, env);
+        if (element != TYPE_UNKNOWN) return element;
+    }
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
         array_expr->as.call.arg_count == 2 &&
@@ -1068,6 +1080,14 @@ static void restore_native_match_binding(Environment *env, ASTNode *match, int a
 
 static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *env) {
     if (!body) return;
+    if (ast_always_returns(body)) {
+        ScopeStack *scopes = scope_stack_create();
+        scope_stack_push(scopes, list);
+        build_stmt(list, scopes, body, 0, env, list->fn_registry);
+        scope_stack_pop(scopes, list);
+        scope_stack_free(scopes);
+        return;
+    }
     if (body->type != AST_BLOCK) {
         emit_literal(list, "_out = ");
         build_expr(list, body, env);
@@ -2439,6 +2459,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (array_info && array_info->element_type)
                     struct_name = array_info->element_type->generic_name;
 
+                if (elem_type == TYPE_STRUCT && !struct_name)
+                    struct_name = get_array_record_type_name(array_arg, env);
+
                 /* If this is an array of structs, try to recover the element struct name */
                 if (elem_type == TYPE_STRUCT && !struct_name) {
                     if (array_arg->type == AST_CALL && array_arg->as.call.name &&
@@ -2911,6 +2934,34 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
 
         case AST_COND: {
+            bool exits = false;
+            for (int i = 0; i < ast_value_branch_count(expr); ++i)
+                if (ast_always_returns(ast_value_branch(expr, i))) exits = true;
+            if (exits) {
+                /* I join resumed values without assigning a function exit. */
+                Type result = check_expression(expr, env);
+                const char *name = get_struct_type_name(expr, env);
+                emit_literal(list, "({ ");
+                if (result != TYPE_VOID)
+                    emit_formatted(list, "%s _out; ", effect_c_type(result, name, env));
+                for (int i = 0; i <= expr->as.cond_expr.clause_count; ++i) {
+                    if (i < expr->as.cond_expr.clause_count) {
+                        emit_literal(list, i ? "else if (" : "if (");
+                        build_expr(list, expr->as.cond_expr.conditions[i], env);
+                        emit_literal(list, ") { ");
+                    } else emit_literal(list, "else { ");
+                    ASTNode *value = ast_value_branch(expr, i);
+                    if (result == TYPE_VOID) {
+                        ScopeStack *scopes = scope_stack_create();
+                        scope_stack_push(scopes, list);
+                        build_stmt(list, scopes, value, 0, env, list->fn_registry);
+                        scope_stack_pop(scopes, list); scope_stack_free(scopes);
+                    } else build_match_arm_value(list, value, env);
+                    emit_literal(list, "} ");
+                }
+                emit_literal(list, result == TYPE_VOID ? "(void)0; })" : "_out; })");
+                break;
+            }
             /* Transpile cond expression to nested ternary operators */
             emit_literal(list, "(");
             for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {

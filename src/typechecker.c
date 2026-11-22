@@ -337,14 +337,18 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    for (int i = 0; i < ast_value_branch_count(expr); ++i) {
+        ASTNode *branch = ast_value_branch(expr, i);
+        if (ast_always_returns(branch)) continue;
+        TypeInfo *info = try_get_expr_type_info(branch, env);
+        if (info) return info;
+    }
     if (expr->type == AST_EFFECT_OP) {
         EffectDef *effect = env_get_effect(env, expr->as.effect_op.effect_name);
         EffectOp *operation = effect ? effect_get_op(effect, expr->as.effect_op.op_name) : NULL;
         return operation ? operation->return_type_info : NULL;
     }
     if (expr->type == AST_HANDLE_EXPR) return try_get_expr_type_info(expr->as.handle_expr.body, env);
-    if (expr->type == AST_BLOCK && expr->as.block.count)
-        return try_get_expr_type_info(expr->as.block.statements[expr->as.block.count - 1], env);
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
     if (expr->type == AST_TUPLE_LITERAL) return expr->as.tuple_literal.type_info;
     if (expr->type == AST_TUPLE_INDEX) {
@@ -649,8 +653,14 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
 }
 
 /* I borrow nominal element identity from the array declaration. */
-static const char *array_record_name(ASTNode *array, Environment *env) {
+const char *get_array_record_type_name(ASTNode *array, Environment *env) {
     if (!array) return NULL;
+    for (int i = 0; i < ast_value_branch_count(array); ++i) {
+        ASTNode *branch = ast_value_branch(array, i);
+        if (ast_always_returns(branch)) continue;
+        const char *name = get_array_record_type_name(branch, env);
+        if (name) return name;
+    }
     if (array->type == AST_ARRAY_LITERAL && array->as.array_literal.element_count > 0)
         return get_struct_type_name(array->as.array_literal.elements[0], env);
     TypeInfo *info = try_get_expr_type_info(array, env);
@@ -694,14 +704,14 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
             const char *stored_name = get_struct_type_name(array->as.call.args[1], env);
             if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0)
                 return stored_name;
-            const char *receiver_name = array_record_name(receiver, env);
+            const char *receiver_name = get_array_record_type_name(receiver, env);
             StructDef *expected = receiver_name ? env_get_struct(env, receiver_name) : NULL;
             StructDef *actual = stored_name ? env_get_struct(env, stored_name) : NULL;
             return expected && expected != actual ? NULL : receiver_name;
         }
         if ((!strcmp(env_array_operation(env, array), "filter") && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
-            return array_record_name(array->as.call.args[0], env);
+            return get_array_record_type_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
             return get_struct_type_name(array->as.call.args[1], env);
         if (!strcmp(env_array_operation(env, array), "map") && array->as.call.arg_count == 2 &&
@@ -722,8 +732,13 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
 
 /* I supply a declared context only to an anonymous record expression. */
 static bool retain_anonymous_record_context(Environment *env, const char *name, ASTNode *value) {
-    if (!value || value->type != AST_STRUCT_LITERAL || value->as.struct_literal.struct_name ||
-        value->as.struct_literal.spread_source || !name) return true;
+    if (!value || !name) return true;
+    for (int i = 0; i < ast_value_branch_count(value); ++i) {
+        ASTNode *branch = ast_value_branch(value, i);
+        if (!ast_always_returns(branch) && !retain_anonymous_record_context(env, name, branch)) return false;
+    }
+    if (value->type != AST_STRUCT_LITERAL || value->as.struct_literal.struct_name ||
+        value->as.struct_literal.spread_source) return true;
     StructDef *record = env_get_struct(env, name);
     if (!record) return true;
     char *identity = strdup(record->name);
@@ -743,6 +758,14 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
+    if (ast_always_returns(value)) return true;
+    int branches = ast_value_branch_count(value);
+    if (branches) {
+        for (int i = 0; i < branches; ++i)
+            if (!check_record_array_contract(env, type, element, name, ast_value_branch(value, i)))
+                return false;
+        return true;
+    }
     if (value->type == AST_ARRAY_LITERAL) {
         for (int i = 0; i < value->as.array_literal.element_count; ++i) {
             ASTNode *child = value->as.array_literal.elements[i];
@@ -759,7 +782,7 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
         value->as.array_literal.has_element_annotation = true;
         return true;
     }
-    const char *actual_name = array_record_name(value, env);
+    const char *actual_name = get_array_record_type_name(value, env);
     StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
     if (actual == expected) return true;
     emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
@@ -1211,7 +1234,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             if (checked && checked->return_struct_name) return checked->return_struct_name;
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
-                return array_record_name(expr->as.call.args[0], env);
+                return get_array_record_type_name(expr->as.call.args[0], env);
             /* Check if return_struct_type_name was set by type checker (for generic list get) */
             if (expr->as.call.return_struct_type_name) {
                 return expr->as.call.return_struct_type_name;
@@ -1406,6 +1429,12 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    for (int i = 0; i < ast_value_branch_count(array_expr); ++i) {
+        ASTNode *branch = ast_value_branch(array_expr, i);
+        if (ast_always_returns(branch)) continue;
+        Type element = infer_array_element_type(branch, env);
+        if (element != TYPE_UNKNOWN) return element;
+    }
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "str_split") &&
         array_expr->as.call.arg_count == 2 &&
@@ -1544,7 +1573,7 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
                 if (info->element_type) {
                     info->element_type->base_type = element;
                     if (element == TYPE_STRUCT) {
-                        const char *name = array_record_name(expr, env);
+                        const char *name = get_array_record_type_name(expr, env);
                         info->element_type->generic_name = name ? strdup(name) : NULL;
                     }
                 }
@@ -2591,7 +2620,7 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     if (valid) {
         /* I retain element identity while the lexical environment is available.
          * Bytecode field selection runs after these local scopes are gone. */
-        const char *name = array_record_name(array, env);
+        const char *name = get_array_record_type_name(array, env);
         char *retained = name ? strdup(name) : NULL;
         free(call->as.call.return_struct_type_name);
         call->as.call.return_struct_type_name = retained;
@@ -3407,11 +3436,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (callable_array_set &&
                     (!func || (!func->body && !func->is_extern)) &&
                     !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)) {
-                    const char *name = array_record_name(array, env);
+                    const char *name = get_array_record_type_name(array, env);
                     StructDef *record = name ? env_get_struct(env, name) : NULL;
                     if (record) {
                         /* I retain declaration identity rather than an ephemeral call signature. */
                         const char *identity = record->name;
+                        if (!check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, identity, array))
+                            return TYPE_UNKNOWN;
                         if (!retain_anonymous_record_context(env, identity, stored)) return TYPE_UNKNOWN;
                         check_expression(stored, env);
                         record = env_get_struct(env, identity);
@@ -4621,29 +4652,28 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             
-            /* Type check all values and ensure they have the same type */
+            /* I compare resumed values, while still checking exiting branches. */
             Type result_type = TYPE_UNKNOWN;
-            if (expr->as.cond_expr.clause_count > 0) {
-                result_type = check_expression(expr->as.cond_expr.values[0], env);
-                for (int i = 1; i < expr->as.cond_expr.clause_count; i++) {
-                    Type val_type = check_expression(expr->as.cond_expr.values[i], env);
-                    if (val_type != result_type && result_type != TYPE_UNKNOWN && val_type != TYPE_UNKNOWN) {
-                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "I require all cond clause values to have the same type.",
-                            "Use the same type in every cond value arm.");
-                    }
+            for (int i = 0; i < expr->as.cond_expr.clause_count; ++i) {
+                ASTNode *value = expr->as.cond_expr.values[i];
+                Type val_type = check_expression(value, env);
+                if (ast_always_returns(value)) continue;
+                if (result_type == TYPE_UNKNOWN) result_type = val_type;
+                else if (val_type != result_type && val_type != TYPE_UNKNOWN) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require all cond clause values to have the same type.",
+                        "Use the same type in every cond value arm.");
                 }
             }
-            
-            /* Type check else value (must match clause values) */
             Type else_type = check_expression(expr->as.cond_expr.else_value, env);
-            if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN) {
-                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                    "I require the cond else value to match the clause value type.",
-                    "Use the same type in every cond value arm.");
+            if (!ast_always_returns(expr->as.cond_expr.else_value)) {
+                if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN)
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the cond else value to match the clause value type.",
+                        "Use the same type in every cond value arm.");
+                if (result_type == TYPE_UNKNOWN) result_type = else_type;
             }
-            
-            return result_type != TYPE_UNKNOWN ? result_type : else_type;
+            return result_type;
         }
 
         case AST_STRUCT_LITERAL: {
@@ -6442,7 +6472,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     loop_var_type = element_type;
                 }
                 if (loop_var_type == TYPE_STRUCT) {
-                    loop_var_struct_name = array_record_name(range_expr, tc->env);
+                    loop_var_struct_name = get_array_record_type_name(range_expr, tc->env);
                 }
             } else if (iter_type == TYPE_LIST_STRING) {
                 loop_var_type = TYPE_STRING;

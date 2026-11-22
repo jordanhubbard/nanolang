@@ -36,7 +36,7 @@ class NominalRecordArrayMutation(unittest.TestCase):
                 ('vm', ROOT / 'bin/nano_virt', ['--emit-nvm']),
                 ('selfhost', SELFHOST, ['--emit-nvm'])]
 
-    def exercise(self, text, accepted, files=None, refusal='array mutation'):
+    def exercise(self, text, accepted, files=None, refusal='array mutation', diagnostic='E001'):
         with tempfile.TemporaryDirectory(prefix='nano-nominal-mutation-') as temporary:
             work = Path(temporary)
             source = work/'main.nano'
@@ -52,8 +52,9 @@ class NominalRecordArrayMutation(unittest.TestCase):
                         cwd=ROOT, capture_output=True, text=True, timeout=180)
                     if not accepted:
                         self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
-                        self.assertIn('E001', result.stdout+result.stderr)
-                        self.assertIn(refusal, result.stdout+result.stderr)
+                        self.assertRegex(result.stdout+result.stderr, diagnostic)
+                        if refusal is not None:
+                            self.assertIn(refusal, result.stdout+result.stderr)
                         self.assertEqual(output.read_bytes(), b'prior-output')
                     else:
                         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
@@ -102,6 +103,99 @@ fn main() -> int { return 0 }
                     'assert (== (at items 0).a 42) assert (== (at alias 0).a 42) '
                     'assert (== (at items 1).a 2) return 0\n}'+END, True)
 
+    def test_control_flow_receivers_preserve_record_identity(self):
+        targets = [
+            '(if true { items } else { alias })',
+            '(if false { alias } else { items })',
+            '(if true { items } else { [] })',
+            '(if false { [] } else { items })',
+            '(match 1 { 1 => { items } _ => { [] } })',
+            '(match 1 { 0 => { [] } _ => { items } })',
+            '(cond (false alias) (true items) (else alias))',
+            '(match 1 { 1 => { items } _ => { alias } })',
+            '(if true { let chosen: array<First> = items chosen } else { alias })',
+            '(cond (false alias) (else (if true { items } else { alias })))',
+        ]
+        for target in targets:
+            for accepted, value in ((False, 'wrong'), (True, 'right'), (True, '{ a: 42 }'),
+                                    (True, '(if true { { a: 42 } } else { { a: 43 } })')):
+                with self.subTest(target=target, accepted=accepted, value=value):
+                    self.exercise(DECL+'fn main() -> int {\n'+LOCALS+
+                        '(array_set '+target+' 0 '+value+')\n'+
+                        ('assert (== (at items 0).a 42) assert (== (at items 1).a 2) ' if accepted else '')+
+                        'return 0 }'+END, accepted, refusal=None, diagnostic=r'E001|E0001')
+
+    def test_unselected_receiver_branches_preserve_record_identity(self):
+        targets = [
+            '(if true { items } else { others })',
+            '(if false { others } else { items })',
+            '(cond (true items) (false others) (else alias))',
+            '(match 1 { 1 => { items } _ => { others } })',
+        ]
+        for target in targets:
+            with self.subTest(target=target):
+                self.exercise(DECL+'fn main() -> int {\n'+LOCALS+
+                    'let others: array<Second> = [wrong]\n'+
+                    '(array_set '+target+' 0 right) return 0 }'+END,
+                    False, refusal=None, diagnostic=r'E001|E0001')
+
+    def test_receiver_returns_skip_index_and_value_effects(self):
+        template = '''struct First { a:int }
+fn position(log:array<int>)->int{(array_set log 0 (+ (at log 0) 1)) return 0}
+shadow position{let log:array<int> = [0] assert (== (position log) 0) assert (== (at log 0) 1)}
+fn value(log:array<int>)->First{(array_set log 0 (+ (at log 0) 10)) return First{a:42}}
+shadow value{let log:array<int> = [0] assert (== (value log).a 42) assert (== (at log 0) 10)}
+fn replace(flag:int,items:array<First>,log:array<int>)->int{
+(array_set TARGET (position log) (value log)) return 9
+}
+shadow replace{
+let items:array<First> = [First{a:1}] let log:array<int> = [0]
+assert (== (replace 1 items log) 7) assert (== (at log 0) 0) assert (== (at items 0).a 1)
+assert (== (replace 0 items log) 9) assert (== (at log 0) 11) assert (== (at items 0).a 42)
+}
+fn main()->int{let items:array<First> = [First{a:1}] let log:array<int> = [0] assert (== (replace 1 items log) 7) assert (== (at log 0) 0) assert (== (replace 0 items log) 9) assert (== (at log 0) 11) assert (== (at items 0).a 42) return 0}
+shadow main{assert (== (main) 0)}
+'''
+        for target in ('(if (== flag 1) {return 7} else {items})',
+                       '(cond ((== flag 1) (if true {return 7} else {return 7})) (else items))',
+                       '(match flag {1=>{return 7} _=>{items}})'):
+            with self.subTest(target=target):
+                self.exercise(template.replace('TARGET', target), True)
+
+    def test_discarded_statement_branches_keep_their_types(self):
+        self.exercise('''fn number()->int{return 1}
+shadow number{assert (== (number) 1)}
+fn text()->string{return "discarded"}
+shadow text{assert (== (text) "discarded")}
+fn discard(flag:bool)->void{if flag {(number)} else {(text)}}
+shadow discard{(discard true) (discard false) assert true}
+fn main()->int{(discard true) (discard false) return 0}
+shadow main{assert (== (main) 0)}
+''', True)
+
+    def test_selected_empty_receiver_values_keep_storage_type(self):
+        for target in ('(if empty { [] } else { items })',
+                       '(match empty { 1 => { [] } _ => { items } })'):
+            boolean = target.startswith('(if')
+            argument_type = 'bool' if boolean else 'int'
+            yes, no = ('true', 'false') if boolean else ('1', '0')
+            with self.subTest(target=target):
+                self.exercise(DECL+'fn choose(empty:'+argument_type+', items:array<First>)->array<First>{return '+target+'}\n'+
+                    'shadow choose{let items:array<First> = [First{a:1}] assert (== (array_length (choose '+yes+' items)) 0)}\n'+
+                    'fn main()->int{let items:array<First> = [First{a:1}] '
+                    'let fresh:array<First> = (array_push (choose '+yes+' items) First{a:7}) '
+                    '(array_set fresh 0 First{a:42}) assert (== (at fresh 0).a 42) '
+                    'assert (== (at items 0).a 1) '
+                    '(array_set (choose '+no+' items) 0 First{a:9}) assert (== (at items 0).a 9) return 0}'+END, True)
+
+    def test_record_value_context_keeps_return_and_guard_checks(self):
+        for value in ('(if true { return "wrong" } else { right })',
+                      '(match 1 { _ if 7 => { right } _ => { right } })'):
+            with self.subTest(value=value):
+                self.exercise(DECL+'fn main()->int{'+LOCALS+
+                    '(array_set items 0 '+value+') return 0}'+END, False,
+                    refusal=None, diagnostic=r'E001|E0001')
+
     def test_imported_declarations_preserve_module_identity(self):
         files = {}
         for module in ('Left', 'Right'):
@@ -114,7 +208,10 @@ fn main() -> int { return 0 }
                 'shadow forward_items { let values: array<Item> = [] assert (== (array_length (forward_items values)) 0) }\n')
         for owner in ('left', 'right'):
             for value in (owner+'.Item { a: 42 }', '('+owner+'.item)'):
-                for target in ('items', '(left.items)', '(left.forward_items items)'):
+                for target in ('items', '(left.items)', '(left.forward_items items)',
+                               '(if true { items } else { (left.items) })',
+                               '(cond (false (left.items)) (else items))',
+                               '(match 1 { 1 => { items } _ => { (left.forward_items items) } })'):
                     with self.subTest(owner=owner, value=value, target=target):
                         self.exercise('module "left.nano" as left\nmodule "right.nano" as right\n'
                             'fn main() -> int { let items: array<left.Item> = (left.items) '
@@ -122,6 +219,11 @@ fn main() -> int { return 0 }
                             ('assert (== (at items 0).a 42) ' if owner == 'left' and target != '(left.items)' else '')+
                             'assert (== (array_length items) 1) return 0 }'+END,
                             owner == 'left', files)
+        self.exercise('module "left.nano" as left\nmodule "right.nano" as right\n'
+            'fn main()->int{let items:array<left.Item> = (left.items) '
+            '(array_set (if true {items} else {(right.items)}) 0 left.Item{a:42}) return 0}'+END,
+            False, files, refusal=None, diagnostic=r'E001|E0001')
+
 
     def test_lexical_call_and_forbidden_redefinition_keep_their_rules(self):
         for lexical in (False, True):
