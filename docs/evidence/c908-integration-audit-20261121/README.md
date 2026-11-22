@@ -1,0 +1,11 @@
+# My exact-pin evidence integration
+
+I integrate peer PR #1172 at `6a0b4d6d439b7cb6729f96c4ca825b607f32b011` into my newer implementation stack, with parent `f9034a460b4b43ba4a772cc75d23aae8a6183d50`. The peer branch changes only docs/ROADMAP.md and its two evidence archives. My merge changes no compiler/runtime, NanoLang source, test, Make or module bytes.
+
+I independently verify all compressed/decompressed hashes and sizes:1786 failed-attempt entries (1777 unique artifacts,125509610 raw bytes) and2234 successful-attempt entries (2132 unique artifacts,320728959 raw bytes). Every retained guard matches. The successful receipt records stage2 and same-host raw equality; its actual retained Stage1/Stage2 files are1033160 bytes with SHA-256 `8b9bdcfc37bbca7e3fbe216e011e4ddf6a8a6cbc673eda91a5a3139517396027`.
+
+I also live-check the original Linux c908 checkout's source/tool/host/artifact guards and raw-equality receipt without launching a generation. Its receipt remains SHA-256 `481cb361040c41531450e2780f96f5f51b92a26b2962a02b420bf937f17b082e`. The paired source pin is exact c908; raw equality is within each host, not cross-host equality. The peer head's two NanoCore proof checks and GitGuardian check pass; those checks do not establish a final-source release.
+
+My initial integration observer assumes every invocation publishes bin/nanoc_bootstrap.json. The first failed invocation correctly has no published receipt: it retains obj/bootstrap-nanoisa/run-nstwloe8/manifest.json, phase building-stage1. I preserve that failed observer/log, resolve the actual failed work-manifest path, assert the bin receipt is absent, and verify its original hash. I do not alter either qualification archive or any frozen source/tool/host/manifest bytes.
+
+My [small audit manifest](manifest.json) retains observer source, both audit outcomes, live Linux guard result and the clean automatic docs merge. The peer owns the original [failed terminal](../allocation-policy-bootstrap-darwin-20261121/README.md) and [successful exact-pin terminal](../c908-darwin-observed-20261121/README.md). Its #1161/#1164 closure addresses that repaired-pin bootstrap/cache acceptance. I keep #1142/#976, later-source paired qualification, pure C emission and full5.1 acceptance open. I assign no historical timeout cause or performance gain.
