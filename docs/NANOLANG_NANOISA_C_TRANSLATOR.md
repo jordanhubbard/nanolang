@@ -712,6 +712,56 @@ routes in181.116 seconds. Targeted actual C copier/shared-verifier sanitizer
 controls and original identifiers pass. I retain the initial DELETE/LEN fixture
 opcode error and correct only its byte. My separate [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) also passes the complete height gate. The exact source providers remain distinct; full profile/verifier integration remains required.
 
+## My ordinary height and explicit-retain walk
+
+`stack_heights.nano` reuses `functions.nano` and matches the ordinary shared
+`verify_stack_heights` helper. My entry is
+`verify(code, start, length, signatures, imports, current, locals)`. A signature
+contains unsigned16-bit arity and unsigned8-bit result count; an import contains
+unsigned16-bit parameter count and unsigned8-bit return tag. I distinguish safe
+decode/precondition refusal (`Result.decoded = false`) from a completed helper
+call. Successful results report the reachable maximum; failures carry the exact
+shared diagnostic and publish no maximum (`maximum = 0`).
+
+I preserve dynamic direct/indirect/module/foreign calls, capture and aggregate
+literal counts, PERFORM, PICK and ROLL. I walk branch targets before fallthrough,
+visit each instruction once and require equal stack height and explicit retain
+balance at joins. GC_RELEASE must first have its operand, then a held reference.
+I preserve explicit and implicit return shape checks, handler installation with
+balanced ownership, empty handler-target entry, EFFECT_RESUME constraints and
+16-bit locals-plus-operand frame bounds. A handler targeting the terminal byte
+retains the original outgoing-height end check. HALT and TAIL_CALL retain the
+helper's existing termination behavior. FILE_RESULT_BRANCH has only the ordinary
+fallthrough height edge here; its execution profiles own additional checks.
+
+I decode dead instructions, but their unreachable stack/retain effects do not
+participate in the walk. An empty body passes this helper independently of its
+declared results; full structural verification owns that refusal. My preconditions
+validate representable signature fields, current-function/local bounds and every
+CALL_EXTERN index before the helper can dereference it. These prerequisite
+refusals are normalized to `D` in the differential carrier. They do not replace
+all module table, signature, effect, ownership or profile validation. The carrier
+limits function/import tables to65536 entries for bounded tests; my pure entry
+retains the unsigned32-bit count boundary.
+
+My [Linux checkpoint](evidence/stack-heights-linux-20261121/README.md) matches3154
+complete reports per route,546 explicit expectations, every primary byte,
+1024 randomized CFGs, nonzero spans, terminal/interior/dead branches and16-bit
+signature/depth/frame boundaries. I run five routes using the actual guarded
+bdffa4ccc native Stage1 as NanoLang producer; the full gate passes in68.869s.
+Both generated native routes retain ASan/UBSan. Targeted instrumentation of the
+actual C height helper, decoder and ISA reader matches the same3154 reports;
+all97 original C verifier tests and the original identifier controls pass.
+I retain my initial new shadow's mistaken GC_RELEASE error priority and correct
+its intended operand without changing either verifier algorithm.
+
+I compare successful-allocation, representable helper behavior. Allocation
+failure/publication policy, counted private resource limits, full ordinary
+verification and ARRAY/MAP ownership/origin/lifetime analysis remain separate.
+Darwin qualification stays pending while the peer's observed exact c908523c3
+run under #1161 is active. I claim no product selection or pure C-emitter
+completion from this component.
+
 ## My shared shallow operand-type walk
 
 `stack_types.nano` reuses my ordinary `functions.nano` decoder and implements the

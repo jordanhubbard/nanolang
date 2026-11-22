@@ -1,0 +1,206 @@
+module nvm2c_stack_heights
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as primary
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I match the ordinary shared height/explicit-retain helper, after safe decode
+# and signature/index preconditions. This grants no full module admission.
+pub struct Signature { arity: int, results: int }
+pub struct Import { parameters: int, return_tag: int }
+pub struct Result { decoded: bool, valid: bool, maximum: int, message: string }
+
+fn refused(message: string) -> Result {
+    return Result { decoded: true, valid: false, maximum: 0, message: message }
+}
+shadow refused {
+    assert (refused "x").decoded
+    assert (not (refused "x").valid)
+    assert (== (refused "x").maximum 0)
+    assert (== (refused "x").message "x")
+}
+fn undecoded() -> Result {
+    return Result { decoded: false, valid: false, maximum: 0, message: "" }
+}
+shadow undecoded { assert (not (undecoded).decoded) assert (not (undecoded).valid) }
+fn prefix(current: int) -> string {
+    return (+ "function[" (+ (int_to_string current) "] "))
+}
+shadow prefix { assert (== (prefix 42) "function[42] ") }
+fn branch(opcode: int) -> bool {
+    return (or (or (or (== opcode 56) (== opcode 57)) (or (== opcode 58) (== opcode 107))) (== opcode 165))
+}
+shadow branch { assert (branch 56) assert (branch 165) assert (not (branch 146)) }
+fn terminal(opcode: int) -> bool {
+    return (or (or (== opcode 56) (== opcode 61)) (or (== opcode 51) (or (== opcode 163) (== opcode 168))))
+}
+shadow terminal { assert (terminal 168) assert (terminal 51) assert (not (terminal 165)) }
+
+pub fn verify(code: array<u8>, start: int, length: int,
+              signatures: array<Signature>, imports: array<Import>,
+              current: int, locals: int) -> Result {
+    let functions: int = (array_length signatures)
+    if (or (or (<= functions 0) (> functions 4294967295)) (or (< current 0) (>= current functions))) { return (undecoded) }
+    if (or (< locals 0) (> locals 65535)) { return (undecoded) }
+    if (> (array_length imports) 4294967295) { return (undecoded) }
+    let mut i: int = 0
+    while (< i functions) {
+        let item: Signature = (at signatures i)
+        if (or (or (< item.arity 0) (> item.arity 65535)) (or (< item.results 0) (> item.results 255))) { return (undecoded) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length imports)) {
+        let item: Import = (at imports i)
+        if (or (or (< item.parameters 0) (> item.parameters 65535)) (or (< item.return_tag 0) (> item.return_tag 255))) { return (undecoded) }
+        set i (+ i 1)
+    }
+    let plan: bodies.Function = (bodies.decode code start length functions)
+    if (not plan.valid) { return (undecoded) }
+    let count: int = (array_length plan.instructions)
+    # The shared helper dereferences imports after structural validation. I
+    # check that prerequisite even in dead code, without claiming the rest.
+    set i 0
+    while (< i count) {
+        let item: primary.Instruction = (at plan.instructions i)
+        if (and (== item.opcode 62) (>= (primary.integer item 0) (array_length imports))) { return (undecoded) }
+        set i (+ i 1)
+    }
+    let results: int = (at signatures current).results
+    let stem: string = (prefix current)
+    let mut heights: array<int> = []
+    let mut owed: array<int> = []
+    set i 0
+    while (<= i count) {
+        set heights (array_push heights -1)
+        set owed (array_push owed -1)
+        set i (+ i 1)
+    }
+    (array_set heights 0 0) (array_set owed 0 0)
+    let mut work: array<int> = [0]
+    let mut head: int = 0
+    let mut maximum: int = 0
+    while (< head (array_length work)) {
+        let index: int = (at work head)
+        set head (+ head 1)
+        # I preserve the empty-body helper boundary. The structural verifier
+        # separately refuses empty functions that declare a result.
+        if (!= index count) {
+            let item: primary.Instruction = (at plan.instructions index)
+            let opcode: int = item.opcode
+            let offset: int = (at plan.starts index)
+            let position: string = (int_to_string offset)
+            let name: string = (isa.primary_name opcode)
+            let mut pops: int = item.pops
+            let mut pushes: int = item.pushes
+            if (or (== opcode 59) (== opcode 51)) {
+                let callee: Signature = (at signatures (primary.integer item 0))
+                set pops callee.arity set pushes callee.results
+            } else if (== opcode 62) {
+                let foreign: Import = (at imports (primary.integer item 0))
+                set pops foreign.parameters set pushes 1
+                if (== foreign.return_tag 0) { set pushes 0 }
+            } else if (or (== opcode 144) (or (== opcode 99) (or (== opcode 88) (== opcode 167)))) {
+                # CLOSURE_NEW, STRUCT_LITERAL, ARR_LITERAL, PERFORM.
+                set pops (primary.integer item 1) set pushes 1
+            } else if (== opcode 104) {
+                set pops (primary.integer item 2) set pushes 1
+            } else if (== opcode 112) {
+                set pops (primary.integer item 0) set pushes 1
+            } else if (== opcode 251) {
+                set pops (primary.integer item 3) set pushes 1
+            } else if (== opcode 60) {
+                set pops (+ (primary.integer item 0) 1) set pushes (primary.integer item 1)
+            } else if (== opcode 63) {
+                set pops (primary.integer item 2) set pushes (primary.integer item 3)
+            } else if (== opcode 61) {
+                set pops results set pushes 0
+            } else if (or (== opcode 244) (== opcode 245)) {
+                set pops (+ (primary.integer item 0) 1) set pushes pops
+                if (== opcode 244) { set pushes (+ pushes 1) }
+            }
+            if (or (< pops 0) (< pushes 0)) {
+                return (refused (+ stem (+ name (+ " at offset " (+ position " has no known stack effect")))))
+            }
+            let before: int = (at heights index)
+            let held: int = (at owed index)
+            if (and (== opcode 61) (!= before results)) {
+                return (refused (+ stem (+ "returns with " (+ (int_to_string before) (+ " values at offset " (+ position (+ " but declares " (int_to_string results))))))))
+            }
+            if (and (== opcode 165) (!= held 0)) {
+                return (refused "I cannot install a nonlocal-return handler across outstanding explicit retains.")
+            }
+            if (and (== opcode 168) (or (!= before 1) (!= held 0))) {
+                return (refused "I require one result and balanced ownership when resuming an effect.")
+            }
+            if (< before pops) {
+                return (refused (+ stem (+ "stack underflow at offset " (+ position (+ " (" (+ name (+ " needs " (+ (int_to_string pops) (+ ", has " (+ (int_to_string before) ")"))))))))))
+            }
+            let after: int = (+ (- before pops) pushes)
+            let mut remaining: int = held
+            if (== opcode 128) { set remaining (+ remaining 1) }
+            if (== opcode 129) { set remaining (- remaining 1) }
+            if (< remaining 0) {
+                return (refused (+ stem (+ "releases a reference it does not hold at offset " position)))
+            }
+            if (and (== opcode 61) (!= held 0)) {
+                return (refused (+ stem (+ "returns at offset " (+ position (+ " still holding " (+ (int_to_string held) " retained reference(s)"))))))
+            }
+            if (> before maximum) { set maximum before }
+            if (> after maximum) { set maximum after }
+            let mut successors: array<int> = []
+            if (branch opcode) {
+                let target: int = (at plan.targets index)
+                let relative: int = (- target start)
+                let mut destination: int = (bodies.index_at plan relative)
+                if (== relative length) { set destination count }
+                if (or (< target start) (< destination 0)) {
+                    return (refused (+ stem (+ "branch at offset " (+ position (+ " targets " (+ (int_to_string target) ", which is not an instruction boundary in this function"))))))
+                }
+                set successors (array_push successors destination)
+            }
+            if (not (terminal opcode)) { set successors (array_push successors (+ index 1)) }
+            let mut edge: int = 0
+            while (< edge (array_length successors)) {
+                let successor: int = (at successors edge)
+                let mut depth: int = after
+                let mut balance: int = remaining
+                if (and (== opcode 165) (== edge 0)) { set depth 0 set balance 0 }
+                if (== successor count) {
+                    # The original end-boundary check uses after/remaining,
+                    # including a handler's target edge; I preserve that.
+                    if (!= remaining 0) {
+                        return (refused (+ stem (+ "reaches its end after offset " (+ position (+ " still holding " (+ (int_to_string remaining) " retained reference(s)"))))))
+                    }
+                    if (!= after results) {
+                        return (refused (+ stem (+ "reaches its end after offset " (+ position (+ " with " (+ (int_to_string after) (+ " values but declares " (int_to_string results))))))))
+                    }
+                } else if (< (at heights successor) 0) {
+                    (array_set heights successor depth) (array_set owed successor balance)
+                    set work (array_push work successor)
+                } else if (!= (at owed successor) balance) {
+                    return (refused (+ stem (+ "incompatible ownership balance at offset " (+ (int_to_string (at plan.starts successor)) (+ " (" (+ (int_to_string (at owed successor)) (+ " and " (+ (int_to_string balance) ")"))))))))
+                } else if (!= (at heights successor) depth) {
+                    return (refused (+ stem (+ "incompatible stack heights at offset " (+ (int_to_string (at plan.starts successor)) (+ " (" (+ (int_to_string (at heights successor)) (+ " and " (+ (int_to_string depth) ")"))))))))
+                }
+                set edge (+ edge 1)
+            }
+        }
+    }
+    if (> (+ locals maximum) 65535) {
+        return (refused (+ stem (+ "frame needs " (+ (int_to_string (+ locals maximum)) (+ " slots (" (+ (int_to_string locals) (+ " locals + operand depth " (+ (int_to_string maximum) "), more than a frame can address"))))))))
+    }
+    return Result { decoded: true, valid: true, maximum: maximum, message: "" }
+}
+shadow verify {
+    let signatures: array<Signature> = [Signature { arity: 0, results: 1 }]
+    assert (verify [] 0 0 signatures [] 0 65535).valid
+    assert (== (verify [5,61] 0 2 signatures [] 0 0).maximum 1)
+    assert (not (verify [61] 0 1 signatures [] 0 0).valid)
+    assert (== (verify [5,129,163] 0 3 signatures [] 0 0).message "function[0] releases a reference it does not hold at offset 1")
+    assert (not (verify [5,61] 0 2 signatures [] 0 65535).valid)
+    assert (not (verify [62,0,0,0,0] 0 5 signatures [] 0 0).decoded)
+    assert (not (verify [] 0 0 signatures [] -1 0).decoded)
+    assert (not (verify [] 0 0 signatures [] 0 -1).decoded)
+    assert (not (verify [] 0 0 [Signature { arity: -1, results: 0 }] [] 0 0).decoded)
+    assert (not (verify [] 0 0 signatures [Import { parameters: 0, return_tag: -1 }] 0 0).decoded)
+}
