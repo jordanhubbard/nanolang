@@ -858,7 +858,7 @@ cutover. My [same-source Darwin checkpoint](evidence/ordinary-verifier-component
 ## My empty-result structural boundary
 
 Under #1174 I repair a gap in ordinary module verification. Atbf5b438c442c,
-an empty main declaring one int result passes actual verify-only execution,
+an empty main declaring one int result passes actual verify-only,
 then the actual VM refuses its implicit return with zero values instead of one.
 My earlier height-component statement that structural checks owned this refusal
 was an incomplete description of that source: the helper accepted the empty
@@ -879,5 +879,4 @@ four actual product tests and targeted actual C verifier/type/decoder/ISA
 ASan/UBSan/leak controls. A real empty-void source body passes through both
 producers/five routes using the guarded qualified bdffa4ccc native Stage1.
 I preserve the baseline tools/bytes/runtime failure, red gates, first legacy
-fixture expectation and sanitizer-command observer setup refusal. Paired Darwin
-and final-source release qualification remain separate requirements.
+fixture expectation and sanitizer-command observer setup refusal. My [paired Darwin checkpoint](evidence/empty-function-results-darwin-20261121/README.md) at9fc32e45d passes the same101 verifier/569591 VM assertions, four product methods/five source routes and targeted actual C sanitizers, with no Darwin LeakSanitizer claim. All3559 guarded inputs and143 binary carriers match Linux. The retained older Darwin VM reproduces the identical pre-fix failure. A post-test observer omits its re import; I preserve that failure and complete only pairing/archival without rerunning tests. This closes the observed structural gap; full module/profile composition and final-source release qualification remain required.
