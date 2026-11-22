@@ -11,6 +11,24 @@ from scripts import ci_qualify_fixed_userguide as guide
 
 
 class FixedUserguideQualification(unittest.TestCase):
+    def test_actual_retained_cold_record_resolves_external_and_relative_tool_keys(self):
+        fixture = Path(__file__).parent / 'fixtures/capture-cold-tool-keys.json'
+        record = json.loads(fixture.read_text())
+        self.assertEqual(guide.retained_tool_digest(record, record['compiler']),
+            '864711037b900acdb7a449cf48d912cefa935b527fb60c767ccb956779e66136')
+        self.assertEqual(guide.retained_tool_digest(record, record['assembler']),
+            'f881e708d6cd94ee8d3d1b9d163cfd502f5447b0436887e4d1e66b7c3134e310')
+
+    def test_unknown_retained_tool_or_original_probe_root_is_refused(self):
+        fixture = Path(__file__).parent / 'fixtures/capture-cold-tool-keys.json'
+        record = json.loads(fixture.read_text())
+        for selected in ('/usr/bin/unknown-tool', record['assembler'] + '-unknown'):
+            with self.subTest(selected=selected), self.assertRaisesRegex(RuntimeError, 'retained tool identity'):
+                guide.retained_tool_digest(record, selected)
+        record['command'][0] = '/unrecognized/other-probe'
+        with self.assertRaisesRegex(RuntimeError, 'original capture probe root'):
+            guide.retained_tool_digest(record, record['assembler'])
+
     def fixture(self, root):
         source = dict(discovered=128, ran=128, errors=0, failures=0, skipped=[])
         response = dict(discovered=1, ran=1, errors=0, failures=0, skipped=[])

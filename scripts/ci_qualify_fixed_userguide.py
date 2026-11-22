@@ -40,6 +40,26 @@ def prior_reports(prior):
     return result, cold
 
 
+
+def retained_tool_digest(observation, selected):
+    hashes = observation['tool_sha256']
+    value = hashes.get(selected)
+    if value is None:
+        probe = Path(observation['command'][0])
+        if not probe.is_absolute() or probe.name != 'test_module_generation_probe' or probe.parent.name != 'obj':
+            raise RuntimeError('I refuse an unknown original capture probe root.')
+        try:
+            relative = Path(selected).relative_to(probe.parent.parent)
+        except ValueError as error:
+            raise RuntimeError('I refuse a missing retained tool identity.') from error
+        if '..' in relative.parts:
+            raise RuntimeError('I refuse a noncanonical retained tool identity.')
+        value = hashes.get(str(relative))
+    if not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value):
+        raise RuntimeError('I refuse a missing or malformed retained tool identity.')
+    return value
+
+
 def require_same_source(pin):
     if not re.fullmatch('[0-9a-f]{40}', pin):
         raise RuntimeError('I require an exact retained source commit.')
@@ -48,7 +68,8 @@ def require_same_source(pin):
     changed = [os.fsdecode(p) for p in result.stdout.split(b'\0') if p]
     permitted = {'docs/ROADMAP.md', '.github/workflows/source-capture-toolchain-diagnostic.yml',
         'scripts/ci_qualify_as246.py', 'scripts/ci_qualify_fixed_userguide.py',
-        'tests/test_capture_qualification_modes.py', 'tests/test_fixed_userguide_qualification.py'}
+        'tests/test_capture_qualification_modes.py', 'tests/test_fixed_userguide_qualification.py',
+        'tests/fixtures/capture-cold-tool-keys.json'}
     if any(name not in permitted and not name.startswith('docs/evidence/') for name in changed):
         raise RuntimeError('I refuse production source drift after the qualified capture cohort.')
     return changed
@@ -75,9 +96,9 @@ def main():
         _, _, backend = qualifier.fixed_assembler_candidate(
             original[source].decode(), original[test].decode(), current)
         compiler = backend['compiler']
-        if (compiler != cold['compiler'] or digest(compiler) != cold['tool_sha256'][compiler] or
+        if (compiler != cold['compiler'] or digest(compiler) != retained_tool_digest(cold, compiler) or
                 backend['assembler_sha256'] != previous['fixed_backend']['assembler_sha256'] or
-                backend['assembler_sha256'] != cold['tool_sha256'][cold['assembler']]):
+                backend['assembler_sha256'] != retained_tool_digest(cold, cold['assembler'])):
             raise RuntimeError('I require the same actual compiler and qualified assembler images.')
         record['fixed_backend'] = backend
         patch = prior / 'candidate.patch'
