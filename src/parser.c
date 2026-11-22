@@ -5441,6 +5441,7 @@ static ASTNode *parse_module_decl(Stage1Parser *p) {
 
     ASTNode *node = create_node(AST_MODULE_DECL, line, column);
     node->as.module_decl.name = module_name;
+    node->as.module_decl.is_unsafe = false;
     return node;
 }
 
@@ -5813,9 +5814,10 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     /* unsafe module "path" - import */
                     parsed = parse_import(&parser);
                 } else if (after_module && after_module->token_type == TOKEN_IDENTIFIER) {
-                    /* unsafe module name {...} - declaration (TODO: implement) */
+                    /* I retain the declaration marker for module metadata. */
                     advance(&parser); /* consume unsafe */
                     parsed = parse_module_decl(&parser);
+                    if (parsed) parsed->as.module_decl.is_unsafe = true;
                 } else {
                     advance(&parser); /* consume unsafe */
                     parsed = parse_import(&parser);

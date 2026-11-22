@@ -1419,10 +1419,14 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
+        let mut captured: bool = true
         if (< i (- (array_length files) 1)) {
-            if (not (mi_capture src (at files i))) {
-                return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
-            }
+            set captured (mi_capture src (at files i))
+        } else {
+            set captured (mi_capture_root src (at files i))
+        }
+        if (not captured) {
+            return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
         }
         let lines: array<string> = (split_lines src)
         let mut j: int = 0
@@ -1446,6 +1450,10 @@ fn merge_with_imports(input_file: string) -> MergeResult {
 }
 
 shadow merge_with_imports {
+    let declared_root: MergeResult = (merge_with_imports "tests/test_module_introspection.nano")
+    assert (> (str_length declared_root.source) 0)
+    assert (== (array_length (mi_fact "test_math").functions) 3)
+    assert (== (array_length (mi_fact "test_math").structs) 2)
     let rejected: MergeResult = (merge_with_imports "tests/negative/neg_module_introspection_identity.nano")
     assert (== rejected.source "")
     assert (== (array_length rejected.files) 0)

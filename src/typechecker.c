@@ -8590,6 +8590,65 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
 
 #include "layout_validation.h"
 
+/* I register explicit root identities before exports can invent partial facts.
+ * A cached module's filename alias cannot replace its declared public identity. */
+static bool register_explicit_module_metadata(ASTNode *program, Environment *env) {
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_MODULE_DECL) continue;
+        const char *source = env_current_file(env);
+        char *canonical = source ? realpath(source, NULL) : NULL;
+        const char *path = canonical ? canonical : source;
+        const char *name = item->as.module_decl.name;
+        ModuleInfo *previous = env_get_module(env, name);
+        bool filename_alias = false;
+        if (previous && previous->path && path) {
+            char *old_canonical = realpath(previous->path, NULL);
+            const char *old_path = old_canonical ? old_canonical : previous->path;
+            if (strcmp(old_path, path)) {
+                ASTNode *other = get_cached_module_ast(previous->path);
+                char *identity = other ? module_program_name(other, previous->path) : NULL;
+                filename_alias = identity && strcmp(identity, name) != 0;
+                free(identity);
+                if (!filename_alias) {
+                    fprintf(stderr, "Error: I reject ambiguous module introspection identity: %s\n", name);
+                    free(old_canonical);
+                    free(canonical);
+                    return false;
+                }
+            }
+            free(old_canonical);
+        }
+        if (previous) {
+            if (filename_alias) {
+                for (int n = 0; n < previous->function_count; ++n) free(previous->exported_functions[n]);
+                free(previous->exported_functions);
+                previous->exported_functions = NULL;
+                previous->function_count = 0;
+                for (int n = 0; n < previous->struct_count; ++n) free(previous->exported_structs[n]);
+                free(previous->exported_structs);
+                previous->exported_structs = NULL;
+                previous->struct_count = 0;
+            }
+            if (path && (!previous->path || strcmp(previous->path, path))) {
+                char *retained_path = strdup(path);
+                if (!retained_path) {
+                    fprintf(stderr, "I cannot retain the declared module path.\n");
+                    free(canonical);
+                    return false;
+                }
+                free(previous->path);
+                previous->path = retained_path;
+            }
+            previous->is_unsafe = item->as.module_decl.is_unsafe;
+        } else {
+            env_register_module(env, name, path, item->as.module_decl.is_unsafe);
+        }
+        free(canonical);
+    }
+    return true;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (ast_has_service_declaration(program)) {
         fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
@@ -8673,6 +8732,7 @@ bool type_check(ASTNode *program, Environment *env) {
         }
     }
 
+    if (!register_explicit_module_metadata(program, env)) return false;
     if (!bind_nominal_records(program, env)) return false;
 
     /* First pass: collect all struct, enum, and function definitions */

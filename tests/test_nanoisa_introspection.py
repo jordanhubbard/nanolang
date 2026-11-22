@@ -15,6 +15,83 @@ CALLABLE_FIXTURE = ROOT / "tests/fixtures/module_introspection_callables.nano.tx
 
 
 class NanoisaIntrospection(unittest.TestCase):
+    def test_original_root_module_fixture(self):
+        with tempfile.TemporaryDirectory(prefix='nano-root-module-original-') as directory:
+            self.exercise_product(ROOT / 'tests/test_module_introspection.nano', Path(directory))
+
+    def test_explicit_root_inventory_and_all_operations(self):
+        for unsafe, empty in ((False, False), (True, False), (False, True), (True, True)):
+            with self.subTest(unsafe=unsafe, empty=empty), tempfile.TemporaryDirectory(prefix='nano-root-module-facts-') as directory:
+                work = Path(directory).resolve()
+                source = work / 'different_filename.nano'
+                declarations = []
+                for name, result in [('is_unsafe', 'bool'), ('has_ffi', 'bool'), ('name', 'string'),
+                                     ('path', 'string'), ('function_count', 'int'), ('struct_count', 'int'),
+                                     ('function_name', 'string'), ('struct_name', 'string')]:
+                    parameter = 'index:int' if name.endswith('_name') else ''
+                    declarations.append(f'extern fn ___module_{name}_root_probe({parameter})->{result}\n')
+                source.write_text(('unsafe ' if unsafe else '') + 'module root_probe\n' + ''.join(declarations) +
+                    ('' if empty else 'pub ') + 'struct Visible { n:int }\nstruct Hidden { n:int }\n' +
+                    ('' if empty else 'pub ') + 'fn answer()->int{return 42}\nshadow answer{assert (== (answer) 42)}\n'
+                    'fn private_value()->int{return 9}\nshadow private_value{assert (== (private_value) 9)}\n'
+                    'let mut evaluations:int = 0\nfn index()->int{set evaluations (+ evaluations 1) return 0}\nshadow index{let saved:int=evaluations set evaluations 0 assert (== (index) 0) assert (== evaluations 1) set evaluations saved}\n'
+                    'fn main()->int{unsafe{\n'
+                    '(println (___module_is_unsafe_root_probe)) (println (___module_has_ffi_root_probe))\n'
+                    '(println (___module_name_root_probe)) (println (___module_path_root_probe))\n'
+                    '(println (___module_function_count_root_probe)) (println (___module_struct_count_root_probe))\n'
+                    '(println (___module_function_name_root_probe 0)) (println (___module_struct_name_root_probe 0))\n' +
+                    'assert (== (___module_is_unsafe_root_probe) ' + ('true' if unsafe else 'false') + ')\n'
+                    'assert (___module_has_ffi_root_probe)\nassert (== (___module_name_root_probe) "root_probe")\n' +
+                    f'assert (== (___module_path_root_probe) {json.dumps(str(source))})\n' +
+                    f'assert (== (___module_function_count_root_probe) {0 if empty else 1}) assert (== (___module_struct_count_root_probe) {0 if empty else 1})\n' +
+                    f'assert (== (___module_function_name_root_probe (index)) {json.dumps("" if empty else "answer")})\n' +
+                    f'assert (== (___module_struct_name_root_probe 0) {json.dumps("" if empty else "Visible")})\n' +
+                    'assert (== (___module_function_name_root_probe -1) "") assert (== (___module_function_name_root_probe 1) "")\n'
+                    'assert (== (___module_struct_name_root_probe -1) "") assert (== (___module_struct_name_root_probe 1) "")\n'
+                    '} assert (== evaluations 1) return 0}\nshadow main{assert true}\n')
+                self.exercise_product(source, work)
+
+    def test_explicit_root_dependency_collision_preserves_output(self):
+        with tempfile.TemporaryDirectory(prefix='nano-root-module-collision-') as directory:
+            work = Path(directory).resolve()
+            (work / 'dependency.nano').write_text('module root_probe\npub fn answer()->int{return 1}\nshadow answer{assert (== (answer) 1)}\n')
+            source = work / 'main.nano'
+            source.write_text('module "dependency.nano" as dependency\nmodule root_probe\nfn main()->int{return 0}\nshadow main{assert true}\n')
+            module = work / 'program.nvm'
+            module.write_bytes(b'prior-output')
+            result = subprocess.run([COMPILER, source, '--emit-nvm', '-o', module], cwd=ROOT, capture_output=True, timeout=120)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(b'I reject ambiguous module introspection identity: root_probe', result.stdout + result.stderr)
+            self.assertEqual(module.read_bytes(), b'prior-output')
+
+    def test_declared_root_wins_over_dependency_filename_alias(self):
+        with tempfile.TemporaryDirectory(prefix='nano-root-module-alias-') as directory:
+            work = Path(directory).resolve()
+            dependency = work / 'root_probe.nano'
+            dependency.write_text('module dependency_probe\npub fn foreign_answer()->int{return 7}\nshadow foreign_answer{assert (== (foreign_answer) 7)}\n')
+            source = work / 'main.nano'
+            source.write_text('module root_probe\nmodule "root_probe.nano" as dependency\n'
+                'extern fn ___module_path_root_probe()->string\nextern fn ___module_path_dependency_probe()->string\n'
+                'extern fn ___module_function_count_root_probe()->int\nextern fn ___module_function_count_dependency_probe()->int\n'
+                'pub fn answer()->int{return 42}\nshadow answer{assert (== (answer) 42)}\n'
+                'fn main()->int{unsafe{\n' +
+                f'assert (== (___module_path_root_probe) {json.dumps(str(source))})\n' +
+                f'assert (== (___module_path_dependency_probe) {json.dumps(str(dependency))})\n' +
+                'assert (== (___module_function_count_root_probe) 1) assert (== (___module_function_count_dependency_probe) 1)\n'
+                '} assert (== (dependency.foreign_answer) 7) return 0}\nshadow main{assert true}\n')
+            self.exercise_product(source, work)
+
+    def test_undeclared_root_does_not_add_a_fallback_identity(self):
+        with tempfile.TemporaryDirectory(prefix='nano-root-module-undeclared-') as directory:
+            work = Path(directory).resolve()
+            (work / 'dependency.nano').write_text('module main\npub fn answer()->int{return 7}\nshadow answer{assert (== (answer) 7)}\n')
+            source = work / 'main.nano'
+            source.write_text('module "dependency.nano" as dependency\n'
+                'extern fn ___module_function_count_main()->int\n'
+                'fn main()->int{assert (== (___module_function_count_main) 1) assert (== (dependency.answer) 7) return 0}\n'
+                'shadow main{assert true}\n')
+            self.exercise_product(source, work)
+
     def checked(self, args):
         result = subprocess.run([str(x) for x in args], cwd=ROOT,
                                 capture_output=True, timeout=120,

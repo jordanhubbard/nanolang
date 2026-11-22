@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "records": 84,
+  "cases": 20,
+  "refusals": 19,
+  "timeouts": 1,
+  "guards": "PASS"
+}

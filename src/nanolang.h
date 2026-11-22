@@ -505,6 +505,7 @@ struct ASTNode {
         /* Module declaration: module module_name */
         struct {
             char *name;             /* Explicit module name */
+            bool is_unsafe;         /* I retain the declaration's own marker. */
         } module_decl;
         /* Qualified name: module::symbol, std::io::fs::read_file */
         struct {
