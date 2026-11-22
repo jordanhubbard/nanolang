@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "archive": "/Users/jkh/.worktrees/nanolang/ordinary-verifier-components-20261121-archive",
+  "files": 24078,
+  "raw_bytes": 229359066,
+  "unique_compressed_bytes": 31176347,
+  "source_files": 3558,
+  "component_steps": [
+    {
+      "name": "stack-types",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nanolang_translator_stack_types"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/ordinary-verifier-components-20261121",
+      "pid": 16803,
+      "returncode": 0,
+      "elapsed_seconds": 42.21651637499963
+    },
+    {
+      "name": "stack-heights",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nanolang_translator_stack_heights"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/ordinary-verifier-components-20261121",
+      "pid": 24016,
+      "returncode": 0,
+      "elapsed_seconds": 26.199073333000342
+    },
+    {
+      "name": "function-body",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nanolang_translator_function_body"
+      ],
+      "cwd": "/Users/jkh/.worktrees/nanolang/ordinary-verifier-components-20261121",
+      "pid": 27660,
+      "returncode": 0,
+      "elapsed_seconds": 50.973607957999775
+    }
+  ]
+}

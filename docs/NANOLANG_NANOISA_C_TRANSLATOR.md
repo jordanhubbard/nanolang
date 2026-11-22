@@ -630,8 +630,7 @@ My current Linux development gate matches704 synthetic complete decisions and
 exact service/ownership/passive bytes through five routes, including128 explicit
 C expectations and directory/error-priority controls. A separate retained eight
 actual C/NanoLang File/TCP/WebSocket/mixed producer-product gate passes the same
-five routes. The combined permanent fixture now includes both groups; paired
-Darwin acceptance and original module/claim regressions remain pending.
+five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; complete paired product-retention acceptance remains open.
 I retain the initial rich-only UINT32_MAX span fixture refusal, isolated
 name-mutation correction, default-shadow deadline refusal, successful traced
 169-shadow observation and excluded stale-artifact diagnostic. A later success
@@ -653,7 +652,7 @@ instruction. A File-result branch requires both its target and fallthrough to
 name bytes before that terminal boundary. Handler decoding preserves its
 ordinary terminal-boundary behavior; executable handler-arm validation belongs
 to the verifier. I clear every partial view on refusal. This immutable decode
-boundary grants no stack, type, lifetime, effect or host authority. My Linux test matches1325 complete reports through five routes, with1197 explicit validity expectations, using the actual native Stage1 source compiler. I retain generated products and complete reports for the final receipt. Full paired producer/platform qualification remains pending.
+boundary grants no stack, type, lifetime, effect or host authority. My Linux test matches1325 complete reports through five routes, with1197 explicit validity expectations, using the actual native Stage1 source compiler. My retained [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the complete original gate in13.530s. I retain its available generated products and complete reports; exact source providers remain separately identified. Full verifier/profile integration and final-source release qualification remain required.
 
 ## My copied record instruction recipes
 
@@ -758,9 +757,7 @@ its intended operand without changing either verifier algorithm.
 I compare successful-allocation, representable helper behavior. Allocation
 failure/publication policy, counted private resource limits, full ordinary
 verification and ARRAY/MAP ownership/origin/lifetime analysis remain separate.
-Darwin qualification stays pending while the peer's observed exact c908523c3
-run under #1161 is active. I claim no product selection or pure C-emitter
-completion from this component.
+My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all3154 reports through five routes in26.199s, with identical Linux corpus bytes/reports and3558 guarded inputs. Targeted actual C helper sanitizers pass there; I claim no Darwin LeakSanitizer coverage, product selection or pure C-emitter completion from this component.
 
 ## My shared shallow operand-type walk
 
@@ -806,10 +803,7 @@ corpus. These observations establish test coverage, not private budget admission
 I retain targeted ASan/UBSan/leak checks of the actual C type helper, function
 decoder and ISA reader separately from full-provider qualification. My exact
 products, source-provider identities and terminal outcomes belong in the
-[Linux checkpoint](evidence/stack-types-linux-20261121/README.md). Darwin
-qualification remains pending while the peer owns an active observed c908523c3
-run under #1161. Full verifier/profile integration and pure C-emitter cutover
-remain open under #1142.
+[Linux checkpoint](evidence/stack-types-linux-20261121/README.md). My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all10287 reports through five routes in42.217s, with identical Linux corpus bytes/reports and3558 source/test/spec/Make hashes. Targeted actual C helper sanitizers also pass on Darwin; I claim no Darwin LeakSanitizer coverage. Full verifier/profile integration and pure C-emitter cutover remain open under #1142.
 
 ## My composed ordinary function-body checks
 
@@ -859,5 +853,4 @@ expectations without changing the C verifier.
 
 I compare successful-allocation helper behavior with no private budget selected.
 This is not full affine/owned/profile verification, pure C emission or product
-cutover. The peer has released the Darwin deferral after its exact c908 run;
-qualification of these newer components remains pending in a separate root.
+cutover. My [same-source Darwin checkpoint](evidence/ordinary-verifier-components-darwin-20261121/README.md) passes all6935 reports through five routes in50.974s, with identical Linux corpus bytes/reports and3558 guarded source/test/spec/Make inputs. Targeted actual C helper sanitizers pass there, with no Darwin LeakSanitizer claim. I preserve the first observer-only missing Make-target setup refusal and all frozen roots/primary dirty work/stashes.
