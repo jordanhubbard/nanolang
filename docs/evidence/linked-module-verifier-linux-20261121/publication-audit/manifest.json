@@ -40,6 +40,11 @@
       "file": "unlinked-sanitizers.stdout",
       "bytes": 749,
       "sha256": "56bdd59f79cc496a88839bd3ead7ab16b0ea78bc4b1296e903a0e2a8283d6219"
+    },
+    {
+      "file": "original-example-inputs/manifest.json",
+      "bytes": 1391,
+      "sha256": "fe7a35cb5b443cdb8769d674ee101a14217c2368732c4ad1d13b511583b7ee58"
     }
   ]
 }

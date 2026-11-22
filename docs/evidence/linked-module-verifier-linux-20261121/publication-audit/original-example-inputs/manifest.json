@@ -1,0 +1,31 @@
+{
+  "source_pin": "76cd20f2a4c68f858389fcbd6995a6f6d3694819",
+  "qualification_base": "6c64d1a4b05a2845cbc156df92f645e0d98d5fcf",
+  "files": [
+    {
+      "path": "examples/language/nl_functions_basic.nano",
+      "artifact": "0.nano.gz",
+      "bytes": 5488,
+      "sha256": "f463a1e5690870a1329b1fc9d9c94c53bf690e8f9e915a4201527bb7554d831b",
+      "compressed_bytes": 1394,
+      "compressed_sha256": "6dcd6e1bc8fc92c3f25231c225ced45b45293b08e8a94e71fb6818176c5693aa"
+    },
+    {
+      "path": "examples/language/nl_control_if_while.nano",
+      "artifact": "1.nano.gz",
+      "bytes": 5679,
+      "sha256": "33d964a75de05c0ff2c5d8f68106559590103bd250cedd6afc75fbeafefdc496",
+      "compressed_bytes": 1305,
+      "compressed_sha256": "7539282fb163f1f80c3b79b668d4089fa807b96dcd1118c2de1b9f176d76f8dc"
+    },
+    {
+      "path": "examples/cross_backend/hello_cross_backend.nano",
+      "artifact": "2.nano.gz",
+      "bytes": 767,
+      "sha256": "97a655dca856334b5c5c598fcd99d8154a37fcb813e8eddec9e942297071f877",
+      "compressed_bytes": 422,
+      "compressed_sha256": "48647d5d847f96692100c7ba823944ed3dfe8e644a591d48466c4662b947171d"
+    }
+  ],
+  "limits": "I retain the three original producer example inputs separately from the3567 guarded core/test/Make inputs. Their actual working bytes match both qualification-base and implementation Git blobs; no example source changed."
+}
