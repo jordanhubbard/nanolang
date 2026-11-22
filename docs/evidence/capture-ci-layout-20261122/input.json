@@ -1,0 +1,8 @@
+{
+  "marker_hex": "636f6e74726f6c6c65642d70726f66696c652d726574656e74696f6e2d6d61726b65720a",
+  "marker_sha256": "944f41280467c54bb88dbf37eceb288d0b64902a9dd158f00b41d0bf7cc88690",
+  "actual_cleaner": "scripts/clean_build_trees.py",
+  "cleaner_sha256": "7a3b39e291cb4f3ac9799ef8cb062b5a2bd0a77fa8812761ad311655b93f4c14",
+  "proposal_applied": false,
+  "scope": "I retain a prospective CI layout control on isolated marker trees. I make no native assembler, production/default-CI or full release acceptance claim."
+}

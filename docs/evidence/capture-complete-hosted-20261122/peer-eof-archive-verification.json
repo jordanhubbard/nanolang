@@ -1,0 +1,16 @@
+{
+  "peer_commit": "3958c32b7d39a20228a0ee88781b28b0306c5c85",
+  "manifest_sha256": "be12b858cbbfec9ca5a6f178443da073e64b4e0637afe28796cfdb111ee45c02",
+  "logical_files": 3631,
+  "unique_payloads": 3599,
+  "raw_bytes": 32419693,
+  "source_sets": {
+    "candidate": {
+      "checked_source_inputs": 3573,
+      "checked_native_images": 4,
+      "declared_overrides": {}
+    }
+  },
+  "all_raw_compressed_lengths_hashes_and_git_source_blobs_match": true,
+  "scope": "I independently verify the retained archive and declared Git/source/tool identities. I do not repeat or extend its focused native execution."
+}

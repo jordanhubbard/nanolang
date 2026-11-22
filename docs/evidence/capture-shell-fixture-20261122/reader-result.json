@@ -1,0 +1,10 @@
+{
+  "logical_files": 7166,
+  "unique_payloads": 3275,
+  "verified_source_and_native_inputs": 5824,
+  "observed_commands": 584,
+  "paired_compiler_calls_per_method": 870,
+  "only_source_difference_is_declared_fixture_upgrade": true,
+  "all_raw_and_compressed_hashes_and_lengths_match": true,
+  "scope": "I read retained bytes only; I do not execute ELF images or establish complete pair acceptance."
+}

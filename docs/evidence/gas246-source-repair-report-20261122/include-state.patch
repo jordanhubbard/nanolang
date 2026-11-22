@@ -1,0 +1,13 @@
+diff --git a/gas/input-scrub.c b/gas/input-scrub.c
+--- a/gas/input-scrub.c
++++ b/gas/input-scrub.c
+@@ -216,7 +216,8 @@
+      line number will want bumping by a corresponding value.  */
+   if (from_sb_expansion != expanding_app)
+     {
+-      if (logical_input_file == 0 && logical_input_line == -1u
++      if (from_sb_expansion != expanding_none
++	  && logical_input_file == 0 && logical_input_line == -1u
+ 	  && saved->logical_input_line != -1u)
+ 	saved->logical_input_line
+ 	  += physical_input_line - saved->physical_input_line;

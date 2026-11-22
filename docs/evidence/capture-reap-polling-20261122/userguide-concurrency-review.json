@@ -1,0 +1,35 @@
+{
+  "yaml_parses": true,
+  "parser": [
+    "/usr/bin/ruby",
+    "-ryaml",
+    "-rjson",
+    "-e",
+    "puts JSON.generate(YAML.load(STDIN.read))"
+  ],
+  "only_concurrency_group_changes": true,
+  "expression": "userguide-pages-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}",
+  "reviewed_event_expansions": [
+    {
+      "event": "pull_request",
+      "number": 1176,
+      "group": "userguide-pages-1176"
+    },
+    {
+      "event": "pull_request",
+      "number": 1168,
+      "group": "userguide-pages-1168"
+    },
+    {
+      "event": "push",
+      "number": null,
+      "group": "userguide-pages-deploy"
+    },
+    {
+      "event": "workflow_dispatch",
+      "number": null,
+      "group": "userguide-pages-deploy"
+    }
+  ],
+  "scope": "I statically review the workflow expression and YAML structure. I do not manufacture a GitHub scheduler cancellation test."
+}

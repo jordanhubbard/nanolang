@@ -3384,7 +3384,9 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         now = module_link_query_clock();
         if (now < 0 || now >= deadline) { ok = false; break; }
         struct pollfd descriptor = {.fd = eof ? -1 : descriptors[0], .events = POLLIN};
-        int ready = poll(&descriptor, 1, (int)(deadline - now < 25 ? deadline - now : 25));
+        /* I observe exit promptly once the closed output pipe cannot wake poll. */
+        int interval = eof ? 1 : 25;
+        int ready = poll(&descriptor, 1, (int)(deadline - now < interval ? deadline - now : interval));
         if (ready < 0 && errno != EINTR) { ok = false; break; }
         if (ready > 0) {
             char buffer[1024];
@@ -4249,6 +4251,8 @@ failed:
 /* I accept only tested version tokens on the GNU assembler banner's first
  * line. This is compatibility selection, not executable authentication. */
 static bool module_assembler_version_supported(const char *version) {
+    /* I qualify only this identified source repair, not generic GNU2.46. */
+    if (version && !strncmp(version, "GNU assembler (GNU Binutils for NanoLang retained capture r1) 2.46.0.20260210\n", 78)) return true;
     static const char prefix[] = "GNU assembler (";
     static const char *versions[] = {" 2.40", " 2.42"};
     if (!version || strncmp(version, prefix, sizeof(prefix) - 1)) return false;
@@ -4465,7 +4469,8 @@ static size_t module_assembler_report(char *report, char **args, char *storage, 
         ? "Apple clang version 21.0.0 " : !strncmp(report, "Apple clang version 15.0.0 ", 27)
         ? "Apple clang version 15.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
         ? "Debian clang version 14.0.6" : !strncmp(report, "Ubuntu clang version 18.1.3 (1ubuntu1)\n", 39)
-        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;
+        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : !strncmp(report, "Ubuntu clang version 21.1.8 (6ubuntu1)\n", 39)
+        ? "Ubuntu clang version 21.1.8 (6ubuntu1)" : NULL;
     if (!banner) return 0;
     char *selected = NULL;
     for (char *line = report; line && *line;) {
@@ -4723,15 +4728,18 @@ static bool module_dynamic_elf(const char *path) {
 }
 
 static bool module_tool_output(const char *command, char *output, size_t capacity) {
-    FILE *pipe = popen(command, "r");
-    if (!pipe) return false;
-    size_t size = fread(output, 1, capacity - 1, pipe);
-    bool ok = !ferror(pipe) && feof(pipe) && !memchr(output, 0, size);
-    char discard[1024];
-    while (fread(discard, 1, sizeof(discard), pipe)) {}
-    if (pclose(pipe)) ok = false;
-    output[size] = 0;
-    return ok && size;
+    if (!command || !output || capacity < 2) return false;
+    int64_t deadline;
+    if (!module_capture_deadline(&deadline)) return false;
+    int64_t started = module_link_query_clock();
+    if (started < 0) return false;
+    char *args[] = {"/bin/sh", "-c", (char *)command, NULL};
+    /* My former fread/feof guard refused capacity-1 bytes. I retain that bound. */
+    bool ok = module_link_query_output(args, output, capacity - 1, deadline);
+    int64_t finished = module_link_query_clock();
+    module_trace_evidence("tool-query-ms", deadline > started ? (uint64_t)(deadline - started) : 0,
+                         finished >= started ? (uint64_t)(finished - started) : 0, ok);
+    return ok;
 }
 
 static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,

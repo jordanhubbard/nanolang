@@ -18,6 +18,14 @@ on:
       - "src/module_builder.c"
       - "src/runtime/assembler_capture.c"
       - "src/runtime/assembler_capture.h"
+      - ".github/actions/setup-capture-assembler/**"
+      - "scripts/ci_select_capture_assembler.py"
+      - "scripts/ci_capture_assembler_profile.py"
+      - "scripts/ci_build_capture_assembler.py"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/test_capture_assembler_profile.py"
+      - "tests/test_ci_select_capture_assembler.py"
+      - "tests/retained_capture_evidence.py"
       - ".github/workflows/userguide_pages.yml"
   push:
     branches: [ main ]
@@ -37,6 +45,14 @@ on:
       - "src/module_builder.c"
       - "src/runtime/assembler_capture.c"
       - "src/runtime/assembler_capture.h"
+      - ".github/actions/setup-capture-assembler/**"
+      - "scripts/ci_select_capture_assembler.py"
+      - "scripts/ci_capture_assembler_profile.py"
+      - "scripts/ci_build_capture_assembler.py"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/test_capture_assembler_profile.py"
+      - "tests/test_ci_select_capture_assembler.py"
+      - "tests/retained_capture_evidence.py"
       - ".github/workflows/userguide_pages.yml"
   workflow_dispatch:
 
@@ -50,7 +66,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "userguide-pages"
+  group: userguide-pages-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
   cancel-in-progress: true
 
 jobs:
@@ -75,6 +91,11 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
 
       - name: I record bounded compiler and assembler reports
         run: python3 scripts/ci_userguide_capture_diagnostics.py

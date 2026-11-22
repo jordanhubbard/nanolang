@@ -1,0 +1,8 @@
+{
+  "legacy_private_fixture_sha256": "4ba057f4f92c5a5a716c0f0a88ee58d494b8714c125635ec9d2eff9902a54153",
+  "shell_private_fixture_sha256": "7e80518ce26a983ec316fe161cbbf7c5a77a64724554ba3dc592f690ab7ee259",
+  "unchanged_assertion_and_skip_calls": 728,
+  "production_capture_source_sha256": "386969772f51564da962bba36b425dcf3cd5d7087d1276571c837e0cc06a1945",
+  "production_capture_source_changed": false,
+  "scope": "I preserve one import and one fixture-generator statement replacement, every other source-fixture byte, and all original target compiler/recovery code."
+}

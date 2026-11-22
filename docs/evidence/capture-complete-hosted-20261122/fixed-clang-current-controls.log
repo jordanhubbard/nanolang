@@ -1,0 +1,10 @@
+test_changed_consumer_source_or_patch_is_refused_without_writing_it (tests.test_fixed_clang_inputs.FixedClangInputs.test_changed_consumer_source_or_patch_is_refused_without_writing_it) ... ok
+test_fixed_clang_requires_the_same_actual_driver_and_restores_inputs (tests.test_fixed_clang_inputs.FixedClangInputs.test_fixed_clang_requires_the_same_actual_driver_and_restores_inputs) ... ok
+test_incomplete_producer_cannot_authorize_a_new_consumer (tests.test_fixed_clang_inputs.FixedClangInputs.test_incomplete_producer_cannot_authorize_a_new_consumer) ... ok
+test_missing_runtime_dependency_is_refused (tests.test_fixed_clang_inputs.FixedClangInputs.test_missing_runtime_dependency_is_refused) ... ok
+test_real_git_continuity_accepts_only_the_declared_make_enrollment (tests.test_fixed_clang_inputs.FixedClangInputs.test_real_git_continuity_accepts_only_the_declared_make_enrollment) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.547s
+
+OK

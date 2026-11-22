@@ -1,0 +1,8 @@
+{
+  "logical_files": 3594,
+  "unique_payloads": 3114,
+  "verified_source_and_native_inputs": 2910,
+  "observed_commands": 292,
+  "all_raw_and_compressed_hashes_and_lengths_match": true,
+  "scope": "I read retained bytes only; I do not execute ELF images or establish complete pair acceptance."
+}

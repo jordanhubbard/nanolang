@@ -1,0 +1,14 @@
+{
+  "producer_run": 45009129801,
+  "source_pin": "3ef446575d2b4c818c96cf83d46c1048f0edf441",
+  "assembler_sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+  "native_machine": "x86_64",
+  "producer_compiler_sha256": "864711037b900acdb7a449cf48d912cefa935b527fb60c767ccb956779e66136",
+  "preceding_probe_sha256": "d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10",
+  "preceding_helper_sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+  "source_sha256": "d75a94f4d73e7a4086f7513e67e439e8fcdcbb726ffe63f4661744e6256b2cf2",
+  "fixed_source_sha256": "6ffe0ed82d02c8f92198b4c2b5200a8093b7eea0a07a96bf951eecabf021b036",
+  "gas_cases": 2095,
+  "witnesses": 8,
+  "scope": "I independently read the real completed x86_64 native archive offline on Darwin. I execute no ELF image here."
+}

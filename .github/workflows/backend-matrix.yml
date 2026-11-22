@@ -6,12 +6,28 @@ on:
     paths:
       - 'src/**'
       - 'tests/cross-backend/**'
+      - '.github/actions/setup-capture-assembler/**'
+      - 'scripts/ci_select_capture_assembler.py'
+      - 'scripts/ci_capture_assembler_profile.py'
+      - 'scripts/ci_build_capture_assembler.py'
+      - 'scripts/ci_userguide_capture_diagnostics.py'
+      - 'tests/test_capture_assembler_profile.py'
+      - 'tests/test_ci_select_capture_assembler.py'
+      - 'tests/retained_capture_evidence.py'
       - '.github/workflows/backend-matrix.yml'
   pull_request:
     branches: [main]
     paths:
       - 'src/**'
       - 'tests/cross-backend/**'
+      - '.github/actions/setup-capture-assembler/**'
+      - 'scripts/ci_select_capture_assembler.py'
+      - 'scripts/ci_capture_assembler_profile.py'
+      - 'scripts/ci_build_capture_assembler.py'
+      - 'scripts/ci_userguide_capture_diagnostics.py'
+      - 'tests/test_capture_assembler_profile.py'
+      - 'tests/test_ci_select_capture_assembler.py'
+      - 'tests/retained_capture_evidence.py'
       - '.github/workflows/backend-matrix.yml'
   workflow_dispatch:
 
@@ -53,6 +69,11 @@ jobs:
               true
               ;;
           esac
+
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
 
       - name: Build nanoc (stage 1)
         run: make stage1

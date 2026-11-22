@@ -1,0 +1,106 @@
+{
+  "run": 45018368924,
+  "source_pin": "919b001b5b7611395b432175d66fd4270cd41b18",
+  "cases": [
+    {
+      "name": "reference-gcc-supported",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 3.009375291999987,
+      "child_cpu_seconds": 2.9517379999999998,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "gcc-gcc-supported",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 2.999569839000003,
+      "child_cpu_seconds": 2.970122,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "gcc-gcc-fixed",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 2.995568290999998,
+      "child_cpu_seconds": 2.967097,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "gcc-clang-supported",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 3.1120873490000065,
+      "child_cpu_seconds": 3.082223,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "gcc-clang-fixed",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 3.7314834029999986,
+      "child_cpu_seconds": 3.087037,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "clang-gcc-supported",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 3.020708444999997,
+      "child_cpu_seconds": 2.9781079999999998,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "clang-gcc-fixed",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 2.9926266610000027,
+      "child_cpu_seconds": 2.964335,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "clang-clang-supported",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 2.991084612999998,
+      "child_cpu_seconds": 2.960257,
+      "closure_and_inputs_unchanged": true
+    },
+    {
+      "name": "clang-clang-fixed",
+      "verified_source_and_native_inputs": 2910,
+      "commands": 45,
+      "command_returns": {
+        "0": 45
+      },
+      "wall_seconds": 3.111020350000018,
+      "child_cpu_seconds": 3.080592,
+      "closure_and_inputs_unchanged": true
+    }
+  ],
+  "actual_retained_tool_images_match": true
+}

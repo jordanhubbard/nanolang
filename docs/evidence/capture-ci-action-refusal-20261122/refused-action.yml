@@ -1,0 +1,62 @@
+name: I select my retained capture assembler
+description: I preserve my Linux compiler and select an assembler from verified source when required.
+inputs:
+  profile-directory:
+    description: I reuse this completed native profile instead of rebuilding its producer.
+    required: false
+    default: ''
+outputs:
+  fixed_profile:
+    description: I selected the verified source-fixed profile.
+    value: ${{ steps.select.outputs.fixed_profile }}
+  artifact_name:
+    description: I retain actual native selection evidence under this artifact name.
+    value: ${{ steps.identity.outputs.artifact_name }}
+runs:
+  using: composite
+  steps:
+    - name: Name this native selection evidence
+      id: identity
+      shell: bash
+      run: |
+        python3 - <<'PYNAME'
+        import json, os, uuid
+        from pathlib import Path
+        name = 'capture-assembler-' + os.environ['GITHUB_JOB'] + '-' + os.environ['RUNNER_OS'] + '-' + os.environ['RUNNER_ARCH'] + '-' + uuid.uuid4().hex[:12]
+        output = Path('.test_output/capture-assembler-checks')
+        output.mkdir(parents=True, exist_ok=True)
+        (output / 'identity.json').write_text(json.dumps({'artifact_name': name, 'event_sha': os.environ.get('GITHUB_SHA')}, indent=2) + '\n')
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+            stream.write('artifact_name=' + name + '\n')
+        PYNAME
+    - name: Check native profile metadata and selection refusals
+      shell: bash
+      run: |
+        set -o pipefail
+        python3 -m unittest -v tests.test_capture_assembler_profile tests.test_ci_select_capture_assembler 2>&1 | tee .test_output/capture-assembler-checks/controls.log
+    - name: Build the actual production admission probe and capture provider
+      shell: bash
+      run: |
+        set -o pipefail
+        make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so 2>&1 | tee .test_output/capture-assembler-checks/build.log
+    - name: Provision and verify the actual selected assembler
+      id: select
+      shell: bash
+      timeout-minutes: 90
+      env:
+        NANO_CI_FIXED_ASSEMBLER_DIRECTORY: ${{ inputs.profile-directory }}
+      run: python3 scripts/ci_select_capture_assembler.py
+    - name: Retain native assembler source, outcomes and selection evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.identity.outputs.artifact_name }}
+        path: |
+          .test_output/capture-assembler-ci/
+          .test_output/capture-assembler-checks/
+          .test_output/source-capture-diagnostic/fixed-as246/
+          obj/test_module_generation_probe
+          bin/nano_as_capture.so
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14

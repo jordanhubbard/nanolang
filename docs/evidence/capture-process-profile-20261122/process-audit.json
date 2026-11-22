@@ -1,0 +1,21 @@
+{
+  "run": 45020071428,
+  "source_pin": "87bdb27f3a7a4c415a99c4c8d26ae6c6c17f4fce",
+  "parent_pid": "4157",
+  "parent_read_bytes": 8482,
+  "executed_paths": {
+    "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/obj/test_module_generation_probe": 1,
+    "/bin/sh": 39,
+    "/tmp/nano-as-search-_by5sbz0/pkg-config": 30,
+    "/tmp/nano-as-search-_by5sbz0/cc": 9,
+    "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/tools/cc": 9,
+    "/usr/bin/ld": 1
+  },
+  "exec_environments_abbreviated": true,
+  "read_buffers_raw": true,
+  "observed_commands": 292,
+  "traced_builds": 1,
+  "expected_refusals": 12,
+  "scope": "I localize one integrated package-bearing build; the trace changes its observed cost and establishes no full-suite cause.",
+  "read_scope": "I count observed read syscall returns only. I do not establish pread/mmap I/O or per-file totals from an incomplete FD lifecycle trace."
+}

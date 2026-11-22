@@ -1,0 +1,11 @@
+{
+  "source_pin": "6d8eeacce5e9dbdda7121cd0910d81d70c4772ce",
+  "archive_sha256": "ea83238c2ac4a62c48a00ec97a61270b0307b3e5561b7ec1f1c6dc1551bfa7f3",
+  "archive_bytes": 16746937,
+  "hosted_log_sha256": "27d55cacaa456a451079bd6d72d252b53af4656743352ec06f1d76d75784738e",
+  "hosted_packed_sha256": "27cb2ef29600e19eb21f39a5f1061600a34ac8451095c644a50916ecf8eb0399",
+  "controller_sha256": "206ca1ee8ff4984adbfd81ac3a213ea1f9086fa5527f1556cbede56e959bf5ea",
+  "scope": "I retain a passing native build/three header methods and the original five-case SDL terminal failure. This candidate is not accepted; its complete original corpus still fails.",
+  "post_product_sha256": "f83b8364000a1d223fb557dff6cc92090391b196211ba425b5a53e803e2221f0",
+  "post_product_observer_sha256": "28e01808c981fda736c2ecbd7aed50555211fa4918657443a0179371c486425b"
+}

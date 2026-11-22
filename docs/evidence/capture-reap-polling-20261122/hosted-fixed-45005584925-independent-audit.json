@@ -1,0 +1,19 @@
+{
+  "source_pin": "5bb78f2f43ac78d08134cf81e38aee83c6ee593f",
+  "source_methods": 128,
+  "source_conditional_skips": 24,
+  "response_methods": 1,
+  "native_driver_equivalences": 600,
+  "native_gas_passes": 2091,
+  "native_gas_unsupported": 4,
+  "all_2095_outcome_lines_equal": true,
+  "witnesses": 8,
+  "ordinary_guide_snippets": 40,
+  "shadow_override": null,
+  "cold_returncode": 0,
+  "native_probe_sha256": "1bd2f7f2fe02ace445b90b7d7eaf266b0d56178b36a2cda36d3281448cad0063",
+  "native_helper_sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+  "native_assembler_sha256": "e1becd22bd1b7804e99d46ba0bd9dc0ad5273d289b6c9bf35bae1bb9a411786a",
+  "candidate_patch_sha256": "4d7daa7e030f7ec03b4144e00b779410b98e66d41fd4da2c7de0cd54eaf394ab",
+  "scope": "I independently read the retained original reports, outcomes and actual native images. I do not infer current-source, production adoption or release acceptance."
+}

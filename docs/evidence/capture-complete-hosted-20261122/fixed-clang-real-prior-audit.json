@@ -1,0 +1,18 @@
+{
+  "producer": {
+    "producer_run": 45009129801,
+    "source_pin": "3ef446575d2b4c818c96cf83d46c1048f0edf441",
+    "assembler_sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+    "native_machine": "x86_64",
+    "source_sha256": "d75a94f4d73e7a4086f7513e67e439e8fcdcbb726ffe63f4661744e6256b2cf2",
+    "fixed_source_sha256": "6ffe0ed82d02c8f92198b4c2b5200a8093b7eea0a07a96bf951eecabf021b036",
+    "gas_cases": 2095,
+    "witnesses": 8
+  },
+  "scope": "I read the real completed native x86_64 producer archive offline on Darwin; I do not execute its ELF image or claim Darwin native compatibility.",
+  "candidate": {
+    "source_sha256": "971b242622730d2581bd5d576bec8dc7ce48a05c67e4917765d4f347f346bb09",
+    "test_sha256": "4ba057f4f92c5a5a716c0f0a88ee58d494b8714c125635ec9d2eff9902a54153",
+    "patch_sha256": "67179756f76fe69c6ac2c693d42167577c80ba18eaebef79d65a1c28c70ea433"
+  }
+}

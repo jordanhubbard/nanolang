@@ -1,0 +1,7 @@
+# My ordinary user-guide environment boundary
+
+Peer review [7076162636](https://github.com/jordanhubbard/nanolang/issues/1158#issuecomment-7076162636) identifies a distinction my private qualifier needs to enforce: the existing hosted user-guide workflow exports a 60-second shadow allowance, while an ordinary make invocation defaults to ten seconds. I preserve my active hosted-allowance attempt as a separate observation. It cannot establish ordinary-default acceptance.
+
+I extract the original invocation without changing its behavior and run a real make/child-process regression. My retained baseline fails because the actual child receives `NANO_SHADOW_TIMEOUT_SECONDS=60`. My corrected helper removes that override for ordinary qualification, records the inherited and selected setting, and preserves the selected compiler and private assembler search path. The corrected child sees no shadow override, with both tool selections unchanged. All eight diagnostic controls pass. My [manifest](manifest.json) retains the baseline helper/control source and both result logs with raw/compressed lengths and hashes.
+
+This test uses an isolated Makefile to inspect the actual child environment. It does not compile NanoLang or validate snippets. My real ordinary user-guide gate remains required; I do not repeat already passing source/response or upstream GAS cohorts merely because this separate environment boundary changed. I retain the earlier run's 60-second environment and distinguish it from the missing ten-second result.

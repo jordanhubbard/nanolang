@@ -166,16 +166,23 @@ const char* nl_regex_replace_all(void* regex, const char* text, const char* repl
     if (!re->is_valid) return text;
     
     char* result = strdup(text);
-    const char* p = result;
+    if (!result) return text;
+    const char* p = text;
     regmatch_t match;
-    size_t offset = 0;
+    size_t input_offset = 0;
+    size_t output_offset = 0;
+    const size_t input_length = strlen(text);
+    const size_t replacement_len = strlen(replacement);
     
     while (regexec(&re->compiled, p, 1, &match, 0) == 0) {
         // Calculate sizes
-        size_t prefix_len = offset + match.rm_so;
-        size_t replacement_len = strlen(replacement);
-        size_t suffix_start = offset + match.rm_eo;
-        size_t suffix_len = strlen(text) - suffix_start;
+        /* I keep original-input positions separate from my growing output. */
+        size_t prefix_len = output_offset + (size_t)match.rm_so;
+        size_t suffix_start = input_offset + (size_t)match.rm_eo;
+        size_t suffix_len = input_length - suffix_start;
+        if (prefix_len > SIZE_MAX - replacement_len) break;
+        size_t replaced_length = prefix_len + replacement_len;
+        if (replaced_length == SIZE_MAX || suffix_len > SIZE_MAX - replaced_length - 1) break;
         
         // Allocate new buffer
         char* new_result = (char*)malloc(prefix_len + replacement_len + suffix_len + 1);
@@ -190,10 +197,11 @@ const char* nl_regex_replace_all(void* regex, const char* text, const char* repl
         result = new_result;
         
         // Move forward
-        offset = prefix_len + replacement_len;
-        p = result + offset;
+        input_offset = suffix_start;
+        output_offset = replaced_length;
+        p = text + input_offset;
         
-        if (match.rm_eo == 0) break;  // Avoid infinite loop
+        if (match.rm_eo == match.rm_so) break;  /* I consume a zero-width match once. */
     }
     
     return result;

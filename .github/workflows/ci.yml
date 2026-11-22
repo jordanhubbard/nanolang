@@ -186,6 +186,11 @@ jobs:
         shell: bash
         run: make check-deps
 
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+
       - name: Build - Stage 1 (C Reference Compiler)
         run: make stage1
 
@@ -408,6 +413,11 @@ jobs:
             glew \
             freeglut
 
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+
       - name: Build C reference compiler
         run: make stage1
 
@@ -438,6 +448,11 @@ jobs:
 
       - name: Check stdlib documentation coverage
         run: bash tests/check_stdlib_docs.sh
+
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
 
       - name: Test and build user guide
         run: |
@@ -969,6 +984,11 @@ jobs:
           name: performance-baseline
           path: .benchmark_baseline
 
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+
       - name: Run performance benchmarks
         run: |
           ./scripts/benchmark.sh
@@ -1106,6 +1126,13 @@ jobs:
           # libdispatch-dev was removed from Ubuntu 24.04; install if available
           CI_APT_ATTEMPTS=1 CI_APT_TIMEOUT_SECS=60 \
             ./scripts/ci-apt-install.sh libdispatch-dev || true
+
+      - name: I select my verified native capture assembler
+        if: runner.os == 'Linux'
+        env:
+          CC: clang
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
 
       - name: Build stage 1 with clang
         run: make stage1 CC=clang

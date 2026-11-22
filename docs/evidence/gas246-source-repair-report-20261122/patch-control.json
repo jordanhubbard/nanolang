@@ -1,0 +1,17 @@
+{
+  "command": [
+    "patch",
+    "-t",
+    "-F",
+    "0",
+    "-p1",
+    "-i",
+    "/Users/jkh/.worktrees/nanolang/capture-repair-20261122/docs/evidence/gas246-source-repair-report-20261122/include-state.patch"
+  ],
+  "returncode": 0,
+  "before_sha256": "40e7e14b5845e3f48b3be1cde0ea0b073f3e787864bdeb9d06dea9b545acfa07",
+  "expected_after_sha256": "6ffe0ed82d02c8f92198b4c2b5200a8093b7eea0a07a96bf951eecabf021b036",
+  "actual_after_sha256": "6ffe0ed82d02c8f92198b4c2b5200a8093b7eea0a07a96bf951eecabf021b036",
+  "patch_sha256": "3b79df5d1e4d4fe4ef0058934b5634b6aeadd2be253659dcdd586a4e53d89cbb",
+  "scope": "I verify only exact clean application to the retained source. Native regression/witness results are independently retained in the linked archives. I submit nothing upstream."
+}

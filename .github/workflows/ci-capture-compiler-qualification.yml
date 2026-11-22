@@ -1,0 +1,72 @@
+name: Native declared Clang capture qualification
+on:
+  push:
+    branches: [qualify/5.1-capture-compiler-1185]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CC: clang
+    steps:
+      - uses: actions/checkout@v4
+      - name: I check my native worker before qualification
+        run: |
+          mkdir -p .test_output/capture-compiler-worker
+          {
+            date -u +%Y-%m-%dT%H:%M:%SZ
+            df -Pk "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp
+            free -b
+            nproc
+            vmstat 5 4
+            date -u +%Y-%m-%dT%H:%M:%SZ
+          } | tee .test_output/capture-compiler-worker/worker.log
+          python3 - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          for path in (os.environ['GITHUB_WORKSPACE'], os.environ['RUNNER_TEMP'], '/tmp'):
+              if shutil.disk_usage(path).free < 4 * 1024**3:
+                  raise SystemExit('I hold qualification below my native build and evidence reserve.')
+          memory = {line.split(':')[0]: int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold qualification at critical memory pressure.')
+          PY
+      - name: I install my original native capture dependencies
+        timeout-minutes: 25
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
+      - name: I build with the declared compiler and select my retained assembler
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+      - name: I bind my actual Clang objects and snapshot all qualification inputs
+        run: python3 scripts/ci_current_capture_compiler.py prepare
+      - name: I run all original source capture methods
+        timeout-minutes: 26
+        run: python3 scripts/ci_current_capture_compiler.py source
+      - name: I run the original 600-case response grammar matrix
+        timeout-minutes: 11
+        run: python3 scripts/ci_current_capture_compiler.py response
+      - name: I run all original native equals and debug comparisons
+        timeout-minutes: 28
+        run: python3 scripts/ci_current_capture_compiler.py debug
+      - name: I publish cold CompilerSupport with the selected native Clang
+        timeout-minutes: 11
+        run: python3 scripts/ci_current_capture_compiler.py cold
+      - name: I run the original ordinary guide with its default guest deadline
+        timeout-minutes: 31
+        run: python3 scripts/ci_current_capture_compiler.py guide
+      - name: I check terminal results and unchanged source and native images
+        if: always()
+        run: python3 scripts/ci_current_capture_compiler.py finish
+      - name: I retain native production capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: declared-clang-capture-${{ github.run_id }}
+          path: |
+            .test_output/capture-compiler
+            .test_output/capture-compiler-worker
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
