@@ -5107,6 +5107,26 @@ ASTNode *ast_value_branch(ASTNode *node, int index) {
     }
 }
 
+/* I project only destination value leaves, never conditions, call arguments or
+ * preceding statements. Concrete instance context does not mutate a template. */
+const TypeInfo *ast_array_value_context(ASTNode *value, const TypeInfo *expected,
+                                         ASTNode *target) {
+    if (!value || !expected) return NULL;
+    if (value == target) return expected;
+    if (value->type == AST_ARRAY_LITERAL && expected->base_type == TYPE_ARRAY) {
+        for (int i = 0; i < value->as.array_literal.element_count; ++i) {
+            const TypeInfo *info = ast_array_value_context(value->as.array_literal.elements[i],
+                                                       expected->element_type, target);
+            if (info) return info;
+        }
+    }
+    for (int i = 0; i < ast_value_branch_count(value); ++i) {
+        const TypeInfo *info = ast_array_value_context(ast_value_branch(value, i), expected, target);
+        if (info) return info;
+    }
+    return NULL;
+}
+
 /* Recursively inject implicit returns at tail positions of a block.
  * Called from parse_function when return_type is non-void.
  * Wraps bare expression statements at the end of function bodies (and

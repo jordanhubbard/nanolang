@@ -172,6 +172,9 @@ struct CG {
     uint32_t current_fn_idx;
     Type current_return_element_type;
     const FunctionSignature *current_return_signature;
+    const TypeInfo *current_return_type_info;
+    ASTNode *array_context_root;
+    const TypeInfo *array_context_type;
 
     /* Function table (populated in pass 1) */
     FnEntry functions[MAX_FUNCTIONS];
@@ -953,11 +956,23 @@ static bool compile_module_introspection(CG *cg, const char *name) {
 
 static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
+static void compile_stored_expr(CG *cg, ASTNode *node);
 static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding);
 static bool stmt_falls_through(ASTNode *node);
 static void compile_par_guards(CG *cg, ASTNode *body);
 static bool expr_leaves_value(CG *cg, ASTNode *node);
 static void bind_parameter_type(CG *cg, const Parameter *param, int line);
+
+static void compile_array_value(CG *cg, ASTNode *value, const TypeInfo *expected, bool stored) {
+    ASTNode *saved_root = cg->array_context_root;
+    const TypeInfo *saved_type = cg->array_context_type;
+    cg->array_context_root = value;
+    cg->array_context_type = expected;
+    if (stored) compile_stored_expr(cg, value);
+    else compile_expr(cg, value);
+    cg->array_context_root = saved_root;
+    cg->array_context_type = saved_type;
+}
 
 static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
                                  bool want_float) {
@@ -2852,6 +2867,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
             case TYPE_BSTRING: elem_tag = TAG_BSTRING; break;
             default:          elem_tag = TAG_INT;     break;
         }
+        if (!count) {
+            const TypeInfo *expected = ast_array_value_context(cg->array_context_root,
+                                                           cg->array_context_type, node);
+            if (expected && expected->base_type == TYPE_ARRAY && expected->element_type &&
+                expected->element_type->base_type != TYPE_UNKNOWN) {
+                const TypeInfo *element = expected->element_type;
+                elem_tag = type_to_tag(element->base_type, element->generic_name, cg->env);
+            }
+        }
         emit_op(cg, OP_ARR_LITERAL, (int)elem_tag, count);
         break;
     }
@@ -3740,6 +3764,9 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     Type saved_return_element_type = cg->current_return_element_type;
     const FunctionSignature *saved_return_signature = cg->current_return_signature;
+    const TypeInfo *saved_return_info = cg->current_return_type_info;
+    ASTNode *saved_array_root = cg->array_context_root;
+    const TypeInfo *saved_array_type = cg->array_context_type;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
     int saved_effect_depth = cg->effect_depth;
@@ -3770,6 +3797,9 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = node->as.function.return_element_type;
     cg->current_return_signature = node->as.function.return_fn_sig;
+    cg->current_return_type_info = node->as.function.return_type_info;
+    cg->array_context_root = NULL;
+    cg->array_context_type = NULL;
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -3837,6 +3867,9 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
     cg->current_fn_idx = saved_current_fn_idx;
     cg->current_return_element_type = saved_return_element_type;
     cg->current_return_signature = saved_return_signature;
+    cg->current_return_type_info = saved_return_info;
+    cg->array_context_root = saved_array_root;
+    cg->array_context_type = saved_array_type;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
     cg->effect_depth = saved_effect_depth;
@@ -4187,11 +4220,6 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     switch (node->type) {
     case AST_LET: {
-        if (node->as.let.value->type == AST_ARRAY_LITERAL &&
-            node->as.let.value->as.array_literal.element_count == 0 &&
-            node->as.let.element_type != TYPE_UNKNOWN) {
-            node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
-        }
         if (node->as.let.var_type == TYPE_FUNCTION &&
             cg_contextual_function(cg, node->as.let.value, node->as.let.fn_sig)) {
             /* I have emitted the concrete callable reference. */
@@ -4200,7 +4228,13 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
                 check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
-        else compile_stored_expr(cg, node->as.let.value);
+        else if (node->as.let.var_type == TYPE_ARRAY) {
+            TypeInfo element = {.base_type = node->as.let.element_type,
+                                .generic_name = node->as.let.type_name};
+            TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &element};
+            compile_array_value(cg, node->as.let.value,
+                node->as.let.type_info ? node->as.let.type_info : &array, true);
+        } else compile_stored_expr(cg, node->as.let.value);
         uint16_t slot = local_add(cg, node->as.let.name, node->line);
         /* Track struct type for field access resolution */
         if (node->as.let.type_name) {
@@ -4466,19 +4500,18 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_RETURN: {
         ASTNode *value = node->as.return_stmt.value;
-        if (value && value->type == AST_ARRAY_LITERAL &&
-            value->as.array_literal.element_count == 0 &&
-            cg->module->functions[cg->current_fn_idx].result_tag == TAG_ARRAY &&
-            cg->current_return_element_type != TYPE_UNKNOWN) {
-            value->as.array_literal.element_type = cg->current_return_element_type;
-        }
         if (node->as.return_stmt.value
                 && cg->effect_depth == 0 && compile_tail_call(cg, node->as.return_stmt.value)) {
             break;
         }
         if (node->as.return_stmt.value) {
-            if (!cg_contextual_function(cg, node->as.return_stmt.value, cg->current_return_signature))
-                compile_expected_tag(cg, node->as.return_stmt.value,
+            if (cg->module->functions[cg->current_fn_idx].result_tag == TAG_ARRAY) {
+                TypeInfo element = {.base_type = cg->current_return_element_type};
+                TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &element};
+                compile_array_value(cg, value,
+                    cg->current_return_type_info ? cg->current_return_type_info : &array, false);
+            } else if (!cg_contextual_function(cg, value, cg->current_return_signature))
+                compile_expected_tag(cg, value,
                     cg->module->functions[cg->current_fn_idx].result_tag);
             if (cg->module->functions[cg->current_fn_idx].result_count == 0 &&
                 expr_leaves_value(cg, node->as.return_stmt.value))
@@ -4703,6 +4736,9 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = fn_node->as.function.return_element_type;
     cg->current_return_signature = fn_node->as.function.return_fn_sig;
+    cg->current_return_type_info = fn_node->as.function.return_type_info;
+    cg->array_context_root = NULL;
+    cg->array_context_type = NULL;
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {

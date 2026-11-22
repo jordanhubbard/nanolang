@@ -974,6 +974,7 @@ bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 int ast_value_branch_count(const ASTNode *node);
 ASTNode *ast_value_branch(ASTNode *node, int index);
+const TypeInfo *ast_array_value_context(ASTNode *value, const TypeInfo *expected, ASTNode *target);
 const char *get_array_record_type_name(ASTNode *array, Environment *env);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);

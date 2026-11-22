@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "logical_records": 11715,
+  "files": 8135,
+  "git_sources": 3580,
+  "raw_bytes": 2205843372,
+  "unique_objects": 3258,
+  "compressed_bytes": 135979550,
+  "cohorts": {
+    "seed-acceptance": {
+      "commands": 102,
+      "main_source_bytes": 18
+    },
+    "receiver": {
+      "commands": 615,
+      "main_source_bytes": 143
+    },
+    "neighbors": {
+      "commands": 225,
+      "main_source_bytes": 9
+    }
+  },
+  "sanitizer_scanned_commands": 478,
+  "raw_bootstrap_claimed": false,
+  "paired_darwin_claimed": false
+}
