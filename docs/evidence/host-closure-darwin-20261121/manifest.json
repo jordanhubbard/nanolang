@@ -1,0 +1,2269 @@
+{
+  "state": {
+    "pin": "8ac5943857e905fc927cc2a14ad10e7ec269f2e6",
+    "system": "Darwin puck 27.2.0 Darwin Kernel Version 27.2.0: Wed Oct 14 23:44:56 PDT 2026; root:xnu-13432.41.4~25/RELEASE_ARM64_T6041 arm64\n",
+    "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "raw_input": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm",
+    "raw_sha256": "bcb9f3d52abf53eea08835ac9d0c04cb9a360b03b62bec38509cfb2212ff94d9",
+    "matching_nano_sources": [
+      "src_nano/ast_shared.nano",
+      "src_nano/cli_args.nano",
+      "src_nano/compiler.nano",
+      "src_nano/compiler/binary64_arithmetic_runtime.nano",
+      "src_nano/compiler/binary64_format_runtime.nano",
+      "src_nano/compiler/checked_borrow_facts.nano",
+      "src_nano/compiler/declaration_ownership.nano",
+      "src_nano/compiler/diagnostics.nano",
+      "src_nano/compiler/effect_bindings.nano",
+      "src_nano/compiler/effect_declarations.nano",
+      "src_nano/compiler/error_messages.nano",
+      "src_nano/compiler/file_source_plan.nano",
+      "src_nano/compiler/function_signature.nano",
+      "src_nano/compiler/generic_types.nano",
+      "src_nano/compiler/ir.nano",
+      "src_nano/compiler/lexer.nano",
+      "src_nano/compiler/module_bindings.nano",
+      "src_nano/compiler/module_introspection.nano",
+      "src_nano/compiler/module_loader.nano",
+      "src_nano/compiler/nanoisa_borrows.nano",
+      "src_nano/compiler/nanoisa_codegen.nano",
+      "src_nano/compiler/native_product.nano",
+      "src_nano/compiler/nominal_bindings.nano",
+      "src_nano/compiler/owner_selection.nano",
+      "src_nano/compiler/passive_graph.nano",
+      "src_nano/compiler/passive_purity.nano",
+      "src_nano/compiler/resource_effects.nano",
+      "src_nano/compiler/result.nano",
+      "src_nano/compiler/serialize.nano",
+      "src_nano/compiler/service_bodies.nano",
+      "src_nano/compiler/service_inputs.nano",
+      "src_nano/compiler/service_lowering.nano",
+      "src_nano/compiler/service_namespace.nano",
+      "src_nano/compiler/service_origins.nano",
+      "src_nano/compiler/service_ownership.nano",
+      "src_nano/compiler/service_product.nano",
+      "src_nano/compiler/service_types.nano",
+      "src_nano/compiler/service_wire.nano",
+      "src_nano/compiler/token_value_bytes.nano",
+      "src_nano/compiler/type_substitution.nano",
+      "src_nano/compiler_simple.nano",
+      "src_nano/driver_minimal.nano",
+      "src_nano/file_io.nano",
+      "src_nano/generated/compiler_ast.nano",
+      "src_nano/generated/compiler_contracts.nano",
+      "src_nano/generated/compiler_schema.nano",
+      "src_nano/generated/purity_intrinsics.nano",
+      "src_nano/generated/reserved_builtin_names.nano",
+      "src_nano/lexer_main.nano",
+      "src_nano/nanoc.nano",
+      "src_nano/nanoc_modular.nano",
+      "src_nano/nanoc_selfhost.nano",
+      "src_nano/nanoc_stage0.nano",
+      "src_nano/nanoc_stage1.nano",
+      "src_nano/nanoc_v04.nano",
+      "src_nano/nanoc_v06.nano",
+      "src_nano/nanoisa_driver.nano",
+      "src_nano/nanoisa_emit.nano",
+      "src_nano/nvm2c/array_declarations.nano",
+      "src_nano/nvm2c/container.nano",
+      "src_nano/nvm2c/declarations.nano",
+      "src_nano/nvm2c/functions.nano",
+      "src_nano/nvm2c/instructions.nano",
+      "src_nano/nvm2c/isa_metadata.nano",
+      "src_nano/nvm2c/map_declarations.nano",
+      "src_nano/nvm2c/module.nano",
+      "src_nano/nvm2c/ownership.nano",
+      "src_nano/nvm2c/ownership_wire.nano",
+      "src_nano/nvm2c/passive.nano",
+      "src_nano/nvm2c/passive_calls.nano",
+      "src_nano/nvm2c/payloads.nano",
+      "src_nano/nvm2c/private_layouts.nano",
+      "src_nano/nvm2c/record_instructions.nano",
+      "src_nano/nvm2c/record_stack.nano",
+      "src_nano/nvm2c/routes.nano",
+      "src_nano/nvm2c/service_catalog.nano",
+      "src_nano/nvm2c/service_module.nano",
+      "src_nano/nvm2c/service_nominal.nano",
+      "src_nano/nvm2c/service_v2.nano",
+      "src_nano/nvm2c/service_wire.nano",
+      "src_nano/parse_nanoc.nano",
+      "src_nano/parser.nano",
+      "src_nano/parser_driver.nano",
+      "src_nano/typecheck.nano",
+      "src_nano/typecheck_driver.nano",
+      "src_nano/typecheck_nanoc.nano"
+    ],
+    "steps": [
+      {
+        "label": "build-tools",
+        "argv": [
+          "make",
+          "-j8",
+          "CC=/usr/bin/cc",
+          "nano_virt",
+          "nano_vm",
+          "nanoisa_dump",
+          "nvm2c",
+          "nvm2c-runtime"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 31029,
+        "returncode": 0,
+        "elapsed_seconds": 5.630382749999626
+      },
+      {
+        "label": "original-deployment-target",
+        "argv": [
+          "make",
+          "CC=/usr/bin/cc",
+          "test-host-artifact-deployment"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 32734,
+        "returncode": 0,
+        "elapsed_seconds": 4.622085500001049
+      },
+      {
+        "label": "verify-original-raw",
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/bin/nano_vm",
+          "--verify-only",
+          "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 33738,
+        "returncode": 0,
+        "elapsed_seconds": 0.13627608400020108
+      },
+      {
+        "label": "translate",
+        "argv": [
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/bin/nvm2c",
+          "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/bin/nanoc_stage1.nvm",
+          "-o",
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/compiler.c"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 33750,
+        "returncode": 0,
+        "elapsed_seconds": 29.16558295899995
+      },
+      {
+        "label": "native",
+        "argv": [
+          "/usr/bin/cc",
+          "-std=c11",
+          "-O1",
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/compiler.c",
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/bin/nano_aot_runtime.o",
+          "-lm",
+          "-lm",
+          "-lcrypto",
+          "-lffi",
+          "-L/opt/homebrew/Cellar/openssl@4/4.1.0/lib",
+          "-o",
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/nanoc"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 37146,
+        "returncode": 0,
+        "elapsed_seconds": 32.07957337500011
+      },
+      {
+        "label": "actual-make-install",
+        "argv": [
+          "make",
+          "CC=/usr/bin/cc",
+          "--old-file=/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/nanoc",
+          "COMPILER=/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/nanoc",
+          "PREFIX=/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/first-prefix",
+          "install"
+        ],
+        "cwd": "/Users/jkh/.worktrees/nanolang/host-closure-20261121",
+        "pid": 41066,
+        "returncode": 0,
+        "elapsed_seconds": 1.9097574579991488
+      },
+      {
+        "label": "sandbox-setup",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/usr/bin/true"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 41922,
+        "returncode": 0,
+        "elapsed_seconds": 0.010432000000946573
+      },
+      {
+        "label": "source-unavailable-control",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/bin/cat",
+          "/Users/jkh/.worktrees/nanolang/host-closure-20261121/Makefile.gnu"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 41924,
+        "returncode": 1,
+        "elapsed_seconds": 0.009433041001102538
+      },
+      {
+        "label": "builtin-compile-module",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nanoc",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/input.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.nvm"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 41925,
+        "returncode": 0,
+        "elapsed_seconds": 1.0887051659992721
+      },
+      {
+        "label": "builtin-verify-module",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_vm",
+          "--verify-only",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.nvm"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 42032,
+        "returncode": 0,
+        "elapsed_seconds": 0.026505416000873083
+      },
+      {
+        "label": "builtin-execute-module",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_vm",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.nvm"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 42038,
+        "returncode": 0,
+        "elapsed_seconds": 0.01785054200081504
+      },
+      {
+        "label": "builtin-compile-native",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-p",
+          "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nanoc",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/input.nano",
+          "--target",
+          "native",
+          "-o",
+          "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.native"
+        ],
+        "cwd": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client",
+        "pid": 42040,
+        "returncode": 1,
+        "elapsed_seconds": 0.30194562500037136
+      }
+    ],
+    "limits": [
+      "I retranslate the actual qualified bdffa4ccc Darwin raw Stage1 with my changed emitter and exact retained host bytes in a new source worktree. All NanoLang compiler inputs match. This qualifies development native deployment, not a new raw bootstrap/final release. I never modify either frozen qualification checkout or the primary dirty callable audit/stashes."
+    ],
+    "compiler_sha256": "918604742ed98c9bdade4713220900f0884d90b4d5d7a7fc618b3f6bdb3e093d",
+    "host_inputs": {
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-d3e241a5e5c52b7bb6028d3e6c657986d6ffd787874574b1c73771126343337c/.nano-gen-B0LuHZ/libfile_source_inputs.dylib": "2f3daebe22a1ba8034dde13e7bc20414adeeedb66b49d5d2dc1bd62ba4f7cdf9",
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-6411c984443ce1499fa6c3197308d1481b1997eb7c4f411a46492a515f41f138/.nano-gen-k7rdRn/libstd.dylib": "936e89f2495de8bc745037b5e30c8f82e67b7377b1cd25d6624f827fa97c4520",
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-76d6b1420000da1682812e721603b35d54f5db4655347ebda1979a3da512c006/.nano-gen-jOenzo/libfile_product.dylib": "6ca018591a886903c868c9ef08c1d03a05a8fc97a622845b36567463c72b036d",
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-99d10884fc8e8623a1d78d2e0fa8f9f10c6b2bc5f25816cc1086cbfeb7d6a7f0/.nano-gen-hYmeML/libnanoisa.dylib": "3190ecfd7761279fe6ee989714833039a09281718d7935f414c1c490ecbb69b9",
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-003a4900c9948151ef88fbf2fcfe764644eafeced799acc3f11eae4a65b507f8/.nano-gen-paKHGd/libfile_source_catalog.dylib": "6e658da2da9321665eec38366aee80070204e5fcc96bfbeb869de2ab1d4637ff",
+      "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-55c6ed63c8ad5f19edf8469c83d13f9bb0ec37129c573404b7318777274c903d/.nano-gen-WrAGHW/libcompiler_support.dylib": "95ba253e5ac820dd08d4964d264d6145be1cc74ac06ffbc14aacedebbc329dee"
+    },
+    "external": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2",
+    "prefix": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix",
+    "hidden_roots": [
+      "/Users/jkh/.worktrees/nanolang",
+      "/Users/jkh/Src/nanolang"
+    ],
+    "sandbox_policy": "(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))",
+    "isolated_environment": {
+      "PATH": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "CC": "/usr/bin/cc",
+      "NANO_CC": "/bin/false",
+      "NANO_BUILD_CACHE": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/external-cache",
+      "NANO_SHADOW_TIMEOUT_SECONDS": "10",
+      "NANOLANG_ROOT": null,
+      "NANO_MODULE_PATH": null,
+      "NANO_NVM2C": null,
+      "NANO_AS_CAPTURE_HELPER": null
+    },
+    "status": "failed",
+    "error": "AssertionError({'label': 'builtin-compile-native', 'argv': ['/usr/bin/sandbox-exec', '-p', '(version 1) (allow default) (deny file-read* (subpath \"/Users/jkh/.worktrees/nanolang\")) (deny file-read* (subpath \"/Users/jkh/Src/nanolang\"))', '/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nanoc', '/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/input.nano', '--target', 'native', '-o', '/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.native'], 'cwd': '/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client', 'pid': 42040, 'returncode': 1, 'elapsed_seconds': 0.30194562500037136})",
+    "original_bootstrap_guards_unchanged": true,
+    "host_inputs_unchanged": true,
+    "final_git_status": ""
+  },
+  "files": [
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/archive-darwin-host-closure-failed.py",
+      "artifact": "inputs/0000-archive-darwin-host-closure-failed.py.gz",
+      "bytes": 1966,
+      "sha256": "befd995f6347aecb098561f5f3affbddde58d7050ffc4c588c0989503dd68ac7",
+      "compressed_bytes": 842,
+      "compressed_sha256": "f21fb8fe94c038d6ed2598e038fbe895aeec3181668f16f64afc8a648b95f72f"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/actual-make-install.stderr",
+      "artifact": "inputs/0001-actual-make-install.stderr.gz",
+      "bytes": 150,
+      "sha256": "27055fb5964f47b9943c133bea2a0966f3320a92f057047cc143b014050b009c",
+      "compressed_bytes": 94,
+      "compressed_sha256": "34d582307fddd0a070548882f2b5969caaded56102c3d5bbf3b80a5156ec0dba"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/actual-make-install.stdout",
+      "artifact": "inputs/0002-actual-make-install.stdout.gz",
+      "bytes": 13300,
+      "sha256": "15c79e6f6aa534ac037af8a507937a44b3014ded7f674b16966cb66f610a352a",
+      "compressed_bytes": 1960,
+      "compressed_sha256": "bda161b0e390ed0257a01f1edcdc64f55f1538d2fd288b33c187c27df259f9c3"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/build-tools.stderr",
+      "artifact": "inputs/0001-actual-make-install.stderr.gz",
+      "bytes": 150,
+      "sha256": "27055fb5964f47b9943c133bea2a0966f3320a92f057047cc143b014050b009c",
+      "compressed_bytes": 94,
+      "compressed_sha256": "34d582307fddd0a070548882f2b5969caaded56102c3d5bbf3b80a5156ec0dba"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/build-tools.stdout",
+      "artifact": "inputs/0004-build-tools.stdout.gz",
+      "bytes": 86875,
+      "sha256": "55ad31a76adc3687f9e16296d105a73194692ee92cb0dd7c8f2088585a94f881",
+      "compressed_bytes": 4451,
+      "compressed_sha256": "6a0e2b953405bf23608c602c314468456319fd27c186ee6236845416e957c245"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-compile-module.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-compile-module.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-compile-native.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-compile-native.stdout",
+      "artifact": "inputs/0008-builtin-compile-native.stdout.gz",
+      "bytes": 94,
+      "sha256": "33b3d89ce6da7ad83496e66571c47e5a89297e97e2de49e88e7100d11083fd00",
+      "compressed_bytes": 94,
+      "compressed_sha256": "726b5b8d9cf726c0eb7c54b624dc730d42bf8edee923154bed812cbdbae3a1f8"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-execute-module.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-execute-module.stdout",
+      "artifact": "inputs/0010-builtin-execute-module.stdout.gz",
+      "bytes": 23,
+      "sha256": "6b3938fdb5e694b625993565a2cd5dde1d744dd1bc77729444b1749ea48ac012",
+      "compressed_bytes": 43,
+      "compressed_sha256": "af8b4f070aacc74959f921728bcc3ee4db0c519561e2d51745b1c126fcbd0468"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-verify-module.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/builtin-verify-module.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/compiler.c",
+      "artifact": "inputs/0013-compiler.c.gz",
+      "bytes": 18954571,
+      "sha256": "dfe1f9a9f612d3e4c4eea2ab55b8285442bebf9a8ea0a78c7ff21a62f9e98483",
+      "compressed_bytes": 1533806,
+      "compressed_sha256": "023a2221a69264b93b345f8e48949828f142d9d5e73653c6ba059ebc858564e6"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/manifest.json",
+      "artifact": "inputs/0014-manifest.json.gz",
+      "bytes": 15900,
+      "sha256": "2ac5ad7badd43fb1126a61dfa78d4071aa1cac380d63014eb454c6795e9c45e9",
+      "compressed_bytes": 3436,
+      "compressed_sha256": "e6d6a994ca6a84efd5ba33cdbf470ce6c77de8c87cbd0004d29f44ce03c65646"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/nanoc",
+      "artifact": "inputs/0015-nanoc.gz",
+      "bytes": 18907560,
+      "sha256": "918604742ed98c9bdade4713220900f0884d90b4d5d7a7fc618b3f6bdb3e093d",
+      "compressed_bytes": 3137046,
+      "compressed_sha256": "4b0de66ba7d4fb5608615bdd685d958d656fff6e01c8f52a8c9868208dbd0e02"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/native.stderr",
+      "artifact": "inputs/0016-native.stderr.gz",
+      "bytes": 49,
+      "sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+      "compressed_bytes": 67,
+      "compressed_sha256": "e23aef8ae551571c22b2bf350142651dc3f0799c56147fa997f9d0adf2fcce5a"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/native.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/original-deployment-target.stderr",
+      "artifact": "inputs/0018-original-deployment-target.stderr.gz",
+      "bytes": 1016,
+      "sha256": "db2f1af838c44c827b412d585a43a7e70793e166da2b02944cfcbb4b92e18056",
+      "compressed_bytes": 294,
+      "compressed_sha256": "7af249cd1d5c339160834a3a31570e6642df12e4e6970a7bea52391bd817c24e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/original-deployment-target.stdout",
+      "artifact": "inputs/0019-original-deployment-target.stdout.gz",
+      "bytes": 847,
+      "sha256": "ed48ddcea1c2e1de6528ff20dfef745911841cf591087eb28124cf88742be060",
+      "compressed_bytes": 234,
+      "compressed_sha256": "6b33853acd62648f0b3b9c91826d9dbfcd4836a8922841092bc3abd0a4dcf30c"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/sandbox-setup.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/sandbox-setup.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/source-unavailable-control.stderr",
+      "artifact": "inputs/0022-source-unavailable-control.stderr.gz",
+      "bytes": 96,
+      "sha256": "6fe3f96b5ddfc991efaaa6aca55923031487b0eb74bd1037c422998c0b97e7d7",
+      "compressed_bytes": 109,
+      "compressed_sha256": "897ec1916d9522ea3097197955523461bb4679e211e8899e3c9207210dc34ae6"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/source-unavailable-control.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/translate.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/translate.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/verify-original-raw.stderr",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure/verify-original-raw.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure-controller.stderr",
+      "artifact": "inputs/0028-darwin-host-closure-controller.stderr.gz",
+      "bytes": 1733,
+      "sha256": "ef7eba4968a6c5b1db357432e52071933fc838e0960743e91f11319d8bc58fe3",
+      "compressed_bytes": 638,
+      "compressed_sha256": "477dcdaedd93eb7154e0c80242e123aa005d729ed8bb8a483b96be0bdcbf96a5"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/darwin-host-closure-controller.stdout",
+      "artifact": "inputs/0005-builtin-compile-module.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-6k6q6snl/bytes",
+      "artifact": "inputs/0030-bytes.gz",
+      "bytes": 16640,
+      "sha256": "ac408b2d25fdc63ca6ec8ceb53aede838af7542394f13a2dc638361ecab4bc03",
+      "compressed_bytes": 421,
+      "compressed_sha256": "4b726dccac376fb9cf1f2b10c8bf7a3e748c92ef0390da7f30b2f86421a00467"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-6k6q6snl/commands.json",
+      "artifact": "inputs/0031-commands.json.gz",
+      "bytes": 7255,
+      "sha256": "bea6ea3c1005ab652a2ca19371e63912db63b5635a82fb0a0311d6ac7020f93b",
+      "compressed_bytes": 1138,
+      "compressed_sha256": "b311f6f872c121f76cf20bd05130370d0e8e9c29c1044de97cf23be5c77e10ab"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-6k6q6snl/digest",
+      "artifact": "inputs/0032-digest.gz",
+      "bytes": 33992,
+      "sha256": "1be815301cc03694688d62b51af3afca1748db98ef4be2e87e986aac9fe9f30e",
+      "compressed_bytes": 2584,
+      "compressed_sha256": "0e7ad475ff858b0bfa1ce4524d7bf028bc04c15549040bbae63b654500250d7c"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-6k6q6snl/digest.c",
+      "artifact": "inputs/0033-digest.c.gz",
+      "bytes": 237,
+      "sha256": "17adcffe9db1701b0d37b638fc20f5865a9b1bcfeb6707487a876cd99df83a5e",
+      "compressed_bytes": 191,
+      "compressed_sha256": "221f1185d74b87cf21f4af68ea5e73504809a88924a03954ae1fdd2b7a4b90f0"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/commands.json",
+      "artifact": "inputs/0034-commands.json.gz",
+      "bytes": 3689,
+      "sha256": "d05496f0c86f815589e0b927619e7390f4f75bf4b11f0464d03c5b63efb9f82e",
+      "compressed_bytes": 573,
+      "compressed_sha256": "2bc8d225754805af07c6bdebd17afdb968f1456a972de3630cf8fd04be02701b"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/generated.c",
+      "artifact": "inputs/0035-generated.c.gz",
+      "bytes": 55286,
+      "sha256": "596e781ac9e43b9a43fcd53851dd4c0a64df420aed1e688d038523901a805220",
+      "compressed_bytes": 13622,
+      "compressed_sha256": "acb8ab6e25793816372d1759f1a93923ff350ce00931f685829f1a5fd303b1cf"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/input.nasm",
+      "artifact": "inputs/0036-input.nasm.gz",
+      "bytes": 304,
+      "sha256": "ef9ae34d67435a5e98d1af817f04ba61175b35544c13879a19e58a832ef41f3f",
+      "compressed_bytes": 246,
+      "compressed_sha256": "ab280015f22de7279cc01af2a02213d170102505cef56870048b69733de9d90d"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/input.nvm",
+      "artifact": "inputs/0037-input.nvm.gz",
+      "bytes": 560,
+      "sha256": "b3319c3ce092486149ec08efafcde596d4ba93f5d4b34304acf1605f7a20644a",
+      "compressed_bytes": 300,
+      "compressed_sha256": "6413b288da78595ea52ded03b3cb94211d72e617fab7690441fade995f2e0fbe"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/missing",
+      "artifact": "inputs/0038-missing.gz",
+      "bytes": 50296,
+      "sha256": "35a240cf83860f7c1287850c626e0827513d68322055e8f48a076c1ce9dc6b5d",
+      "compressed_bytes": 2130,
+      "compressed_sha256": "358002369e8ae00252e6e56308dc3d3de2110f042d8c2813de29d35a03b54eca"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/missing.c",
+      "artifact": "inputs/0039-missing.c.gz",
+      "bytes": 55228,
+      "sha256": "5f453f5cfb259b4faaf06c64bbb79cc711f65ee75eefc0a992beae270ad150fd",
+      "compressed_bytes": 13577,
+      "compressed_sha256": "88cb879673b5fa33554216c0731033ccea7aeac5d55941109cb723799302305f"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/product",
+      "artifact": "inputs/0040-product.gz",
+      "bytes": 52712,
+      "sha256": "56aa5763b3fc5462e46ee544fc862769235b7b8c64e339e28a4b2ecd3904f1da",
+      "compressed_bytes": 6960,
+      "compressed_sha256": "128159bf61793206544003b3f71111a028f489f1cd08ad8b8c77aaed174bce16"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-9xcnn1b4/provider.c",
+      "artifact": "inputs/0041-provider.c.gz",
+      "bytes": 78,
+      "sha256": "37f20c839716fa5ee8abb795a0f0b4315c245701368a1d72b0dc34fcf589b667",
+      "compressed_bytes": 89,
+      "compressed_sha256": "f563d053fb2b4f83bab5f9b69a69d71a631cb8d2387f3891a6e96d27c418ad3e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/commands.json",
+      "artifact": "inputs/0042-commands.json.gz",
+      "bytes": 3729,
+      "sha256": "90d870442b9c98ca64b5d19a66c4210c62bfcfb00b1066fd7c25e6664bfe5596",
+      "compressed_bytes": 583,
+      "compressed_sha256": "f742b5cfd300d9b31fddde3907f3d120c5613097ef40d6dd7ef865960e1edbdc"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/generated.c",
+      "artifact": "inputs/0043-generated.c.gz",
+      "bytes": 55286,
+      "sha256": "36972438932a6d7d5a2f57a34553f1ca2d839a8cb0be7fec0bc562576eb51053",
+      "compressed_bytes": 13625,
+      "compressed_sha256": "d7c657ba7c80da1cdeb7b609dc27696a6611bb6001128866049c3870799a7700"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/input.nasm",
+      "artifact": "inputs/0044-input.nasm.gz",
+      "bytes": 304,
+      "sha256": "7715eb1a22671b7e92072702a9b00bbbb06411ae0b1c83a8922e2bb90cfa04c6",
+      "compressed_bytes": 246,
+      "compressed_sha256": "bf429e92ba029ead4338535c4028ce724da2f3827e366b8a1342adef7645981d"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/input.nvm",
+      "artifact": "inputs/0045-input.nvm.gz",
+      "bytes": 560,
+      "sha256": "6fd90c97ec9a6cd7b5eb0436aa568d60cb2b3830028cb49a918c33a33925b4f7",
+      "compressed_bytes": 301,
+      "compressed_sha256": "0618062007048b2dfe94cf61a5eb0acceabbfe324e9111019bc512a87acf9bcd"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/product",
+      "artifact": "inputs/0046-product.gz",
+      "bytes": 52712,
+      "sha256": "673401ade1923d7e41851f2ee87036a23a3e5a0f49760e1335d77d41a97c7631",
+      "compressed_bytes": 6952,
+      "compressed_sha256": "dd4deebf626ed98360632ec35c1e10bdfefdc78f1c4a1ab9c6712c5f2147eec4"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/provider.c",
+      "artifact": "inputs/0041-provider.c.gz",
+      "bytes": 78,
+      "sha256": "37f20c839716fa5ee8abb795a0f0b4315c245701368a1d72b0dc34fcf589b667",
+      "compressed_bytes": 89,
+      "compressed_sha256": "f563d053fb2b4f83bab5f9b69a69d71a631cb8d2387f3891a6e96d27c418ad3e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/relocated prefix/bin/product",
+      "artifact": "inputs/0046-product.gz",
+      "bytes": 52712,
+      "sha256": "673401ade1923d7e41851f2ee87036a23a3e5a0f49760e1335d77d41a97c7631",
+      "compressed_bytes": 6952,
+      "compressed_sha256": "dd4deebf626ed98360632ec35c1e10bdfefdc78f1c4a1ab9c6712c5f2147eec4"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/relocated prefix/lib/nanolang/hosts/same provider.dylib",
+      "artifact": "inputs/0049-same provider.dylib.gz",
+      "bytes": 16800,
+      "sha256": "85042dc857a481166c10a94da486a82bc3e691d8026a040980a2c84e3eab38e3",
+      "compressed_bytes": 763,
+      "compressed_sha256": "be4b1ffc5181c4123f40902b05c952594b94708061a4e2577b4ee12e9fbfa7a7"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/relocated prefix/share/nanolang/host-closures/product.json",
+      "artifact": "inputs/0050-product.json.gz",
+      "bytes": 407,
+      "sha256": "ef9d9a1bf75a2c8b8a92ef2dbb6273cb290b70fa162e71a0ef7016442dc3c517",
+      "compressed_bytes": 294,
+      "compressed_sha256": "886c537531d1dfa1f7dc9091e1bb398880b280f708f36fb4a4b1e0cebc5a620f"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-i8hk5_h8/retained-original-provider",
+      "artifact": "inputs/0049-same provider.dylib.gz",
+      "bytes": 16800,
+      "sha256": "85042dc857a481166c10a94da486a82bc3e691d8026a040980a2c84e3eab38e3",
+      "compressed_bytes": 763,
+      "compressed_sha256": "be4b1ffc5181c4123f40902b05c952594b94708061a4e2577b4ee12e9fbfa7a7"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/commands.json",
+      "artifact": "inputs/0052-commands.json.gz",
+      "bytes": 2869,
+      "sha256": "091eb0f149c7c9dd5cdc73d5b2378dbafdc66c1d502796c5d0863c4f23a33a51",
+      "compressed_bytes": 468,
+      "compressed_sha256": "8f09d8f9d78e48d3e982aa93c71f1f67af1a39ad0d32be2bc8b6a15ebb062b18"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/generated.c",
+      "artifact": "inputs/0053-generated.c.gz",
+      "bytes": 55286,
+      "sha256": "d83f77fb349dbcc92da84c257f1e1f463f8f208c07586fedc6e2cf694a010582",
+      "compressed_bytes": 13625,
+      "compressed_sha256": "c50ab49eed998a5516ff718fe86e6919765e98c8eea1277c1de794805827e461"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/input.nasm",
+      "artifact": "inputs/0054-input.nasm.gz",
+      "bytes": 304,
+      "sha256": "9b5c615b356ee7df1b928c6a43b133925743d5784024952cd15e80962c06daa3",
+      "compressed_bytes": 244,
+      "compressed_sha256": "9deccbd98d79b85db05304e129834aa60c4bbe1e35344b5cfc03b263438a1b38"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/input.nvm",
+      "artifact": "inputs/0055-input.nvm.gz",
+      "bytes": 560,
+      "sha256": "ea082b90b3a40b9b248501eaf809e8288221baec03d7bb44094e68a435b0e516",
+      "compressed_bytes": 296,
+      "compressed_sha256": "392f33f1e25b91b9d9ab97a5163dd100cfd1bc695e49cae29c491425ad115848"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/ordinary",
+      "artifact": "inputs/0056-ordinary.gz",
+      "bytes": 33432,
+      "sha256": "f95f74533c9a122ac47a9f791afc57c736d1948d1895cd854a7ec08a98f4991c",
+      "compressed_bytes": 969,
+      "compressed_sha256": "5cb3b354ee8e47edadff78ac2d3fe328ac09c0b26fe140c09eae0a2f8a3ccadd"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/ordinary.c",
+      "artifact": "inputs/0057-ordinary.c.gz",
+      "bytes": 91,
+      "sha256": "39826225c64321c61c30abbd75b9570c81bff8ee6d55510650d959441452d3a8",
+      "compressed_bytes": 111,
+      "compressed_sha256": "bea952fa0bc0778d67053e7cd00ed8d110047457accf8bb14ffc3c88ae213e62"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/prefix/share/nanolang/host-closures/ordinary.json",
+      "artifact": "inputs/0058-ordinary.json.gz",
+      "bytes": 129,
+      "sha256": "71d89951ba14775a3b62eb441f7d519d0b4490e5200754b2313b182b9974686b",
+      "compressed_bytes": 131,
+      "compressed_sha256": "537d6dcb0d38487e5fe1f98450a645e3d9b1d4bdfc96169fe52c50fa9030311b"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/product",
+      "artifact": "inputs/0059-product.gz",
+      "bytes": 52712,
+      "sha256": "c77a348e5771281aae08d7e4f2a66d871d1a38d5cf0354f83c0bbc48f5a661cc",
+      "compressed_bytes": 6961,
+      "compressed_sha256": "219312dbe26d754c2c06efb2322fcf0bd964e28e626330160a31d048885767d8"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/provider.c",
+      "artifact": "inputs/0041-provider.c.gz",
+      "bytes": 78,
+      "sha256": "37f20c839716fa5ee8abb795a0f0b4315c245701368a1d72b0dc34fcf589b667",
+      "compressed_bytes": 89,
+      "compressed_sha256": "f563d053fb2b4f83bab5f9b69a69d71a631cb8d2387f3891a6e96d27c418ad3e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-r4leu6ul/same provider.dylib",
+      "artifact": "inputs/0061-same provider.dylib.gz",
+      "bytes": 16800,
+      "sha256": "fe5483eba84648cb9ad8e71bac07227fae38c0f0773e45f7724315329eaa1203",
+      "compressed_bytes": 758,
+      "compressed_sha256": "6f17b0096da88a37fe9679c189a4b72459f13b98d58bd396ba5201255f2a00c4"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/commands.json",
+      "artifact": "inputs/0062-commands.json.gz",
+      "bytes": 3676,
+      "sha256": "b2edafdf7901fa0cbc0b0b97a39d7e24ad6033fdba1cac57704fd67cc03df861",
+      "compressed_bytes": 591,
+      "compressed_sha256": "a54a8e28049cc0d92d49965418a618a4d2ca1a6aeb1d20e5eab38e7808c204f2"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/generated.c",
+      "artifact": "inputs/0063-generated.c.gz",
+      "bytes": 55286,
+      "sha256": "d610e19dfca4230cceadb365886efc04f5d944e830102c70a7196ef39394f91d",
+      "compressed_bytes": 13626,
+      "compressed_sha256": "ed8306df3f68697e3378e541e23c5e01b81514f96de8d90eb25fa4503c0e9aff"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/input.nasm",
+      "artifact": "inputs/0064-input.nasm.gz",
+      "bytes": 304,
+      "sha256": "7418ec864d1f0a920a4559528db61da595ecb6549a784619d96956138b303327",
+      "compressed_bytes": 244,
+      "compressed_sha256": "3949fe6e42c9760a1eb5246dd70fc942aa27ee71043c3196a205dcbf223ed963"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/input.nvm",
+      "artifact": "inputs/0065-input.nvm.gz",
+      "bytes": 560,
+      "sha256": "f5e73aa68c9a7d6d566c446a650fd7cf8923dcb167c345191585c668588788ec",
+      "compressed_bytes": 301,
+      "compressed_sha256": "959e73a01329098300fc8e2b3cccb961adfdb901a9e829240744015234deecf1"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/product",
+      "artifact": "inputs/0066-product.gz",
+      "bytes": 52712,
+      "sha256": "d79eba4c503c1bceadb980272ed9ff6dc8bab1bc4a260cae8d71ac02538d0d41",
+      "compressed_bytes": 6951,
+      "compressed_sha256": "af5c092a5ee8e59670a8ae88398d94d0303d107e85c911f3ad3a6db5ef4d8e4e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/provider.c",
+      "artifact": "inputs/0041-provider.c.gz",
+      "bytes": 78,
+      "sha256": "37f20c839716fa5ee8abb795a0f0b4315c245701368a1d72b0dc34fcf589b667",
+      "compressed_bytes": 89,
+      "compressed_sha256": "f563d053fb2b4f83bab5f9b69a69d71a631cb8d2387f3891a6e96d27c418ad3e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/refused-prefix/bin/product",
+      "artifact": "inputs/0066-product.gz",
+      "bytes": 52712,
+      "sha256": "d79eba4c503c1bceadb980272ed9ff6dc8bab1bc4a260cae8d71ac02538d0d41",
+      "compressed_bytes": 6951,
+      "compressed_sha256": "af5c092a5ee8e59670a8ae88398d94d0303d107e85c911f3ad3a6db5ef4d8e4e"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/host-artifact-deployment-yu_gj_k0/same provider.dylib",
+      "artifact": "inputs/0069-same provider.dylib.gz",
+      "bytes": 16800,
+      "sha256": "439e869fca4eaca3734ef9746f316996d4d259be5f71017f1691432c66c9ae3b",
+      "compressed_bytes": 761,
+      "compressed_sha256": "e19f7416bd0f002b263f3a921eb6152ed0bbfd8f4e803d23f4cbdbed9f4cfda4"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/launch.json",
+      "artifact": "inputs/0070-launch.json.gz",
+      "bytes": 163,
+      "sha256": "d766dbc2f2000821205e1ff06fb8778d33952cf2ebc9864017efb8bb9e0c9bcc",
+      "compressed_bytes": 145,
+      "compressed_sha256": "78c429c1d58b8041cc076c211023ce1d0c6e8fd3e8a31147259e6b4a31c9394b"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/run-darwin-host-closure.py",
+      "artifact": "inputs/0071-run-darwin-host-closure.py.gz",
+      "bytes": 8558,
+      "sha256": "f6c3370fe8290a8263d35f78d66ddf45375a540d84509b7c3fd91cc135a36f34",
+      "compressed_bytes": 3208,
+      "compressed_sha256": "f346ab8fb62063df2128049803ccba966d87c283ca49eb3b7b6bcf6797cb3a65"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/host-closure-20261121/.test_output/transport.json",
+      "artifact": "inputs/0072-transport.json.gz",
+      "bytes": 5720,
+      "sha256": "8aeccadd41947d8dedbf5260df421f680106fd950b5bdca4d665f7a37081da40",
+      "compressed_bytes": 1305,
+      "compressed_sha256": "7eefc80c4c09feb8c8071fab78ce6191f9a864a7740522a3c9a594a4978814d9"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-003a4900c9948151ef88fbf2fcfe764644eafeced799acc3f11eae4a65b507f8/.nano-gen-paKHGd/libfile_source_catalog.dylib",
+      "artifact": "inputs/0073-libfile_source_catalog.dylib.gz",
+      "bytes": 72880,
+      "sha256": "6e658da2da9321665eec38366aee80070204e5fcc96bfbeb869de2ab1d4637ff",
+      "compressed_bytes": 9486,
+      "compressed_sha256": "0e91d35383f1398e65b5c3a3cf7cca90439896552242deb9d16ce8443b80cfa0"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-55c6ed63c8ad5f19edf8469c83d13f9bb0ec37129c573404b7318777274c903d/.nano-gen-WrAGHW/libcompiler_support.dylib",
+      "artifact": "inputs/0074-libcompiler_support.dylib.gz",
+      "bytes": 270424,
+      "sha256": "95ba253e5ac820dd08d4964d264d6145be1cc74ac06ffbc14aacedebbc329dee",
+      "compressed_bytes": 87645,
+      "compressed_sha256": "759c708d552057b5ce4be32817cff51f0615bcdad3ec470dc6b96bcde8e8cc28"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-6411c984443ce1499fa6c3197308d1481b1997eb7c4f411a46492a515f41f138/.nano-gen-k7rdRn/libstd.dylib",
+      "artifact": "inputs/0075-libstd.dylib.gz",
+      "bytes": 72528,
+      "sha256": "936e89f2495de8bc745037b5e30c8f82e67b7377b1cd25d6624f827fa97c4520",
+      "compressed_bytes": 10113,
+      "compressed_sha256": "c90dd1e97350abe5e0ec13295e353ab2a4291b0fff61f7d637370405cf57b7f7"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-76d6b1420000da1682812e721603b35d54f5db4655347ebda1979a3da512c006/.nano-gen-jOenzo/libfile_product.dylib",
+      "artifact": "inputs/0076-libfile_product.dylib.gz",
+      "bytes": 1289928,
+      "sha256": "6ca018591a886903c868c9ef08c1d03a05a8fc97a622845b36567463c72b036d",
+      "compressed_bytes": 611628,
+      "compressed_sha256": "2db2f5677f56672d2093a5f16778367379b33a479378b88751f29b4b51765655"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-99d10884fc8e8623a1d78d2e0fa8f9f10c6b2bc5f25816cc1086cbfeb7d6a7f0/.nano-gen-hYmeML/libnanoisa.dylib",
+      "artifact": "inputs/0077-libnanoisa.dylib.gz",
+      "bytes": 972976,
+      "sha256": "3190ecfd7761279fe6ee989714833039a09281718d7935f414c1c490ecbb69b9",
+      "compressed_bytes": 334394,
+      "compressed_sha256": "6c87a4e875f4f47d112e2184f2033ee47ac75f5aaf99a94afdca76f090795983"
+    },
+    {
+      "path": "/Users/jkh/.worktrees/nanolang/post-bootstrap-qualification-20261121/.test_output/current-darwin-bootstrap/module-cache/v2-d3e241a5e5c52b7bb6028d3e6c657986d6ffd787874574b1c73771126343337c/.nano-gen-B0LuHZ/libfile_source_inputs.dylib",
+      "artifact": "inputs/0078-libfile_source_inputs.dylib.gz",
+      "bytes": 167224,
+      "sha256": "2f3daebe22a1ba8034dde13e7bc20414adeeedb66b49d5d2dc1bd62ba4f7cdf9",
+      "compressed_bytes": 34199,
+      "compressed_sha256": "1623d390404edfdc2f74532af0683047db6f982286a41295265b8f25ae5c4661"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/builtin.nvm",
+      "artifact": "inputs/0079-builtin.nvm.gz",
+      "bytes": 632,
+      "sha256": "f1faa8b299a6486c4eb48fb4f0d74a4fb38afa2b649f2b9af14ac4c3ae9cda1c",
+      "compressed_bytes": 265,
+      "compressed_sha256": "7de7471da49c2cc20dbe0691d71e81849453cb89b3a5efb40c2c99eca15c5e65"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/foreign.nano",
+      "artifact": "inputs/0080-foreign.nano.gz",
+      "bytes": 128,
+      "sha256": "e45e07d79263e1cc6047325a5b28e9e720490902db478c212309822b97e1e25b",
+      "compressed_bytes": 126,
+      "compressed_sha256": "6ea1fe0327aad66b96fb56f917fbd67ef63f71d24e4eb2edebe9d19213a0141c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/input.nano",
+      "artifact": "inputs/0081-input.nano.gz",
+      "bytes": 151,
+      "sha256": "7049d86ce6141deabd577ac09dffe890115e2a7f085570362fee211d971b05ed",
+      "compressed_bytes": 123,
+      "compressed_sha256": "e37ddcf8dbe8dd9927a7c8ad16e38cc3955c35b627d197ec9a4404acea22ce37"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/provider/api.c",
+      "artifact": "inputs/0082-api.c.gz",
+      "bytes": 92,
+      "sha256": "99b986cbe48af1426427147cd2ada3b12798a0b93621ccf0b745403208804650",
+      "compressed_bytes": 100,
+      "compressed_sha256": "6588bd1d689ba61d2403c243deb8a6ebe3ff6ea79fd7e98177589e57978502c5"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/provider/api.nano",
+      "artifact": "inputs/0083-api.nano.gz",
+      "bytes": 45,
+      "sha256": "1045149aa6ec48a25e4afd7025741442d5b44bdbf2acf23e107fa3db72e43ae5",
+      "compressed_bytes": 59,
+      "compressed_sha256": "a38aa9086b40b964226cac638077630ca35909b57a373882012d4a52a70823d7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/client/provider/module.json",
+      "artifact": "inputs/0084-module.json.gz",
+      "bytes": 44,
+      "sha256": "6ea2eb8ead10d738347ba5761c4eadea3c111f17a1ed6d55c04c08c8cbb83ac9",
+      "compressed_bytes": 63,
+      "compressed_sha256": "961cea9c3e39db3a987cdbb197203ebbae936828f6cbe42929cb6569dc9cccf3"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano-resolver",
+      "artifact": "inputs/0085-nano-resolver.gz",
+      "bytes": 58352,
+      "sha256": "26812f75920ac5e3113c2d3c724d1d2fe2afbf8c78681a845c7ecf8d474d43d7",
+      "compressed_bytes": 13180,
+      "compressed_sha256": "d838c378c0f7596fe1709c123ff13d8c9b1a6f04316d051ddcfaaa58ea2c47f1"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_aot_runtime.o",
+      "artifact": "inputs/0086-nano_aot_runtime.o.gz",
+      "bytes": 8442896,
+      "sha256": "e24c1c55e385c6991bcfdeddebb58405cdc1bd8f143b43254db9f56ee2bc2743",
+      "compressed_bytes": 25723,
+      "compressed_sha256": "94f15209a441c00fce047201cf5afc2442898b5273246dc7300440ad2e7befde"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_cop",
+      "artifact": "inputs/0087-nano_cop.gz",
+      "bytes": 11690392,
+      "sha256": "e0401f506c978f75b0ede3397747499d8f2cb00aa421e831106fd75f0448dcce",
+      "compressed_bytes": 1325066,
+      "compressed_sha256": "a6d008c808cb239e85312bd816d55ac6694da8c329ef0aefca7d463a82a8a3d8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_virt",
+      "artifact": "inputs/0088-nano_virt.gz",
+      "bytes": 12704888,
+      "sha256": "bb8f91aa5191df58c978aca2f1b5926bcfcdf37335a46c0f822923586ee59528",
+      "compressed_bytes": 1790468,
+      "compressed_sha256": "38478f9d046ced35c154ab2c1482f3c2207d2d5d779cad95ceb081d486a9addb"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_vm",
+      "artifact": "inputs/0089-nano_vm.gz",
+      "bytes": 12352584,
+      "sha256": "0d21fff49d00181e9b96d9660bd3b1fa215147d868ccadde8042535e8f0b7b0b",
+      "compressed_bytes": 1635028,
+      "compressed_sha256": "c058119a11cb1d766a72cb2d3e11dc7882a8c2429dee2f4922361e005198f536"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nano_vmd",
+      "artifact": "inputs/0090-nano_vmd.gz",
+      "bytes": 11694040,
+      "sha256": "a534a900101365155579457b29e062b424d2f6cb9fcc83d074d5a616f3d6a486",
+      "compressed_bytes": 1331379,
+      "compressed_sha256": "b4a102f40a33a651821fa6499c02bcbb39b84b4511537d463400befe0aae2211"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nanoc",
+      "artifact": "inputs/0015-nanoc.gz",
+      "bytes": 18907560,
+      "sha256": "918604742ed98c9bdade4713220900f0884d90b4d5d7a7fc618b3f6bdb3e093d",
+      "compressed_bytes": 3137046,
+      "compressed_sha256": "4b0de66ba7d4fb5608615bdd685d958d656fff6e01c8f52a8c9868208dbd0e02"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nanoisa",
+      "artifact": "inputs/0092-nanoisa.gz",
+      "bytes": 1283976,
+      "sha256": "09edf62b9ad10473daf985f1fbb8826bf0a9bc2d867f57ad4541d23a28dda245",
+      "compressed_bytes": 528955,
+      "compressed_sha256": "9bc4d42754d58c8678104e521985b25092bd5ce54f50bd664d8a56113f7e14df"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/bin/nvm2c",
+      "artifact": "inputs/0093-nvm2c.gz",
+      "bytes": 1705304,
+      "sha256": "c05482a3569b02660354622f4060ed1174291c894950964dc3eb17f3770506f6",
+      "compressed_bytes": 696418,
+      "compressed_sha256": "b0bb079f266224e9c812adba35fcdb48bf88a45c1f989709d03abd610f56ca0c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_body.h",
+      "artifact": "inputs/0094-file_body.h.gz",
+      "bytes": 1588,
+      "sha256": "5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a",
+      "compressed_bytes": 679,
+      "compressed_sha256": "096ad04af551fd178cdb7095b788638f6375da82b2f55d8b2e11837f0137f797"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_code.h",
+      "artifact": "inputs/0095-file_code.h.gz",
+      "bytes": 2194,
+      "sha256": "ebbad35c12db3f66c793c6974613ba8d651e3a28af451094b7db883b0f7dce76",
+      "compressed_bytes": 894,
+      "compressed_sha256": "79dc7908f38e1a01d14fc7186031cdf726522ee2fd447b3bf5ed2cdb842d54b8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic.h",
+      "artifact": "inputs/0096-file_cyclic.h.gz",
+      "bytes": 3114,
+      "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad",
+      "compressed_bytes": 1067,
+      "compressed_sha256": "52f40b838af9ff19e910be44f1244b811d7090b884c27cf86a2fbf53b25e7bba"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_hosted.h",
+      "artifact": "inputs/0097-file_cyclic_hosted.h.gz",
+      "bytes": 3752,
+      "sha256": "7cf539f4d7cb575f2bec0ea150606c40bd0123121578456ec7026c6aa671c103",
+      "compressed_bytes": 1154,
+      "compressed_sha256": "0b8ffface8220f158efc7414aa2b4464d0f0bf6b848a65961a0563bf7ae389bb"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_native_abi.h",
+      "artifact": "inputs/0098-file_cyclic_native_abi.h.gz",
+      "bytes": 223,
+      "sha256": "fc9600ff4b1eecdcba4eb2eb091ae22da3fe96c0b6e07e340796f5f8634b887a",
+      "compressed_bytes": 145,
+      "compressed_sha256": "df9cf84e1e54e38abda92f97dfb1bc302ed2a866259052dc4ffd8d8239533301"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_native_public.h",
+      "artifact": "inputs/0099-file_cyclic_native_public.h.gz",
+      "bytes": 434,
+      "sha256": "88e25738034fbdb98ff5f34d03f7c5b6489833b552b43291edd0ad71dc8cf691",
+      "compressed_bytes": 266,
+      "compressed_sha256": "d04a06420850e8ac83b65295470725138f5c6bc3b4a52d383f5b568e45bfb704"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_public.h",
+      "artifact": "inputs/0100-file_cyclic_public.h.gz",
+      "bytes": 912,
+      "sha256": "a00a1fd7fca59f4e5fac944d5c453cd928191ff291bfce8d125fd42e7e404604",
+      "compressed_bytes": 507,
+      "compressed_sha256": "2da279a99b840c2380cf8598cdfbb2d5bd793f58d5e3ff6b464bcfb8d9a43bf7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_public_internal.h",
+      "artifact": "inputs/0101-file_cyclic_public_internal.h.gz",
+      "bytes": 882,
+      "sha256": "9ce448523b93a2ec69646250e52ba59a30446d3d0a825a305882bf9714479e98",
+      "compressed_bytes": 401,
+      "compressed_sha256": "a76a44b4849dbacc22560c110dba4b29fa2dde1eeab6bcfbe2c418f63e69de5f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_report.h",
+      "artifact": "inputs/0102-file_cyclic_report.h.gz",
+      "bytes": 684,
+      "sha256": "d9b85b87c1b61a3a72ee6322c5b924979412b1c1b024574aaba32cae89ba7655",
+      "compressed_bytes": 386,
+      "compressed_sha256": "9d962a26a56eb8107d5da7875e44696bd9c9e592a8cedd72dc86688ca302fa5f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_cyclic_runtime.h",
+      "artifact": "inputs/0103-file_cyclic_runtime.h.gz",
+      "bytes": 1566,
+      "sha256": "66c9673d83f87262fac3a73d281471f0773e0258d58f8ab30e6a76768f369105",
+      "compressed_bytes": 608,
+      "compressed_sha256": "6a58c2bf947a9c9e82fd551763b6cdae2627ec1b3ba62c2e4323faccef707968"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_flow.h",
+      "artifact": "inputs/0104-file_flow.h.gz",
+      "bytes": 7693,
+      "sha256": "49470ff0edb768f6aaf85b2a6028f38dcc4b28d63b7f3c6c913574f386df588e",
+      "compressed_bytes": 2332,
+      "compressed_sha256": "09b2ca1d0a2afb328b44f4acbd5cc9adcc33f6ceb18d2f6da0c79d6f960372e0"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_host_grant.h",
+      "artifact": "inputs/0105-file_host_grant.h.gz",
+      "bytes": 1409,
+      "sha256": "8b7f524daa47bd6f2d2118f58cacd0405e937bcc0605bb12def7d4ea5fe455ac",
+      "compressed_bytes": 698,
+      "compressed_sha256": "3a62c1f6f23db58fedbc6b3315e159fcc3546783dc1a03748551bc6a537de480"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_host_grant_internal.h",
+      "artifact": "inputs/0106-file_host_grant_internal.h.gz",
+      "bytes": 811,
+      "sha256": "752b0c38ccd91c1d22a5d9b9423b95a2aad62876d0e9b3da7d8ef93b0af1fb45",
+      "compressed_bytes": 462,
+      "compressed_sha256": "3c3cb9ea67db03f660f8a27db58bdf652e1166a56770d189b881fe2142d90b1d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_hosted.h",
+      "artifact": "inputs/0107-file_hosted.h.gz",
+      "bytes": 2007,
+      "sha256": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+      "compressed_bytes": 818,
+      "compressed_sha256": "a466a8367f6fb80dd6757e2c670551873d138503048942b0c1fb2575192a9579"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_flow.h",
+      "artifact": "inputs/0108-file_indirect_flow.h.gz",
+      "bytes": 2742,
+      "sha256": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33",
+      "compressed_bytes": 827,
+      "compressed_sha256": "43f8c9cf2c2c022a9dfc9ae81c184d4f0c48f4b76c6f9d1482088d920212a496"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_hosted.h",
+      "artifact": "inputs/0109-file_indirect_hosted.h.gz",
+      "bytes": 4155,
+      "sha256": "db090ed8d09af5b50d8e6f07b79cccede4a2d29555afe32ffcf5288df39ae421",
+      "compressed_bytes": 1239,
+      "compressed_sha256": "255d8da3420dfec612c676c4ec3152127a0a2d3482dd4b93466a2108016e3c97"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_native_abi.h",
+      "artifact": "inputs/0110-file_indirect_native_abi.h.gz",
+      "bytes": 233,
+      "sha256": "fe4fd8d5a8db7b0c138f8546d19c5704574712ccfdcdb9e0488110884b7ca818",
+      "compressed_bytes": 149,
+      "compressed_sha256": "cb978fe7bf41ebe553632b1eef1d1e389f2ea7bf248873c111a6c2a82bc0e4a8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_native_public.h",
+      "artifact": "inputs/0111-file_indirect_native_public.h.gz",
+      "bytes": 446,
+      "sha256": "cb9bb6aa298548e020b0b2644ad0cb1ff95a5dddaae6eba47cbd67afce2f9a74",
+      "compressed_bytes": 267,
+      "compressed_sha256": "fe5f5da017bb8d4189ffb3b63ed04b86fb34068e4d351cc32a9b0b05a7aaa6c4"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_public.h",
+      "artifact": "inputs/0112-file_indirect_public.h.gz",
+      "bytes": 928,
+      "sha256": "f235b09b93349a3a97e86cef84008225e897c0e5e940fd2e0cad0ec03947f523",
+      "compressed_bytes": 511,
+      "compressed_sha256": "236dfe24bb3144ea4e283d9b34fafc6df67c0a9ce54d7ab45852fda0fb159e67"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_public_internal.h",
+      "artifact": "inputs/0113-file_indirect_public_internal.h.gz",
+      "bytes": 906,
+      "sha256": "9a4e2d891d433dd8fa24f89e6f475742f59213c866ac2d61e9cb1923cd2c22e6",
+      "compressed_bytes": 406,
+      "compressed_sha256": "02dc9b62b52912f631cad1884b17216bff4ecdf5e5ad22159604a46d2dfc1c1f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_report.h",
+      "artifact": "inputs/0114-file_indirect_report.h.gz",
+      "bytes": 568,
+      "sha256": "297a93671f067085be307dd914891c0bc9cacce73d47c495b2191a542a6652a5",
+      "compressed_bytes": 327,
+      "compressed_sha256": "5c1fad89231ba54c16356b9be1aff4d758311dffe270d1618f6e86801e09b8f1"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_runtime.h",
+      "artifact": "inputs/0115-file_indirect_runtime.h.gz",
+      "bytes": 1282,
+      "sha256": "c6271cc61c243e2ac650b81497cc2cc98b008454d70440db05f37fae3c531381",
+      "compressed_bytes": 489,
+      "compressed_sha256": "02ad5b37fa343b6d0c1c899f58a1c20d4b4c4f4e1707cd4ebc7218993ad20b1d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_indirect_targets.h",
+      "artifact": "inputs/0116-file_indirect_targets.h.gz",
+      "bytes": 1836,
+      "sha256": "c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c",
+      "compressed_bytes": 773,
+      "compressed_sha256": "0ecb79fe3a88c563d2d4eb190b94146cd699ebe1792f8da7a7afe5760e4484ad"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_native_abi.h",
+      "artifact": "inputs/0117-file_native_abi.h.gz",
+      "bytes": 486,
+      "sha256": "5a43f4ee61279663a2ead77aafc210134819c8eb38872141fd88b053c1745b8b",
+      "compressed_bytes": 310,
+      "compressed_sha256": "96d07731a351f4790953f68cb39f6216ccda8f77b0c3664c3e15359e43fe6593"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_native_public.h",
+      "artifact": "inputs/0118-file_native_public.h.gz",
+      "bytes": 308,
+      "sha256": "7071ce61cc5a875675c079954a1c2dc8ccf89b13a7ed5a3845dc2fdba6823c2c",
+      "compressed_bytes": 221,
+      "compressed_sha256": "38e217b1843fdf40536e43ea9d1004d39c76ff09dc8d3ceed025d1145cf7ec7c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_public.h",
+      "artifact": "inputs/0119-file_public.h.gz",
+      "bytes": 977,
+      "sha256": "b5ff8662cb1063f634192e0d304d308ac0422627050a155d8f8368f02706408b",
+      "compressed_bytes": 574,
+      "compressed_sha256": "eb1eff5aaa148299911c7167e4dfeba409d83cfc79985b9b7667672c2cb62f6c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_public_internal.h",
+      "artifact": "inputs/0120-file_public_internal.h.gz",
+      "bytes": 2114,
+      "sha256": "9b6783d0936406e8b0ad18200d0b5f2e2a21ba6c3470ddf41129c3f37c32e7e4",
+      "compressed_bytes": 822,
+      "compressed_sha256": "0df4321a1537d2367b0cfe0472389b202aab8cf4e63263380da0b53210f576fa"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_runtime.h",
+      "artifact": "inputs/0121-file_runtime.h.gz",
+      "bytes": 5699,
+      "sha256": "129e7360da6883db0d703cdfd68f79f0b3017621e04e12710073b6815c8ca268",
+      "compressed_bytes": 1817,
+      "compressed_sha256": "3168e0a38303d30724bc309eaffd00cf2c688998f5d94e127dd8fa4c8d92fd7f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/file_runtime_frames.h",
+      "artifact": "inputs/0122-file_runtime_frames.h.gz",
+      "bytes": 2489,
+      "sha256": "13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7",
+      "compressed_bytes": 901,
+      "compressed_sha256": "ff9e4bb0b0a9caa0a8156819f5bf89f17acd1ce6c23f4edc1c6d7911959c85bd"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/generated_schema.h",
+      "artifact": "inputs/0123-generated_schema.h.gz",
+      "bytes": 27037,
+      "sha256": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+      "compressed_bytes": 4432,
+      "compressed_sha256": "3e790e77c5cf03d125e9dd4a84f27512fc341114fed2a8e5731addc94606775f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/isa.h",
+      "artifact": "inputs/0124-isa.h.gz",
+      "bytes": 19280,
+      "sha256": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+      "compressed_bytes": 6048,
+      "compressed_sha256": "07f66214f5e47864270b6c141c0f81ea6037eff874bff9b85ceb5f838cb77b26"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/nvm_format.h",
+      "artifact": "inputs/0125-nvm_format.h.gz",
+      "bytes": 20373,
+      "sha256": "f115ad70822654add24d3747788bda3deb4af61dc042a671b7b70ad283b97103",
+      "compressed_bytes": 5907,
+      "compressed_sha256": "8a1dfa6e9feafc9b984cd9f792d3225f21e2a4886cbafca426e7d800a6fdd97a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/nvm_format_v2.h",
+      "artifact": "inputs/0126-nvm_format_v2.h.gz",
+      "bytes": 5599,
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "compressed_bytes": 2123,
+      "compressed_sha256": "7b53a65ddfe3a2084c7908361bf4f70f5f48ba499464e37c0c12c12df418eea9"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/nvm_v2_sections.h",
+      "artifact": "inputs/0127-nvm_v2_sections.h.gz",
+      "bytes": 18955,
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "compressed_bytes": 5131,
+      "compressed_sha256": "8c9fff351a471cd410f2a37e0dffcfdf7016e24e7b9772ac398e7cfab4c8b190"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/service_bindings.h",
+      "artifact": "inputs/0128-service_bindings.h.gz",
+      "bytes": 1572,
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "compressed_bytes": 748,
+      "compressed_sha256": "34e9061b9f7f478c73bed95429ac7515881e9da3c452577333b84483c8209c5a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nanoisa/service_file_nominal.h",
+      "artifact": "inputs/0129-service_file_nominal.h.gz",
+      "bytes": 2746,
+      "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8",
+      "compressed_bytes": 1052,
+      "compressed_sha256": "219cb561f9e9570e940bf1f3a37e21e57558b29c66b02feaef463b0e30e1cd46"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nsi_cap.h",
+      "artifact": "inputs/0130-nsi_cap.h.gz",
+      "bytes": 2840,
+      "sha256": "d419e5c1b8f97aeeff737a82ba2f112f478314c7ed8d4e4b9ef5ddc1ba59352a",
+      "compressed_bytes": 861,
+      "compressed_sha256": "0e2e45a9a8b4bce8c796af131e3d63afc62e20186b3e2db6e232a2c9388c77a0"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nsi_file.h",
+      "artifact": "inputs/0131-nsi_file.h.gz",
+      "bytes": 2645,
+      "sha256": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+      "compressed_bytes": 1131,
+      "compressed_sha256": "4df949e6cd82da4fa4685f497451f4966b988bddb81ba11d26184b34585ea162"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/file/nsi_file_values.h",
+      "artifact": "inputs/0132-nsi_file_values.h.gz",
+      "bytes": 4400,
+      "sha256": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1",
+      "compressed_bytes": 1584,
+      "compressed_sha256": "542e569e0fd82f7dd64c8c780cbaa37ceb060798636b4b49a8f0a0ccdcedf5b7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/generated_schema.h",
+      "artifact": "inputs/0123-generated_schema.h.gz",
+      "bytes": 27037,
+      "sha256": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+      "compressed_bytes": 4432,
+      "compressed_sha256": "3e790e77c5cf03d125e9dd4a84f27512fc341114fed2a8e5731addc94606775f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/isa.h",
+      "artifact": "inputs/0124-isa.h.gz",
+      "bytes": 19280,
+      "sha256": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+      "compressed_bytes": 6048,
+      "compressed_sha256": "07f66214f5e47864270b6c141c0f81ea6037eff874bff9b85ceb5f838cb77b26"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/nvm_format.h",
+      "artifact": "inputs/0125-nvm_format.h.gz",
+      "bytes": 20373,
+      "sha256": "f115ad70822654add24d3747788bda3deb4af61dc042a671b7b70ad283b97103",
+      "compressed_bytes": 5907,
+      "compressed_sha256": "8a1dfa6e9feafc9b984cd9f792d3225f21e2a4886cbafca426e7d800a6fdd97a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/nvm_format_v2.h",
+      "artifact": "inputs/0126-nvm_format_v2.h.gz",
+      "bytes": 5599,
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "compressed_bytes": 2123,
+      "compressed_sha256": "7b53a65ddfe3a2084c7908361bf4f70f5f48ba499464e37c0c12c12df418eea9"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/nvm_v2_sections.h",
+      "artifact": "inputs/0127-nvm_v2_sections.h.gz",
+      "bytes": 18955,
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "compressed_bytes": 5131,
+      "compressed_sha256": "8c9fff351a471cd410f2a37e0dffcfdf7016e24e7b9772ac398e7cfab4c8b190"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/service_bindings.h",
+      "artifact": "inputs/0128-service_bindings.h.gz",
+      "bytes": 1572,
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "compressed_bytes": 748,
+      "compressed_sha256": "34e9061b9f7f478c73bed95429ac7515881e9da3c452577333b84483c8209c5a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/service_multi_nominal.h",
+      "artifact": "inputs/0139-service_multi_nominal.h.gz",
+      "bytes": 2755,
+      "sha256": "3a27386531e4b9980137e6b2fed074c0208b0e6c08aa777ce98293856e9c7df5",
+      "compressed_bytes": 1001,
+      "compressed_sha256": "2e0e59f3b0b00cc6a0b64ffba463c45ff3bdce9331fac5d1757fb033f105d67a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_body.h",
+      "artifact": "inputs/0140-services_body.h.gz",
+      "bytes": 1720,
+      "sha256": "a9892f11f34267f8a044b8735b6d7651b43c0ead83b249b8a3bd236622a2afeb",
+      "compressed_bytes": 683,
+      "compressed_sha256": "991667805d48dfb58515a27f1903f59f2cada26361154afacc23ba1c0b480e1a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_code.h",
+      "artifact": "inputs/0141-services_code.h.gz",
+      "bytes": 2371,
+      "sha256": "bc10a3ee8481221c99e1de9a4a82d94aa5ad236be8a1fba1c630843ec7a2ce2d",
+      "compressed_bytes": 924,
+      "compressed_sha256": "ef918cb16946d9294b4d55da4cee21e6d98cd68f923a9d67cd923cde394764fa"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_cyclic.h",
+      "artifact": "inputs/0142-services_cyclic.h.gz",
+      "bytes": 3346,
+      "sha256": "295b0b84e679d06093db8558de26873a934f32192c3170aafcf91d7eaf299985",
+      "compressed_bytes": 1080,
+      "compressed_sha256": "1f15062b726c83db2ddcf465758c3ae942be6ab7ad913346eccdc9de15189918"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_flow.h",
+      "artifact": "inputs/0143-services_flow.h.gz",
+      "bytes": 8893,
+      "sha256": "793fc48a00a04b56a5b7e8615788aca199cedf5326aeebb6767a986f0e54d0c9",
+      "compressed_bytes": 2557,
+      "compressed_sha256": "dd563eb545e10cd1305470e10c48c0b640b91534c65398952862ef4d38a51020"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_host_grant.h",
+      "artifact": "inputs/0144-services_host_grant.h.gz",
+      "bytes": 3251,
+      "sha256": "e57cb9c48ce0179f239a9abcfe04b3fb018b75a0cb0789d45b0415e82d9d3dc7",
+      "compressed_bytes": 1372,
+      "compressed_sha256": "5a4f228e832c2ac1007b48b85b389ed8040485b2b78a0a32a9e570c8b0b1b840"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_host_grant_internal.h",
+      "artifact": "inputs/0145-services_host_grant_internal.h.gz",
+      "bytes": 1545,
+      "sha256": "60f8891785384322d3dcdde3ec43bc95ea4a516bbabd30ae28705e9f78da9502",
+      "compressed_bytes": 732,
+      "compressed_sha256": "a8079d78f15c41c3facfdaab41016bf4641b7b2361b43081405cfa432420a92e"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_hosted.h",
+      "artifact": "inputs/0146-services_hosted.h.gz",
+      "bytes": 2139,
+      "sha256": "0782341bbcaf8f7fdb4890c2730292289dfc2c2ad670bc4915a4a15cb93b1061",
+      "compressed_bytes": 829,
+      "compressed_sha256": "8066817943afdd74c8817597c21ce3f27e85174a833b942f29b7c740c42b2469"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_flow.h",
+      "artifact": "inputs/0147-services_indirect_flow.h.gz",
+      "bytes": 2966,
+      "sha256": "9b65a025798376193b277256653605bd211805fdba91edd9ad110b64e0084717",
+      "compressed_bytes": 838,
+      "compressed_sha256": "f599a07b1b72c88c446d58ee36d1cd94fd862b26e93cb98eae9d381abe58520d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_hosted.h",
+      "artifact": "inputs/0148-services_indirect_hosted.h.gz",
+      "bytes": 4402,
+      "sha256": "1ed7dd5dd92af2bb708a232bf57355a7a4d8cee9dd613b20627adb69eae28e42",
+      "compressed_bytes": 1247,
+      "compressed_sha256": "bbfc96f53de1127ff67686f88d3ad0394a23462a2f6b2242929ce4f34e28fb12"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_native_abi.h",
+      "artifact": "inputs/0149-services_indirect_native_abi.h.gz",
+      "bytes": 253,
+      "sha256": "ab50ef6df1f4ff84b0229dac921825f8178819950c45f112be81590d324956b9",
+      "compressed_bytes": 157,
+      "compressed_sha256": "68113346f6a674342c189781519e877181d3fb7e023f7a00b77811004d05ff00"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_native_public.h",
+      "artifact": "inputs/0150-services_indirect_native_public.h.gz",
+      "bytes": 470,
+      "sha256": "79c9dc15d88b89d7797852be44e409d5aae15677f17caa430144fa558485e804",
+      "compressed_bytes": 274,
+      "compressed_sha256": "0ab9d927df92d98b1e1fbc0a6699498a2d57e1a3565e5a016ece306edf0124cc"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_public.h",
+      "artifact": "inputs/0151-services_indirect_public.h.gz",
+      "bytes": 1094,
+      "sha256": "8e3d48f01a353061d86db14865ab0c75840ab6ca199b8cea7e1715c6cbdb77e2",
+      "compressed_bytes": 590,
+      "compressed_sha256": "3d0f00c7f9659ae4f9446e8a83e1735e37d5de1704442f4bb136b4bdf014f55e"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_public_internal.h",
+      "artifact": "inputs/0152-services_indirect_public_internal.h.gz",
+      "bytes": 2114,
+      "sha256": "2d10105bca04acf11d616ff25d334c42f882d0cd1cbd10d9e7ea8b3bcd1fb0ca",
+      "compressed_bytes": 778,
+      "compressed_sha256": "e830ee77bd7028d85bd1c45772538abd4f552156aa5d2eb600ec4ef3fcd7b980"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_report.h",
+      "artifact": "inputs/0153-services_indirect_report.h.gz",
+      "bytes": 600,
+      "sha256": "bf530d8a345af15cde30799c67b62a241c3bdcc71869d772b71671722f174452",
+      "compressed_bytes": 333,
+      "compressed_sha256": "dd93890830a0c8cba8c0677d5845a0761d4be22afec49a0752cca1bd183c413f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_runtime.h",
+      "artifact": "inputs/0154-services_indirect_runtime.h.gz",
+      "bytes": 1414,
+      "sha256": "fdb25233ce88d20c11902a452710adb06db84fe0eb4d3382c451084a6f466711",
+      "compressed_bytes": 497,
+      "compressed_sha256": "e53a9120ef39988a8cbe03c9a1738949b1b4fdc066258d5253fb3d362a74b5fc"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_indirect_targets.h",
+      "artifact": "inputs/0155-services_indirect_targets.h.gz",
+      "bytes": 1964,
+      "sha256": "197f150a91fcac3baee279987210488abda4aafc8cbfd4ff9693bf0bba676d3c",
+      "compressed_bytes": 781,
+      "compressed_sha256": "f7ef1b291c86fa0cff42dde5da1ee8ef2d77f30aeeaf61436170e199dc0cf565"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_nominal.h",
+      "artifact": "inputs/0156-services_nominal.h.gz",
+      "bytes": 2180,
+      "sha256": "22885ef20a70d69807bfe5ae6728f2bbcf76f879b2705a06dd9d8a7d9be5738f",
+      "compressed_bytes": 700,
+      "compressed_sha256": "3c33fcd53bd99c2e22df8da2418af8bff82f98e5aca8f127499d9c4497e3fa5d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_public.h",
+      "artifact": "inputs/0157-services_public.h.gz",
+      "bytes": 366,
+      "sha256": "b6eac4cdd8ebb38e47fa26edf51b2b80e6fc98d37b465068bfac11d6fa6b2a91",
+      "compressed_bytes": 266,
+      "compressed_sha256": "b9189141e71de1d6c8bdcb2ffcfdc2ddb1deb2eaf8c5eef4ab38f06b93e59477"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_public_internal.h",
+      "artifact": "inputs/0158-services_public_internal.h.gz",
+      "bytes": 2254,
+      "sha256": "208e898124633caeb806ee89aa86a2f7818989f0e8b0017a2edebf311fa0ae97",
+      "compressed_bytes": 838,
+      "compressed_sha256": "504e5bfdecb2c522283d04ba089593a147a712807f0ea9cd5a00ba238f6f21b7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_runtime.h",
+      "artifact": "inputs/0159-services_runtime.h.gz",
+      "bytes": 6973,
+      "sha256": "091b1bdee0255926c66cbce0639972b3593ad26a287eb57c3b3c044dd98d685e",
+      "compressed_bytes": 2117,
+      "compressed_sha256": "0e782c9cf3b3195543e4273d24667ce23bc1a19d0add3a68e693ee356e168d9b"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nanoisa/services_runtime_frames.h",
+      "artifact": "inputs/0160-services_runtime_frames.h.gz",
+      "bytes": 2673,
+      "sha256": "a1f6b3e75a47c91fceb4f9cf631bfc9d8f670d2b6d08bf7fc79f899257fa3f8c",
+      "compressed_bytes": 910,
+      "compressed_sha256": "e2ad1f731477ad6e3a258682abd35ea3a0d59a2dc96a846d7a6b877be91eec47"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi.h",
+      "artifact": "inputs/0161-nsi.h.gz",
+      "bytes": 2957,
+      "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118",
+      "compressed_bytes": 984,
+      "compressed_sha256": "fa1151e4aaa5307254c7a4abc590eee7aa88ef83d8aaf35eb5c723b68285f2c8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_cap.h",
+      "artifact": "inputs/0130-nsi_cap.h.gz",
+      "bytes": 2840,
+      "sha256": "d419e5c1b8f97aeeff737a82ba2f112f478314c7ed8d4e4b9ef5ddc1ba59352a",
+      "compressed_bytes": 861,
+      "compressed_sha256": "0e2e45a9a8b4bce8c796af131e3d63afc62e20186b3e2db6e232a2c9388c77a0"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_file.h",
+      "artifact": "inputs/0131-nsi_file.h.gz",
+      "bytes": 2645,
+      "sha256": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+      "compressed_bytes": 1131,
+      "compressed_sha256": "4df949e6cd82da4fa4685f497451f4966b988bddb81ba11d26184b34585ea162"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_file_catalog.h",
+      "artifact": "inputs/0164-nsi_file_catalog.h.gz",
+      "bytes": 403,
+      "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+      "compressed_bytes": 264,
+      "compressed_sha256": "0981c20d29dac79942d266230ef8fda0678f391c08cafc6c3780c19460b8d03e"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_file_plan.h",
+      "artifact": "inputs/0165-nsi_file_plan.h.gz",
+      "bytes": 2100,
+      "sha256": "4751e6bb89f97a1e8418f3feba350b9a980e3a3638bb4d061c4ff783654272f6",
+      "compressed_bytes": 841,
+      "compressed_sha256": "1a46ef8b77851d2e19add8f676da4671e9d5b6e47a66df170d60503ae4c9e637"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_file_values.h",
+      "artifact": "inputs/0132-nsi_file_values.h.gz",
+      "bytes": 4400,
+      "sha256": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1",
+      "compressed_bytes": 1584,
+      "compressed_sha256": "542e569e0fd82f7dd64c8c780cbaa37ceb060798636b4b49a8f0a0ccdcedf5b7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_service_catalog.h",
+      "artifact": "inputs/0167-nsi_service_catalog.h.gz",
+      "bytes": 1648,
+      "sha256": "afe47ca42e95c2a48d37340a2128c88e8ab173e1f76537c4ad4ae4409f4a683f",
+      "compressed_bytes": 648,
+      "compressed_sha256": "ee9e6f5ac0e787d6f80b048d0e0e3bb4c4583ecd0f2bc4f508e8a8d7281549f2"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_services_values.h",
+      "artifact": "inputs/0168-nsi_services_values.h.gz",
+      "bytes": 6520,
+      "sha256": "e12316232a11a9986808090ce90cee2a8a61b8da5465f0bed904aeb49ceee471",
+      "compressed_bytes": 1880,
+      "compressed_sha256": "ce540412e6b15b1d721d7cfb1a6d4e06b4e86f9a2f11d4db0fbc835dc111af25"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_socket.h",
+      "artifact": "inputs/0169-nsi_socket.h.gz",
+      "bytes": 5360,
+      "sha256": "9d2179c12fcb0dbb2ddca80d36b5d8fb2cc96908e953d964edd29fd450b7ee9d",
+      "compressed_bytes": 2115,
+      "compressed_sha256": "07eb4545b9e3106a91c45d880684e3ecced52905d234a2b88da10ad125c76746"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_socket_plan.h",
+      "artifact": "inputs/0170-nsi_socket_plan.h.gz",
+      "bytes": 1375,
+      "sha256": "db1e8233312f214039cd0fc0f7c7a70425f7e07d795f39ac645510d26f6afbd4",
+      "compressed_bytes": 586,
+      "compressed_sha256": "7669b1bdb87ec8bfae33af4b5ea8843afd96658ab6a29c33ddd0411134647051"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_socket_values.h",
+      "artifact": "inputs/0171-nsi_socket_values.h.gz",
+      "bytes": 4816,
+      "sha256": "f38902a4877e48fbb8aa6a1de3f9cf5e4825340f52ed15278ed754017f25d23f",
+      "compressed_bytes": 1501,
+      "compressed_sha256": "f79b58b4d2bcf621f1a6e05c8d1ea733758fd6125ecb7890fbc9ebdff8e28ec4"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_websocket_transport.h",
+      "artifact": "inputs/0172-nsi_websocket_transport.h.gz",
+      "bytes": 2553,
+      "sha256": "3634b34911d89fd20afa8ba78d6f3d8ff9ca9e47594c6e3edbbdc79c454195f0",
+      "compressed_bytes": 1058,
+      "compressed_sha256": "dddd42dc8b2bce814c7d8616ad9f0b07b1e1b9ffe2f40da9d2e36462647f3319"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/services/nsi_websocket_values.h",
+      "artifact": "inputs/0173-nsi_websocket_values.h.gz",
+      "bytes": 3716,
+      "sha256": "8c01a2509c38482a664b76f761a0a3e9e67b6a9147e3899735be8633ac5cfea4",
+      "compressed_bytes": 1304,
+      "compressed_sha256": "c42607c6551d489b4812216f9b26cea64bcaeb572c4ab63b63b129c8f72c68c5"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/generated_schema.h",
+      "artifact": "inputs/0123-generated_schema.h.gz",
+      "bytes": 27037,
+      "sha256": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+      "compressed_bytes": 4432,
+      "compressed_sha256": "3e790e77c5cf03d125e9dd4a84f27512fc341114fed2a8e5731addc94606775f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/isa.h",
+      "artifact": "inputs/0124-isa.h.gz",
+      "bytes": 19280,
+      "sha256": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+      "compressed_bytes": 6048,
+      "compressed_sha256": "07f66214f5e47864270b6c141c0f81ea6037eff874bff9b85ceb5f838cb77b26"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/nvm_format.h",
+      "artifact": "inputs/0125-nvm_format.h.gz",
+      "bytes": 20373,
+      "sha256": "f115ad70822654add24d3747788bda3deb4af61dc042a671b7b70ad283b97103",
+      "compressed_bytes": 5907,
+      "compressed_sha256": "8a1dfa6e9feafc9b984cd9f792d3225f21e2a4886cbafca426e7d800a6fdd97a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/nvm_format_v2.h",
+      "artifact": "inputs/0126-nvm_format_v2.h.gz",
+      "bytes": 5599,
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "compressed_bytes": 2123,
+      "compressed_sha256": "7b53a65ddfe3a2084c7908361bf4f70f5f48ba499464e37c0c12c12df418eea9"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/nvm_v2_sections.h",
+      "artifact": "inputs/0127-nvm_v2_sections.h.gz",
+      "bytes": 18955,
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "compressed_bytes": 5131,
+      "compressed_sha256": "8c9fff351a471cd410f2a37e0dffcfdf7016e24e7b9772ac398e7cfab4c8b190"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/service_bindings.h",
+      "artifact": "inputs/0128-service_bindings.h.gz",
+      "bytes": 1572,
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "compressed_bytes": 748,
+      "compressed_sha256": "34e9061b9f7f478c73bed95429ac7515881e9da3c452577333b84483c8209c5a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/service_socket_nominal.h",
+      "artifact": "inputs/0180-service_socket_nominal.h.gz",
+      "bytes": 2852,
+      "sha256": "755686ee7e2c10fefdd0752f5cfc6d2dcd70c8f95409766f1d1b66eaaed4a1a4",
+      "compressed_bytes": 1062,
+      "compressed_sha256": "9d7067f997000acfc6bd60d8eba9f2a06010a8478556d8a8fdec1964d0d1399f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_body.h",
+      "artifact": "inputs/0181-socket_body.h.gz",
+      "bytes": 1654,
+      "sha256": "eb3b28f9cbfd97b7b8aeead70d42be82b83d1d618e6bb9513f2dfb977e895a14",
+      "compressed_bytes": 683,
+      "compressed_sha256": "5b28ecb270bedce465dbcdd8d54f42583177b54544446c4ce1bda89fad39209a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_code.h",
+      "artifact": "inputs/0182-socket_code.h.gz",
+      "bytes": 2262,
+      "sha256": "d4dd331fdc5baabe0f4f946b056f0462c259e3f6a6af2d53d061999e42ea2fe0",
+      "compressed_bytes": 901,
+      "compressed_sha256": "80f2894de1505569de8ea0656fd2c42c0210407363d93ce296ae8d78d8fea914"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_cyclic.h",
+      "artifact": "inputs/0183-socket_cyclic.h.gz",
+      "bytes": 3230,
+      "sha256": "72c535bc69ba39f93f8503304b0628123d35be30df8b56abbb2d53103757cb1d",
+      "compressed_bytes": 1075,
+      "compressed_sha256": "c853a0370be375556973796e27cf27110048971e1e1b4baa505fa097bd9836c5"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_flow.h",
+      "artifact": "inputs/0184-socket_flow.h.gz",
+      "bytes": 8131,
+      "sha256": "a29168857c02f301896e053fbf822605e3158912637e70dac70734d18dd2820a",
+      "compressed_bytes": 2381,
+      "compressed_sha256": "a7f590dbd3fdb496bfb866e776440f2baef35e991957ef33c41f2ea93bd0717b"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_host_grant.h",
+      "artifact": "inputs/0185-socket_host_grant.h.gz",
+      "bytes": 1604,
+      "sha256": "17908314d36ae801b0f7e8b2f1eb71c8c6463dace269fb85694da9407cb590af",
+      "compressed_bytes": 788,
+      "compressed_sha256": "5c3c7c48f030d4d739b4c1103dd96704c63b2660967eae19cba205d34607350b"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_host_grant_internal.h",
+      "artifact": "inputs/0186-socket_host_grant_internal.h.gz",
+      "bytes": 829,
+      "sha256": "158ec8f7fd32d3d433ca4faddce8e3de4122a9d7ae747c53f51643951a5db927",
+      "compressed_bytes": 465,
+      "compressed_sha256": "15de00f38fda85eea9f380324e97ae24eb4106fa533d0492b201d0fb2ece102d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_hosted.h",
+      "artifact": "inputs/0187-socket_hosted.h.gz",
+      "bytes": 2073,
+      "sha256": "60fcfadfad01611b0b273449ea8e1402b8003f062c3c402129463cb1e23dfc18",
+      "compressed_bytes": 825,
+      "compressed_sha256": "9dc09fdbfaba461a5a60eb08c997c4a2a0ae7687e3bb10b7788e1ddffae6f0e1"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_flow.h",
+      "artifact": "inputs/0188-socket_indirect_flow.h.gz",
+      "bytes": 2854,
+      "sha256": "7a29cd37782d8fb1bd6d4ae5fd9c1bb9f8e4c448322fa1863b6d2cef8683336e",
+      "compressed_bytes": 833,
+      "compressed_sha256": "0b23b03e0e48dc19d372500d94a38e279e03606d696f60708f038e9f8414c528"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_hosted.h",
+      "artifact": "inputs/0189-socket_indirect_hosted.h.gz",
+      "bytes": 4281,
+      "sha256": "0de3e3218fe3da07a6b70e19703b2674bc8dc9f678b70f1dc9ddfffd533da581",
+      "compressed_bytes": 1245,
+      "compressed_sha256": "889f1763592ab02b1328ab020abe0585f7a585bd932b77948f46ef83b5caa2ee"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_native_abi.h",
+      "artifact": "inputs/0190-socket_indirect_native_abi.h.gz",
+      "bytes": 243,
+      "sha256": "249e7812b926e741da0d21f7d9663b3aa0f6241ffed9ce377b0d4154cbd46ed8",
+      "compressed_bytes": 153,
+      "compressed_sha256": "58c899cb21c4e40e203e0940a4886e2b136dee27ab5935803b1bf672aefdd7fb"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_native_public.h",
+      "artifact": "inputs/0191-socket_indirect_native_public.h.gz",
+      "bytes": 458,
+      "sha256": "3113775af4cc323dfca0498522fe4341391677df28c959ca67195bccc530db73",
+      "compressed_bytes": 271,
+      "compressed_sha256": "22dbaa311b94c45144b24608d077ed58b5f5a41e364b7e5d2b4c4f688db1768e"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_public.h",
+      "artifact": "inputs/0192-socket_indirect_public.h.gz",
+      "bytes": 1070,
+      "sha256": "48677963431f471dc49524a3b9308fe8341a3a656739c852ffdd0cc3db04ebb3",
+      "compressed_bytes": 587,
+      "compressed_sha256": "e8b260e971f261514daaa25dc8b29cc583706636acd92de47c0eccb39c43d391"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_public_internal.h",
+      "artifact": "inputs/0193-socket_indirect_public_internal.h.gz",
+      "bytes": 936,
+      "sha256": "1d69a879a2beed872eed60073205545dc1b350b9456654bbe49ad664854f388d",
+      "compressed_bytes": 410,
+      "compressed_sha256": "3299ede9a3d317a5af0e5085739c01f13a6c4e3c6eff6314ae845680728c300d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_report.h",
+      "artifact": "inputs/0194-socket_indirect_report.h.gz",
+      "bytes": 584,
+      "sha256": "f8fe2cf0d8d6629faf57c64753972e3c1e3629b45dd647b2c00e520cc6cae1d7",
+      "compressed_bytes": 331,
+      "compressed_sha256": "d1dbf1939eeeb5f22274e898e66a13c2e9cc8bc5e42607f0d253e07d1ae52cec"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_runtime.h",
+      "artifact": "inputs/0195-socket_indirect_runtime.h.gz",
+      "bytes": 1348,
+      "sha256": "297fdb71fd4776af605b1a40570ea29c59e79176910812027e7bed9092e0e6b7",
+      "compressed_bytes": 494,
+      "compressed_sha256": "da8ca608f4ae25d6cd7fcec22067057c4a2df92900718a1065da403ed0b3f20e"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_indirect_targets.h",
+      "artifact": "inputs/0196-socket_indirect_targets.h.gz",
+      "bytes": 1900,
+      "sha256": "85b397b3f1f547284d2fd740462ab602369201a7566123adeaf4b25b7e7f74ad",
+      "compressed_bytes": 778,
+      "compressed_sha256": "71bc59408b4121c786ec0b120112f036163f865c5a5c8fbbf8d416f7516f77f7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_public.h",
+      "artifact": "inputs/0197-socket_public.h.gz",
+      "bytes": 356,
+      "sha256": "f154b16ba1f07c509ec5742f6d1d29852e3f2d4177c72223f798c4abb7c565c1",
+      "compressed_bytes": 262,
+      "compressed_sha256": "6b92323975f1398d23fc6d19e4cf7973fb9ebe3377535352d91be180efff38ce"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_public_internal.h",
+      "artifact": "inputs/0198-socket_public_internal.h.gz",
+      "bytes": 2184,
+      "sha256": "a85cf88abed721cd868378c5e50f8d336127b3edd1f08c64a24cbbea85c44bb3",
+      "compressed_bytes": 833,
+      "compressed_sha256": "151be03e7e51934de685083b4299aea8d825f1f43b2a27a555840494d4fe984a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_runtime.h",
+      "artifact": "inputs/0199-socket_runtime.h.gz",
+      "bytes": 5986,
+      "sha256": "c119f67bcd843013c6ae0196f0956c69fa1b245d905f97d7b21db3dd864534f4",
+      "compressed_bytes": 1842,
+      "compressed_sha256": "40f173f78f7be75e751523dd37aeedecb88701b756f33ced172e7aeee6bca877"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nanoisa/socket_runtime_frames.h",
+      "artifact": "inputs/0200-socket_runtime_frames.h.gz",
+      "bytes": 2581,
+      "sha256": "8416796e94298be6f9534f20dea3dcd68d6ca452cb97acd42d292ecbc43d19a4",
+      "compressed_bytes": 906,
+      "compressed_sha256": "52ba3e1368d73c3b321078123957fe2fceb5fe7e9b7d4044121e8c2b9e4bb9a7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nsi_cap.h",
+      "artifact": "inputs/0130-nsi_cap.h.gz",
+      "bytes": 2840,
+      "sha256": "d419e5c1b8f97aeeff737a82ba2f112f478314c7ed8d4e4b9ef5ddc1ba59352a",
+      "compressed_bytes": 861,
+      "compressed_sha256": "0e2e45a9a8b4bce8c796af131e3d63afc62e20186b3e2db6e232a2c9388c77a0"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nsi_socket.h",
+      "artifact": "inputs/0169-nsi_socket.h.gz",
+      "bytes": 5360,
+      "sha256": "9d2179c12fcb0dbb2ddca80d36b5d8fb2cc96908e953d964edd29fd450b7ee9d",
+      "compressed_bytes": 2115,
+      "compressed_sha256": "07eb4545b9e3106a91c45d880684e3ecced52905d234a2b88da10ad125c76746"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/socket/nsi_socket_values.h",
+      "artifact": "inputs/0171-nsi_socket_values.h.gz",
+      "bytes": 4816,
+      "sha256": "f38902a4877e48fbb8aa6a1de3f9cf5e4825340f52ed15278ed754017f25d23f",
+      "compressed_bytes": 1501,
+      "compressed_sha256": "f79b58b4d2bcf621f1a6e05c8d1ea733758fd6125ecb7890fbc9ebdff8e28ec4"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/generated_schema.h",
+      "artifact": "inputs/0123-generated_schema.h.gz",
+      "bytes": 27037,
+      "sha256": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+      "compressed_bytes": 4432,
+      "compressed_sha256": "3e790e77c5cf03d125e9dd4a84f27512fc341114fed2a8e5731addc94606775f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/isa.h",
+      "artifact": "inputs/0124-isa.h.gz",
+      "bytes": 19280,
+      "sha256": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+      "compressed_bytes": 6048,
+      "compressed_sha256": "07f66214f5e47864270b6c141c0f81ea6037eff874bff9b85ceb5f838cb77b26"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/nvm_format.h",
+      "artifact": "inputs/0125-nvm_format.h.gz",
+      "bytes": 20373,
+      "sha256": "f115ad70822654add24d3747788bda3deb4af61dc042a671b7b70ad283b97103",
+      "compressed_bytes": 5907,
+      "compressed_sha256": "8a1dfa6e9feafc9b984cd9f792d3225f21e2a4886cbafca426e7d800a6fdd97a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/nvm_format_v2.h",
+      "artifact": "inputs/0126-nvm_format_v2.h.gz",
+      "bytes": 5599,
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "compressed_bytes": 2123,
+      "compressed_sha256": "7b53a65ddfe3a2084c7908361bf4f70f5f48ba499464e37c0c12c12df418eea9"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/nvm_v2_sections.h",
+      "artifact": "inputs/0127-nvm_v2_sections.h.gz",
+      "bytes": 18955,
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "compressed_bytes": 5131,
+      "compressed_sha256": "8c9fff351a471cd410f2a37e0dffcfdf7016e24e7b9772ac398e7cfab4c8b190"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/service_bindings.h",
+      "artifact": "inputs/0128-service_bindings.h.gz",
+      "bytes": 1572,
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "compressed_bytes": 748,
+      "compressed_sha256": "34e9061b9f7f478c73bed95429ac7515881e9da3c452577333b84483c8209c5a"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/service_websocket_nominal.h",
+      "artifact": "inputs/0210-service_websocket_nominal.h.gz",
+      "bytes": 3047,
+      "sha256": "df291735a8deffd45e7dcc2de05232135e22c55984b2803f70b862129d88097b",
+      "compressed_bytes": 1073,
+      "compressed_sha256": "ac2b855fecf752cc20efe7e76a2d89c08028547bcee3faa698aa82f428b0d86f"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_body.h",
+      "artifact": "inputs/0211-websocket_body.h.gz",
+      "bytes": 1753,
+      "sha256": "442f0bbff1a55fe23d643261a8a1476bb7b9107ee52d07ab4eeedd722fd69a1e",
+      "compressed_bytes": 692,
+      "compressed_sha256": "7c7bb36d82c870b277382f09ad577acededdf85ab8eee535094e56053a8310e7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_code.h",
+      "artifact": "inputs/0212-websocket_code.h.gz",
+      "bytes": 2364,
+      "sha256": "a6f4e8f0fcd1c432b8b613450c9cd2c88794bf964df567f854832cc8fcab1d5f",
+      "compressed_bytes": 911,
+      "compressed_sha256": "2af9f91363550cabb7f1ec7aaec11f7153a4b2f37a52c3e7b698207e51848985"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_cyclic.h",
+      "artifact": "inputs/0213-websocket_cyclic.h.gz",
+      "bytes": 3404,
+      "sha256": "3e853662e1a5f4d646623008424c4ad43a3b8d0fddf4adab923535bb1647d3dd",
+      "compressed_bytes": 1088,
+      "compressed_sha256": "3314b9f0ba30c65330e5fb0f72156ce2004be0ebe016514d245a12a0cfab8851"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_flow.h",
+      "artifact": "inputs/0214-websocket_flow.h.gz",
+      "bytes": 8629,
+      "sha256": "e82a0dab8be06b983efe21f4e67b7c1380cf8ae3427e6474a5d27bb7f12817a2",
+      "compressed_bytes": 2401,
+      "compressed_sha256": "dd4f5f5b0b6d930a5d1407d382a48ee4247658ef24180c2d4fd63aef60c9c4a8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_host_grant.h",
+      "artifact": "inputs/0215-websocket_host_grant.h.gz",
+      "bytes": 2037,
+      "sha256": "b43c544fd6f8304024b19c7125496d9bc5f249f2364c3fe9560aca2eebca9eea",
+      "compressed_bytes": 948,
+      "compressed_sha256": "c02271b860daaa4818acf8e559e58f4a7160480b7565bb1df3801510e7d65507"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_host_grant_internal.h",
+      "artifact": "inputs/0216-websocket_host_grant_internal.h.gz",
+      "bytes": 1084,
+      "sha256": "4ef83bf5d3caec8db57458f238bfbd7e3be84e383ccb5828fbba85c142225996",
+      "compressed_bytes": 553,
+      "compressed_sha256": "b422584d7467e99fc890a76af4d1ba1e181b46cf5e5f26a29beb86fde781ae3c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_hosted.h",
+      "artifact": "inputs/0217-websocket_hosted.h.gz",
+      "bytes": 2172,
+      "sha256": "18c2420e9d1ed22731f06719ba59db8d5afbef609eff6f53ff4bb3166755f058",
+      "compressed_bytes": 836,
+      "compressed_sha256": "546748edd607ae4977136f256850eb9bcaa135b82e063c80b3f6afea5ce26037"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_flow.h",
+      "artifact": "inputs/0218-websocket_indirect_flow.h.gz",
+      "bytes": 3022,
+      "sha256": "1b4342a926b0055bd94540fa1ed4a1977c988111cc477f6d1e95b02cb3010aaa",
+      "compressed_bytes": 844,
+      "compressed_sha256": "23ca1b2b18bf525bb035c1945819396d8631e62e607cff735cc4d8c0d5a91dcb"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_hosted.h",
+      "artifact": "inputs/0219-websocket_indirect_hosted.h.gz",
+      "bytes": 4470,
+      "sha256": "41df6a4917121aa4d2adb9b3772d24aa00ea6314896ce08e7b97c7c44878f47d",
+      "compressed_bytes": 1255,
+      "compressed_sha256": "ed9e8dfd93fa80f117ed3f2a3dbbe7f5e3cc1ddd27c7cdc956e19cacdc9102bd"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_native_abi.h",
+      "artifact": "inputs/0220-websocket_indirect_native_abi.h.gz",
+      "bytes": 258,
+      "sha256": "1dc4e02608aa0f5f4435422c6ac8f5ef23e614f483ab0ba50da75c3688ab05cb",
+      "compressed_bytes": 159,
+      "compressed_sha256": "634d23ce428cdba8c20d626caaf694ac3d481f685f7df9029a0a7fdcd908515c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_native_public.h",
+      "artifact": "inputs/0221-websocket_indirect_native_public.h.gz",
+      "bytes": 476,
+      "sha256": "0c2143270c5cd7d539ea32a6e38931aefe6aee197ef7dfc5bf4b53847e9fce5a",
+      "compressed_bytes": 279,
+      "compressed_sha256": "1c264427c2869442cf46c43fd65101714ee8787b88d4523452bbcd7c7b5b73fe"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_public.h",
+      "artifact": "inputs/0222-websocket_indirect_public.h.gz",
+      "bytes": 1106,
+      "sha256": "f0208044180f4b86e069e591f3ce81c74406631c09493fb684965bc2a62c6ee2",
+      "compressed_bytes": 598,
+      "compressed_sha256": "3ed7e508891076af7a73119be05a9974de558b9a153bc498ac7fa739f53e5669"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_public_internal.h",
+      "artifact": "inputs/0223-websocket_indirect_public_internal.h.gz",
+      "bytes": 981,
+      "sha256": "ca560df2a5cb4113fcd79aa6b9f19f1e1b04a034d7434787499b9127c76da56c",
+      "compressed_bytes": 418,
+      "compressed_sha256": "6d7d9dc2a05bf1ff42442b78105594fc9ac2ea2118c0594b671c5890fd7d73ea"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_report.h",
+      "artifact": "inputs/0224-websocket_indirect_report.h.gz",
+      "bytes": 608,
+      "sha256": "1bf3184fd853859df9d7992cdf62c7a810849ca004fa9d22992a73b8c9b3d8eb",
+      "compressed_bytes": 339,
+      "compressed_sha256": "fab19a94693b32cdc4ecf01a2ef1b8c0942e5a9594fa138e54c7e52a040491c8"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_runtime.h",
+      "artifact": "inputs/0225-websocket_indirect_runtime.h.gz",
+      "bytes": 1447,
+      "sha256": "30cdeb8f14e9b766c2228bae7b80ec5bccac88e2a3453439352583263c8f012c",
+      "compressed_bytes": 504,
+      "compressed_sha256": "d016a972c67e182364e905936dd6ff7fbfeb12fdc784f044da93b9e90775a519"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_indirect_targets.h",
+      "artifact": "inputs/0226-websocket_indirect_targets.h.gz",
+      "bytes": 1996,
+      "sha256": "87c53f070cfa8a72639fff5279f24a6250cbf93c52a3215c5c8f7459771f49d8",
+      "compressed_bytes": 788,
+      "compressed_sha256": "a4dc48782b1afe5d84f4cc44eeadd76cc4bff483cc0a9f59c8d6f37295e22539"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_public.h",
+      "artifact": "inputs/0227-websocket_public.h.gz",
+      "bytes": 371,
+      "sha256": "31c464f05c1687b7ad8c87ab507c33ac4d5d35b5eddad9a85df9f6f6694d40ae",
+      "compressed_bytes": 271,
+      "compressed_sha256": "432b72581ed41497510632002bd6b5edb9ab298515b85104510cad86f07c496c"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_public_internal.h",
+      "artifact": "inputs/0228-websocket_public_internal.h.gz",
+      "bytes": 2275,
+      "sha256": "fb50cd4578f7b2629f00634acfab9ceda6dfed764f0009f2765ca9d0dcf46ca8",
+      "compressed_bytes": 846,
+      "compressed_sha256": "fc09290299b44849f419da0e58ee84436de074e215eaac7d454007bd746b8db3"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_runtime.h",
+      "artifact": "inputs/0229-websocket_runtime.h.gz",
+      "bytes": 6562,
+      "sha256": "bb57696a3f7ccc184b6709f482154fbf0d66b4cfb99207e042c5d4c14492ac71",
+      "compressed_bytes": 1912,
+      "compressed_sha256": "1fdceda1a239e142414fb1c719091865c792b592fc81d68244ca0eb48e11598d"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nanoisa/websocket_runtime_frames.h",
+      "artifact": "inputs/0230-websocket_runtime_frames.h.gz",
+      "bytes": 2719,
+      "sha256": "cbfd3f4aa1ed70d9fd4a5222fbb24e4bce2180eec4ac0c719e469616b2278825",
+      "compressed_bytes": 919,
+      "compressed_sha256": "f909f5142e034fe7daf055c80a7d1d6e0c3538af6fe5e2e378126d167a91b6ee"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nsi_websocket_transport.h",
+      "artifact": "inputs/0172-nsi_websocket_transport.h.gz",
+      "bytes": 2553,
+      "sha256": "3634b34911d89fd20afa8ba78d6f3d8ff9ca9e47594c6e3edbbdc79c454195f0",
+      "compressed_bytes": 1058,
+      "compressed_sha256": "dddd42dc8b2bce814c7d8616ad9f0b07b1e1b9ffe2f40da9d2e36462647f3319"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/include/nanolang/websocket/nsi_websocket_values.h",
+      "artifact": "inputs/0173-nsi_websocket_values.h.gz",
+      "bytes": 3716,
+      "sha256": "8c01a2509c38482a664b76f761a0a3e9e67b6a9147e3899735be8633ac5cfea4",
+      "compressed_bytes": 1304,
+      "compressed_sha256": "c42607c6551d489b4812216f9b26cea64bcaeb572c4ab63b63b129c8f72c68c5"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/libnano_file_runtime.a",
+      "artifact": "inputs/0233-libnano_file_runtime.a.gz",
+      "bytes": 3898792,
+      "sha256": "f69ed967cc3ca9d63d159508045221a56d6e76ca80462c827c72eb745c1e3c65",
+      "compressed_bytes": 1787844,
+      "compressed_sha256": "80f3e48c4f0949d899af268ffb1e071d8ad70f39014ac461ee6aa5db7f66ce07"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/libnano_services_runtime.a",
+      "artifact": "inputs/0234-libnano_services_runtime.a.gz",
+      "bytes": 3972648,
+      "sha256": "417b123fa266f4519b4911b8e548dc8fa46f460d3f59d62329de3dfe38f84c67",
+      "compressed_bytes": 1838424,
+      "compressed_sha256": "27bcf24a9f5f0bf7ade63acc2b50f01cfdec4ad3efedf35ff9c3bf6bb0743668"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/libnano_socket_runtime.a",
+      "artifact": "inputs/0235-libnano_socket_runtime.a.gz",
+      "bytes": 3669312,
+      "sha256": "8d33b7e0a2be634d1871ca72a9c52d45e31bacf2502caf46c547913a7a9c97f9",
+      "compressed_bytes": 1692516,
+      "compressed_sha256": "ef5f364f5322ab527c19b425fba50a36b4a334be1c491ab761cb597ed5578ec9"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/libnano_websocket_runtime.a",
+      "artifact": "inputs/0236-libnano_websocket_runtime.a.gz",
+      "bytes": 4193384,
+      "sha256": "8aefc3fe3cec7902e6051116b8e78d04912ccc6db7e3e49642085275434b219e",
+      "compressed_bytes": 1931658,
+      "compressed_sha256": "97365f6201df11fea0b8122d26d11d72ff029b4fd12ebd379d250b251ee411ae"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/2f3daebe22a1ba8034dde13e7bc20414adeeedb66b49d5d2dc1bd62ba4f7cdf9",
+      "artifact": "inputs/0078-libfile_source_inputs.dylib.gz",
+      "bytes": 167224,
+      "sha256": "2f3daebe22a1ba8034dde13e7bc20414adeeedb66b49d5d2dc1bd62ba4f7cdf9",
+      "compressed_bytes": 34199,
+      "compressed_sha256": "1623d390404edfdc2f74532af0683047db6f982286a41295265b8f25ae5c4661"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/3190ecfd7761279fe6ee989714833039a09281718d7935f414c1c490ecbb69b9",
+      "artifact": "inputs/0077-libnanoisa.dylib.gz",
+      "bytes": 972976,
+      "sha256": "3190ecfd7761279fe6ee989714833039a09281718d7935f414c1c490ecbb69b9",
+      "compressed_bytes": 334394,
+      "compressed_sha256": "6c87a4e875f4f47d112e2184f2033ee47ac75f5aaf99a94afdca76f090795983"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/6ca018591a886903c868c9ef08c1d03a05a8fc97a622845b36567463c72b036d",
+      "artifact": "inputs/0076-libfile_product.dylib.gz",
+      "bytes": 1289928,
+      "sha256": "6ca018591a886903c868c9ef08c1d03a05a8fc97a622845b36567463c72b036d",
+      "compressed_bytes": 611628,
+      "compressed_sha256": "2db2f5677f56672d2093a5f16778367379b33a479378b88751f29b4b51765655"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/6e658da2da9321665eec38366aee80070204e5fcc96bfbeb869de2ab1d4637ff",
+      "artifact": "inputs/0073-libfile_source_catalog.dylib.gz",
+      "bytes": 72880,
+      "sha256": "6e658da2da9321665eec38366aee80070204e5fcc96bfbeb869de2ab1d4637ff",
+      "compressed_bytes": 9486,
+      "compressed_sha256": "0e91d35383f1398e65b5c3a3cf7cca90439896552242deb9d16ce8443b80cfa0"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/936e89f2495de8bc745037b5e30c8f82e67b7377b1cd25d6624f827fa97c4520",
+      "artifact": "inputs/0075-libstd.dylib.gz",
+      "bytes": 72528,
+      "sha256": "936e89f2495de8bc745037b5e30c8f82e67b7377b1cd25d6624f827fa97c4520",
+      "compressed_bytes": 10113,
+      "compressed_sha256": "c90dd1e97350abe5e0ec13295e353ab2a4291b0fff61f7d637370405cf57b7f7"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/lib/nanolang/hosts/95ba253e5ac820dd08d4964d264d6145be1cc74ac06ffbc14aacedebbc329dee",
+      "artifact": "inputs/0074-libcompiler_support.dylib.gz",
+      "bytes": 270424,
+      "sha256": "95ba253e5ac820dd08d4964d264d6145be1cc74ac06ffbc14aacedebbc329dee",
+      "compressed_bytes": 87645,
+      "compressed_sha256": "759c708d552057b5ce4be32817cff51f0615bcdad3ec470dc6b96bcde8e8cc28"
+    },
+    {
+      "path": "/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-host-closure-darwin-2lk666s2/relocated-prefix/share/nanolang/host-closures/nanoc.json",
+      "artifact": "inputs/0243-nanoc.json.gz",
+      "bytes": 2437,
+      "sha256": "775adf1fc403a29fd2ac1ca39f62e9596d12e63a687bd4f1df3c2ab9e6daeb18",
+      "compressed_bytes": 907,
+      "compressed_sha256": "f73a7c9fb8355e3138cd71bf43daf111069fb695104bde729795eeb00ea87970"
+    }
+  ]
+}

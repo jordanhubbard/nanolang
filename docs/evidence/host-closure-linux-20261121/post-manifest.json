@@ -1,0 +1,71 @@
+{
+  "files": [
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-cli-v2/manifest.json",
+      "artifact": "post-inputs/0000-manifest.json.gz",
+      "sha256": "1a807d7d7c906bbd1aabb31045f2c3af0a1affa435e7a7e331b9ed88ae23d5a5",
+      "bytes": 811,
+      "compressed_sha256": "6e09a2a904c7ea9e474592e32bab181a5b54009c0dd317bff079ecaa1fc6dc3b",
+      "compressed_bytes": 510
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-cli-v2.stderr",
+      "artifact": "post-inputs/0001-host-closure-cli-v2.stderr.gz",
+      "sha256": "05b2430621b297733aeb34c394f4a7895829de9232975a1acac392f5eea6810a",
+      "bytes": 3501,
+      "compressed_sha256": "533cacc402528f88d89b1f775e2d2df3f5961bd4925ccc3679fefcc068080f06",
+      "compressed_bytes": 675
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-cli-v2.stdout",
+      "artifact": "post-inputs/0002-host-closure-cli-v2.stdout.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-cli.stderr",
+      "artifact": "post-inputs/0003-host-closure-cli.stderr.gz",
+      "sha256": "6d671ec3b702616feb132961cd8b52e9ccf842bb16f04a25625f9c2fe2efc693",
+      "bytes": 623,
+      "compressed_sha256": "a19d6cc07fa240e6bbb2705e6e82ebe5a7fa13c1f137921c1c2d2356e6b81fff",
+      "compressed_bytes": 351
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-cli.stdout",
+      "artifact": "post-inputs/0004-host-closure-cli.stdout.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/host-closure-paired-source-map.json",
+      "artifact": "post-inputs/0005-host-closure-paired-source-map.json.gz",
+      "sha256": "e98bbb4fa28483c62dc97f6391c5a76725123a867fb677bb0d2cf37c02820f1d",
+      "bytes": 386375,
+      "compressed_sha256": "6b1f72b39bedd46f42c9687d409f7f8e5548d21dd5082f68cd76a3612e3d77d8",
+      "compressed_bytes": 161546
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-host-closure-cli-v2.py",
+      "artifact": "post-inputs/0006-run-host-closure-cli-v2.py.gz",
+      "sha256": "74b43ecb0cf374e8964929552c3fd8a45136add1081dfc24fe5d40596edb32aa",
+      "bytes": 1690,
+      "compressed_sha256": "1d9eee4687430b0fc67b1e5fa0f614c38de42b8f395a89036af3cbb1f6d8f65f",
+      "compressed_bytes": 908
+    },
+    {
+      "path": "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/run-host-closure-cli.py",
+      "artifact": "post-inputs/0007-run-host-closure-cli.py.gz",
+      "sha256": "a7d0529b7e2d3333e3db19131c028b40088b214988b395089a72d7e29b2b3002",
+      "bytes": 1635,
+      "compressed_sha256": "0f0cbefecc7a6730966bbee0847f42f80497797c00a4ce2fa9e7ea9e940f4876",
+      "compressed_bytes": 875
+    }
+  ],
+  "limits": [
+    "I retain the initial CLI guard-context setup refusal without claiming product execution. My corrected controller loads the original omitted/recorded bootstrap cache context separately, then selects a fresh test cache for all25 unchanged CLI/product methods under the ordinary10-second deadline."
+  ]
+}
