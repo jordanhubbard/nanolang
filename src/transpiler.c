@@ -4351,12 +4351,6 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         ASTNode *item = program->as.program.items[i];
         if (item->type != AST_LET) continue;
 
-        /* Skip constants that come from C headers - they're already defined in the headers */
-        Symbol *sym = env_get_var(env, item->as.let.name);
-        if (sym && sym->from_c_header) {
-            continue;
-        }
-
         bool is_const_init = is_c_constant_initializer(item->as.let.value);
 
         if (!item->as.let.is_mut && is_const_init) {
@@ -4384,7 +4378,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else if (item->as.let.var_type != TYPE_STRING) {
                 sb_append(sb, type_to_c(item->as.let.var_type));
             }
-            sb_appendf(sb, " %s = ", item->as.let.name);
+            char *storage = native_global_storage_name(env, item);
+            sb_appendf(sb, " %s_slot = ", storage);
+            free(storage);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
             continue;
@@ -4416,7 +4412,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
                 item->as.let.type_info ? item->as.let.type_info :
                     item->as.let.var_type == TYPE_FUNCTION ? &function : NULL);
         }
-        sb_appendf(sb, " %s", item->as.let.name);
+        char *storage = native_global_storage_name(env, item);
+        sb_appendf(sb, " %s_slot", storage);
+        free(storage);
         if (is_const_init) {
             sb_append(sb, " = ");
             transpile_expression(sb, item->as.let.value, env);
@@ -4465,7 +4463,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         sb_append(sb, dependencies->buffer);
         for (int i = 0; i < runtime_init_count; i++) {
             ASTNode *item = runtime_inits[i];
-            sb_appendf(sb, "    %s = ", item->as.let.name);
+            char *storage = native_global_storage_name(env, item);
+            sb_appendf(sb, "    %s_slot = ", storage);
+            free(storage);
             transpile_expression(sb, item->as.let.value, env);
             sb_append(sb, ";\n");
         }
@@ -4489,7 +4489,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         emit_global_storage_signature(sb, env, item);
         sb_append(sb, " { ");
         sb_append(sb, "nl_init_toplevel(); ");
-        sb_appendf(sb, "return &%s; }\n", item->as.let.name);
+        char *storage = native_global_storage_name(env, item);
+        sb_appendf(sb, "return &%s_slot; }\n", storage);
+        free(storage);
     }
 
 }
@@ -4497,6 +4499,8 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 /* Collect module headers from all import statements */
 static void collect_module_headers_from_imports(ASTNode *program, const char *source_file) {
     clear_module_headers();
+    /* I need my own declared C types while compiling a module implementation. */
+    collect_headers_from_module(source_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_IMPORT) {

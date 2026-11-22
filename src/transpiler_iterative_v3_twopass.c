@@ -1267,11 +1267,29 @@ static void build_callable_array_read(WorkList *list, ASTNode *array,
 }
 
 /* I keep imported aliases and local spellings on one declaring storage slot. */
-static bool build_public_global(WorkList *list, ASTNode *node, Environment *env) {
+static bool build_declared_global(WorkList *list, ASTNode *node, Environment *env) {
     ASTNode *declaration = node->checked_global;
-    if (!declaration || declaration->type != AST_LET || !declaration->as.let.is_pub) return false;
+    if (!declaration || declaration->type != AST_LET) return false;
+    /* I retain scalar inlining for legacy implicitly imported constants. */
+    Symbol *symbol = env_get_declared_global(env, declaration);
+    if (!declaration->as.let.is_pub && symbol && !symbol->is_mut) {
+        if (symbol->value.type == VAL_INT) {
+            if (symbol->value.as.int_val == INT64_MIN) emit_literal(list, "INT64_MIN");
+            else emit_formatted(list, "%lldLL", (long long)symbol->value.as.int_val);
+            return true;
+        }
+        if (symbol->value.type == VAL_FLOAT) {
+            emit_formatted(list, "%g", symbol->value.as.float_val);
+            return true;
+        }
+        if (symbol->value.type == VAL_BOOL) {
+            emit_literal(list, symbol->value.as.bool_val ? "true" : "false");
+            return true;
+        }
+    }
     char *name = native_global_storage_name(env, declaration);
-    emit_formatted(list, "(*%s())", name);
+    if (declaration->as.let.is_pub) emit_formatted(list, "(*%s())", name);
+    else emit_formatted(list, "%s_slot", name);
     free(name);
     return true;
 }
@@ -1282,9 +1300,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         check_expression(expr, env);
 
     if ((expr->type == AST_IDENTIFIER || expr->type == AST_FIELD_ACCESS) &&
-        build_public_global(list, expr, env)) return;
+        build_declared_global(list, expr, env)) return;
     if ((expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) &&
-        expr->checked_global && expr->checked_global->as.let.is_pub) {
+        expr->checked_global) {
         bool qualified = expr->type == AST_MODULE_QUALIFIED_CALL;
         ASTNode **args = qualified ? expr->as.module_qualified_call.args : expr->as.call.args;
         int count = qualified ? expr->as.module_qualified_call.arg_count : expr->as.call.arg_count;
@@ -4519,10 +4537,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
         
         case AST_SET:
-            if (stmt->checked_global && stmt->checked_global->as.let.is_pub &&
-                (!stmt->as.set.field_name || stmt->as.set.qualified_global)) {
+            if (stmt->checked_global) {
                 emit_indent_item(list, indent);
-                (void)build_public_global(list, stmt, env);
+                (void)build_declared_global(list, stmt, env);
+                if (stmt->as.set.field_name && !stmt->as.set.qualified_global)
+                    emit_formatted(list, "->%s", stmt->as.set.field_name);
                 emit_literal(list, " = ");
                 ASTNode *value = stmt->as.set.value;
                 if (value && value->type == AST_ARRAY_LITERAL && !value->as.array_literal.element_count &&
