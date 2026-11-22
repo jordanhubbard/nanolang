@@ -22,6 +22,10 @@ on:
         description: I qualify actual selected-driver response grammar with original transport controls.
         type: boolean
         default: false
+      qualify_clang_2118_complete:
+        description: I observe the complete source/response corpus and cold capture with a private Clang21 candidate, preserving GNU admission.
+        type: boolean
+        default: false
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -61,6 +65,19 @@ jobs:
         if: inputs.qualify_response_grammar && !inputs.qualify_as_246
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py --response-only
+      - name: Observe complete private Clang 21 capture without changing GNU admission
+        if: inputs.qualify_clang_2118_complete && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
+        timeout-minutes: 25
+        shell: bash
+        run: |
+          # I select a driver only for this explicit private qualification step.
+          # The ordinary cold/default-tool and user-guide jobs keep their tools.
+          qualification_tools="$PWD/.test_output/source-capture-diagnostic/clang-qualification-tools"
+          mkdir "$qualification_tools"
+          selected_clang="$(command -v clang)"
+          ln -s "$selected_clang" "$qualification_tools/cc"
+          ln -s "$selected_clang" "$qualification_tools/clang"
+          PATH="$qualification_tools:$PATH" python3 scripts/ci_qualify_as246.py --clang-2118-complete
       - name: Upload Linux capture evidence
         if: always()
         uses: actions/upload-artifact@v4

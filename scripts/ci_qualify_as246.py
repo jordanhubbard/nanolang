@@ -24,10 +24,13 @@ def command(argv, label, timeout):
 
 
 def main():
-    if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'], ['--response-only']):
+    if sys.argv[1:] not in ([], ['--native-debug-only'], ['--clang-2118-only'],
+                           ['--clang-2118-complete'], ['--response-only']):
         raise ValueError('I require an explicit supported diagnostic mode.')
     native_debug_only = sys.argv[1:] == ['--native-debug-only']
     clang_only = sys.argv[1:] == ['--clang-2118-only']
+    clang_complete = sys.argv[1:] == ['--clang-2118-complete']
+    clang_candidate = clang_only or clang_complete
     response_only = sys.argv[1:] == ['--response-only']
     OUT.mkdir(parents=True, exist_ok=False)
     previous = json.loads((capture.OUT / 'observation.json').read_text())
@@ -38,6 +41,7 @@ def main():
     original = {path: path.read_bytes() for path in (source, test)}
     record = {'source_pin': previous['commit'], 'product_admission_changed': False,
               'native_debug_only': native_debug_only, 'clang_2118_only': clang_only,
+              'clang_2118_complete': clang_complete,
               'response_only': response_only,
               'limits': ['I qualify a private checkout delta. Promotion and complete '
                          'source/snippet/platform acceptance remain separate. '
@@ -47,7 +51,8 @@ def main():
         token = 'static const char *versions[] = {" 2.40", " 2.42"};'
         if text.count(token) != 1:
             raise RuntimeError('I refuse an unexpected production version table.')
-        source.write_text(text.replace(token, token.replace('" 2.42"', '" 2.42", " 2.46"')))
+        source.write_text(text if clang_complete else
+                          text.replace(token, token.replace('" 2.42"', '" 2.42", " 2.46"')))
         text = original[test].decode()
         old = '"GNU assembler (GNU Binutils for Ubuntu) 2.42\\nCopyright text\\n"]'
         new = old[:-1] + ',\n                    "GNU assembler (GNU Binutils for Ubuntu) 2.46\\nCopyright text\\n"]'
@@ -64,8 +69,8 @@ def main():
                '                    "GNU assembler (GNU Binutils) 2.41\\n",')
         if text.count(old) != 1:
             raise RuntimeError('I refuse an unexpected refusal-control fixture.')
-        test.write_text(text.replace(old, new))
-        if clang_only:
+        test.write_text(original[test].decode() if clang_complete else text.replace(old, new))
+        if clang_candidate:
             clang = shutil.which('clang')
             if not clang:
                 raise RuntimeError('I require the actual selected Ubuntu Clang 21.1.8 driver.')
@@ -76,6 +81,8 @@ def main():
             record['selected_clang'] = {'path': str(Path(clang).resolve()),
                 'sha256': hashlib.sha256(Path(clang).read_bytes()).hexdigest(),
                 'version': version}
+            if clang_complete and Path(shutil.which('cc')).resolve() != Path(clang).resolve():
+                raise RuntimeError('I require cc and clang to select the same actual qualification driver.')
             text = source.read_text()
             old = '? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;'
             new = ('? "Ubuntu clang version 18.1.3 (1ubuntu1)" : '
@@ -158,15 +165,34 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                                     'unittest.defaultTestLoader.loadTestsFromNames(' + repr(selection) + ')')
             runner = runner.replace('discovered==128 and result.testsRun==128',
                                     'discovered==9 and result.testsRun==9')
+        if clang_complete:
+            runner = runner.replace(
+                "unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')",
+                "unittest.defaultTestLoader.loadTestsFromNames(['tests.test_source_snapshots', "
+                "'tests.test_response_driver_grammar'])")
+            runner = runner.replace('discovered==128 and result.testsRun==128',
+                                    'discovered==129 and result.testsRun==129')
         command([sys.executable, '-c', runner, str(OUT / 'tests.json')], 'original-tests', 1500)
         report = json.loads((OUT / 'tests.json').read_text())
         if (clang_only or native_debug_only or response_only) and report['skipped']:
             raise RuntimeError('I require every selected native diagnostic to execute.')
+        if clang_complete:
+            required = ('test_selected_clang_assembler_report_boundaries',
+                        'test_integrated_native_unit_post_capture_reads',
+                        'test_integrated_native_unit_failure_recovery',
+                        'test_integrated_native_unit_debug_identity',
+                        'test_integrated_units_preserve_c_assembler_search',
+                        'test_integrated_instruction_and_location_provenance',
+                        'test_equals_path_post_capture_reads',
+                        'test_selected_tool_fifo_failure_recovery',
+                        'test_response_quoted_backslashes_follow_selected_driver')
+            if any(case.endswith('.' + name) for case, _ in report['skipped'] for name in required):
+                raise RuntimeError('I require all selected Clang/response controls to execute.')
         if response_only:
             record['response_grammar_observation_passed'] = True
             record['private_candidate_qualification_passed'] = False
             return
-        if clang_only:
+        if clang_candidate:
             comparisons = []
             for layout in ('source', 'cache', 'all'):
                 for macro, explicit in ((False, False), (True, False), (True, True)):
@@ -186,6 +212,14 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
                     comparisons.append({'label': label, 'cases': len(observed['cases'])})
             record['clang_native_equals_comparisons'] = comparisons
             record['clang_2118_observation_passed'] = True
+            if clang_complete:
+                capture.OUT = OUT / 'cold-compiler-support'
+                capture.main()
+                cold = json.loads((capture.OUT / 'observation.json').read_text())
+                if cold.get('returncode') != 0 or cold['compiler'] != record['selected_clang']['path']:
+                    raise RuntimeError('I require actual selected-Clang cold compiler support publication.')
+                record['clang_2118_complete_observation_passed'] = True
+                record['gnu_assembler_admission_changed'] = False
             record['private_candidate_qualification_passed'] = False
             return
         if native_debug_only:
@@ -216,7 +250,7 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
         raise
     finally:
         matrix = ROOT / '.test_output/response-driver-grammar-matrix.json'
-        if response_only and matrix.is_file():
+        if (response_only or clang_complete) and matrix.is_file():
             shutil.copy2(matrix, OUT / matrix.name)
         for path, raw in original.items():
             path.write_bytes(raw)
