@@ -10,117 +10,12 @@ NANO_EXPORT_ARRAY_ABI(nl_hm_keys);
 NANO_EXPORT_ARRAY_ABI(nl_hm_values);
 NANO_EXPORT_ARRAY_ABI(nl_set_values);
 
-/* ============================ StringBuilder ============================ */
-
-typedef struct {
-    char *buf;
-    int64_t len;
-    int64_t cap;
-} NLStringBuilder;
-
-static NLStringBuilder *sb_alloc(int64_t cap) {
-    if (cap < 16) cap = 16;
-    NLStringBuilder *sb = (NLStringBuilder*)calloc(1, sizeof(NLStringBuilder));
-    if (!sb) return NULL;
-    sb->buf = (char*)malloc((size_t)cap);
-    if (!sb->buf) {
-        free(sb);
-        return NULL;
-    }
-    sb->buf[0] = '\0';
-    sb->len = 0;
-    sb->cap = cap;
-    return sb;
-}
-
-static void sb_ensure(NLStringBuilder *sb, int64_t extra) {
-    assert(sb);
-    if (extra < 0) return;
-    int64_t need = sb->len + extra + 1;
-    if (need <= sb->cap) return;
-    int64_t new_cap = sb->cap;
-    while (new_cap < need) {
-        if (new_cap > INT64_MAX / 2) {
-            new_cap = need;
-            break;
-        }
-        new_cap *= 2;
-    }
-    char *nb = (char*)realloc(sb->buf, (size_t)new_cap);
-    if (!nb) {
-        fprintf(stderr, "Error: Out of memory growing StringBuilder\n");
-        exit(1);
-    }
-    sb->buf = nb;
-    sb->cap = new_cap;
-}
-
-void* nl_sb_new(void) {
-    return (void*)sb_alloc(256);
-}
-
-void* nl_sb_with_capacity(int64_t capacity) {
-    return (void*)sb_alloc(capacity);
-}
-
-void nl_sb_append(void* sb_ptr, const char* text) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb || !text) return;
-    size_t tlen = strnlen(text, 1024ULL * 1024ULL);
-    sb_ensure(sb, (int64_t)tlen);
-    memcpy(sb->buf + sb->len, text, tlen);
-    sb->len += (int64_t)tlen;
-    sb->buf[sb->len] = '\0';
-}
-
-void nl_sb_append_char(void* sb_ptr, int64_t ch) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb) return;
-    sb_ensure(sb, 1);
-    sb->buf[sb->len++] = (char)ch;
-    sb->buf[sb->len] = '\0';
-}
-
-void nl_sb_clear(void* sb_ptr) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb) return;
-    sb->len = 0;
-    if (sb->buf) sb->buf[0] = '\0';
-}
-
-int64_t nl_sb_length(void* sb_ptr) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb) return 0;
-    return sb->len;
-}
-
-int64_t nl_sb_capacity(void* sb_ptr) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb) return 0;
-    return sb->cap;
-}
-
-const char* nl_sb_to_string(void* sb_ptr) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb || !sb->buf) return strdup("");
-    char *out = strdup(sb->buf);
-    if (!out) out = strdup("");
-    return out;
-}
-
-void nl_sb_free(void* sb_ptr) {
-    NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
-    if (!sb) return;
-    free(sb->buf);
-    free(sb);
-}
-
 /* I keep public collection handles separate from allocation addresses. I never
  * recycle an identity within this loaded provider. My registry checks kind and
  * liveness before accessing payloads; exhaustion refuses new publication.
  * Callers serialize operations on the same handle, including free and borrowed
  * string reads. Independent handles may be used by independent threads. */
-typedef enum { COLLECTION_MAP, COLLECTION_SET } CollectionKind;
+typedef enum { COLLECTION_MAP, COLLECTION_SET, COLLECTION_BUILDER } CollectionKind;
 typedef struct CollectionHandle {
     uintptr_t identity;
     CollectionKind kind;
@@ -166,6 +61,134 @@ static void *collection_lookup(void *identity, CollectionKind kind, bool retire)
         link = &entry->next;
     }
     collection_unlock(); return NULL;
+}
+
+/* ============================ StringBuilder ============================ */
+
+typedef struct {
+    char *buf;
+    int64_t len;
+    int64_t cap;
+} NLStringBuilder;
+
+static NLStringBuilder *sb_alloc(int64_t cap) {
+    if (cap < 16) cap = 16;
+#if SIZE_MAX < INT64_MAX
+    if ((uint64_t)cap > (uint64_t)SIZE_MAX) return NULL;
+#endif
+    NLStringBuilder *sb = (NLStringBuilder*)calloc(1, sizeof(NLStringBuilder));
+    if (!sb) return NULL;
+    sb->buf = (char*)malloc((size_t)cap);
+    if (!sb->buf) {
+        free(sb);
+        return NULL;
+    }
+    sb->buf[0] = '\0';
+    sb->len = 0;
+    sb->cap = cap;
+    return sb;
+}
+
+static void sb_ensure(NLStringBuilder *sb, int64_t extra) {
+    assert(sb);
+    if (extra < 0) return;
+    if (sb->len < 0 || sb->cap < 1 || extra > INT64_MAX - 1 - sb->len) {
+        fprintf(stderr, "I cannot grow StringBuilder beyond its length bounds.\n");
+        exit(1);
+    }
+    int64_t need = sb->len + extra + 1;
+#if SIZE_MAX < INT64_MAX
+    if ((uint64_t)need > (uint64_t)SIZE_MAX) {
+        fprintf(stderr, "I cannot grow StringBuilder beyond its allocation bounds.\n");
+        exit(1);
+    }
+#endif
+    if (need <= sb->cap) return;
+    int64_t new_cap = sb->cap;
+    while (new_cap < need) {
+        if (new_cap > INT64_MAX / 2) {
+            new_cap = need;
+            break;
+        }
+        new_cap *= 2;
+    }
+#if SIZE_MAX < INT64_MAX
+    if ((uint64_t)new_cap > (uint64_t)SIZE_MAX) new_cap = need;
+#endif
+    char *nb = (char*)realloc(sb->buf, (size_t)new_cap);
+    if (!nb) {
+        fprintf(stderr, "I could not allocate StringBuilder growth.\n");
+        exit(1);
+    }
+    sb->buf = nb;
+    sb->cap = new_cap;
+}
+
+static void *sb_create(int64_t capacity) {
+    NLStringBuilder *sb = sb_alloc(capacity);
+    void *identity = collection_publish(sb, COLLECTION_BUILDER);
+    if (!identity && sb) { free(sb->buf); free(sb); }
+    return identity;
+}
+
+void* nl_sb_new(void) {
+    return sb_create(256);
+}
+
+void* nl_sb_with_capacity(int64_t capacity) {
+    return sb_create(capacity);
+}
+
+void nl_sb_append(void* sb_ptr, const char* text) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb || !text) return;
+    size_t tlen = strnlen(text, 1024ULL * 1024ULL);
+    sb_ensure(sb, (int64_t)tlen);
+    memcpy(sb->buf + sb->len, text, tlen);
+    sb->len += (int64_t)tlen;
+    sb->buf[sb->len] = '\0';
+}
+
+void nl_sb_append_char(void* sb_ptr, int64_t ch) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb) return;
+    sb_ensure(sb, 1);
+    sb->buf[sb->len++] = (char)ch;
+    sb->buf[sb->len] = '\0';
+}
+
+void nl_sb_clear(void* sb_ptr) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb) return;
+    sb->len = 0;
+    if (sb->buf) sb->buf[0] = '\0';
+}
+
+int64_t nl_sb_length(void* sb_ptr) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb) return 0;
+    return sb->len;
+}
+
+int64_t nl_sb_capacity(void* sb_ptr) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb) return 0;
+    return sb->cap;
+}
+
+const char* nl_sb_to_string(void* sb_ptr) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, false);
+    if (!sb || !sb->buf) return strdup("");
+    char *out = strdup(sb->buf);
+    if (!out) out = strdup("");
+    return out;
+}
+
+void nl_sb_free(void* sb_ptr) {
+    NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, true);
+    if (!sb) return;
+    free(sb->buf);
+    free(sb);
 }
 
 /* ============================ HashMap<string,string> ============================ */
