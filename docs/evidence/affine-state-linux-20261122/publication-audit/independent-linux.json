@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/affine-state-linux-20261122",
+    "implementation": "3df7ac29e78619457fe1acdea3c05bb88314d63f",
+    "logical_files": 12177,
+    "unique_artifacts": 6815,
+    "raw_bytes": 391746003,
+    "compressed_bytes": 75578216,
+    "source_files": 3577,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]

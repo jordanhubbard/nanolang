@@ -184,6 +184,19 @@ boundaries, three-level integer values, uneven/empty rows and append to empty
 inner float arrays. Nominal/generic execution and unknown compatibility remain
 open; these cases do not establish complete array soundness or backend parity.
 
+My C-seed native record-array setter captures its array, index and value once
+in source order and materializes the value as the target record before taking
+its address. I test local/imported record function results, literals, aliases,
+neighboring elements and prior-output preservation for distinct record values
+on Linux and Darwin. The native typed temporary is not complete frontend/VM
+nominal mutation checking. My shared C frontend now rejects distinct named
+records for directly projected setters before output publication, preserving
+module declaration identity and anonymous literal context. I retain a
+conditional-receiver source-admission gap under #1179. My C emitter owns the
+signature-derived type name across recursive operand emission and treats a
+lexical function value named array_set as an ordinary checked call. Root-level
+redefinition of that builtin remains forbidden.
+
 ## String Literals
 
 Ordinary quoted strings keep braces literally. Use the `f` prefix to interpolate:

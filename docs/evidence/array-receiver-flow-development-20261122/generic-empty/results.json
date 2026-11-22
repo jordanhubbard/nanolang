@@ -1,0 +1,15 @@
+[
+  {
+    "route": "c",
+    "compile": 0,
+    "execute": 0
+  },
+  {
+    "route": "vm",
+    "compile": 1
+  },
+  {
+    "route": "seed",
+    "compile": 1
+  }
+]

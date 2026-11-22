@@ -1,0 +1,10 @@
+{
+  "tests/test_source_snapshots.py": {
+    "all_original_function_assertion_sequences_unchanged": true,
+    "functions": 153,
+    "assertions": 692
+  },
+  "tests/test_driver_response_files.py": {
+    "observer_error": "('tests/test_driver_response_files.py', b\"fatal: path 'tests/test_driver_response_files.py' does not exist in '8ccb24f41'\\n\")"
+  }
+}

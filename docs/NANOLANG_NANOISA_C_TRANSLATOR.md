@@ -324,8 +324,55 @@ execution. I preserve `-1` for my unimplemented private profiles.
 my actual C reverse converter. I independently classify private ownership
 routes with the existing C routing oracle, retain their C refusals separately,
 and require identical explicit deferral across my selected product routes.
-This component is under qualification; it grants no full-module, affine,
-private-profile or pure-emitter acceptance.
+My [paired ad2 checkpoint](evidence/conversion-projection-darwin-20261121/README.md)
+passes6258 complete reports,105 independent expectations and six actual source
+products through five routes per host. All3560 guarded inputs, manual carriers
+and complete reports match Linux/Darwin and their exact Git blobs. Targeted
+actual C projection/reverse-converter sanitizers and the original module methods
+pass; I retain the first observer/setup failures separately. This component
+grants no full-module, affine, private-profile or pure-emitter acceptance.
+
+## My ordinary whole-module verifier
+
+`src_nano/nvm2c/module_verifier.nano` composes my checked module view and
+conversion with the ordinary function-body verifier. `verify` preserves the
+loader's positive declared-depth checks before the complete ordinary unlinked
+module pass. I check every function's metadata before any function body,
+including the empty-result rule, local/signature consistency and overlapping
+nonempty spans. I preserve import limits and service-policy priority.
+
+`verify_declared` checks only the declared-depth obligation. With no positive
+declaration, I preserve the C API's absence of that obligation: success does
+not imply that malformed bodies or other structural errors were checked.
+Accordingly, its successful result has `complete=false`. A successful `verify`
+has `complete=true` only for the ordinary unlinked pipeline. I keep transport
+status, exact ordinary refusals, known malformed-body refusals and explicit
+affine/ownership/private-profile deferrals distinct. Refusals expose no partial
+depth proof. Inert ownership metadata with no functions and no required walk
+follows the C module's ordinary path.
+
+My C oracle calls the actual public declared-depth, full-module and maximum-depth
+APIs after actual v2 deserialization/conversion. I normalize malformed-body and
+affine refusals separately and retain their original public diagnostics. My
+fixtures include whole-module metadata/body priority, selected/unselected
+functions, zero-depth absence, exact bounds, overlapping/adjacent/empty spans,
+multiple-function bodies and materialized ordinary body contexts. Direct-helper
+contexts that cannot be represented by that module carrier, require a linked
+graph, or would require large artificial pools remain explicitly counted apart;
+I do not relabel the older helper corpus as whole-module coverage.
+
+My [Linux checkpoint](evidence/ordinary-module-verifier-linux-20261121/README.md)
+passes7132 modules in both modes through five routes,
+126/122 independent expectations and six actual source products per mode in
+1444.113s. The actual VM agrees on131 independent consumer controls. Targeted
+actual public C verifier/type/decoder/ISA/module/reverse-converter sanitizers
+match both7132-case modes. I preserve the initial four over-deferred inert
+ownership modules and their precise no-function/no-walk correction.
+
+Paired Darwin qualification remains pending during Puck's reserved capture run.
+No executable selector uses this component. Full linked-graph, affine,
+ownership/private-profile verification, pure C emission and final-source paired
+release acceptance remain required under #1142/#976.
 
 ## My shared ownership declarations
 
@@ -654,7 +701,15 @@ My current Linux development gate matches704 synthetic complete decisions and
 exact service/ownership/passive bytes through five routes, including128 explicit
 C expectations and directory/error-priority controls. A separate retained eight
 actual C/NanoLang File/TCP/WebSocket/mixed producer-product gate passes the same
-five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; complete paired product-retention acceptance remains open.
+five routes. The combined permanent fixture includes both groups. My later full Linux selection passes all five methods in1410.818s, including712 shared-service decisions. The [bdffa4ccc Darwin checkpoint](evidence/translator-components-bdffa4ccc-darwin-20261121/README.md) passes the original five-method module/claim gate in1090.333s, but the service test deletes one TemporaryDirectory containing its producer products. I retain that result and mark the missing products explicitly; the historical deleted products remain unavailable. My later exact-ad2
+[paired retained selection](evidence/conversion-projection-darwin-20261121/README.md)
+covers all five original methods and preserves every actual producer product.
+Linux passes all five in1393.071s. Darwin retains three passes from its first
+setup-failed observer and passes only the two missing methods in698.042s after
+supplying prerequisites, preserving the first failed manifest. Both hosts match
+all712 shared-service decisions through five routes. This new pair completes my
+descriptive shared-service retention requirement. Full executable/private-profile
+verification, pure C emission and final-source release gates remain open.
 I retain the initial rich-only UINT32_MAX span fixture refusal, isolated
 name-mutation correction, default-shadow deadline refusal, successful traced
 169-shadow observation and excluded stale-artifact diagnostic. A later success
@@ -904,3 +959,129 @@ ASan/UBSan/leak controls. A real empty-void source body passes through both
 producers/five routes using the guarded qualified bdffa4ccc native Stage1.
 I preserve the baseline tools/bytes/runtime failure, red gates, first legacy
 fixture expectation and sanitizer-command observer setup refusal. My [paired Darwin checkpoint](evidence/empty-function-results-darwin-20261121/README.md) at9fc32e45d passes the same101 verifier/569591 VM assertions, four product methods/five source routes and targeted actual C sanitizers, with no Darwin LeakSanitizer claim. All3559 guarded inputs and143 binary carriers match Linux. The retained older Darwin VM reproduces the identical pre-fix failure. A post-test observer omits its re import; I preserve that failure and complete only pairing/archival without rerunning tests. This closes the observed structural gap; full module/profile composition and final-source release qualification remain required.
+
+### My ordinary linked-module composition
+
+I expose `module_verifier.verify_linked(bytes, links)` and
+`module_verifier.verify_graph(bytes, links)` for ordinary checked V2 modules.
+Each `LinkedModule` contains `resolved` and `bytes`. I ignore the bytes of an
+unresolved slot. A resolved slot must load and satisfy its positive declared
+stack obligations even when the root never calls it. I load the root first,
+then resolved slots in source order, before graph policy or full body checks.
+
+`verify_linked` checks the root against the supplied flat table. Its successful
+`complete` result describes that ordinary root query. It does not certify every
+target body. `verify_graph` additionally checks each present target against the
+same table, in slot order. Its `GraphResult.module_index` is zero for the root,
+slot index plus one for a failed target, and minus one for success. A successful
+graph result retains the root's depths; every refusal discards partial depths.
+This wrapper does not discover imports, recursively load dependencies or grant
+host authority.
+
+I retain the public C order for ordinary service and ownership policy before
+root structure/body checks. I compare encoded cross-module call shapes against
+resolved target signatures; unused unresolved slots remain permitted. My
+ownership scanner stops at an undecodable instruction, as the C policy scanner
+does. The ordinary body decoder still rejects malformed target bodies when I
+query those bodies. Private layout profiles continue to defer at checked
+preparation; full owned/private admission remains required.
+
+My linked differential gate uses actual V2 inputs and public C deserialization,
+conversion, declaration and linked-verifier APIs. Its complete-graph oracle
+calls that same linked API on every present target. The binary test carrier's
+64-slot bound belongs to the harness, not to my production API. Two legacy
+in-memory controls with a callee arity above65535 or result count above255
+cannot survive V2 conversion and stay separate from the materialized corpus.
+My [Linux checkpoint](evidence/linked-module-verifier-linux-20261121/README.md)
+passes304 carriers in both modes through five routes and six fresh original
+producer targets. Five carriers exercise harness refusal and four exercise
+explicit private deferral;295 ordinary V2 decisions retain public C parity.
+The complete7132-module/two-mode/five-route unlinked regression also passes
+after the shared preparation/context change. No executable selector uses these
+APIs. My [same-source Darwin checkpoint](evidence/linked-module-verifier-darwin-20261122/README.md) passes both full gates in658.533/1099.153s, with every corpus byte and all48 normalized report files identical to Linux. Targeted actual C sanitizers, original identifiers and all3567 guarded source inputs match; the three original examples are separately guarded. I preserve all setup refusals and original roots. Private/affine verification, pure C emission and final-source release qualification remain required.
+
+
+### My affine reference-place dependency
+
+I implement `reference_places.nano` before the remaining local affine state and
+bytecode walk. My immutable place retains a nonzero invocation as two unsigned
+32-bit words, a local identity, claimed root/referent, a bounded field path and
+shared/exclusive mode. Explicit presence facts preserve the C descriptor's
+absent-pointer refusals; an empty path or empty record needs no field storage.
+The API expects native-width local/path/tag/layout words from checked facts.
+
+My validity query checks the separately authoritative root layout and every
+reachable scalar-only record sibling, not just the selected path. Layout edges
+must point strictly backward; the selected path must end at a record containing
+only numeric/bool scalars. A descending marked walk visits shared subgraphs
+once. I do not accept strings, arrays, unions, forward edges or merely claimed
+nominal authority through this reference contract.
+
+My overlap and conflict queries inspect descriptors independently of layout
+validity, as the C APIs do: invocation/local identify the owner, and a common
+path prefix overlaps even when a claimed layout is false. Invalid descriptors
+conservatively conflict. Shared holds coexist; exclusive holds block reads and
+writes, and direct owner writes/moves conflict with either hold mode.
+
+My actual C oracle calls the public reference-place APIs without duplicating
+their policy. My test carrier bounds layout rows at65536 as a fixture budget and fields/path
+entries at the native uint16 limit65535; its D refusal describes the harness, not a
+new product acceptance decision. My [paired exact-source qualification](evidence/reference-places-darwin-20261122/README.md)
+matches1629 ten-bit actual-C reports with487 independent expectations through
+five Linux/Darwin routes in26.588/10.692s. Every corpus byte and all six
+complete report files match, along with3571 guarded source Git blobs. All75
+original C checks, actual implementation/oracle/unit ASan/UBSan and identifiers
+pass on both hosts. I preserve all frozen providers and primary audit/stashes. I keep affine state/bytecode, private-profile composition and runtime
+admission open, and no executable selector calls this new component.
+
+### My shared affine local-state replacement
+
+I implement `affine_facts.nano` and `affine_state.nano` after the paired place
+checks. Facts preparation first runs the complete existing shared ownership
+validator, retains ordinary decoded layouts, function/result/local descriptors,
+layout flags, exact union variant slices, effect signatures and typed-array
+rows. Private checked-state constructors in the mixed/owned-array analyses are
+not admitted by this shared factory.
+
+My owning analysis allocates a distinct positive module identity for each
+module object and a distinct analysis identity for each preparation. Clones
+and lexical handler arms retain the latter; independent preparations do not
+become equal merely because their bytes match. These identifiers belong to
+my verifier context, never to producer-supplied ownership bytes. Facts and
+returned state records are internal immutable views; they are not authority
+certificates that arbitrary callers may forge or mutate.
+
+My transition API returns a new state on success and the original state on
+refusal. It preserves exact owned obligations, initialized copyable values,
+selected union arms, regions, parent references, invocation/caller origins and
+handler resume facts. Joins intersect copyable initialization and forget a
+selected union arm only after exact live resource/reference obligations match.
+Queries return explicit validity and expose no partial values after refusal;
+value-type arguments use mode-zero slots, while declaration slots retain
+reference modes. No operation performs bytecode or runtime execution.
+
+I retain the first690 native traces, whose full actual-C snapshots agree even
+though five handwritten expected booleans were wrong. The expanded3058-trace
+preflight passes all five C/NanoLang native/VM/sanitized routes in239.392s.
+The unchanged C state target passes563 ordinary and634 allocation-failure
+checks. These preflights are not a frozen final-source qualification.
+
+A separate input-path mutation witness then catches an alias in my first
+port: a borrowed place retains the caller's path array. The actual C witness
+passes16 checks, while my original source fails two ownership assertions. I
+copy paths at installation, cloning and caller binding, and extend the oracle
+and driver with restored path-perturbation isolation checks. I retain the
+failed witness and explicitly identified reverse-patch reconstruction of the
+uncommitted pre-copy draft; I do not call that reconstruction a frozen source.
+My [exact3df7ac29e paired qualification](evidence/affine-state-darwin-20261122/README.md) then passes3141 traces through five routes in224.344s Linux/79.364s Darwin, with383 independent expectations. All corpus bytes, six complete report files and3577 exact Git source inputs match. All563 ordinary/634 allocation-failure C checks, targeted actual C ASan/UBSan and identifiers pass. Independent readers verify12177 Linux/7213 Darwin archive records; every source/tool/frozen-provider/primary-audit/stash guard holds. Darwin ASan disables leak detection; I claim no Darwin LeakSanitizer coverage. No new raw bootstrap executes.
+
+My oracle includes the actual C state implementation and invokes its public
+transitions/queries. It snapshots retained state and checks failed operations
+against an actual C clone, preserves query output sentinels, and restores its
+private path perturbations. Its analysis/module identity adapter models C
+Facts/module object identity rather than replacing it with content equality.
+The test carrier bounds sixteen simultaneous state handles,65536 reference
+slots/commands and native operand widths. Harness D is distinct from a state
+transition refusal. Affine bytecode/CFG analysis, private profiles, pure C
+emission and complete release acceptance remain open; no executable selector
+uses these local transitions.

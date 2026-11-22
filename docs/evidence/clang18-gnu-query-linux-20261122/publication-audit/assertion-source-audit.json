@@ -1,0 +1,13 @@
+{
+  "tests/test_source_snapshots.py": {
+    "all_original_function_assertion_sequences_unchanged": true,
+    "functions": 153,
+    "assertions": 692
+  },
+  "tests/test_response_driver_grammar.py": {
+    "original_13_lexical_assertion_sequence_unchanged_after_helper_extraction": true,
+    "original_assertions": 13,
+    "candidate_matrix_assertions": 7,
+    "candidate_extracted_helper_assertions": 6
+  }
+}

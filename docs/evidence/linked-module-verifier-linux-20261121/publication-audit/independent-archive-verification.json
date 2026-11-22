@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/linked-module-verifier-linux-20261121",
+    "implementation": "76cd20f2a4c68f858389fcbd6995a6f6d3694819",
+    "logical_files": 18526,
+    "unique_artifacts": 11838,
+    "raw_bytes": 371027175,
+    "compressed_bytes": 73440423,
+    "source_files": 3567,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]

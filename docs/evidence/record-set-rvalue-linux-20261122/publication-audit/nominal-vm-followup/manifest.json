@@ -1,0 +1,11 @@
+{
+  "source_sha256": "7832f2391d5ca7afd3988b5fa74a9a139b9ffd976513c15b45fe588fe3ba91bf",
+  "module_sha256": "f922c90666acd4b8376103c7bc2ef33864df1eac24816957349597bde1a8b0d3",
+  "vm_sha256": "c8169e8d772fb022916b8dca2e57218c9a555cbbfa49e4e77352b9d58a57e504",
+  "argv": [
+    "/home/jkh/.worktrees/nanolang/service-module-integration/bin/nano_vm",
+    "/home/jkh/.worktrees/nanolang/service-module-integration/.test_output/array-set-nominal-20261122/vm.out"
+  ],
+  "returncode": 0,
+  "seconds": 0.049010589995305054
+}

@@ -7764,8 +7764,55 @@ $(OBJ_DIR)/nvm2c_function_body_reference: tests/nvm2c_function_body_reference.c 
 test-nanolang-translator-function-body: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_function_body_reference
 	NANOLANG_FUNCTION_BODY_REFERENCE="$(OBJ_DIR)/nvm2c_function_body_reference" python3 -m unittest -v tests.test_nanolang_translator_function_body
 
+# I compose ordinary unlinked module structure, declared depths and bodies.
+$(OBJ_DIR)/nvm2c_module_verifier_reference: tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-module-verifier
+test-nanolang-translator-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_module_verifier
+
+test-units: test-nanolang-translator-module-verifier
+
 .PHONY: test-empty-function-results
 test-empty-function-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_empty_function_results
 
 test-units: test-empty-function-results
+
+# I compare ordinary linked roots and every present flat-graph target.
+$(OBJ_DIR)/nvm2c_linked_module_verifier_reference: tests/nvm2c_linked_module_verifier_reference.c tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-linked-module-verifier
+test-nanolang-translator-linked-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_linked_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_linked_module_verifier
+
+test-units: test-nanolang-translator-linked-module-verifier
+
+# I qualify the affine walk's place dependency before local/bytecode admission.
+$(OBJ_DIR)/nvm2c_reference_places_reference: tests/nvm2c_reference_places_reference.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/reference_places.h | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $@ $< $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-reference-places
+test-nanolang-translator-reference-places: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_reference_places_reference
+	NANOLANG_REFERENCE_PLACES_REFERENCE="$(OBJ_DIR)/nvm2c_reference_places_reference" python3 -m unittest -v tests.test_nanolang_translator_reference_places
+
+test-units: test-nanolang-translator-reference-places
+
+# I compare shared affine local transitions before bytecode/profile admission.
+$(OBJ_DIR)/nvm2c_affine_state_reference: tests/nvm2c_affine_state_reference.c $(NANOISA_DIR)/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-affine-state
+test-nanolang-translator-affine-state: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_state_reference
+	NANOLANG_AFFINE_STATE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_state_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_state
+
+test-units: test-nanolang-translator-affine-state
+
+# I require source-level nominal mutation checks before any product publication.
+.PHONY: test-nominal-record-array-mutation
+test-nominal-record-array-mutation: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG_SELFHOST_COMPILER),,bootstrap3)
+	python3 -m unittest -v tests.test_nominal_record_array_mutation
+
+test-units: test-nominal-record-array-mutation

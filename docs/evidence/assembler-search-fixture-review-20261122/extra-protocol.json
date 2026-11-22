@@ -1,0 +1,590 @@
+{
+  "pin": "88c81aa74be34ee4101a85262115156ccfbae1d6",
+  "actual_source_equals_upgraded_retained_source": true,
+  "queries_per_shell": 22,
+  "observations": [
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "2d49202771756f74657327200a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "747261696c696e670a0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "24484f4d45202428746f75636820666f7262696464656e29206066616c7365600a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "5c6261636b736c6173685c0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "6c696e65310a6c696e65320a0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags"
+      ],
+      "exit": 1,
+      "stdout_hex": "",
+      "stderr_identical": false
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "unknown"
+      ],
+      "exit": 1,
+      "stdout_hex": "",
+      "stderr_identical": false
+    },
+    {
+      "shell": [
+        "/bin/sh"
+      ],
+      "query": [
+        "--cflags",
+        "--libs",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "747261696c696e670a0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        ""
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "2d49202771756f74657327200a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "*?[x])"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "747261696c696e670a0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "24484f4d45202428746f75636820666f7262696464656e29206066616c7365600a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "λ\nkey"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "5c6261636b736c6173685c0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "-n"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "6c696e65310a6c696e65320a0a",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--exists",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--libs",
+        "--",
+        "semi;colon"
+      ],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [],
+      "exit": 0,
+      "stdout_hex": "",
+      "stderr_identical": true
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags"
+      ],
+      "exit": 1,
+      "stdout_hex": "",
+      "stderr_identical": false
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "unknown"
+      ],
+      "exit": 1,
+      "stdout_hex": "",
+      "stderr_identical": false
+    },
+    {
+      "shell": [
+        "/bin/bash",
+        "--posix"
+      ],
+      "query": [
+        "--cflags",
+        "--libs",
+        "--",
+        "a'b"
+      ],
+      "exit": 0,
+      "stdout_hex": "747261696c696e670a0a",
+      "stderr_identical": true
+    }
+  ],
+  "boundary": "Unknown cflags fails in both; shell does not reproduce Python KeyError traceback."
+}

@@ -1,0 +1,43 @@
+{
+  "src_nano/nvm2c/reference_places.nano": {
+    "functions": [
+      "sample",
+      "scalar",
+      "descriptor_valid",
+      "record_valid",
+      "scalar_record",
+      "scalar_root",
+      "valid",
+      "overlap",
+      "holds_conflict",
+      "owner_access_conflicts"
+    ],
+    "shadows": [
+      "descriptor_valid",
+      "holds_conflict",
+      "overlap",
+      "owner_access_conflicts",
+      "record_valid",
+      "sample",
+      "scalar",
+      "scalar_record",
+      "scalar_root",
+      "valid"
+    ],
+    "main_uses_process_arguments": false
+  },
+  "tests/nvm2c_reference_places_driver.nano": {
+    "functions": [
+      "parse_place",
+      "flag",
+      "describe",
+      "main"
+    ],
+    "shadows": [
+      "describe",
+      "flag",
+      "parse_place"
+    ],
+    "main_uses_process_arguments": true
+  }
+}

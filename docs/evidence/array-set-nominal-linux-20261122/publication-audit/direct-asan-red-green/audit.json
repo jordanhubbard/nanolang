@@ -1,0 +1,59 @@
+{
+  "files": [
+    {
+      "file": "compile.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "compile.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "execute.stderr.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "execute.stdout.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "left.nano.gz",
+      "bytes": 150,
+      "sha256": "34678d9d8a88aed14ad4959d8b79704952a098279d76aa7e09754162a76c49ce",
+      "compressed_sha256": "8a788c23d962d2080ba20a6084b18ae5de11b340a5d02884b82f3357054ff9e9"
+    },
+    {
+      "file": "main.nano.gz",
+      "bytes": 131,
+      "sha256": "b4107ca973cc9113bcfd162028d70e93aa269e61a2efd696c2c64d8ae6291a20",
+      "compressed_sha256": "511db5a4d9e88e01d7ec59d7c10d91b550e91498ffacf1a615b743cc0a58fef6"
+    },
+    {
+      "file": "manifest.json.gz",
+      "bytes": 1196,
+      "sha256": "be2be85a15adc7c1effca4d9bfa0d911740baa222bdde966b3c11d21c116b7fe",
+      "compressed_sha256": "4d0a9818017206392b5a6a68cec2bcb2fa5d384230fa126036f284fc400198ba"
+    },
+    {
+      "file": "native.c.gz",
+      "bytes": 67826,
+      "sha256": "8fe752451991654939972d5387a744b4b2e03055e4c393515e9f5a9d168ba6f7",
+      "compressed_sha256": "fa392a6044f51c5411167af6091a0dc91e2b863f65f2f1803f6fceda9b8a79f3"
+    },
+    {
+      "file": "native.gz",
+      "bytes": 8854112,
+      "sha256": "5c6e30a437c0747879951c2389914852f27b2aac4ba5c121933dd7fe1a5056ad",
+      "compressed_sha256": "fa3471bdcd73fd837eb44e8f228ebfd6811e6b7a7d5bd9d46182fc37b2cc7758"
+    }
+  ],
+  "scope": "I compare the unchanged retained Linux ASan-red source with the accepted instrumented compiler and execute its emitted product; this additive diagnostic is outside the4+25 qualification and archive counts."
+}
