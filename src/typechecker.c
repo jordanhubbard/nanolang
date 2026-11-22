@@ -2631,6 +2631,19 @@ static bool payload_annotations_compatible(const TypeInfo *expected, const TypeI
     return type_infos_equal(expected, actual);
 }
 
+/* I release the names owned by rows that my handler scope already discards.
+ * Complete annotations and checker placeholder values retain their owners. */
+static void discard_handler_symbol_metadata(Environment *env, int saved_count) {
+    if (!env) return;
+    for (int i = saved_count; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = saved_count;
+}
+
 static Type check_expression_impl(ASTNode *expr, Environment *env) {
     switch (expr->type) {
         case AST_NUMBER:
@@ -5649,14 +5662,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     g_typecheck_error_count++;
                 }
 
-                /* Pop handler-local symbols */
-                env->symbol_count = saved_count;
+                discard_handler_symbol_metadata(env, saved_count);
             }
 
             /* Type of handle expression = type of the handled body */
             int saved_body_count = env->symbol_count;
             Type body_type = check_expression(expr->as.handle_expr.body, env);
-            env->symbol_count = saved_body_count;
+            discard_handler_symbol_metadata(env, saved_body_count);
             return body_type;
         }
 
@@ -5682,7 +5694,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 if (expr->as.effect_handler.handler_bodies[i])
                     check_expression(expr->as.effect_handler.handler_bodies[i], env);
-                if (env) env->symbol_count = saved_sym;
+                discard_handler_symbol_metadata(env, saved_sym);
             }
             return TYPE_VOID;
         }
@@ -6742,8 +6754,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 if (stmt->as.effect_handler.handler_bodies[i])
                     check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
-                /* Remove the temp param binding */
-                if (tc->env) tc->env->symbol_count = saved_sym;
+                discard_handler_symbol_metadata(tc->env, saved_sym);
             }
             return TYPE_VOID;
         }

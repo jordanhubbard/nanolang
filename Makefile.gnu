@@ -1534,6 +1534,15 @@ test-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
+.PHONY: test-parser-async-ownership test-eval-async-ownership
+test-parser-async-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_parser_async_ownership tests/test_parser_async_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_parser_async_ownership
+
+test-eval-async-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_async_ownership tests/test_eval_async_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_async_ownership
+
 .PHONY: test-eval-effect-metadata-ownership
 test-eval-effect-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_effect_metadata_ownership tests/test_eval_effect_metadata_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)

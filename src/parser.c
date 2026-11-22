@@ -6201,6 +6201,13 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.block.statements);
             break;
+        /* I own the children beneath these syntax wrappers. */
+        case AST_ASYNC_FN:
+            free_ast(node->as.async_fn.function);
+            break;
+        case AST_AWAIT:
+            free_ast(node->as.await_expr.expr);
+            break;
         case AST_FUNCTION:
             free(node->as.function.name);
             for (int i = 0; i < node->as.function.param_count; i++) {
