@@ -1,5 +1,7 @@
 # My 5.1 compiler architecture and release order
 
+- [x] Under #1178 I isolate user-guide pull-request concurrency by PR number while retaining one shared non-PR Pages deployment group. The current constant group allows separate agents' PR validations to cancel one another. I preserve per-PR replacement cancellation and every tool/test setting; I record this configuration defect without attributing an unexplained historical cancellation.
+
 - [x] Under #1159 I enroll my three GNU-query regression methods in the existing test-bytecode-shadows recipe alongside both original source/response modules. Sparky explicitly hands off only this one-line Make edit in comment7077434483; I preserve every dependency and limit, retain Darwin skips and keep the original128+1 diagnostic allocations unchanged.
 
 - [ ] Under #1159 I preserve full Clang run45005587292 at its unchanged1500-second parent limit:116 methods finish without recorded failure/error blocks, the next standalone search method remains active and no final report exists. I diagnose repeated GNU query overhead before another full run, preserve the complete original128-method corpus and every native/guest budget, and require a controlled EOF/reap observation before changing supervisor polling. My [retained native observation](evidence/capture-reap-polling-20261122/README.md) measures26 milliseconds before and2 after reducing only the post-EOF polling interval; existing deadline/timing and native response controls pass. Full corrected Clang/GCC qualification remains open.
