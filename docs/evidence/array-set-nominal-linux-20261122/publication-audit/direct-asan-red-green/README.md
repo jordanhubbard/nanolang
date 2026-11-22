@@ -1,0 +1,1 @@
+I retain the original ASan-red input bytes unchanged. The accepted instrumented compiler emits a native product and that product exits0. audit.json hashes every compressed/raw additive artifact; the compiler identity matches my main compiler-sanitizer receipt.

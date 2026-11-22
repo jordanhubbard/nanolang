@@ -1,0 +1,32 @@
+{
+  "implementation": "37865cdd7ff5de11ea50d0fb6fbbb2fc0ea09c11",
+  "source_files": 3578,
+  "source_hashes_identical": true,
+  "cohorts": [
+    {
+      "label": "mutation",
+      "methods": 4,
+      "unique_nano_inputs": 36,
+      "commands_each": 162,
+      "seconds_each": [
+        31.368552542990074,
+        25.353252042004897
+      ],
+      "all_captured_nano_input_hashes_identical": true
+    },
+    {
+      "label": "neighbors",
+      "methods": 25,
+      "unique_nano_inputs": 58,
+      "commands_each": 225,
+      "seconds_each": [
+        48.35038650399656,
+        46.53852449999977
+      ],
+      "all_captured_nano_input_hashes_identical": true
+    }
+  ],
+  "targeted_compiler_sanitizers_methods_each": 4,
+  "all_seed_source_maps_host_images_actual_retained_inputs_and_final_artifacts_verified": true,
+  "limits": "I compare actual source inputs and completed method outcomes. Seed modules/native binaries are platform/context-specific; no binary-equality, full conditional receiver admission or full bootstrap claim follows."
+}
