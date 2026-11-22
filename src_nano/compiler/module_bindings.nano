@@ -12,6 +12,7 @@ let mut mb_names: array<string> = []
 let mut mb_targets: array<string> = []
 let mut mb_definition_owners: array<int> = []
 let mut mb_source_paths: array<string> = []
+let mut mb_tool_directory: string = ""
 let mut mb_header_names: array<string> = []
 let mut mb_header_values: array<string> = []
 let mut mb_header_owners: array<int> = []
@@ -75,6 +76,7 @@ pub fn mb_reset(starts: array<int>) -> void {
     set mb_targets []
     set mb_definition_owners []
     set mb_source_paths []
+    set mb_tool_directory ""
     set mb_header_names []
     set mb_header_values []
     set mb_header_owners []
@@ -250,6 +252,29 @@ shadow mb_target_owner {
     assert (== (mb_target_owner 1 "local") 1)
     (mb_reset [])
     assert (== (mb_target_owner 1 "alias") -1)
+}
+
+# I retain the compiler-selected standard module root separately from user sources.
+pub fn mb_set_tool_root(root: string) -> void {
+    set mb_tool_directory root
+}
+shadow mb_set_tool_root {
+    (mb_reset [1])
+    (mb_set_tool_root "/retained/compiler")
+    assert (== (mb_tool_root) "/retained/compiler")
+    (mb_reset [])
+    assert (== (mb_tool_root) "")
+}
+
+pub fn mb_tool_root() -> string {
+    return mb_tool_directory
+}
+shadow mb_tool_root {
+    (mb_reset [])
+    assert (== (mb_tool_root) "")
+    (mb_set_tool_root "/different/compiler")
+    assert (== (mb_tool_root) "/different/compiler")
+    (mb_reset [])
 }
 
 pub fn mb_set_sources(paths: array<string>) -> void {

@@ -752,6 +752,32 @@ static bool retain_anonymous_record_context(Environment *env, const char *name, 
     return true;
 }
 
+/* I preserve named opaque identity before record storage erases its value tag. */
+static bool check_opaque_record_field(Environment *env, const char *name,
+                                       ASTNode *value, unsigned depth) {
+    OpaqueTypeDef *expected = name ? env_get_opaque_type(env, name) : NULL;
+    if (!expected || !value || ast_always_returns(value)) return true;
+    if (depth > 128) {
+        emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+            "I cannot validate this opaque record field beyond my context depth bound.",
+            "Reduce the nesting of this field expression.");
+        return false;
+    }
+    int branches = ast_value_branch_count(value);
+    if (branches) {
+        for (int i = 0; i < branches; ++i)
+            if (!check_opaque_record_field(env, name, ast_value_branch(value, i), depth + 1))
+                return false;
+        return true;
+    }
+    const char *actual = get_struct_type_name(value, env);
+    if (actual && env_get_opaque_type(env, actual) == expected) return true;
+    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+        "I require the declared named opaque handle for this record field.",
+        "Use a handle from the same opaque declaration.");
+    return false;
+}
+
 /* I compare declarations, including their module identity, at array boundaries. */
 static bool check_record_array_contract(Environment *env, Type type, Type element,
                                          const char *name, ASTNode *value) {
@@ -4897,6 +4923,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                if (sdef->field_types[field_index] == TYPE_STRUCT &&
+                    sdef->field_type_names &&
+                    !check_opaque_record_field(env, sdef->field_type_names[field_index],
+                                               field_value, 0))
+                    return TYPE_UNKNOWN;
                 if (sdef->field_types[field_index] == TYPE_TUPLE && sdef->field_type_info &&
                     !check_tuple_contract(env, sdef->field_type_info[field_index], field_value))
                     return TYPE_UNKNOWN;

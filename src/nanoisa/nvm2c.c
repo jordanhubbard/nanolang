@@ -1890,6 +1890,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_PUSH_U8:
         case OP_ENUM_VAL:
         case OP_PUSH_VOID:
+        case OP_OPAQUE_NULL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
             break;
         case OP_PUSH_F64:
@@ -4736,6 +4737,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_PUSH_VOID:
             stack_push_value(b, &st, "(nmap_value){0, 0, NULL}");
             break;
+        case OP_OPAQUE_NULL:
+            stack_push_value(b, &st, "(nmap_value){14, 0, NULL}");
+            break;
         case OP_PUSH_F64: {
             char rhs[80];
             uint64_t bits;
@@ -5517,6 +5521,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : (v[%d].kind == 1 || v[%d].kind == 2) ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
                     value, value, value, value, value, value, value, value, value);
                 stack_push_str(b, &st, expression);
+                break;
+            }
+            if (st.sp && (word_array_storage(st.kinds[st.sp - 1]) ||
+                st.kinds[st.sp - 1] == NVM2C_VK_SARR || st.kinds[st.sp - 1] == NVM2C_VK_RARR ||
+                st.kinds[st.sp - 1] == NVM2C_VK_REC || st.kinds[st.sp - 1] == NVM2C_VK_MAP ||
+                st.kinds[st.sp - 1] == NVM2C_VK_FUNC)) {
+                /* I match the VM's empty text for non-scalar conversions. */
+                (void)stack_pop(b, &st);
+                stack_push_str(b, &st, "\"\"");
                 break;
             }
             int v = stack_pop_expect(b, &st, NVM2C_VK_INT, "CAST_STRING");
@@ -8778,7 +8791,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET ||
                 ins.opcode == OP_HM_KEYS || ins.opcode == OP_HM_VALUES) b.has_maps = 1;
-            if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_PUSH_U8 ||
+            if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_OPAQUE_NULL || ins.opcode == OP_PUSH_U8 ||
                 ins.opcode == OP_CAST_U8 || ins.opcode == OP_ENUM_VAL) b.has_maps = 1; /* Tagged scalar storage. */
             if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
                 b.has_maps = 1; /* I retain runtime tags for generic ordering. */

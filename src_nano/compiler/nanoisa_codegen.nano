@@ -2698,7 +2698,39 @@ shadow nisa_emit_match {
     assert (== (nisa_reset) 0)
 }
 
+# I identify the reviewed native handle declaration by its owning standard source.
+fn nisa_collection_owner(parser: Parser, name: string) -> int {
+    let mut relative: string = ""
+    if (== name "NLHashMap") { set relative "/modules/std/collections/hashmap.nano" }
+    if (== name "NLStringSet") { set relative "/modules/std/collections/set.nano" }
+    if (or (== relative "") (== (mb_tool_root) "")) { return -1 }
+    let index: int = (nisa_opaque_index parser name)
+    if (< index 0) { return -1 }
+    let declaration: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types index)
+    let owner: int = (mb_owner declaration.line)
+    let source: string = (mb_source owner)
+    if (== source "") { return -1 }
+    let expected: string = (RegexFiles.canonical (+ (mb_tool_root) relative))
+    if (or (== expected "") (!= (RegexFiles.canonical source) expected)) { return -1 }
+    return owner
+}
+shadow nisa_collection_owner {
+    let tokens: List<LexerToken> = (tokenize_string "opaque type NLHashMap" "collection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "collection.nano")
+    (mb_reset [1])
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    (mb_set_tool_root (RegexFiles.canonical "."))
+    (mb_set_sources ["modules/std/collections/hashmap.nano"])
+    assert (== (nisa_collection_owner parser "NLHashMap") 0)
+    assert (== (nisa_collection_owner parser "NLStringSet") -1)
+    assert (== (nisa_collection_owner parser "Arbitrary") -1)
+    (mb_set_sources ["modules/std/collections/set.nano"])
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    (mb_reset [])
+}
+
 fn nisa_field_shape_supported_seen(parser: Parser, field: string, ancestors: array<string>, signatures: array<string>) -> bool {
+    if (>= (nisa_opaque_index parser field) 0) { return (>= (nisa_collection_owner parser field) 0) }
     if (>= (nisa_union_index parser field) 0) { return (nisa_union_supported_seen parser field signatures) }
     if (str_starts_with field "fn(") { return (nisa_function_type_ok_seen parser field signatures) }
     if (>= (nisa_enum_index parser field) 0) { return true }
@@ -3935,7 +3967,59 @@ shadow nisa_websocket_signature {
     assert (== (array_length (nisa_websocket_signature "nl_ws_unknown")) 0)
 }
 
+fn nisa_collection_signature(name: string) -> array<string> {
+    if (== name "nl_hm_new") { return ["NLHashMap"] }
+    if (== name "nl_hm_put") { return ["void", "NLHashMap", "string", "string"] }
+    if (== name "nl_hm_has") { return ["bool", "NLHashMap", "string"] }
+    if (== name "nl_hm_get") { return ["string", "NLHashMap", "string"] }
+    if (== name "nl_hm_size") { return ["int", "NLHashMap"] }
+    if (== name "nl_hm_keys") { return ["array<string>", "NLHashMap"] }
+    if (== name "nl_hm_values") { return ["array<string>", "NLHashMap"] }
+    if (== name "nl_hm_remove") { return ["void", "NLHashMap", "string"] }
+    if (== name "nl_hm_clear") { return ["void", "NLHashMap"] }
+    if (== name "nl_hm_free") { return ["void", "NLHashMap"] }
+    if (== name "nl_set_new") { return ["NLStringSet"] }
+    if (== name "nl_set_add") { return ["void", "NLStringSet", "string"] }
+    if (== name "nl_set_has") { return ["bool", "NLStringSet", "string"] }
+    if (== name "nl_set_size") { return ["int", "NLStringSet"] }
+    if (== name "nl_set_values") { return ["array<string>", "NLStringSet"] }
+    if (== name "nl_set_remove") { return ["void", "NLStringSet", "string"] }
+    if (== name "nl_set_clear") { return ["void", "NLStringSet"] }
+    if (== name "nl_set_free") { return ["void", "NLStringSet"] }
+    return []
+}
+shadow nisa_collection_signature {
+    assert (== (at (nisa_collection_signature "nl_hm_put") 3) "string")
+    assert (== (at (nisa_collection_signature "nl_hm_has") 0) "bool")
+    assert (== (at (nisa_collection_signature "nl_hm_keys") 0) "array<string>")
+    assert (== (at (nisa_collection_signature "nl_set_new") 0) "NLStringSet")
+    assert (== (at (nisa_collection_signature "nl_set_has") 0) "bool")
+    assert (== (at (nisa_collection_signature "nl_set_values") 0) "array<string>")
+    assert (== (array_length (nisa_collection_signature "nl_hm_unknown")) 0)
+    assert (== (array_length (nisa_collection_signature "nl_sb_new")) 0)
+}
+
+fn nisa_collection_handle(name: string) -> string {
+    let signature: array<string> = (nisa_collection_signature name)
+    for index in (range 0 (array_length signature)) {
+        let t: string = (at signature index)
+        if (or (== t "NLHashMap") (== t "NLStringSet")) { return t }
+    }
+    return ""
+}
+shadow nisa_collection_handle {
+    let names: array<string> = ["nl_hm_new", "nl_hm_put", "nl_hm_has", "nl_hm_get", "nl_hm_size", "nl_hm_keys", "nl_hm_values", "nl_hm_remove", "nl_hm_clear", "nl_hm_free", "nl_set_new", "nl_set_add", "nl_set_has", "nl_set_size", "nl_set_values", "nl_set_remove", "nl_set_clear", "nl_set_free"]
+    for index in (range 0 (array_length names)) {
+        let expected: string = if (< index 10) { "NLHashMap" } else { "NLStringSet" }
+        assert (== (nisa_collection_handle (at names index)) expected)
+    }
+    assert (== (nisa_collection_handle "nl_sb_new") "")
+    assert (== (nisa_collection_handle "unknown") "")
+}
+
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
+    let collection: array<string> = (nisa_collection_signature name)
+    if (> (array_length collection) 0) { return collection }
     if (== name "nl_file_source_catalog_string") { return ["string", "int", "int", "int", "int"] }
     if (== name "nl_file_source_catalog_number") { return ["int", "int", "int", "int", "int"] }
     if (== name "nl_service_source_catalog_id") { return ["int", "string"] }
@@ -4091,6 +4175,14 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
     if (or (< arity 0) (or (!= function.return_type result) (!= function.param_count arity))) {
         let rejected: string = (nisa_fail "I require the exact artifact result and arity")
         return -1
+    }
+    let collection: string = (nisa_collection_handle function.name)
+    if (!= collection "") {
+        let owner: int = (nisa_collection_owner parser collection)
+        if (or (< owner 0) (!= owner (mb_owner function.line))) {
+            let rejected: string = (nisa_fail "I require the canonical collection declaration and provider owner")
+            return -1
+        }
     }
     if (and (> (array_length (nisa_json_signature function.name)) 0) (< (nisa_opaque_index parser "Json") 0)) {
         let rejected: string = (nisa_fail "I require the declared Json opaque type for its artifact ABI")
