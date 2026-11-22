@@ -26,6 +26,11 @@ on:
         description: I observe the complete source/response corpus and cold capture with a private Clang21 candidate, preserving GNU admission.
         type: boolean
         default: false
+      clang_2118_backend:
+        description: I compare the system backend with already-supported GNU2.42 only inside private Clang qualification.
+        type: choice
+        options: [system, qualified-as242]
+        default: system
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -70,11 +75,18 @@ jobs:
         run: python3 scripts/ci_qualify_as246.py --response-only
       - name: Observe complete private Clang 21 capture without changing GNU admission
         if: inputs.qualify_clang_2118_complete && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
+        env:
+          QUALIFICATION_BACKEND: ${{ inputs.clang_2118_backend }}
         timeout-minutes: 25
         shell: bash
         run: |
           # I select a driver only for this explicit private qualification step.
           # The ordinary cold/default-tool and user-guide jobs keep their tools.
+          if [[ "$QUALIFICATION_BACKEND" == qualified-as242 ]]; then
+            python3 scripts/ci_build_qualified_as242.py
+            export NANO_QUALIFIED_AS242_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/qualified-as242"
+            export COMPILER_PATH="$NANO_QUALIFIED_AS242_DIRECTORY/bin"
+          fi
           qualification_tools="$PWD/.test_output/source-capture-diagnostic/clang-qualification-tools"
           mkdir "$qualification_tools"
           selected_clang="$(command -v clang)"

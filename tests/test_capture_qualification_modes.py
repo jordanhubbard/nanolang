@@ -87,5 +87,24 @@ class CaptureQualificationModes(unittest.TestCase):
             self.assertFalse((output / 'build.stdout').exists())
 
 
+class QualifiedAssemblerSource(unittest.TestCase):
+    def test_changed_download_is_preserved_and_refused_before_extraction_or_build(self):
+        import io
+        from scripts import ci_build_qualified_as242 as builder
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'output'
+            with patch.object(builder, 'OUT', output), \
+                 patch.object(builder.urllib.request, 'urlopen', return_value=io.BytesIO(b'changed source')), \
+                 patch.object(builder, 'command') as command:
+                with self.assertRaisesRegex(RuntimeError, 'upstream release checksum'):
+                    builder.main()
+            command.assert_not_called()
+            self.assertEqual((output / 'binutils-2.42.tar.xz').read_bytes(), b'changed source')
+            self.assertFalse((output / 'bin/as').exists())
+            record = json.loads((output / 'build.json').read_text())
+            self.assertNotIn('completed', record)
+            self.assertIn('checksum', record['error'])
+
+
 if __name__ == '__main__':
     unittest.main()

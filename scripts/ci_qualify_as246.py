@@ -2,6 +2,7 @@
 """I qualify one private version-token candidate and restore the checkout afterward."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,19 +16,21 @@ from scripts import ci_source_capture_linux as capture
 OUT = ROOT / '.test_output/source-capture-diagnostic/as246-candidate'
 
 
-def command(argv, label, timeout):
+def command(argv, label, timeout, *, cwd=None, output=None):
+    destination = OUT if output is None else Path(output)
     try:
-        result = run_captured(argv, cwd=ROOT, timeout=timeout)
+        result = run_captured(argv, cwd=ROOT if cwd is None else cwd, timeout=timeout)
     except subprocess.TimeoutExpired as error:
         # I retain the original timeout and the bytes observed before it. The
         # process helper still owns group termination and reaping.
-        (OUT / (label + '.stdout')).write_bytes(error.stdout or b'')
-        (OUT / (label + '.stderr')).write_bytes(error.stderr or b'')
+        (destination / (label + '.stdout')).write_bytes(error.stdout or b'')
+        (destination / (label + '.stderr')).write_bytes(error.stderr or b'')
         raise
-    (OUT / (label + '.stdout')).write_bytes(result.stdout)
-    (OUT / (label + '.stderr')).write_bytes(result.stderr)
+    (destination / (label + '.stdout')).write_bytes(result.stdout)
+    (destination / (label + '.stderr')).write_bytes(result.stderr)
     if result.returncode:
         raise RuntimeError(f'I retain {label} refusal with exit {result.returncode}.')
+    return result
 
 
 def main():
@@ -90,6 +93,26 @@ def main():
                 'version': version}
             if clang_complete and Path(shutil.which('cc')).resolve() != Path(clang).resolve():
                 raise RuntimeError('I require cc and clang to select the same actual qualification driver.')
+            qualified_backend = os.environ.get('NANO_QUALIFIED_AS242_DIRECTORY')
+            if qualified_backend:
+                expected = (Path(qualified_backend) / 'bin/as').resolve(strict=True)
+                command([clang, '-print-prog-name=as'], 'selected-assembler', 30)
+                selected = Path((OUT / 'selected-assembler.stdout').read_text().strip()).resolve(strict=True)
+                if selected != expected:
+                    raise RuntimeError('I require the actual Clang query to select my qualified backend.')
+                command([str(selected), '--version'], 'selected-assembler-version', 30)
+                version = (OUT / 'selected-assembler-version.stdout').read_text()
+                command([str(ROOT / 'obj/test_module_generation_probe'), 'assembler-version', version],
+                        'qualified-assembler-admission', 30)
+                backend_record = json.loads((Path(qualified_backend) / 'build.json').read_text())
+                actual_hash = hashlib.sha256(selected.read_bytes()).hexdigest()
+                if (backend_record.get('assembler_sha256') != actual_hash or
+                        backend_record.get('source_sha256') !=
+                        'f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800'):
+                    raise RuntimeError('I require exact qualified backend source and image identities.')
+                record['qualified_backend'] = {'path': str(selected), 'sha256': actual_hash,
+                    'version': version, 'source_sha256': backend_record['source_sha256'],
+                    'selection': 'private COMPILER_PATH; original CI defaults unchanged'}
             text = source.read_text()
             old = '? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;'
             new = ('? "Ubuntu clang version 18.1.3 (1ubuntu1)" : '
