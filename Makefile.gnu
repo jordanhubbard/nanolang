@@ -7816,3 +7816,10 @@ test-nominal-record-array-mutation: $(COMPILER_C) nano_virt nano_vm $(if $(NANOL
 	python3 -m unittest -v tests.test_nominal_record_array_mutation
 
 test-units: test-nominal-record-array-mutation
+
+# I retain concrete storage at generic empty-array value joins.
+.PHONY: test-generic-empty-array-values
+test-generic-empty-array-values: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG_SELFHOST_COMPILER),,bootstrap3)
+	python3 -m unittest -v tests.test_generic_empty_array_values
+
+test-units: test-generic-empty-array-values

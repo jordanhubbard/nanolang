@@ -4823,7 +4823,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         if (and (== literal.element_count 0) (!= literal.element_type "")) {
-            let contextual: string = (+ "array<" (+ literal.element_type ">"))
+            let contextual: string = (nisa_generic_type (+ "array<" (+ literal.element_type ">")))
             if (nisa_type_ok parser contextual) { return contextual }
             return ""
         }
@@ -5041,6 +5041,14 @@ shadow nisa_expr_type {
     (parser_set_array_literal_element_type empty_parser 0 "Item")
     assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<Item>")
     assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 8 0")
+    (parser_set_array_literal_element_type empty_parser 0 "T")
+    set nisa_generic_variables ["T"]
+    set nisa_generic_types ["Item"]
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<Item>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 8 0")
+    set nisa_generic_types ["float"]
+    assert (== (nisa_expr_type empty_parser 0 ParseNodeType.PNODE_ARRAY_LITERAL) "array<float>")
+    assert (str_contains (nisa_emit_array_literal empty_parser 0) "ARR_LITERAL 3 0")
     assert (== (nisa_reset) 0)
 
     let branch_reset: int = (nisa_reset)

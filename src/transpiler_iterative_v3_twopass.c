@@ -619,6 +619,23 @@ static const char *map_function_name(const char *name, Environment *env) {
     return name;
 }
 
+/* I scope concrete destination context without rewriting a shared template. */
+static ASTNode *native_array_context_root;
+static const TypeInfo *native_array_context_type;
+
+static void build_array_value_expr(WorkList *list, ASTNode *value, Environment *env,
+                                   const TypeInfo *expected) {
+    ASTNode *saved_root = native_array_context_root;
+    const TypeInfo *saved_type = native_array_context_type;
+    if (expected && native_generic_bindings && generic_contains(env, expected, 0))
+        expected = native_generic_local(env, expected);
+    native_array_context_root = value;
+    native_array_context_type = expected;
+    build_expr(list, value, env);
+    native_array_context_root = saved_root;
+    native_array_context_type = saved_type;
+}
+
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     for (int i = 0; i < ast_value_branch_count(expr); ++i) {
         ASTNode *branch = ast_value_branch(expr, i);
@@ -3338,6 +3355,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (count == 0) {
                 /* Empty array - need to determine type */
                 Type elem_type = expr->as.array_literal.element_type;
+                const TypeInfo *expected = ast_array_value_context(native_array_context_root,
+                                                                   native_array_context_type, expr);
+                if (expected && expected->base_type == TYPE_ARRAY && expected->element_type)
+                    elem_type = resolved_array_element(expected->element_type->base_type,
+                        expected->element_type->generic_name, env);
                 
                 if (elem_type == TYPE_UNKNOWN) {
                     /* Default to int for empty arrays without type info */
@@ -4196,7 +4218,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "return");
             if (stmt->as.return_stmt.value) {
                 emit_literal(list, " ");
-                build_expr(list, stmt->as.return_stmt.value, env);
+                if (g_current_function && g_current_function->as.function.return_type == TYPE_ARRAY) {
+                    TypeInfo element = {.base_type = g_current_function->as.function.return_element_type,
+                        .generic_name = g_current_function->as.function.return_struct_type_name};
+                    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &element};
+                    build_array_value_expr(list, stmt->as.return_stmt.value, env,
+                        g_current_function->as.function.return_type_info
+                            ? g_current_function->as.function.return_type_info : &array);
+                } else build_expr(list, stmt->as.return_stmt.value, env);
             }
             emit_literal(list, ";\n");
             break;
@@ -4428,16 +4457,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_formatted(list, "%s %s", c_type, binding_name);
 
                 if (stmt->as.let.value) {
-                    /* Propagate element type from let to empty array literals */
-                    if (stmt->as.let.var_type == TYPE_ARRAY &&
-                        stmt->as.let.value->type == AST_ARRAY_LITERAL &&
-                        stmt->as.let.value->as.array_literal.element_count == 0 &&
-                        stmt->as.let.value->as.array_literal.element_type == TYPE_UNKNOWN &&
-                        stmt->as.let.element_type != TYPE_UNKNOWN) {
-                        stmt->as.let.value->as.array_literal.element_type = stmt->as.let.element_type;
-                    }
                     emit_literal(list, " = ");
-                    build_expr(list, stmt->as.let.value, env);
+                    if (stmt->as.let.var_type == TYPE_ARRAY) {
+                        TypeInfo element = {.base_type = stmt->as.let.element_type,
+                                            .generic_name = stmt->as.let.type_name};
+                        TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &element};
+                        build_array_value_expr(list, stmt->as.let.value, env,
+                            stmt->as.let.type_info ? stmt->as.let.type_info : &array);
+                    } else build_expr(list, stmt->as.let.value, env);
                 }
                 emit_literal(list, ";\n");
             }
