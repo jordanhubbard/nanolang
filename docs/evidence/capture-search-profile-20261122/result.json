@@ -1,0 +1,232 @@
+{
+  "scope": "I measure one unchanged original method, not a complete qualification or admission.",
+  "mode": "split-search",
+  "original_method": "tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery",
+  "cases": [
+    {
+      "name": "reference-gcc-supported",
+      "discovered": 1,
+      "ran": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "wall_seconds": 44.400283664000014,
+      "child_cpu_seconds": 42.059054,
+      "original_method": "tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery",
+      "imported_source": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/reference-gcc-supported/root/tests/test_source_snapshots.py",
+      "fixture_paths": [
+        "/tmp/nano-as-search-e309_qqb",
+        "/tmp/nano-as-search-mk110gdn",
+        "/tmp/nano-as-search-ouzucp11",
+        "/tmp/nano-as-search-p_jrzpgx",
+        "/tmp/nano-as-search-6q_wq2hl",
+        "/tmp/nano-as-search-agwqsutt",
+        "/tmp/nano-as-search-61jz3khq",
+        "/tmp/nano-as-search-ympgsgio",
+        "/tmp/nano-as-search-h5fso4gm",
+        "/tmp/nano-as-search-luc9_5zo",
+        "/tmp/nano-as-search-qpbp2rot",
+        "/tmp/nano-as-search-se19f2jd"
+      ],
+      "scope": "I preserve original assertions and subprocess deadlines. Cleanup-only observation retains original temporary fixture paths.",
+      "source_inputs_unchanged": true,
+      "native_closure_before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-supported/qualified-as242/bin/as": "8dcc6170c05bb9b02803ab30dca2f36186d8eace6147e6be7922c3aad96ec5a8",
+        "/usr/lib/llvm-21/bin/clang": "78e9dd2ccc9e88859b3a29109a44bfab00e3d6cb70f00f3daae063eed3d05251",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/reference-gcc-supported/root/obj/test_module_generation_probe": "b8f5641e2de45b2d5c2aec472e03b1c3ad6338e50e5bdc8e9fa2542ebcd086b8",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/reference-gcc-supported/root/bin/nano_as_capture.so": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7": "086554979dc7896c657e676942f71421ccccca788003335512d1a4e62b81671b",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6": "883d187bcffe07c648cc89570f75fc7fccbedb56bc2b960b070271ae7b191126",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "1fe5c066cc2b552c8bf2a50f1a53d8e7054c19beadea4442dbd5128190b126f0",
+        "/usr/lib/x86_64-linux-gnu/libclang-cpp.so.21.1": "d2341be70eac577c89de596bb9dbf3c0da52443e15ff534925829cec87160ee8",
+        "/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1": "c6eca0a815797eeaf9cf843876c65160eca3f03bf78b8246a3d54ac53988d026",
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35": "51c87d96c1058a08dd8ad0f7cf2af7c8e7824977dd54fe60a0cad2e157382e2b",
+        "/usr/lib/x86_64-linux-gnu/libm.so.6": "c5f5b1313b8efd37fbbe61ab49832fb1780aeda203e1cc3d6adeb0bab0682e7d",
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "54136d206555a71414389995ea4f284730c83edb8faad99f5a722ba6663b5470",
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0": "6dc70a203daaab6506aaf5afcda9183a30b138aeb05b781a5be4a53bc7a2e40a",
+        "/usr/lib/x86_64-linux-gnu/libedit.so.2.0.76": "a040116edf27a918ad3b0be1862b1c9394aab9ea29c91dccb6439663c7b22c38",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1": "da78d3cbf7c96c9a8d2f6428c9e3e499488cb921673353a699478d12dea75e44",
+        "/usr/lib/x86_64-linux-gnu/libxml2.so.16.1.2": "ebd4bd26287cec33470877b3e65924b9c7a45462ea44977e48bc82e4d980c9f6",
+        "/usr/lib/x86_64-linux-gnu/libtinfo.so.6.6": "2fb4857627aa541d30ccdc37ad3eee586f9d40be9e24b8536f93c07b6c433c17",
+        "/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.2": "77eaf6f4054123cd61b1dbb5d44ca0c9e84049612cfc3c9918e7084e0a0a86c4",
+        "/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0": "666a1f3e7171fd62a22cc6f2256d365428a284d31cc1673ce2e52e7d8e8b096d",
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3": "d119ef0e18d65f6d20cc4a7621caf4be38bb153ee5f46ba24b0f3eaac6f4a1ff"
+      },
+      "native_closure_after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-supported/qualified-as242/bin/as": "8dcc6170c05bb9b02803ab30dca2f36186d8eace6147e6be7922c3aad96ec5a8",
+        "/usr/lib/llvm-21/bin/clang": "78e9dd2ccc9e88859b3a29109a44bfab00e3d6cb70f00f3daae063eed3d05251",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/reference-gcc-supported/root/obj/test_module_generation_probe": "b8f5641e2de45b2d5c2aec472e03b1c3ad6338e50e5bdc8e9fa2542ebcd086b8",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/reference-gcc-supported/root/bin/nano_as_capture.so": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7": "086554979dc7896c657e676942f71421ccccca788003335512d1a4e62b81671b",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6": "883d187bcffe07c648cc89570f75fc7fccbedb56bc2b960b070271ae7b191126",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "1fe5c066cc2b552c8bf2a50f1a53d8e7054c19beadea4442dbd5128190b126f0",
+        "/usr/lib/x86_64-linux-gnu/libclang-cpp.so.21.1": "d2341be70eac577c89de596bb9dbf3c0da52443e15ff534925829cec87160ee8",
+        "/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1": "c6eca0a815797eeaf9cf843876c65160eca3f03bf78b8246a3d54ac53988d026",
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35": "51c87d96c1058a08dd8ad0f7cf2af7c8e7824977dd54fe60a0cad2e157382e2b",
+        "/usr/lib/x86_64-linux-gnu/libm.so.6": "c5f5b1313b8efd37fbbe61ab49832fb1780aeda203e1cc3d6adeb0bab0682e7d",
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "54136d206555a71414389995ea4f284730c83edb8faad99f5a722ba6663b5470",
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0": "6dc70a203daaab6506aaf5afcda9183a30b138aeb05b781a5be4a53bc7a2e40a",
+        "/usr/lib/x86_64-linux-gnu/libedit.so.2.0.76": "a040116edf27a918ad3b0be1862b1c9394aab9ea29c91dccb6439663c7b22c38",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1": "da78d3cbf7c96c9a8d2f6428c9e3e499488cb921673353a699478d12dea75e44",
+        "/usr/lib/x86_64-linux-gnu/libxml2.so.16.1.2": "ebd4bd26287cec33470877b3e65924b9c7a45462ea44977e48bc82e4d980c9f6",
+        "/usr/lib/x86_64-linux-gnu/libtinfo.so.6.6": "2fb4857627aa541d30ccdc37ad3eee586f9d40be9e24b8536f93c07b6c433c17",
+        "/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.2": "77eaf6f4054123cd61b1dbb5d44ca0c9e84049612cfc3c9918e7084e0a0a86c4",
+        "/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0": "666a1f3e7171fd62a22cc6f2256d365428a284d31cc1673ce2e52e7d8e8b096d",
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3": "d119ef0e18d65f6d20cc4a7621caf4be38bb153ee5f46ba24b0f3eaac6f4a1ff"
+      }
+    },
+    {
+      "name": "clang-clang-fixed",
+      "discovered": 1,
+      "ran": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "wall_seconds": 41.86977876900002,
+      "child_cpu_seconds": 41.446593,
+      "original_method": "tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery",
+      "imported_source": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/tests/test_source_snapshots.py",
+      "fixture_paths": [
+        "/tmp/nano-as-search-bcenylng",
+        "/tmp/nano-as-search-wqaw2s51",
+        "/tmp/nano-as-search-boc9j810",
+        "/tmp/nano-as-search-h4ctj04u",
+        "/tmp/nano-as-search-nt3zgppo",
+        "/tmp/nano-as-search-jx6tupmd",
+        "/tmp/nano-as-search-eokyocgx",
+        "/tmp/nano-as-search-7gccybcg",
+        "/tmp/nano-as-search-xdktona2",
+        "/tmp/nano-as-search-rlca_8fg",
+        "/tmp/nano-as-search-n4x71ci6",
+        "/tmp/nano-as-search-euwygu6e"
+      ],
+      "scope": "I preserve original assertions and subprocess deadlines. Cleanup-only observation retains original temporary fixture paths.",
+      "source_inputs_unchanged": true,
+      "native_closure_before": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/prior-fixed-clang/fixed-as246/bin/as": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+        "/usr/lib/llvm-21/bin/clang": "78e9dd2ccc9e88859b3a29109a44bfab00e3d6cb70f00f3daae063eed3d05251",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/obj/test_module_generation_probe": "66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/bin/nano_as_capture.so": "678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7": "086554979dc7896c657e676942f71421ccccca788003335512d1a4e62b81671b",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6": "883d187bcffe07c648cc89570f75fc7fccbedb56bc2b960b070271ae7b191126",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "1fe5c066cc2b552c8bf2a50f1a53d8e7054c19beadea4442dbd5128190b126f0",
+        "/usr/lib/x86_64-linux-gnu/libclang-cpp.so.21.1": "d2341be70eac577c89de596bb9dbf3c0da52443e15ff534925829cec87160ee8",
+        "/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1": "c6eca0a815797eeaf9cf843876c65160eca3f03bf78b8246a3d54ac53988d026",
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35": "51c87d96c1058a08dd8ad0f7cf2af7c8e7824977dd54fe60a0cad2e157382e2b",
+        "/usr/lib/x86_64-linux-gnu/libm.so.6": "c5f5b1313b8efd37fbbe61ab49832fb1780aeda203e1cc3d6adeb0bab0682e7d",
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "54136d206555a71414389995ea4f284730c83edb8faad99f5a722ba6663b5470",
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0": "6dc70a203daaab6506aaf5afcda9183a30b138aeb05b781a5be4a53bc7a2e40a",
+        "/usr/lib/x86_64-linux-gnu/libedit.so.2.0.76": "a040116edf27a918ad3b0be1862b1c9394aab9ea29c91dccb6439663c7b22c38",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1": "da78d3cbf7c96c9a8d2f6428c9e3e499488cb921673353a699478d12dea75e44",
+        "/usr/lib/x86_64-linux-gnu/libxml2.so.16.1.2": "ebd4bd26287cec33470877b3e65924b9c7a45462ea44977e48bc82e4d980c9f6",
+        "/usr/lib/x86_64-linux-gnu/libtinfo.so.6.6": "2fb4857627aa541d30ccdc37ad3eee586f9d40be9e24b8536f93c07b6c433c17",
+        "/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.2": "77eaf6f4054123cd61b1dbb5d44ca0c9e84049612cfc3c9918e7084e0a0a86c4",
+        "/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0": "666a1f3e7171fd62a22cc6f2256d365428a284d31cc1673ce2e52e7d8e8b096d",
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3": "d119ef0e18d65f6d20cc4a7621caf4be38bb153ee5f46ba24b0f3eaac6f4a1ff"
+      },
+      "native_closure_after": {
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/prior-fixed-clang/fixed-as246/bin/as": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+        "/usr/lib/llvm-21/bin/clang": "78e9dd2ccc9e88859b3a29109a44bfab00e3d6cb70f00f3daae063eed3d05251",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/obj/test_module_generation_probe": "66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16",
+        "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/capture-pair-profile/clang-clang-fixed/root/bin/nano_as_capture.so": "678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e",
+        "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.7": "086554979dc7896c657e676942f71421ccccca788003335512d1a4e62b81671b",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6": "883d187bcffe07c648cc89570f75fc7fccbedb56bc2b960b070271ae7b191126",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "1fe5c066cc2b552c8bf2a50f1a53d8e7054c19beadea4442dbd5128190b126f0",
+        "/usr/lib/x86_64-linux-gnu/libclang-cpp.so.21.1": "d2341be70eac577c89de596bb9dbf3c0da52443e15ff534925829cec87160ee8",
+        "/usr/lib/x86_64-linux-gnu/libLLVM.so.21.1": "c6eca0a815797eeaf9cf843876c65160eca3f03bf78b8246a3d54ac53988d026",
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35": "51c87d96c1058a08dd8ad0f7cf2af7c8e7824977dd54fe60a0cad2e157382e2b",
+        "/usr/lib/x86_64-linux-gnu/libm.so.6": "c5f5b1313b8efd37fbbe61ab49832fb1780aeda203e1cc3d6adeb0bab0682e7d",
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "54136d206555a71414389995ea4f284730c83edb8faad99f5a722ba6663b5470",
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.2.0": "6dc70a203daaab6506aaf5afcda9183a30b138aeb05b781a5be4a53bc7a2e40a",
+        "/usr/lib/x86_64-linux-gnu/libedit.so.2.0.76": "a040116edf27a918ad3b0be1862b1c9394aab9ea29c91dccb6439663c7b22c38",
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1": "da78d3cbf7c96c9a8d2f6428c9e3e499488cb921673353a699478d12dea75e44",
+        "/usr/lib/x86_64-linux-gnu/libxml2.so.16.1.2": "ebd4bd26287cec33470877b3e65924b9c7a45462ea44977e48bc82e4d980c9f6",
+        "/usr/lib/x86_64-linux-gnu/libtinfo.so.6.6": "2fb4857627aa541d30ccdc37ad3eee586f9d40be9e24b8536f93c07b6c433c17",
+        "/usr/lib/x86_64-linux-gnu/libbsd.so.0.12.2": "77eaf6f4054123cd61b1dbb5d44ca0c9e84049612cfc3c9918e7084e0a0a86c4",
+        "/usr/lib/x86_64-linux-gnu/libmd.so.0.1.0": "666a1f3e7171fd62a22cc6f2256d365428a284d31cc1673ce2e52e7d8e8b096d",
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3": "d119ef0e18d65f6d20cc4a7621caf4be38bb153ee5f46ba24b0f3eaac6f4a1ff"
+      }
+    }
+  ],
+  "host": {
+    "uname": [
+      "Linux",
+      "runnervm0hi8g",
+      "7.0.0-1020-azure",
+      "#21-Ubuntu SMP PREEMPT Tue Oct 27 22:34:38 UTC 2026",
+      "x86_64"
+    ],
+    "cpu_count": 4,
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "image_os": "ubuntu26",
+    "image_version": "20261116.202.1"
+  },
+  "images": {
+    "probes": {
+      "gcc": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/prior-fixed-clang/as246-candidate/test_module_generation_probe",
+        "sha256": "d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10",
+        "bytes": 1138944
+      },
+      "clang": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/as246-candidate/test_module_generation_probe",
+        "sha256": "66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16",
+        "bytes": 701792
+      }
+    },
+    "helpers": {
+      "gcc": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/prior-fixed-clang/as246-candidate/nano_as_capture.so",
+        "sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+        "bytes": 51936
+      },
+      "clang": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/as246-candidate/nano_as_capture.so",
+        "sha256": "678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e",
+        "bytes": 41888
+      }
+    },
+    "assemblers": {
+      "fixed": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-failed/prior-fixed-clang/fixed-as246/bin/as",
+        "sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+        "bytes": 10003728
+      },
+      "supported": {
+        "path": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/profile-supported/qualified-as242/bin/as",
+        "sha256": "8dcc6170c05bb9b02803ab30dca2f36186d8eace6147e6be7922c3aad96ec5a8",
+        "bytes": 9567496
+      }
+    }
+  },
+  "scheduling_before": {
+    "command": [
+      "/bin/sh",
+      "-c",
+      "i=0; while [ \"$i\" -lt 1000000 ]; do i=$((i+1)); done; printf ready"
+    ],
+    "wall_seconds": 1.0338176049999959,
+    "child_cpu_seconds": 1.033305,
+    "cpu_wall_share": 0.9995041630191662,
+    "scope": "I observe one shell CPU loop, not a NanoVM or throughput guarantee."
+  },
+  "scheduling_after": {
+    "command": [
+      "/bin/sh",
+      "-c",
+      "i=0; while [ \"$i\" -lt 1000000 ]; do i=$((i+1)); done; printf ready"
+    ],
+    "wall_seconds": 1.0175414109999963,
+    "child_cpu_seconds": 1.0172740000000005,
+    "cpu_wall_share": 0.9997371989020741,
+    "scope": "I observe one shell CPU loop, not a NanoVM or throughput guarantee."
+  },
+  "retained_images_unchanged": true,
+  "completed": true
+}

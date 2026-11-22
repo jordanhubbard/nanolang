@@ -26,18 +26,29 @@ from pathlib import Path
 from unittest.mock import patch
 config=json.loads(Path(sys.argv[1]).read_text());root=Path(config['root']);out=Path(config['output'])
 sys.path.insert(0,str(root));os.chdir(root)
-native_run=subprocess.run;records=[];fixtures=[]
+native_run=subprocess.run;records=[];fixtures=[];trace_done=False
 def cpu():
  r=resource.getrusage(resource.RUSAGE_CHILDREN);return r.ru_utime+r.ru_stime
 def observe(argv,**kwargs):
+ global trace_done
  start=time.monotonic();before=cpu()
  item={'argv':list(map(str,argv)) if not isinstance(argv,str) else argv,
   'parent_timeout':kwargs.get('timeout'),'started_monotonic':start}
  def persist(event):
   with (out/'commands.jsonl').open('a') as stream:stream.write(json.dumps(event)+'\n')
+ executed=argv
+ if config.get('trace_package_build') and not trace_done and not isinstance(argv,str) and len(argv)>2 and argv[1]=='build':
+  metadata=Path(argv[2])/'module.json'
+  if metadata.is_file() and json.loads(metadata.read_text()).get('pkg_config'):
+   tracer=shutil.which('strace')
+   if not tracer:raise RuntimeError('I require the actual native process observer.')
+   trace_done=True
+   executed=[tracer,'-f','-qq','-ttt','-T','-yy','-e','trace=process,openat,read','-e','raw=read',
+    '-o',str(out/'package-build.process.trace'),'--',*map(str,argv)]
+   item['observer_argv']=executed
  persist({'event':'start',**item})
  try:
-  result=native_run(argv,**kwargs)
+  result=native_run(executed,**kwargs)
  except BaseException as error:
   item.update(error=repr(error),wall_seconds=time.monotonic()-start,child_cpu_seconds=cpu()-before)
   records.append(item);persist({'event':'exception',**item});raise
@@ -61,9 +72,9 @@ for name in fixtures:
 report={'discovered':discovered,'ran':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),
  'skipped':[(case.id(),reason) for case,reason in result.skipped], 'wall_seconds':elapsed,'child_cpu_seconds':used,
  'original_method':config['method'],'imported_source':str(sys.modules['tests.test_source_snapshots'].__file__),
- 'fixture_paths':fixtures,'scope':'I preserve original assertions and subprocess deadlines. Cleanup-only observation retains original temporary fixture paths.'}
+ 'fixture_paths':fixtures,'native_package_build_traced':trace_done,'scope':'I preserve original assertions and subprocess deadlines. Cleanup-only observation retains original temporary fixture paths.'}
 (out/'result.json').write_text(json.dumps(report,indent=2)+'\n')
-sys.exit(0 if discovered==result.testsRun==1 and result.wasSuccessful() and not result.skipped else 1)
+sys.exit(0 if discovered==result.testsRun==1 and result.wasSuccessful() and not result.skipped and (not config.get('trace_package_build') or trace_done) else 1)
 '''
 
 
@@ -105,7 +116,8 @@ def main():
         raise RuntimeError('I require native Linux x86_64 for these retained images.')
     mode = os.environ.get('NANO_CAPTURE_PROFILE_METHOD', 'external-cache')
     methods = {'external-cache': METHOD,
-        'split-search': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery'}
+        'split-search': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery',
+        'split-search-process': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery'}
     if mode not in methods:
         raise RuntimeError('I require a declared original diagnostic method.')
     method = methods[mode]
@@ -168,8 +180,11 @@ def main():
         reference = image(old / 'test_module_generation_probe', json.loads(
             (old / 'cold-compiler-support/observation.json').read_text())['tool_sha256']['obj/test_module_generation_probe'])
         combinations.insert(0, ('reference', 'gcc', 'supported'))
-        if mode == 'split-search':
+        if mode.startswith('split-search'):
             combinations = [('reference', 'gcc', 'supported'), ('clang', 'clang', 'fixed')]
+        if mode == 'split-search-process':
+            combinations = [('clang', 'clang', 'fixed')]
+            process.command(['strace', '--version'], 'process-observer-version', 10, output=out)
         all_images = [clang, *probes.values(), *helpers.values(), *assemblers.values(), reference]
         before_images = {str(path): digest(path) for path in all_images}
         started = time.monotonic()
@@ -193,7 +208,8 @@ def main():
             shutil.copy2(reference if probe_name == 'reference' else probes[probe_name], root / 'obj/test_module_generation_probe')
             shutil.copy2(helpers[helper_name], root / 'bin/nano_as_capture.so')
             (root / 'obj/test_module_generation_probe').chmod(0o700)
-            config = {'root': str(root), 'output': str(results), 'method': method}
+            config = {'root': str(root), 'output': str(results), 'method': method,
+                      'trace_package_build': mode == 'split-search-process'}
             config_path = case / 'config.json'
             config_path.write_text(json.dumps(config, indent=2) + '\n')
             env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'],
@@ -205,7 +221,7 @@ def main():
             (results / 'inputs-before.json').write_text(json.dumps(source_before, indent=2) + '\n')
             try:
                 process.command([sys.executable, '-c', CHILD, str(config_path)], name,
-                                600 if mode == 'split-search' else 180,
+                                600 if mode.startswith('split-search') else 180,
                                 cwd=root, env=env, output=results)
             except Exception as error:
                 record['cases'].append({'name': name, 'error': repr(error)})

@@ -46,7 +46,7 @@ on:
       profile_capture_method:
         description: I select one original method for bounded retained-image observation.
         type: choice
-        options: [external-cache, split-search]
+        options: [external-cache, split-search, split-search-process]
         default: external-cache
       profile_fixed_clang_from_run:
         description: I measure original native external-cache assertions across this retained consumer's tool axes without a full retry.
