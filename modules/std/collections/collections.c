@@ -184,6 +184,11 @@ const char* nl_sb_to_string(void* sb_ptr) {
     return out;
 }
 
+/* I release owned text from the same artifact that allocated it. */
+void nl_sb_to_string__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
 void nl_sb_free(void* sb_ptr) {
     NLStringBuilder *sb = collection_lookup(sb_ptr, COLLECTION_BUILDER, true);
     if (!sb) return;

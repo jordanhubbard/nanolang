@@ -311,6 +311,75 @@ typedef struct {
 static TupleTypeRegistry *g_tuple_registry = NULL;
 static FunctionTypeRegistry *g_function_registry = NULL;
 
+/* I retain one canonical import graph for native declarations and their types.
+ * Cached ASTs stay owned by the module loader; I own only this path inventory. */
+typedef struct {
+    ASTNode *program;
+    char *path;
+} TranspilerModuleEntry;
+typedef struct {
+    TranspilerModuleEntry *entries;
+    size_t count;
+    size_t capacity;
+} TranspilerModuleClosure;
+
+static void free_transpiler_module_closure(TranspilerModuleClosure *closure) {
+    for (size_t i = 0; i < closure->count; ++i) free(closure->entries[i].path);
+    free(closure->entries);
+    memset(closure, 0, sizeof *closure);
+}
+
+static TranspilerModuleClosure transpiler_module_closure(ASTNode *program, const char *source_file) {
+    TranspilerModuleClosure closure = {0};
+    closure.capacity = 16;
+    closure.entries = calloc(closure.capacity, sizeof *closure.entries);
+    char *root = source_file ? realpath(source_file, NULL) : NULL;
+    if (!root) root = strdup(source_file ? source_file : "");
+    if (!closure.entries || !root) {
+        fprintf(stderr, "I could not retain my native module declaration closure.\n");
+        exit(1);
+    }
+    closure.entries[closure.count++] = (TranspilerModuleEntry){program, root};
+    for (size_t i = 0; i < closure.count; ++i) {
+        ASTNode *current = closure.entries[i].program;
+        const char *current_file = closure.entries[i].path;
+        if (!current || current->type != AST_PROGRAM) continue;
+        for (int j = 0; j < current->as.program.count; ++j) {
+            ASTNode *item = current->as.program.items[j];
+            if (!item || item->type != AST_IMPORT) continue;
+            const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
+            if (!resolved) continue;
+            char *canonical = realpath(resolved, NULL);
+            if (canonical) { free((char *)resolved); resolved = canonical; }
+            bool seen = false;
+            for (size_t k = 0; k < closure.count; ++k)
+                if (!strcmp(closure.entries[k].path, resolved)) { seen = true; break; }
+            if (seen) { free((char *)resolved); continue; }
+            ASTNode *imported = get_cached_module_ast(resolved);
+            if (!imported || imported->type != AST_PROGRAM || imported == program) {
+                free((char *)resolved);
+                continue;
+            }
+            if (closure.count == closure.capacity) {
+                if (closure.capacity > SIZE_MAX / (2 * sizeof *closure.entries)) {
+                    fprintf(stderr, "I cannot represent my native module declaration closure.\n");
+                    exit(1);
+                }
+                size_t capacity = closure.capacity * 2;
+                TranspilerModuleEntry *entries = realloc(closure.entries, capacity * sizeof *entries);
+                if (!entries) {
+                    fprintf(stderr, "I could not grow my native module declaration closure.\n");
+                    exit(1);
+                }
+                closure.entries = entries;
+                closure.capacity = capacity;
+            }
+            closure.entries[closure.count++] = (TranspilerModuleEntry){imported, (char *)resolved};
+        }
+    }
+    return closure;
+}
+
 /* Global header collection - gathered from imported modules */
 typedef struct {
     char *name;
@@ -3345,19 +3414,9 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         exit(1);
     }
 
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_IMPORT) continue;
-
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
-        if (!resolved) continue;
-
-        /* I use the same target-file identity as the module loader. */
-        char *canonical = realpath(resolved, NULL);
-        if (canonical) {
-            free((char *)resolved);
-            resolved = canonical;
-        }
+    TranspilerModuleClosure closure = transpiler_module_closure(program, current_file);
+    for (size_t i = 1; i < closure.count; ++i) {
+        const char *resolved = closure.entries[i].path;
 
         /* Extract module name from file path BEFORE freeing resolved */
         char module_name_from_path[256];
@@ -3367,9 +3426,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         char *dot = strrchr(module_name_from_path, '.');
         if (dot) *dot = '\0';
 
-        ASTNode *module_ast = get_cached_module_ast(resolved);
-        free((char*)resolved);  /* Cast away const for free() */
-        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+        ASTNode *module_ast = closure.entries[i].program;
 
         /* Check if module has an explicit module declaration */
         const char *module_name = NULL;
@@ -3568,6 +3625,8 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             sb_append(sb, ");\n");
         }
     }
+
+    free_transpiler_module_closure(&closure);
 
     for (int i = 0; i < emitted_count; i++) {
         free(emitted[i]);
@@ -4507,25 +4566,11 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 /* Collect module headers from all import statements */
 static void collect_module_headers_from_imports(ASTNode *program, const char *source_file) {
     clear_module_headers();
-    /* I need my own declared C types while compiling a module implementation. */
-    collect_headers_from_module(source_file);
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers.
-             * Pass source_file so resolve_module_path can walk up from the
-             * source file's directory to find the project root.  Without
-             * this, the resolver falls back to CWD-relative probing which
-             * fails when the compiler runs with CWD=/tmp and no module
-             * headers are emitted, causing -Wimplicit-function-declaration
-             * for every SDL/UI helper called in the generated C. */
-            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, source_file);
-            if (module_path) {
-                collect_headers_from_module(module_path);
-                free((char*)module_path);  /* Cast away const for free() */
-            }
-        }
-    }
+    TranspilerModuleClosure closure = transpiler_module_closure(program, source_file);
+    /* I include my own headers and only this invocation's actual import graph. */
+    for (size_t i = 0; i < closure.count; ++i)
+        collect_headers_from_module(closure.entries[i].path);
+    free_transpiler_module_closure(&closure);
 }
 
 /* I close and order tuple/callable dependencies before emitting their names. */
@@ -4644,16 +4689,9 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
  * are available before emitting module forward declarations. */
 static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry *fn_registry, const char *current_file) {
     if (!program || !fn_registry) return;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_IMPORT) continue;
-
-        const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
-        if (!resolved) continue;
-
-        ASTNode *module_ast = get_cached_module_ast(resolved);
-        free((char*)resolved);  /* Cast away const for free() */
-        if (!module_ast || module_ast->type != AST_PROGRAM) continue;
+    TranspilerModuleClosure closure = transpiler_module_closure(program, current_file);
+    for (size_t i = 1; i < closure.count; ++i) {
+        ASTNode *module_ast = closure.entries[i].program;
 
         bool module_has_main = false;
         for (int j = 0; j < module_ast->as.program.count; j++) {
@@ -4681,6 +4719,7 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
             }
         }
     }
+    free_transpiler_module_closure(&closure);
 }
 
 /* Generate module extern declarations (extern functions from imported modules) */

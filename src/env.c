@@ -200,6 +200,126 @@ static Function *function_named(Environment *env, const char *name,
     return first;
 }
 
+/* I bind imported spellings to stable declaring slots, never table pointers.
+ * I index owner/name queries independently of declaration and insertion order. */
+typedef struct EnvFunctionBinding {
+    char *name;
+    char *owner;
+    int target;
+    uint64_t hash;
+    struct EnvFunctionBinding *next;
+    struct EnvFunctionBinding *bucket_next;
+} EnvFunctionBinding;
+
+struct EnvFunctionImport {
+    EnvFunctionBinding *entries;
+    EnvFunctionBinding **buckets;
+    size_t count;
+    size_t capacity;
+};
+
+static bool function_owner_matches(const char *left, const char *right) {
+    return (!left && !right) || (left && right && !strcmp(left, right));
+}
+
+static uint64_t function_import_hash(const char *name, const char *owner) {
+    uint64_t owner_hash = owner ? symbol_name_hash(owner) : UINT64_C(0x9e3779b97f4a7c15);
+    return symbol_name_hash(name) ^ ((owner_hash << 1) | (owner_hash >> 63));
+}
+
+static EnvFunctionBinding *function_import_binding(Environment *env, const char *name, const char *owner) {
+    struct EnvFunctionImport *table = env->function_imports;
+    if (!table) return NULL;
+    uint64_t hash = function_import_hash(name, owner);
+    for (EnvFunctionBinding *entry = table->buckets[hash & (table->capacity - 1)];
+         entry; entry = entry->bucket_next) {
+        if (entry->hash == hash && function_owner_matches(entry->owner, owner) &&
+            !strcmp(entry->name, name)) return entry;
+    }
+    return NULL;
+}
+
+static Function *function_imported(Environment *env, const char *name, const char *owner) {
+    EnvFunctionBinding *entry = function_import_binding(env, name, owner);
+    return entry ? &env->functions[entry->target] : NULL;
+}
+
+Function *env_get_function_owned(Environment *env, const char *name, const char *owner) {
+    Function *local = function_named(env, name, owner, true, false, 0, 0);
+    if (local && (local->body || local->is_extern)) return local;
+    Function *imported = function_imported(env, name, owner);
+    return imported ? imported : local;
+}
+
+bool env_import_function(Environment *env, const char *name, Function *target) {
+    if (!env || !name || !target) return false;
+    int slot = (int)(target - env->functions);
+    if (slot < 0 || slot >= env->function_count) return false;
+    EnvFunctionBinding *prior = function_import_binding(env, name, env->current_module);
+    if (prior) return prior->target == slot;
+    struct EnvFunctionImport *table = env->function_imports;
+    if (!table) {
+        table = calloc(1, sizeof *table);
+        if (!table) return false;
+        table->capacity = 16;
+        table->buckets = calloc(table->capacity, sizeof *table->buckets);
+        if (!table->buckets) { free(table); return false; }
+        env->function_imports = table;
+    }
+    if (table->count == SIZE_MAX) return false;
+    if (table->count / 2 >= table->capacity) {
+        if (table->capacity > SIZE_MAX / 2 / sizeof *table->buckets) return false;
+        size_t capacity = table->capacity * 2;
+        EnvFunctionBinding **buckets = calloc(capacity, sizeof *buckets);
+        if (!buckets) return false;
+        for (EnvFunctionBinding *entry = table->entries; entry; entry = entry->next) {
+            size_t bucket = entry->hash & (capacity - 1);
+            entry->bucket_next = buckets[bucket];
+            buckets[bucket] = entry;
+        }
+        free(table->buckets);
+        table->buckets = buckets;
+        table->capacity = capacity;
+    }
+    EnvFunctionBinding *entry = calloc(1, sizeof *entry);
+    if (!entry) return false;
+    entry->name = strdup(name);
+    entry->owner = env->current_module ? strdup(env->current_module) : NULL;
+    if (!entry->name || (env->current_module && !entry->owner)) {
+        free(entry->name); free(entry->owner); free(entry); return false;
+    }
+    entry->target = slot;
+    entry->hash = function_import_hash(name, env->current_module);
+    size_t bucket = entry->hash & (table->capacity - 1);
+    entry->bucket_next = table->buckets[bucket];
+    table->buckets[bucket] = entry;
+    entry->next = table->entries;
+    table->entries = entry;
+    table->count++;
+    return true;
+}
+
+bool env_import_module_functions(Environment *env, const char *owner) {
+    /* I preserve legacy first-import precedence and implicit module exports.
+     * Explicit selective aliases below still reject conflicting targets. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *target = &env->functions[i];
+        if (!function_owner_matches(target->module_name, owner) ||
+            (!target->body && !target->is_extern)) continue;
+        if (!env_get_function_owned(env, target->name, env->current_module) &&
+            !env_import_function(env, target->name, target)) return false;
+    }
+    /* Newly inserted entries belong to my caller, not this target module. */
+    struct EnvFunctionImport *table = env->function_imports;
+    EnvFunctionBinding *first = table ? table->entries : NULL;
+    for (EnvFunctionBinding *entry = first; entry; entry = entry->next) {
+        if (!function_owner_matches(entry->owner, owner)) continue;
+        if (!env_get_function_owned(env, entry->name, env->current_module) &&
+            !env_import_function(env, entry->name, &env->functions[entry->target])) return false;
+    }
+    return true;
+}
+
 /* I retain checker allocations independently of mutable symbol/function slots.
  * Every registered block is unique and shallowly freed; borrowed subgraphs are
  * never traversed. This deliberately does not change runtime value ownership. */
@@ -512,6 +632,16 @@ void free_environment(Environment *env) {
     for (int i = 0; i < env->function_count; i++) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
+    }
+    if (env->function_imports) {
+        EnvFunctionBinding *entry = env->function_imports->entries;
+        while (entry) {
+            EnvFunctionBinding *next = entry->next;
+            free(entry->name); free(entry->owner); free(entry);
+            entry = next;
+        }
+        free(env->function_imports->buckets);
+        free(env->function_imports);
     }
     function_index_free(env);
     free(env->functions);
@@ -1110,6 +1240,19 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         return NULL;
     }
 
+    /* I retain imported runtime references with a spelling my lexer cannot
+     * produce. This selector is local to this environment's stable slots. */
+    if (!strncmp(name, "#function:", 10)) {
+        const char *digit = name + 10;
+        size_t slot = 0;
+        if (!*digit) return NULL;
+        for (; *digit; ++digit) {
+            if (*digit < '0' || *digit > '9' || slot > (SIZE_MAX - 9) / 10) return NULL;
+            slot = slot * 10 + (size_t)(*digit - '0');
+        }
+        return slot < (size_t)env->function_count ? &env->functions[slot] : NULL;
+    }
+
     /* Check for Module.function pattern */
     const char *dot = strchr(name, '.');
     if (dot) {
@@ -1120,22 +1263,12 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
         }
         strncpy(module_alias, name, module_len);
         module_alias[module_len] = '\0';
-        const char *func_name = dot + 1;
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
             if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
                 strcmp(env->namespaces[i].alias, module_alias) == 0) {
-                /* Check if function is in this namespace */
-                for (int j = 0; j < env->namespaces[i].function_count; j++) {
-                    if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
-                        /* Look up the actual function by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        return function_named(env, func_name, orig_mod, true, false, line, column);
-                    }
-                }
-                /* Function not found in this module's namespace */
-                return NULL;
+                return env_get_function_owned(env, dot + 1, env->namespaces[i].module_name);
             }
         }
         /* Module alias not found */
@@ -1152,6 +1285,8 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
      * Synthetic registered builtins have neither a body nor an extern boundary. */
     Function *declared = function_named(env, name, env->current_module, true, false, line, column);
     if (declared && (declared->body || declared->is_extern)) return declared;
+    Function *imported = function_imported(env, name, env->current_module);
+    if (imported && (imported->body || imported->is_extern)) return imported;
 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
     for (int i = 0; i < builtin_registry_count; i++) {

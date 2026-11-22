@@ -1179,6 +1179,100 @@ shadow bind_header_lines {
     (mb_reset [])
 }
 
+fn merged_import_callable_name(imp: ASTImport, original: string) -> string {
+    if (and imp.is_selective (not imp.is_wildcard)) {
+        for i in (range 0 imp.import_symbol_count) {
+            if (== (at imp.import_symbols i) original) {
+                if (< i (array_length imp.import_aliases)) {
+                    let alias: string = (at imp.import_aliases i)
+                    if (!= alias "") { return alias }
+                }
+                return original
+            }
+        }
+        return ""
+    }
+    if (!= imp.module_name "") { return (+ imp.module_name (+ "." original)) }
+    return original
+}
+shadow merged_import_callable_name {
+    let tokens: List<LexerToken> = (tokenize_string "from \"leaf.nano\" import answer as chosen" "imports.nano" (diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "imports.nano")
+    let imp: ASTImport = (parser_get_import parsed 0)
+    assert (== (merged_import_callable_name imp "answer") "chosen")
+    assert (== (merged_import_callable_name imp "other") "")
+    let qualified_tokens: List<LexerToken> = (tokenize_string "module \"leaf.nano\" as leaf" "imports.nano" (diag_list_new))
+    let qualified: Parser = (parse_program qualified_tokens (list_LexerToken_length qualified_tokens) "imports.nano")
+    assert (== (merged_import_callable_name (parser_get_import qualified 0) "answer") "leaf.answer")
+}
+
+# I forward only retained public callable identities, never a builtin spelling
+# or an unrelated globally flattened declaration. Local bindings keep priority.
+fn bind_public_reexports(parser: Parser, merge: MergeResult, originals: array<string>, owners: array<int>, targets: array<int>) -> bool {
+    if (or (!= (array_length targets) (parser_get_import_count parser)) (or (!= (array_length originals) (parser_get_function_count parser)) (!= (array_length owners) (parser_get_function_count parser)))) { return false }
+    let allowed: HashMap<string,int> = (map_new)
+    for i in (range 0 (parser_get_function_count parser)) {
+        let owner: int = (at owners i)
+        if (or (< owner 0) (>= owner (array_length merge.files))) { return false }
+        if (mi_public_function (at merge.files owner) (at originals i)) {
+            (map_put allowed (mb_binding_key owner (parser_get_function parser i).name) 1)
+        }
+    }
+    let entries: array<ModuleBindingEntry> = (mb_entries)
+    let mut exported: array<ModuleBindingEntry> = []
+    for i in (range 0 (array_length entries)) {
+        let entry: ModuleBindingEntry = (at entries i)
+        if (and (not (str_contains entry.name ".")) (map_has allowed (mb_binding_key entry.definition_owner entry.target))) {
+            set exported (array_push exported entry)
+        }
+    }
+    let mut changed: bool = true
+    while changed {
+        set changed false
+        let count: int = (array_length exported)
+        for i in (range 0 (parser_get_import_count parser)) {
+            let imp: ASTImport = (parser_get_import parser i)
+            let owner: int = (mb_owner imp.line)
+            let target: int = (at targets i)
+            if (or (or (< owner 0) (>= owner (array_length merge.files))) (or (< target 0) (>= target (array_length merge.files)))) { return false }
+            for j in (range 0 count) {
+                let entry: ModuleBindingEntry = (at exported j)
+                if (== entry.owner target) {
+                    let alias: string = (merged_import_callable_name imp entry.name)
+                    if (and (!= alias "") (not (mb_has owner alias))) {
+                        (mb_add_target owner alias entry.target entry.definition_owner)
+                        if (not (str_contains alias ".")) {
+                            set exported (array_push exported ModuleBindingEntry { owner: owner, name: alias, target: entry.target, definition_owner: entry.definition_owner })
+                        }
+                        set changed true
+                    }
+                }
+            }
+        }
+    }
+    return true
+}
+shadow bind_public_reexports {
+    let source: string = "pub fn leaf_answer()->int{return 41}\nfn leaf_hidden()->int{return 9}\nimport \"leaf.nano\"\nfrom \"barrel.nano\" import answer as chosen,hidden as leaked\nfn main()->int{return 0}\n"
+    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
+    let merge: MergeResult = MergeResult { source: source, files: ["leaf.nano", "barrel.nano", "root.nano"], file_starts: [1, 3, 4], source_files: [], source_lines: [], repo_root: "", root_line: 4 }
+    (mi_reset)
+    assert (mi_capture "pub fn answer()->int{return 41} fn hidden()->int{return 9}" "leaf.nano")
+    (mb_reset merge.file_starts)
+    (mb_set_sources merge.files)
+    (mb_add_target 0 "answer" "leaf_answer" 0)
+    (mb_add_target 0 "hidden" "leaf_hidden" 0)
+    (mb_add_target 1 "answer" "leaf_answer" 0)
+    (mb_add_target 1 "hidden" "leaf_hidden" 0)
+    assert (bind_public_reexports parsed merge ["answer", "hidden", "main"] [0, 0, 2] [0, 1])
+    assert (== (mb_lookup 2 "chosen") "leaf_answer")
+    assert (== (mb_target_owner 2 "chosen") 0)
+    assert (== (mb_lookup 2 "leaked") "leaked")
+    (mb_reset [])
+    (mi_reset)
+}
+
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
     (mb_set_sources merge.files)
@@ -1221,6 +1315,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         (bind_header_lines i (DriverSupport.module_header_constants (at merge.files i)) originals owners)
         set i (+ i 1)
     }
+    let mut import_targets: array<int> = []
     set i 0
     while (< i (parser_get_import_count parser)) {
         let imp: ASTImport = (parser_get_import parser i)
@@ -1234,6 +1329,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             (println (+ "I cannot bind an import outside the merged source set: " path))
             return false
         }
+        set import_targets (array_push import_targets target_owner)
         (nb_import parser imp target_owner)
         if (not (eb_import parser imp target_owner)) { (println "I cannot import a private or conflicting effect") return false }
         set global 0
@@ -1295,6 +1391,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         }
         set i (+ i 1)
     }
+    if (not (bind_public_reexports parser merge originals owners import_targets)) { return false }
     (nb_rewrite parser)
     if (not (eb_rewrite parser)) { return false }
     set i 0

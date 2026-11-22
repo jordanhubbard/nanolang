@@ -895,6 +895,7 @@ typedef struct {
     int generic_func_instance_capacity;
     EnumImport *enum_imports;
     EffectImport *effect_imports;
+    struct EnvFunctionImport *function_imports; /* Owned scoped names; stable declaring slots. */
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
@@ -1051,6 +1052,9 @@ void env_set_evaluated_binding(Environment *env, Symbol *binding, Value value, A
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+Function *env_get_function_owned(Environment *env, const char *name, const char *owner);
+bool env_import_function(Environment *env, const char *name, Function *target);
+bool env_import_module_functions(Environment *env, const char *owner);
 Function *env_get_function_at(Environment *env, const char *name, int line, int column);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
 const char *env_array_operation(Environment *env, ASTNode *call);

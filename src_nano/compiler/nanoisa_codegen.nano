@@ -2703,6 +2703,7 @@ fn nisa_collection_owner(parser: Parser, name: string) -> int {
     let mut relative: string = ""
     if (== name "NLHashMap") { set relative "/modules/std/collections/hashmap.nano" }
     if (== name "NLStringSet") { set relative "/modules/std/collections/set.nano" }
+    if (== name "NLStringBuilder") { set relative "/modules/std/collections/stringbuilder.nano" }
     if (or (== relative "") (== (mb_tool_root) "")) { return -1 }
     let index: int = (nisa_opaque_index parser name)
     if (< index 0) { return -1 }
@@ -2726,6 +2727,14 @@ shadow nisa_collection_owner {
     assert (== (nisa_collection_owner parser "Arbitrary") -1)
     (mb_set_sources ["modules/std/collections/set.nano"])
     assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    let builder_tokens: List<LexerToken> = (tokenize_string "opaque type NLStringBuilder" "builder.nano" (diag_list_new))
+    let builder: Parser = (parse_program builder_tokens (list_LexerToken_length builder_tokens) "builder.nano")
+    assert (== (nisa_collection_owner builder "NLStringBuilder") -1)
+    (mb_set_sources ["modules/std/collections/stringbuilder.nano"])
+    assert (== (nisa_collection_owner builder "NLStringBuilder") 0)
+    assert (== (nisa_collection_owner parser "NLHashMap") -1)
+    (mb_set_sources ["modules/std/collections/hashmap.nano"])
+    assert (== (nisa_collection_owner builder "NLStringBuilder") -1)
     (mb_reset [])
 }
 
@@ -3968,6 +3977,15 @@ shadow nisa_websocket_signature {
 }
 
 fn nisa_collection_signature(name: string) -> array<string> {
+    if (== name "nl_sb_new") { return ["NLStringBuilder"] }
+    if (== name "nl_sb_with_capacity") { return ["NLStringBuilder", "int"] }
+    if (== name "nl_sb_append") { return ["void", "NLStringBuilder", "string"] }
+    if (== name "nl_sb_append_char") { return ["void", "NLStringBuilder", "int"] }
+    if (== name "nl_sb_clear") { return ["void", "NLStringBuilder"] }
+    if (== name "nl_sb_length") { return ["int", "NLStringBuilder"] }
+    if (== name "nl_sb_capacity") { return ["int", "NLStringBuilder"] }
+    if (== name "nl_sb_to_string") { return ["string", "NLStringBuilder"] }
+    if (== name "nl_sb_free") { return ["void", "NLStringBuilder"] }
     if (== name "nl_hm_new") { return ["NLHashMap"] }
     if (== name "nl_hm_put") { return ["void", "NLHashMap", "string", "string"] }
     if (== name "nl_hm_has") { return ["bool", "NLHashMap", "string"] }
@@ -3996,24 +4014,33 @@ shadow nisa_collection_signature {
     assert (== (at (nisa_collection_signature "nl_set_has") 0) "bool")
     assert (== (at (nisa_collection_signature "nl_set_values") 0) "array<string>")
     assert (== (array_length (nisa_collection_signature "nl_hm_unknown")) 0)
-    assert (== (array_length (nisa_collection_signature "nl_sb_new")) 0)
+    assert (== (at (nisa_collection_signature "nl_sb_new") 0) "NLStringBuilder")
+    assert (== (at (nisa_collection_signature "nl_sb_with_capacity") 1) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_append") 2) "string")
+    assert (== (at (nisa_collection_signature "nl_sb_append_char") 2) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_clear") 0) "void")
+    assert (== (at (nisa_collection_signature "nl_sb_length") 0) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_capacity") 0) "int")
+    assert (== (at (nisa_collection_signature "nl_sb_to_string") 0) "string")
+    assert (== (at (nisa_collection_signature "nl_sb_free") 0) "void")
+    assert (== (array_length (nisa_collection_signature "nl_sb_unknown")) 0)
 }
 
 fn nisa_collection_handle(name: string) -> string {
     let signature: array<string> = (nisa_collection_signature name)
     for index in (range 0 (array_length signature)) {
         let t: string = (at signature index)
-        if (or (== t "NLHashMap") (== t "NLStringSet")) { return t }
+        if (or (== t "NLHashMap") (or (== t "NLStringSet") (== t "NLStringBuilder"))) { return t }
     }
     return ""
 }
 shadow nisa_collection_handle {
-    let names: array<string> = ["nl_hm_new", "nl_hm_put", "nl_hm_has", "nl_hm_get", "nl_hm_size", "nl_hm_keys", "nl_hm_values", "nl_hm_remove", "nl_hm_clear", "nl_hm_free", "nl_set_new", "nl_set_add", "nl_set_has", "nl_set_size", "nl_set_values", "nl_set_remove", "nl_set_clear", "nl_set_free"]
+    let names: array<string> = ["nl_hm_new", "nl_hm_put", "nl_hm_has", "nl_hm_get", "nl_hm_size", "nl_hm_keys", "nl_hm_values", "nl_hm_remove", "nl_hm_clear", "nl_hm_free", "nl_set_new", "nl_set_add", "nl_set_has", "nl_set_size", "nl_set_values", "nl_set_remove", "nl_set_clear", "nl_set_free", "nl_sb_new", "nl_sb_with_capacity", "nl_sb_append", "nl_sb_append_char", "nl_sb_clear", "nl_sb_length", "nl_sb_capacity", "nl_sb_to_string", "nl_sb_free"]
     for index in (range 0 (array_length names)) {
-        let expected: string = if (< index 10) { "NLHashMap" } else { "NLStringSet" }
+        let expected: string = (cond ((< index 10) "NLHashMap") ((< index 18) "NLStringSet") (else "NLStringBuilder"))
         assert (== (nisa_collection_handle (at names index)) expected)
     }
-    assert (== (nisa_collection_handle "nl_sb_new") "")
+    assert (== (nisa_collection_handle "nl_sb_unknown") "")
     assert (== (nisa_collection_handle "unknown") "")
 }
 

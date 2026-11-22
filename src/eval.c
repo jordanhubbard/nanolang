@@ -3355,6 +3355,20 @@ static Value eval_call(ASTNode *node, Environment *env) {
 static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *name,
                                  EvalCallName call_name, Value *args) {
     Function *named_func = env_get_function(env, name);
+    /* I honor declared Builder callables before legacy unbound intrinsics.
+     * Standard wrappers must use their selected checked foreign provider. */
+    if (named_func) {
+        switch (call_name) {
+        case EVAL_CALL_nl_sb_new: case EVAL_CALL_nl_sb_with_capacity:
+        case EVAL_CALL_nl_sb_append: case EVAL_CALL_nl_sb_append_char:
+        case EVAL_CALL_nl_sb_clear: case EVAL_CALL_nl_sb_length:
+        case EVAL_CALL_nl_sb_capacity: case EVAL_CALL_nl_sb_to_string:
+        case EVAL_CALL_nl_sb_free:
+            call_name = EVAL_CALL_unknown;
+            break;
+        default: break;
+        }
+    }
     if (call_name == EVAL_CALL_unknown && !named_func && !strncmp(name, "bstr_", 5)) {
         const NanoBstringContract *contract = nano_bstring_source_contract(name);
         if (contract) return eval_bstring_intrinsic(node, contract, args);
@@ -5352,6 +5366,18 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             break;
                         }
                     }
+                }
+                /* I preserve imported declaration identity across a callback's
+                 * module context without changing local function names or the
+                 * owning string/signature lifetime contract. */
+                bool same_owner = (!env->current_module && !func->module_name) ||
+                    (env->current_module && func->module_name &&
+                     !strcmp(env->current_module, func->module_name));
+                if ((func->body || func->is_extern) &&
+                    (!same_owner || strcmp(func->name, expr->as.identifier))) {
+                    char reference[64];
+                    snprintf(reference, sizeof reference, "#function:%td", func - env->functions);
+                    return create_function(reference, sig);
                 }
                 return create_function(expr->as.identifier, sig);
             }

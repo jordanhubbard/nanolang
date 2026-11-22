@@ -23,6 +23,7 @@ int64_t nl_sb_capacity(void* sb);
 /* I return an independent malloc-owned string, including for an invalid handle.
  * The caller frees it; allocation refusal can return NULL. */
 const char* nl_sb_to_string(void* sb);
+void nl_sb_to_string__nano_string_release_v1(const char *result);
 void nl_sb_free(void* sb);
 
 /* ============================ HashMap<string,string> ============================ */

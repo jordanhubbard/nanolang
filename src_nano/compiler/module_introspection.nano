@@ -219,6 +219,33 @@ shadow mi_retain {
     (mi_reset)
 }
 
+# I consult the retained declaring path, independently of module-name aliases.
+pub fn mi_public_function(path: string, name: string) -> bool {
+    if (or (== path "") (== name "")) { return false }
+    for i in (range 0 (array_length mi_facts)) {
+        let info: ModuleIntrospection = (at mi_facts i)
+        if (== info.path path) {
+            for j in (range 0 (array_length info.functions)) {
+                if (== (at info.functions j) name) { return true }
+            }
+            return false
+        }
+    }
+    return false
+}
+shadow mi_public_function {
+    (mi_reset)
+    assert (mi_capture "module first pub fn shown()->int{return 1} fn hidden()->int{return 2}" "/one.nano")
+    assert (mi_capture "module second pub fn hidden()->int{return 3}" "/two.nano")
+    assert (mi_public_function "/one.nano" "shown")
+    assert (not (mi_public_function "/one.nano" "hidden"))
+    assert (mi_public_function "/two.nano" "hidden")
+    assert (not (mi_public_function "/missing.nano" "shown"))
+    assert (not (mi_public_function "" "shown"))
+    (mi_reset)
+    assert (not (mi_public_function "/one.nano" "shown"))
+}
+
 pub fn mi_capture(source: string, path: string) -> bool {
     return (mi_retain (mi_scan source path (mi_path_name path)))
 }

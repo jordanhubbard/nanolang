@@ -582,18 +582,7 @@ char *module_program_name(ASTNode *program, const char *module_path) {
 }
 
 static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
-    if (!env || !func_name) {
-        return NULL;
-    }
-    for (int i = 0; i < env->function_count; i++) {
-        if (safe_strcmp(env->functions[i].name, func_name) == 0) {
-            if (!module_name || !env->functions[i].module_name ||
-                strcmp(env->functions[i].module_name, module_name) == 0) {
-                return &env->functions[i];
-            }
-        }
-    }
-    return NULL;
+    return env && func_name ? env_get_function_owned(env, func_name, module_name) : NULL;
 }
 
 /* Load and parse a module file */
@@ -1310,6 +1299,18 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 }
             }
 
+            if (!module_alias && (!item->as.import_stmt.is_selective || item->as.import_stmt.is_wildcard)) {
+                char *owner = orig_module_name ? strdup(orig_module_name) : module_name_from_path(module_path);
+                bool bound = env_import_module_functions(env, owner);
+                free(owner);
+                if (!bound) {
+                    fprintf(stderr, "I cannot retain my module callable imports.\n");
+                    free(module_path);
+                    for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                    free(unpacked_dirs); return false;
+                }
+            }
+
             /* Apply import aliases for selective imports: from "module" import foo as bar */
             if (item->as.import_stmt.is_selective &&
                 item->as.import_stmt.import_symbols &&
@@ -1327,14 +1328,23 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         ? item->as.import_stmt.import_aliases[j]
                         : NULL;
                     
-                    if (!alias || alias[0] == '\0' || strcmp(alias, symbol) == 0) {
+                    bool renamed = alias && *alias && strcmp(alias, symbol);
+                    if (!renamed) alias = symbol;
+                    Function *selected = find_module_function(env, module_name_for_alias, symbol);
+                    if (!renamed) {
+                        if (selected && !env_import_function(env, alias, selected)) {
+                            fprintf(stderr, "I cannot bind a conflicting callable import: %s\n", alias);
+                            free(module_name_for_alias); free(module_path);
+                            for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                            free(unpacked_dirs); return false;
+                        }
                         continue;
                     }
-                    
+
                     EffectDef *effect_alias = env_get_effect_owned(env, symbol, module_name_for_alias);
                     if (effect_alias && effect_alias->is_pub) continue;
 
-                    if (env_get_function(env, alias)) {
+                    if (env_get_function_owned(env, alias, env->current_module)) {
                         fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
                                 item->line, item->column, alias);
                         free(module_name_for_alias);
@@ -1376,11 +1386,12 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
-                    Function alias_func = *func;
-                    alias_func.name = strdup(alias);
-                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
-                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
-                    env_define_function(env, alias_func);
+                    if (!env_import_function(env, alias, func)) {
+                        fprintf(stderr, "I cannot retain my callable import: %s\n", alias);
+                        free(module_name_for_alias); free(module_path);
+                        for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                        free(unpacked_dirs); return false;
+                    }
                 }
                 
                 if (module_name_for_alias) {

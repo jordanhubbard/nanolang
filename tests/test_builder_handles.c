@@ -62,7 +62,8 @@ static void probe_free(void *p) {
 
 static void text_equals(void *handle, const char *expected) {
     const char *copy = nl_sb_to_string(handle); assert(copy && !strcmp(copy, expected));
-    probe_free((void *)copy);
+    nl_sb_to_string__nano_string_release_v1(copy);
+    nl_sb_to_string__nano_string_release_v1(NULL);
 }
 static void refused(void *handle) {
     nl_sb_append(handle, "ignored"); nl_sb_append_char(handle, 'x'); nl_sb_clear(handle);
