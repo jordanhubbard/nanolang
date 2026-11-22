@@ -21,7 +21,8 @@ OUT = ROOT / '.test_output/capture-compiler'
 EXPECTED = {
     'src/module_builder.c': '971b242622730d2581bd5d576bec8dc7ce48a05c67e4917765d4f347f346bb09',
     'tests/test_source_snapshots.py': '7e80518ce26a983ec316fe161cbbf7c5a77a64724554ba3dc592f690ab7ee259',
-    'obj/test_module_generation_probe': '66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16',
+    'src/nanolang.h': 'b31f07ee4664a8bea9c19da5fba905aff4ba7daad18165647fd91b92fc826aa6',
+    'obj/test_module_generation_probe': 'c61fac6137641dfd5c0e3f2e6dd8ce0b098220e0b86b7e99274051f5533c5070',
     'bin/nano_as_capture.so': '678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e',
 }
 
@@ -47,7 +48,7 @@ def prepare():
         raise RuntimeError('I require the actual previously qualified Clang21 image.')
     if identity() != EXPECTED:
         save('unmatched-native-identities.json', identity())
-        raise RuntimeError('I require the exact qualified production source, fixture, probe and helper bytes.')
+        raise RuntimeError('I require my exact retained current source, fixture, header, probe and helper bytes.')
     producers = []
     for index, path in enumerate(sorted((ROOT / 'obj').rglob('*.o'))):
         result = qualifier.command(['readelf', '-p', '.comment', path],
@@ -60,7 +61,7 @@ def prepare():
     record = {'source_pin': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'started_utc': datetime.now(timezone.utc).isoformat(), 'selected_clang': compiler,
         'fixed_backend': {'assembler': selected['selected_assembler']['path'], 'compiler': profile['compiler']},
-        'objects': producers, 'qualified_native_identities': identity()}
+        'objects': producers, 'native_identities_before': identity()}
     record['native_closure_before'] = native_closure(record, ROOT, OUT, 'before')
     names = subprocess.check_output(['git', 'ls-files', '-z', 'src', 'src_nano', 'tests', 'scripts',
         'modules', 'std', 'stdlib', '.github', 'examples', 'userguide', 'GNUmakefile', 'Makefile.gnu'], cwd=ROOT).split(b'\0')
@@ -124,7 +125,7 @@ def finish():
     record['finished_utc'] = datetime.now(timezone.utc).isoformat()
     record['native_closure_after'] = native_closure(record, ROOT, OUT, 'after')
     record['all_source_hashes_unchanged'] = all(digest(ROOT / p) == h for p, h in record['source_inputs'].items())
-    record['qualified_native_identities_after'] = identity()
+    record['native_identities_after'] = identity()
     reports = {}
     for name in ('source', 'response', 'debug', 'guide'):
         path = OUT / (name + '.json')
@@ -155,7 +156,7 @@ def finish():
         guide_passed and cold.get('returncode') == 0 and
         cold.get('compiler') == record['selected_clang']['path'] and
         len(observations) == 600 and record['response_returncode_stdout_matches'] and
-        record['all_source_hashes_unchanged'] and record['qualified_native_identities_after'] == EXPECTED and
+        record['all_source_hashes_unchanged'] and record['native_identities_after'] == EXPECTED and
         record['native_closure_before'] == record['native_closure_after'])
     record['success'] = bool(success)
     record['scope'] = 'I qualify the actual current production Clang capture profile. Full compiler stages/platform/release gates remain separate.'

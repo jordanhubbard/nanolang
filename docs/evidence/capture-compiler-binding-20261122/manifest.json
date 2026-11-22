@@ -1,6 +1,6 @@
 {
   "schema": "nanolang-retained-evidence/v1",
-  "scope": "I retain the actual mixed-compiler setup artifact14757995813 from45031237345 at6d8ee, candidate explicit-Make compiler binding, and original-runner continuity controls. Native corrected qualification remains pending.",
+  "scope": "I retain the actual mixed-compiler setup artifact14757995813 from45031237345 at6d8ee, candidate explicit-Make compiler binding, and original-runner continuity controls. Native corrected qualification remains pending. I additionally retain current native setup45036184795 and its stale prior-probe-hash observer refusal, both complete image bytes, ELF/line-table comparisons and the current exact header/probe binding; no complete corrected native corpus ran.",
   "files": [
     {
       "path": "before/.test_output/capture-assembler-checks/build.log",
@@ -233,6 +233,270 @@
       "artifact": "../capture-shell-gcc-complete-20261122/inputs/6003fd3a52219c218d8fd8cf43a73b20d50c85334b7ca27823a984e7c747831d.gz",
       "compressed_sha256": "31abe532f398876daa01d12b499aaf7e68bbce8a2c713196fe06c7211c7a5161",
       "compressed_bytes": 6634
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-checks/build.log",
+      "sha256": "621b2fc5b2f5d8a7dae702a5d755828a1df8d656f33447c3b9b92d5f737af7ab",
+      "bytes": 1281,
+      "artifact": "../capture-compiler-binding-20261122/inputs/621b2fc5b2f5d8a7dae702a5d755828a1df8d656f33447c3b9b92d5f737af7ab.gz",
+      "compressed_sha256": "8de35787c4560150358faa5fed394685614c6da176e5cd2f0e51c5683ffb4851",
+      "compressed_bytes": 403
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-checks/controls.log",
+      "sha256": "58a7748afbae54650cb12a9493bf7ae7eba864e51ccb1f4a4daf4acded99f578",
+      "bytes": 1578,
+      "artifact": "../capture-compiler-binding-20261122/inputs/58a7748afbae54650cb12a9493bf7ae7eba864e51ccb1f4a4daf4acded99f578.gz",
+      "compressed_sha256": "3bf7467c333854c4e9352996bd7039191adf4f6f08378ed5cc1c687072c77421",
+      "compressed_bytes": 383
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-checks/identity.json",
+      "sha256": "2d78a72aea3dd953fd563298939e99f5341cd0c3770409ef47359507cdb714f7",
+      "bytes": 133,
+      "artifact": "../capture-compiler-binding-20261122/inputs/2d78a72aea3dd953fd563298939e99f5341cd0c3770409ef47359507cdb714f7.gz",
+      "compressed_sha256": "7d183c3480bd60ac4cab0442bd9de8ffe85f9767352a83c9ba9941faf3323bda",
+      "compressed_bytes": 136
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-selection.stdout",
+      "sha256": "c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05",
+      "bytes": 56,
+      "artifact": "../capture-default-ci-20261122/inputs/c94a4cb7de43139c9c449995a9cebe40c081dbf9e74e24e576ffe02b158f6f05.gz",
+      "compressed_sha256": "0a11182fec475403b96a29d9c3b8b01dd1db5d3b256842968c401727aa026889",
+      "compressed_bytes": 74
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/fixed-version.stdout",
+      "sha256": "7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a",
+      "bytes": 363,
+      "artifact": "../gas246-identified-x86-20261121/inputs/7350fa2f0f6183708a068d76fa396475938c90a69598edda5f3c141f6449933a.gz",
+      "compressed_sha256": "77ca50f69468f79087feb4019f85b1db3a698d3407d5052468d0451de0373709",
+      "compressed_bytes": 274
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-admission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-admission.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-selection.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-selection.stdout",
+      "sha256": "8da608f7de858044d3e6a30591485e30b05dea2b119168771f88f44a52a59534",
+      "bytes": 12,
+      "artifact": "../capture-compiler-binding-20261122/inputs/8da608f7de858044d3e6a30591485e30b05dea2b119168771f88f44a52a59534.gz",
+      "compressed_sha256": "94316d5b8392e04437c6cfe490254fc2797b9876796bf4e36467927086ff90e5",
+      "compressed_bytes": 32
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "artifact": "../gas246-regression-20261121/inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "compressed_bytes": 20
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/original-version.stdout",
+      "sha256": "638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78",
+      "bytes": 327,
+      "artifact": "../capture-default-ci-20261122/inputs/638a82783cb7b4b0f262f4c10683c5f7d43d7083f79e51991a47ecd68bf68e78.gz",
+      "compressed_sha256": "ec25b6428d761b805d05b47239c6af566d40c6a6333934b9f2121b5011a62415",
+      "compressed_bytes": 250
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/result.json",
+      "sha256": "930478d46a1a62a57e7dd62c351eaf2db7db1373499327cbdaab402bc4895aca",
+      "bytes": 2522,
+      "artifact": "../capture-compiler-binding-20261122/inputs/930478d46a1a62a57e7dd62c351eaf2db7db1373499327cbdaab402bc4895aca.gz",
+      "compressed_sha256": "991e5b55a2d56096d6bed1dac12840414e99fa0915fb79c07706380778392256",
+      "compressed_bytes": 1140
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/selected-as",
+      "sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+      "bytes": 10003728,
+      "artifact": "../capture-complete-hosted-20261122/inputs/7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5.gz",
+      "compressed_sha256": "9b0ec10db29ecb6f77dbef4e1652f3a8848cd502bc55796c637704dfdcd00b47",
+      "compressed_bytes": 5061150
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/.test_output/capture-assembler-ci/validated-profile.json",
+      "sha256": "5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd",
+      "bytes": 4429,
+      "artifact": "../capture-complete-hosted-20261122/inputs/5b71950c1159c09b6479db1c5ef17cc5ece21f6a78d5ffd1167e55af34c70fbd.gz",
+      "compressed_sha256": "3514492cc33eb080099d308ad38b91a35bcbdbf68e2fb1b9cd180c9ab532d258",
+      "compressed_bytes": 1660
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/bin/nano_as_capture.so",
+      "sha256": "678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e",
+      "bytes": 41888,
+      "artifact": "../capture-fixed-clang-timeout-20261122/inputs/678c89bbd9a0b9cdfc01be19f281726139fef337303e5bb7639b4b1061a0ce0e.gz",
+      "compressed_sha256": "019889f047abaf79f804b86ccb0935d7678ffd76242ea36c89c0d752818f06d8",
+      "compressed_bytes": 18666
+    },
+    {
+      "path": "refused-current/capture-assembler-capture-Linux-X64-c34531bc751e/obj/test_module_generation_probe",
+      "sha256": "c61fac6137641dfd5c0e3f2e6dd8ce0b098220e0b86b7e99274051f5533c5070",
+      "bytes": 701792,
+      "artifact": "../capture-compiler-binding-20261122/inputs/c61fac6137641dfd5c0e3f2e6dd8ce0b098220e0b86b7e99274051f5533c5070.gz",
+      "compressed_sha256": "0d01de077111635057056a924d1d8d2604e7e4b787bcd8f629529c9abec639a3",
+      "compressed_bytes": 326948
+    },
+    {
+      "path": "refused-current/declared-clang-capture-45036184795/capture-compiler/error-finish.json",
+      "sha256": "7b31242d8ff7baa4cfa21d8bc116ead72f287a6571359c9989491d0d239e56ca",
+      "bytes": 88,
+      "artifact": "../capture-compiler-binding-20261122/inputs/7b31242d8ff7baa4cfa21d8bc116ead72f287a6571359c9989491d0d239e56ca.gz",
+      "compressed_sha256": "a5e5484248dc01ebf34aba7dcea23341ab77857cd688bc853e4c431000cde39e",
+      "compressed_bytes": 100
+    },
+    {
+      "path": "refused-current/declared-clang-capture-45036184795/capture-compiler/error-prepare.json",
+      "sha256": "1151e5ac2220b005e4d8fab72960ccbb631fbc74e90290949521261af643d335",
+      "bytes": 137,
+      "artifact": "../capture-compiler-binding-20261122/inputs/1151e5ac2220b005e4d8fab72960ccbb631fbc74e90290949521261af643d335.gz",
+      "compressed_sha256": "d346e28b357aaf93599d054f017cf93171cdd3b9f86fdcab63fdbd0cb0dafbe5",
+      "compressed_bytes": 132
+    },
+    {
+      "path": "refused-current/declared-clang-capture-45036184795/capture-compiler/unmatched-native-identities.json",
+      "sha256": "16fe8b8b62aba798cd55f6f8140c54debfe98e725c5bf3bab0079c3d3bdb7e3d",
+      "bytes": 403,
+      "artifact": "../capture-compiler-binding-20261122/inputs/16fe8b8b62aba798cd55f6f8140c54debfe98e725c5bf3bab0079c3d3bdb7e3d.gz",
+      "compressed_sha256": "619a7e05ee8c755625858a6722d118d19b8bba45e31902c22ddc81f7c238d992",
+      "compressed_bytes": 292
+    },
+    {
+      "path": "refused-current/declared-clang-capture-45036184795/capture-compiler-worker/worker.log",
+      "sha256": "57ab92a496f6fbd79faddbd25b2b41281330cdbe3b5fe8bc93d3b6bb475f0530",
+      "bytes": 1002,
+      "artifact": "../capture-compiler-binding-20261122/inputs/57ab92a496f6fbd79faddbd25b2b41281330cdbe3b5fe8bc93d3b6bb475f0530.gz",
+      "compressed_sha256": "5029621f5a05fbeac34398202d315afffbdf55789519c204c2555e2e287c42a2",
+      "compressed_bytes": 476
+    },
+    {
+      "path": "comparison/current-clang-45036184795-failed.log",
+      "sha256": "736e614e58b3e685ec1140abcb80296591cb618f8c9501f6d0e5cbb5f1172987",
+      "bytes": 6755,
+      "artifact": "../capture-compiler-binding-20261122/inputs/736e614e58b3e685ec1140abcb80296591cb618f8c9501f6d0e5cbb5f1172987.gz",
+      "compressed_sha256": "424ca6fa6b5ab2f1c298bad52bf297f4d56878afbf65378215df0ade59391de6",
+      "compressed_bytes": 1087
+    },
+    {
+      "path": "comparison/current-clang-45036184795-section-delta.json",
+      "sha256": "419db96f54a2ce9986a49d181f86faa11816dec93b80e3c2d3bd4c5e669d0e05",
+      "bytes": 560,
+      "artifact": "../capture-compiler-binding-20261122/inputs/419db96f54a2ce9986a49d181f86faa11816dec93b80e3c2d3bd4c5e669d0e05.gz",
+      "compressed_sha256": "d3d142db2811a1d076eac1cd8607ba6cfd399f278f0da1da5149d7ad28b4ae15",
+      "compressed_bytes": 293
+    },
+    {
+      "path": "comparison/current-clang-45036184795-header-checksums.json",
+      "sha256": "563893e9f7840a9fe4bd0a5efd5432df7f5fb2725493d59b4fe35b3c169b18a5",
+      "bytes": 345,
+      "artifact": "../capture-compiler-binding-20261122/inputs/563893e9f7840a9fe4bd0a5efd5432df7f5fb2725493d59b4fe35b3c169b18a5.gz",
+      "compressed_sha256": "8a87cd3cd0fdaea5bc7155b99a279a7b4bfba6c44432bf14111d7fafd10ad55d",
+      "compressed_bytes": 220
+    },
+    {
+      "path": "comparison/current-clang-45036184795-lines.txt",
+      "sha256": "57efc5a4bf296d0ea539b1d44d46010592f1b0160cc9dca3f19d3e8ad2ea0579",
+      "bytes": 1476415,
+      "artifact": "../capture-compiler-binding-20261122/inputs/57efc5a4bf296d0ea539b1d44d46010592f1b0160cc9dca3f19d3e8ad2ea0579.gz",
+      "compressed_sha256": "2c500974e8aa975ab75f4c17c1b24e5ce566587a70310f100c140c7359102edd",
+      "compressed_bytes": 124436
+    },
+    {
+      "path": "comparison/previous-clang-probe-66122-lines.txt",
+      "sha256": "13d9a29401c0f775dba9fa0f4d1972371e7a971604e17baa38c6060f0d17c622",
+      "bytes": 1476334,
+      "artifact": "../capture-compiler-binding-20261122/inputs/13d9a29401c0f775dba9fa0f4d1972371e7a971604e17baa38c6060f0d17c622.gz",
+      "compressed_sha256": "d4a8bc29398ebd0316a8867791a14090971064e8cd9d01b728c9440106163de8",
+      "compressed_bytes": 124407
+    },
+    {
+      "path": "comparison/3337d0e880/src/nanolang.h",
+      "sha256": "6438019703130ae3458c1f05a37e7d9437421ef5372b6a2fc7206ad1385a0e46",
+      "bytes": 64658,
+      "artifact": "../capture-darwin-20261121/inputs/6438019703130ae3458c1f05a37e7d9437421ef5372b6a2fc7206ad1385a0e46.gz",
+      "compressed_sha256": "1d78e93af2a6930978896a085b238fea84c706183413a1ea2072197b5c8f6569",
+      "compressed_bytes": 16136
+    },
+    {
+      "path": "comparison/3116f8f87d/src/nanolang.h",
+      "sha256": "b31f07ee4664a8bea9c19da5fba905aff4ba7daad18165647fd91b92fc826aa6",
+      "bytes": 64934,
+      "artifact": "../capture-compiler-binding-20261122/inputs/b31f07ee4664a8bea9c19da5fba905aff4ba7daad18165647fd91b92fc826aa6.gz",
+      "compressed_sha256": "1be472fd6f30f457cded0b34ab6fadeb23f7d1231486fb6e1b9536751510b3f9",
+      "compressed_bytes": 16103
+    },
+    {
+      "path": "comparison/previous-clang-probe-66122",
+      "sha256": "66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16",
+      "bytes": 701792,
+      "artifact": "../capture-fixed-clang-timeout-20261122/inputs/66122ae9d8401dda5457a0157a45b92e54f081385b394d0b7b0a5e5829d79f16.gz",
+      "compressed_sha256": "02be8fdde3ee39eebdbb10908973b79378baef79b9804fa043d78d8e64f107c5",
+      "compressed_bytes": 327521
+    },
+    {
+      "path": "candidate-after-guard/scripts/ci_current_capture_compiler.py",
+      "sha256": "d8d6065fe8927b06e20633bd9cd5396dac5c27f57a72a0058a034fab28a8e180",
+      "bytes": 9782,
+      "artifact": "../capture-compiler-binding-20261122/inputs/d8d6065fe8927b06e20633bd9cd5396dac5c27f57a72a0058a034fab28a8e180.gz",
+      "compressed_sha256": "bf94e6e45360a804857a2ceae6fd1dd786da9338d37ffa750d2b7fdf9e6f38f4",
+      "compressed_bytes": 3473
     }
   ]
 }
