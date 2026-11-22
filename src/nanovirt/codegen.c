@@ -3659,6 +3659,17 @@ typedef struct {
     CG      parent_snapshot;
 } NestedFnState;
 
+/* I retain checked emission metadata without extending its lexical scope. */
+static void bound_codegen_symbols(CG *cg, int first, const ASTNode *scope) {
+    if (!scope || scope->scope_end_line <= 0) return;
+    for (int i = first; i < cg->env->symbol_count; ++i) {
+        Symbol *symbol = &cg->env->symbols[i];
+        if (symbol->scope_end_line > 0) continue;
+        symbol->scope_end_line = scope->scope_end_line;
+        symbol->scope_end_column = scope->scope_end_column;
+    }
+}
+
 static void bind_parameter_type(CG *cg, const Parameter *param, int line) {
     env_define_var_with_type_info(cg->env, param->name, param->type,
                                   param->element_type, param->type_info,
@@ -3801,6 +3812,7 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
     cg->array_context_root = NULL;
     cg->array_context_type = NULL;
 
+    int first_symbol = cg->env->symbol_count;
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
         bind_parameter_type(cg, &node->as.function.params[i], node->line);
@@ -3831,6 +3843,7 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
         emit_op(cg, OP_RET);
     }
 
+    bound_codegen_symbols(cg, first_symbol, body);
     local_names_end(cg, 0);
 
     /* Save nested function's upvalue info before restoring parent state */
@@ -4488,13 +4501,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         local_names_end(cg, saved_binding_count);
         cg->local_binding_count = saved_binding_count;
-        for (int i = symbol_start; i < cg->env->symbol_count; i++) {
-            Symbol *symbol = &cg->env->symbols[i];
-            if (!symbol->scope_end_line) {
-                symbol->scope_end_line = node->scope_end_line;
-                symbol->scope_end_column = node->scope_end_column;
-            }
-        }
+        bound_codegen_symbols(cg, symbol_start, node);
         break;
     }
 
@@ -4643,13 +4650,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         local_names_end(cg, saved_binding_count);
         cg->local_binding_count = saved_binding_count;
-        for (int i = symbol_start; i < cg->env->symbol_count; i++) {
-            Symbol *symbol = &cg->env->symbols[i];
-            if (!symbol->scope_end_line) {
-                symbol->scope_end_line = node->scope_end_line;
-                symbol->scope_end_column = node->scope_end_column;
-            }
-        }
+        bound_codegen_symbols(cg, symbol_start, node);
         break;
     }
 
@@ -4740,6 +4741,7 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     cg->array_context_root = NULL;
     cg->array_context_type = NULL;
 
+    int first_symbol = cg->env->symbol_count;
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
         uint16_t slot=local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
@@ -4787,6 +4789,7 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
         emit_op(cg, OP_RET);
     }
 
+    bound_codegen_symbols(cg, first_symbol, body);
     local_names_end(cg,0);
     cg->names_enabled = false;
     cg->env->current_module = saved_module;

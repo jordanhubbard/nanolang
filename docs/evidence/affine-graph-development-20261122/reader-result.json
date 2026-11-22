@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "logical_records": 21598,
+  "files": 18012,
+  "git_sources": 3586,
+  "raw_bytes": 2357960581,
+  "unique_objects": 9502,
+  "compressed_bytes": 106606098,
+  "graph_cases": 218,
+  "graph_routes": 5,
+  "state_traces": 3141,
+  "scope_methods": 9,
+  "regression_methods": 44,
+  "negative_sanitizer_commands": 66,
+  "sanitizer_reports": 0,
+  "affine_cfg_admitted": false,
+  "private_profile_admitted": false,
+  "paired_darwin_claimed": false
+}

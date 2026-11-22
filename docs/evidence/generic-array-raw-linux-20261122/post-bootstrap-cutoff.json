@@ -1,0 +1,31 @@
+{
+  "scope": "I snapshot the two terminal original generic-context cohorts. The complete original route audit is live and is not accepted or archived here.",
+  "steps": [
+    {
+      "label": "original-contexts-gcc",
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_empty_record_array_contexts"
+      ],
+      "pid": 1938893,
+      "exit": 0,
+      "seconds": 9.518392717000097
+    },
+    {
+      "label": "original-contexts-clang",
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_empty_record_array_contexts"
+      ],
+      "pid": 1939663,
+      "exit": 0,
+      "seconds": 9.602876289995038
+    }
+  ]
+}
