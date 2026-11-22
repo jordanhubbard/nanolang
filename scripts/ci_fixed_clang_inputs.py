@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts import ci_qualify_as246 as qualifier
 from scripts import ci_qualify_fixed_userguide as guide
-from scripts import ci_build_capture_assembler as builder
+from scripts.ci_capture_assembler_profile import read_fixed_profile
 
 
 def digest(path):
@@ -35,17 +35,7 @@ def require_prior(prior, run, machine=None):
     if 'userguide-check: 40 snippet(s) passed' not in (candidate / 'original-userguide.stdout').read_text():
         raise RuntimeError('I require the actual forty-snippet ordinary guide terminal.')
     fixed = prior / 'fixed-as246'
-    build = json.loads((fixed / 'build.json').read_text())
-    if (not build.get('completed') or build.get('profile') != 'fixed-as246' or
-            build.get('source_sha256') != builder.FIXED_SHA256 or
-            build.get('fixed_source_sha256') != builder.AFTER):
-        raise RuntimeError('I refuse an incomplete or different fixed-source producer.')
-    for name, expected in (('binutils-2.46.0.tar.xz', builder.FIXED_SHA256),
-                           ('input-scrub-before.c', builder.BEFORE),
-                           ('input-scrub-fixed.c', builder.AFTER),
-                           ('bin/as', build['assembler_sha256'])):
-        if digest(fixed / name) != expected:
-            raise RuntimeError('I refuse changed retained source or assembler bytes.')
+    build = read_fixed_profile(fixed, machine)
     if (build['assembler_sha256'] != result['fixed_backend']['assembler_sha256'] or
             build['assembler_sha256'] != guide.retained_tool_digest(cold, cold['assembler']) or
             build['compiler'] != cold['compiler'] or
@@ -55,32 +45,6 @@ def require_prior(prior, run, machine=None):
                       ('nano_as_capture.so', 'bin/nano_as_capture.so')):
         if digest(candidate / name) != guide.retained_tool_digest(cold, key):
             raise RuntimeError('I refuse a changed preceding native probe or capture helper.')
-    image = (fixed / 'bin/as').read_bytes()[:20]
-    expected_machine = {'x86_64': 62, 'aarch64': 183, 'arm64': 183}.get(machine or platform.machine())
-    if (expected_machine is None or image[:6] != b'\x7fELF\x02\x01' or
-            int.from_bytes(image[18:20], 'little') != expected_machine):
-        raise RuntimeError('I refuse a fixed assembler for another native architecture.')
-    outcomes = []
-    for name in ('baseline', 'fixed'):
-        outcomes.append([line for line in (fixed / (name + '-gas.sum')).read_text().splitlines()
-            if re.match(r'^(PASS|FAIL|XFAIL|XPASS|KFAIL|KPASS|UNSUPPORTED|UNRESOLVED|ERROR):', line)])
-    if (outcomes[0] != outcomes[1] or len(outcomes[1]) != build.get('gas_cases') or
-            sum(line.startswith('PASS:') for line in outcomes[1]) != build.get('gas_expected_passes') or
-            build.get('gas_expected_passes', 0) < 1000 or any(line.startswith(
-                ('FAIL:', 'XPASS:', 'UNRESOLVED:', 'ERROR:')) for line in outcomes[1])):
-        raise RuntimeError('I require identical complete passing native GAS outcomes.')
-    witnesses = json.loads((fixed / 'witness/results.json').read_text())
-    pairs = {(case, tool) for case in ('actual-markers.s', 'without-directory.s',
-             'without-predef.s', 'source-marker-only.s') for tool in ('baseline', 'fixed')}
-    if (witnesses != build.get('witnesses') or len(witnesses) != 8 or any(
-            item['original_source_identity'] != item['expected'] or item['expected'] !=
-            (item['tool'] == 'fixed' or item['case'] != 'actual-markers.s') for item in witnesses) or
-            {(item['case'], item['tool']) for item in witnesses} != pairs):
-        raise RuntimeError('I require all eight original native source-identity witnesses.')
-    for item in witnesses:
-        path = fixed / 'witness' / (item['tool'] + '-' + Path(item['case']).stem + '.o')
-        if digest(path) != item['object_sha256']:
-            raise RuntimeError('I refuse a changed native witness object.')
     if digest(candidate / 'candidate.patch') != result['candidate_patch_sha256']:
         raise RuntimeError('I refuse a changed qualified consumer patch.')
     return {'producer_run': run['id'], 'source_pin': result['source_pin'],
@@ -89,7 +53,7 @@ def require_prior(prior, run, machine=None):
         'preceding_probe_sha256': digest(candidate / 'test_module_generation_probe'),
         'preceding_helper_sha256': digest(candidate / 'nano_as_capture.so'),
         'source_sha256': build['source_sha256'], 'fixed_source_sha256': build['fixed_source_sha256'],
-        'gas_cases': len(outcomes[1]), 'witnesses': len(witnesses)}
+        'gas_cases': build['gas_cases'], 'witnesses': len(build['witnesses'])}
 
 
 def require_candidate(prior, source, test, patch):

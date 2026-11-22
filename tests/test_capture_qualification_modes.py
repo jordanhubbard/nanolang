@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from scripts import ci_qualify_as246 as qualifier
+from tests.retained_capture_evidence import pre_admission_inputs
 
 
 class CaptureQualificationModes(unittest.TestCase):
@@ -90,9 +91,11 @@ class CaptureQualificationModes(unittest.TestCase):
         test = root / 'tests/test_source_snapshots.py'
         source.parent.mkdir()
         test.parent.mkdir()
-        # I use the actual source fixtures, not a second copy of their tables.
-        source.write_bytes((qualifier.ROOT / source.relative_to(root)).read_bytes())
-        test.write_bytes((qualifier.ROOT / test.relative_to(root)).read_bytes())
+        # I test my historical private qualifier with its real pre-admission bytes.
+        # SourceSnapshots independently exercises current production admission.
+        retained = pre_admission_inputs()
+        source.write_bytes(retained[str(source.relative_to(root))])
+        test.write_bytes(retained[str(test.relative_to(root))])
         observation = root / 'observation'
         observation.mkdir()
         (observation / 'observation.json').write_text(json.dumps({
@@ -175,8 +178,9 @@ class FixedAssemblerAdmission(unittest.TestCase):
             def query(argv, label, timeout):
                 value = str(image) + '\n' if label == 'fixed-selected-assembler' else banner
                 (root / (label + '.stdout')).write_text(value)
-            original_source = (qualifier.ROOT / 'src/module_builder.c').read_text()
-            original_test = (qualifier.ROOT / 'tests/test_source_snapshots.py').read_text()
+            retained = pre_admission_inputs()
+            original_source = retained['src/module_builder.c'].decode()
+            original_test = retained['tests/test_source_snapshots.py'].decode()
             with patch.dict(os.environ, NANO_FIXED_AS246_DIRECTORY=str(backend)), \
                  patch.object(qualifier, 'OUT', root), patch.object(qualifier, 'command', side_effect=query):
                 source, test, _ = qualifier.fixed_assembler_candidate(original_source, original_test, previous)

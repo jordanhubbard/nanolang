@@ -43,6 +43,10 @@ on:
         description: I qualify the complete Clang consumer using this completed fixed-GCC producer without rebuilding GAS.
         type: string
         default: ''
+      profile_fixed_clang_from_run:
+        description: I measure original native external-cache assertions across this retained consumer's tool axes without a full retry.
+        type: string
+        default: ''
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -56,7 +60,7 @@ permissions:
   actions: read
 jobs:
   linux-capture:
-    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' }}
+    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     runs-on: ubuntu-latest
     # I allocate additional cohorts only for the newly added complete mode.
     # Individual source, native build, debug and cold-capture limits stay fixed.
@@ -123,7 +127,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   selected-tools:
-    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' }}
+    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -218,7 +222,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-assembler:
-    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == ''
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     # I bound the sum of independent source build and upstream regression cohorts.
     timeout-minutes: 90
@@ -238,7 +242,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-capture:
-    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == ''
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     needs: fixed-assembler
     runs-on: ubuntu-latest
     # My original capture/test/shadow limits remain inside this additional cohort.
@@ -273,7 +277,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-userguide:
-    if: inputs.fixed_userguide_from_run != '' && inputs.fixed_clang_from_run == ''
+    if: inputs.fixed_userguide_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -322,7 +326,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-clang-capture:
-    if: inputs.fixed_clang_from_run != ''
+    if: inputs.fixed_clang_from_run != '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -361,6 +365,35 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fixed-clang-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  capture-pair-profile:
+    if: inputs.profile_fixed_clang_from_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-clang-capture
+          path: .test_output/source-capture-diagnostic/profile-failed/
+          run-id: ${{ inputs.profile_fixed_clang_from_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: source-capture-tools-linux
+          path: .test_output/source-capture-diagnostic/profile-supported/
+          run-id: 45009127688
+          github-token: ${{ github.token }}
+      - name: Measure original native assertions and CPU share without changing production admission
+        run: python3 scripts/ci_profile_capture_pair.py
+      - name: Retain every native observation and original input
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-pair-profile
           path: .test_output/source-capture-diagnostic/
           include-hidden-files: true
           if-no-files-found: error

@@ -15,8 +15,7 @@ sys.path.insert(0, str(ROOT))
 from tests.native_process import run_captured
 
 
-def main():
-    OUTPUT.mkdir(parents=True, exist_ok=True)
+def configured_compiler():
     metadata = json.loads((ROOT / "modules/compiler_support/module.json").read_text())
     if "NANO_CC" in os.environ:
         configured, origin = os.environ["NANO_CC"], "NANO_CC"
@@ -26,6 +25,12 @@ def main():
         configured, origin = os.environ["CC"], "CC"
     else:
         configured, origin = "cc", "default"
+    return configured, origin
+
+
+def main():
+    OUTPUT.mkdir(parents=True, exist_ok=True)
+    configured, origin = configured_compiler()
     report = {"configured_compiler": configured, "selection_origin": origin,
               "queries": [], "limits": [
                   "I record metadata probes, not successful product admission or a complete native invocation.",

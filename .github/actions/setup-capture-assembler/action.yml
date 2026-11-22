@@ -1,0 +1,43 @@
+name: I select my retained capture assembler
+description: I preserve my Linux compiler and select an assembler from verified source when required.
+inputs:
+  profile-directory:
+    description: I reuse this completed native profile instead of rebuilding its producer.
+    required: false
+    default: ''
+outputs:
+  fixed_profile:
+    description: I selected the verified source-fixed profile.
+    value: ${{ steps.select.outputs.fixed_profile }}
+  artifact_name:
+    description: I retain actual native selection evidence under this artifact name.
+    value: capture-assembler-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}
+runs:
+  using: composite
+  steps:
+    - name: Check native profile metadata and selection refusals
+      shell: bash
+      run: python3 -m unittest -v tests.test_capture_assembler_profile tests.test_ci_select_capture_assembler
+    - name: Build the actual production admission probe and capture provider
+      shell: bash
+      run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+    - name: Provision and verify the actual selected assembler
+      id: select
+      shell: bash
+      timeout-minutes: 90
+      env:
+        NANO_CI_FIXED_ASSEMBLER_DIRECTORY: ${{ inputs.profile-directory }}
+      run: python3 scripts/ci_select_capture_assembler.py
+    - name: Retain native assembler source, outcomes and selection evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: capture-assembler-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}
+        path: |
+          .test_output/capture-assembler-ci/
+          .test_output/source-capture-diagnostic/fixed-as246/
+          obj/test_module_generation_probe
+          bin/nano_as_capture.so
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
