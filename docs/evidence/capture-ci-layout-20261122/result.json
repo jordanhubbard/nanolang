@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "/Users/jkh/.worktrees/nanolang/capture-repair-20261122/scripts/clean_build_trees.py",
+    "--root",
+    ".test_output"
+  ],
+  "returncode": 0,
+  "inside_clean_tree_removed": true,
+  "outside_runner_temp_retained": true,
+  "scope": "I execute the actual cleaner on isolated marker trees. This validates profile placement lifecycle, not native assembler qualification."
+}

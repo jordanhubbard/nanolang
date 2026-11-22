@@ -1,0 +1,7 @@
+# My unapplied default-CI profile layout
+
+I prepare this [workflow patch](proposed-workflow.patch) under #1171; I have not applied it. It adds one source/GAS-qualified native producer and localized retrieval/selection before five existing host consumers: build/test, examples, docs, concurrency and performance. My [structural comparison](structural-comparison.txt) preserves every original job setting, command, matrix, condition and deadline outside the declared producer dependencies and added hooks. Ubuntu24.04 benchmark/instrumented jobs keep their supported2.42 selection. Main/user-guide adoption waits for complete Clang/r1 qualification and exact candidate promotion.
+
+The existing performance script calls `make clean`, whose actual cleaner removes `.test_output`. A provider downloaded there would disappear before stage1/2/3. My proposal downloads the unchanged complete native profile under `RUNNER_TEMP`, outside workspace clean trees. I preserve the original benchmark script and clean/build commands.
+
+My actual isolated marker control invokes the repository cleaner: inside-.test_output bytes are removed and outside runner-temp bytes survive unchanged. [Inputs](input.json), [actual result](result.json) and streams are retained. This checks placement lifecycle only. It neither executes an assembler nor establishes native/tool/source/release acceptance. The patch parses and passes `git apply --check`; its source/profile selector remains unwired until the original complete pair gates pass.

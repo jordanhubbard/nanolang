@@ -1,0 +1,1 @@
+all original job settings/commands preserved; five host consumer hooks and one producer added

@@ -1,0 +1,207 @@
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -50,6 +50,24 @@
+ 
+       - name: Strict compiles with every available compiler
+         run: make check-fast
++
++  capture-toolchain:
++    name: Qualified Linux capture assembler
++    runs-on: ubuntu-latest
++    timeout-minutes: 90
++    permissions:
++      contents: read
++    outputs:
++      fixed_profile: ${{ steps.profile.outputs.fixed_profile }}
++      artifact_name: ${{ steps.profile.outputs.artifact_name }}
++    steps:
++      - uses: actions/checkout@v4
++      - name: Install native assembler and admission-probe prerequisites
++        timeout-minutes: 25
++        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
++      - name: Produce and verify the selected native capture assembler
++        id: profile
++        uses: ./.github/actions/setup-capture-assembler
+ 
+   # The repository ruleset requires the three named Build and Test checks. A matrix job skipped by `if` reports
+   # one unexpanded name, so on a documentation-only push those required names would never appear. This stand-in
+@@ -78,7 +96,7 @@
+ 
+   build-and-test:
+     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
+-    needs: fast-gate
++    needs: [fast-gate, capture-toolchain]
+     if: needs.fast-gate.outputs.code == 'true'
+     runs-on: ${{ matrix.runner || matrix.os }}
+     continue-on-error: ${{ matrix.allow_failure || false }}
+@@ -186,6 +204,18 @@
+         shell: bash
+         run: make check-deps
+ 
++      - name: Retrieve the verified native assembler producer
++        if: runner.os == 'Linux' && runner.arch == 'X64' && needs.capture-toolchain.outputs.fixed_profile == 'true'
++        uses: actions/download-artifact@v4
++        with:
++          name: ${{ needs.capture-toolchain.outputs.artifact_name }}
++          path: ${{ runner.temp }}/capture-toolchain-provider/
++      - name: Select the verified native capture assembler
++        if: runner.os == 'Linux'
++        uses: ./.github/actions/setup-capture-assembler
++        with:
++          profile-directory: ${{ runner.temp }}/capture-toolchain-provider/.test_output/source-capture-diagnostic/fixed-as246
++
+       - name: Build - Stage 1 (C Reference Compiler)
+         run: make stage1
+ 
+@@ -334,6 +364,7 @@
+       #   run: make valgrind || true
+ 
+   examples:
++    needs: capture-toolchain
+     name: Strict examples (${{ matrix.arch }})
+     runs-on: ${{ matrix.runner || matrix.os }}
+     timeout-minutes: 75
+@@ -408,6 +439,18 @@
+             glew \
+             freeglut
+ 
++      - name: Retrieve the verified native assembler producer
++        if: runner.os == 'Linux' && runner.arch == 'X64' && needs.capture-toolchain.outputs.fixed_profile == 'true'
++        uses: actions/download-artifact@v4
++        with:
++          name: ${{ needs.capture-toolchain.outputs.artifact_name }}
++          path: ${{ runner.temp }}/capture-toolchain-provider/
++      - name: Select the verified native capture assembler
++        if: runner.os == 'Linux'
++        uses: ./.github/actions/setup-capture-assembler
++        with:
++          profile-directory: ${{ runner.temp }}/capture-toolchain-provider/.test_output/source-capture-diagnostic/fixed-as246
++
+       - name: Build C reference compiler
+         run: make stage1
+ 
+@@ -420,6 +463,7 @@
+         run: make examples EXAMPLES_TIMEOUT=2400
+ 
+   docs:
++    needs: capture-toolchain
+     name: Docs (link check)
+     runs-on: ubuntu-latest
+     timeout-minutes: 10
+@@ -429,6 +473,18 @@
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
++
++      - name: Retrieve the verified native assembler producer
++        if: runner.os == 'Linux' && runner.arch == 'X64' && needs.capture-toolchain.outputs.fixed_profile == 'true'
++        uses: actions/download-artifact@v4
++        with:
++          name: ${{ needs.capture-toolchain.outputs.artifact_name }}
++          path: ${{ runner.temp }}/capture-toolchain-provider/
++      - name: Select the verified native capture assembler
++        if: runner.os == 'Linux'
++        uses: ./.github/actions/setup-capture-assembler
++        with:
++          profile-directory: ${{ runner.temp }}/capture-toolchain-provider/.test_output/source-capture-diagnostic/fixed-as246
+ 
+       - name: Check markdown links
+         run: python3 scripts/check_markdown_links.py
+@@ -944,6 +1000,7 @@
+             });
+ 
+   performance:
++    needs: capture-toolchain
+     name: Performance Benchmarks
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+@@ -960,6 +1017,18 @@
+       - name: Install dependencies
+         timeout-minutes: 25
+         run: ./scripts/ci-apt-install.sh build-essential bc pkg-config libffi-dev
++
++      - name: Retrieve the verified native assembler producer
++        if: runner.os == 'Linux' && runner.arch == 'X64' && needs.capture-toolchain.outputs.fixed_profile == 'true'
++        uses: actions/download-artifact@v4
++        with:
++          name: ${{ needs.capture-toolchain.outputs.artifact_name }}
++          path: ${{ runner.temp }}/capture-toolchain-provider/
++      - name: Select the verified native capture assembler
++        if: runner.os == 'Linux'
++        uses: ./.github/actions/setup-capture-assembler
++        with:
++          profile-directory: ${{ runner.temp }}/capture-toolchain-provider/.test_output/source-capture-diagnostic/fixed-as246
+ 
+       - name: Download baseline benchmark
+         id: baseline
+@@ -1082,6 +1151,7 @@
+             });
+ 
+   concurrency:
++    needs: capture-toolchain
+     name: Concurrency (clang + libdispatch)
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+@@ -1106,6 +1176,20 @@
+           # libdispatch-dev was removed from Ubuntu 24.04; install if available
+           CI_APT_ATTEMPTS=1 CI_APT_TIMEOUT_SECS=60 \
+             ./scripts/ci-apt-install.sh libdispatch-dev || true
++
++      - name: Retrieve the verified native assembler producer
++        if: runner.os == 'Linux' && runner.arch == 'X64' && needs.capture-toolchain.outputs.fixed_profile == 'true'
++        uses: actions/download-artifact@v4
++        with:
++          name: ${{ needs.capture-toolchain.outputs.artifact_name }}
++          path: ${{ runner.temp }}/capture-toolchain-provider/
++      - name: Select the verified native capture assembler
++        if: runner.os == 'Linux'
++        uses: ./.github/actions/setup-capture-assembler
++        env:
++          CC: clang
++        with:
++          profile-directory: ${{ runner.temp }}/capture-toolchain-provider/.test_output/source-capture-diagnostic/fixed-as246
+ 
+       - name: Build stage 1 with clang
+         run: make stage1 CC=clang
+--- a/.github/workflows/userguide_pages.yml
++++ b/.github/workflows/userguide_pages.yml
+@@ -18,6 +18,14 @@
+       - "src/module_builder.c"
+       - "src/runtime/assembler_capture.c"
+       - "src/runtime/assembler_capture.h"
++      - ".github/actions/setup-capture-assembler/**"
++      - "scripts/ci_select_capture_assembler.py"
++      - "scripts/ci_capture_assembler_profile.py"
++      - "scripts/ci_build_capture_assembler.py"
++      - "scripts/ci_qualify_as246.py"
++      - "tests/test_capture_assembler_profile.py"
++      - "tests/test_ci_select_capture_assembler.py"
++      - "tests/retained_capture_evidence.py"
+       - ".github/workflows/userguide_pages.yml"
+   push:
+     branches: [ main ]
+@@ -37,6 +45,14 @@
+       - "src/module_builder.c"
+       - "src/runtime/assembler_capture.c"
+       - "src/runtime/assembler_capture.h"
++      - ".github/actions/setup-capture-assembler/**"
++      - "scripts/ci_select_capture_assembler.py"
++      - "scripts/ci_capture_assembler_profile.py"
++      - "scripts/ci_build_capture_assembler.py"
++      - "scripts/ci_qualify_as246.py"
++      - "tests/test_capture_assembler_profile.py"
++      - "tests/test_ci_select_capture_assembler.py"
++      - "tests/retained_capture_evidence.py"
+       - ".github/workflows/userguide_pages.yml"
+   workflow_dispatch:
+ 
+@@ -75,6 +91,9 @@
+         uses: actions/configure-pages@v5
+         with:
+           enablement: true
++
++      - name: Select the verified native capture assembler
++        uses: ./.github/actions/setup-capture-assembler
+ 
+       - name: I record bounded compiler and assembler reports
+         run: python3 scripts/ci_userguide_capture_diagnostics.py

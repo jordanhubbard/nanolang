@@ -1,0 +1,144 @@
+name: User Guide (GitHub Pages)
+
+on:
+  pull_request:
+    paths:
+      - "userguide/**"
+      - "docs/STDLIB.md"
+      - "docs/WASM_MODULE_AUDIT.md"
+      - "examples/**"
+      - "modules/**"
+      - "src/builtins_registry.c"
+      - "src/main.c"
+      - "scripts/build_userguide.py"
+      - "scripts/userguide_snippets_check.nano"
+      - "Makefile.gnu"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/native_process.py"
+      - "src/module_builder.c"
+      - "src/runtime/assembler_capture.c"
+      - "src/runtime/assembler_capture.h"
+      - ".github/actions/setup-capture-assembler/**"
+      - "scripts/ci_select_capture_assembler.py"
+      - "scripts/ci_capture_assembler_profile.py"
+      - "scripts/ci_build_capture_assembler.py"
+      - "scripts/ci_qualify_as246.py"
+      - "tests/test_capture_assembler_profile.py"
+      - "tests/test_ci_select_capture_assembler.py"
+      - "tests/retained_capture_evidence.py"
+      - ".github/workflows/userguide_pages.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "userguide/**"
+      - "docs/STDLIB.md"
+      - "docs/WASM_MODULE_AUDIT.md"
+      - "examples/**"
+      - "modules/**"
+      - "src/builtins_registry.c"
+      - "src/main.c"
+      - "scripts/build_userguide.py"
+      - "scripts/userguide_snippets_check.nano"
+      - "Makefile.gnu"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/native_process.py"
+      - "src/module_builder.c"
+      - "src/runtime/assembler_capture.c"
+      - "src/runtime/assembler_capture.h"
+      - ".github/actions/setup-capture-assembler/**"
+      - "scripts/ci_select_capture_assembler.py"
+      - "scripts/ci_capture_assembler_profile.py"
+      - "scripts/ci_build_capture_assembler.py"
+      - "scripts/ci_qualify_as246.py"
+      - "tests/test_capture_assembler_profile.py"
+      - "tests/test_ci_select_capture_assembler.py"
+      - "tests/retained_capture_evidence.py"
+      - ".github/workflows/userguide_pages.yml"
+  workflow_dispatch:
+
+env:
+  # I retain all shadows with the same finite hosted deadline as main CI.
+  NANO_SHADOW_TIMEOUT_SECONDS: "60"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: userguide-pages-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache module objects
+        uses: actions/cache@v4
+        with:
+          path: |
+            obj/nano_modules
+            modules/*/.build
+          key: nano-modules-${{ hashFiles('modules/**/*.nano', 'stdlib/**/*.nano', 'src_nano/**/*.nano', 'modules/**/*.c') }}
+          restore-keys: |
+            nano-modules-
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Select the verified native capture assembler
+        uses: ./.github/actions/setup-capture-assembler
+
+      - name: I record bounded compiler and assembler reports
+        run: python3 scripts/ci_userguide_capture_diagnostics.py
+
+      - name: Validate user guide snippets
+        env:
+          NANO_TRACE_BUILD: "1"
+        run: |
+          set -o pipefail
+          make userguide-check 2>&1 | tee .test_output/userguide-ci/validation.log
+
+      - name: Build user guide HTML
+        run: make userguide-html
+        env:
+          USERGUIDE_TIMEOUT: 2400
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/userguide/html
+
+      - name: I retain failed user guide capture evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: userguide-capture-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 14
+          path: |
+            .test_output/userguide-ci/
+            modules/compiler_support/.build/
+            obj/nano_modules/
+            bin/nanoc_c
+            bin/nano_virt
+            bin/nano_as_capture.so
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
