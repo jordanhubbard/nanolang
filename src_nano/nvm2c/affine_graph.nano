@@ -1,0 +1,70 @@
+module nvm2c_affine_graph
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+# I check the value-call graph, including unreachable calls. I do not establish
+# stack/lifetime, global/effect ordering or ordinary/private execution admission.
+pub struct Context { present: bool, functions_present: bool, entry: int, model: owned.Module }
+
+pub fn value_call_graph(ownership: array<u8>, context: Context) -> bool {
+    let model: owned.Module = context.model
+    let count: int = (array_length model.functions)
+    if (or (not context.present) (or (not context.functions_present)
+        (or (!= context.entry 0) (or (== count 0) (> count 8))))) { return false }
+    if (or (!= (array_length model.params) count) (!= (array_length model.results) count)) { return false }
+    let mut edges: array<bool> = []
+    for index in (range 0 (* count count)) { set edges (array_push edges false) }
+    for function in (range 0 count) {
+        let declaration: calls.Function = (at model.functions function)
+        let result_tag: int = (at model.results function)
+        if (and (== function 0) (or (!= declaration.arity 0)
+            (or (!= declaration.results 1) (not (or (== result_tag 1) (or (== result_tag 2) (== result_tag 4))))))) { return false }
+        if (or (!= declaration.upvalues 0) (or (< declaration.locals 0)
+            (or (> declaration.locals 256) (or (< declaration.length 0) (> declaration.length 131072))))) { return false }
+        let local_facts: facts.Facts = (facts.prepare ownership model function 1 1)
+        let locals: state.State = (state.create local_facts declaration.locals)
+        let parameters: state.Query = (state.value_parameters locals 8 true false)
+        if (or (not parameters.valid) (or (!= parameters.number declaration.arity)
+            (not (state.value_result locals).valid))) { return false }
+        let decoded: bodies.Function = (bodies.decode model.code declaration.start declaration.length count)
+        let instruction_count: int = (array_length decoded.instructions)
+        if (or (not decoded.valid) (or (== instruction_count 0) (> instruction_count 4096))) { return false }
+        for index in (range 0 instruction_count) {
+            let item: instructions.Instruction = (at decoded.instructions index)
+            if (== item.opcode 59) {
+                let target: int = (instructions.integer item 0)
+                if (or (<= target 0) (>= target count)) { return false }
+                (array_set edges (+ (* function count) target) true)
+            } else if (or (== item.opcode 15) (or (== item.opcode 51)
+                (or (== item.opcode 60) (or (== item.opcode 63) (== item.opcode 62))))) { return false }
+        }
+    }
+    for middle in (range 0 count) {
+        for source in (range 0 count) {
+            for target in (range 0 count) {
+                let edge: int = (+ (* source count) target)
+                (array_set edges edge (or (at edges edge)
+                    (and (at edges (+ (* source count) middle)) (at edges (+ (* middle count) target)))))
+            }
+        }
+    }
+    for function in (range 0 count) {
+        if (at edges (+ (* function count) function)) { return false }
+    }
+    return true
+}
+shadow value_call_graph {
+    let model: owned.Module = owned.Module {
+        layouts: [0,0,0,0], code: [61], strings: [],
+        functions: [calls.Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+    let ownership: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+    # A missing return operand needs the later stack analysis, not this graph.
+    assert (value_call_graph ownership Context { present: true, functions_present: true, entry: 0, model: model })
+    assert (not (value_call_graph ownership Context { present: false, functions_present: true, entry: 0, model: model }))
+    assert (not (value_call_graph ownership Context { present: true, functions_present: true, entry: 1, model: model }))
+}

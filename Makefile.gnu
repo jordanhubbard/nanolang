@@ -7801,7 +7801,7 @@ test-nanolang-translator-reference-places: $(COMPILER_C) nano_virt nano_vm nvm2c
 test-units: test-nanolang-translator-reference-places
 
 # I compare shared affine local transitions before bytecode/profile admission.
-$(OBJ_DIR)/nvm2c_affine_state_reference: tests/nvm2c_affine_state_reference.c $(NANOISA_DIR)/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+$(OBJ_DIR)/nvm2c_affine_state_reference: tests/nvm2c_affine_state_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_DIR)/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 
 .PHONY: test-nanolang-translator-affine-state
@@ -7823,3 +7823,19 @@ test-generic-empty-array-values: $(COMPILER_C) nano_virt nano_vm $(if $(NANOLANG
 	python3 -m unittest -v tests.test_generic_empty_array_values
 
 test-units: test-generic-empty-array-values
+
+.PHONY: test-nanolang-translator-affine-graph
+$(OBJ_DIR)/nvm2c_affine_graph_reference: tests/nvm2c_affine_graph_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_graph_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-graph: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_graph_reference
+	NANOLANG_AFFINE_GRAPH_REFERENCE="$(OBJ_DIR)/nvm2c_affine_graph_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_graph
+
+test-units: test-nanolang-translator-affine-graph
+
+.PHONY: test-nanovirt-emission-scopes
+test-nanovirt-emission-scopes: $(COMPILER_C) nano_virt nano_vm
+	@if [ -z "$(NANOLANG_SELFHOST_COMPILER)" ]; then $(MAKE) --no-print-directory bootstrap3; fi
+	python3 -m unittest -v tests.test_nanovirt_emission_scopes
+
+test-units: test-nanovirt-emission-scopes

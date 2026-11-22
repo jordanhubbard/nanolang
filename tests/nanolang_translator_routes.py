@@ -32,12 +32,13 @@ def checked(command, *, build=False, timeout=60):
     return completed.stdout.decode()
 
 
-def build_routes(fixture, directory):
+def build_routes(fixture, directory, *, legacy_native=True):
     native = directory / 'decoder-native'
     module = directory / 'decoder.nvm'
     source = directory / 'decoder.c'
     aot = directory / 'decoder-aot'
-    checked([ROOT / 'bin/nanoc_c', fixture, '-o', native], build=True)
+    if legacy_native:
+        checked([ROOT / 'bin/nanoc_c', fixture, '-o', native], build=True)
     checked([ROOT / 'bin/nano_virt', fixture, '-o', module], build=True)
     compiler = shlex.split(os.environ.get('CC', 'cc'))
 
@@ -50,9 +51,10 @@ def build_routes(fixture, directory):
                  *native_link_flags(), '-o', executable], build=True)
 
     native_from_module(module, source, aot)
-    routes = [('c-seed-native', [native]),
-              ('c-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', module, '--']),
+    routes = [('c-producer-nanoisa-vm', [ROOT / 'bin/nano_vm', module, '--']),
               ('c-producer-sanitized-native', [aot])]
+    if legacy_native:
+        routes.insert(0, ('c-seed-native', [native]))
     source_compiler = source_compiler_command()
     if source_compiler:
         source_module = directory / 'source-decoder.nvm'
