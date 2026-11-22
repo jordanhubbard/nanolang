@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/clang18-eof-reap-linux-20261122",
+    "implementation": "3ef446575d2b4c818c96cf83d46c1048f0edf441",
+    "logical_files": 3631,
+    "unique_artifacts": 3599,
+    "raw_bytes": 32419693,
+    "compressed_bytes": 8218051,
+    "source_files": 3573,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]
