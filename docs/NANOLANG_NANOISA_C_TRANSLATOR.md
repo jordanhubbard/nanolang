@@ -959,3 +959,43 @@ ASan/UBSan/leak controls. A real empty-void source body passes through both
 producers/five routes using the guarded qualified bdffa4ccc native Stage1.
 I preserve the baseline tools/bytes/runtime failure, red gates, first legacy
 fixture expectation and sanitizer-command observer setup refusal. My [paired Darwin checkpoint](evidence/empty-function-results-darwin-20261121/README.md) at9fc32e45d passes the same101 verifier/569591 VM assertions, four product methods/five source routes and targeted actual C sanitizers, with no Darwin LeakSanitizer claim. All3559 guarded inputs and143 binary carriers match Linux. The retained older Darwin VM reproduces the identical pre-fix failure. A post-test observer omits its re import; I preserve that failure and complete only pairing/archival without rerunning tests. This closes the observed structural gap; full module/profile composition and final-source release qualification remain required.
+
+### My ordinary linked-module composition
+
+I expose `module_verifier.verify_linked(bytes, links)` and
+`module_verifier.verify_graph(bytes, links)` for ordinary checked V2 modules.
+Each `LinkedModule` contains `resolved` and `bytes`. I ignore the bytes of an
+unresolved slot. A resolved slot must load and satisfy its positive declared
+stack obligations even when the root never calls it. I load the root first,
+then resolved slots in source order, before graph policy or full body checks.
+
+`verify_linked` checks the root against the supplied flat table. Its successful
+`complete` result describes that ordinary root query. It does not certify every
+target body. `verify_graph` additionally checks each present target against the
+same table, in slot order. Its `GraphResult.module_index` is zero for the root,
+slot index plus one for a failed target, and minus one for success. A successful
+graph result retains the root's depths; every refusal discards partial depths.
+This wrapper does not discover imports, recursively load dependencies or grant
+host authority.
+
+I retain the public C order for ordinary service and ownership policy before
+root structure/body checks. I compare encoded cross-module call shapes against
+resolved target signatures; unused unresolved slots remain permitted. My
+ownership scanner stops at an undecodable instruction, as the C policy scanner
+does. The ordinary body decoder still rejects malformed target bodies when I
+query those bodies. Private layout profiles continue to defer at checked
+preparation; full owned/private admission remains required.
+
+My linked differential gate uses actual V2 inputs and public C deserialization,
+conversion, declaration and linked-verifier APIs. Its complete-graph oracle
+calls that same linked API on every present target. The binary test carrier's
+64-slot bound belongs to the harness, not to my production API. Two legacy
+in-memory controls with a callee arity above65535 or result count above255
+cannot survive V2 conversion and stay separate from the materialized corpus.
+My [Linux checkpoint](evidence/linked-module-verifier-linux-20261121/README.md)
+passes304 carriers in both modes through five routes and six fresh original
+producer targets. Five carriers exercise harness refusal and four exercise
+explicit private deferral;295 ordinary V2 decisions retain public C parity.
+The complete7132-module/two-mode/five-route unlinked regression also passes
+after the shared preparation/context change. No executable selector uses these
+APIs; paired Darwin qualification remains deferred during Puck's capture reservation.

@@ -7779,3 +7779,13 @@ test-empty-function-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_empty_function_results
 
 test-units: test-empty-function-results
+
+# I compare ordinary linked roots and every present flat-graph target.
+$(OBJ_DIR)/nvm2c_linked_module_verifier_reference: tests/nvm2c_linked_module_verifier_reference.c tests/nvm2c_module_verifier_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-linked-module-verifier
+test-nanolang-translator-linked-module-verifier: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_linked_module_verifier_reference
+	python3 -m unittest -v tests.test_nanolang_translator_linked_module_verifier
+
+test-units: test-nanolang-translator-linked-module-verifier
