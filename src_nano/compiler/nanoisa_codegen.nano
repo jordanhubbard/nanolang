@@ -30,6 +30,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/module_introspection.nano"
 module "modules/compiler_support/compiler_support.nano" as CompilerSupport
+module "modules/std/fs.nano" as RegexFiles
 module "modules/nanoisa/nanoisa.nano" as OrdinaryProof
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
@@ -3765,9 +3766,8 @@ fn nisa_import_add(symbol: string) -> int {
     }
     let mut wire_result: string = result
     if (== result "array<u8>") { set wire_result "array" }
-    let mut path: string = ""
+    let path: string = ""
     if (>= (nisa_regex_arity symbol) 0) {
-        set path "./std/regex/regex.nano"
         set wire_result (nisa_regex_wire result)
     }
     set nisa_import_names (array_push nisa_import_names symbol)
@@ -3802,6 +3802,14 @@ shadow nisa_import_add {
     assert (== (nisa_import_add "vm_file_read_bytes") 0)
     assert (== nisa_import_text ".import \"\" \"vm_file_read_bytes\" array string\n")
     let _3: int = (nisa_reset)
+    let symbols: array<string> = ["nl_regex_compile", "nl_regex_match", "nl_regex_find", "nl_regex_find_all", "nl_regex_groups", "nl_regex_replace", "nl_regex_replace_all", "nl_regex_split", "nl_regex_free"]
+    let mut i: int = 0
+    while (< i (array_length symbols)) {
+        assert (== (nisa_import_add (at symbols i)) i)
+        set i (+ i 1)
+    }
+    assert (== nisa_import_text ".import \"\" \"nl_regex_compile\" opaque string\n.import \"\" \"nl_regex_match\" int opaque string\n.import \"\" \"nl_regex_find\" int opaque string\n.import \"\" \"nl_regex_find_all\" array opaque string\n.import \"\" \"nl_regex_groups\" array opaque string\n.import \"\" \"nl_regex_replace\" string opaque string string\n.import \"\" \"nl_regex_replace_all\" string opaque string string\n.import \"\" \"nl_regex_split\" array opaque string\n.import \"\" \"nl_regex_free\" void opaque\n")
+    let _4: int = (nisa_reset)
 }
 
 # I retain the exact Json artifact ABI; the module owns its opaque handles.
@@ -4244,9 +4252,63 @@ shadow nisa_module_declarations_valid {
     let _: int = (nisa_reset)
 }
 
+# I preserve an explicit provider before selecting the closed runtime ABI.
+fn nisa_register_regex_provider(function: ASTFunction) -> int {
+    let owner: int = (mb_owner function.line)
+    let source: string = (mb_source owner)
+    let slash: int = (str_last_index_of source "/")
+    let mut manifest: string = "module.json"
+    if (>= slash 0) { set manifest (+ (str_substring source 0 (+ slash 1)) "module.json") }
+    if (or (== source "") (not (RegexFiles.exists manifest))) {
+        let existing: int = (nisa_import_find function.name)
+        if (>= existing 0) { return existing }
+        return (nisa_import_add function.name)
+    }
+    let key: string = (+ "#artifact:" (+ (int_to_string owner) (+ ":" function.name)))
+    let existing: int = (nisa_import_find key)
+    if (>= existing 0) { return existing }
+    let path: string = (nisa_artifact_path owner)
+    if (== path "") { return -1 }
+    let index: int = (array_length nisa_import_names)
+    set nisa_import_names (array_push nisa_import_names key)
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ function.name (+ "\" " (nisa_regex_wire (nisa_regex_result function.name))))))))
+    let mut i: int = 0
+    while (< i (nisa_regex_arity function.name)) {
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_regex_wire (nisa_regex_parameter function.name i))))
+        set i (+ i 1)
+    }
+    set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))
+    return index
+}
+shadow nisa_register_regex_provider {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "extern fn nl_regex_compile(pattern: string) -> Regex" "regex.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "regex.nano")
+    (mb_reset [1])
+    (mb_set_sources ["std/regex/regex.nano"])
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== nisa_import_text ".import \"\" \"nl_regex_compile\" opaque string\n")
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== (array_length nisa_import_names) 1)
+    let reset_artifact: int = (nisa_reset)
+    (mb_set_sources ["modules/compiler_support/compiler_support.nano"])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/regex.so"]
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== nisa_import_text ".import \"/retained/regex.so\" \"nl_regex_compile\" opaque string\n.import_kind 0 artifact\n")
+    assert (== (nisa_register_regex_provider (parser_get_function parser 0)) 0)
+    assert (== (array_length nisa_import_names) 1)
+    (mb_reset [])
+    let reset_again: int = (nisa_reset)
+}
+
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     if (!= (nisa_module_result function.name) "") { return 0 }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
+    if (and (>= (nisa_regex_arity function.name) 0) (< (nisa_opaque_index parser "Regex") 0)) {
+        let rejected: string = (nisa_fail "I require the declared Regex opaque type for its runtime ABI")
+        return -1
+    }
     let result: string = (nisa_host_result function.name)
     if (or (== result "") (!= result function.return_type)) {
         let rejected: string = (nisa_fail (+ "unsupported extern result or symbol " function.name))
@@ -4265,9 +4327,16 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
         }
         set i (+ i 1)
     }
+    if (>= (nisa_regex_arity function.name) 0) { return (nisa_register_regex_provider function) }
     return (nisa_import_add function.name)
 }
 shadow nisa_register_extern {
+    let reset_wrong: int = (nisa_reset)
+    let wrong_tokens: List<LexerToken> = (tokenize_string "struct Regex {code:int} extern fn nl_regex_compile(pattern:string)->Regex" "wrong.nano" (diag_list_new))
+    let wrong_parser: Parser = (parse_program wrong_tokens (list_LexerToken_length wrong_tokens) "wrong.nano")
+    assert (== (nisa_register_extern wrong_parser (parser_get_function wrong_parser 0)) -1)
+    assert (== nisa_import_text "")
+    assert (str_contains nisa_err "Regex opaque type")
     let _: int = (nisa_reset)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "extern f" "n get_argv(index: int) -> string")
@@ -4358,6 +4427,12 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
         set i (+ i 1)
     }
     let mut index: int = (nisa_import_find symbol)
+    if (>= (nisa_regex_arity symbol) 0) {
+        let declaration: int = (nisa_call_index parser call)
+        if (< declaration 0) { return (nisa_fail "I require a bound declaration for this regex call") }
+        set index (nisa_register_extern parser (parser_get_function parser declaration))
+        if (< index 0) { return "" }
+    }
     if (< index 0) { set index (nisa_import_add symbol) }
     if (== symbol "vm_string_from_bytes") {
         let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)

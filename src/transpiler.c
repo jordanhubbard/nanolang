@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "generic_bindings.h"
+#include "nanoisa/regex_host_contracts.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -1045,6 +1046,13 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
 
     /* I keep allowed global declarations separate from retained runtime helpers. */
     if (builtin_is_known(nano_name)) {
+        snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
+        return buffer;
+    }
+
+    /* I keep ordinary declarations distinct from the exact regex host ABI. */
+    snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
+    if (nano_regex_host_contract(buffer)) {
         snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
         return buffer;
     }

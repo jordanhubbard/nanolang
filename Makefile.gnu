@@ -552,7 +552,7 @@ test-nvm2c-sanitizers:
 
 # I provide the native host ABI required by artifact-backed array operations.
 # A relocatable object retains exports even when only a dlopened module uses them.
-AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/utf8.o
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o $(OBJ_DIR)/runtime/regex.o $(OBJ_DIR)/utf8.o
 .PHONY: nvm2c-runtime
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
 $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) Makefile.gnu | $(BIN_DIR)
@@ -7839,3 +7839,9 @@ test-nanovirt-emission-scopes: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest -v tests.test_nanovirt_emission_scopes
 
 test-units: test-nanovirt-emission-scopes
+
+.PHONY: test-regex-replacement-runtime
+test-regex-replacement-runtime:
+	python3 -m unittest -v tests.test_regex_replace_all_runtime
+
+test-units: test-regex-replacement-runtime
