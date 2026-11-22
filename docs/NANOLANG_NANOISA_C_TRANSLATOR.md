@@ -1024,8 +1024,12 @@ conservatively conflict. Shared holds coexist; exclusive holds block reads and
 writes, and direct owner writes/moves conflict with either hold mode.
 
 My actual C oracle calls the public reference-place APIs without duplicating
-their policy. My test carrier bounds65536 layout rows and65535 fields/path
-entries to preserve native widths; its D refusal describes the harness, not a
-new product acceptance decision. Five-route and original C qualification are
-pending. I keep affine state/bytecode, private-profile composition and runtime
+their policy. My test carrier bounds layout rows at65536 as a fixture budget and fields/path
+entries at the native uint16 limit65535; its D refusal describes the harness, not a
+new product acceptance decision. My [paired exact-source qualification](evidence/reference-places-darwin-20261122/README.md)
+matches1629 ten-bit actual-C reports with487 independent expectations through
+five Linux/Darwin routes in26.588/10.692s. Every corpus byte and all six
+complete report files match, along with3571 guarded source Git blobs. All75
+original C checks, actual implementation/oracle/unit ASan/UBSan and identifiers
+pass on both hosts. I preserve all frozen providers and primary audit/stashes. I keep affine state/bytecode, private-profile composition and runtime
 admission open, and no executable selector calls this new component.

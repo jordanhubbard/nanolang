@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/reference-places-darwin-20261122",
+    "implementation": "ef3fdd23e5f13e041bffd69ba21e43d2e796cedc",
+    "logical_files": 5390,
+    "unique_artifacts": 5299,
+    "raw_bytes": 132996084,
+    "compressed_bytes": 19635598,
+    "source_files": 3571,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]
