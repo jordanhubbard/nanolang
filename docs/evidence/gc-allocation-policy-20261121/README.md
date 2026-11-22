@@ -40,3 +40,15 @@ platform acceptance still required. This evidence does not close #1161.
 
 My manifest retains107 logical inputs and232953288 raw bytes with checked
 raw/compressed SHA-256 identities.
+
+## My corrected private-provider attribution
+
+My later #1166 baseline link identifies vm_ffi.c as the actual includer of
+bstring_intrinsics.inc. The private742.020-second image recompiles heap,
+collector and unchanged vm.c while retaining the preceding vm_ffi.o. Its
+modified bstring include is hashed but is not an active changed provider in
+that private image. I do not attribute its result or targeted sanitizer
+coverage to that FFI hook. My subsequent [fresh c908523c3 Linux bootstrap](../allocation-policy-bootstrap-linux-20261121)
+builds every actual provider, including vm_ffi.c, from the integrated source
+and passes the complete original bootstrap and bstring controls. I retain
+the original commands/images and add this attribution correction explicitly.

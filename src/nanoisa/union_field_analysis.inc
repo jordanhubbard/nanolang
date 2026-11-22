@@ -133,7 +133,7 @@ static int uf_access(Analysis *a,NvmUnionAnalysisContext *u,Value receiver,
         *result=(Value){0};
         for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
             if(a->record_fields[i]!=1)return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I refuse an empty variant at payload access.");
-            merge(result,u->payloads[i]);
+            merge(result,&u->payloads[i]);
         }
     }
     if(result->unknown || !result->tags || (!result->origins && result->tags==BIT(TAG_UNION))) {
