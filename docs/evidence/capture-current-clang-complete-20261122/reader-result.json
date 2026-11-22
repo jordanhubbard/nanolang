@@ -1,0 +1,14 @@
+{
+  "records": 4291,
+  "Git_source_inputs": 4155,
+  "all_hashes_and_lengths_match": true,
+  "native_Clang_objects_observed": 4,
+  "original_source_methods": 128,
+  "unchanged_skips": 25,
+  "response_cases": 600,
+  "response_stderr_matches": 600,
+  "native_debug_cases": 36,
+  "ordinary_guide_snippets": 40,
+  "source_native_loader_identity_guards": true,
+  "scope": "I read Python/Git data only; actual object-producer metadata is retained but raw intermediate .o files are not. This9f3 capture component is separate from later-source/full-platform/release acceptance."
+}
