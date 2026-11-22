@@ -1,0 +1,37 @@
+{
+  "criteria": {
+    "exact_c908_source_pin": true,
+    "original_1800_30_budgets": true,
+    "all_17_original_bootstrap_commands_pass": true,
+    "fresh_make_bootstrap_exits_zero": true,
+    "raw_stage1_stage2_byte_equal": true,
+    "all_source_tool_host_artifact_guards_match": true,
+    "actual_native_compilers_retained": true,
+    "installed_stage2_and_final_sentinel": true,
+    "c_seed_restored_exactly": true,
+    "all_original_companions_pass": true,
+    "paired_original_linux_live_audit_pass": true,
+    "paired_source_inventory_matches_except_generated_catalog": true,
+    "first_failed_directory_bytes_unchanged": true,
+    "first_failed_source_tool_host_seed_guards_match": true,
+    "one_admitted_fresh_attempt": true,
+    "qualified_tree_clean": true,
+    "fresh_original_tools_pass": true,
+    "all_569591_original_vm_assertions_pass": true,
+    "all_four_original_heap_targets_execute": true
+  },
+  "native_images": {
+    "nanoc_stage1": {
+      "magic": "cffaedfe",
+      "bytes": 18906296,
+      "sha256": "07ae6ff81295d821ce776a41ad9506608adcf032f7ed0ca01580354d610e2e0c"
+    },
+    "nanoc_stage2": {
+      "magic": "cffaedfe",
+      "bytes": 18906296,
+      "sha256": "a0083409a4cc710ad895f0ba77bb37a91d588d56e3d497d1ab720617930b60aa"
+    }
+  },
+  "original_failed_directory_files_checked": 7,
+  "scope": "I qualify the exact-pin paired bootstrap and original companion controls. I do not establish broader release acceptance, root-independent installation or compiler semantic correctness."
+}
