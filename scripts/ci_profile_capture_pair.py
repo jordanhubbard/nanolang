@@ -117,7 +117,8 @@ def main():
     mode = os.environ.get('NANO_CAPTURE_PROFILE_METHOD', 'external-cache')
     methods = {'external-cache': METHOD,
         'split-search': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery',
-        'split-search-process': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery'}
+        'split-search-process': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery',
+        'split-search-shell': 'tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery'}
     if mode not in methods:
         raise RuntimeError('I require a declared original diagnostic method.')
     method = methods[mode]
@@ -185,13 +186,16 @@ def main():
         if mode == 'split-search-process':
             combinations = [('clang', 'clang', 'fixed')]
             process.command(['strace', '--version'], 'process-observer-version', 10, output=out)
+        observations = [(*values, False) for values in combinations]
+        if mode == 'split-search-shell':
+            observations = [('clang', 'clang', 'fixed', False), ('clang', 'clang', 'fixed', True)]
         all_images = [clang, *probes.values(), *helpers.values(), *assemblers.values(), reference]
         before_images = {str(path): digest(path) for path in all_images}
         started = time.monotonic()
-        for probe_name, helper_name, backend in combinations:
+        for probe_name, helper_name, backend, shell_fixture in observations:
             if time.monotonic() - started > 1200:
                 raise RuntimeError('I retain my bounded partial diagnostic instead of extending it.')
-            name = probe_name + '-' + helper_name + '-' + backend
+            name = probe_name + '-' + helper_name + '-' + backend + ('-shell-fixture' if shell_fixture else '')
             case = out / name
             root = case / 'root'
             results = case / 'observation'
@@ -203,13 +207,18 @@ def main():
             candidate = old if probe_name == 'reference' else current
             shutil.copy2(candidate / 'module_builder.c', root / 'src/module_builder.c')
             shutil.copy2(candidate / 'test_source_snapshots.py', root / 'tests/test_source_snapshots.py')
+            if shell_fixture:
+                from tests.assembler_search_fixture import upgrade_source
+                fixture = root / 'tests/test_source_snapshots.py'
+                fixture.write_text(upgrade_source(fixture.read_text()))
             (root / 'obj').mkdir()
             (root / 'bin').mkdir()
             shutil.copy2(reference if probe_name == 'reference' else probes[probe_name], root / 'obj/test_module_generation_probe')
             shutil.copy2(helpers[helper_name], root / 'bin/nano_as_capture.so')
             (root / 'obj/test_module_generation_probe').chmod(0o700)
             config = {'root': str(root), 'output': str(results), 'method': method,
-                      'trace_package_build': mode == 'split-search-process'}
+                      'trace_package_build': mode == 'split-search-process',
+                      'source_fixture_variant': 'shell' if shell_fixture else 'retained-python'}
             config_path = case / 'config.json'
             config_path.write_text(json.dumps(config, indent=2) + '\n')
             env = dict(os.environ, PATH=str(tools) + os.pathsep + os.environ['PATH'],
@@ -241,7 +250,7 @@ def main():
             (out / 'result.json').write_text(json.dumps(record, indent=2) + '\n')
         record['scheduling_after'] = scheduling(out, 'after')
         record['retained_images_unchanged'] = before_images == {str(path): digest(path) for path in all_images}
-        record['completed'] = len(record['cases']) == len(combinations) and not any('error' in case for case in record['cases'])
+        record['completed'] = len(record['cases']) == len(observations) and not any('error' in case for case in record['cases'])
         if not record['completed'] or not record['retained_images_unchanged']:
             raise RuntimeError('I preserve an incomplete or changed-image diagnostic without a qualification claim.')
     except BaseException as error:

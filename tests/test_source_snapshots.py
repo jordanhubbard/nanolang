@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from tests import test_module_cache_publication as cache
 from tests.characterize_source_snapshot import measure, require_consistent
+from tests.assembler_search_fixture import pkg_config_script
 
 
 class SourceSnapshots(unittest.TestCase):
@@ -1352,7 +1353,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     metadata["pkg_config"] = [f"assembler-search-fixture-{i}" for i in range(len(package_flags))]
                     pkg = directory / "pkg-config"
                     mapping = dict(zip(metadata["pkg_config"], package_flags))
-                    pkg.write_text(f'#!{sys.executable}\nimport sys\nif "--cflags" in sys.argv: print({mapping!r}[sys.argv[-1]])\n')
+                    pkg.write_text(pkg_config_script(mapping))
                     pkg.chmod(0o700)
                     env["PKG_CONFIG"] = str(pkg)
                 # I also exercise the guarded linker query with assembler operands.
