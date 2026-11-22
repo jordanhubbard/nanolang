@@ -235,7 +235,8 @@ def main():
                  'obj/test_module_generation_probe', 'bin/nano_as_capture.so'], 'build', 600)
         for name in ('obj/test_module_generation_probe', 'bin/nano_as_capture.so'):
             shutil.copy2(ROOT / name, OUT / Path(name).name)
-        if fixed_clang_complete:
+        if fixed_complete:
+            from scripts.ci_fixed_clang_inputs import native_closure
             record['native_closure_before'] = native_closure(record, ROOT, OUT, 'before')
         runner = '''import json,sys,unittest
 suite=unittest.defaultTestLoader.loadTestsFromName('tests.test_source_snapshots')
@@ -389,6 +390,9 @@ sys.exit(0 if result.wasSuccessful() and discovered==128 and result.testsRun==12
             raise RuntimeError('I require actual cold compiler support capture and publication.')
         if fixed_complete:
             original_userguide(record)
+            record['native_closure_after'] = native_closure(record, ROOT, OUT, 'after')
+            if record['native_closure_before'] != record['native_closure_after']:
+                raise RuntimeError('I refuse changed native images or dependencies during qualification.')
             record['fixed_identified_profile_qualification_passed'] = True
             record['generic_gnu_246_admission_changed'] = False
         record['private_candidate_qualification_passed'] = True

@@ -70,6 +70,9 @@ def native_closure(record, root, out, label):
     assembler = Path(record['fixed_backend']['assembler'])
     images = [str(assembler), record['selected_clang']['path'],
               str(root / 'obj/test_module_generation_probe'), str(root / 'bin/nano_as_capture.so')]
+    compiler = record['fixed_backend'].get('compiler')
+    if compiler and compiler not in images:
+        images.append(compiler)
     dependencies = []
     for index, image in enumerate(images):
         result = qualifier.command(['ldd', image],
@@ -91,9 +94,22 @@ def require_source_continuity(pin, out):
     permitted = {'docs/ROADMAP.md', 'Makefile.gnu', '.github/workflows/userguide_pages.yml',
         '.github/workflows/source-capture-toolchain-diagnostic.yml', 'scripts/ci_qualify_as246.py',
         'scripts/ci_fixed_clang_inputs.py', 'tests/test_capture_qualification_modes.py',
-        'tests/test_fixed_clang_inputs.py'}
+        'tests/test_fixed_clang_inputs.py', 'scripts/ci_profile_capture_pair.py',
+        'scripts/ci_capture_assembler_profile.py', 'scripts/ci_select_capture_assembler.py',
+        'scripts/ci_userguide_capture_diagnostics.py', 'scripts/ci_fixed_gcc_inputs.py',
+        '.github/actions/setup-capture-assembler/action.yml',
+        'tests/retained_capture_evidence.py', 'tests/test_capture_assembler_profile.py',
+        'tests/test_ci_select_capture_assembler.py', 'tests/assembler_search_fixture.py',
+        'tests/test_assembler_search_fixture.py', 'tests/test_fixed_gcc_inputs.py',
+        'tests/test_source_snapshots.py'}
     if any(name not in permitted and not name.startswith('docs/evidence/') for name in names):
         raise RuntimeError('I refuse unrelated source drift after the qualified producer.')
+    if 'tests/test_source_snapshots.py' in names:
+        from tests.assembler_search_fixture import upgrade_source
+        previous_fixture = qualifier.command(['git', 'show', pin + ':tests/test_source_snapshots.py'],
+            'producer-source-fixture', 30, output=out).stdout.decode()
+        if (ROOT / 'tests/test_source_snapshots.py').read_text() != upgrade_source(previous_fixture):
+            raise RuntimeError('I refuse source-fixture drift beyond the declared package protocol replacement.')
     for name in ('Makefile.gnu', '.github/workflows/userguide_pages.yml'):
         if name not in names:
             continue
@@ -116,6 +132,24 @@ def require_source_continuity(pin, out):
     return names
 
 
+def prepare_prior(out, record):
+    record['free_workspace_bytes'] = shutil.disk_usage(ROOT).free
+    record['free_temporary_bytes'] = shutil.disk_usage(tempfile.gettempdir()).free
+    if min(record['free_workspace_bytes'], record['free_temporary_bytes']) < 5 * 1024**3:
+        raise RuntimeError('I require five GiB of consumer build headroom.')
+    qualifier.command(['git', 'diff', '--exit-code', 'HEAD', '--'],
+                      'initial-clean-tree', 30, output=out)
+    prior = Path(os.environ['NANO_PRIOR_CAPTURE_DIRECTORY']).resolve(strict=True)
+    run_id = os.environ['NANO_PRIOR_CAPTURE_RUN']
+    if not re.fullmatch('[1-9][0-9]*', run_id):
+        raise RuntimeError('I require a numeric completed producer run.')
+    run = json.loads(qualifier.command(['gh', 'api', 'repos/' + os.environ['GITHUB_REPOSITORY'] +
+        '/actions/runs/' + run_id], 'producer-run', 30, output=out).stdout)
+    record['producer'] = require_prior(prior, run)
+    record['source_changes'] = require_source_continuity(record['producer']['source_pin'], out)
+    return prior
+
+
 def main():
     if os.environ.get('GITHUB_ACTIONS') != 'true':
         raise RuntimeError('I prepare this consumer only in its isolated GitHub Actions checkout.')
@@ -124,20 +158,7 @@ def main():
     record = {'scope': 'I prepare only an explicit Clang/r1 consumer. I repeat no producer '
                       'build/GAS cohort and change no default CI compiler or production admission.'}
     try:
-        record['free_workspace_bytes'] = shutil.disk_usage(ROOT).free
-        record['free_temporary_bytes'] = shutil.disk_usage(tempfile.gettempdir()).free
-        if min(record['free_workspace_bytes'], record['free_temporary_bytes']) < 5 * 1024**3:
-            raise RuntimeError('I require five GiB of consumer build headroom.')
-        qualifier.command(['git', 'diff', '--exit-code', 'HEAD', '--'],
-                          'initial-clean-tree', 30, output=out)
-        prior = Path(os.environ['NANO_PRIOR_CAPTURE_DIRECTORY']).resolve(strict=True)
-        run_id = os.environ['NANO_PRIOR_CAPTURE_RUN']
-        if not re.fullmatch('[1-9][0-9]*', run_id):
-            raise RuntimeError('I require a numeric completed producer run.')
-        run = json.loads(qualifier.command(['gh', 'api', 'repos/' + os.environ['GITHUB_REPOSITORY'] +
-            '/actions/runs/' + run_id], 'producer-run', 30, output=out).stdout)
-        record['producer'] = require_prior(prior, run)
-        record['source_changes'] = require_source_continuity(record['producer']['source_pin'], out)
+        prior = prepare_prior(out, record)
         clang = Path(shutil.which('clang')).resolve(strict=True)
         version = qualifier.command([str(clang), '--version'], 'actual-clang-version', 30, output=out)
         if not version.stdout.startswith(b'Ubuntu clang version 21.1.8 (6ubuntu1)\n'):

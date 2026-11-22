@@ -73,6 +73,40 @@ class FixedClangInputs(unittest.TestCase):
                 inputs.require_candidate(prior, source, test, b'qualified patch\n')
             self.assertEqual(source.read_bytes(), b'drifted C source\n')
 
+    def test_real_git_continuity_refuses_assertion_drift_after_package_fixture_upgrade(self):
+        from tests.assembler_search_fixture import upgrade_source
+        from tests.retained_capture_evidence import pre_admission_inputs
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'tests').mkdir()
+            (root / 'scripts').mkdir()
+            (root / 'output').mkdir()
+            fixture = root / 'tests/test_source_snapshots.py'
+            original = pre_admission_inputs()['tests/test_source_snapshots.py'].decode()
+            fixture.write_text(original)
+            (root / 'scripts/ci_qualify_as246.py').write_text('def command():\n    pass\n')
+            def git(*args):
+                return subprocess.check_output(['git', '-c', 'user.name=CaptureControl', '-c',
+                    'user.email=capture-control@example.invalid', *args], cwd=root,
+                    stderr=subprocess.PIPE).decode().strip()
+            git('init', '-q'); git('add', '.'); git('commit', '-qm', 'retained original fixture')
+            pin = git('rev-parse', 'HEAD')
+            fixture.write_text(upgrade_source(original))
+            git('add', '.'); git('commit', '-qm', 'declared package fixture')
+            native_command = inputs.qualifier.command
+            def command(argv, *args, **kwargs):
+                if argv[:2] == ['git', 'fetch']:
+                    return subprocess.CompletedProcess(argv, 0, b'', b'')
+                return native_command(argv, *args, **kwargs)
+            with patch.object(inputs, 'ROOT', root), patch.object(inputs.qualifier, 'ROOT', root), \
+                 patch.object(inputs.qualifier, 'command', side_effect=command):
+                self.assertEqual(inputs.require_source_continuity(pin, root / 'output'),
+                                 ['tests/test_source_snapshots.py'])
+                fixture.write_text(fixture.read_text().replace('self.assertEqual', 'self.assertNotEqual', 1))
+                git('add', 'tests/test_source_snapshots.py'); git('commit', '-qm', 'unexpected assertion change')
+                with self.assertRaisesRegex(RuntimeError, 'source-fixture drift'):
+                    inputs.require_source_continuity(pin, root / 'output')
+
     def test_missing_runtime_dependency_is_refused(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

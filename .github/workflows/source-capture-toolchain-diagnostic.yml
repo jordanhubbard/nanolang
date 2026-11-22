@@ -39,6 +39,10 @@ on:
         description: I run only the ordinary ten-second guide gate after matching this completed fixed-capture run.
         type: string
         default: ''
+      fixed_gcc_from_run:
+        description: I qualify a fresh complete GCC consumer using this completed producer without rebuilding GAS.
+        type: string
+        default: ''
       fixed_clang_from_run:
         description: I qualify the complete Clang consumer using this completed fixed-GCC producer without rebuilding GAS.
         type: string
@@ -65,7 +69,7 @@ permissions:
   actions: read
 jobs:
   linux-capture:
-    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
+    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     runs-on: ubuntu-latest
     # I allocate additional cohorts only for the newly added complete mode.
     # Individual source, native build, debug and cold-capture limits stay fixed.
@@ -132,7 +136,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   selected-tools:
-    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
+    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -227,7 +231,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-assembler:
-    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     # I bound the sum of independent source build and upstream regression cohorts.
     timeout-minutes: 90
@@ -247,7 +251,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-capture:
-    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     needs: fixed-assembler
     runs-on: ubuntu-latest
     # My original capture/test/shadow limits remain inside this additional cohort.
@@ -282,7 +286,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   fixed-userguide:
-    if: inputs.fixed_userguide_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    if: inputs.fixed_userguide_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -330,8 +334,50 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+  fixed-gcc-reuse:
+    if: inputs.fixed_gcc_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/prior-fixed-gcc/
+          run-id: ${{ inputs.fixed_gcc_from_run }}
+          github-token: ${{ github.token }}
+      - name: Check original fixture protocol and producer refusal controls
+        run: python3 -m unittest -v tests.test_assembler_search_fixture tests.test_fixed_gcc_inputs tests.test_fixed_clang_inputs tests.test_capture_qualification_modes tests.test_fixed_userguide_qualification
+      - name: Verify the completed producer while preserving the actual GCC compiler
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NANO_PRIOR_CAPTURE_RUN: ${{ inputs.fixed_gcc_from_run }}
+        run: |
+          export NANO_PRIOR_CAPTURE_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/prior-fixed-gcc"
+          python3 scripts/ci_fixed_gcc_inputs.py
+      - name: Retain actual original compiler and system assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the actual original probe and provider
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
+      - name: Retain the original system capture observation
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify complete GCC source response cold and ordinary guide cohorts
+        run: |
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_as246.py --fixed-as246-complete
+      - name: Retain the complete fresh GCC consumer and unchanged producer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
   fixed-clang-capture:
-    if: inputs.fixed_clang_from_run != '' && inputs.profile_fixed_clang_from_run == ''
+    if: inputs.fixed_clang_from_run != '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -375,7 +421,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   capture-pair-profile:
-    if: inputs.profile_fixed_clang_from_run != ''
+    if: inputs.profile_fixed_clang_from_run != '' && inputs.fixed_gcc_from_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:

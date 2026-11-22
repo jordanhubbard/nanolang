@@ -1,0 +1,7 @@
+{
+  "artifact": 14753946149,
+  "range_requests": 7,
+  "received_bytes": 1256687,
+  "archive_bytes": 114232000,
+  "scope": "I retrieve only actual result/partial log bytes. I do not rerun a target or persist a signed artifact URL."
+}
