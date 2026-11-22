@@ -5255,11 +5255,13 @@ shadow nisa_array_value_matches {
 
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
     if (!= (nisa_map_value_type expected) "") {
+        if (== node_type ParseNodeType.PNODE_MATCH) {
+            return (nisa_emit_match_body parser node_id expected)
+        }
         if (== node_type ParseNodeType.PNODE_BLOCK) {
-            let block: ASTBlock = (parser_get_block parser node_id)
-            if (!= (list_ASTStmtRef_length block.statements) 1) { return (nisa_fail "I require one map value in each conditional branch") }
-            let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
-            return (nisa_emit_expected_expr parser value.node_id value.node_type expected)
+            let first: int = (array_length nisa_names)
+            let output: string = (nisa_emit_match_arm parser node_id node_type expected)
+            return (+ output (nisa_effect_scope_end first))
         }
         if (== node_type ParseNodeType.PNODE_IF) {
             let choice: ASTIf = (parser_get_if parser node_id)
@@ -5434,6 +5436,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     return (nisa_emit_expr parser node_id node_type)
 }
 shadow nisa_emit_expected_expr {
+    let contextual_match: string = (nanoisa_emit_nasm "fn choose(flag:int)->HashMap<string,int>{return (match flag{1=>{(map_new)} _=>{(map_new)}})} fn main()->int{let values:HashMap<string,int> = (choose 1) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains contextual_match "HM_NEW 5 1")
+    let contextual_block: string = (nanoisa_emit_nasm "fn choose(flag:bool)->HashMap<int,string>{return (if flag{let selected:HashMap<int,string> = (map_new) selected}else{(map_new)})} fn main()->int{let values:HashMap<int,string> = (choose true) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains contextual_block "HM_NEW 1 5")
+    assert (str_contains contextual_block ".local_end ")
+
     for key in ["int", "string"] {
         for value in ["int", "string"] {
             let pair: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
@@ -8567,7 +8577,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type "u8") (nisa_line "RET"))
         }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
-                (or (== r.value_type ParseNodeType.PNODE_IF) (== r.value_type ParseNodeType.PNODE_BLOCK))) {
+                (or (== r.value_type ParseNodeType.PNODE_IF) (or (== r.value_type ParseNodeType.PNODE_BLOCK) (== r.value_type ParseNodeType.PNODE_MATCH)))) {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
         }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
@@ -8724,6 +8734,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
 }
 
 shadow nisa_emit_stmt {
+    let map_return: string = (nanoisa_emit_nasm "fn choose(flag:int)->HashMap<int,int>{return (match flag{1=>{(map_new)} _=>{(map_new)}})} fn main()->int{let values:HashMap<int,int> = (choose 1) return (map_size values)}")
+    assert nisa_ok
+    assert (str_contains map_return "HM_NEW 1 1")
+
     let legacy_print: string = (nanoisa_emit_nasm "fn main()->int{par-let x=3 y=12 in (println x) return (+ x y)}")
     assert nisa_ok
     assert (str_contains legacy_print "PRINTLN")

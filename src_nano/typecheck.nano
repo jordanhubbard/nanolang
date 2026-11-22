@@ -4733,26 +4733,66 @@ shadow tc_function_value_symbol {
 }
 
 # I refine the builtin's empty map from an exact scalar-pair context, not from an unknown wildcard.
-fn check_empty_map_context(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType) -> NSType {
-    if (parser_has_error parser) { return actual }
-    if (or (!= actual.kind TypeKind.TYPE_UNKNOWN) (!= actual.name "HashMap")) { return actual }
-    if (or (!= expected.kind TypeKind.TYPE_STRUCT) (!= node_type ParseNodeType.PNODE_CALL)) { return actual }
+# I recognize only my existing four builtin scalar-map families.
+fn tc_builtin_map_context(parser: Parser, expected: NSType) -> bool {
+    if (parser_has_error parser) { return false }
+    if (!= expected.kind TypeKind.TYPE_STRUCT) { return false }
     let spelling: string = (strip_spaces (type_to_string expected))
-    if (!= (base_type_name spelling) "HashMap") { return actual }
+    if (!= (base_type_name spelling) "HashMap") { return false }
     let arguments: array<string> = (tc_generic_arguments spelling)
-    if (!= (array_length arguments) 2) { return actual }
+    if (!= (array_length arguments) 2) { return false }
     let mut index: int = 0
     while (< index 2) {
         let scalar: string = (at arguments index)
-        if (not (or (== scalar "int") (== scalar "string"))) { return actual }
+        if (not (or (== scalar "int") (== scalar "string"))) { return false }
         set index (+ index 1)
     }
     # I do not reinterpret a real same-named nominal declaration as the builtin family.
     set index 0
     while (< index (parser_get_struct_def_count parser)) {
-        if (== (base_type_name (parser_get_struct_def parser index).name) "HashMap") { return actual }
+        if (== (base_type_name (parser_get_struct_def parser index).name) "HashMap") { return false }
         set index (+ index 1)
     }
+    return true
+}
+shadow tc_builtin_map_context {
+    let parser: Parser = (resource_test_parser "fn main()->int{return 0}")
+    for key in ["int", "string"] {
+        for value in ["int", "string"] {
+            assert (tc_builtin_map_context parser (type_from_string (+ "HashMap<" (+ key (+ "," (+ value ">"))))))
+        }
+    }
+    assert (not (tc_builtin_map_context parser (type_from_string "HashMap<string,bool>")))
+    assert (not (tc_builtin_map_context parser (type_from_string "HashMap<int>")))
+    assert (not (tc_builtin_map_context parser (type_from_string "Other.HashMap<int,int>")))
+    assert (not (tc_builtin_map_context parser (type_unknown_named "HashMap")))
+    let nominal: Parser = (resource_test_parser "struct HashMap{value:int}")
+    assert (not (tc_builtin_map_context nominal (type_from_string "HashMap<int,int>")))
+}
+
+# I extend only contextual value joins, never general unknown compatibility.
+fn tc_constructor_value_exact(parser: Parser, actual: NSType, expected: NSType) -> bool {
+    if (reduce_types_exact parser actual expected) { return true }
+    if (!= actual.kind TypeKind.TYPE_STRUCT) { return false }
+    if (not (tc_builtin_map_context parser expected)) { return false }
+    return (== (strip_spaces (type_to_string actual)) (strip_spaces (type_to_string expected)))
+}
+shadow tc_constructor_value_exact {
+    let parser: Parser = (resource_test_parser "struct First{n:int} struct Second{n:int}")
+    let expected: NSType = (type_from_string "HashMap<string,int>")
+    assert (tc_constructor_value_exact parser expected expected)
+    assert (not (tc_constructor_value_exact parser (type_unknown_named "HashMap") expected))
+    assert (not (tc_constructor_value_exact parser (type_from_string "HashMap<int,string>") expected))
+    assert (not (tc_constructor_value_exact parser (type_from_string "HashMap<string,bool>") (type_from_string "HashMap<string,bool>")))
+    assert (not (tc_constructor_value_exact parser (type_from_string "First") (type_from_string "Second")))
+    assert (tc_constructor_value_exact parser (type_int) (type_int))
+}
+
+fn check_empty_map_context(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType) -> NSType {
+    if (parser_has_error parser) { return actual }
+    if (or (!= actual.kind TypeKind.TYPE_UNKNOWN) (!= actual.name "HashMap")) { return actual }
+    if (or (!= expected.kind TypeKind.TYPE_STRUCT) (!= node_type ParseNodeType.PNODE_CALL)) { return actual }
+    if (not (tc_builtin_map_context parser expected)) { return actual }
     if (or (< node_id 0) (>= node_id (parser_get_call_count parser))) { return actual }
     let call: ASTCall = (parser_get_call parser node_id)
     if (or (!= call.arg_count 0) (!= call.function_type ParseNodeType.PNODE_IDENTIFIER)) { return actual }
@@ -4890,7 +4930,7 @@ fn tc_record_value_context(parser: Parser, node_id: int, node_type: int, expecte
         let left: NSType = (tc_record_value_context parser choice.then_body ParseNodeType.PNODE_BLOCK expected symbols diags file_name)
         let mut right: NSType = (type_void)
         if (>= choice.else_body 0) { set right (tc_record_value_context parser choice.else_body ParseNodeType.PNODE_BLOCK expected symbols diags file_name) }
-        if (and (== condition.kind TypeKind.TYPE_BOOL) (and (reduce_types_exact parser left expected) (reduce_types_exact parser right expected))) { return expected }
+        if (and (== condition.kind TypeKind.TYPE_BOOL) (and (tc_constructor_value_exact parser left expected) (tc_constructor_value_exact parser right expected))) { return expected }
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require every conditional record value to match its declared type." (Diagnostics.diag_location file_name choice.line choice.column)))
         return (type_unknown_named "conditional record")
     }
@@ -4908,7 +4948,7 @@ fn tc_record_value_context(parser: Parser, node_id: int, node_type: int, expecte
                 set locals (env_add_symbol locals (symbol_new binding payload false false 0 (empty_param_types) (type_void)))
             }
             let value: NSType = (tc_record_value_context parser (at choice.arm_body_ids index) (at choice.arm_body_types index) expected locals diags file_name)
-            if (not (reduce_types_exact parser value expected)) { set valid false }
+            if (not (tc_constructor_value_exact parser value expected)) { set valid false }
         }
         # I retain the original guard/domain/coverage checker after contextualizing literals.
         let checked: NSType = (check_match_expr parser node_id symbols diags file_name)

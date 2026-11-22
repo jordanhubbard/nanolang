@@ -7,6 +7,7 @@ import subprocess
 import os
 import shlex
 from tests.native_process import native_compile_timeout, native_link_flags, run_captured
+from tests.nanolang_translator_routes import source_compiler_command
 import tempfile
 import unittest
 
@@ -14,14 +15,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "tests/unit/test_map_constructor_contexts.nano"
 PRODUCERS = tuple(os.environ.get("NANO_MAP_CONTEXT_PROVIDERS",
     "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","))
+SOURCE_COMPILER = source_compiler_command()
+if SOURCE_COMPILER:
+    PRODUCERS += ('nanolang-source',)
 
 class MapConstructorContexts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        allowed = {'nanoc_c', 'nano_virt', 'nanoc_stage1', 'nanoc_stage2'}
+        allowed = {'nanoc_c', 'nano_virt', 'nanoc_stage1', 'nanoc_stage2', 'nanolang-source'}
         if not PRODUCERS or len(set(PRODUCERS)) != len(PRODUCERS) or set(PRODUCERS)-allowed:
             raise AssertionError('I require explicit unique map source providers.')
-        missing = [p for p in PRODUCERS if not (ROOT/'bin'/p).is_file()]
+        missing = [p for p in PRODUCERS if p != 'nanolang-source' and not (ROOT/'bin'/p).is_file()]
         if missing:
             raise AssertionError('I require actual map source providers: '+', '.join(missing))
         print('I exercise map source providers: '+', '.join(PRODUCERS), flush=True)
@@ -36,7 +40,9 @@ class MapConstructorContexts(unittest.TestCase):
         argv = list(map(str, command))
         self.command_number = getattr(self, 'command_number', 0)+1
         label = 'command-'+str(self.command_number).zfill(4)
-        build = Path(argv[0]).name in set(PRODUCERS)|{'nvm2c'} or '-std=c11' in argv
+        source_command = list(map(str, SOURCE_COMPILER))
+        build = (Path(argv[0]).name in set(PRODUCERS)|{'nvm2c'} or '-std=c11' in argv
+                 or bool(source_command and argv[:len(source_command)] == source_command))
         budget = native_compile_timeout() if build else 120
         inputs = {}
         for value in argv:
@@ -73,7 +79,8 @@ class MapConstructorContexts(unittest.TestCase):
         module = work / f"{identity}-{producer}.nvm"
         c_source = module.with_suffix('.c')
         native = work / f"{identity}-{producer}-native"
-        self.run_checked([ROOT / "bin" / producer, path, "--emit-nvm", "-o", module])
+        command = SOURCE_COMPILER if producer == 'nanolang-source' else [ROOT / 'bin' / producer]
+        self.run_checked([*command, path, "--emit-nvm", "-o", module])
         self.run_checked([ROOT / "bin/nano_vm", "--verify-only", module])
         self.run_checked([ROOT / "bin/nano_vm", module])
         self.run_checked([ROOT / "bin/nanoisa", "dump", module])
@@ -111,6 +118,43 @@ class MapConstructorContexts(unittest.TestCase):
                             native = work/f"legacy-{key}-{value}"
                             self.run_checked([ROOT / "bin/nanoc_c", path, "-o", native])
                             self.run_checked([native])
+
+    def test_value_branch_joins_keep_exact_builtin_map_pairs(self):
+        for key in ('int', 'string'):
+            for value in ('int', 'string'):
+                with self.subTest(key=key, value=value), self.directory('joins') as tmp:
+                    work = Path(tmp)
+                    pair = f'HashMap<{key},{value}>'
+                    source = ''
+                    choices = (
+                        '(if flag { (map_new) } else { (map_new) })',
+                        '(cond (flag (map_new)) (else (map_new)))',
+                        '(match (if flag { 1 } else { 0 }) { 1 => { (map_new) } _ => { (map_new) } })',
+                        '(if flag { let selected: '+pair+' = (map_new) selected } else { (map_new) })',
+                        '(if true { let selected:bool = true let result: '+pair+' = (if flag { let selected: '+pair+' = (map_new) selected } else { (map_new) }) assert selected result } else { (map_new) })',
+                    )
+                    for index, choice in enumerate(choices):
+                        name = f'choose_{index}'
+                        source += f'fn {name}(flag:bool)->{pair} {{ return {choice} }}\n'
+                        source += f'shadow {name} {{ assert (== (map_size ({name} true)) 0) assert (== (map_size ({name} false)) 0) }}\n'
+                    map_key = '7' if key == 'int' else '"answer"'
+                    map_value = '42' if value == 'int' else '"kept"'
+                    source += 'fn main()->int {\n'
+                    for index in range(len(choices)):
+                        for flag in ('true', 'false'):
+                            name = f'values_{index}_{flag}'
+                            source += f'let {name}: {pair} = (choose_{index} {flag})\n'
+                            source += f'(map_put {name} {map_key} {map_value}) assert (== (map_get {name} {map_key}) {map_value})\n'
+                    source += 'return 0 }\nshadow main { assert (== (main) 0) }\n'
+                    path = work / 'joins.nano'
+                    path.write_text(source)
+                    for producer in PRODUCERS:
+                        with self.subTest(producer=producer):
+                            if producer == 'nanoc_c':
+                                self.run_checked([ROOT / 'bin/nanoc_c', path, '-o', work / 'legacy'])
+                                self.run_checked([work / 'legacy'])
+                            else:
+                                self.vm_and_native(path, work, 'joins', producer)
 
     def test_detached_snapshots_and_clear_receiver_runs_once(self):
         for key in ("int", "string"):
@@ -294,6 +338,11 @@ static inline int64_t nl_owned_count(void) { return finalized; }
             "let values: HashMap<bool,string> = (map_new)",
             "let values: HashMap<string,bool> = (map_new)",
             "let values: HashMap<string,string> = (map_new 1)",
+            "let other: HashMap<int,string> = (map_new) let values: HashMap<string,string> = (if true { (map_new) } else { other })",
+            "let values: HashMap<string,bool> = (cond (true (map_new)) (else (map_new)))",
+            "let values: HashMap<string,string> = (if true { (map_new 1) } else { (map_new) })",
+            "let values: HashMap<string,string> = (match 1 { 1 => { (map_new) } })",
+            "let values: HashMap<string,string> = (match 1 { 1 if 1 => { (map_new) } _ => { (map_new) } })",
         )
         with self.directory("contexts") as tmp:
             work = Path(tmp)
@@ -304,7 +353,7 @@ static inline int64_t nl_owned_count(void) { return finalized; }
                 for compiler in PRODUCERS:
                     with self.subTest(body=body, compiler=compiler):
                         output.write_text("prior artifact")
-                        command = [ROOT / "bin" / compiler, source, "-o", output]
+                        command = [*(SOURCE_COMPILER if compiler == 'nanolang-source' else [ROOT / 'bin' / compiler]), source, "-o", output]
                         if compiler != "nanoc_c": command.append("--emit-nvm")
                         result = self.capture(command, accepted=False)
                         self.assertNotEqual(result.returncode, 0)
