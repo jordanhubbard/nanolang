@@ -1,5 +1,8 @@
 # My 5.1 compiler architecture and release order
 
+- [ ] Under #1161/#1164 I qualify exact Linux source pin `c908523c3` on Darwin ARM64 with freshly built original tools, the complete original VM controls and guarded Make bootstrap3 under the existing1800/30-second limits. I retain every terminal, raw generations, native products, immutable host closure and no-C-seed execution; this paired checkpoint does not establish final-head, fresh-PREFIX, translator cutover or complete release acceptance.
+- [x] Under #1161/#1164 I retain my [exact repaired-pin Darwin terminal](evidence/allocation-policy-bootstrap-darwin-20261121/README.md): fresh tools,569591 original VM assertions and seed verification pass, but raw Stage1 reaches1800.014 seconds and Make exits2. All original source/tool/host/seed guards match; I publish no Stage1/Stage2/native/install acceptance, change no deadline and repeat no unchanged run. Shared-host CPU/wall observations do not establish a cause. I coordinate distinct source/run ownership with Sparky in #1161.
+
 I compile my source to NanoISA. From that shared representation I either execute
 in NanoVM or emit C with a translator implemented in NanoLang, then invoke the
 host C compiler to produce a standalone binary:
