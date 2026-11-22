@@ -7799,3 +7799,13 @@ test-nanolang-translator-reference-places: $(COMPILER_C) nano_virt nano_vm nvm2c
 	NANOLANG_REFERENCE_PLACES_REFERENCE="$(OBJ_DIR)/nvm2c_reference_places_reference" python3 -m unittest -v tests.test_nanolang_translator_reference_places
 
 test-units: test-nanolang-translator-reference-places
+
+# I compare shared affine local transitions before bytecode/profile admission.
+$(OBJ_DIR)/nvm2c_affine_state_reference: tests/nvm2c_affine_state_reference.c $(NANOISA_DIR)/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $@ $< $(filter-out $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-affine-state
+test-nanolang-translator-affine-state: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_state_reference
+	NANOLANG_AFFINE_STATE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_state_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_state
+
+test-units: test-nanolang-translator-affine-state

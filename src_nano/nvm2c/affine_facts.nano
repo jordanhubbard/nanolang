@@ -1,0 +1,246 @@
+module nvm2c_affine_facts
+module "src_nano/nvm2c/ownership.nano" as owned
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "src_nano/nvm2c/payloads.nano" as payload
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/reference_places.nano" as refs
+
+pub struct Slot { tag: int, mode: int, layout: int }
+pub struct Variant { layout: int, variant: int, offset: int, count: int }
+pub struct Effect { key: int, result: Slot, parameters: array<Slot> }
+pub struct Facts {
+    valid: bool, analysis: int, module_identity: int, function: int,
+    rows: array<refs.Layout>, flags: array<int>, locals: array<Slot>,
+    result: Slot, parameters: int, result_count: int, result_tag: int,
+    arrays: array<Slot>, variants: array<Variant>, effects: array<Effect>
+}
+
+pub fn slot(tag: int, layout: int) -> Slot { return Slot { tag: tag, mode: 0, layout: layout } }
+shadow slot { assert (== (slot 1 4294967295).layout 4294967295) assert (== (slot 1 0).mode 0) }
+
+pub fn empty() -> Facts {
+    return Facts { valid: false, analysis: 0, module_identity: 0, function: 0,
+        rows: [], flags: [], locals: [], result: (slot 0 0), parameters: 0,
+        result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+}
+shadow empty { assert (not (empty).valid) assert (== (array_length (empty).locals) 0) }
+
+pub fn scalar(tag: int) -> bool { return (and (>= tag 1) (<= tag 4)) }
+shadow scalar { assert (scalar 3) assert (not (scalar 5)) }
+
+pub fn complete(flag: int) -> bool { return (== (% flag 2) 1) }
+shadow complete { assert (complete 3) assert (not (complete 2)) }
+
+pub fn resource_flag(flag: int) -> bool { return (== (% (/ flag 2) 2) 1) }
+shadow resource_flag { assert (resource_flag 3) assert (not (resource_flag 1)) }
+
+pub fn same(f: Facts, first: Slot, second: Slot) -> bool {
+    if (!= first.mode second.mode) { return false }
+    let mut a: Slot = first
+    let mut b: Slot = second
+    let mut depth: int = 0
+    while (<= depth 256) {
+        if (!= a.tag b.tag) { return false }
+        if (!= a.tag 7) { return (== a.layout b.layout) }
+        if (or (< a.layout 0) (or (< b.layout 0)
+            (or (>= a.layout (array_length f.arrays)) (>= b.layout (array_length f.arrays))))) { return false }
+        set a (at f.arrays a.layout)
+        set b (at f.arrays b.layout)
+        set depth (+ depth 1)
+    }
+    return false
+}
+shadow same {
+    assert (same (empty) (slot 1 4294967295) (slot 1 4294967295))
+    assert (not (same (empty) (slot 1 0) (slot 1 1)))
+    assert (not (same (empty) (slot 7 0) (slot 7 0)))
+}
+
+pub fn resource_value(f: Facts, value: Slot) -> bool {
+    let mut item: Slot = value
+    let mut depth: int = 0
+    while (<= depth 256) {
+        if (!= item.tag 7) {
+            return (and (or (== item.tag 8) (== item.tag 10))
+                (and (and (>= item.layout 0) (< item.layout (array_length f.rows)))
+                    (resource_flag (at f.flags item.layout))))
+        }
+        if (or (!= item.mode 0) (or (< item.layout 0) (>= item.layout (array_length f.arrays)))) { return false }
+        set item (at f.arrays item.layout)
+        set depth (+ depth 1)
+    }
+    return false
+}
+shadow resource_value { assert (not (resource_value (empty) (slot 8 0))) assert (not (resource_value (empty) (slot 1 4294967295))) }
+
+pub fn variant_index(f: Facts, layout: int, variant: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length f.variants)) {
+        let item: Variant = (at f.variants i)
+        if (and (== item.layout layout) (== item.variant variant)) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow variant_index { assert (== (variant_index (empty) 0 0) -1) }
+
+pub fn union_value(f: Facts, value: Slot) -> bool {
+    if (or (!= value.tag 10) (!= value.mode 0)) { return false }
+    if (or (< value.layout 0) (>= value.layout (array_length f.rows))) { return false }
+    return (and (== (at f.rows value.layout).kind 2) (>= (variant_index f value.layout 0) 0))
+}
+shadow union_value { assert (not (union_value (empty) (slot 10 0))) }
+
+pub fn supported(f: Facts, value: Slot) -> bool {
+    return (or (and (== value.tag 7) (and (== value.mode 0)
+            (and (>= value.layout 0) (< value.layout (array_length f.arrays)))))
+        (or (scalar value.tag) (or (and (== value.tag 5) (== value.layout 4294967295))
+            (or (and (== value.tag 8) (!= value.layout 4294967295)) (union_value f value)))))
+}
+shadow supported {
+    assert (supported (empty) (slot 1 4294967295))
+    assert (supported (empty) (slot 5 4294967295))
+    assert (not (supported (empty) (slot 5 0)))
+}
+
+fn read_slot(c: read.Cursor) -> Slot {
+    let tag: int = (read.read_byte c)
+    let mode: int = (read.read_byte c)
+    let reserved: int = (read.read_u16 c)
+    return Slot { tag: tag, mode: mode, layout: (read.read_u32 c) }
+}
+shadow read_slot { assert (== (read_slot (read.open [1,2,0,0,255,255,255,255])).layout 4294967295) }
+
+fn layout_rows(table: payload.PayloadTable) -> array<refs.Layout> {
+    let mut rows: array<refs.Layout> = []
+    let mut i: int = 0
+    while (< i (array_length table.starts)) {
+        let start: int = (at table.starts i)
+        let count: int = (wire.read_u16 table.data (+ start 2))
+        let mut fields: array<refs.Field> = []
+        let mut j: int = 0
+        while (< j count) {
+            let offset: int = (+ (+ start 8) (* j 12))
+            set fields (array_push fields refs.Field { tag: (cast_int (at table.data offset)), nested: (wire.read_u32 table.data (+ offset 4)) })
+            set j (+ j 1)
+        }
+        set rows (array_push rows refs.Layout { kind: (cast_int (at table.data start)), fields_present: true, fields: fields })
+        set i (+ i 1)
+    }
+    return rows
+}
+shadow layout_rows { assert (== (array_length (layout_rows (payload.layouts [0,0,0,0]))) 0) }
+
+struct ExtensionFacts { arrays: array<Slot>, variants: array<Variant>, effects: array<Effect> }
+fn extension_facts(extensions: read.Extensions) -> ExtensionFacts {
+    let mut arrays: array<Slot> = []
+    let mut variants: array<Variant> = []
+    let mut effects: array<Effect> = []
+    let mut e: int = 0
+    while (< e (array_length extensions.values)) {
+        let view: read.Extension = (at extensions.values e)
+        let c: read.Cursor = (read.open view.data)
+        if (== view.kind 1) {
+            let count: int = (read.read_u32 c)
+            let mut i: int = 0
+            while (< i count) {
+                let layout: int = (read.read_u32 c)
+                let size: int = (read.read_u16 c)
+                let reserved: int = (read.read_u16 c)
+                let mut j: int = 0
+                while (< j size) {
+                    let name: int = (read.read_u32 c)
+                    let offset: int = (read.read_u16 c)
+                    let fields: int = (read.read_u16 c)
+                    set variants (array_push variants Variant { layout: layout, variant: j, offset: offset, count: fields })
+                    set j (+ j 1)
+                }
+                set i (+ i 1)
+            }
+        } else if (== view.kind 4) {
+            if (>= view.revision 2) {
+                let count: int = (read.read_u32 c)
+                let mut i: int = 0
+                while (< i count) { set arrays (array_push arrays (read_slot c)) set i (+ i 1) }
+            }
+            if (== view.revision 3) {
+                let count: int = (read.read_u32 c)
+                let ignored: int = (read.skip c (* count 12))
+            }
+            let count: int = (read.read_u32 c)
+            let mut i: int = 0
+            while (< i count) {
+                let key: int = (read.read_u32 c)
+                let size: int = (read.read_u16 c)
+                let reserved: int = (read.read_u16 c)
+                let result: Slot = (read_slot c)
+                let mut params: array<Slot> = []
+                let mut j: int = 0
+                while (< j size) { set params (array_push params (read_slot c)) set j (+ j 1) }
+                set effects (array_push effects Effect { key: key, result: result, parameters: params })
+                set i (+ i 1)
+            }
+        }
+        set e (+ e 1)
+    }
+    return ExtensionFacts { arrays: arrays, variants: variants, effects: effects }
+}
+shadow extension_facts {
+    assert (== (array_length (extension_facts read.Extensions { status: 0, values: [] }).effects) 0)
+}
+
+# My owning analysis allocates unique positive module/analysis identities.
+# Clones share them; wire declarations cannot choose or grant these identities.
+pub fn prepare(bytes: array<u8>, model: owned.Module, function: int, module_identity: int, analysis: int) -> Facts {
+    if (or (or (<= module_identity 0) (<= analysis 0))
+        (or (== (array_length bytes) 0) (or (< function 0) (>= function (array_length model.functions))))) { return (empty) }
+    if (!= (owned.validate bytes model).status 0) { return (empty) }
+    let table: payload.PayloadTable = (payload.decode model.layouts 4)
+    if (!= table.status 0) { return (empty) }
+    let c: read.Cursor = (read.open bytes)
+    let version: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    let at_flags: int = (read.skip c count)
+    let mut flags: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set flags (array_push flags (cast_int (at bytes (+ at_flags i)))) set i (+ i 1) }
+    let ignored: int = (read.align c)
+    let functions: int = (read.read_u32 c)
+    let mut result: Slot = (slot 0 0)
+    let mut locals: array<Slot> = []
+    let mut parameters: int = 0
+    set i 0
+    while (< i functions) {
+        let size: int = (read.read_u16 c)
+        let params: int = (read.read_u16 c)
+        let value: Slot = (read_slot c)
+        if (== i function) { set result value set parameters params }
+        let mut j: int = 0
+        while (< j size) {
+            let local_value: Slot = (read_slot c)
+            if (== i function) { set locals (array_push locals local_value) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let extensions: read.Extensions = (read.suffix c version false)
+    if (!= extensions.status 0) { return (empty) }
+    let extra: ExtensionFacts = (extension_facts extensions)
+    let mut result_tag: int = 0
+    if (< function (array_length model.results)) { set result_tag (at model.results function) }
+    let f: Facts = Facts { valid: true, analysis: analysis, module_identity: module_identity, function: function,
+        rows: (layout_rows table), flags: flags, locals: locals, result: result, parameters: parameters,
+        result_count: (at model.functions function).results, result_tag: result_tag,
+        arrays: extra.arrays, variants: extra.variants, effects: extra.effects }
+    if (and (!= result.tag 0) (not (supported f result))) { return (empty) }
+    set i 0
+    while (< i (array_length locals)) {
+        if (not (supported f (at locals i))) { return (empty) }
+        set i (+ i 1)
+    }
+    return f
+}
+shadow prepare {
+    let model: owned.Module = owned.Module { layouts: [], code: [], strings: [], functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 }
+    assert (not (prepare [] model 0 1 1).valid)
+}

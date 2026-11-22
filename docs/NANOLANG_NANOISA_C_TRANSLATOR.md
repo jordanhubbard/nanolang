@@ -1033,3 +1033,55 @@ complete report files match, along with3571 guarded source Git blobs. All75
 original C checks, actual implementation/oracle/unit ASan/UBSan and identifiers
 pass on both hosts. I preserve all frozen providers and primary audit/stashes. I keep affine state/bytecode, private-profile composition and runtime
 admission open, and no executable selector calls this new component.
+
+### My shared affine local-state replacement
+
+I implement `affine_facts.nano` and `affine_state.nano` after the paired place
+checks. Facts preparation first runs the complete existing shared ownership
+validator, retains ordinary decoded layouts, function/result/local descriptors,
+layout flags, exact union variant slices, effect signatures and typed-array
+rows. Private checked-state constructors in the mixed/owned-array analyses are
+not admitted by this shared factory.
+
+My owning analysis allocates a distinct positive module identity for each
+module object and a distinct analysis identity for each preparation. Clones
+and lexical handler arms retain the latter; independent preparations do not
+become equal merely because their bytes match. These identifiers belong to
+my verifier context, never to producer-supplied ownership bytes. Facts and
+returned state records are internal immutable views; they are not authority
+certificates that arbitrary callers may forge or mutate.
+
+My transition API returns a new state on success and the original state on
+refusal. It preserves exact owned obligations, initialized copyable values,
+selected union arms, regions, parent references, invocation/caller origins and
+handler resume facts. Joins intersect copyable initialization and forget a
+selected union arm only after exact live resource/reference obligations match.
+Queries return explicit validity and expose no partial values after refusal;
+value-type arguments use mode-zero slots, while declaration slots retain
+reference modes. No operation performs bytecode or runtime execution.
+
+I retain the first690 native traces, whose full actual-C snapshots agree even
+though five handwritten expected booleans were wrong. The expanded3058-trace
+preflight passes all five C/NanoLang native/VM/sanitized routes in239.392s.
+The unchanged C state target passes563 ordinary and634 allocation-failure
+checks. These preflights are not a frozen final-source qualification.
+
+A separate input-path mutation witness then catches an alias in my first
+port: a borrowed place retains the caller's path array. The actual C witness
+passes16 checks, while my original source fails two ownership assertions. I
+copy paths at installation, cloning and caller binding, and extend the oracle
+and driver with restored path-perturbation isolation checks. I retain the
+failed witness and explicitly identified reverse-patch reconstruction of the
+uncommitted pre-copy draft; I do not call that reconstruction a frozen source.
+Exact-source complete qualification remains pending after this correction.
+
+My oracle includes the actual C state implementation and invokes its public
+transitions/queries. It snapshots retained state and checks failed operations
+against an actual C clone, preserves query output sentinels, and restores its
+private path perturbations. Its analysis/module identity adapter models C
+Facts/module object identity rather than replacing it with content equality.
+The test carrier bounds sixteen simultaneous state handles,65536 reference
+slots/commands and native operand widths. Harness D is distinct from a state
+transition refusal. Affine bytecode/CFG analysis, private profiles, pure C
+emission and complete release acceptance remain open; no executable selector
+uses these local transitions.
