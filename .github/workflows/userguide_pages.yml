@@ -13,6 +13,11 @@ on:
       - "scripts/build_userguide.py"
       - "scripts/userguide_snippets_check.nano"
       - "Makefile.gnu"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/native_process.py"
+      - "src/module_builder.c"
+      - "src/runtime/assembler_capture.c"
+      - "src/runtime/assembler_capture.h"
       - ".github/workflows/userguide_pages.yml"
   push:
     branches: [ main ]
@@ -27,6 +32,11 @@ on:
       - "scripts/build_userguide.py"
       - "scripts/userguide_snippets_check.nano"
       - "Makefile.gnu"
+      - "scripts/ci_userguide_capture_diagnostics.py"
+      - "tests/native_process.py"
+      - "src/module_builder.c"
+      - "src/runtime/assembler_capture.c"
+      - "src/runtime/assembler_capture.h"
       - ".github/workflows/userguide_pages.yml"
   workflow_dispatch:
 
@@ -66,8 +76,15 @@ jobs:
         with:
           enablement: true
 
+      - name: I record bounded compiler and assembler reports
+        run: python3 scripts/ci_userguide_capture_diagnostics.py
+
       - name: Validate user guide snippets
-        run: make userguide-check
+        env:
+          NANO_TRACE_BUILD: "1"
+        run: |
+          set -o pipefail
+          make userguide-check 2>&1 | tee .test_output/userguide-ci/validation.log
 
       - name: Build user guide HTML
         run: make userguide-html
@@ -79,6 +96,21 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/userguide/html
+
+      - name: I retain failed user guide capture evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: userguide-capture-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 14
+          path: |
+            .test_output/userguide-ci/
+            modules/compiler_support/.build/
+            obj/nano_modules/
+            bin/nanoc_c
+            bin/nano_virt
+            bin/nano_as_capture.so
 
   deploy:
     if: github.event_name != 'pull_request'
