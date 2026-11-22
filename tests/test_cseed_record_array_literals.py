@@ -154,4 +154,30 @@ shadow main { assert (== (main) 0) }
             native = self.run_checked([root/'native'])
             self.assertEqual(native.stdout, vm.stdout)
 
+    def test_native_record_set_preserves_nominal_target_type(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root/'other.nano').write_text('pub struct ImportedSecond { a: int }\n'
+                'pub fn wrong() -> ImportedSecond { return ImportedSecond { a: 2 } }\n'
+                'shadow wrong { assert (== (wrong).a 2) }\n')
+            for value in ('Second { a: 2 }', 'local', '(wrong)', '(other.wrong)'):
+                with self.subTest(value=value):
+                    source = root/'bad.nano'
+                    source.write_text('module "other.nano" as other\n'
+                        'struct First { a: int }\nstruct Second { a: int }\n'
+                        'fn wrong() -> Second { return Second { a: 2 } }\n'
+                        'shadow wrong { assert (== (wrong).a 2) }\n'
+                        'fn main() -> int { let items: array<First> = [First { a: 1 }] '
+                        'let local: Second = Second { a: 2 } '
+                        '(array_set items 0 ' + value + ') return 0 }\n'
+                        'shadow main { assert (== (main) 0) }\n')
+                    output = root/'prior'
+                    output.write_bytes(b'prior-output')
+                    result = subprocess.run([ROOT/'bin/nanoc_c', source, '-o', output],
+                        cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                    self.assertTrue('invalid initializer' in result.stderr or
+                                    'incompatible' in result.stderr, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'prior-output')
+
 if __name__=='__main__': unittest.main()

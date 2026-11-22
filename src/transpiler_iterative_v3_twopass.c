@@ -2509,9 +2509,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         unsigned call_id = build_ordered_call_args(list,
                             expr->as.call.args, expr->as.call.arg_count, env, NULL);
                         emit_formatted(list,
+                            "%s _value = __nl_arg_%u_2; "
                             "dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, "
-                            "&__nl_arg_%u_2, sizeof(%s)); })",
-                            call_id, call_id, call_id, get_prefixed_type_name(struct_name));
+                            "&_value, sizeof _value); })",
+                            get_prefixed_type_name(struct_name), call_id, call_id, call_id);
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
