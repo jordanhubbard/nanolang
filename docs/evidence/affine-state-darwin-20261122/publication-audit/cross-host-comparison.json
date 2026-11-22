@@ -1,0 +1,40 @@
+{
+  "implementation": "3df7ac29e78619457fe1acdea3c05bb88314d63f",
+  "cases": 3141,
+  "independent_expectations": 383,
+  "source_files": 3577,
+  "all_input_bytes_and_source_hashes_identical": true,
+  "all_actual_C_and_five_route_report_bytes_identical": true,
+  "reports": [
+    {
+      "file": "actual-c.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    },
+    {
+      "file": "c-seed-native.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    },
+    {
+      "file": "c-producer-nanoisa-vm.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    },
+    {
+      "file": "c-producer-sanitized-native.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    },
+    {
+      "file": "nanolang-producer-nanoisa-vm.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    },
+    {
+      "file": "nanolang-producer-sanitized-native.reports",
+      "sha256": "eb7476ae723053a8cd9fe3a2dd3e10592e64fcf9ec32ccf32e0f4cb842db3369",
+      "reports": 3141
+    }
+  ]
+}

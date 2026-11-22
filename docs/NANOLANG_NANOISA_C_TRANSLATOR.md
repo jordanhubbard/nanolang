@@ -1073,7 +1073,7 @@ copy paths at installation, cloning and caller binding, and extend the oracle
 and driver with restored path-perturbation isolation checks. I retain the
 failed witness and explicitly identified reverse-patch reconstruction of the
 uncommitted pre-copy draft; I do not call that reconstruction a frozen source.
-Exact-source complete qualification remains pending after this correction.
+My [exact3df7ac29e paired qualification](evidence/affine-state-darwin-20261122/README.md) then passes3141 traces through five routes in224.344s Linux/79.364s Darwin, with383 independent expectations. All corpus bytes, six complete report files and3577 exact Git source inputs match. All563 ordinary/634 allocation-failure C checks, targeted actual C ASan/UBSan and identifiers pass. Independent readers verify12177 Linux/7213 Darwin archive records; every source/tool/frozen-provider/primary-audit/stash guard holds. Darwin ASan disables leak detection; I claim no Darwin LeakSanitizer coverage. No new raw bootstrap executes.
 
 My oracle includes the actual C state implementation and invokes its public
 transitions/queries. It snapshots retained state and checks failed operations
