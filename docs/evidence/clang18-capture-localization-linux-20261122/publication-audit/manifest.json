@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "file": "independent-archive-verification.json",
+      "bytes": 395,
+      "sha256": "894ff460775aaaef2297f53b12e2f7fe3b4a0db81b6f8f611cc7e766e90cd085"
+    },
+    {
+      "file": "independent-archive-verification.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "archive.stdout",
+      "bytes": 132,
+      "sha256": "72b4be6f41c80522e350d324c8193d917e98939179ae0b558789fdc232257ea9"
+    },
+    {
+      "file": "archive.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "native-terminal.md",
+      "bytes": 2967,
+      "sha256": "e4c0fbb038ba655b16657a9a476d4d18000cabd8eb9361b3f7fd8d7dda22e10c"
+    },
+    {
+      "file": "private-localization.md",
+      "bytes": 2162,
+      "sha256": "20bcab3ec73201025fb1d82c252d6c4c166cd0e2124625a4b5c1a76a5e29c630"
+    }
+  ],
+  "limits": "I retain post-archive audits and ownership handoffs separately from the main input counts."
+}

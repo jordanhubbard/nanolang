@@ -1,0 +1,13 @@
+[
+  {
+    "archive": "docs/evidence/clang18-capture-localization-linux-20261122",
+    "implementation": "0419b4d237f0dc16b5b67555aa51883f32d9b68e",
+    "logical_files": 4877,
+    "unique_artifacts": 4069,
+    "raw_bytes": 39332065,
+    "compressed_bytes": 8964451,
+    "source_files": 3569,
+    "all_compressed_and_raw_hashes_verified": true,
+    "all_guarded_sources_match_git_pin": true
+  }
+]
