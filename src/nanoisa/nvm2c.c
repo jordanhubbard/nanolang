@@ -27,8 +27,11 @@
 #include "verifier.h"
 #include "../nanovm/vm_decode.h"
 #include "../runtime/dyn_array.h"
+#include "host_artifact_digest.h"
+#include "host_artifact_source.h"
 
 #include <stdarg.h>
+#include <sys/stat.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7961,6 +7964,39 @@ static void emit_host_file_read(Nvm2cBuf *b) {
         "    return nstr_take(text);\n}\n");
 }
 
+/* I keep deployment declarations separate from ordinary program strings. */
+static bool native_host_artifact(const Nvm2cHost *host) {
+    return scalar_artifact_adapter(host) || typed_artifact_adapter(host) ||
+        (host && host->result == TAG_ARRAY && !byte_array_result_adapter(host));
+}
+
+static void emit_host_artifact_declarations(Nvm2cBuf *b, const NvmModule *mod) {
+    nvm2c_puts(b,
+        "#ifdef __APPLE__\n"
+        "#define NANO_HOST_SECTION __attribute__((used, section(\"__DATA,__nanohost\")))\n"
+        "#else\n"
+        "#define NANO_HOST_SECTION __attribute__((used, section(\".nanohost\")))\n"
+        "#endif\n");
+    for (uint32_t index = 0; index < mod->import_count; ++index) {
+        if (!native_host_artifact(import_host(mod, index))) continue;
+        const NvmImportEntry *imp = &mod->imports[index];
+        const char *path = mod->strings[imp->module_name_idx];
+        char canonical[PATH_MAX], digest[65];
+        struct stat status;
+        if (strlen(path) != mod->string_lengths[imp->module_name_idx]) {
+            nvm2c_fail(b, "I require a native host path without embedded NUL bytes");
+            return;
+        }
+        bool present = realpath(path, canonical) && !stat(canonical, &status) && S_ISREG(status.st_mode) &&
+            nano_host_digest_file(canonical, digest);
+        nvm2c_printf(b, "static const char nano_host_import_%u[] NANO_HOST_SECTION = ", index);
+        if (present) nvm2c_printf(b, "\"NANOLANG_HOST_V1:%s:\" ", digest);
+        else nvm2c_puts(b, "\"NANOLANG_HOST_ABSENT_V1:\" ");
+        emit_c_string_lit(b, present ? canonical : path, (uint32_t)strlen(present ? canonical : path));
+        nvm2c_puts(b, ";\n");
+    }
+}
+
 static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
@@ -7976,10 +8012,9 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n", result, types);
         if (host->result == TAG_STRING)
             nvm2c_puts(b, "    static void (*release)(const char *);\n");
-        nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
-        const NvmImportEntry *imp = &mod->imports[i];
-        emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
-        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n");
+        nvm2c_puts(b, "    if (!library) {\n        library = nano_host_load(");
+        nvm2c_printf(b, "nano_host_import_%u", i);
+        nvm2c_puts(b, ");\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n", result, types, host->name);
         nvm2c_puts(b, "        if (!function) NVM2C_ABORT();\n");
         if (host->result == TAG_STRING) {
@@ -8036,10 +8071,9 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n",
             result, host->argc ? types : "void");
         if (host->result == TAG_STRING && context_artifact_adapter(host)) nvm2c_puts(b, "    static void (*release)(const char *);\n");
-        nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
-        const NvmImportEntry *imp = &mod->imports[i];
-        emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
-        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n");
+        nvm2c_puts(b, "    if (!library) {\n        library = nano_host_load(");
+        nvm2c_printf(b, "nano_host_import_%u", i);
+        nvm2c_puts(b, ");\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n        if (!function) NVM2C_ABORT();\n",
             result, host->argc ? types : "void", host->name);
         if (host->result == TAG_STRING && context_artifact_adapter(host)) {
@@ -8129,13 +8163,9 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_printf(b, "    static bool (*release)(%s);\n", collection ? "void *" : "DynArray *");
         nvm2c_puts(b,
             "    if (!library) {\n"
-            "        library = dlopen(");
-        const NvmImportEntry *imp = &mod->imports[i];
-        emit_c_string_lit(b, mod->strings[imp->module_name_idx],
-                          mod->string_lengths[imp->module_name_idx]);
-        nvm2c_puts(b,
-            ", RTLD_NOW | RTLD_LOCAL);\n"
-            "        if (!library) NVM2C_ABORT();\n");
+            "        library = nano_host_load(");
+        nvm2c_printf(b, "nano_host_import_%u", i);
+        nvm2c_puts(b, ");\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b,
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
             "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
@@ -9395,6 +9425,14 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         }
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         if (module_uses_host(mod, "nhost_file_read_bytes")) emit_host_file_read_bytes(&b);
+        for (uint32_t i = 0; i < mod->import_count; ++i) {
+            const Nvm2cHost *host = import_host(mod, i);
+            if (native_host_artifact(host)) {
+                nvm2c_puts(&b, nano_host_artifact_source);
+                emit_host_artifact_declarations(&b, mod);
+                break;
+            }
+        }
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
         emit_typed_artifact_adapters(&b, mod);

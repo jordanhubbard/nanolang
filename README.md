@@ -240,6 +240,8 @@ make test-quick     # Run my quick language tests
 make examples       # Build my examples
 ```
 
+I describe native host-library packaging and prefix relocation in [my deployment contract](docs/NATIVE_HOST_DEPLOYMENT.md).
+
 My self-hosted bootstrap tracks Nano and C sources, headers, JSON manifests,
 and directory membership under `src_nano`, `src`, `modules`, `std`, and
 `stdlib`. This is a conservative, modification-time dependency set: a library

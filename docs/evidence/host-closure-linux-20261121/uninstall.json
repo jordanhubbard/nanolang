@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "make",
+    "CC=/usr/bin/cc",
+    "PREFIX=/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy",
+    "uninstall"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 0.26385213599860435,
+  "stdout": "python3 scripts/install_host_artifacts.py --prefix \"/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy\" --name nanoc --uninstall\nrm -f \"/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano-resolver\"\nrm -f \"/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/lib/libnano_file_runtime.a\" \"/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nvm2c\" \"/tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_aot_runtime.o\"\nrm -f /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_as_capture.so\nrm -f /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nanoc /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_virt /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_vm /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_cop /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nano_vmd /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin/nanoisa\nUninstalled from /tmp/nano-host-closure-prefix-hl5iss8z/uninstall-copy/bin\n",
+  "stderr": "",
+  "compiler_removed": true,
+  "owned_host_blobs_remaining": [],
+  "original_prefix_unchanged": true
+}

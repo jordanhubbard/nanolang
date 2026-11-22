@@ -4554,6 +4554,7 @@ coverage-check: coverage.info
 # Install binaries
 install: $(COMPILER) vm nvm2c nvm2c-runtime install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
+	python3 scripts/install_host_artifacts.py --binary "$(COMPILER)" --prefix "$(PREFIX)" --name nanoc
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
 	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
@@ -4568,6 +4569,7 @@ endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
+	python3 scripts/install_host_artifacts.py --prefix "$(PREFIX)" --name nanoc --uninstall
 	rm -f "$(PREFIX)/bin/nano-resolver"
 	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c" "$(PREFIX)/bin/nano_aot_runtime.o"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
@@ -7719,3 +7721,16 @@ test-legacy-bang-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2
 .PHONY: test-array-sort-contracts
 test-array-sort-contracts: bootstrap3 nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_array_sort_contracts
+
+# I retain one exact deployment loader in standalone generated products.
+$(NANOISA_DIR)/host_artifact_source.h: scripts/embed_host_artifact_loader.py $(NANOISA_DIR)/host_artifact_digest.h $(NANOISA_DIR)/host_artifact_loader.h
+	python3 scripts/embed_host_artifact_loader.py
+
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/host_artifact_source.h $(NANOISA_DIR)/host_artifact_digest.h
+
+.PHONY: test-host-artifact-deployment
+test-host-artifact-deployment: nanoisa_dump nano_vm nvm2c
+	python3 scripts/embed_host_artifact_loader.py --check
+	python3 -m unittest -v tests.test_host_artifact_deployment
+
+test-units: test-host-artifact-deployment
