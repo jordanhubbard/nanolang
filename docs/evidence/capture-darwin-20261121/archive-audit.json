@@ -1,0 +1,8 @@
+{
+  "logical_files": 3621,
+  "raw_bytes": 31826921,
+  "local_payloads": 3607,
+  "local_compressed_bytes": 8006051,
+  "all_raw_and_compressed_hashes_and_lengths_match": true,
+  "exact_local_payload_set": true
+}
