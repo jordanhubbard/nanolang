@@ -4,11 +4,38 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from scripts.ci_capture_assembler_profile import read_fixed_profile
+from scripts.ci_capture_assembler_profile import read_fixed_profile, materialize_retained_profile
+from scripts import ci_capture_assembler_profile as profile_inputs
+from unittest.mock import patch
 from tests.retained_capture_evidence import fixed_profile
 
 
 class CaptureAssemblerProfile(unittest.TestCase):
+    def test_other_native_architecture_refuses_before_materialization(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'profile'
+            with self.assertRaisesRegex(RuntimeError, 'native architecture'):
+                materialize_retained_profile(target, machine='aarch64')
+            self.assertFalse(target.exists())
+
+    def test_existing_native_inputs_are_never_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            marker = target / 'retained'
+            marker.write_bytes(b'original native input')
+            with self.assertRaisesRegex(RuntimeError, 'overwrite'):
+                materialize_retained_profile(target, machine='x86_64')
+            self.assertEqual(marker.read_bytes(), b'original native input')
+            self.assertEqual(list(target.iterdir()), [marker])
+
+    def test_manifest_drift_refuses_before_returning_a_native_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            (target / 'manifest.json').write_text('{}')
+            with patch.object(profile_inputs, 'RETAINED', target):
+                with self.assertRaisesRegex(RuntimeError, 'changed retained native evidence manifest'):
+                    profile_inputs.retained_capture_bytes('unknown')
+
     def test_actual_native_archive_and_independent_drift_refusals(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

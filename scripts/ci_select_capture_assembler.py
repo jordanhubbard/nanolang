@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import platform
 import shutil
 import sys
 
@@ -12,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts import ci_qualify_as246 as process
 from scripts import ci_build_capture_assembler as builder
-from scripts.ci_capture_assembler_profile import read_fixed_profile
+from scripts.ci_capture_assembler_profile import (read_fixed_profile, retained_profile_metadata,
+    materialize_retained_profile, RETAINED_MANIFEST_SHA256, RETAINED_AS_SHA256)
 from scripts import ci_userguide_capture_diagnostics as diagnostics
 from tests.native_process import run_captured
 
@@ -101,25 +103,46 @@ def main():
             raise RuntimeError('I require qualification of this unknown selected assembler family.')
         provided = original.get('NANO_CI_FIXED_ASSEMBLER_DIRECTORY', '')
         fixed = (Path(provided).resolve() if provided else
-                 ROOT / '.test_output/source-capture-diagnostic/fixed-as246')
+                 Path(original['RUNNER_TEMP']) / 'nanolang-capture-assembler-r1')
         producer_name = shutil.which('cc')
         if not producer_name:
             raise RuntimeError('I require the recorded native cc assembler producer.')
         producer = Path(producer_name).resolve(strict=True)
         producer_hash = digest(producer)
+        retained = None
+        if not provided:
+            retained = retained_profile_metadata()
+            if (platform.machine() != 'x86_64' or retained['compiler'] != str(producer) or
+                    retained['compiler_sha256'] != producer_hash):
+                raise RuntimeError('I require native qualification of this retained producer/toolchain binding.')
         if not fixed.exists():
             if provided:
                 raise RuntimeError('I require the supplied completed assembler profile.')
-            # I select cc only inside the assembler producer, whose metadata records cc.
-            # My project compiler and its environment remain as supplied by the CI job.
-            process.command([sys.executable, str(ROOT / 'scripts/ci_build_capture_assembler.py'),
-                '--fixed-as246'], 'source-producer', 4800, output=out,
-                env=dict(original, CC='cc'))
+            materialize_retained_profile(fixed)
         profile = read_fixed_profile(fixed)
         if profile['compiler'] != str(producer) or profile['compiler_sha256'] != producer_hash:
             raise RuntimeError('I require the actual recorded native assembler build compiler.')
-        expected = (fixed / 'bin/as').resolve(strict=True)
+        if retained is not None:
+            if profile != retained or profile['assembler_sha256'] != RETAINED_AS_SHA256:
+                raise RuntimeError('I refuse a default profile outside my pinned retained producer.')
+            record['profile_origin'] = {'producer_run': 45009129801,
+                'manifest': 'docs/evidence/capture-complete-hosted-20261122/manifest.json',
+                'manifest_sha256': RETAINED_MANIFEST_SHA256,
+                'scope': 'I reuse the exact qualified native/source/GAS/witness bytes; I rebuild or rerun no producer.'}
+        execution = Path(original['RUNNER_TEMP']).resolve(strict=True) / 'nanolang-capture-selected-r1'
+        if execution.is_relative_to(ROOT.resolve()):
+            raise RuntimeError('I require native profile custody outside workspace clean trees.')
+        if execution.is_symlink():
+            raise RuntimeError('I refuse native profile custody through a directory symlink.')
+        execution.mkdir(exist_ok=True)
+        expected = execution / 'as'
+        if expected.is_symlink():
+            raise RuntimeError('I refuse native profile custody through an executable symlink.')
+        shutil.copy2((fixed / 'bin/as').resolve(strict=True), expected)
+        if digest(expected) != profile['assembler_sha256']:
+            raise RuntimeError('I refuse changed native bytes after profile custody relocation.')
         expected.chmod(0o700)
+        (out / 'validated-profile.json').write_text(json.dumps(profile, indent=2) + '\n')
         old_search = original.get('COMPILER_PATH', '')
         search = str(expected.parent) + (os.pathsep + old_search if old_search else '')
         if '\n' in search or '\r' in search:
@@ -129,6 +152,7 @@ def main():
         if (actual != expected or digest(actual) != profile['assembler_sha256'] or
                 actual_version != profile['assembler_version']):
             raise RuntimeError('I require the original compiler to select the verified fixed image.')
+        shutil.copy2(actual, out / 'selected-as')
         if not admitted(probe, actual_version, out, 'fixed-admission'):
             raise RuntimeError('I refuse to export a profile absent from qualified production admission.')
         if compiler_identity()[1] != identity or settings_digest() != before_settings:

@@ -1,0 +1,23 @@
+{
+  "source_pin": "7e13c4d664ae86394a60b60e105db696db4f4fc9",
+  "source_methods": 128,
+  "source_conditional_skips": 24,
+  "response_methods": 1,
+  "native_driver_equivalences": 600,
+  "native_gas_passes": 2091,
+  "native_gas_unsupported": 4,
+  "all_2095_outcome_lines_equal": true,
+  "witnesses": 8,
+  "ordinary_guide_snippets": 40,
+  "shadow_override": null,
+  "cold_returncode": 0,
+  "native_probe_sha256": "d4dfebb2bb7af578d8a1a594481696c539d5d1a33330d806e6ed609c76bb0a10",
+  "native_helper_sha256": "cd0910f4850c863c5b9742eb7b248fd5ca405a3783f2ee03a471be4b00094de7",
+  "native_assembler_sha256": "7e9edb4b7fc0c7ce97fbcdd4ecb63e3eb1c1663e2452cd32ce0249110b253bf5",
+  "candidate_patch_sha256": "73d276fd14dae670b3634bfbabc128ea63ec5fe4bb2b897ca35855fc9a1b42d7",
+  "source_wall_seconds": 701.718,
+  "response_wall_seconds": 20.7,
+  "native_closure_stable": true,
+  "qualified_test_sha256": "7e80518ce26a983ec316fe161cbbf7c5a77a64724554ba3dc592f690ab7ee259",
+  "scope": "I independently read the retained original reports, outcomes and actual native images. I do not infer current-source, production adoption or release acceptance."
+}

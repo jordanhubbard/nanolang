@@ -11,16 +11,34 @@ outputs:
     value: ${{ steps.select.outputs.fixed_profile }}
   artifact_name:
     description: I retain actual native selection evidence under this artifact name.
-    value: capture-assembler-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}
+    value: ${{ steps.identity.outputs.artifact_name }}
 runs:
   using: composite
   steps:
+    - name: Name this native selection evidence
+      id: identity
+      shell: bash
+      run: |
+        python3 - <<'PYNAME'
+        import json, os, uuid
+        from pathlib import Path
+        name = 'capture-assembler-' + os.environ['GITHUB_JOB'] + '-' + os.environ['RUNNER_OS'] + '-' + os.environ['RUNNER_ARCH'] + '-' + uuid.uuid4().hex[:12]
+        output = Path('.test_output/capture-assembler-checks')
+        output.mkdir(parents=True, exist_ok=True)
+        (output / 'identity.json').write_text(json.dumps({'artifact_name': name, 'event_sha': os.environ.get('GITHUB_SHA')}, indent=2) + '\n')
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+            stream.write('artifact_name=' + name + '\n')
+        PYNAME
     - name: Check native profile metadata and selection refusals
       shell: bash
-      run: python3 -m unittest -v tests.test_capture_assembler_profile tests.test_ci_select_capture_assembler
+      run: |
+        set -o pipefail
+        python3 -m unittest -v tests.test_capture_assembler_profile tests.test_ci_select_capture_assembler 2>&1 | tee .test_output/capture-assembler-checks/controls.log
     - name: Build the actual production admission probe and capture provider
       shell: bash
-      run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      run: |
+        set -o pipefail
+        make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so 2>&1 | tee .test_output/capture-assembler-checks/build.log
     - name: Provision and verify the actual selected assembler
       id: select
       shell: bash
@@ -32,9 +50,10 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: capture-assembler-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}
+        name: ${{ steps.identity.outputs.artifact_name }}
         path: |
           .test_output/capture-assembler-ci/
+          .test_output/capture-assembler-checks/
           .test_output/source-capture-diagnostic/fixed-as246/
           obj/test_module_generation_probe
           bin/nano_as_capture.so
