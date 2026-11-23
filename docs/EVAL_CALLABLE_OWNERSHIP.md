@@ -120,10 +120,30 @@ rollback and enum controls pass with leak detection; original environment60,
 nominal-owner and enum-ownership controls pass alongside evaluator134/checker88
 (the broad evaluator/checker leak boundary remains explicit).
 
-Complete persistent-session acceptance remains open. My production :load then
-:save still omits loaded fragments (#1225). Typed-input save success is narrower.
-Complete #1205/#1140/#1116, current-source bootstrap, paired platform and release
-acceptance remain open.
+Under #1225 I retain accepted input, load, reload and clear operations in a
+versioned source journal. I preserve loaded root bytes and origins, prior-result
+versus later-function-body ordering, compatible function-only reload and clear
+semantics. Framing/version/capacity errors apply no prefix; an operational
+replay refusal reports its accepted prefix, including zero. I check save writes,
+flush and close before rename and preserve prior output through actual Linux
+write/close/publication failure controls. My [session contract](REPL_SESSIONS.md)
+and [receipt](evidence/repl-session-save-linux-20261123/README.md) distinguish
+source replay from an external-resource heap checkpoint.
+
+I apply my existing declaration checkpoint to rejected REPL input/file/reload
+admissions under #1227 and retain checked nominal binding names under #1228.
+All seven functional controls pass normally, with production flags and under
+ASan/UBSan with the broad legacy leak boundary disabled. Four additional
+admission controls pass with leak detection enabled, including current-module
+owner teardown and loaded nominal binding names. The complete seven-method LSan
+run still fails three aggregate methods at 168/254/254 bytes: unchanged checker
+record-parameter scaffolding and runtime argument/local copies remain under
+#1149/#1116. I retain those complete failures and the initial 10-byte REPL owner
+leak before its local correction.
+
+My original 18 callable/state controls and 16 session controls pass in all three
+profiles; their sanitizer runs retain leak detection. Complete #1205/#1140/#1116,
+current-source bootstrap, paired platform and release acceptance remain open.
 
 Under #1207 I keep TYPE_BORROW_SHARED and TYPE_BORROW_MUT slots non-owning
 when I create or rebind views and when I traverse roots for static-array

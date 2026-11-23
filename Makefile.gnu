@@ -4244,6 +4244,24 @@ test-module-rejection-rollback: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-module-rejection-rollback
 
+.PHONY: test-repl-admission
+test-repl-admission: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_admission
+
+test-units: test-repl-admission
+
+ifeq ($(UNAME_S),Linux)
+REPL_SAVE_FAULT_LIBRARY ?= $(OBJ_DIR)/repl_save_faults.so
+$(REPL_SAVE_FAULT_LIBRARY): tests/support/repl_save_faults.c | $(OBJ_DIR)
+	$(CC) $(filter-out -D_GNU_SOURCE,$(CFLAGS)) -shared -o $@ $< -ldl
+endif
+
+.PHONY: test-repl-session
+test-repl-session: $(REPL_BINARY) $(REPL_SAVE_FAULT_LIBRARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) NANO_REPL_SAVE_FAULTS="$(abspath $(REPL_SAVE_FAULT_LIBRARY))" python3 -m unittest -v tests.test_repl_session
+
+test-units: test-repl-session
+
 .PHONY: test-repl-state
 test-repl-state: $(REPL_BINARY)
 	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_state
