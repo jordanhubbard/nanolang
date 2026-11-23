@@ -1115,3 +1115,15 @@ refusal tests and Puck's source ownership while localizing a caller-side repair.
 I keep all original assertions and deadlines. I do not claim frame acceptance,
 whole-function instruction transfer/convergence, handler/global/effect/private
 composition, paired Darwin, pure C emission or executable selection.
+
+
+My #1202 localization reduces the frame barrier to a12-line source with a
+mutable Boolean read, array write and short-circuit and/or copy. Sixteen basic
+neighbors and all unary-not variants translate. Read-only traces show that
+DUP/PICK reuse the local's shape and then seed an exact scalar type; LOAD_LOCAL
+already retains inferred scalar storage. My focused64-source/PICK regression
+keeps nine valid translations red, while strict invalid-depth and prior-output
+controls pass. The unchanged graph API passes312 counterfactual, exact-target
+and mismatched-payload checks normally and under ASan/UBSan. My proposed caller
+condition remains unapplied and unqualified pending its narrow ownership
+handoff. I make no new production C admission claim from this API evidence.

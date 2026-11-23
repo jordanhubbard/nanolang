@@ -7861,3 +7861,17 @@ test-nanolang-translator-affine-flow: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2
 	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFlow
 
 test-units: test-nanolang-translator-affine-flow
+
+# I preserve exact producer refusals while characterizing inferred copy views.
+.PHONY: test-nvm2c-scalar-copy-shapes
+test-nvm2c-scalar-copy-shapes: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_inferred_scalar_copies tests/nanoisa/test_inferred_scalar_copies.c $(NANOISA_DIR)/nvm2c_shape.c
+	@$(OBJ_DIR)/test_inferred_scalar_copies
+
+test-units: test-nvm2c-scalar-copy-shapes
+
+.PHONY: test-native-scalar-copy-inference
+test-native-scalar-copy-inference: nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_native_scalar_copy_inference
+
+test-units: test-native-scalar-copy-inference
