@@ -1174,7 +1174,7 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
     if (b->shape_opcode == OP_AGG_GET ||
-        (b->shape_opcode == OP_LOAD_LOCAL &&
+        ((b->shape_opcode == OP_LOAD_LOCAL || b->shape_opcode == OP_DUP || b->shape_opcode == OP_PICK) &&
          (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL || slot.kind == NVM2C_VK_FLOAT))) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
