@@ -10467,3 +10467,30 @@ register_function_pass2:;
 
     return !tc.has_error && g_typecheck_error_count == 0;
 }
+
+/* I check interactive statements after the ordinary declaration passes. */
+bool type_check_repl(ASTNode *program, Environment *env) {
+    if (!type_check_module(program, env)) return false;
+    TypeChecker tc = {0};
+    tc.env = env;
+    tc.warnings_enabled = true;
+    tc.current_function_return_type = TYPE_VOID;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL ||
+            node->type == AST_LET || node->type == AST_FUNCTION || node->type == AST_ASYNC_FN ||
+            node->type == AST_SHADOW || node->type == AST_STRUCT_DEF ||
+            node->type == AST_ENUM_DEF || node->type == AST_UNION_DEF ||
+            node->type == AST_EFFECT_DECL || node->type == AST_OPAQUE_TYPE) continue;
+        if (ast_is_value_expression(node->type)) {
+            /* My REPL displays this value; it is not a discarded statement. */
+            TypeChecker *saved = active_statement_checker;
+            active_statement_checker = &tc;
+            if (check_expression(node, env) == TYPE_UNKNOWN) tc.has_error = true;
+            active_statement_checker = saved;
+        } else {
+            check_statement(&tc, node);
+        }
+    }
+    return !tc.has_error && g_typecheck_error_count == 0 && type_check_root_shadows(program, env);
+}

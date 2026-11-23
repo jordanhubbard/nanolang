@@ -6169,14 +6169,24 @@ static Value eval_expression_impl(ASTNode *expr, Environment *env) {
         case AST_TUPLE_LITERAL: {
             /* Evaluate tuple literal: (1, "hello", true) */
             int element_count = expr->as.tuple_literal.element_count;
-            
+            if (element_count < 0 ||
+                (size_t)element_count > SIZE_MAX / sizeof(Value) ||
+                (size_t)element_count > SIZE_MAX / sizeof(NlCarrierRef) ||
+                (element_count && !expr->as.tuple_literal.elements))
+                return eval_match_invariant_failure("I require a valid tuple element vector");
+            for (int i = 0; i < element_count; i++)
+                if (!expr->as.tuple_literal.elements[i])
+                    return eval_match_invariant_failure("I require a valid tuple element vector");
+
             /* Empty tuple */
             if (element_count == 0) {
                 return eval_create_tuple(NULL, 0);
             }
             
             /* Evaluate each element */
-            Value *elements = malloc(sizeof(Value) * element_count);
+            Value *elements = malloc(sizeof(Value) * (size_t)element_count);
+            if (!elements)
+                return eval_match_invariant_failure("I cannot allocate tuple elements");
             for (int i = 0; i < element_count; i++) {
                 elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
                 if (elements[i].is_return) {

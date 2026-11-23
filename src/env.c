@@ -631,6 +631,20 @@ void env_reclaim_static_arrays(Environment *env) {
     free(ctx.freed);
 }
 
+/* I clear variable owners between evaluations without retiring declarations. */
+void env_clear_variables(Environment *env) {
+    if (!env) return;
+    env_symbol_index_invalidate(env);
+    env_reclaim_static_arrays(env);
+    for (int i = 0; i < env->symbol_count; i++) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        if (!env_type_borrows_value(env->symbols[i].type))
+            env_release_binding_value(env, env->symbols[i].value);
+    }
+    env->symbol_count = 0;
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
     checked_borrow_end(env);
@@ -640,17 +654,7 @@ void free_environment(Environment *env) {
     nl_file_source_snapshots_free(env->service_inputs);
     for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);
-    /* I reclaim every static array exactly once before the string/record
-     * teardown below, so shared containers and their elements do not leak. */
-    env_reclaim_static_arrays(env);
-    for (int i = 0; i < env->symbol_count; i++) {
-        free(env->symbols[i].name);
-        if (env->symbols[i].struct_type_name) {
-            free(env->symbols[i].struct_type_name);
-        }
-        if (!env_type_borrows_value(env->symbols[i].type))
-            env_release_binding_value(env, env->symbols[i].value);
-    }
+    env_clear_variables(env);
     env_carrier_close(env);
     free(env->symbols);
     if (env->import_tracker) {

@@ -92,13 +92,20 @@ against retained constructor-only providers.
 I preserve both complete fixture sanitizer failures: expression/globals572bytes
 in26allocations and record/union3720bytes in159allocations. Both finish their
 assertions and shadows before LeakSanitizer fails. I do not promote the external
-four-method diagnostic into acceptance of either complete fixture. I record
-the preexisting strict standalone REPL compile failure under #1205, retain its
-new display/load/reload target explicitly, and defer ordinary-unit wiring of
-that new target until the independent build prerequisite passes. The REPL's
-callable retirement changes are not runtime-qualified here. Complete #1140,
-#1116, current-source bootstrap, paired platform and release acceptance remain
-open.
+four-method diagnostic into acceptance of either complete fixture. My #1205 repair restores the strict standalone REPL build and wires its existing
+three callable controls plus fifteen state controls into ordinary units. All
+eighteen pass normally, under ASan/UBSan with leak detection enabled, and with
+unchanged production build flags. I check executable statements before mutation,
+retain parsed source owners through environment teardown, clear variable owners
+without retiring declarations, and patch compatible function slots without
+replaying top-level effects. I retain the original malformed-escape ASan failure,
+module-context leak and typed-assignment failure alongside corrected controls.
+
+This is partial persistent-session acceptance. A rejected imported module still
+publishes a declaration whose AST has been retired (#1223), and :save still omits
+loaded fragments (#1225). My module-context-string correction (#1222) does not
+repair that separate AST lifetime. Complete #1205/#1140/#1116, current-source
+bootstrap, paired platform and release acceptance remain open.
 
 Under #1207 I keep TYPE_BORROW_SHARED and TYPE_BORROW_MUT slots non-owning
 when I create or rebind views and when I traverse roots for static-array

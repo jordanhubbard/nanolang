@@ -718,24 +718,18 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* NOTE: module_name may have been freed/overwritten by the module's own
-         * `module <name>` declaration handler in the typechecker, so we must not
-         * free it here.
-         */
-        env->current_module = saved_current_module;  /* Restore context */
+        /* I retire the current owned spelling, including a declared replacement. */
+        free(env->current_module);
+        env->current_module = saved_current_module;
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
         return NULL;
     }
     
-    /* Restore original module context */
-    /* NOTE: We intentionally DON'T free module_name here because:
-     * 1. Functions registered during type_check have module_name pointers that reference it
-     * 2. Those pointers are just shallow copies from the struct assignment
-     * 3. Freeing would create dangling pointers
-     * 4. This is a short-lived compiler process, so the memory leak is acceptable
-     */
+    /* Registered owners have independent storage. A module declaration may
+     * have replaced the initial stem, so I retire the current owned context. */
+    free(env->current_module);
     env->current_module = saved_current_module;
     
     /* Load constants from C headers if module has module.json */

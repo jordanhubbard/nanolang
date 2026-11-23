@@ -987,6 +987,7 @@ void free_ast(ASTNode *node);
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
+bool type_check_repl(ASTNode *program, Environment *env); /* I also check executable inputs. */
 bool type_check_root_shadows(ASTNode *program, Environment *env);
 /* I borrow checked callback metadata for map result allocation during lowering. */
 Type map_transform_result_type(ASTNode *callback, Environment *env);
@@ -1026,6 +1027,8 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* I retain functions/types while clearing variables between evaluations. */
+void env_clear_variables(Environment *env);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);

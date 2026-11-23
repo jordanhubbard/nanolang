@@ -4223,11 +4223,26 @@ $(REPL_BINARY): $(REPL_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(REPL_BINARY) $(REPL_OBJECTS) $(LDFLAGS)
 	@echo "✓ REPL: $(REPL_BINARY)"
 
+.PHONY: test-eval-tuple-vector-guards
+test-eval-tuple-vector-guards: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_tuple_vector_allocations.o $(OBJ_DIR)/eval_io_faults.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_tuple_vector_guards tests/test_eval_tuple_vector_guards.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_tuple_vector_allocations.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_tuple_vector_guards
+
+$(OBJ_DIR)/eval_tuple_vector_allocations.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=nano_tuple_test_malloc -c $< -o $@
+
+test-units: test-eval-tuple-vector-guards
+
 .PHONY: test-repl-callable-lifetimes
 test-repl-callable-lifetimes: $(REPL_BINARY)
 	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_callable_lifetimes
 
-# I wire this new gate after the preexisting strict REPL build is repaired (#1205).
+.PHONY: test-repl-state
+test-repl-state: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_state
+
+# I include both gates after qualifying the strict standalone build (#1205).
+test-units: test-repl-callable-lifetimes test-repl-state
 
 .PHONY: repl
 repl: $(REPL_BINARY)

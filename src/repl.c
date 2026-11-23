@@ -45,7 +45,7 @@ static int bracket_balance(const char *src) {
     char str_delim = 0;
     for (const char *p = src; *p; p++) {
         if (in_string) {
-            if (*p == '\\') { p++; continue; }
+            if (*p == '\\') { if (p[1]) p++; continue; }
             if (*p == str_delim) in_string = false;
             continue;
         }
@@ -122,10 +122,12 @@ static void print_help(void) {
     printf(":help              -- show this message\n");
     printf(":quit              -- exit the REPL\n");
     printf(":env               -- list bound variable names\n");
+    printf(":modules           -- list loaded modules\n");
     printf(":clear             -- clear variable bindings (functions are retained)\n");
     printf(":load <file.nano>  -- load and evaluate a .nano file into this session\n");
     printf(":save <file.nano>  -- save all source typed/loaded this session to a file\n");
     printf(":reload <file.nano>-- recompile file and hot-patch changed function bindings\n");
+    printf("I preserve variables and signatures on :reload; top-level effects are not replayed.\n");
     printf("\n");
     printf("Any nanolang expression or statement is evaluated immediately.\n");
     printf("Variables and functions persist across lines.\n");
@@ -142,21 +144,24 @@ static void print_help(void) {
 
 static ASTNode *g_repl_programs[REPL_MAX_PROGRAMS];
 static char    *g_repl_sources[REPL_MAX_PROGRAMS];
+static char    *g_repl_paths[REPL_MAX_PROGRAMS];
 static int      g_repl_program_count = 0;
 
-static void repl_track(ASTNode *prog, char *src) {
-    if (g_repl_program_count < REPL_MAX_PROGRAMS) {
-        g_repl_programs[g_repl_program_count] = prog;
-        g_repl_sources[g_repl_program_count]  = src;
-        g_repl_program_count++;
-    }
-    /* Beyond the limit: AST leaks for the session -- acceptable in a REPL. */
+static bool repl_track(ASTNode *prog, char *src, const char *path) {
+    if (g_repl_program_count == REPL_MAX_PROGRAMS) return false;
+    char *owned = strdup(path);
+    if (!owned) return false;
+    g_repl_programs[g_repl_program_count] = prog;
+    g_repl_sources[g_repl_program_count] = src;
+    g_repl_paths[g_repl_program_count++] = owned;
+    return true;
 }
 
 static void repl_free_all(void) {
     for (int i = 0; i < g_repl_program_count; i++) {
         free_ast(g_repl_programs[i]);
         free(g_repl_sources[i]);
+        free(g_repl_paths[i]);
     }
     g_repl_program_count = 0;
 }
@@ -199,51 +204,105 @@ static char *read_file_contents(const char *path) {
     return buf;
 }
 
-/* ── Shared: parse + eval file source into an env ──────────────────────── */
-
-static int eval_source_into_env(const char *path, const char *src, Environment *env,
-                                 bool adopt_ast) {
-    int token_count = 0;
-    Token *tokens = tokenize(src, &token_count);
-    if (!tokens) {
-        fprintf(stderr, "error: lexing '%s' failed\n", path);
-        return -1;
+/* I keep checker placeholders out of the live variable state between inputs. */
+static bool check_source(ASTNode *program, Environment *env) {
+    int symbols = env->symbol_count, functions = env->function_count;
+    Symbol *saved = symbols ? calloc((size_t)symbols, sizeof *saved) : NULL;
+    Function *prior = functions ? malloc((size_t)functions * sizeof *prior) : NULL;
+    if ((symbols && !saved) || (functions && !prior)) { free(saved); free(prior); return false; }
+    if (functions) memcpy(prior, env->functions, (size_t)functions * sizeof *prior);
+    int copied = 0;
+    for (; copied < symbols; copied++) {
+        saved[copied] = env->symbols[copied];
+        saved[copied].name = env->symbols[copied].name ? strdup(env->symbols[copied].name) : NULL;
+        saved[copied].struct_type_name = env->symbols[copied].struct_type_name ? strdup(env->symbols[copied].struct_type_name) : NULL;
+        if ((env->symbols[copied].name && !saved[copied].name) ||
+            (env->symbols[copied].struct_type_name && !saved[copied].struct_type_name)) break;
     }
-    ASTNode *program = parse_repl_input(tokens, token_count);
-    free_tokens(tokens, token_count);
-    if (!program) {
-        fprintf(stderr, "error: parsing '%s' failed\n", path);
-        return -1;
+    if (copied != symbols) {
+        for (int i = 0; i <= copied; i++) { free(saved[i].name); free(saved[i].struct_type_name); }
+        free(saved); free(prior); return false;
     }
-    if (program->type != AST_PROGRAM || program->as.program.count == 0) {
-        free_ast(program);
-        return 0;
+    bool ok = type_check_repl(program, env);
+    if (ok) for (int i = 0; i < symbols; i++) {
+        saved[i].is_used = env->symbols[i].is_used;
+        saved[i].resource_state = env->symbols[i].resource_state;
     }
-    if (adopt_ast) {
-        repl_track(program, (char *)src); /* caller must pass heap-alloc src */
+    env_symbol_index_invalidate(env);
+    for (int i = 0; i < env->symbol_count; i++) {
+        free(env->symbols[i].name); free(env->symbols[i].struct_type_name);
     }
-    int count = program->as.program.count;
-    for (int i = 0; i < count; i++) {
-        Value result = repl_eval_node(program->as.program.items[i], env);
-        show_result(result);
-        retire_callable_result(result);
+    if (symbols) memcpy(env->symbols, saved, (size_t)symbols * sizeof *saved);
+    env->symbol_count = symbols;
+    free(saved);
+    if (!ok) {
+        if (functions) memcpy(env->functions, prior, (size_t)functions * sizeof *prior);
+        /* I retain valid generated helper caches, but publish no failed body. */
+        for (int i = functions; i < env->function_count; i++)
+            if (env->functions[i].body || env->functions[i].source_file == env_current_file(env))
+                env->functions[i].name = NULL;
     }
-    if (!adopt_ast) free_ast(program);
-    return count;
+    free(prior);
+    return ok;
 }
 
-/* ── :load <file> — eval file contents in current env ─────────────────── */
+/* I own every parsed input before a checker can retain any of its annotations. */
+static ASTNode *parse_source(const char *path, char *src) {
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    if (!tokens) { fprintf(stderr, "I cannot lex '%s'.\n", path); free(src); return NULL; }
+    ASTNode *program = parse_repl_input(tokens, token_count);
+    free_tokens(tokens, token_count);
+    if (!program) { fprintf(stderr, "I cannot parse '%s'.\n", path); free(src); return NULL; }
+    if (program->type != AST_PROGRAM || !program->as.program.count) {
+        free_ast(program); free(src); return NULL;
+    }
+    if (!repl_track(program, src, path)) {
+        fprintf(stderr, "I cannot retain another REPL input in this session.\n");
+        free_ast(program); free(src); return NULL;
+    }
+    return program;
+}
+
+static void evaluate_source(ASTNode *program, Environment *env) {
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL ||
+            node->type == AST_FUNCTION || node->type == AST_SHADOW ||
+            node->type == AST_STRUCT_DEF || node->type == AST_ENUM_DEF ||
+            node->type == AST_UNION_DEF || node->type == AST_EFFECT_DECL ||
+            node->type == AST_OPAQUE_TYPE) continue;
+        Value result = repl_eval_node(node, env);
+        show_result(result); retire_callable_result(result);
+    }
+}
+
+static int eval_source_into_env(const char *path, char *src, Environment *env) {
+    ASTNode *program = parse_source(path, src);
+    if (!program) return -1;
+    const char *owner = g_repl_paths[g_repl_program_count - 1];
+    env_set_current_file(env, owner); typecheck_set_current_file(owner);
+    ModuleList *modules = create_module_list();
+    bool ok = process_imports(program, env, modules, owner) && check_source(program, env);
+    free_module_list(modules);
+    if (ok) evaluate_source(program, env);
+    env_set_current_file(env, "<repl>"); typecheck_set_current_file("<repl>");
+    return ok ? program->as.program.count : -1;
+}
 
 static void cmd_load(const char *path, Environment *env) {
     char *src = read_file_contents(path);
-    if (!src) { fprintf(stderr, "error: cannot open '%s'\n", path); return; }
-    typecheck_set_current_file(path);
-    int n = eval_source_into_env(path, src, env, /*adopt_ast=*/true);
-    typecheck_set_current_file("<repl>");
-    if (n > 0) printf("; loaded %d definition(s) from '%s'\n", n, path);
-    else if (n == 0) printf("(empty file '%s' — nothing loaded)\n", path);
-    /* src ownership transferred to repl_track on success; on error n==-1 and src leaked
-     * (acceptable — error path is rare). */
+    if (!src) { fprintf(stderr, "I cannot open '%s'.\n", path); return; }
+    int n = eval_source_into_env(path, src, env);
+    if (n > 0) printf("; I loaded %d item(s) from '%s'.\n", n, path);
+}
+
+static void cmd_modules(Environment *env) {
+    printf("Modules (%d):\n", env->module_count);
+    for (int i = 0; i < env->module_count; i++) {
+        ModuleInfo *module = &env->modules[i];
+        printf("  %s%s%s\n", module->name, module->path ? " — " : "", module->path ? module->path : "");
+    }
 }
 
 /* ── :save <file> — write session source history to file ──────────────── */
@@ -262,81 +321,118 @@ static void cmd_save(const char *path) {
     printf("; saved %d fragment(s) to '%s'\n", written, path);
 }
 
-/* ── :reload <file> — hot-patch changed function bindings ─────────────── *
- *
- * Algorithm:
- *   1. Parse + eval the file into a temporary environment (parent = live env,
- *      so cross-references resolve correctly).
- *   2. For each function defined in the temp env that also exists in the live
- *      env, overwrite the live binding with the new one (hot-patch in-place).
- *   3. New functions (not previously defined) are added to the live env.
- *   4. The parsed AST is adopted into g_repl_programs so function bodies
- *      that reference AST nodes remain valid after tmp env is freed.
- *
- * Variable state is preserved across reload — only function bindings change.
- */
-
+/* I replace checked function slots without replaying top-level state changes. */
+static bool same_text(const char *a, const char *b) {
+    return (!a && !b) || (a && b && !strcmp(a,b));
+}
+static bool same_info(const TypeInfo *a, const TypeInfo *b) {
+    return (!a && !b) || (a && b && type_infos_equal(a,b));
+}
+static bool same_signature(FunctionSignature *a, FunctionSignature *b) {
+    return (!a && !b) || (a && b && function_signatures_equal(a,b));
+}
+static bool compatible_function(const Function *a, const Function *b) {
+    if (a->is_extern || b->is_extern || a->param_count != b->param_count ||
+        a->return_type != b->return_type || a->return_element_type != b->return_element_type ||
+        !same_text(a->return_struct_type_name,b->return_struct_type_name) ||
+        !same_info(a->return_type_info,b->return_type_info) ||
+        !same_signature(a->return_fn_sig,b->return_fn_sig) ||
+        a->is_pure != b->is_pure || a->is_async != b->is_async ||
+        a->is_gpu != b->is_gpu || a->is_pub != b->is_pub || a->effect_count != b->effect_count) return false;
+    for (int i = 0; i < a->effect_count; i++)
+        if (!same_text(a->effect_names[i],b->effect_names[i])) return false;
+    for (int i = 0; i < a->param_count; i++) {
+        Parameter *x = &a->params[i], *y = &b->params[i];
+        if (x->type != y->type || x->element_type != y->element_type ||
+            !same_text(x->struct_type_name,y->struct_type_name) ||
+            !same_info(x->type_info,y->type_info) || !same_signature(x->fn_sig,y->fn_sig)) return false;
+    }
+    return true;
+}
+static ASTNode *function_node(ASTNode *node) {
+    return node->type == AST_ASYNC_FN ? node->as.async_fn.function : node;
+}
 static void cmd_reload(const char *path, Environment *env) {
     char *src = read_file_contents(path);
-    if (!src) { fprintf(stderr, "error: cannot open '%s'\n", path); return; }
-
-    typecheck_set_current_file(path);
-    int token_count = 0;
-    Token *tokens = tokenize(src, &token_count);
-    if (!tokens) {
-        fprintf(stderr, "error: lexing '%s' failed\n", path);
-        free(src); return;
-    }
-    ASTNode *program = parse_repl_input(tokens, token_count);
-    free_tokens(tokens, token_count);
-    if (!program) {
-        fprintf(stderr, "error: parsing '%s' failed\n", path);
-        free(src); return;
-    }
-    if (program->type != AST_PROGRAM || program->as.program.count == 0) {
-        free_ast(program); free(src);
-        printf("(empty file '%s' — nothing reloaded)\n", path);
-        return;
-    }
-
-    /* Temporary env with live env as parent so cross-refs resolve */
-    Environment *tmp = create_environment();
-    tmp->parent = env;
-
-    /* Adopt AST + src before eval so function bodies stay live */
-    repl_track(program, src);
-
+    if (!src) { fprintf(stderr, "I cannot open '%s'.\n", path); return; }
+    ASTNode *program = parse_source(path, src);
+    if (!program) return;
+    const char *owner = g_repl_paths[g_repl_program_count - 1];
+    char *saved_module = env->current_module;
+    for (int i = 0; i < program->as.program.count; i++)
+        if (program->as.program.items[i]->type == AST_MODULE_DECL)
+            env->current_module = program->as.program.items[i]->as.module_decl.name;
+    env_set_current_file(env, owner); typecheck_set_current_file(owner);
+    ASTNode selected = {0}; selected.type = AST_PROGRAM;
+    selected.as.program.items = calloc((size_t)program->as.program.count, sizeof(ASTNode *));
+    if (!selected.as.program.items) goto restore_context;
     for (int i = 0; i < program->as.program.count; i++) {
-        Value ignored = repl_eval_node(program->as.program.items[i], tmp);
-        retire_callable_result(ignored);
+        ASTNode *item = program->as.program.items[i], *fn = function_node(item);
+        if ((fn->type == AST_FUNCTION && !fn->as.function.is_extern) || item->type == AST_SHADOW || item->type == AST_IMPORT)
+            selected.as.program.items[selected.as.program.count++] = item;
     }
-
-    /* Hot-patch: walk tmp function table, apply to live env */
-    int patched = 0, added = 0;
-    for (int fi = 0; fi < tmp->function_count; fi++) {
-        Function *new_fn = &tmp->functions[fi];
-        if (!new_fn->name) continue;
-
-        bool found = false;
-        for (int li = 0; li < env->function_count; li++) {
-            if (env->functions[li].name &&
-                strcmp(env->functions[li].name, new_fn->name) == 0) {
-                env->functions[li] = *new_fn;
-                patched++;
-                found = true;
-                break;
+    ModuleList *modules = create_module_list();
+    bool imported = process_imports(&selected, env, modules, owner);
+    free_module_list(modules);
+    if (!imported) { free(selected.as.program.items); goto restore_context; }
+    int before = env->function_count, module_count = env->module_count;
+    Function *saved = before ? malloc((size_t)before * sizeof *saved) : NULL;
+    int *exports = module_count ? malloc((size_t)module_count * sizeof *exports) : NULL;
+    if ((before && !saved) || (module_count && !exports)) {
+        free(saved); free(exports); free(selected.as.program.items); goto restore_context;
+    }
+    if (before) memcpy(saved,env->functions,(size_t)before*sizeof *saved);
+    for (int i = 0; i < module_count; i++) exports[i] = env->modules[i].function_count;
+    for (int i = 0; i < selected.as.program.count; i++) {
+        ASTNode *fn = function_node(selected.as.program.items[i]);
+        if (fn->type != AST_FUNCTION) continue;
+        Function *old = env_get_function_owned(env,fn->as.function.name,env->current_module);
+        if (old && !old->is_extern) old->name = NULL;
+    }
+    bool ok = check_source(&selected, env);
+    for (int i = 0; ok && i < selected.as.program.count; i++) {
+        ASTNode *item = selected.as.program.items[i], *fn = function_node(item);
+        if (fn->type != AST_FUNCTION) continue;
+        Function *replacement = NULL;
+        for (int j = before; j < env->function_count; j++)
+            if (env->functions[j].body == fn->as.function.body && env->functions[j].name)
+                replacement = &env->functions[j];
+        if (!replacement) { ok = false; break; }
+        replacement->is_async = item->type == AST_ASYNC_FN;
+        for (int j = 0; j < before; j++)
+            if (same_text(saved[j].name,fn->as.function.name) && same_text(saved[j].module_name,env->current_module) &&
+                !compatible_function(&saved[j],replacement)) {
+                fprintf(stderr,"I retain the existing signature of '%s' when reloading.\n",saved[j].name);
+                ok = false; break;
             }
-        }
-        if (!found) {
-            env_define_function(env, *new_fn);
-            added++;
-        }
     }
-
-    tmp->parent = NULL; /* unlink before free to avoid double-free of shared nodes */
-    free_environment(tmp);
-    typecheck_set_current_file("<repl>");
-    printf("; reload '%s': %d function(s) hot-patched, %d new\n", path, patched, added);
+    if (before) memcpy(env->functions,saved,(size_t)before*sizeof *saved);
+    int patched = 0, added = 0;
+    if (ok) {
+        for (int j = before; j < env->function_count; j++) {
+            Function fresh = env->functions[j];
+            if (!fresh.body || fresh.source_file != owner || !fresh.name) continue;
+            bool found = false;
+            for (int k = 0; k < before; k++)
+                if (same_text(saved[k].name,fresh.name) && same_text(saved[k].module_name,fresh.module_name)) {
+                    env->functions[k] = fresh; env->functions[j].name = NULL;
+                    patched++; found = true; break;
+                }
+            if (!found) added++;
+        }
+        printf("; reload '%s': %d function(s) hot-patched, %d new\n",path,patched,added);
+    } else {
+        for (int j = before; j < env->function_count; j++)
+            if (env->functions[j].body || env->functions[j].source_file == owner) env->functions[j].name = NULL;
+        for (int i = 0; i < module_count; i++)
+            while (env->modules[i].function_count > exports[i])
+                free(env->modules[i].exported_functions[--env->modules[i].function_count]);
+        fprintf(stderr,"I retain the previous functions after this reload refusal.\n");
+    }
+    free(saved); free(exports); free(selected.as.program.items);
+restore_context:
+    env->current_module = saved_module;
+    env_set_current_file(env,"<repl>"); typecheck_set_current_file("<repl>");
 }
 
 /* --- main loop ------------------------------------------------------------ */
@@ -344,7 +440,7 @@ static void cmd_reload(const char *path, Environment *env) {
 int run_repl(void) {
     print_banner();
     g_repl_program_count = 0;
-    g_mod_count = 0;
+    typecheck_set_current_file("<repl>");
 
     clear_module_cache();
     Environment *env = create_environment();
@@ -391,7 +487,7 @@ int run_repl(void) {
             continue;
         }
         if (strcmp(trimmed, ":clear") == 0) {
-            env->symbol_count = 0;
+            env_clear_variables(env);
             printf("(bindings cleared)\n");
             free(src);
             continue;
@@ -446,51 +542,7 @@ int run_repl(void) {
         /* Append interactive input to session history (for :save) */
         repl_history_append(trimmed);
 
-        /* Lex */
-        int token_count = 0;
-        Token *tokens = tokenize(src, &token_count);
-        if (!tokens) {
-            fprintf(stderr, "error: lexing failed\n");
-            free(src);
-            continue;
-        }
-
-        /* Parse (REPL mode: accepts any statement, not just top-level decls) */
-        ASTNode *program = parse_repl_input(tokens, token_count);
-        free_tokens(tokens, token_count);  /* tokens not needed after parse */
-        if (!program) {
-            fprintf(stderr, "error: parse failed\n");
-            free(src);
-            continue;
-        }
-
-        if (program->type != AST_PROGRAM || program->as.program.count == 0) {
-            free_ast(program);
-            free(src);
-            continue;
-        }
-
-        /* Keep the AST and source alive: function bodies registered in the env
-         * reference nodes inside this program -- freeing early causes crashes. */
-        repl_track(program, src);
-
-        /* Process any import statements in the input */
-        ModuleList *mods = create_module_list();
-        process_imports(program, env, mods, "<repl>");
-        free_module_list(mods);
-
-        /* Typecheck: registers function/struct/enum definitions in env */
-        type_check_module(program, env);
-
-        /* Evaluate each top-level node in the persistent environment */
-        for (int i = 0; i < program->as.program.count; i++) {
-            ASTNode *node = program->as.program.items[i];
-            /* Imports already handled above; function defs registered by typecheck */
-            if (node->type == AST_IMPORT) continue;
-            Value result = repl_eval_node(node, env);
-            show_result(result);
-            retire_callable_result(result);
-        }
+        (void)eval_source_into_env("<repl>", src, env);
     }
 
     free_environment(env);
