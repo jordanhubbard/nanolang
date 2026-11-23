@@ -1,0 +1,75 @@
+# I keep child results live while siblings allocate and collect.
+struct RootItem { number: int, text: string }
+struct RootBox { items: List<RootItem> }
+union RootChoice { Some { items: List<RootItem> } }
+
+fn root_item(number: int) -> RootItem {
+    return RootItem { number: number, text: "still live" }
+}
+shadow root_item { let item: RootItem = (root_item 7) assert (== item.number 7) assert (== item.text "still live") }
+
+fn root_sum(left: RootItem, right: RootItem) -> int {
+    assert (== left.text "still live")
+    assert (== right.text "still live")
+    return (+ left.number right.number)
+}
+shadow root_sum { assert (== (root_sum (root_item 7) (root_item 9)) 16) }
+
+fn root_siblings() -> int {
+    let pair: (RootItem, RootItem) = ((root_item 7), (root_item 9))
+    let left: RootItem = pair.0
+    let right: RootItem = pair.1
+    return (root_sum left right)
+}
+shadow root_siblings { assert (== (root_siblings) 16) }
+
+fn root_loop() -> int {
+    let mut index: int = 0
+    let mut total: int = 0
+    while (< index 256) {
+        let item: RootItem = (root_item 7)
+        set total (+ total item.number)
+        set index (+ index 1)
+        (root_item 0)
+    }
+    return total
+}
+shadow root_loop { assert (== (root_loop) 1792) }
+
+fn root_for() -> int {
+    let mut total: int = 0
+    for index in (range 0 256) {
+        let item: RootItem = (root_item 7)
+        set total (+ total item.number)
+        (root_item 0)
+    }
+    return total
+}
+shadow root_for { assert (== (root_for) 1792) }
+
+fn root_list() -> List<RootItem> {
+    unsafe {
+        let items: List<RootItem> = (List_RootItem_new)
+        (List_RootItem_push items (root_item 7))
+        return items
+    }
+}
+shadow root_list { unsafe { let items: List<RootItem> = (root_list) let held: RootItem = (List_RootItem_get items 0) assert (== held.number 7) } }
+
+fn root_box() -> RootBox {
+    return RootBox { items: (root_list) }
+}
+shadow root_box { unsafe { let box: RootBox = (root_box) let held: RootItem = (List_RootItem_get box.items 0) assert (== held.number 7) } }
+
+fn root_choice() -> RootChoice {
+    return RootChoice.Some { items: (root_list) }
+}
+shadow root_choice { unsafe { let choice: RootChoice = (root_choice) assert (== match choice { Some(payload) => { let held: RootItem = (List_RootItem_get payload.items 0) held.number } } 7) } }
+
+fn root_tuple() -> (List<RootItem>, int) {
+    return ((root_list), 9)
+}
+shadow root_tuple { unsafe { let pair: (List<RootItem>, int) = (root_tuple) let held: RootItem = (List_RootItem_get pair.0 0) assert (== held.number 7) assert (== pair.1 9) } }
+
+fn main() -> int { return (root_siblings) }
+shadow main { assert (== (main) 16) }

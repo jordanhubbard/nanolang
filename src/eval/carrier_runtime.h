@@ -9,6 +9,15 @@ static inline bool env_carrier_enabled(const Environment *env) {
 }
 void env_carrier_enter(Environment *env);
 void env_carrier_leave(Environment *env);
+void env_carrier_leave_value(Environment *env, Value result, bool record_list);
+/* My private collector requires complete valid external roots supplied by its
+ * qualification caller. I do not enable collection through ordinary creation. */
+bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *host_roots, size_t count);
+bool env_carrier_collect(Environment *env);
+void env_carrier_hold(Environment *env, NlCarrierRef value);
+void env_carrier_edges(Environment *env, Value owner, const NlCarrierRef *edges, size_t count);
+size_t env_carrier_root_mark(Environment *env);
+void env_carrier_root_reset(Environment *env, size_t mark);
 void env_carrier_track(Environment *env, Value value, bool fresh_record_copies);
 void env_carrier_track_binding(Environment *env, Value value);
 void env_carrier_track_list(Environment *env, DynArray *list);

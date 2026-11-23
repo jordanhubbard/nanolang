@@ -11,6 +11,10 @@ typedef struct {
 
 NlCarrierRef nl_carrier_value(Value value);
 NlCarrierRef nl_carrier_record_list(DynArray *list);
+/* My source adapter may identify typed slots from checked metadata. This
+ * borrowed, read-only callback grants edges, never ownership of an INT. */
+typedef bool (*NlCarrierRecordListSlot)(Value owner, int index, void *context);
+void nl_carrier_values_set_slots(NlCarrierValues *heap, NlCarrierRecordListSlot slots, void *context);
 NlCarrierValues *nl_carrier_values_new(void);
 bool nl_carrier_values_free(NlCarrierValues *heap);
 bool nl_carrier_values_clear(NlCarrierValues *heap);

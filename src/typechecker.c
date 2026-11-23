@@ -1693,6 +1693,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
     bind_qualified_function_value(expr, env);
     int first_symbol = env ? env->symbol_count : 0;
     Type result = check_expression_impl(expr, env);
+    expr->checked_record_list = result == TYPE_LIST_GENERIC;
     bound_scope_symbols(env, first_symbol, expr);
     g_check_expr_depth--;
     return result;
@@ -5926,6 +5927,7 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
     ASTNode *previous_scope = active_lexical_scope;
     if (stmt->type == AST_BLOCK || stmt->type == AST_UNSAFE_BLOCK) active_lexical_scope = stmt;
     Type result = check_statement_impl(tc, stmt);
+    stmt->checked_record_list = result == TYPE_LIST_GENERIC;
     active_lexical_scope = previous_scope;
     ASTNode *scope = stmt->type == AST_FOR ? stmt->as.for_stmt.body : stmt;
     bound_scope_symbols(tc->env, first_symbol, scope);

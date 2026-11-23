@@ -25,6 +25,8 @@ struct NlCarrierValues {
     NlCarrierVisit mark;
     void *visitor;
     bool busy, transfer;
+    NlCarrierRecordListSlot slots;
+    void *slot_context;
 };
 
 NlCarrierRef nl_carrier_value(Value value) {
@@ -158,8 +160,10 @@ static bool push_children(NlCarrierValues *heap, NlCarrierRef ref) {
         }
         default: break;
     }
-    for (int i = 0; i < count; ++i)
-        if (!push_ref(heap, nl_carrier_value(fields[i]))) return false;
+    for (int i = 0; i < count; ++i) {
+        bool list = heap->slots && heap->slots(ref.value, i, heap->slot_context);
+        if (!push_ref(heap, (NlCarrierRef){fields[i], list})) return false;
+    }
     return true;
 }
 static bool append_key(NlCarrierValues *heap, const void *key) {
@@ -241,6 +245,10 @@ static void destroy_value(void *object, void *context) {
         default: break;
     }
     free(value->edges); free(value);
+}
+void nl_carrier_values_set_slots(NlCarrierValues *heap, NlCarrierRecordListSlot slots, void *context) {
+    if (!heap || heap->busy) return;
+    heap->slots = slots; heap->slot_context = context;
 }
 NlCarrierValues *nl_carrier_values_new(void) {
     NlCarrierValues *heap = calloc(1, sizeof *heap);

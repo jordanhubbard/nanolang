@@ -1554,6 +1554,13 @@ test-env-generated-list-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-env-generated-list-metadata
 
+.PHONY: test-eval-carrier-active-roots
+test-eval-carrier-active-roots: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_active_roots tests/test_eval_carrier_active_roots.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_active_roots
+
+test-units: test-eval-carrier-active-roots
+
 .PHONY: test-eval-carrier-values
 test-eval-carrier-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_values tests/test_eval_carrier_values.c $(filter-out $(OBJ_DIR)/eval/carrier_heap.o $(OBJ_DIR)/eval/carrier_values.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(LDFLAGS)

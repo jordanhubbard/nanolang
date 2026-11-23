@@ -203,3 +203,58 @@ binding, checked typed-field/list, argument, host and async roots and external
 release/GC-shutdown lifetimes before collecting during calls/loops and enabling
 tracking by default. #1116/#1140/#1211 and full source/platform/release acceptance
 remain open; I do not replace them with teardown-only success.
+
+
+## I qualify active roots with a separate private collector
+
+I now keep nested evaluator root scopes. A completed child aggregate remains a
+root while sibling expressions run, and newly registered constructor storage
+stays rooted until its enclosing scope yields. I collapse child temporaries
+on return, retaining only the result in the parent. Lexical statement and loop
+boundaries discard consumed temporaries; a while result remains protected
+through its final condition because that result is still yielded on exit.
+For iteration I preserve the iterable while resetting each body's temporaries.
+My ordinary disabled path tests the inline session pointer before root calls.
+
+I retain one checked `record_list` result bit on AST expressions/statements;
+I do not infer pointer meaning from an ordinary INT. Live symbol types supply
+binding list facts, excluding checker-retained void placeholders. Named record
+and union definitions supply current field facts during graph traversal;
+explicit tuple-literal element facts follow their checked source children.
+These facts create graph edges without adopting their referents. Constructor
+and copied-binding registration still supplies ownership independently.
+
+`env_carrier_enable_collection` is a second, explicit, private qualification
+step. Ordinary environment creation and my CLI select neither tracking nor
+collection. The qualification caller supplies complete, valid host roots;
+replacement copies the root descriptors only at quiescence. Host call arguments
+remain roots during their activation. This is not an automatic external alias,
+list-release or GC-shutdown protocol. Borrowed/untracked carriers are followed
+without being adopted. Complete generic/module/array typed-slot provenance,
+external call mutations, async roots, low-level constructor capture and GC/list
+lifetimes still require qualification before default activation.
+
+I retain two failures from the active-collection candidate. Returning a list
+inside a named-record INT field first loses the list edge and produces an ASan
+use-after-free. Dynamic definition-derived field facts and explicit tuple facts
+repair the unchanged fixture. A later aggregate-producing loop first drops
+its preceding result before its final condition and returns freed storage;
+keeping that result through the condition repairs it. I also retain the first
+bare-variable loop fixture's E034 refusal and replace that fixture expression
+with an actual value-producing call, preserving source admission.
+
+My new checked source fixture exercises sibling record calls, tuples, a
+256-iteration while and range-for with aggregate-valued bodies, list returns
+and record/union/tuple list escapes, with ten actual shadows. The selected
+normal/sanitized workload observes a peak of seven live carriers, and two
+additional64-call batches finish at seven each. The original complete
+callback-record fixture and its six shadows also run unchanged: repeated
+record_case calls finish at one live carrier after each64-call batch and
+retire403 registrations as402 destructions and one caller transfer. This is
+bounded behavior for these actual workloads, not complete #1116 acceptance.
+The original scalar seven-shadow and typed-list two-shadow fixtures and
+explicit host-list identity controls remain part of qualification.
+
+I preserve the tracking-only growth observation and default source failures.
+I do not close #1116/#1140/#1211 or claim current-source paired platform,
+bootstrap or release acceptance from this separately enabled collector.

@@ -285,6 +285,7 @@ struct ASTNode {
     ASTNode *lambda_definition;
     ASTNode *checked_global; /* I borrow the exact checked global declaration, never its storage. */
     bool checked_function_name; /* I resolved this spelling to a declaration, not a value binding. */
+    bool checked_record_list; /* Checked result provenance for private interpreter roots. */
     ASTNode *affine_use_owner; /* Borrowed exact checked source function. */
     uint64_t affine_use_epoch;
     unsigned char checked_affine_use; /* 0 unknown, 1 observe, 2 consume. */
