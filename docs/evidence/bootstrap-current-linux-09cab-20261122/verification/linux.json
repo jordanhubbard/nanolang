@@ -1,0 +1,14 @@
+{
+  "status": "INTEGRITY_PASS",
+  "source_pin": "09cab2184f6c889ea8059cf7c5ec29baf456301e",
+  "records": 1562,
+  "source_inputs": 1342,
+  "original_steps": 17,
+  "raw_module_bytes": 1049504,
+  "raw_module_sha256": "33de2785c7a66379ba75212020d78eb80fe1269f388985d06860cc80b9b9f964",
+  "native_products": 2,
+  "installed_no_c_seed": true,
+  "pure_translator_admission": false,
+  "paired_current_source": false,
+  "release_acceptance": false
+}
