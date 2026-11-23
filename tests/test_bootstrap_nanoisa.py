@@ -11,6 +11,79 @@ from unittest.mock import patch
 from scripts.bootstrap_nanoisa import Bootstrap, HOST_MODULES, digest, source_inputs
 
 
+class SourceInputTraversal(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='nano-source-inputs-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.selected = ('Makefile.gnu', 'scripts/bootstrap_nanoisa.py',
+                         'tests/bootstrap_native_guard.py', 'src_nano/compiler.nano',
+                         'src/engine.c', 'src/engine.h', 'src/engine.inc',
+                         'modules/package/module.json', 'std/api.nano',
+                         'src/visible/real.json')
+        ignored = ('src/ignored.txt', 'src/.hidden.c',
+                   'modules/.build/cache.c', 'modules/package/.build/work.h',
+                   'src/visible/.state/cache.json', 'outside.h')
+        for name in (*self.selected, *ignored):
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(name + '\n')
+        (self.root / 'src/alias.h').symlink_to(self.root / 'outside.h')
+        (self.root / 'src/directory-alias').symlink_to(self.root / 'src/visible',
+                                                     target_is_directory=True)
+        (self.root / 'src/broken.c').symlink_to(self.root / 'absent.c')
+        (self.root / 'modules/.hidden-link').symlink_to(self.root / 'src',
+                                                      target_is_directory=True)
+
+    def test_exact_visible_manifest_preserves_file_aliases_without_following_directory_aliases(self):
+        expected = {name: digest(self.root / name)
+                    for name in (*self.selected, 'src/alias.h')}
+        actual = source_inputs(self.root)
+        self.assertEqual(actual, expected)
+        self.assertEqual(list(actual), sorted(expected))
+        self.assertFalse((self.root / 'stdlib').exists())
+        (self.root / 'src/engine.c').write_text('changed visible source\n')
+        changed = source_inputs(self.root)
+        self.assertNotEqual(changed['src/engine.c'], actual['src/engine.c'])
+        (self.root / 'modules/.build/cache.c').write_text('changed excluded bytes\n')
+        cache = self.root / 'modules/package/.build/deep/new.nano'
+        cache.parent.mkdir()
+        cache.write_text('excluded cache growth\n')
+        self.assertEqual(source_inputs(self.root), changed)
+
+    def test_excluded_directories_are_pruned_before_enumeration(self):
+        expected = source_inputs(self.root)
+        scandir = os.scandir
+        visits = []
+
+        def observed(path):
+            relative = Path(path).relative_to(self.root)
+            self.assertFalse(any(part.startswith('.') for part in relative.parts),
+                             str(relative))
+            visits.append(str(relative))
+            return scandir(path)
+
+        with patch.object(os, 'scandir', side_effect=observed):
+            self.assertEqual(source_inputs(self.root), expected)
+        self.assertIn('modules/package', visits)
+        self.assertIn('src/visible', visits)
+        self.assertNotIn('src/directory-alias', visits)
+
+    def test_hidden_and_unsupported_files_are_excluded_before_file_stat(self):
+        expected = source_inputs(self.root)
+        is_file = Path.is_file
+
+        def observed(path):
+            relative = path.relative_to(self.root)
+            self.assertFalse(any(part.startswith('.') for part in relative.parts),
+                             str(relative))
+            self.assertIn(path.suffix, ('.nano', '.c', '.h', '.inc', '.json'))
+            return is_file(path)
+
+        with patch.object(Path, 'is_file', observed):
+            self.assertEqual(source_inputs(self.root), expected)
+
+
 class BootstrapBoundaries(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='nano-bootstrap-boundary-')

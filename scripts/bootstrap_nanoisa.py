@@ -30,9 +30,14 @@ def source_inputs(root):
     for directory in ('src_nano', 'src', 'modules', 'std', 'stdlib'):
         base = root / directory
         if base.exists():
-            names.extend(str(p.relative_to(root)) for p in base.rglob('*')
-                         if p.is_file() and p.suffix in ('.nano', '.c', '.h', '.inc', '.json')
-                         and not any(part.startswith('.') for part in p.relative_to(base).parts))
+            for parent, directories, files in os.walk(base, followlinks=False):
+                directories[:] = [name for name in directories if not name.startswith('.')]
+                for name in files:
+                    if name.startswith('.'):
+                        continue
+                    path = Path(parent) / name
+                    if path.suffix in ('.nano', '.c', '.h', '.inc', '.json') and path.is_file():
+                        names.append(str(path.relative_to(root)))
     return {name: digest(root / name) for name in sorted(names)}
 
 
