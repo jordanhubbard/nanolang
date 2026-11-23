@@ -1436,8 +1436,8 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                     /* Check if this field is a struct/union type */
                     if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION || sdef->field_types[i] == TYPE_ENUM) &&
                         sdef->field_type_names && sdef->field_type_names[i]) {
-                        /* Return the struct type name for this field */
-                        return strdup(sdef->field_type_names[i]);
+                        /* I borrow this declaration identity, like other queries. */
+                        return sdef->field_type_names[i];
                     }
                     /* Field is not a struct, or type name not available */
                     return NULL;
@@ -10374,7 +10374,9 @@ register_function_pass2:;
                     env_own_checker_allocation(env, val.as.array_val);
                     env_own_checker_allocation(env, val.as.array_val->data);
                 } else if (param_type == TYPE_STRUCT) {
-                    val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
+                    /* I retain nominal metadata below, as in type_check.
+                     * A checker-only slot does not need a runtime record. */
+                    val = create_void();
                 } else if (param_type == TYPE_UNION) {
                     /* For union parameters, create empty union value */
                     val = create_void();  /* Placeholder */

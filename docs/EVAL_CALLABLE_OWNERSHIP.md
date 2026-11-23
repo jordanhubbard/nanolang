@@ -262,3 +262,30 @@ and original record/union3720-byte/159-allocation failure. The source semantic
 ASan/UBSan run explicitly disables leak detection; my C/API ownership unit
 does not. These [separate results](evidence/scalar-projection-ownership-linux-20261123/README.md)
 do not close general #1116/#1140 carrier/escape/heap or paired release acceptance.
+
+Under #1149 I keep module-checker record parameters as type-only slots, matching
+whole-program checking. Their declared nominal name and field/type guards stay
+on the symbol; I do not construct or copy an empty runtime record for checking.
+A complete repeated native fixture covers both checker entries, direct/nested/
+array record parameters, wrong fields, wrong return types and wrong nominal
+arguments. Its original sanitizer report retains 615 bytes in 51 allocations.
+The placeholder-only correction still retains 36 bytes in six nested-field
+name copies. I preserve both failures and borrow the registered record-field
+identity from `get_struct_type_name`, as its other declaration queries do.
+
+The same 36-control fixture then passes normally, with ASan/UBSan and leak
+detection enabled, and with production flags. The original 88 checker methods and 34 REPL
+controls pass in all three profiles; the broad original checker sanitizer run
+retains its existing disabled leak boundary. The complete seven-method REPL
+aggregate run still fails three methods at 168/172/172 bytes in unchanged
+runtime record-call/local copies. I retain those reports and keep #1116/#1149,
+complete REPL ownership and release acceptance open. I do not infer runtime
+ownership from checker-only metadata cleanup.
+
+My changed-checker C seed passes ten original lexical and seven record/list
+payload methods. Its full compiler-source command then reports all 1,306
+selected shadow completions with zero assertion failures, but exits 1 after
+140.893 seconds when the original supervisor reports its ten-second refusal.
+I publish no seed, keep the original 600/10-second limits and preserve the full
+unsuccessful command. This does not establish current compiler-source acceptance
+or a cause for the terminal refusal.

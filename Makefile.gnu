@@ -1530,6 +1530,13 @@ test-env-borrowed-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_i
 
 test-units: test-env-borrowed-values
 
+.PHONY: test-checker-record-parameters
+test-checker-record-parameters: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_record_parameters tests/test_checker_record_parameters.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_checker_record_parameters
+
+test-units: test-checker-record-parameters
+
 .PHONY: test-eval-record-binding-ownership
 test-eval-record-binding-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_record_binding_ownership tests/test_eval_record_binding_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
