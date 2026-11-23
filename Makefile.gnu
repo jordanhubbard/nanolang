@@ -7887,3 +7887,9 @@ test-native-scalar-copy-inference: nano_virt nano_vm nanoisa_dump nvm2c
 	python3 -m unittest -v tests.test_native_scalar_copy_inference
 
 test-units: test-native-scalar-copy-inference
+
+.PHONY: test-native-nested-array-results
+test-native-nested-array-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_native_nested_array_result_inference
+
+test-units: test-native-nested-array-results
