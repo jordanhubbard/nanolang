@@ -721,7 +721,7 @@ typedef struct {
     int variant_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_extern;   /* External C type: do not emit definition */
-    char *module_name;  /* Module this enum belongs to (NULL for global) */
+    char *module_name;  /* I borrow API names; my checker allocation list owns copied names. */
 } EnumDef;
 
 /* Union definition entry */
@@ -1029,6 +1029,12 @@ const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
 /* I retain functions/types while clearing variables between evaluations. */
 void env_clear_variables(Environment *env);
+/* I publish module declarations only after their checker succeeds. */
+struct EnvModuleCheckpoint;
+struct EnvModuleCheckpoint *env_module_checkpoint(Environment *env, const char *owner, const char *path);
+bool env_module_checkpoint_declarations(Environment *env, struct EnvModuleCheckpoint *checkpoint);
+void env_module_commit(struct EnvModuleCheckpoint *checkpoint);
+void env_module_rollback(Environment *env, struct EnvModuleCheckpoint *checkpoint);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);

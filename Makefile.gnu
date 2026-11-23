@@ -4237,6 +4237,13 @@ test-units: test-eval-tuple-vector-guards
 test-repl-callable-lifetimes: $(REPL_BINARY)
 	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_callable_lifetimes
 
+.PHONY: test-module-rejection-rollback
+test-module-rejection-rollback: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_rejection_rollback tests/test_module_rejection_rollback.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_module_rejection_rollback
+
+test-units: test-module-rejection-rollback
+
 .PHONY: test-repl-state
 test-repl-state: $(REPL_BINARY)
 	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_state

@@ -101,11 +101,29 @@ without retiring declarations, and patch compatible function slots without
 replaying top-level effects. I retain the original malformed-escape ASan failure,
 module-context leak and typed-assignment failure alongside corrected controls.
 
-This is partial persistent-session acceptance. A rejected imported module still
-publishes a declaration whose AST has been retired (#1223), and :save still omits
-loaded fragments (#1225). My module-context-string correction (#1222) does not
-repair that separate AST lifetime. Complete #1205/#1140/#1116, current-source
-bootstrap, paired platform and release acceptance remain open.
+Under #1223 I now withdraw failed imported-module declarations before retiring
+their AST. My declaration checkpoint preserves preexisting functions, live
+variables and module metadata after valid dependencies load. Failure retires the
+new declarations and checker payloads, withdraws only the failed importer's new
+aliases, and removes its terminal loading marker. Successful dependencies keep
+their cached ASTs and callable slots. I test 32 repeated failures, all declaration
+kinds, old shadow/live-value survival, changed imports on corrected same-path
+retry, and circular/parser/lexer/missing-file recovery. My [Linux receipt](evidence/module-check-rollback-linux-20261123/README.md)
+retains the original publication refusal, complete sanitizer enum leak and the
+unsuccessful direct-free correction.
+
+My #1226 correction reuses the module checker's checked enum-value allocation
+and records copied enum owner names on the checker ownership list. I preserve
+borrowed C/API enum owner names: an unconditional field free aborts the unchanged
+environment suite, and I retain that failure. The corrected normal/sanitizer
+rollback and enum controls pass with leak detection; original environment60,
+nominal-owner and enum-ownership controls pass alongside evaluator134/checker88
+(the broad evaluator/checker leak boundary remains explicit).
+
+Complete persistent-session acceptance remains open. My production :load then
+:save still omits loaded fragments (#1225). Typed-input save success is narrower.
+Complete #1205/#1140/#1116, current-source bootstrap, paired platform and release
+acceptance remain open.
 
 Under #1207 I keep TYPE_BORROW_SHARED and TYPE_BORROW_MUT slots non-owning
 when I create or rebind views and when I traverse roots for static-array

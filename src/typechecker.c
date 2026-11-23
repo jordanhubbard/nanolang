@@ -9143,7 +9143,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Set module visibility */
             edef.original_name = item->as.enum_def.original_name ? strdup(item->as.enum_def.original_name) : NULL;
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);
@@ -9993,8 +9993,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
-            /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            /* I fill the checked allocation above without replacing its owner. */
             if (item->as.enum_def.variant_values) {
                 for (int j = 0; j < edef.variant_count; j++) {
                     edef.variant_values[j] = item->as.enum_def.variant_values[j];
@@ -10009,7 +10008,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Set module visibility */
             edef.original_name = item->as.enum_def.original_name ? strdup(item->as.enum_def.original_name) : NULL;
             edef.is_pub = item->as.enum_def.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
             
             env_define_enum(env, edef);

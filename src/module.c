@@ -585,8 +585,10 @@ static Function *find_module_function(Environment *env, const char *module_name,
     return env && func_name ? env_get_function_owned(env, func_name, module_name) : NULL;
 }
 
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track);
+
 /* Load and parse a module file */
-static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
+static ASTNode *load_module_body(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
     
     /* Check if module is already loaded (only if using cache) */
@@ -647,6 +649,15 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         free(source);
         return NULL;
     }
+
+    char *owner = module_program_name(module_ast, module_path);
+    struct EnvModuleCheckpoint *checkpoint = owner ? env_module_checkpoint(env, owner, module_path) : NULL;
+    free(owner);
+    if (!checkpoint) {
+        fprintf(stderr, "I cannot retain module declaration rollback state.\n");
+        free_ast(module_ast); free_tokens(tokens, token_count); free(source);
+        return NULL;
+    }
     
     /* I register aliases in their importer's context, before checking its body. */
     char *saved_current_module = env->current_module;
@@ -658,6 +669,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
         env->current_module = saved_current_module;
         free(module_name);
+        env_module_rollback(env, checkpoint);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -671,6 +683,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         free(module_name);
         free_tokens(tokens, token_count);
         free(source);
+        env_module_commit(checkpoint);
         if (use_cache) cache_module_with_ast(module_path, module_ast);
         return module_ast;
     }
@@ -691,11 +704,19 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             free(identity);
             env->current_module = saved_current_module;
             free(module_name);
+            env_module_rollback(env, checkpoint);
             free_ast(module_ast);
             free_tokens(tokens, token_count);
             free(source);
             return NULL;
         }
+    }
+    if (!env_module_checkpoint_declarations(env, checkpoint)) {
+        fprintf(stderr, "I cannot retain module declaration rollback state.\n");
+        free(identity); free(env->current_module); env->current_module = saved_current_module;
+        env_module_rollback(env, checkpoint);
+        free_ast(module_ast); free_tokens(tokens, token_count); free(source);
+        return NULL;
     }
     /* I retain the same physical source under its declared introspection name. */
     if (identity && strcmp(identity, module_name) != 0)
@@ -721,6 +742,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         /* I retire the current owned spelling, including a declared replacement. */
         free(env->current_module);
         env->current_module = saved_current_module;
+        env_module_rollback(env, checkpoint);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -731,6 +753,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
      * have replaced the initial stem, so I retire the current owned context. */
     free(env->current_module);
     env->current_module = saved_current_module;
+    env_module_commit(checkpoint);
     
     /* Load constants from C headers if module has module.json */
     char *module_dir_copy = strdup(module_path);
@@ -825,6 +848,25 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     return module_ast;
+}
+
+static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
+    bool existing = module_path && use_cache && is_module_cached(module_path);
+    ASTNode *program = load_module_body(module_path, env, use_cache, modules_to_track);
+    /* An inner circular-import observation must not remove its caller's live
+     * marker. The load which inserted a failed marker owns its removal. */
+    if (!program && use_cache && !existing) {
+        int index = cached_module_index(module_path);
+        if (index >= 0 && !module_cache->loaded_asts[index]) {
+            free(module_cache->loaded_paths[index]);
+            size_t tail = (size_t)(--module_cache->count - index);
+            memmove(module_cache->loaded_paths + index, module_cache->loaded_paths + index + 1,
+                    tail * sizeof *module_cache->loaded_paths);
+            memmove(module_cache->loaded_asts + index, module_cache->loaded_asts + index + 1,
+                    tail * sizeof *module_cache->loaded_asts);
+        }
+    }
+    return program;
 }
 
 /* Public wrapper for load_module that uses cache */

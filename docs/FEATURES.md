@@ -799,7 +799,7 @@ I provide type-safe bindings for direct C function calls with no overhead, facil
 - Complete: Self-hosted compiler (100% bootstrap — stage1 → stage2 → stage3)
 - In progress: Standalone interpreter tracing and automatic shadows (#1209).
 - Complete: Shadow-test system (compile-time execution, 100% function coverage required)
-- In progress: Interactive REPL with checked input, history and function-only hot reload (`:load`, `:save`, `:reload`). My restored Linux native build passes callable/state controls; rejected-module declaration lifetime (#1223) and saving loaded fragments (#1225) remain open under #1205.
+- In progress: Interactive REPL with checked input, history and function-only hot reload (`:load`, `:save`, `:reload`). My restored Linux native build passes callable/state and rejected-module recovery controls; saving loaded fragments (#1225) remains open under #1205.
 - Complete: Language Server (`bin/nanolang-lsp`) — hover, go-to-definition, completion, diagnostics
 - Complete: Debug Adapter Protocol server (`bin/nanolang-dap`) — breakpoints, step-through, variable inspection
 - Complete: VS Code extension (`editors/vscode/`) — LSP + DAP wired automatically, format-on-save

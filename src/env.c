@@ -871,6 +871,190 @@ void free_environment(Environment *env) {
     free(env);
 }
 
+/* I separate a failed importer's aliases from successfully loaded dependencies.
+ * Declaration checking then appends to those retained dependency tables. */
+struct EnvModuleCheckpoint {
+    char *owner, *path;
+    int namespaces;
+    EnvFunctionBinding *function_imports;
+    EnumImport *enum_imports;
+    EffectImport *effect_imports;
+    GlobalImport *global_imports;
+    Environment before;
+    Symbol *symbols;
+    Function *functions;
+    ModuleInfo *modules;
+    bool declarations;
+};
+
+struct EnvModuleCheckpoint *env_module_checkpoint(Environment *env, const char *owner, const char *path) {
+    struct EnvModuleCheckpoint *mark = calloc(1, sizeof *mark);
+    if (!mark) return NULL;
+    mark->owner = owner ? strdup(owner) : NULL;
+    mark->path = path ? strdup(path) : NULL;
+    if ((owner && !mark->owner) || (path && !mark->path)) { env_module_commit(mark); return NULL; }
+    mark->namespaces = env->namespace_count;
+    mark->function_imports = env->function_imports ? env->function_imports->entries : NULL;
+    mark->enum_imports = env->enum_imports;
+    mark->effect_imports = env->effect_imports;
+    mark->global_imports = env->global_imports;
+    return mark;
+}
+
+bool env_module_checkpoint_declarations(Environment *env, struct EnvModuleCheckpoint *mark) {
+    mark->before = *env;
+    if (env->function_count) {
+        mark->functions = malloc((size_t)env->function_count * sizeof *mark->functions);
+        if (!mark->functions) return false;
+        memcpy(mark->functions, env->functions, (size_t)env->function_count * sizeof *mark->functions);
+    }
+    if (env->module_count) {
+        mark->modules = malloc((size_t)env->module_count * sizeof *mark->modules);
+        if (!mark->modules) return false;
+        memcpy(mark->modules, env->modules, (size_t)env->module_count * sizeof *mark->modules);
+    }
+    if (env->symbol_count) {
+        mark->symbols = calloc((size_t)env->symbol_count, sizeof *mark->symbols);
+        if (!mark->symbols) return false;
+        for (int i = 0; i < env->symbol_count; ++i) {
+            mark->symbols[i] = env->symbols[i];
+            mark->symbols[i].name = env->symbols[i].name ? strdup(env->symbols[i].name) : NULL;
+            mark->symbols[i].struct_type_name = env->symbols[i].struct_type_name ? strdup(env->symbols[i].struct_type_name) : NULL;
+            if ((env->symbols[i].name && !mark->symbols[i].name) ||
+                (env->symbols[i].struct_type_name && !mark->symbols[i].struct_type_name)) return false;
+        }
+    }
+    mark->declarations = true;
+    return true;
+}
+
+void env_module_commit(struct EnvModuleCheckpoint *mark) {
+    if (!mark) return;
+    if (mark->symbols) for (int i = 0; i < mark->before.symbol_count; ++i) {
+        free(mark->symbols[i].name); free(mark->symbols[i].struct_type_name);
+    }
+    free(mark->symbols); free(mark->functions); free(mark->modules);
+    free(mark->owner); free(mark->path); free(mark);
+}
+
+/* I fail closed if I cannot retain the ownership required for rollback. */
+static void *module_rollback_copy(const void *table, int count, size_t width) {
+    if (!count) return NULL;
+    if (count < 0 || (size_t)count > SIZE_MAX / width) abort();
+    void *copy = malloc((size_t)count * width);
+    if (!copy) {
+        fprintf(stderr, "I cannot allocate module rollback ownership.\n");
+        exit(1);
+    }
+    memcpy(copy, table, (size_t)count * width);
+    return copy;
+}
+
+void env_module_rollback(Environment *env, struct EnvModuleCheckpoint *mark) {
+    if (!mark) return;
+    if (mark->declarations) {
+        Environment *retired = calloc(1, sizeof *retired);
+        if (!retired) { fprintf(stderr, "I cannot allocate module rollback ownership.\n"); exit(1); }
+        /* My ordinary environment destructor owns every appended declaration.
+         * I copy table suffixes, never free an interior allocation pointer. */
+#define RETIRE_TABLE(field, count) do { \
+    int first = mark->before.count; \
+    if (env->count < first) abort(); \
+    retired->count = env->count - first; \
+    retired->field = module_rollback_copy(retired->count ? env->field + first : NULL, \
+                                         retired->count, sizeof *env->field); \
+    env->count = first; \
+} while (0)
+        RETIRE_TABLE(symbols, symbol_count);
+        RETIRE_TABLE(functions, function_count);
+        RETIRE_TABLE(structs, struct_count);
+        RETIRE_TABLE(enums, enum_count);
+        RETIRE_TABLE(unions, union_count);
+        RETIRE_TABLE(opaque_types, opaque_type_count);
+        RETIRE_TABLE(effects, effect_count);
+        RETIRE_TABLE(generic_instances, generic_instance_count);
+        RETIRE_TABLE(generic_func_instances, generic_func_instance_count);
+        RETIRE_TABLE(namespaces, namespace_count);
+        RETIRE_TABLE(modules, module_count);
+#undef RETIRE_TABLE
+        env_symbol_index_invalidate(env);
+        function_index_free(env);
+        for (int i = 0; i < env->symbol_count; ++i) {
+            free(env->symbols[i].name); free(env->symbols[i].struct_type_name);
+            env->symbols[i] = mark->symbols[i];
+            mark->symbols[i].name = mark->symbols[i].struct_type_name = NULL;
+        }
+        if (env->function_count)
+            memcpy(env->functions, mark->functions, (size_t)env->function_count * sizeof *env->functions);
+        for (int i = 0; i < env->module_count; ++i) {
+            ModuleInfo *live = &env->modules[i], *saved = &mark->modules[i];
+            while (live->function_count > saved->function_count) free(live->exported_functions[--live->function_count]);
+            while (live->struct_count > saved->struct_count) free(live->exported_structs[--live->struct_count]);
+            live->has_ffi = saved->has_ffi; live->is_unsafe = saved->is_unsafe;
+        }
+        env->builtins_registered = mark->before.builtins_registered;
+        env->current_module_is_unsafe = mark->before.current_module_is_unsafe;
+        /* All new checker payloads leave with the retired declaration suffix. */
+        struct EnvCheckerAllocation **tail = &env->checker_allocations;
+        while (*tail != mark->before.checker_allocations) tail = &(*tail)->next;
+        retired->checker_allocations = env->checker_allocations == mark->before.checker_allocations ? NULL : env->checker_allocations;
+        *tail = NULL;
+        env->checker_allocations = mark->before.checker_allocations;
+        env->global_imports = mark->before.global_imports;
+        free_environment(retired);
+    }
+    /* I withdraw only this failed importer's new aliases. Child modules and
+     * aliases that preceded this load retain their source and slot identities. */
+    struct EnvFunctionImport *imports = env->function_imports;
+    if (imports) {
+        EnvFunctionBinding **entry = &imports->entries;
+        while (*entry != mark->function_imports) {
+            EnvFunctionBinding *item = *entry;
+            if (function_owner_matches(item->owner, mark->owner)) {
+                *entry = item->next; free(item->name); free(item->owner); free(item); --imports->count;
+            } else entry = &item->next;
+        }
+        memset(imports->buckets, 0, imports->capacity * sizeof *imports->buckets);
+        for (EnvFunctionBinding *item = imports->entries; item; item = item->next) {
+            size_t bucket = item->hash & (imports->capacity - 1);
+            item->bucket_next = imports->buckets[bucket]; imports->buckets[bucket] = item;
+        }
+    }
+#define WITHDRAW_ALIASES(field, type, stop) do { \
+    type **entry = &env->field; \
+    while (*entry != mark->stop) { \
+        type *item = *entry; \
+        if (function_owner_matches(item->owner_module, mark->owner)) { \
+            *entry = item->next; free(item->name); free(item->owner_module); free(item->target_name); free(item); \
+        } else entry = &item->next; \
+    } \
+} while (0)
+    WITHDRAW_ALIASES(enum_imports, EnumImport, enum_imports);
+    WITHDRAW_ALIASES(effect_imports, EffectImport, effect_imports);
+#undef WITHDRAW_ALIASES
+    GlobalImport **global = &env->global_imports;
+    while (*global != mark->global_imports) {
+        GlobalImport *item = *global;
+        if (mark->path && !strcmp(item->owner_file, mark->path)) {
+            *global = item->next;
+            struct EnvCheckerAllocation **owned = &env->checker_allocations;
+            while (*owned && (*owned)->allocation != item) owned = &(*owned)->next;
+            if (*owned) { struct EnvCheckerAllocation *found = *owned; *owned = found->next; found->release(found->allocation); free(found); }
+        } else global = &item->next;
+    }
+    for (int i = mark->namespaces; i < env->namespace_count;) {
+        if (!function_owner_matches(env->namespaces[i].owner_module, mark->owner)) { ++i; continue; }
+        Environment *retired = calloc(1, sizeof *retired);
+        if (!retired) { fprintf(stderr, "I cannot allocate module rollback ownership.\n"); exit(1); }
+        retired->namespace_count = 1;
+        retired->namespaces = module_rollback_copy(&env->namespaces[i], 1, sizeof *env->namespaces);
+        memmove(env->namespaces + i, env->namespaces + i + 1,
+                (size_t)(--env->namespace_count - i) * sizeof *env->namespaces);
+        free_environment(retired);
+    }
+    env_module_commit(mark);
+}
+
 /* Define variable */
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value) {
     env_define_var_with_element_type(env, name, type, TYPE_UNKNOWN, is_mut, value);
