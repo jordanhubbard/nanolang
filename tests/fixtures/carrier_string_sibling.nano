@@ -1,0 +1,12 @@
+let mut shared_text: string = "before"
+fn change_text() -> string { set shared_text "after" return "!" }
+shadow change_text { set shared_text "before" assert (== (change_text) "!") }
+fn keep_left() -> int {
+    set shared_text "before"
+    let combined: string = (+ shared_text (change_text))
+    assert (== combined "before!")
+    return (str_length combined)
+}
+shadow keep_left { assert (== (keep_left) 7) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

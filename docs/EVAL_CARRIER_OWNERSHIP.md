@@ -362,3 +362,32 @@ session. Trusted helper/foreign construction, asynchronous storage, external
 list/GC shutdown lifetimes, complete typed-field roots and full original source/
 compiler/platform gates still precede default activation. #1217/#1213/#1211/
 #1116/#1140 and whole-release acceptance remain open.
+
+## I qualify STRING scopes independently of aggregate ownership
+
+`env_carrier_enable_strings` now creates only my explicit STRING-reference and
+nested-frame session. It does not allocate a carrier graph, adopt aggregate
+storage, suppress legacy aggregate cleanup or admit aggregate collection.
+`env_carrier_scopes_enabled` identifies this scope protocol;
+`env_carrier_enabled` continues to mean actual aggregate ownership. The existing
+full-private enable operation still enables both. I can upgrade a STRING-only
+session between frames; I refuse an upgrade beneath an active frame, and failed
+fresh full-mode construction leaves ordinary mode unchanged.
+
+My [Linux receipt](evidence/string-reference-mode-linux-20261123/README.md)
+qualifies the exact sibling-mutation source independently, admitted synchronous
+async calls with 130 repeated calls, separate C caller/result ownership and
+balanced reference teardown. It also retains the original duplicate-loop-return
+source: STRING-only semantics pass, then LSan still finds 59 bytes in four
+unbound static-array allocations. Full-private mode is clean. This remains an
+aggregate-ownership failure; I do not enable aggregate collection to disguise a
+STRING-only failure or disable leak detection for the focused positive units.
+
+All 134 original evaluator cases pass in ordinary, STRING-only and full-private
+normal/sanitizer modes. Broad sanitizer suites disable LSan explicitly; focused
+units enable it. The current ordinary sibling witness still reports ASan UAF.
+Ordinary environment creation/CLI remain unchanged. This separation is a
+qualification prerequisite, not default activation or #1217/#1213/full-release
+acceptance. The handwritten queued `spawn`/scheduler paths remain unregistered
+source operations; my retained parser/typechecker refusals do not establish a
+runtime failure on an admitted source route.

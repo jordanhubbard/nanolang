@@ -1,0 +1,28 @@
+# I test admitted synchronous async calls, not a queued-task API.
+let mut async_scope_text: string = "before"
+async fn string_async_echo(value: string) -> string { return value }
+shadow string_async_echo { assert (== (string_async_echo "caller") "caller") }
+async fn string_async_change() -> string {
+    set async_scope_text "after"
+    return "!"
+}
+shadow string_async_change {
+    set async_scope_text "before"
+    assert (== (string_async_change) "!")
+    assert (== async_scope_text "after")
+}
+fn string_async_scope() -> int {
+    set async_scope_text "before"
+    let joined: string = (+ async_scope_text (string_async_change))
+    assert (== joined "before!")
+    let mut result: string = (string_async_echo joined)
+    for index in (range 0 130) {
+        assert (>= index 0)
+        set result (string_async_echo result)
+        assert (== result "before!")
+    }
+    return (str_length result)
+}
+shadow string_async_scope { assert (== (string_async_scope) 7) }
+fn main() -> int { return (string_async_scope) }
+shadow main { assert (== (main) 7) }

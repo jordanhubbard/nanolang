@@ -47,15 +47,29 @@ static bool record_list_slot(Value value, int index, void *context) {
         if (strcmp(name, names[i]) == 0) return types[i] == TYPE_LIST_GENERIC;
     return false;
 }
-bool env_carrier_enable(Environment *env) {
+bool env_carrier_enable_strings(Environment *env) {
     if (!env) return false;
     if (env->carrier_session) return true;
-    struct NlEvalCarrierSession *session = calloc(1, sizeof *session);
-    if (!session) return false;
+    env->carrier_session = calloc(1, sizeof *env->carrier_session);
+    return env->carrier_session != NULL;
+}
+bool env_carrier_enabled(const Environment *env) {
+    return env_carrier_scopes_enabled(env) && env->carrier_session->values;
+}
+bool env_carrier_enable(Environment *env) {
+    bool existing = env_carrier_scopes_enabled(env);
+    if (!env_carrier_enable_strings(env)) return false;
+    struct NlEvalCarrierSession *session = env->carrier_session;
+    if (session->values) return true;
+    /* I do not change ownership beneath an active STRING-only frame. */
+    if (session->depth) return false;
     session->values = nl_carrier_values_new();
-    if (!session->values) { free(session); return false; }
+    if (!session->values) {
+        if (!existing) { free(session); env->carrier_session = NULL; }
+        return false;
+    }
     nl_carrier_values_set_slots(session->values, record_list_slot, env);
-    env->carrier_session = session; return true;
+    return true;
 }
 static void *reserve(void *data, size_t *capacity, size_t count, size_t width) {
     if (count <= *capacity) return data;
@@ -86,7 +100,7 @@ void env_carrier_edges(Environment *env, Value owner, const NlCarrierRef *edges,
         ownership_failure();
 }
 static void track_string_reference(Environment *env, Value value, bool fresh) {
-    if (!env_carrier_enabled(env) || value.type != VAL_STRING) return;
+    if (!env_carrier_scopes_enabled(env) || value.type != VAL_STRING) return;
     struct NlEvalCarrierSession *s = env->carrier_session;
     if (!s->depth) return;
     char *pointer = value.as.string_val;
@@ -102,20 +116,20 @@ void env_carrier_track_string(Environment *env, Value value) {
     track_string_reference(env, value, true);
 }
 void env_carrier_borrow_string(Environment *env, Value value) {
-    if (!env_carrier_enabled(env) || !env->carrier_session->depth || value.type != VAL_STRING ||
+    if (!env_carrier_scopes_enabled(env) || !env->carrier_session->depth || value.type != VAL_STRING ||
         !value.as.string_val || !gc_is_managed(value.as.string_val)) return;
     gc_retain(value.as.string_val);
     track_string_reference(env, value, false);
 }
 bool env_carrier_retain_string(Environment *env, Value value) {
-    if (!env_carrier_enabled(env) || value.type != VAL_STRING) return false;
+    if (!env_carrier_scopes_enabled(env) || value.type != VAL_STRING) return false;
     struct NlEvalCarrierSession *s = env->carrier_session;
     for (size_t i = 0; i < s->string_count; ++i)
         if (s->strings[i] == value.as.string_val) { gc_retain(value.as.string_val); return true; }
     return false;
 }
 NlCarrierScopeMark env_carrier_root_mark(Environment *env) {
-    if (!env_carrier_enabled(env)) return (NlCarrierScopeMark){0};
+    if (!env_carrier_scopes_enabled(env)) return (NlCarrierScopeMark){0};
     struct NlEvalCarrierSession *s = env->carrier_session;
     return (NlCarrierScopeMark){s->root_count, s->string_count};
 }
@@ -133,7 +147,7 @@ static void retire_strings(struct NlEvalCarrierSession *s, size_t first, const c
     }
 }
 void env_carrier_root_reset(Environment *env, NlCarrierScopeMark mark) {
-    if (!env_carrier_enabled(env)) return;
+    if (!env_carrier_scopes_enabled(env)) return;
     struct NlEvalCarrierSession *s = env->carrier_session;
     if (!s->depth || mark.roots < s->frames[s->depth - 1].roots || mark.roots > s->root_count ||
         mark.strings < s->frames[s->depth - 1].strings || mark.strings > s->string_count) ownership_failure();
@@ -141,14 +155,14 @@ void env_carrier_root_reset(Environment *env, NlCarrierScopeMark mark) {
     retire_strings(s, mark.strings, NULL);
 }
 void env_carrier_enter(Environment *env) {
-    if (!env_carrier_enabled(env)) return;
+    if (!env_carrier_scopes_enabled(env)) return;
     struct NlEvalCarrierSession *s = env->carrier_session;
     if (s->depth == SIZE_MAX) ownership_failure();
     s->frames = reserve(s->frames, &s->frame_capacity, s->depth + 1, sizeof *s->frames);
     s->frames[s->depth++] = (NlCarrierScopeMark){s->root_count, s->string_count};
 }
 static void finish_frame(Environment *env, const Value *result) {
-    if (!env_carrier_enabled(env)) return;
+    if (!env_carrier_scopes_enabled(env)) return;
     struct NlEvalCarrierSession *s = env->carrier_session;
     if (!s->depth) ownership_failure();
     NlCarrierScopeMark mark = s->frames[--s->depth];
@@ -161,7 +175,7 @@ void env_carrier_leave_value(Environment *env, Value result, bool record_list) {
     env_carrier_hold(env, (NlCarrierRef){result, record_list});
 }
 NlCarrierStringStats env_carrier_string_stats(const Environment *env) {
-    return env_carrier_enabled(env) ? env->carrier_session->string_stats : (NlCarrierStringStats){0};
+    return env_carrier_scopes_enabled(env) ? env->carrier_session->string_stats : (NlCarrierStringStats){0};
 }
 NlCarrierStringStats env_carrier_last_string_stats(void) { return last_strings; }
 bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *roots, size_t count) {
@@ -235,10 +249,10 @@ NlCarrierHeapStats env_carrier_stats(const Environment *env) {
     return nl_carrier_values_stats(env_carrier_enabled(env) ? env->carrier_session->values : NULL);
 }
 void env_carrier_close(Environment *env) {
-    if (!env_carrier_enabled(env)) return;
+    if (!env_carrier_scopes_enabled(env)) return;
     struct NlEvalCarrierSession *session = env->carrier_session;
     if (session->depth || session->string_count || session->string_stats.live ||
-        !nl_carrier_values_clear(session->values)) ownership_failure();
+        (session->values && !nl_carrier_values_clear(session->values))) ownership_failure();
     last_strings = session->string_stats;
     last_retired = nl_carrier_values_stats(session->values);
     if (!nl_carrier_values_free(session->values)) ownership_failure();

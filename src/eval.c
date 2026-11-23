@@ -221,7 +221,7 @@ static bool eval_has_tracked_record(StructValue *record) {
 static Value eval_expression_impl(ASTNode *expr, Environment *env);
 static Value eval_statement_impl(ASTNode *stmt, Environment *env);
 static Value eval_expression(ASTNode *expr, Environment *env) {
-    if (!env_carrier_enabled(env) && !g_carrier_environment) return eval_expression_impl(expr, env);
+    if (!env_carrier_scopes_enabled(env) && !g_carrier_environment) return eval_expression_impl(expr, env);
     Environment *saved = g_carrier_environment; g_carrier_environment = env;
     env_carrier_enter(env);
     if (!env_carrier_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
@@ -230,7 +230,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
     g_carrier_environment = saved; return value;
 }
 static Value eval_statement(ASTNode *stmt, Environment *env) {
-    if (!env_carrier_enabled(env) && !g_carrier_environment) return eval_statement_impl(stmt, env);
+    if (!env_carrier_scopes_enabled(env) && !g_carrier_environment) return eval_statement_impl(stmt, env);
     Environment *saved = g_carrier_environment; g_carrier_environment = env;
     env_carrier_enter(env);
     if (!env_carrier_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
@@ -327,11 +327,11 @@ static void discard_array_callable(Value value);
  * Callable expression results already own independent metadata. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
-    NlCarrierScopeMark root_mark = env_carrier_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
+    NlCarrierScopeMark root_mark = env_carrier_scopes_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
     Value result = create_void();
     for (int i = 0; i < count; ++i) {
         if (result.type == VAL_FUNCTION) discard_array_callable(result);
-        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
         result = eval_statement(statements[i], env);
         if (result.is_return || result.is_break || result.is_continue) break;
     }
@@ -6459,13 +6459,13 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
 
         case AST_WHILE: {
             Value result = create_void();
-            NlCarrierScopeMark root_mark = env_carrier_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
+            NlCarrierScopeMark root_mark = env_carrier_scopes_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
             for (;;) {
                 Value condition = eval_expression(stmt->as.while_stmt.condition, env);
                 if (condition.is_return) return condition;
                 if (!is_truthy(condition)) break;
                 if (result.type == VAL_FUNCTION) discard_array_callable(result);
-                if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                 result = eval_statement(stmt->as.while_stmt.body, env);
                 /* If body returned a value, propagate it immediately */
                 if (result.is_return) {
@@ -6509,11 +6509,11 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                 env_define_var(env, loop_var, TYPE_INT, false, create_int(start));
 
                 Value result = create_void();
-                NlCarrierScopeMark root_mark = env_carrier_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
+                NlCarrierScopeMark root_mark = env_carrier_scopes_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
                 for (long long i = start; i < end; i++) {
                     env->symbols[loop_var_index].value = create_int(i);
                     if (result.type == VAL_FUNCTION) discard_array_callable(result);
-                    if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                    if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                     result = eval_statement(stmt->as.for_stmt.body, env);
                     if (result.is_return) {
                         eval_pop_binding_metadata(env, loop_var_index);
@@ -6540,14 +6540,14 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                 env_define_var(env, loop_var, TYPE_INT, true, create_void());
 
                 Value result = create_void();
-                NlCarrierScopeMark root_mark = env_carrier_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
+                NlCarrierScopeMark root_mark = env_carrier_scopes_enabled(env) ? env_carrier_root_mark(env) : (NlCarrierScopeMark){0};
 
                 if (iter_val.type == VAL_ARRAY) {
                     /* Static array iteration */
                     Array *arr = iter_val.as.array_val;
                     if (!arr) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < arr->length; idx++) {
-                        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         Value elem = create_void();
                         switch (arr->element_type) {
                             case VAL_ARRAY: elem = ((Value *)arr->data)[idx]; break;
@@ -6587,7 +6587,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     int64_t len = dyn_array_length(arr);
                     ElementType et = dyn_array_get_elem_type(arr);
                     for (int64_t idx = 0; idx < len; idx++) {
-                        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         Value elem = create_void();
                         switch (et) {
                             case ELEM_U8:     elem = create_int(dyn_array_get_u8(arr, idx)); break;
@@ -6610,7 +6610,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_int(lst->data[idx]);
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
-                        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -6620,7 +6620,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     List_string *lst = (List_string*)(intptr_t)iter_val.as.int_val;
                     if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
-                        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         env->symbols[loop_var_index].value = eval_create_string(lst->data[idx]);
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
@@ -6634,7 +6634,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_bool(lst->data[idx]);
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
-                        if (env_carrier_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -7326,7 +7326,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
 
 Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
     /* A builtin callback inherits its invoking call. Host calls have no location. */
-    if (!env_carrier_enabled(env) && !g_carrier_environment)
+    if (!env_carrier_scopes_enabled(env) && !g_carrier_environment)
         return call_function_at(name, args, arg_count, env,
                                 g_eval_call_site ? g_eval_call_site->line : 0,
                                 g_eval_call_site ? g_eval_call_site->column : 0);

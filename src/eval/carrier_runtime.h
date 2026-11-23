@@ -4,7 +4,10 @@
 
 /* I keep qualification explicit until every runtime/host/GC root is adapted. */
 bool env_carrier_enable(Environment *env);
-static inline bool env_carrier_enabled(const Environment *env) {
+/* I can qualify STRING references without owning aggregate storage. */
+bool env_carrier_enable_strings(Environment *env);
+bool env_carrier_enabled(const Environment *env);
+static inline bool env_carrier_scopes_enabled(const Environment *env) {
     return env && env->carrier_session;
 }
 void env_carrier_enter(Environment *env);
