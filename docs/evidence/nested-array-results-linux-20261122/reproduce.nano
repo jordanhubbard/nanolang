@@ -1,0 +1,20 @@
+struct Data { rows: array<array<int>> }
+struct Reply { fields: array<int> }
+fn blank() -> Reply { return Reply { fields: [] } }
+shadow blank { assert (== (array_length (blank).fields) 0) }
+fn select_rows(data: Data) -> Reply {
+ if (== (array_length data.rows) 0) { return (blank) }
+ let values: array<int> = (at data.rows 0)
+ return Reply { fields: values }
+}
+shadow select_rows { assert (== (at (select_rows Data { rows: [[7,8]] }).fields 0) 7) assert (== (array_length (select_rows Data { rows: [] }).fields) 0) }
+fn main() -> int {
+ let data: Data = Data { rows: [[7,8]] }
+ let answer: Reply = (select_rows data)
+ assert (== (array_length answer.fields) 2)
+ (array_set answer.fields 0 9)
+ assert (== (at (at data.rows 0) 0) 9)
+ (println (at answer.fields 0))
+ return 0
+}
+shadow main { assert (== (main) 0) }
