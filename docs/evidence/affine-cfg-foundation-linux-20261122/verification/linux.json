@@ -1,0 +1,19 @@
+{
+  "status": "INTEGRITY_PASS_WITH_RETAINED_FRAME_AOT_REFUSALS",
+  "source_pin": "45223340186ae620fad7ed6272b13fb497320e8a",
+  "records": 4576,
+  "sources": 1364,
+  "flow_operations": 168386,
+  "normalized_flow_states": 289,
+  "flow_carriers": 336,
+  "flow_source_routes": 5,
+  "frame_carriers": 1001,
+  "frame_cases": 665,
+  "frame_source_routes_observed": 3,
+  "frame_five_route_acceptance": false,
+  "refused_prior_outputs_preserved": true,
+  "whole_function_cfg": false,
+  "current_darwin": false,
+  "pure_emission": false,
+  "release_acceptance": false
+}
