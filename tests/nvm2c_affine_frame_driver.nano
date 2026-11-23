@@ -1,0 +1,215 @@
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_worklist.nano" as work
+module "src_nano/nvm2c/affine_global_flow.nano" as global
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/ownership_wire.nano" as read
+module "tests/nvm2c_affine_fixture.nano" as fixture
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn number(value: int) -> string { return (+ (int_to_string value) ",") }
+shadow number { assert (== (number 65535) "65535,") }
+fn flag(value: bool) -> string { if value { return "1" } return "0" }
+shadow flag { assert (== (flag true) "1") assert (== (flag false) "0") }
+
+fn snapshot(f: frame.Frame) -> string {
+    let mut text: string = ""
+    for index in (range 0 (array_length f.locals.facts.locals)) {
+        let info: state.Query = (state.local_info f.locals index)
+        let arm: state.Query = (state.union_variant f.locals index)
+        let mut variant: int = 65535
+        if arm.valid { set variant arm.number }
+        set text (+ text (+ (flag info.valid) ","))
+        set text (+ text (+ (number info.value.tag) (+ (number info.value.mode) (number variant))))
+    }
+    set text (+ text "/")
+    for index in (range 0 (array_length f.stack)) {
+        let item: frame.Value = (at f.stack index)
+        set text (+ text (+ (number item.tag) (+ (flag item.observation) ",")))
+        set text (+ text (+ (number item.root) (+ (flag item.owned) ",")))
+        set text (+ text (+ (number item.layout) (number item.variant)))
+        for arm in (range 0 256) { set text (+ text (flag (at item.excluded arm))) }
+        set text (+ text ";")
+    }
+    set text (+ text "/")
+    for index in (range 0 (array_length f.globals)) { set text (+ text (number (at f.globals index))) }
+    set text (+ text (+ "/" (+ (number f.floor) (number f.activation))))
+    for index in (range 0 (array_length f.handlers)) {
+        let item: frame.Handler = (at f.handlers index)
+        set text (+ text (+ (number item.key) (number item.site)))
+    }
+    return text
+}
+shadow snapshot { assert (== (snapshot (frame.create (state.empty) 0)) "///0,0,") }
+
+struct Parsed { valid: bool, value: frame.Frame }
+fn read_frame(c: read.Cursor, initial: state.State) -> Parsed {
+    let floor: int = (read.read_u32 c)
+    let activation: int = (read.read_u32 c)
+    let globals: int = (read.read_u32 c)
+    let handlers: int = (read.read_u32 c)
+    let stack_count: int = (read.read_u32 c)
+    let commands: int = (read.read_u32 c)
+    let empty: frame.Frame = (frame.create (state.empty) 0)
+    if (or (!= (read.status c) 0) (or (> globals 256) (or (> handlers 64)
+        (or (> floor handlers) (or (> stack_count 256) (> commands 256)))))) { return Parsed { valid: false, value: empty } }
+    let mut locals: state.State = (state.clone initial)
+    for index in (range 0 commands) {
+        let op: int = (read.read_u32 c)
+        let a: int = (read.read_u32 c)
+        let b: int = (read.read_u32 c)
+        let d: int = (read.read_u32 c)
+        if (or (> a 65535) (> d 65535)) { return Parsed { valid: false, value: empty } }
+        let mut step: state.Transition = state.Transition { valid: false, changed: false, state: locals }
+        if (== op 0) { set step (state.define_scalar locals a) }
+        else if (== op 1) { set step (state.define_string locals a) }
+        else if (== op 2) { set step (state.define_record locals a b) }
+        else if (== op 3) { set step (state.define_union locals a b d) }
+        else if (== op 4) { set step (state.define_array locals a b) }
+        else if (== op 5) { set step (state.take_local locals a) }
+        else if (== op 6) { set step (state.region_begin locals) }
+        else if (== op 7) { set step (state.region_end locals) }
+        else if (== op 8) { set step (state.borrow_local locals a b [] d) }
+        else { }
+        if (not step.valid) { return Parsed { valid: false, value: empty } }
+        set locals step.state
+    }
+    let mut relations: array<int> = []
+    for index in (range 0 globals) {
+        let relation: int = (read.read_u32 c)
+        if (> relation 15) { return Parsed { valid: false, value: empty } }
+        set relations (array_push relations relation)
+    }
+    let mut held: array<frame.Handler> = []
+    for index in (range 0 handlers) {
+        let key: int = (read.read_u32 c)
+        let site: int = (read.read_u32 c)
+        set held (array_push held frame.Handler { key: key, site: site })
+    }
+    let mut stack: array<frame.Value> = []
+    for index in (range 0 stack_count) {
+        let tag: int = (read.read_u32 c)
+        let observation: int = (read.read_u32 c)
+        let root: int = (read.read_u32 c)
+        let owned: int = (read.read_u32 c)
+        let layout: int = (read.read_u32 c)
+        let variant: int = (read.read_u32 c)
+        if (or (> tag 255) (or (> observation 1) (or (> root 65535)
+            (or (> owned 1) (and (>= variant 256) (!= variant 65535)))))) { return Parsed { valid: false, value: empty } }
+        let item: frame.Value = (frame.value tag (== observation 1) root (== owned 1) layout variant)
+        for arm in (range 0 256) {
+            let excluded: int = (read.read_byte c)
+            if (> excluded 1) { return Parsed { valid: false, value: empty } }
+            (array_set item.excluded arm (== excluded 1))
+        }
+        set stack (array_push stack item)
+    }
+    return Parsed { valid: (== (read.status c) 0), value: frame.Frame { locals: locals, stack: stack,
+        globals: relations, handlers: held, floor: floor, activation: activation } }
+}
+shadow read_frame { assert (not (read_frame (read.open []) (state.empty)).valid) }
+
+fn describe_frames(c: read.Cursor) -> string {
+    let op: int = (read.read_u32 c)
+    let argument: int = (read.read_u32 c)
+    let size: int = (read.read_u32 c)
+    let start: int = (read.skip c size)
+    if (or (!= (read.status c) 0) (or (> op 4) (> argument 65535))) { return "D" }
+    let image: fixture.Fixture = (fixture.parse (array_slice c.data start size))
+    if (or (not image.valid) (== (array_length image.model.functions) 0)) { return "D" }
+    let local_count: int = (at image.model.functions 0).locals
+    let initial: state.State = (state.create (facts.prepare image.ownership image.model 0 1 1) local_count)
+    if (not initial.valid) { return "D" }
+    let a: Parsed = (read_frame c initial)
+    let b: Parsed = (read_frame c initial)
+    if (or (not a.valid) (or (not b.valid) (!= (read.position c) (array_length c.data)))) { return "D" }
+    let before_a: string = (snapshot a.value)
+    let before_b: string = (snapshot b.value)
+    let mut result: frame.Join = frame.Join { valid: false, changed: false, frame: a.value, message: "" }
+    if (== op 0) { set result (frame.stack_meet a.value b.value) }
+    else if (== op 1) { set result (frame.meet a.value b.value) }
+    else if (== op 2) { set result (frame.refine a.value argument) }
+    else if (== op 3) { set result frame.Join { valid: true, changed: false, frame: (frame.clone a.value), message: "" } }
+    else { set result frame.Join { valid: (frame.observes_owner a.value argument), changed: false, frame: a.value, message: "" } }
+    assert (== (snapshot a.value) before_a) assert (== (snapshot b.value) before_b)
+    let mut message: string = ""
+    if (== op 1) { set message result.message }
+    let text: string = (+ (+ (flag result.valid) (flag result.changed)) (+ "|" (+ message (+ "|" (snapshot result.frame)))))
+    # I mutate independently cloned nested storage after every observed result.
+    let copied: frame.Frame = (frame.clone result.frame)
+    if (> (array_length copied.stack) 0) { (array_set (at copied.stack 0).excluded 0 (not (at (at copied.stack 0).excluded 0))) }
+    if (> (array_length copied.globals) 0) { (array_set copied.globals 0 (% (+ (at copied.globals 0) 1) 16)) }
+    if (> (array_length copied.locals.live) 0) { (array_set copied.locals.live 0 (not (at copied.locals.live 0))) }
+    assert (== (snapshot a.value) before_a) assert (== (snapshot b.value) before_b)
+    return text
+}
+shadow describe_frames { assert (== (describe_frames (read.open [])) "D") }
+
+fn describe_queue(c: read.Cursor) -> string {
+    let capacity: int = (read.read_u32 c)
+    let count: int = (read.read_u32 c)
+    if (or (< capacity 1) (or (> capacity 4096) (> count 100000))) { return "D" }
+    let mut queue: work.Queue = (work.create capacity)
+    let mut text: string = ""
+    for command in (range 0 count) {
+        let op: int = (read.read_u32 c)
+        let index: int = (read.read_u32 c)
+        if (or (> op 1) (and (== op 0) (>= index capacity))) { return "D" }
+        let mut step: work.Change = work.Change { valid: false, index: -1, queue: queue }
+        if (== op 0) { set step (work.enqueue queue index) } else { set step (work.dequeue queue) }
+        set queue step.queue
+        set text (+ text (+ (+ (flag step.valid) ",") (+ (number step.index) (+ (number queue.head) (+ (number queue.tail) (int_to_string queue.pending))))))
+        set text (+ text ":")
+        if (> queue.pending 0) { set text (+ text (number (at queue.items queue.head))) }
+        set text (+ text ";")
+    }
+    return text
+}
+shadow describe_queue { assert (== (describe_queue (read.open [])) "D") }
+
+fn describe_flows(c: read.Cursor) -> string {
+    let count: int = (read.read_u32 c)
+    if (> count 200000) { return "D" }
+    let mut text: string = ""
+    for index in (range 0 count) {
+        let op: int = (read.read_u32 c)
+        let a: int = (read.read_u32 c) let b: int = (read.read_u32 c) let d: int = (read.read_u32 c)
+        let e: int = (read.read_u32 c) let f: int = (read.read_u32 c) let g: int = (read.read_u32 c)
+        if (or (> op 4) (or (> a 255) (or (> b 255) (or (> d 255) (or (> e 255) (or (> f 255) (> g 255))))))) { return "D" }
+        if (== op 0) { set text (+ text (+ (number (global.require a b)) ";")) }
+        else if (== op 1) { set text (+ text (+ (number (global.compose a b)) ";")) }
+        else {
+            let first: global.Flow = (global.flow a b d)
+            let second: global.Flow = (global.flow e f g)
+            let mut result: global.Flow = first
+            if (== op 3) { set result (global.then first second) }
+            if (== op 4) { set result (global.join first second) }
+            set text (+ text (+ (number result.allowed) (+ (number result.normal) (+ (number result.lexical_return) ";"))))
+        }
+    }
+    return text
+}
+shadow describe_flows { assert (== (describe_flows (read.open [0,0,0,0])) "") }
+
+fn describe(bytes: array<u8>) -> string {
+    if (< (array_length bytes) 4) { return "D" }
+    let cursor: read.Cursor = (read.open bytes)
+    let kind: int = (read.read_u32 cursor)
+    let mut text: string = "D"
+    if (== kind 0) { set text (describe_flows cursor) }
+    if (== kind 1) { set text (describe_queue cursor) }
+    if (== kind 2) { set text (describe_frames cursor) }
+    if (or (!= (read.status cursor) 0) (!= (read.position cursor) (array_length bytes))) { return "D" }
+    return text
+}
+shadow describe { assert (== (describe []) "D") assert (== (describe [0,0,0,0,0,0,0,0]) "") }
+
+fn main() -> int {
+    unsafe {
+        let mut index: int = 1
+        while (< index (get_argc)) { (println (describe (file_read_bytes (get_argv index)))) set index (+ index 1) }
+    }
+    return 0
+}
+shadow main { assert (== (describe [0,0,0,0,0,0,0,0]) "") }

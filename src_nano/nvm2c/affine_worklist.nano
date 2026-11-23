@@ -1,0 +1,70 @@
+module nvm2c_affine_worklist
+
+pub struct Queue { valid: bool, items: array<int>, queued: array<bool>, head: int, tail: int, pending: int }
+pub struct Change { valid: bool, queue: Queue, index: int }
+
+pub fn create(capacity: int) -> Queue {
+    let mut items: array<int> = []
+    let mut queued: array<bool> = []
+    if (or (< capacity 1) (> capacity 4096)) {
+        return Queue { valid: false, items: items, queued: queued, head: 0, tail: 0, pending: 0 }
+    }
+    for index in (range 0 capacity) {
+        set items (array_push items 0)
+        set queued (array_push queued false)
+    }
+    return Queue { valid: true, items: items, queued: queued, head: 0, tail: 0, pending: 0 }
+}
+shadow create { assert (not (create 0).valid) assert (not (create 4097).valid) assert (== (array_length (create 4096).items) 4096) }
+
+pub fn clone(queue: Queue) -> Queue {
+    return Queue { valid: queue.valid, items: (array_slice queue.items 0 (array_length queue.items)),
+        queued: (array_slice queue.queued 0 (array_length queue.queued)), head: queue.head, tail: queue.tail, pending: queue.pending }
+}
+shadow clone {
+    let queue: Queue = (create 2)
+    let copied: Queue = (clone queue)
+    (array_set copied.items 0 1)
+    (array_set copied.queued 0 true)
+    assert (== (at queue.items 0) 0) assert (not (at queue.queued 0))
+}
+
+pub fn enqueue(queue: Queue, index: int) -> Change {
+    let capacity: int = (array_length queue.items)
+    if (or (not queue.valid) (or (< index 0) (>= index capacity))) {
+        return Change { valid: false, queue: queue, index: index }
+    }
+    if (at queue.queued index) { return Change { valid: true, queue: (clone queue), index: index } }
+    if (== queue.pending capacity) { return Change { valid: false, queue: queue, index: index } }
+    let copied: Queue = (clone queue)
+    (array_set copied.items queue.tail index)
+    (array_set copied.queued index true)
+    return Change { valid: true, index: index, queue: Queue { valid: true, items: copied.items, queued: copied.queued,
+        head: queue.head, tail: (% (+ queue.tail 1) capacity), pending: (+ queue.pending 1) } }
+}
+shadow enqueue {
+    let queue: Queue = (create 2)
+    let first: Change = (enqueue queue 1)
+    assert first.valid assert (== first.queue.pending 1) assert (== queue.pending 0)
+    assert (== (enqueue first.queue 1).queue.pending 1)
+    assert (not (enqueue queue 2).valid)
+}
+
+pub fn dequeue(queue: Queue) -> Change {
+    if (or (not queue.valid) (== queue.pending 0)) { return Change { valid: false, queue: queue, index: -1 } }
+    let copied: Queue = (clone queue)
+    let index: int = (at queue.items queue.head)
+    (array_set copied.queued index false)
+    return Change { valid: true, index: index, queue: Queue { valid: true, items: copied.items, queued: copied.queued,
+        head: (% (+ queue.head 1) (array_length queue.items)), tail: queue.tail, pending: (- queue.pending 1) } }
+}
+shadow dequeue {
+    let queue: Queue = (enqueue (enqueue (create 2) 1).queue 0).queue
+    let first: Change = (dequeue queue)
+    assert first.valid assert (== first.index 1) assert (== first.queue.pending 1)
+    assert (at queue.queued 1) assert (not (at first.queue.queued 1))
+    let wrapped: Queue = (enqueue first.queue 1).queue
+    assert (== (dequeue wrapped).index 0)
+    assert (== (dequeue (dequeue wrapped).queue).index 1)
+    assert (not (dequeue (create 1)).valid)
+}

@@ -7845,3 +7845,19 @@ test-regex-replacement-runtime:
 	python3 -m unittest -v tests.test_regex_replace_all_runtime
 
 test-units: test-regex-replacement-runtime
+
+# I compare CFG frame primitives before whole-function affine admission.
+.PHONY: test-nanolang-translator-affine-frame
+$(OBJ_DIR)/nvm2c_affine_frame_reference: tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_frame_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-frame: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFrame
+
+test-units: test-nanolang-translator-affine-frame
+
+.PHONY: test-nanolang-translator-affine-flow
+test-nanolang-translator-affine-flow: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFlow
+
+test-units: test-nanolang-translator-affine-flow

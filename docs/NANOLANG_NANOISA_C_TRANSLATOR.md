@@ -1085,3 +1085,33 @@ slots/commands and native operand widths. Harness D is distinct from a state
 transition refusal. Affine bytecode/CFG analysis, private profiles, pure C
 emission and complete release acceptance remain open; no executable selector
 uses these local transitions.
+
+
+### My CFG frame and scheduling foundation
+
+I implement internal frame joins in `affine_frame.nano`, a bounded FIFO in
+`affine_worklist.nano` and initialization/lexical-return relation algebra in
+`affine_global_flow.nano`. My frame stack retains exact owned/observation tags,
+nominal/array types, observation roots, selected union arms and all 256 excluded
+arms. Joins preserve handler key/site order, floor and activation, then intersect
+copyable local initialization and union the global relations. I copy nested
+mask/local/global storage before successful transitions; refusal retains the
+input. These internal records are not wire-format authority certificates.
+
+My Linux relation/FIFO gate passes all five C/NanoLang native/VM/sanitized routes
+against actual C: 168386 operations, every pair of 289 normalized flow states,
+and seven full/wrapping/deduplicating queue traces with capacities through4096.
+My frame corpus adds665 cases. All1001 combined carriers match actual C through
+C-native and both source-producer VM routes, including immutable-input and
+nested-clone checks. I retain my first driver cond-brace parse refusal and its
+ordinary-if correction.
+
+My complete frame five-route gate remains failed under #1202: C AOT refuses
+an optional-to-exact-Boolean aggregate conversion. Both actual producer products
+retain the refusal, and a seven-line frame-library import reproduces it. Read-only
+GDB identifies a deferred Boolean array read whose result is equated with a
+scalar local. The caller repair remains unverified. I preserve the C shape engine's exact-destination
+refusal tests and Puck's source ownership while localizing a caller-side repair.
+I keep all original assertions and deadlines. I do not claim frame acceptance,
+whole-function instruction transfer/convergence, handler/global/effect/private
+composition, paired Darwin, pure C emission or executable selection.
