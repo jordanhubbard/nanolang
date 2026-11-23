@@ -469,3 +469,22 @@ through the first original C-seed stage in 111.057s under the original 600-secon
 limits, with all 1306 selected shadows complete and a working native --help.
 The subsequent self-hosted raw/module/bootstrap/platform and default ownership
 acceptance gates remain open.
+
+## I observe a precise cache contribution without accepting my ordinary gate
+
+My [bounded debugger receipt](evidence/carrier-tcache-snapshot-linux-20261123/README.md)
+reads the unchanged failed native observer at its existing64/128-call allocation
+samples. I retain ordinary ASLR, all128 calls, all ten shadows, the original
+1024-byte criterion and2MiB positive control. I make no inferior allocation
+calls and install no allocator setting. The observed run still exits94, with
++1056bytes. Its thread-cache chunk totals grow11024->12080bytes: bin31 grows
+from three to five freed528-byte chunks, accounting exactly for this delta.
+
+Two preceding debugger setup attempts could not read the optimized-out static
+TLS symbol and ended before the final sample. I retain those incomplete runs.
+The completed reader uses the actual retained AArch64 malloc instructions and
+TLS slot, asserts the instruction bytes, and validates every decoded list
+length, alignment and chunk size. This is a host-specific diagnostic; I do not
+change production allocation policy or treat debugger exit0 as inferior success.
+I do not project this run's1056bytes onto the earlier1776-byte observation.
+#1213's ordinary acceptance and default ownership remain open.
