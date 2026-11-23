@@ -4818,6 +4818,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     }
                 }
 
+                if (range && range->checked_record_list) {
+                    const char *record_name = get_record_list_element_name(range, env);
+                    if (record_name) {
+                        is_list = true; list_elem_type = TYPE_STRUCT;
+                        list_struct_name = record_name;
+                    }
+                }
+
                 if (is_list) {
                     /* for x in list =>
                      * { <ListType>* __nl_lst = list; int64_t __nl_len = <list>_length(__nl_lst);
@@ -4829,6 +4837,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     const char *list_c_type = "List_int*";
                     const char *list_len_fn = "list_int_length";
                     char elem_decl_buf[256];
+                    char *record_c_type = NULL;
 
                     if (list_elem_type == TYPE_STRING) {
                         list_c_type = "List_string*";
@@ -4841,14 +4850,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         snprintf(elem_decl_buf, sizeof(elem_decl_buf),
                                  "bool %s = list_bool_get(__nl_lst, __nl_idx);\n", var);
                     } else if (list_elem_type == TYPE_STRUCT && list_struct_name) {
-                        /* Generic struct list: List_TypeName* */
-                        static char lc_buf[64]; static char ll_buf[64];
-                        snprintf(lc_buf, sizeof(lc_buf), "List_%s*", list_struct_name);
-                        snprintf(ll_buf, sizeof(ll_buf), "List_%s_length", list_struct_name);
-                        list_c_type = lc_buf; list_len_fn = ll_buf;
-                        snprintf(elem_decl_buf, sizeof(elem_decl_buf),
-                                 "nl_%s %s = *List_%s_get(__nl_lst, __nl_idx);\n",
-                                 list_struct_name, var, list_struct_name);
+                        record_c_type = strdup(get_prefixed_type_name(list_struct_name));
+                        if (!record_c_type) { fputs("I cannot retain the native loop element type.\n", stderr); exit(1); }
                     } else {
                         /* INT (default) */
                         snprintf(elem_decl_buf, sizeof(elem_decl_buf),
@@ -4858,16 +4861,23 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent);
                     emit_literal(list, "{\n");
                     emit_indent_item(list, indent + 1);
-                    emit_formatted(list, "%s __nl_lst = ", list_c_type);
+                    if (record_c_type) emit_formatted(list, "List_%s* __nl_lst = ", list_struct_name);
+                    else emit_formatted(list, "%s __nl_lst = ", list_c_type);
                     build_expr(list, range, env);
                     emit_literal(list, ";\n");
                     emit_indent_item(list, indent + 1);
-                    emit_formatted(list, "int64_t __nl_len = %s(__nl_lst);\n", list_len_fn);
+                    if (record_c_type)
+                        emit_formatted(list, "int64_t __nl_len = nl_list_%s_length(__nl_lst);\n", list_struct_name);
+                    else emit_formatted(list, "int64_t __nl_len = %s(__nl_lst);\n", list_len_fn);
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
 
                     emit_indent_item(list, indent + 2);
-                    emit_literal(list, elem_decl_buf);
+                    if (record_c_type) {
+                        emit_formatted(list, "%s %s = nl_list_%s_get(__nl_lst, __nl_idx);\n",
+                                       record_c_type, var, list_struct_name);
+                        free(record_c_type);
+                    } else emit_literal(list, elem_decl_buf);
 
                     /* Emit body statements */
                     ASTNode *body = stmt->as.for_stmt.body;

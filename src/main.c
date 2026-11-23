@@ -172,6 +172,13 @@ static void resolve_project_root(const char *argv0) {
     }
 }
 
+/* I retain the complete accepted name; the detection table owns each copy. */
+static char *copy_native_list_name(const char *start, size_t length) {
+    char *name = strndup(start, length);
+    if (!name) { fputs("I cannot retain a native list type name.\n", stderr); exit(1); }
+    return name;
+}
+
 static void json_escape(FILE *out, const char *s) {
     if (!s) return;
     for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
@@ -1412,7 +1419,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
     char generated_lists[1024] = "";
-    char detected_types[64][64]; /* Increased to handle more types */
+    char *detected_types[64]; /* I preserve the existing detection-count policy. */
     int detected_count = 0;
     
     /* First, scan compiler_schema.h if it exists */
@@ -1437,10 +1444,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     end++;
                 }
                 if (*end == '*' || *end == ' ' || *end == '\n' || *end == ';') {
-                    int len = end - ptr;
-                    char type_name[64];
-                    strncpy(type_name, ptr, len);
-                    type_name[len] = '\0';
+                    char *type_name = copy_native_list_name(ptr, (size_t)(end - ptr));
                     
                     if (strcmp(type_name, "int") != 0 && strcmp(type_name, "string") != 0 && strcmp(type_name, "token") != 0 && strcmp(type_name, "Generic") != 0) {
                         bool found = false;
@@ -1451,9 +1455,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                             }
                         }
                         if (!found && detected_count < 64) {
-                            strcpy(detected_types[detected_count++], type_name);
+                            detected_types[detected_count++] = type_name;
+                            type_name = NULL;
                         }
                     }
+                    free(type_name);
                 }
             }
             free(schema_content);
@@ -1477,15 +1483,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         
         /* Check if followed by * or space (valid list type) */
         if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
-            int len = end_ptr - scan_ptr;
-            char type_name[64];
-            strncpy(type_name, scan_ptr, len);
-            type_name[len] = '\0';
+            char *type_name = copy_native_list_name(scan_ptr, (size_t)(end_ptr - scan_ptr));
             
             /* Skip built-in types */
             if (strcmp(type_name, "int") == 0 || 
                 strcmp(type_name, "string") == 0 || 
                 strcmp(type_name, "token") == 0) {
+                free(type_name);
                 continue;
             }
             
@@ -1499,8 +1503,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             }
             
             if (!already_detected && detected_count < 32) {
-                snprintf(detected_types[detected_count], 64, "%s", type_name);
-                detected_count++;
+                detected_types[detected_count++] = type_name;
                 
                 /* Check if this type already has a runtime list implementation.
                  * If so, skip wrapper generation to avoid duplicate symbols —
@@ -1643,6 +1646,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
                 if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
                 include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
+            } else {
+                free(type_name);
             }
         }
     }
@@ -1655,6 +1660,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("\n");
     }
     
+    for (int i = 0; i < detected_count; ++i) free(detected_types[i]);
+
     /* Build runtime files string (paths relative to project root) */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
     static const char *runtime_basenames[] = {

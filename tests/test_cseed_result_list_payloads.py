@@ -87,6 +87,64 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_generated_list_iteration_uses_value_elements(self):
+        self.compile('''
+struct Item { value: int }
+fn main() -> int {
+    unsafe {
+        let items: List<Item> = (List_Item_new)
+        (List_Item_push items Item { value: 11 })
+        (List_Item_push items Item { value: 13 })
+        let mut total: int = 0
+        for item in items { set total (+ total item.value) }
+        assert (== total 24)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_loop_binding_keeps_the_iterable_visible(self):
+        self.compile('''
+struct Item { number: int }
+fn main() -> int {
+    unsafe {
+        let items: List<Item> = (List_Item_new)
+        (List_Item_push items Item { number: 11 })
+        (List_Item_push items Item { number: 13 })
+        let mut total: int = 0
+        for items in items { set total (+ total items.number) }
+        assert (== total 24)
+        assert (== (List_Item_length items) 2)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_complete_long_record_list_names(self):
+        first = "Record" + "Identifier" * 6
+        second = "Record" + "Identifier" * 12
+        self.compile(f'''
+struct {first} {{ left: int }}
+struct {second} {{ right: int }}
+fn main() -> int {{
+    unsafe {{
+        let left: List<{first}> = (List_{first}_new)
+        let right: List<{second}> = (List_{second}_new)
+        (List_{first}_push left {first} {{ left: 2 }})
+        (List_{second}_push right {second} {{ right: 3 }})
+        let mut total: int = 0
+        for outer in left {{
+            for inner in right {{ set total (+ total (+ outer.left inner.right)) }}
+        }}
+        assert (== total 5)
+    }}
+    return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+
     def test_wrong_variant_unknown_operation_and_argument_preserve_output(self):
         sources = [
             '''union Payload { Ok { text: string }, Err { code: int } }

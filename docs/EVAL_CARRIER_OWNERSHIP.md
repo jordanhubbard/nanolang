@@ -424,3 +424,48 @@ A separate experimental record-List loop test is checker-refused before C
 emission; #1220 retains that exact red test and the later representation lead.
 It does not weaken the four completed native regression methods. General
 #1116/#1213/#1217 ownership and ordinary activation remain open.
+
+## I preserve record-list loop metadata and borrowed elements
+
+Under #1220 I resolve List<record> element identity from checked declarations,
+parameters, aliases, fields and declared call results. I preserve inferred and
+annotated binding names and allocate complete loop-record TypeInfo leaves in
+my checker owner. I do not classify ordinary integer bits as record pointers.
+The interpreter borrows the existing record-list slot/header, snapshots the
+iteration length and keeps the current checked list kind before evaluating a
+computed producer. Native lowering calls canonical by-value getters; schema
+runtime headers and their storage ABI stay unchanged.
+
+My [Linux receipt](evidence/record-list-loop-linux-20261123/README.md) retains
+three successive failures of the exact original witness: checker field refusal,
+admitted interpreter refusal, and native name/dereference failure. It then
+passes actual shadow/native execution. The complete ten-shadow fixture tests
+parameter/local/field/computed/empty iteration, nested loops, early return,
+break/continue and list growth. Four contexts per normal and ASan/UBSan+LSan
+run retain caller pointer/string identity across 256 source calls and both
+explicit caller/environment teardown orders, with zero final GC storage.
+
+I retain the first unit's invalid release-function compile refusal and its
+unchecked-shadow collector failure. The latter called my explicit private
+collector without the shadow-check phase that supplies inferred List roots.
+ASan identifies that missing prerequisite; the corrected unit checks both the
+program and its shadows, preserving every source assertion. I do not turn that
+setup correction into a claim of safe collection over unchecked ASTs.
+
+Under #1221 I retain the complete accepted native list names in the C driver's
+scanner/dedup/diagnostics and emit record-loop type/helper names without fixed
+buffers. A valid 66-character name previously passed shadows then aborted at
+an unchecked copy into a 64-byte driver buffer. The final seven-method native
+suite also qualifies nested distinct record names of 66 and 126 characters
+with a common prefix, plus existing declaration/local-callable and prior-output
+negatives. Ordinary detection-count policy and runtime/inline selection remain.
+
+The original 134 evaluator / 88 checker cases pass normally and with sanitizers;
+broad sanitizer suites disable LSan. The actual instrumented C-driver/native
+suite passes seven methods with changed/common providers instrumented and
+unchanged backend providers ordinary, again with LSan off. Focused ownership
+and checker fixtures keep LSan on. Final source compiles the whole compiler
+through the first original C-seed stage in 111.057s under the original 600-second parent and default shadow
+limits, with all 1306 selected shadows complete and a working native --help.
+The subsequent self-hosted raw/module/bootstrap/platform and default ownership
+acceptance gates remain open.

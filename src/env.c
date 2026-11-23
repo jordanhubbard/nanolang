@@ -2030,7 +2030,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
-    func.return_struct_type_name = NULL;
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.return_fn_sig = NULL;
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */

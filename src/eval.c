@@ -6532,9 +6532,11 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     iterable_sym = env_get_var(env, range_expr->as.identifier);
                 }
 
+                /* I keep the checked list kind before evaluating a computed producer. */
+                Type list_type = iterable_sym ? iterable_sym->type :
+                    (range_expr->checked_record_list ? TYPE_LIST_GENERIC : TYPE_UNKNOWN);
                 Value iter_val = eval_expression(range_expr, env);
                 if (iter_val.is_return) return iter_val;
-                Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
 
                 int loop_var_index = env->symbol_count;
                 env_define_var(env, loop_var, TYPE_INT, true, create_void());
@@ -6598,6 +6600,27 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else if (list_type == TYPE_LIST_GENERIC && iter_val.type == VAL_INT) {
+                    /* My generated record-list dispatcher stores borrowed StructValue pointers. */
+                    DynArray *list = (DynArray *)(intptr_t)iter_val.as.int_val;
+                    if (!list) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
+                    if (dyn_array_get_elem_type(list) != ELEM_INT) {
+                        fputs("I require checked record-list slots for this loop.\n", stderr);
+                        eval_pop_binding_metadata(env, loop_var_index); return create_void();
+                    }
+                    int64_t count = dyn_array_length(list);
+                    for (int64_t idx = 0; idx < count; ++idx) {
+                        if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
+                        Value element = create_void(); element.type = VAL_STRUCT;
+                        element.as.struct_val = (StructValue *)(intptr_t)dyn_array_get_int(list, idx);
+                        env->symbols[loop_var_index].type = TYPE_STRUCT;
+                        env->symbols[loop_var_index].value = element;
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
