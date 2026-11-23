@@ -258,3 +258,30 @@ explicit host-list identity controls remain part of qualification.
 I preserve the tracking-only growth observation and default source failures.
 I do not close #1116/#1140/#1211 or claim current-source paired platform,
 bootstrap or release acceptance from this separately enabled collector.
+
+
+## I retain a native-byte failure beyond carrier counts (#1213)
+
+My selected carrier counters are flat; native allocated bytes are not. A new
+external observer retains the complete source fixture and all its assertions,
+renames only its C entry point and wraps calls for measurement. Ordinary
+glibc `mallinfo2` (allocated arena plus mapped blocks) observes a2,101,904-byte
+positive control and36,864bytes of growth over the second64-call batch. ASan's
+current-allocation query observes a2,097,152-byte positive control and25,728bytes
+of growth. Both original bounded-byte criteria fail with exit94. I preserve
+the first observer's C main-macro compile refusal and corrected measurement.
+
+GCStats independently grows by19,584bytes and384objects in that second batch.
+A separate linker-wrap/-no-pie diagnostic follows actual STRING allocations
+and their final releases. After source context teardown,384 strings from the
+final64 calls remain managed, totaling19,584bytes. Three128-object stack groups
+identify two AST_STRING contexts and `eval_record_field_value`'s owned STRING
+projection. Their384 sixteen-byte hash entries explain the remaining6,144bytes
+in the ASan measurement. GC's global lists keep these strings reachable, so
+process-end LSan does not report this retained live storage.
+
+I keep #1213, #1116 and full bounded native-heap acceptance open. The next
+repair must distinguish explicitly fresh source string references from borrowed
+binding/container/C/API references, release consumed temporaries and transfer
+binding/return ownership correctly. My private root collector remains disabled
+by default. I make no historical timeout or performance attribution.
