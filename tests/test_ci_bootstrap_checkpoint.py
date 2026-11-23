@@ -8,6 +8,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import ci_bootstrap_checkpoint as checkpoint
@@ -284,6 +285,256 @@ class CheckpointArchive(unittest.TestCase):
         records={'alias':checkpoint.record(self.root/'alias'),
                  'alias/child':checkpoint.record(self.root/'tool')}
         with self.assertRaises(ValueError): checkpoint.validate_links(records,self.root)
+
+
+
+
+class CompactCheckpointTables(unittest.TestCase):
+    def test_current_failure_count_round_trips_every_identity_under_original_bound(self):
+        # I retain the failing source count and its160840 distinct content groups.
+        count, unique = 346663, 160840
+        hashes = [format(index, '064x') for index in range(unique)]
+        files = {}
+        for index in range(count):
+            name = ('docs/evidence/retained-' + str(index // 100).zfill(8) +
+                    '/compiler-source-and-native-qualification/source-' +
+                    str(index % 263248).zfill(12) + '.stdout')
+            files[name] = dict(kind='file', sha256=hashes[index % unique],
+                               size=(1 << 63) - 1, mode=0o644,
+                               mtime_ns=1792340000000000000 + index * 1000000)
+        manifest = dict(version=1, files=files, tracked={name: value['sha256'] for name, value in files.items()})
+        encoded = checkpoint.encode_manifest(manifest)
+        self.assertEqual(json.loads(encoded)['version'], 3)
+        self.assertLessEqual(len(encoded), 32 * 1024 * 1024)
+        self.assertEqual(checkpoint.MAX_MANIFEST_BYTES, 32 * 1024 * 1024)
+        decoded = checkpoint.decode_manifest(encoded)
+        self.assertEqual(decoded, manifest)
+        names = sorted(files)
+        decoded['files'][names[0]]['mtime_ns'] += 1
+        self.assertEqual(decoded['files'][names[-1]], files[names[-1]])
+
+    def test_compact_tables_reject_aliases_bad_indices_and_lost_identity_fields(self):
+        files = {
+            'group': dict(kind='directory', mode=0o755, mtime_ns=-123),
+            'group/alias': dict(kind='link', mode=0o777, mtime_ns=1234567890123456789,
+                                target='tool', sha256=checkpoint.sha(b'tool')),
+            'group/tool': dict(kind='file', mode=0o751, mtime_ns=1234567890123456791,
+                               size=19, sha256='1' * 64),
+            'other/tool': dict(kind='file', mode=0o751, mtime_ns=1234567890123456799,
+                               size=19, sha256='1' * 64),
+        }
+        logical = {'version': 1, 'files': files, 'tracked': {'group/tool': '1' * 64}}
+        compact = checkpoint.compact_file_records(files)
+        wire = {'version': 3, 'files': compact, 'tracked': [2]}
+        self.assertEqual(checkpoint.decode_manifest(json.dumps(wire)), logical)
+        mutations = []
+        def add(label, change):
+            altered = json.loads(json.dumps(wire))
+            change(altered['files'])
+            mutations.append((label, altered))
+        add('duplicate-directory', lambda c: c['directories'].append(c['directories'][-1]))
+        add('parent-traversal', lambda c: c['directories'][0].__setitem__(0, '../escape'))
+        add('base-time-type', lambda c: c['directories'][0].__setitem__(1, True))
+        add('basename-traversal', lambda c: c['names'].__setitem__(0, '../escape'))
+        add('duplicate-name', lambda c: c['names'].append(c['names'][-1]))
+        add('unused-name', lambda c: c['names'].append('zzzz-unused'))
+        add('unknown-table', lambda c: c.__setitem__('omitted-fields', []))
+        add('negative-index', lambda c: c['entries'][0].__setitem__(0, -1))
+        add('boolean-index', lambda c: c['entries'][0].__setitem__(1, True))
+        add('large-index', lambda c: c['entries'][0].__setitem__(2, len(c['identities'])))
+        add('negative-time-delta', lambda c: c['entries'][0].__setitem__(3, -1))
+        add('string-time-delta', lambda c: c['entries'][0].__setitem__(3, '1'))
+        add('duplicate-path', lambda c: c['entries'].append(c['entries'][-1]))
+        add('unsorted-paths', lambda c: c['entries'].reverse())
+        add('extra-row-field', lambda c: c['entries'][0].append(1))
+        add('unknown-kind', lambda c: c['identities'][0].__setitem__(0, 3))
+        add('boolean-mode', lambda c: c['identities'][0].__setitem__(1, True))
+        add('bad-mode', lambda c: c['identities'][0].__setitem__(1, 0o10000))
+        add('bad-file-size', lambda c: c['identities'][0].__setitem__(2, -1))
+        add('bad-hash-size', lambda c: c['identities'][0].__setitem__(3, 'x'))
+        add('bad-hash-bytes', lambda c: c['identities'][0].__setitem__(3, '~' * 40))
+        add('lost-identity-field', lambda c: c['identities'][0].pop())
+        add('unlisted-identity-field', lambda c: c['identities'][0].append(0))
+        tracked_directory = json.loads(json.dumps(wire)); tracked_directory['tracked'] = [0]
+        mutations.append(('tracked-directory', tracked_directory))
+        for label, altered in mutations:
+            with self.subTest(label=label), self.assertRaises(ValueError):
+                checkpoint.decode_manifest(json.dumps(altered))
+
+    def test_version3_real_archive_restores_links_directories_modes_and_times(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory); root = base/'checkout'; root.mkdir()
+            names = []
+            for index in range(8):
+                parent = root/('group-'+str(index)); parent.mkdir()
+                tool = parent/'tool'; tool.write_bytes(b'actual repeated provider bytes\n'); tool.chmod(0o751)
+                os.utime(tool, ns=(1234567890123456700+index, 1234567890123456700+index))
+                os.utime(parent, ns=(1234567890123456800+index, 1234567890123456800+index))
+                names.extend((str(parent.relative_to(root)), str(tool.relative_to(root))))
+            (root/'alias').symlink_to('group-0/tool'); names.append('alias')
+            archive = base/'checkpoint.tar.gz'
+            metadata = dict(root=str(root), commit='same', tracked={name:checkpoint.record(root/name)['sha256']
+                for name in names if (root/name).is_file()})
+            original = checkpoint.write_archive(root, names, metadata, archive)
+            with tarfile.open(archive) as stored: old_wire = stored.extractfile('checkpoint.json').read()
+            self.assertEqual(json.loads(old_wire)['version'], 2)
+            # I lower the fixture bound to select the real compact encoder; production stays32MiB.
+            with patch.object(checkpoint, 'MAX_MANIFEST_BYTES', len(old_wire)-1):
+                compact = checkpoint.write_archive(root, names, metadata, archive)
+                with tarfile.open(archive) as stored: wire = stored.extractfile('checkpoint.json').read()
+                self.assertEqual(json.loads(wire)['version'], 3)
+                self.assertLess(len(wire), len(old_wire))
+                self.assertEqual(compact, original)
+                decoded = checkpoint.read_archive(archive, root)
+                self.assertEqual(decoded, original)
+                (root/'group-0/tool').write_bytes(b'changed provider')
+                (root/'alias').unlink()
+                checkpoint.restore_files(archive, root, decoded)
+                for name in names:
+                    self.assertEqual(checkpoint.record(root/name), original['files'][name])
+            with tarfile.open(archive) as source:
+                members = [(member, source.extractfile(member).read() if member.isfile() else None)
+                           for member in source.getmembers()]
+            with tarfile.open(archive, 'w:gz') as changed:
+                for member, payload in members:
+                    if member.name == 'checkpoint.json':
+                        value = json.loads(payload)
+                        link = next(row for row in value['files']['identities'] if row[0] == 1)
+                        link[2] = '../outside'
+                        payload = json.dumps(value).encode(); member.size = len(payload)
+                    changed.addfile(member, io.BytesIO(payload) if payload is not None else None)
+            with self.assertRaises(ValueError): checkpoint.read_archive(archive, root)
+            self.assertFalse((base/'outside').exists())
+            self.assertEqual((root/'group-0/tool').read_bytes(), b'actual repeated provider bytes\n')
+
+
+class CheckpointLinkGraph(unittest.TestCase):
+    def raw_archive(self, root, names, archive, version):
+        # I construct reader inputs independently of the writer's link guard.
+        records = {name: checkpoint.record(root / name) for name in sorted(names)}
+        manifest = dict(version=1, root=str(root), commit='link-fixture', files=records,
+                        tracked={name: value['sha256'] for name, value in records.items()
+                                 if value['kind'] == 'file'})
+        if version == 1:
+            encoded = json.dumps(manifest).encode()
+        elif version == 2:
+            encoded = checkpoint.encode_manifest(manifest)
+            self.assertEqual(json.loads(encoded)['version'], 2)
+        else:
+            ordered = sorted(records)
+            wire = {**manifest, 'version': 3, 'files': checkpoint.compact_file_records(records),
+                    'tracked': [index for index, name in enumerate(ordered)
+                                if name in manifest['tracked']]}
+            encoded = json.dumps(wire).encode()
+        self.assertLessEqual(len(encoded), 32 * 1024 * 1024)
+        with tarfile.open(archive, 'w:gz', format=tarfile.PAX_FORMAT) as output:
+            header = tarfile.TarInfo('checkpoint.json'); header.size = len(encoded)
+            output.addfile(header, io.BytesIO(encoded))
+            for name, value in records.items():
+                member = tarfile.TarInfo('files/' + name); member.mode = value['mode']
+                if value['kind'] == 'directory':
+                    member.type = tarfile.DIRTYPE; output.addfile(member)
+                elif value['kind'] == 'link':
+                    member.type = tarfile.SYMTYPE; member.linkname = value['target']
+                    output.addfile(member)
+                else:
+                    data = (root / name).read_bytes(); member.size = len(data)
+                    output.addfile(member, io.BytesIO(data))
+        return manifest
+
+    def test_composed_archived_escape_refuses_pack_and_every_reader_version(self):
+        for version in (1, 2, 3):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory).resolve(); root = base / 'checkout'; root.mkdir()
+                (base / 'outside').write_text('outside sentinel')
+                (root / 'pivot').symlink_to('.')
+                (root / 'escape').symlink_to('pivot/../outside')
+                archive = base / 'checkpoint.tar.gz'
+                with self.assertRaises(ValueError):
+                    checkpoint.write_archive(root, ['pivot', 'escape'], {}, archive)
+                self.raw_archive(root, ['pivot', 'escape'], archive, version)
+                with self.assertRaises(ValueError): checkpoint.read_archive(archive, root)
+                self.assertEqual((base / 'outside').read_text(), 'outside sentinel')
+
+    def test_existing_unarchived_link_escape_refuses_every_reader_version(self):
+        for version in (1, 2, 3):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory).resolve(); root = base / 'checkout'; root.mkdir()
+                outside = base / 'outside'; outside.mkdir()
+                (outside / 'sentinel').write_text('outside sentinel')
+                (root / 'pivot').symlink_to(outside)
+                (root / 'alias').symlink_to('pivot/sentinel')
+                archive = base / 'checkpoint.tar.gz'
+                self.raw_archive(root, ['alias'], archive, version)
+                with self.assertRaises(ValueError): checkpoint.read_archive(archive, root)
+                with self.assertRaises(ValueError):
+                    checkpoint.write_archive(root, ['alias'], {}, archive)
+                self.assertEqual((outside / 'sentinel').read_text(), 'outside sentinel')
+
+    def test_destination_link_change_refuses_before_any_restore_write(self):
+        for version in (1, 2, 3):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory).resolve(); root = base / 'checkout'; root.mkdir()
+                (root / 'pivot').mkdir()
+                (root / 'pivot/sentinel').write_text('safe source')
+                (root / 'a-tool').write_text('archived provider')
+                (root / 'z-alias').symlink_to('pivot/sentinel')
+                archive = base / 'checkpoint.tar.gz'
+                self.raw_archive(root, ['a-tool', 'z-alias'], archive, version)
+                manifest = checkpoint.read_archive(archive, root)
+                (root / 'a-tool').write_text('unchanged until validation')
+                (root / 'pivot/sentinel').unlink(); (root / 'pivot').rmdir()
+                outside = base / 'outside'; outside.mkdir()
+                (outside / 'sentinel').write_text('outside sentinel')
+                (root / 'pivot').symlink_to(outside)
+                with self.assertRaises(ValueError): checkpoint.restore_files(archive, root, manifest)
+                self.assertEqual((root / 'a-tool').read_text(), 'unchanged until validation')
+                self.assertEqual((outside / 'sentinel').read_text(), 'outside sentinel')
+
+    def test_safe_chains_parent_components_and_absolute_internal_links_restore(self):
+        for version in (1, 2, 3):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory).resolve(); root = base / 'checkout'; root.mkdir()
+                (root / 'group').mkdir()
+                (root / 'tool').write_text('archived provider')
+                (root / 'group/hop').symlink_to('../tool')
+                (root / 'alias').symlink_to('group/hop')
+                (root / 'absolute').symlink_to(root / 'group/hop')
+                (root / 'parent-chain').symlink_to('group/../alias')
+                names = ['group', 'tool', 'group/hop', 'alias', 'absolute', 'parent-chain']
+                archive = base / 'checkpoint.tar.gz'
+                original = self.raw_archive(root, names, archive, version)
+                decoded = checkpoint.read_archive(archive, root)
+                self.assertEqual(decoded, original)
+                for name in ('alias', 'absolute', 'parent-chain', 'group/hop'):
+                    (root / name).unlink()
+                (root / 'tool').write_text('changed provider')
+                checkpoint.restore_files(archive, root, decoded)
+                for name in ('alias', 'absolute', 'parent-chain', 'group/hop'):
+                    self.assertEqual((root / name).read_text(), 'archived provider')
+                for name, value in original['files'].items():
+                    self.assertEqual(checkpoint.record(root / name), value)
+                checkpoint.write_archive(root, names, {}, base / 'safe-writer.tar.gz')
+
+    def test_cycles_and_overlong_chains_refuse_but_forty_hops_remain_valid(self):
+        for version in (1, 2, 3):
+            for count in (2, 40, 41):
+                with self.subTest(version=version, count=count), tempfile.TemporaryDirectory() as directory:
+                    base = Path(directory).resolve(); root = base / 'checkout'; root.mkdir()
+                    (root / 'tool').write_text('provider')
+                    for index in range(count):
+                        target = 'link-' + str(index + 1) if index + 1 < count else ('link-0' if count == 2 else 'tool')
+                        (root / ('link-' + str(index))).symlink_to(target)
+                    names = ['link-' + str(index) for index in range(count)] + ['tool']
+                    archive = base / 'checkpoint.tar.gz'
+                    self.raw_archive(root, names, archive, version)
+                    if count == 40:
+                        checkpoint.read_archive(archive, root)
+                        checkpoint.write_archive(root, names, {}, base / 'safe-chain.tar.gz')
+                    else:
+                        with self.assertRaises(ValueError): checkpoint.read_archive(archive, root)
+                        with self.assertRaises(ValueError):
+                            checkpoint.write_archive(root, names, {}, base / 'unsafe-chain.tar.gz')
 
 
 if __name__=='__main__': unittest.main()

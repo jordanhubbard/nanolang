@@ -1,0 +1,50 @@
+name: Native complete checkpoint metadata qualification
+on:
+  push:
+    branches: [qualify/5.1-checkpoint-wire-1190]
+permissions:
+  contents: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: I check my worker before complete metadata reads
+        run: |
+          mkdir -p .test_output/checkpoint-metadata-worker
+          {
+            date -u +%Y-%m-%dT%H:%M:%SZ
+            df -Pk "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp
+            free -b
+            nproc
+            vmstat 5 4
+            date -u +%Y-%m-%dT%H:%M:%SZ
+          } | tee .test_output/checkpoint-metadata-worker/worker.log
+          python3 - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          for path in (os.environ['GITHUB_WORKSPACE'], os.environ['RUNNER_TEMP'], '/tmp'):
+              if shutil.disk_usage(path).free < 4 * 1024**3:
+                  raise SystemExit('I hold metadata qualification below my working reserve.')
+          memory = {line.split(':')[0]: int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold metadata qualification at critical memory pressure.')
+          PY
+      - name: I preserve original archive controls and test the compact representation
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_ci_bootstrap_checkpoint 2>&1 | tee .test_output/checkpoint-metadata-worker/controls.log
+      - name: I bind all actual source records and preserve the original wire bound
+        run: python3 scripts/ci_checkpoint_metadata_qualification.py
+      - name: I retain actual native metadata and round-trip evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkpoint-metadata-${{ github.run_id }}
+          path: |
+            .test_output/checkpoint-metadata-qualification
+            .test_output/checkpoint-metadata-worker
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

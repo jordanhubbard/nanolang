@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
-"""I transfer a successful instrumented bootstrap without changing its identity."""
+"""I transfer a successful instrumented bootstrap without changing its identity.
+
+I retain legacy wire versions and use lossless version-three tables only when
+the complete version-two manifest exceeds my unchanged 32 MiB bound. I check
+composed link targets before packing, reading and restoring. I require a stable
+checkout; these preflight checks do not isolate concurrent hostile mutations.
+"""
 import argparse
+import base64
+from collections import deque
 import hashlib
 import io
 import json
@@ -68,12 +76,58 @@ def validate_links(records, root):
         for parent in PurePosixPath(name).parents:
             require(str(parent) not in records or records[str(parent)]['kind'] == 'directory',
                     'only directory members as archived parents')
-        if value['kind'] == 'link':
-            target = Path(value['target'])
-            if not target.is_absolute():
-                target = root / name / '..' / target
-            normalized = Path(os.path.abspath(target))
-            require(normalized.is_relative_to(root), 'links confined to the original checkout')
+    def target_parts(target):
+        require(isinstance(target, str) and '\0' not in target and
+                0 < len(os.fsencode(target)) <= 4095,
+                'representable symbolic link targets')
+        parts = PurePosixPath(target).parts
+        absolute = PurePosixPath(target).is_absolute()
+        if absolute:
+            require(parts[:len(root.parts)] == root.parts,
+                    'absolute links confined to the original checkout')
+            parts = parts[len(root.parts):]
+        return absolute, parts
+
+    for name, value in records.items():
+        if value['kind'] != 'link':
+            continue
+        absolute, parts = target_parts(value['target'])
+        pending = deque(parts if absolute else PurePosixPath(name).parent.parts + parts)
+        resolved, expansions, steps = [], 1, 0
+        while pending:
+            component = pending.popleft()
+            steps += 1
+            require(steps <= 4096, 'bounded symbolic link path traversal')
+            if component == '.':
+                continue
+            if component == '..':
+                require(bool(resolved), 'links confined to the original checkout')
+                resolved.pop()
+                continue
+            candidate = '/'.join([*resolved, component])
+            entry = records.get(candidate)
+            existing = root / candidate
+            target = None
+            if entry is not None:
+                if entry['kind'] == 'link':
+                    target = entry['target']
+                elif pending:
+                    require(entry['kind'] == 'directory', 'directory link-target parents')
+            elif existing.is_symlink():
+                target = os.readlink(existing)
+            elif pending:
+                require(not existing.exists() or existing.is_dir(), 'directory link-target parents')
+            if target is None:
+                resolved.append(component)
+                continue
+            # I expand the archived graph before processing a later '..'.
+            # Lexical normalization would erase exactly that distinction.
+            expansions += 1
+            require(expansions <= 40, 'bounded acyclic symbolic link resolution')
+            absolute, parts = target_parts(target)
+            if absolute:
+                resolved.clear()
+            pending.extendleft(reversed(parts))
 
 
 MAX_MANIFEST_BYTES = 32 * 1024 * 1024
@@ -108,19 +162,141 @@ def encode_manifest(manifest):
         wire['tracked'] = sorted(positions[name] for name in wire['tracked'])
     wire['version'] = 2
     encoded = json.dumps(wire, sort_keys=True, separators=(',', ':')).encode()
+    if len(encoded) > MAX_MANIFEST_BYTES:
+        del encoded
+        # I intern repeated archive names/content identities, not omit records.
+        wire['version'] = 3
+        wire['files'] = compact_file_records(manifest['files'])
+        encoded = json.dumps(wire, sort_keys=True, separators=(',', ':')).encode()
     require(len(encoded) <= MAX_MANIFEST_BYTES, 'a bounded regular checkpoint manifest')
     return encoded
 
 
+def file_identity(value):
+    kind = value.get('kind')
+    fields = {'kind', 'mode', 'mtime_ns'}
+    require(type(value.get('mode')) is int and 0 <= value['mode'] <= 0o7777 and
+            type(value.get('mtime_ns')) is int, 'exact file modes and nanosecond times')
+    if kind == 'directory':
+        require(set(value) == fields, 'complete directory identity fields')
+        return (2, value['mode'])
+    require(kind in ('file', 'link'), 'known compact file kinds')
+    require(isinstance(value.get('sha256'), str) and
+            re.fullmatch('[0-9a-f]{64}', value['sha256']), 'exact compact file hashes')
+    field = 'size' if kind == 'file' else 'target'
+    require(set(value) == fields | {'sha256', field}, 'complete compact file identity fields')
+    if kind == 'file':
+        require(type(value['size']) is int and value['size'] >= 0, 'nonnegative regular file sizes')
+    else:
+        require(isinstance(value['target'], str) and '\0' not in value['target'], 'literal symbolic link targets')
+    return (0 if kind == 'file' else 1, value['mode'], value[field], value['sha256'])
+
+
+def compact_file_records(files):
+    directories, basenames, identities = {}, set(), set()
+    for name, value in files.items():
+        safe_name(name)
+        identity = file_identity(value)
+        parent, _, basename = name.rpartition('/')
+        directories[parent] = min(directories.get(parent, value['mtime_ns']), value['mtime_ns'])
+        basenames.add(basename)
+        identities.add(identity)
+    parents, names, contents = sorted(directories), sorted(basenames), sorted(identities)
+    parent_index = {name: index for index, name in enumerate(parents)}
+    name_index = {name: index for index, name in enumerate(names)}
+    content_index = {value: index for index, value in enumerate(contents)}
+    entries = []
+    for name in sorted(files):
+        parent, _, basename = name.rpartition('/')
+        value = files[name]
+        entries.append([parent_index[parent], name_index[basename],
+                        content_index[file_identity(value)], value['mtime_ns'] - directories[parent]])
+    packed_contents = []
+    for identity in contents:
+        row = list(identity)
+        if row[0] != 2:
+            row[3] = base64.b85encode(bytes.fromhex(row[3])).decode('ascii')
+        packed_contents.append(row)
+    return {'directories': [[parent, directories[parent]] for parent in parents],
+            'names': names, 'identities': packed_contents, 'entries': entries}
+
+
+def expand_file_records(compact):
+    require(isinstance(compact, dict) and set(compact) ==
+            {'directories', 'names', 'identities', 'entries'}, 'the complete compact file tables')
+    directories, names, identities, entries = (compact[key] for key in
+                                               ('directories', 'names', 'identities', 'entries'))
+    require(all(isinstance(table, list) for table in (directories, names, identities, entries)),
+            'compact file table arrays')
+    parents = []
+    for row in directories:
+        require(isinstance(row, list) and len(row) == 2 and isinstance(row[0], str) and
+                '\0' not in row[0] and type(row[1]) is int, 'directory names and exact base times')
+        if row[0]: safe_name(row[0])
+        parents.append(row[0])
+    require(parents == sorted(set(parents)), 'unique sorted compact directories')
+    require(all(isinstance(name, str) and name and '/' not in name and '\0' not in name and
+                name not in ('.', '..') for name in names), 'literal compact basenames')
+    require(names == sorted(set(names)), 'unique sorted compact basenames')
+    content = []
+    for row in identities:
+        require(isinstance(row, list) and len(row) in (2, 4) and type(row[0]) is int and
+                row[0] in (0, 1, 2), 'known compact file identity rows')
+        kind = row[0]
+        require(len(row) == (2 if kind == 2 else 4), 'exact compact identity field counts')
+        value = {'kind': ('file', 'link', 'directory')[kind], 'mode': row[1], 'mtime_ns': 0}
+        if kind != 2:
+            value['size' if kind == 0 else 'target'] = row[2]
+            require(isinstance(row[3], str) and len(row[3]) == 40, 'fixed-width compact SHA256 values')
+            try:
+                digest = base64.b85decode(row[3])
+            except (ValueError, TypeError):
+                raise ValueError('I require a canonical compact SHA256 value') from None
+            require(len(digest) == 32 and base64.b85encode(digest).decode('ascii') == row[3],
+                    'canonical compact SHA256 values')
+            value['sha256'] = digest.hex()
+        file_identity(value)
+        content.append(value)
+    decoded_identities = [file_identity(value) for value in content]
+    require(decoded_identities == sorted(set(decoded_identities)),
+            'unique sorted compact content identities')
+    result, order, used = {}, [], [set(), set(), set()]
+    for row in entries:
+        require(isinstance(row, list) and len(row) == 4 and all(type(value) is int for value in row),
+                'four integer compact entry fields')
+        directory, basename, identity, delta = row
+        require(0 <= directory < len(directories) and 0 <= basename < len(names) and
+                0 <= identity < len(content) and delta >= 0, 'bounded compact indices and time deltas')
+        parent = parents[directory]
+        name = (parent + '/' if parent else '') + names[basename]
+        safe_name(name)
+        require(name not in result, 'unique compact file paths')
+        result[name] = {**content[identity], 'mtime_ns': directories[directory][1] + delta}
+        order.append(name)
+        for index, value in enumerate(row[:3]): used[index].add(value)
+    require(order == sorted(order) and all(indices == set(range(len(table)))
+            for indices, table in zip(used, (directories, names, identities))),
+            'sorted paths and complete compact table references')
+    return result
+
+
 def decode_manifest(encoded):
+    require(isinstance(encoded, (str, bytes, bytearray)), 'an encoded checkpoint manifest')
+    require(len(encoded.encode() if isinstance(encoded, str) else encoded) <= MAX_MANIFEST_BYTES,
+            'a bounded regular checkpoint manifest')
     manifest = json.loads(encoded)
-    require(manifest.get('version') in (1, 2), 'checkpoint version one or two')
-    if manifest['version'] == 2 and 'tracked' in manifest:
+    require(isinstance(manifest, dict), 'a checkpoint manifest object')
+    require(manifest.get('version') in (1, 2, 3), 'checkpoint version one, two or three')
+    if manifest['version'] == 3:
+        manifest['files'] = expand_file_records(manifest.get('files'))
+    if manifest['version'] in (2, 3) and 'tracked' in manifest:
         indices = manifest['tracked']
         names = sorted(manifest['files'])
         require(isinstance(indices, list) and all(type(i) is int for i in indices) and
                 indices == sorted(set(indices)) and all(0 <= i < len(names) for i in indices),
                 'unique sorted tracked indices with archived file records')
+        require(all('sha256' in manifest['files'][names[i]] for i in indices),
+                'tracked indices naming hashed file records')
         manifest['tracked'] = {names[i]: manifest['files'][names[i]]['sha256'] for i in indices}
     # I keep the in-memory identity contract unchanged for both wire versions.
     manifest['version'] = 1
@@ -184,6 +360,8 @@ def read_archive(path, root):
 
 def restore_files(path, root, manifest):
     root = root.resolve()
+    # I repeat graph validation against the actual destination before any write.
+    validate_links(manifest['files'], root)
     # I reject pre-existing escaping parent links before replacing any member.
     for name, value in manifest['files'].items():
         parent = (root / name).parent
