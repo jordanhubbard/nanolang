@@ -1507,6 +1507,13 @@ test-eval-callable-lifetimes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/te
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_lifetimes tests/test_eval_callable_lifetimes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_eval_callable_lifetimes
 
+.PHONY: test-eval-callable-record-escape
+test-eval-callable-record-escape: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_record_escape tests/test_eval_callable_record_escape.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_callable_record_escape
+
+test-units: test-eval-callable-record-escape
+
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
 

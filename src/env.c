@@ -1512,6 +1512,11 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
             v.as.struct_val->field_values[i] = create_string(src);
+        } else if (field_values[i].type == VAL_FUNCTION) {
+            /* I copy borrowed callable metadata before its source can retire. */
+            v.as.struct_val->field_values[i] = create_function(
+                field_values[i].as.function_val.function_name,
+                copy_function_signature(field_values[i].as.function_val.signature));
         } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
             StructValue *nested = field_values[i].as.struct_val;
             v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
@@ -1551,6 +1556,11 @@ Value create_union(const char *union_name, int variant_index, const char *varian
             if (field_values[i].type == VAL_STRING) {
                 v.as.union_val->field_values[i] = create_string(
                     field_values[i].as.string_val ? field_values[i].as.string_val : "");
+            } else if (field_values[i].type == VAL_FUNCTION) {
+                /* I copy borrowed callable metadata before its source can retire. */
+                v.as.union_val->field_values[i] = create_function(
+                    field_values[i].as.function_val.function_name,
+                    copy_function_signature(field_values[i].as.function_val.signature));
             } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
                 StructValue *nested = field_values[i].as.struct_val;
                 v.as.union_val->field_values[i] = create_struct(nested->struct_name,
