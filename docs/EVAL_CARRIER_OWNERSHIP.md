@@ -518,3 +518,21 @@ match. These source stages do not establish raw/bootstrap or paired-platform
 acceptance. #1213's broader qualification, #1217 ordinary safety, general
 #1211/#1116 ownership and whole-release acceptance stay open; default
 environment/CLI activation remains unchanged.
+
+## I retain REPL results through their display caller
+
+My private collector now passes every original REPL callable/state/session/
+admission method: 41 normally, with ASan/UBSan+LSan and with production flags.
+That complete teardown pass still misses a live STRING-reference obligation:
+my GC registry can keep an exported display result reachable after its last use.
+Under #1230 I retain the actual 103-byte/two-object refusal against a 49-byte
+borrowed-binding baseline and a successful 2MiB allocation/release control.
+
+I enter one caller frame before REPL evaluation and leave after display and
+callable-result retirement. Nested evaluator frames hand owned STRING results
+to that caller rather than exporting them beyond display. Borrowed binding
+identity and value semantics stay intact. All 512 result displays pass with
+flat live GC payload storage and zero objects before shutdown, independently
+in full and STRING-only modes across three profiles. Ordinary environments
+still leave the private session disabled; general default/root/platform/native
+heap acceptance is not inferred from this REPL boundary.

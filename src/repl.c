@@ -22,6 +22,7 @@
 
 #include "nanolang.h"
 #include "interpreter_ffi.h"
+#include "eval/carrier_runtime.h"
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
@@ -315,12 +316,15 @@ static void evaluate_source(ASTNode *program, Environment *env) {
             fprintf(stderr, "I cannot retain checked REPL binding metadata.\n"); exit(1);
         }
         int before = env->symbol_count;
+        /* I keep owned results in the caller until display has finished. */
+        env_carrier_enter(env);
         Value result = repl_eval_node(node, env);
         if (node->type == AST_LET && env->symbol_count > before) {
             Symbol *binding = &env->symbols[env->symbol_count - 1];
             free(binding->struct_type_name); binding->struct_type_name = nominal;
         } else free(nominal);
         show_result(result); retire_callable_result(result);
+        env_carrier_leave(env);
     }
 }
 

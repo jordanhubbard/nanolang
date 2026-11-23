@@ -289,3 +289,23 @@ selected shadow completions with zero assertion failures, but exits 1 after
 I publish no seed, keep the original 600/10-second limits and preserve the full
 unsuccessful command. This does not establish current compiler-source acceptance
 or a cause for the terminal refusal.
+
+Under #1230 I enclose REPL evaluation, result display and callable-result
+retirement in one caller ownership frame. My existing private STRING/full
+sessions keep owned STRING results in that frame through display, then release
+them. Ordinary environments still do not enable those sessions; I do not free
+borrowed STRING values or change default aggregate ownership.
+
+All original 41 methods already passed with private collection and LSan, but
+that did not expose exported STRING references still reachable through the GC
+registry. My actual pre-shutdown counter observes 103 bytes/two objects after
+one fresh display, where only the 49-byte borrowed binding belongs. The 2MiB
+allocation/release control reports 2,097,193 bytes and returns to baseline.
+The unchanged counter fixture now passes 512 fresh/concatenated/returned/borrowed
+displays, preserves the binding pointer/text, and reaches zero live GC objects
+through clear/teardown before GC shutdown. Full and independent STRING-only
+normal/sanitizer/production controls pass; the actual Make target passes too.
+This measures GC payload storage, not total process heap containing retained
+source history. Original default34/private41 pass all three profiles; the
+complete default admission LSan fixture still retains 168/172/172-byte aggregate
+failures. #1213/#1116/#1205/#1227/#1228 and paired/default acceptance remain open.

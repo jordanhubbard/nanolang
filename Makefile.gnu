@@ -4269,6 +4269,13 @@ test-repl-session: $(REPL_BINARY) $(REPL_SAVE_FAULT_LIBRARY)
 
 test-units: test-repl-session
 
+.PHONY: test-repl-result-scopes
+test-repl-result-scopes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_repl_result_scopes tests/test_repl_result_scopes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_repl_result_scopes
+
+test-units: test-repl-result-scopes
+
 .PHONY: test-repl-state
 test-repl-state: $(REPL_BINARY)
 	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_state
