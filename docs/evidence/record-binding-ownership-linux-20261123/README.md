@@ -50,9 +50,11 @@ python3 docs/evidence/record-binding-ownership-linux-20261123/read_archive.py
 ```
 
 My reader passes1476 records and1387 exact Git inputs. It verifies compressed
-and raw hashes, actual source/provider/tool identities, every original fixture
+and raw hashes, exact source/tool identities, every original fixture
 hash, baseline/candidate/old-provider results, original failure reports and
-native test products. My manifest reuses identical objects from the prior
+native test products. Provider object sizes and hashes are recorded in
+qualification.json alongside the complete linker inputs. My manifest reuses
+identical objects from the prior
 borrowed-value archive; its manifest is hash-bound and every referenced object
 is verified independently. Full source, observers, commands, streams and
 original private paths remain lossless. Puck-owned nvm2c/merge/regex/capture/CI
