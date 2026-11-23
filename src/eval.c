@@ -1042,6 +1042,66 @@ static Value eval_borrowed_value(Value value) {
     return value.type == VAL_FUNCTION ? copy_array_callable(value) : value;
 }
 
+/* I snapshot scalar payloads without changing aggregate reference identity.
+ * STRING identifiers retain their existing binding-alias rules. */
+static Value eval_copy_projected_value(Value value) {
+    if (value.type != VAL_STRING) return eval_borrowed_value(value);
+    Value copy = create_string(value.as.string_val ? value.as.string_val : "");
+    copy.is_return = value.is_return;
+    copy.return_target = value.is_return ? value.return_target : NULL;
+    copy.is_break = value.is_break;
+    copy.is_continue = value.is_continue;
+    return copy;
+}
+
+
+/* I use one guarded try path for both parser encodings. */
+static Value eval_try_projection(ASTNode *operand, int line, int column, Environment *env) {
+    Value inner = eval_expression(operand, env);
+    if (inner.is_return) return inner;
+    if (inner.type != VAL_UNION || !inner.as.union_val) {
+        fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union value\n",
+                line, column);
+        return create_void();
+    }
+    UnionValue *uv = inner.as.union_val;
+    if (strcmp(uv->variant_name, "Err") == 0) {
+        /* Propagate the Err as a return value */
+        inner.is_return = true;
+        inner.return_target = g_eval_return_target;
+        inner.is_break = false;
+        inner.is_continue = false;
+        return inner;
+    }
+    /* Ok variant: return the first field value */
+    if (uv->field_count == 0) {
+        fprintf(stderr, "Error at line %d, column %d: '?' operator: Ok variant has no fields\n",
+                line, column);
+        return create_void();
+    }
+    return eval_copy_projected_value(uv->field_values[0]);
+}
+
+static bool eval_string_aliases_binding(Environment *env, Value value) {
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Value bound = env->symbols[i].value;
+        if (bound.type == VAL_STRING && bound.as.string_val == value.as.string_val)
+            return true;
+    }
+    return false;
+}
+
+/* I transfer a fresh STRING default; a live binding's default stays borrowed.
+ * Other scalar reads copy as tuple/record/array projections do. */
+static Value eval_result_unwrap_or(Value *args, Environment *env) {
+    Value value = builtin_result_unwrap_or(args);
+    UnionValue *result = args[0].type == VAL_UNION ? args[0].as.union_val : NULL;
+    bool fallback = !result || strcmp(result->variant_name, "Ok") != 0 || result->field_count < 1;
+    if (fallback && value.type == VAL_STRING && !eval_string_aliases_binding(env, value))
+        return value;
+    return eval_copy_projected_value(value);
+}
+
 /* Source argument expressions own callable metadata, unlike borrowed C/API
  * inputs to call_function. A propagated return keeps its own argument slot. */
 static void eval_discard_callable_values(Value *values, int count) {
@@ -2816,6 +2876,13 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     TokenType op = node->as.prefix_op.op;
     int arg_count = node->as.prefix_op.arg_count;
 
+    if (op == TOKEN_QUESTION) {
+        if (arg_count != 1) {
+            fprintf(stderr, "I require exactly one operand for try propagation.\n");
+            return create_void();
+        }
+        return eval_try_projection(node->as.prefix_op.args[0], node->line, node->column, env);
+    }
 
     /* Arithmetic operators */
     if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR ||
@@ -3454,9 +3521,9 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
     /* Result helpers */
     if (call_name == EVAL_CALL_result_is_ok) return builtin_result_is_ok(args);
     if (call_name == EVAL_CALL_result_is_err) return builtin_result_is_err(args);
-    if (call_name == EVAL_CALL_result_unwrap) return builtin_result_unwrap(args);
-    if (call_name == EVAL_CALL_result_unwrap_err) return builtin_result_unwrap_err(args);
-    if (call_name == EVAL_CALL_result_unwrap_or) return builtin_result_unwrap_or(args);
+    if (call_name == EVAL_CALL_result_unwrap) return eval_copy_projected_value(builtin_result_unwrap(args));
+    if (call_name == EVAL_CALL_result_unwrap_err) return eval_copy_projected_value(builtin_result_unwrap_err(args));
+    if (call_name == EVAL_CALL_result_unwrap_or) return eval_result_unwrap_or(args, env);
     if (call_name == EVAL_CALL_result_map) return builtin_result_map(args, env);
     if (call_name == EVAL_CALL_result_and_then) return builtin_result_and_then(args, env);
 
@@ -5300,7 +5367,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (node->as.call.arg_count < 1) return create_void();
         Value h = eval_expression(node->as.call.args[0], env);
         return (h.type == VAL_COROUTINE)
-            ? eval_borrowed_value(nano_coro_result((int)h.as.int_val))
+            ? eval_copy_projected_value(nano_coro_result((int)h.as.int_val))
             : create_void();
     }
 
@@ -6081,39 +6148,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
             
-            /* I return an independently owned callable, as array reads do. */
-            if (tv->elements[index].type == VAL_FUNCTION)
-                return copy_array_callable(tv->elements[index]);
-            return tv->elements[index];
+            /* I keep scalar snapshots alive beyond tuple or local cleanup. */
+            return eval_copy_projected_value(tv->elements[index]);
         }
 
-        case AST_TRY_OP: {
-            /* Desugar expr? in the interpreter:
-             * evaluate operand; if Err variant, propagate as return; else return Ok's first field. */
-            Value inner = eval_expression(expr->as.try_op.operand, env);
-            if (inner.is_return) return inner;
-            if (inner.type != VAL_UNION || !inner.as.union_val) {
-                fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union value\n",
-                        expr->line, expr->column);
-                return create_void();
-            }
-            UnionValue *uv = inner.as.union_val;
-            if (strcmp(uv->variant_name, "Err") == 0) {
-                /* Propagate the Err as a return value */
-                inner.is_return = true;
-                inner.return_target = g_eval_return_target;
-                inner.is_break = false;
-                inner.is_continue = false;
-                return inner;
-            }
-            /* Ok variant: return the first field value */
-            if (uv->field_count == 0) {
-                fprintf(stderr, "Error at line %d, column %d: '?' operator: Ok variant has no fields\n",
-                        expr->line, expr->column);
-                return create_void();
-            }
-            return eval_borrowed_value(uv->field_values[0]);
-        }
+        case AST_TRY_OP:
+            return eval_try_projection(expr->as.try_op.operand, expr->line, expr->column, env);
         case AST_AWAIT: {
             /*
              * await expr — evaluate the inner expression.
@@ -6126,7 +6166,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (inner.type == VAL_COROUTINE) {
                 int coro_id = (int)inner.as.int_val;
                 /* I copy the cached result so repeated awaits remain independent. */
-                return eval_borrowed_value(nano_coro_await_id(coro_id));
+                return eval_copy_projected_value(nano_coro_await_id(coro_id));
             }
             return inner;
         }

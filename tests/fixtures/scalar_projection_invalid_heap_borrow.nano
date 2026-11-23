@@ -1,0 +1,12 @@
+// I retain my refusal of heap-bearing mutable resource borrows.
+resource struct HeapOwner { text: string }
+fn deny(target: &mut HeapOwner, text: string) -> int {
+    set target.text text
+    return 0
+}
+shadow deny {
+    let mut owner: HeapOwner = HeapOwner { text: "before" }
+    assert (== (deny &mut owner "after") 0)
+}
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

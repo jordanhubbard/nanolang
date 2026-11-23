@@ -185,3 +185,35 @@ standalone CLI does not configure its documented trace flags or automatically
 run shadows; I retain that complete contract under #1209 and mark the current
 CLI limitation in FEATURES.md. Neither a product exit0 nor API-level tracing
 accepts that separate interface. Broader #1116/#1140 and release work remains.
+
+Under #1210 I make scalar container/result snapshots consistent. Tuple,
+successful try, Result unwrap/default and cached task reads return independent
+STRING buffers and complete owned callable metadata. I leave non-scalar
+identities and low-level borrowed Result/scheduler APIs unchanged. A fresh
+unwrap_or STRING default transfers its existing storage; a default aliasing
+a live STRING binding is copied. My GC balance control requires exactly one
+additional owned STRING and returns to its original count after retirement.
+STRING identifiers keep their existing binding-alias rules; I do not rewrite
+all STRING expression ownership or change Value/container/FFI layout.
+
+My original tuple STRING witness reports use-after-free after nested lexical
+cleanup, then passes unchanged with the candidate. My C/API fixture balances
+29 callable allocations/releases, preserves nested signatures/caller inputs
+and shared mutable array identity, and passes complete fresh ASan/UBSan
+providers with leak detection enabled. The identical new fixture refuses
+retained old providers on its first independent-STRING assertion. My initial
+record-field hypothesis is disproved: that helper already copies STRING and
+its replacement control passes. Heap-bearing mutable borrows remain rejected.
+
+My full source fixture also exposes the existing parsed-prefix ? route
+returning VOID; only AST_TRY_OP was implemented. I use the same union/empty/Err
+propagation and return-target path for both encodings without parser/checker
+admission changes. All seven source shadows complete with zero failures,
+including Ok and Err propagation, in normal and instrumented correctness
+runs. Original interpreter/checker, tracing and ownership neighbors pass.
+
+I retain the complete new source-fixture1937-byte/82-allocation LSan failure
+and original record/union3720-byte/159-allocation failure. The source semantic
+ASan/UBSan run explicitly disables leak detection; my C/API ownership unit
+does not. These [separate results](evidence/scalar-projection-ownership-linux-20261123/README.md)
+do not close general #1116/#1140 carrier/escape/heap or paired release acceptance.
