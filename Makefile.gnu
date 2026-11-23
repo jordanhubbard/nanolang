@@ -1547,6 +1547,19 @@ test-eval-carrier-heap:
 
 test-units: test-eval-carrier-heap
 
+.PHONY: test-eval-carrier-values
+test-eval-carrier-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_values tests/test_eval_carrier_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_values
+
+$(OBJ_DIR)/eval_carrier_heap_allocations.o: src/eval/carrier_heap.c src/eval/carrier_heap.h tests/support/carrier_value_allocations.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/carrier_value_allocations.h -c $< -o $@
+
+$(OBJ_DIR)/eval_carrier_values_allocations.o: src/eval/carrier_values.c src/eval/carrier_values.h src/eval/carrier_heap.h tests/support/carrier_value_allocations.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/carrier_value_allocations.h -c $< -o $@
+
+test-units: test-eval-carrier-values
+
 .PHONY: test-eval-scalar-projection-ownership
 test-eval-scalar-projection-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_scalar_projection_ownership tests/test_eval_scalar_projection_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)

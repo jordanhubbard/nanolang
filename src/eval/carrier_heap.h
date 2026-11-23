@@ -29,6 +29,8 @@ bool nl_carrier_heap_track(NlCarrierHeap *heap, void *object,
                            NlCarrierTrace trace, NlCarrierDestroy destroy,
                            void *context);
 bool nl_carrier_heap_contains(const NlCarrierHeap *heap, const void *object);
+/* I expose borrowed adapter metadata only until the next mutation. */
+void *nl_carrier_heap_context(const NlCarrierHeap *heap, const void *object);
 /* I transfer one allocation out without destroying it. The adapter must
  * explicitly transfer every owned descendant crossing its API boundary. */
 bool nl_carrier_heap_forget(NlCarrierHeap *heap, const void *object);

@@ -81,6 +81,12 @@ bool nl_carrier_heap_contains(const NlCarrierHeap *heap, const void *object) {
     return heap && object && carrier_slot(heap, object, false) != SIZE_MAX;
 }
 
+void *nl_carrier_heap_context(const NlCarrierHeap *heap, const void *object) {
+    if (!heap || !object) return NULL;
+    size_t slot = carrier_slot(heap, object, false);
+    return slot == SIZE_MAX ? NULL : heap->slots[slot].entry->context;
+}
+
 bool nl_carrier_heap_track(NlCarrierHeap *heap, void *object,
                            NlCarrierTrace trace, NlCarrierDestroy destroy,
                            void *context) {

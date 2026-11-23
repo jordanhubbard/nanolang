@@ -96,3 +96,51 @@ registration, evaluation/argument roots, typed-list and async lifetime hooks,
 host transfers and coordinated early-discard adapters remain required before
 collection is enabled. The retained #1211 source UAF and both full-source LSan
 failures remain open; an engine unit pass does not accept those source paths.
+
+## I adapt actual carrier storage before source activation
+
+`src/eval/carrier_values.c` now supplies the engine's actual Value-storage
+adapter. Adoption takes exactly one record, union, tuple or static-array
+header and its owned STRING/FUNCTION scalar storage. Aggregate children are
+separate allocations: reaching a borrowed child never adopts it. A source
+constructor must register every fresh copied header explicitly; legacy C/API
+references keep their existing ownership protocol. Records retain packed or
+separate names, and scalar cleanup handles managed and unmanaged STRINGs.
+I retain the draft adapter's actual managed-tuple ASan bad-free and qualify
+its corrected scalar cleanup against the unchanged witness.
+
+Typed record lists require a producer-supplied descriptor; an ordinary INT
+never becomes a root because its bits match a live list pointer. Owned lists
+must also be managed GC_TYPE_ARRAY/ELEM_INT containers. Their record pointers
+remain shared references rather than copied elements. Explicit extra edge facts
+represent typed fields whose public storage contains only an integer. Replacing
+those facts is atomic if allocation fails. The source adapter still has to
+supply the facts from actual producer/type information; this API grants no new
+source or foreign-pointer permission.
+
+An iterative, cycle-aware walk follows registered carriers and valid borrowed
+legacy containers. Shared nodes retain identity. Transfer first gathers the
+complete reachable graph, then removes registered ownership without changing
+payloads; it does not adopt or retire caller containers. Allocation or shape
+failure during gathering/marking preserves every owned payload. The private
+engine's borrowed context lookup exposes adapter metadata without transferring
+ownership. Neither adapter nor engine provides concurrent mutation safety.
+
+My actual-constructor fixture passes with normal source-provider objects,
+with the adapter separately compiled at-O2, and with ASan/UBSan plus leak
+detection. It checks nested union/record/tuple/STRING/callable/array payloads,
+actual duplicate/multiple list roots, borrowed cyclic containers, explicit
+field facts, integer refusal, transfer and caller teardown, packed/legacy/
+Unicode/empty metadata and self-referential arrays. Five actual creation/
+adoption allocation failures, one fact-replacement failure and eighteen
+collection/transfer walk failures preserve ownership; the walk failures each
+retain129 actual carriers before recovery. All adapter/engine metadata and
+owned runtime objects balance at teardown. Earlier link and prototype failures
+remain retained; I change no original assertion or compiler/provider deadline.
+
+This adapter is still linked only into its focused ordinary-unit target.
+Actual evaluator/environment/GC paths remain unchanged. Source constructor/
+clone registration, binding/evaluation/argument/typed-field/host/async roots,
+early discard and automatic GC/extern-list lifetime integration remain next.
+The original typed-list source UAF and full source leak reports stay open under
+#1211/#1116/#1140; these C/API storage controls do not accept the source pipeline.

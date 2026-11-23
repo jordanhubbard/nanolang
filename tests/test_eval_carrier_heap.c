@@ -151,6 +151,8 @@ static void refusal_and_reentry(void) {
     CHECK(!nl_carrier_heap_track(ctx.heap, NULL, trace_node, destroy_node, &ctx));
     CHECK(!nl_carrier_heap_track(ctx.heap, value, trace_node, NULL, &ctx));
     track(&ctx, value);
+    CHECK(nl_carrier_heap_context(ctx.heap, value) == &ctx);
+    CHECK(nl_carrier_heap_context(ctx.heap, spare) == NULL);
     CHECK(!nl_carrier_heap_track(ctx.heap, value, NULL, destroy_node, NULL));
     CHECK(!nl_carrier_heap_forget(ctx.heap, spare));
     CHECK(!nl_carrier_heap_collect(ctx.heap, NULL, 1));
