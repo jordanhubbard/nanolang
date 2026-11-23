@@ -17,7 +17,7 @@ typedef struct Node {
 typedef struct {
     NlCarrierHeap *heap;
     size_t destroys, traces;
-    bool reentry;
+    bool reentry, abort_trace;
     Node *spare;
 } Context;
 
@@ -38,7 +38,7 @@ static void release_node(Node *value) {
 }
 
 static void destroy_node(void *object, void *data);
-static void trace_node(const void *object, NlCarrierVisit visit, void *visitor, void *data);
+static bool trace_node(const void *object, NlCarrierVisit visit, void *visitor, void *data);
 
 static void reject_reentry(Context *ctx, const Node *value) {
     CHECK(!nl_carrier_heap_track(ctx->heap, ctx->spare, trace_node, destroy_node, ctx));
@@ -55,11 +55,12 @@ static void destroy_node(void *object, void *data) {
     ctx->destroys++; release_node(object);
 }
 
-static void trace_node(const void *object, NlCarrierVisit visit, void *visitor, void *data) {
+static bool trace_node(const void *object, NlCarrierVisit visit, void *visitor, void *data) {
     const Node *value = object; Context *ctx = data;
     ctx->traces++;
     if (ctx->reentry) reject_reentry(ctx, value);
     for (size_t i = 0; i < 3; ++i) visit(value->edges[i], visitor);
+    return !ctx->abort_trace;
 }
 
 static void track(Context *ctx, Node *value) {
@@ -162,6 +163,24 @@ static void refusal_and_reentry(void) {
     puts("I refuse duplicate, missing-policy, unknown and reentrant ownership changes without adopting caller storage.");
 }
 
+static void incomplete_trace(void) {
+    Context ctx = {.heap = nl_carrier_heap_new(), .abort_trace = true}; CHECK(ctx.heap);
+    Node *parent = node("root"), *child = node("queued child"), *dead = node("unreachable");
+    parent->edges[0] = child;
+    track(&ctx, parent); track(&ctx, child); track(&ctx, dead);
+    const void *roots[] = {parent};
+    CHECK(!nl_carrier_heap_collect(ctx.heap, roots, 1)); balance(&ctx, 3, 0, 0);
+    CHECK(strcmp(parent->text, "root") == 0); CHECK(strcmp(child->text, "queued child") == 0);
+    CHECK(strcmp(dead->text, "unreachable") == 0);
+    CHECK(nl_carrier_heap_contains(ctx.heap, dead));
+    ctx.abort_trace = false;
+    CHECK(nl_carrier_heap_collect(ctx.heap, roots, 1)); balance(&ctx, 3, 1, 0);
+    CHECK(parent->edges[0] == child); CHECK(strcmp(child->text, "queued child") == 0);
+    CHECK(nl_carrier_heap_clear(ctx.heap)); balance(&ctx, 3, 3, 0);
+    CHECK(nl_carrier_heap_free(ctx.heap));
+    puts("I abort incomplete tracing before any destruction and recover with the original graph intact.");
+}
+
 static void deep_graph_and_churn(void) {
     Context ctx = {.heap = nl_carrier_heap_new()}; CHECK(ctx.heap);
     const size_t count = 65536; Node *first = NULL;
@@ -183,7 +202,7 @@ static void deep_graph_and_churn(void) {
 
 int main(void) {
     roots_and_replacement(); sharing_and_cycles(); transfers_and_readoption();
-    refusal_and_reentry(); transfer_between_heaps(); deep_graph_and_churn();
+    refusal_and_reentry(); transfer_between_heaps(); incomplete_trace(); deep_graph_and_churn();
     CHECK(allocated == released);
     printf("I balance %zu carrier payload allocations and releases.\n", allocated);
     return 0;

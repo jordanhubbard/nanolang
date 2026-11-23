@@ -163,8 +163,12 @@ bool nl_carrier_heap_collect(NlCarrierHeap *heap,
     for (size_t i = 0; i < root_count; ++i) carrier_mark(roots[i], &mark);
     for (size_t i = 0; i < mark.count; ++i) {
         CarrierEntry *entry = queue[i];
-        if (entry->trace)
-            entry->trace(entry->object, carrier_mark, &mark, entry->context);
+        if (entry->trace &&
+            !entry->trace(entry->object, carrier_mark, &mark, entry->context)) {
+            heap->collecting = false;
+            free(queue);
+            return false;
+        }
     }
     for (size_t i = 0; i < heap->capacity; ++i) {
         CarrierEntry *entry = heap->slots[i].entry;

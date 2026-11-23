@@ -62,7 +62,9 @@ pointer index and an iterative mark queue; it changes no Value/container/FFI
 layout. An unknown root or edge grants no ownership. Duplicate registration,
 a missing destructor and mutation/reentrant collection during callbacks are
 refused. Allocation failure leaves the payload with its current owner; failed
-collection leaves every registered allocation intact.
+collection leaves every registered allocation intact. A tracer returning false
+reports an incomplete walk and aborts before any destruction; a later complete
+walk can retry against the unchanged graph.
 
 My tracers enumerate valid registered edges. Shared nodes and reachable cycles
 keep their exact addresses; unreachable cycles retire once without recursive
@@ -81,9 +83,9 @@ The engine is per interpreter and does not provide concurrent mutation safety.
 
 My focused normal and ASan/UBSan+LSan tests cover explicit replacement/list
 roots, sharing/cycles, caller-owned unknown storage, transfer/early discard,
-readoption and cross-heap transfer, reentrant mutation refusals, a65536-node
+readoption and cross-heap transfer, reentrant mutation refusals, incomplete-trace rollback/recovery, a65536-node
 chain, allocation/removal cohorts and six actual metadata allocation failures.
-The graph fixture balances67664 payload objects and their owned text buffers;
+The graph fixture balances67667 payload objects and their owned text buffers;
 the fault fixture separately verifies every registry metadata allocation is
 released. These tests exercise the actual private engine, not the interpreter's
 source producers. I add their target to ordinary units, but link the engine

@@ -8,7 +8,7 @@
  * edges; an integer or an unknown pointer never grants ownership. */
 typedef struct NlCarrierHeap NlCarrierHeap;
 typedef bool (*NlCarrierVisit)(const void *object, void *visitor);
-typedef void (*NlCarrierTrace)(const void *object, NlCarrierVisit visit,
+typedef bool (*NlCarrierTrace)(const void *object, NlCarrierVisit visit,
                                void *visitor, void *context);
 typedef void (*NlCarrierDestroy)(void *object, void *context);
 
@@ -37,7 +37,8 @@ bool nl_carrier_heap_forget(NlCarrierHeap *heap, const void *object);
  * own storage/scalars; they must not recursively destroy registered children.
  * My visitor returns false for unregistered objects. An adapter following
  * legacy borrowed containers must inspect their valid edges separately.
- * Trace/destructor callbacks cannot mutate this heap or start collection.
+ * A tracer returning false aborts before any destruction; all allocations
+ * remain owned. Trace/destructor callbacks cannot mutate this heap or start collection.
  * This is a per-interpreter engine, not a thread-safe public allocator. */
 bool nl_carrier_heap_collect(NlCarrierHeap *heap,
                              const void *const *roots, size_t root_count);
