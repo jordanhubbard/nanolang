@@ -87,9 +87,14 @@ def main():
     assert files['journal/baseline-eval.c'] != files['source/src/eval.c']
     base = json.loads((HERE/manifest['base_archives'][0]['path']).read_text())
     prior = {r['path']:r for r in base['git_sources']}
-    for path in ('src/nanolang.h','src/nanoisa/nvm2c.c','src/eval/record_carrier_cleanup.inc','tests/test_eval.c','tests/test_typechecker.c','tests/test_eval_callable_expression_ownership.c','tests/test_eval_callable_record_escape.c','tests/test_eval_callable_lifetimes.c','tests/test_env_borrowed_values.c','tests/test_env_symbol_index.c'):
+    for path in ('src/nanolang.h','src/nanoisa/nvm2c.c','src/eval/record_carrier_cleanup.inc','tests/test_eval.c','tests/test_typechecker.c','tests/test_eval_callable_expression_ownership.c','tests/test_eval_callable_record_escape.c','tests/test_eval_callable_lifetimes.c','tests/test_env_borrowed_values.c'):
         assert sha(files['source/'+path]) == prior[path]['sha256']
     assert sha(files['journal/baseline-eval.c']) == prior['src/eval.c']['sha256']
+    path = 'tests/test_env_symbol_index.c'
+    raw = files['source/'+path]
+    blob = hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+    assert blob == subprocess.check_output(['git','rev-parse','9b604958e0:'+path],cwd=ROOT,text=True).strip()
+    assert b'KeyError' in files['journal/first-reader.stderr']
     assert q['nvm2c_source_sha256'] == sha(files['source/src/nanoisa/nvm2c.c']) == '994d83e225343cfee19f5674cc30259fcea6bc3db44d65911764fd63489f31c0'
     assert q['nvm2c_image_sha256'] == sha(files['images/bin/nvm2c']) == '007dab36cbffea6c151072155d99d220c2c1aaa3b2ea1847932bba5b00b93d8c'
     assert all(raw.startswith(b'\x7fELF') for path,raw in files.items() if path.startswith('products/'))
