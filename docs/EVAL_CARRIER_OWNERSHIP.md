@@ -488,3 +488,33 @@ length, alignment and chunk size. This is a host-specific diagnostic; I do not
 change production allocation policy or treat debugger exit0 as inferior success.
 I do not project this run's1056bytes onto the earlier1776-byte observation.
 #1213's ordinary acceptance and default ownership remain open.
+
+## I qualify bounded private collection metadata under #1213
+
+My [complete Linux receipt](evidence/carrier-collection-scratch-linux-20261123/README.md)
+replaces repeated collection root allocation with session-owned scratch metadata.
+I preserve failed-growth ownership, clear copied references after both collector
+outcomes, refuse reentrant collection, and free the vector at teardown. Removing
+that churn alone does not pass the original observer: its retained candidate
+still exits94/+1584bytes. The next read-only trace identifies same-capacity
+registry rehash frees. I close probe-chain holes in place, preserve stable
+entry/context identities and revisit moved sweep entries, without retaining
+payloads or changing public layouts.
+
+The unchanged original observer and all but two retained provider objects now
+pass the original128-call/ten-shadow native-byte gate at zero growth, with the
+2101904-byte control and1024-byte criterion unchanged. Fresh normal and
+ASan/UBSan+LSan original workloads also report zero growth. New refusal,
+wrapped-collision, forget/readoption, sweep/churn and caller-lifetime controls
+pass beside every original engine/adapter assertion. Original134 evaluator/88
+checker cases pass in both profiles with the broad LSan-disabled boundary
+explicit. Focused ownership/source units keep LSan enabled.
+
+Ordinary and explicit STRING candidate compiler images each pass all seven
+native payload methods and the original full compiler-source stage:1306
+shadows,600-second parent/default shadow limits,108.647/109.615seconds and
+working native --help products. All guarded sources and five frozen tools
+match. These source stages do not establish raw/bootstrap or paired-platform
+acceptance. #1213's broader qualification, #1217 ordinary safety, general
+#1211/#1116 ownership and whole-release acceptance stay open; default
+environment/CLI activation remains unchanged.
