@@ -38,6 +38,15 @@ static char *path(const char *directory, const char *name) {
 }
 
 int main(void) {
+    Environment *shape_env = create_environment(); assert(shape_env);
+    ASTNode *shape = parse("struct RejectedRecord { value: int } "
+                           "struct RejectedHolder { values: List<RejectedRecord> }", false);
+    assert(type_check_module(shape, shape_env)); assert(shape_env->generic_instance_count > 0);
+    GenericInstantiation *instance = &shape_env->generic_instances[shape_env->generic_instance_count - 1];
+    char *helper = NULL; assert(asprintf(&helper, "%s_new", instance->concrete_name) >= 0);
+    assert(env_get_function(shape_env, helper)); free(helper);
+    free_environment(shape_env); free_ast(shape);
+    puts("I exercise actual record-list generic/helper registration before checking failed-module withdrawal.");
     char directory[] = "/tmp/nano-module-rollback-XXXXXX"; assert(mkdtemp(directory));
     char *bad = path(directory, "bad.nano"), *child_a = path(directory, "child_a.nano");
     char *child_b = path(directory, "child_b.nano"), *parent = path(directory, "parent.nano");
@@ -58,6 +67,7 @@ int main(void) {
     int modules = env->module_count;
     const char *failed =
         "module BrokenOwner\nstruct RejectedRecord { value: int }\n"
+        "struct RejectedHolder { values: List<RejectedRecord> }\n"
         "enum RejectedEnum { One }\nunion RejectedUnion<T> { Item { value: T } }\n"
         "opaque type RejectedOpaque\neffect RejectedEffect { now : void -> void }\n"
         "let rejected_global: int = 5\n"
@@ -69,7 +79,8 @@ int main(void) {
         assert(!load_module(bad, env)); assert(!get_cached_module_ast(bad));
         assert(!env_get_function_owned(env, "broken", "BrokenOwner"));
         assert(!env_get_var(env, "rejected_global"));
-        assert(!env_get_struct(env, "RejectedRecord")); assert(!env_get_enum(env, "RejectedEnum"));
+        assert(!env_get_struct(env, "RejectedRecord")); assert(!env_get_struct(env, "RejectedHolder"));
+        assert(!env_get_enum(env, "RejectedEnum"));
         assert(!env_get_union(env, "RejectedUnion")); assert(!env_get_opaque_type(env, "RejectedOpaque"));
         assert(!env_get_effect_owned(env, "RejectedEffect", "BrokenOwner"));
         assert(env->function_count == functions && env->symbol_count == symbols);
