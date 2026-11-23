@@ -53,3 +53,44 @@ alias controls, then reclaim unreachable frame carriers, then rerun the full
 original compiler/source/platform gates. I retain the1937/82 and3720/159 full
 LSan failures. This boundary document and a red witness are not acceptance of
 #1211/#1116/#1140 or the release.
+
+## I account for allocations before adapting the evaluator
+
+My private `src/eval/carrier_heap.c` engine owns only allocations explicitly
+registered with a destructor and an optional edge tracer. It keeps a private
+pointer index and an iterative mark queue; it changes no Value/container/FFI
+layout. An unknown root or edge grants no ownership. Duplicate registration,
+a missing destructor and mutation/reentrant collection during callbacks are
+refused. Allocation failure leaves the payload with its current owner; failed
+collection leaves every registered allocation intact.
+
+My tracers enumerate valid registered edges. Shared nodes and reachable cycles
+keep their exact addresses; unreachable cycles retire once without recursive
+child destruction. Destructors release only their own carrier/scalar storage,
+while registered children have independent entries. An adapter traversing an
+unregistered legacy container must inspect its valid edges explicitly; this
+engine cannot infer them from arbitrary integers or pointers.
+
+`nl_carrier_heap_forget` transfers one allocation out without destroying it.
+My adapter must explicitly transfer every owned descendant crossing a host or
+interpreter boundary and remove entries before existing early manual discard.
+A transferred graph can be readopted by the same or another heap without a
+payload copy. The accounting invariant is registered = destroyed + transferred
++ live. Heap teardown destroys every remaining entry and releases its index.
+The engine is per interpreter and does not provide concurrent mutation safety.
+
+My focused normal and ASan/UBSan+LSan tests cover explicit replacement/list
+roots, sharing/cycles, caller-owned unknown storage, transfer/early discard,
+readoption and cross-heap transfer, reentrant mutation refusals, a65536-node
+chain, allocation/removal cohorts and six actual metadata allocation failures.
+The graph fixture balances67664 payload objects and their owned text buffers;
+the fault fixture separately verifies every registry metadata allocation is
+released. These tests exercise the actual private engine, not the interpreter's
+source producers. I add their target to ordinary units, but link the engine
+only into this focused target until its adapter is ready.
+
+The evaluator/environment/GC paths are still unchanged. Actual source allocation
+registration, evaluation/argument roots, typed-list and async lifetime hooks,
+host transfers and coordinated early-discard adapters remain required before
+collection is enabled. The retained #1211 source UAF and both full-source LSan
+failures remain open; an engine unit pass does not accept those source paths.
