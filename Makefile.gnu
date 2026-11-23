@@ -799,6 +799,18 @@ $(OBJ_DIR)/nvm2c_ownership_reference: tests/nvm2c_ownership_reference.c $(NANOIS
 test-nanolang-translator-ownership: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_reference
 	python3 -m unittest -v tests.test_nanolang_translator_ownership
 
+$(OBJ_DIR)/nvm2c_ownership_queries_reference: tests/nvm2c_ownership_queries_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+$(OBJ_DIR)/nvm2c_ownership_queries_reference_asan: tests/nvm2c_ownership_queries_reference.c tests/nvm2c_affine_model_reader.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) -std=c99 -D_GNU_SOURCE -Isrc -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -o $@ $< $(addprefix $(NANOISA_DIR)/,ownership_contracts.c retained_layouts.c reference_places.c nvm_v2_layouts.c nvm_v2_cursor.c isa.c) $(filter-out $(addprefix $(OBJ_DIR)/nanoisa/,ownership_contracts.o retained_layouts.o reference_places.o nvm_v2_layouts.o nvm_v2_cursor.o isa.o),$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: test-nanolang-translator-ownership-queries
+test-nanolang-translator-ownership-queries: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_ownership_queries_reference $(OBJ_DIR)/nvm2c_ownership_queries_reference_asan
+	python3 -m unittest -v tests.test_nanolang_translator_ownership_queries
+
+test-units: test-nanolang-translator-ownership-queries
+
 $(OBJ_DIR)/nvm2c_private_layout_reference: tests/nvm2c_private_layout_reference.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 

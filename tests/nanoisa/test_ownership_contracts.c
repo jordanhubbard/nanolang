@@ -134,6 +134,8 @@ static void check_union_transport(void) {
     fact=(NvmUnionVariantFact){99,99,99,99};
     CHECK(nvm_ownership_union_variant(module,0,3,&fact)==NVM_V2_ERR_INDEX_RANGE &&
           fact.layout==99 && fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
+    CHECK(nvm_ownership_union_variant(module,NVM_V2_NO_INDEX,0,&fact)==NVM_V2_ERR_INDEX_RANGE &&
+          fact.layout==99 && fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
     data=realloc(data,80);CHECK(data);module->ownership_data=data;module->ownership_size=80;
     memmove(data+32,data+24,48);word(data,16,12);word(data,20,1);
     half(data,24,1);half(data,26,0);half(data,28,7);half(data,30,0);
