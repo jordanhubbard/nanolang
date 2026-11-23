@@ -8,14 +8,14 @@
 struct NlEvalCarrierSession {
     NlCarrierValues *values;
     size_t depth;
-    NlCarrierRef *roots, *host_roots;
-    size_t root_count, root_capacity, host_count;
+    NlCarrierRef *roots, *host_roots, *collection_roots;
+    size_t root_count, root_capacity, host_count, collection_capacity;
     NlCarrierScopeMark *frames;
     size_t frame_capacity;
     char **strings;
     size_t string_count, string_capacity;
     NlCarrierStringStats string_stats;
-    bool collect;
+    bool collect, collecting;
 };
 static NlCarrierHeapStats last_retired;
 static NlCarrierStringStats last_strings;
@@ -191,15 +191,27 @@ bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *roots, 
 bool env_carrier_collect(Environment *env) {
     if (!env_carrier_enabled(env) || !env->carrier_session->collect) return true;
     struct NlEvalCarrierSession *s = env->carrier_session;
-    if (env->symbol_count < 0) return false;
+    if (s->collecting || env->symbol_count < 0) return false;
     size_t count = s->root_count;
     if (s->host_count > SIZE_MAX - count) return false;
     count += s->host_count;
     if ((size_t)env->symbol_count > SIZE_MAX - count) return false;
     count += (size_t)env->symbol_count;
     if (count > SIZE_MAX / sizeof(NlCarrierRef)) return false;
-    NlCarrierRef *roots = count ? malloc(count * sizeof *roots) : NULL;
-    if (count && !roots) return false;
+    /* I reuse metadata only; no copied payload root survives this collection. */
+    if (count > s->collection_capacity) {
+        size_t capacity = s->collection_capacity ? s->collection_capacity : 16;
+        while (capacity < count) {
+            if (capacity > SIZE_MAX / 2) return false;
+            capacity *= 2;
+        }
+        if (capacity > SIZE_MAX / sizeof(NlCarrierRef)) return false;
+        NlCarrierRef *grown = realloc(s->collection_roots, capacity * sizeof *grown);
+        if (!grown) return false;
+        s->collection_roots = grown;
+        s->collection_capacity = capacity;
+    }
+    NlCarrierRef *roots = s->collection_roots;
     size_t n = 0;
     for (size_t i = 0; i < s->root_count; ++i) roots[n++] = s->roots[i];
     for (size_t i = 0; i < s->host_count; ++i) roots[n++] = s->host_roots[i];
@@ -209,8 +221,11 @@ bool env_carrier_collect(Environment *env) {
         if (symbol->value.type == VAL_VOID) continue;
         roots[n++] = (NlCarrierRef){symbol->value, symbol->type == TYPE_LIST_GENERIC};
     }
+    s->collecting = true;
     bool ok = nl_carrier_values_collect(s->values, roots, n);
-    free(roots); return ok;
+    if (n) memset(roots, 0, n * sizeof *roots);
+    s->collecting = false;
+    return ok;
 }
 void env_carrier_track(Environment *env, Value value, bool copies) {
     if (!env_carrier_enabled(env)) return;
@@ -257,6 +272,7 @@ void env_carrier_close(Environment *env) {
     last_retired = nl_carrier_values_stats(session->values);
     if (!nl_carrier_values_free(session->values)) ownership_failure();
     free(session->roots); free(session->frames); free(session->host_roots); free(session->strings);
+    free(session->collection_roots);
     free(session); env->carrier_session = NULL; retired_sessions++;
 }
 NlCarrierHeapStats env_carrier_last_retired_stats(void) { return last_retired; }

@@ -1544,6 +1544,8 @@ test-eval-carrier-heap:
 	$(OBJ_DIR)/test_eval_carrier_heap
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_heap_faults tests/test_eval_carrier_heap_faults.c $(LDFLAGS)
 	$(OBJ_DIR)/test_eval_carrier_heap_faults
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_heap_compaction tests/test_eval_carrier_heap_compaction.c $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_heap_compaction
 
 test-units: test-eval-carrier-heap
 
@@ -1598,6 +1600,20 @@ test-eval-carrier-string-scopes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)
 	$(OBJ_DIR)/test_eval_carrier_string_scopes
 
 test-units: test-eval-carrier-string-scopes
+
+.PHONY: test-eval-carrier-collection-scratch
+test-eval-carrier-collection-scratch: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_collection_scratch tests/test_eval_carrier_collection_scratch.c $(filter-out $(OBJ_DIR)/eval/carrier_runtime.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_collection_scratch
+
+test-units: test-eval-carrier-collection-scratch
+
+.PHONY: test-eval-carrier-native-bytes
+test-eval-carrier-native-bytes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_native_bytes tests/test_eval_carrier_native_bytes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_native_bytes
+
+test-units: test-eval-carrier-native-bytes
 
 .PHONY: test-eval-carrier-active-roots
 test-eval-carrier-active-roots: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o

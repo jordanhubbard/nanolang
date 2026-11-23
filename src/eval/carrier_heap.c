@@ -113,13 +113,28 @@ bool nl_carrier_heap_track(NlCarrierHeap *heap, void *object,
     return true;
 }
 
+/* I close the probe-chain hole without allocating another same-sized table. */
+static void carrier_remove_slot(NlCarrierHeap *heap, size_t slot) {
+    size_t mask = heap->capacity - 1;
+    heap->slots[slot] = (CarrierSlot){0};
+    for (size_t next = (slot + 1) & mask; heap->slots[next].entry;
+         next = (next + 1) & mask) {
+        size_t home = carrier_hash(heap->slots[next].entry->object) & mask;
+        if (((next - home) & mask) >= ((next - slot) & mask)) {
+            heap->slots[slot] = heap->slots[next];
+            heap->slots[next] = (CarrierSlot){0};
+            slot = next;
+        }
+    }
+    heap->used--;
+}
+
 bool nl_carrier_heap_forget(NlCarrierHeap *heap, const void *object) {
     if (!heap || heap->collecting || !object) return false;
     size_t slot = carrier_slot(heap, object, false);
     if (slot == SIZE_MAX) return false;
     free(heap->slots[slot].entry);
-    heap->slots[slot].entry = NULL;
-    heap->slots[slot].deleted = true;
+    carrier_remove_slot(heap, slot);
     heap->stats.transferred++;
     heap->stats.live--;
     return true;
@@ -147,8 +162,7 @@ static bool carrier_mark(const void *object, void *visitor) {
 /* I remove ownership before invoking its nonrecursive destructor. */
 static void carrier_destroy_slot(NlCarrierHeap *heap, size_t slot) {
     CarrierEntry *entry = heap->slots[slot].entry;
-    heap->slots[slot].entry = NULL;
-    heap->slots[slot].deleted = true;
+    carrier_remove_slot(heap, slot);
     heap->stats.live--;
     heap->stats.destroyed++;
     entry->destroy(entry->object, entry->context);
@@ -176,10 +190,9 @@ bool nl_carrier_heap_collect(NlCarrierHeap *heap,
             return false;
         }
     }
-    for (size_t i = 0; i < heap->capacity; ++i) {
-        CarrierEntry *entry = heap->slots[i].entry;
-        if (entry && !entry->marked) carrier_destroy_slot(heap, i);
-    }
+    for (size_t i = 0; i < heap->capacity; ++i)
+        while (heap->slots[i].entry && !heap->slots[i].entry->marked)
+            carrier_destroy_slot(heap, i);
     heap->collecting = false;
     free(queue);
     return true;
@@ -189,7 +202,7 @@ bool nl_carrier_heap_clear(NlCarrierHeap *heap) {
     if (!heap || heap->collecting) return false;
     heap->collecting = true;
     for (size_t i = 0; i < heap->capacity; ++i)
-        if (heap->slots[i].entry) carrier_destroy_slot(heap, i);
+        while (heap->slots[i].entry) carrier_destroy_slot(heap, i);
     heap->collecting = false;
     return true;
 }
