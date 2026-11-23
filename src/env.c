@@ -413,6 +413,11 @@ Environment *create_environment(void) {
     return env;
 }
 
+/* I distinguish non-owning views from the bindings that retire storage. */
+static bool env_type_borrows_value(Type type) {
+    return type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT;
+}
+
 static void env_free_value(Value v) {
     if (v.type == VAL_STRING) {
         /* Release GC-managed string if applicable */
@@ -595,6 +600,7 @@ void env_reclaim_static_arrays(Environment *env) {
     EnvArrayReclaim ctx;
     memset(&ctx, 0, sizeof ctx);
     for (int i = 0; i < env->symbol_count; i++) {
+        if (env_type_borrows_value(env->symbols[i].type)) continue;
         Value v = env->symbols[i].value;
         if (v.type == VAL_ARRAY && env_is_checker_allocation(env, v.as.array_val))
             continue;
@@ -620,7 +626,7 @@ void free_environment(Environment *env) {
         if (env->symbols[i].struct_type_name) {
             free(env->symbols[i].struct_type_name);
         }
-        if (env->symbols[i].type != TYPE_BORROW_SHARED && env->symbols[i].type != TYPE_BORROW_MUT)
+        if (!env_type_borrows_value(env->symbols[i].type))
             env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
@@ -917,7 +923,8 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
     /* GC refcount fix: If this string value is already referenced by another
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
-    if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+    if (retain_string_aliases && !env_type_borrows_value(type) &&
+        value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
         for (int i = 0; i < env->symbol_count; i++) {
             if (env->symbols[i].value.type == VAL_STRING &&
                 env->symbols[i].value.as.string_val == value.as.string_val) {
@@ -1139,6 +1146,12 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 /* Set variable value */
 static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, bool retain_string_aliases) {
     if (sym) {
+        /* I rebind a non-owning view without retiring or retaining its target.
+         * Mutability/type permission remains the checker's existing contract. */
+        if (env_type_borrows_value(sym->type)) {
+            sym->value = value;
+            return;
+        }
         /* I keep the binding's ownership when its STRING pointer is unchanged. */
         if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
             value.as.string_val == sym->value.as.string_val) {

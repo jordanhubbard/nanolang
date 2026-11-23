@@ -99,3 +99,23 @@ that new target until the independent build prerequisite passes. The REPL's
 callable retirement changes are not runtime-qualified here. Complete #1140,
 #1116, current-source bootstrap, paired platform and release acceptance remain
 open.
+
+Under #1207 I keep TYPE_BORROW_SHARED and TYPE_BORROW_MUT slots non-owning
+when I create or rebind views and when I traverse roots for static-array
+reclamation. I neither release the old target nor retain the new target for
+a borrowed view. An owning root still reclaims its array exactly once, even
+when both kinds of borrowed alias reference it. My source checker continues
+to require a declared nominal record borrow at a direct-call argument; my
+callable/string view controls exercise the existing C/API ownership boundary
+and grant no new source permission.
+
+My retained baseline reports actual callable and array use-after-free. Both
+original probes pass with fresh candidate providers. My permanent caller
+survival, nested aggregate and mixed-owner controls pass normally and with
+complete ASan/UBSan providers and leak detection enabled. Full interpreter,
+checker, environment and callable neighbors also pass with their known
+whole-fixture leak boundary preserved. I retain the diagnostic link refusal
+caused by attaching evaluator test hooks to the standalone checker, then
+qualify the checker with its ordinary provider objects. My [bounded receipt](evidence/borrowed-value-ownership-linux-20261123/README.md) keeps the exact
+commands, source, products and both failures. This repair does not retire
+record literals or callable fields and does not close #1116 or #1140.
