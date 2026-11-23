@@ -1,0 +1,551 @@
+{
+  "source_pin": "0c4f3f2abfc2dc7c758372f750991b7d73b68093",
+  "git_sources": [
+    {
+      "path": "docs/ROADMAP.md",
+      "sha256": "020b27a72d4d5db2ec06480cd9ab89ac4c7b39f159cf97cc0d1e773e11e43591"
+    },
+    {
+      "path": "docs/EVAL_CARRIER_OWNERSHIP.md",
+      "sha256": "f83a19fcfc7f99ecffed2b4b0bb7ea6427e999439c88f96041b262ee8ea30937"
+    }
+  ],
+  "base_manifest": {
+    "path": "../carrier-byte-accounting-linux-20261123/manifest.json",
+    "sha256": "f96f9a959ff554e6f86ed32e34f00a5238aa9cecca24b843d8b6463c28eca989"
+  },
+  "files": [
+    {
+      "path": "journal/claim.md",
+      "bytes": 853,
+      "sha256": "be162e020f16c98d110ef78ee35c36cc46518339f86297c944691167fafb54e5",
+      "artifact": "objects/be162e020f16c98d110ef78ee35c36cc46518339f86297c944691167fafb54e5.gz",
+      "compressed_sha256": "d3a08eaaf6cd4500f5c1311b8b89e0125f594d7bc517fbd1b75ff8317c5782bf"
+    },
+    {
+      "path": "journal/debugger-ldd.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "journal/debugger-ldd.stdout",
+      "bytes": 4447,
+      "sha256": "0448b8a416306169b8db6178bca1327c17aeea0eb5408635ea0a30bf89252be6",
+      "artifact": "objects/0448b8a416306169b8db6178bca1327c17aeea0eb5408635ea0a30bf89252be6.gz",
+      "compressed_sha256": "a28122dade379ce5146db71ec8ff1e0fd0c747e8bf8d2ddf3a56c5f7a227f9e5"
+    },
+    {
+      "path": "journal/first-observed.json",
+      "bytes": 579,
+      "sha256": "f7789d080ff25f16720ca8d965ab7c6188c0ba62c71196393ab63de23c27c13c",
+      "artifact": "objects/f7789d080ff25f16720ca8d965ab7c6188c0ba62c71196393ab63de23c27c13c.gz",
+      "compressed_sha256": "69dfc31c425681facd9390fe1c3ea8a40a7fcfdd4e037b1eeaf2697765819972"
+    },
+    {
+      "path": "journal/first-run.stderr",
+      "bytes": 436,
+      "sha256": "f617fb05573b2327f4567a5a199aed478ad01621bc8f6970142e1aa53102ac99",
+      "artifact": "objects/f617fb05573b2327f4567a5a199aed478ad01621bc8f6970142e1aa53102ac99.gz",
+      "compressed_sha256": "5f8b11c2c1e5e55b0780cea43bb2856b1dd1c33fd781c9a468980e5d03c89880"
+    },
+    {
+      "path": "journal/first-run.stdout",
+      "bytes": 574,
+      "sha256": "4ca3c588d5c776a91a5b4aa4d4c2b87b91de48b672f39b610727dc2d3eac5fa0",
+      "artifact": "objects/4ca3c588d5c776a91a5b4aa4d4c2b87b91de48b672f39b610727dc2d3eac5fa0.gz",
+      "compressed_sha256": "43c429014c200a445e915509202c84e675fdb80a7926b3730ade0e244e4e6741"
+    },
+    {
+      "path": "journal/first-snapshot.gdb",
+      "bytes": 1192,
+      "sha256": "026656d24468d8005c6275986184f3366ca726749c78de300320f55d77c91a3f",
+      "artifact": "objects/026656d24468d8005c6275986184f3366ca726749c78de300320f55d77c91a3f.gz",
+      "compressed_sha256": "33f6f4e781529c924dec224c1d9cce85da2ddd7841ec39ceeb063d0c520d50b9"
+    },
+    {
+      "path": "journal/libc-malloc-disassembly.txt",
+      "bytes": 12615,
+      "sha256": "1ac53a13c1e0bae4447bea6d4a48bae5fe3a754a08fcab56007e069d7fd0237b",
+      "artifact": "objects/1ac53a13c1e0bae4447bea6d4a48bae5fe3a754a08fcab56007e069d7fd0237b.gz",
+      "compressed_sha256": "4c461064830fee21fb7d1e311589ebd5f1305d33ad16a6c8ff892749284240e5"
+    },
+    {
+      "path": "journal/observe.py",
+      "bytes": 950,
+      "sha256": "2c61c63b7f60987fb34ed41604d296b5367e79baad5bdb2bc225294e86cc3bfc",
+      "artifact": "objects/2c61c63b7f60987fb34ed41604d296b5367e79baad5bdb2bc225294e86cc3bfc.gz",
+      "compressed_sha256": "123116c12457fdf16e62f4e06a2b5039c8aec105ac6541cbfa939d2ae34c61de"
+    },
+    {
+      "path": "journal/observed.json",
+      "bytes": 579,
+      "sha256": "0ff40cfe8ef75fbb10e944a8c2b6ce2fbc50b4e833f6639a6f8df9f2136e774a",
+      "artifact": "objects/0ff40cfe8ef75fbb10e944a8c2b6ce2fbc50b4e833f6639a6f8df9f2136e774a.gz",
+      "compressed_sha256": "584b6c9dcad648528943d49870d935b8b673c1a29059ab13ed77159048786970"
+    },
+    {
+      "path": "journal/observer-ldd.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact": "objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "compressed_sha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83"
+    },
+    {
+      "path": "journal/observer-ldd.stdout",
+      "bytes": 381,
+      "sha256": "82ce4ac10cb1a105d6a67922e2af95c7d1030f7c318ba6588894a0fcb28a603a",
+      "artifact": "objects/82ce4ac10cb1a105d6a67922e2af95c7d1030f7c318ba6588894a0fcb28a603a.gz",
+      "compressed_sha256": "38859c647f13a6b923164ccf31cc3000f23caa958f211a26bb1c338244a7677a"
+    },
+    {
+      "path": "journal/run.stderr",
+      "bytes": 369,
+      "sha256": "d30a8a82aa6a52a44d09cc143c49ed3dcf7fc8763c7c9a4232cfce3b1845de10",
+      "artifact": "objects/d30a8a82aa6a52a44d09cc143c49ed3dcf7fc8763c7c9a4232cfce3b1845de10.gz",
+      "compressed_sha256": "3e808a081b84819e509113cb4df5037dd4faa58a54085ff7a7caeb87a5a9823f"
+    },
+    {
+      "path": "journal/run.stdout",
+      "bytes": 6775,
+      "sha256": "ed9ec1fbdac71745694c1c1e1599df37441b931c72f5ecced0b058c78521c637",
+      "artifact": "objects/ed9ec1fbdac71745694c1c1e1599df37441b931c72f5ecced0b058c78521c637.gz",
+      "compressed_sha256": "9cc3222f1bab6e7242a423931040392f55abb917bcf566d3fb45eb501f7e5be0"
+    },
+    {
+      "path": "journal/second-observed.json",
+      "bytes": 579,
+      "sha256": "097061859795ce7cb4ca078edbdfa07c568991c0dde71577f4ba22be324e7491",
+      "artifact": "objects/097061859795ce7cb4ca078edbdfa07c568991c0dde71577f4ba22be324e7491.gz",
+      "compressed_sha256": "8ea76d916780e999ee15fdabe8df70d4d5b2ad8be53c8acc1a5fe9f8803ec4c9"
+    },
+    {
+      "path": "journal/second-run.stderr",
+      "bytes": 461,
+      "sha256": "42eae5f75fdba2fce25c2abfc2f2eee4858b5266af0e7ecec2171db273ea20cb",
+      "artifact": "objects/42eae5f75fdba2fce25c2abfc2f2eee4858b5266af0e7ecec2171db273ea20cb.gz",
+      "compressed_sha256": "ded04d819d58160b1d54c90a9e072a497a928ff55446fc3cde65844b09339a31"
+    },
+    {
+      "path": "journal/second-run.stdout",
+      "bytes": 626,
+      "sha256": "1dd4cf5ff30a21f72adee0ef8ec7a126e9aec3b1144a16ca814a7dc95cff62ea",
+      "artifact": "objects/1dd4cf5ff30a21f72adee0ef8ec7a126e9aec3b1144a16ca814a7dc95cff62ea.gz",
+      "compressed_sha256": "6ebacc0f550ef1263f038a66c5f77be46536545941fb90764b1a98ff3f56ac44"
+    },
+    {
+      "path": "journal/second-snapshot.gdb",
+      "bytes": 1335,
+      "sha256": "3cfada8b59a6912e3be4ee26432658f36c05f10146c60c8ec389b5dbf3b20d78",
+      "artifact": "objects/3cfada8b59a6912e3be4ee26432658f36c05f10146c60c8ec389b5dbf3b20d78.gz",
+      "compressed_sha256": "5c512ba25ca7d35651029132b6d3b290a7d9e1233d02986e308d58367e1eda26"
+    },
+    {
+      "path": "journal/snapshot.gdb",
+      "bytes": 1818,
+      "sha256": "632b324321a7d022c4fc12295acb88935f28d36f9a4c6b2117e6c1c0c97f0e81",
+      "artifact": "objects/632b324321a7d022c4fc12295acb88935f28d36f9a4c6b2117e6c1c0c97f0e81.gz",
+      "compressed_sha256": "50c1ffaa97b63bbd057a588966d60ebee70e4e529fa659a9281a095df83036e3"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/../lib/libbrotlicommon.so.1",
+      "bytes": 263008,
+      "sha256": "49ea27e7c74ba7cbd897f37ff891ae9392ba8914614ad13482ef980fc0112e63",
+      "artifact": "objects/49ea27e7c74ba7cbd897f37ff891ae9392ba8914614ad13482ef980fc0112e63.gz",
+      "compressed_sha256": "53e6f80037abef53c403d456729ed836f142f90ac04cfb182b7bd94da1b67697"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libbrotlidec.so.1",
+      "bytes": 132416,
+      "sha256": "f1d38898b676bec08e34381a6c9d153e1dcc5e4156a96e9403ef6002b651badf",
+      "artifact": "objects/f1d38898b676bec08e34381a6c9d153e1dcc5e4156a96e9403ef6002b651badf.gz",
+      "compressed_sha256": "f1eceea81539dfc5ce9b836ad5c8f3cd3cec0037ac1a88aa7fe0136e7f886daa"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libexpat.so.1",
+      "bytes": 265560,
+      "sha256": "5156d9207b608481fe15a29e40d1ac6837c555c97d2fbcd993139a1b89c7e687",
+      "artifact": "objects/5156d9207b608481fe15a29e40d1ac6837c555c97d2fbcd993139a1b89c7e687.gz",
+      "compressed_sha256": "42403131d18019dec8be26ac41b3c3f63300459799b8496d2a3dd8fa41981ad4"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libffi.so.8",
+      "bytes": 198992,
+      "sha256": "54833acc08f7e46f65be241dd1eb931f5d8d495f02a1a2d014ecb8d3d7e0e183",
+      "artifact": "objects/54833acc08f7e46f65be241dd1eb931f5d8d495f02a1a2d014ecb8d3d7e0e183.gz",
+      "compressed_sha256": "829256a595cf9416444a32aef0264f4bfdf2f110801a8a9f4f84fba1b28504ae"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libglib-2.0.so.0",
+      "bytes": 1827696,
+      "sha256": "36bc5fb4ac609afd65823e7a85b3b48a0e8c9f72d414ff86bb4c61337b7d33a2",
+      "artifact": "objects/36bc5fb4ac609afd65823e7a85b3b48a0e8c9f72d414ff86bb4c61337b7d33a2.gz",
+      "compressed_sha256": "12938521a3c98d110b713bb606a2559e44b5982085efc1b49bb5af704fc18fd6"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/liblzma.so.5",
+      "bytes": 266632,
+      "sha256": "a1dabde0abbf20b35471fcfeff07b26e206d5efb46b783272144199244d24284",
+      "artifact": "objects/a1dabde0abbf20b35471fcfeff07b26e206d5efb46b783272144199244d24284.gz",
+      "compressed_sha256": "daff94dd252926a399a945c0a6e6ac1decce8d8cef86f0010fbb0a72bb4aa04b"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libncursesw.so.6",
+      "bytes": 605888,
+      "sha256": "f73fe097efcc6dee1a2b6d47de236f1d416a0d026b000871cd30bc08f404e151",
+      "artifact": "objects/f73fe097efcc6dee1a2b6d47de236f1d416a0d026b000871cd30bc08f404e151.gz",
+      "compressed_sha256": "9e99d955315e3b5cd74a534a972a51e8906eb421e7e501a08c8eb6eb589d5ff3"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libnghttp2.so.14",
+      "bytes": 270584,
+      "sha256": "5691f3fdc79ab4856a2ec49be22775a70037a46ce9f988c971320bb58771fa9c",
+      "artifact": "objects/5691f3fdc79ab4856a2ec49be22775a70037a46ce9f988c971320bb58771fa9c.gz",
+      "compressed_sha256": "3d5857ea8924ecca3d87a569ecbfa8822650acb48b25ee5f1bf6c14d00415ff8"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libreadline.so.8",
+      "bytes": 546872,
+      "sha256": "075772eab83f7086cd1fe300b7a842a1a5badbdc4263cc0d9b204cb534d8b250",
+      "artifact": "objects/075772eab83f7086cd1fe300b7a842a1a5badbdc4263cc0d9b204cb534d8b250.gz",
+      "compressed_sha256": "be39de1d9def1ec0638990f98c93b409bd4b6e246854a06e9c78b036f4ad920d"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libuuid.so.1",
+      "bytes": 133064,
+      "sha256": "33ece68e59b9fa9d7673bc99e755587c837c4b1b48947abd3c5debc125643cab",
+      "artifact": "objects/33ece68e59b9fa9d7673bc99e755587c837c4b1b48947abd3c5debc125643cab.gz",
+      "compressed_sha256": "2eb052bd499624333becb70a6bad6537f4f1ab1bdaed469875a8d599ee6de8cc"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libz.so.1",
+      "bytes": 199448,
+      "sha256": "51c37d31344d3726e15380867c29599014d3c7781024f0ce79729658f63d4085",
+      "artifact": "objects/51c37d31344d3726e15380867c29599014d3c7781024f0ce79729658f63d4085.gz",
+      "compressed_sha256": "00f2d1c5832db036ec2e388a4f9c00d6adf349fde09fab5461930f5b4d3fce36"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/lib/libzstd.so.1",
+      "bytes": 937880,
+      "sha256": "d95245692747f4001bc0ef9acc4596c4745f51db53751ec55f739db47997937a",
+      "artifact": "objects/d95245692747f4001bc0ef9acc4596c4745f51db53751ec55f739db47997937a.gz",
+      "compressed_sha256": "7589653e2883c93f83e072de5edeff88d870410ec9c7400e1d6b0bd606643ec5"
+    },
+    {
+      "path": "provider//home/linuxbrew/.linuxbrew/opt/pcre2/lib/libpcre2-8.so.0",
+      "bytes": 724608,
+      "sha256": "aff2687bb7ef63043f41de74b96eabe7a35feec4febfee2ae8f63c58dfcd6243",
+      "artifact": "objects/aff2687bb7ef63043f41de74b96eabe7a35feec4febfee2ae8f63c58dfcd6243.gz",
+      "compressed_sha256": "6e2ce0d2bb04c93f38f132622870a235e3f754017355a2d069fe1005e8dbd47d"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libbabeltrace-ctf.so.1",
+      "bytes": 330264,
+      "sha256": "2118967830669aabe67bc050e764fe0b65340bd252db1fa00f198513073faf58",
+      "artifact": "objects/2118967830669aabe67bc050e764fe0b65340bd252db1fa00f198513073faf58.gz",
+      "compressed_sha256": "b9f19ad337a581e1a211aa9335a6a158cd39d533688f1dc876b1fe0287bebdcb"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libbabeltrace.so.1",
+      "bytes": 67584,
+      "sha256": "13de9bc17a514d07f4218eb1a5563d38d66efe90b4590e8f986ed1eac51ecf21",
+      "artifact": "objects/13de9bc17a514d07f4218eb1a5563d38d66efe90b4590e8f986ed1eac51ecf21.gz",
+      "compressed_sha256": "5fc3adea2dfa2520248e079b96ad0d5ec1c73777e08967cb285ccbfcc879f808"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libc.so.6",
+      "bytes": 1722920,
+      "sha256": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+      "artifact": "objects/0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e.gz",
+      "compressed_sha256": "f43a4bf9c543a54609b4aa051fc4cfade814ccc4dae60e554d506ff8377384b0"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libcom_err.so.2",
+      "bytes": 67432,
+      "sha256": "6a9d07af8817ed06466027a77fc7f2e8972a4a0e68895738d9acdc35470f416e",
+      "artifact": "objects/6a9d07af8817ed06466027a77fc7f2e8972a4a0e68895738d9acdc35470f416e.gz",
+      "compressed_sha256": "d41e22a0194cb4401289efbeafd09a77ca665e6165c2b8ddbb45ca2c68e1a96c"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libcrypto.so.3",
+      "bytes": 4663464,
+      "sha256": "b27a2396652ee28629c94d59d667c417dbffdf2dee84e5bf140bd17d3eedb7d9",
+      "artifact": "objects/b27a2396652ee28629c94d59d667c417dbffdf2dee84e5bf140bd17d3eedb7d9.gz",
+      "compressed_sha256": "cc6b4f78b85d400a9491d68c125386105c405f67d122e09a4582cd8662e7971d"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libcurl-gnutls.so.4",
+      "bytes": 732568,
+      "sha256": "a7e095356243fc3fa8e332e2df350d9dbe0f0a0ddd1db2c95d38e15e4efc439c",
+      "artifact": "objects/a7e095356243fc3fa8e332e2df350d9dbe0f0a0ddd1db2c95d38e15e4efc439c.gz",
+      "compressed_sha256": "307d8af4d4f053c9f3c848ef5c54b1f90d4e5eab716972bf8b26955ec98051d8"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libdebuginfod.so.1",
+      "bytes": 68192,
+      "sha256": "8121453971ac03d768eee23ad1b4ac2b8ccde6524ce0d31ffb33f52635e6810b",
+      "artifact": "objects/8121453971ac03d768eee23ad1b4ac2b8ccde6524ce0d31ffb33f52635e6810b.gz",
+      "compressed_sha256": "0360dd5cfe64d71fd0ef169c0d32854e715aa82b72602678dd1e44396242c7c1"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libelf.so.1",
+      "bytes": 133648,
+      "sha256": "cb8f5d9cc966fcf008e443541eba7f493167bca2901172abd4b76660d62cdae4",
+      "artifact": "objects/cb8f5d9cc966fcf008e443541eba7f493167bca2901172abd4b76660d62cdae4.gz",
+      "compressed_sha256": "545fc2d5619436970ca3e5c3d9401c911f55ca8173d5100bb2118a4ad84bf1f4"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libgcc_s.so.1",
+      "bytes": 133696,
+      "sha256": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+      "artifact": "objects/f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20.gz",
+      "compressed_sha256": "b842f819314cb4e64b3041d67ac71b7b85596ccbdd60f67dc8ffa802f42cbf59"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libgmp.so.10",
+      "bytes": 526632,
+      "sha256": "39b6701812ed7135f28df49352b3f6664c7a9f56880a3fe50c1b87cd7681db9b",
+      "artifact": "objects/39b6701812ed7135f28df49352b3f6664c7a9f56880a3fe50c1b87cd7681db9b.gz",
+      "compressed_sha256": "7eb280ce6e6ec9605e931a2c9ac9324bfc3f9e493ca256c0e60f45caf8bbbfaa"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libgnutls.so.30",
+      "bytes": 2171912,
+      "sha256": "17ffd34fd0bc239903ca37e95bb14eab6ee986c8d1260a5a08f16e0bfc669739",
+      "artifact": "objects/17ffd34fd0bc239903ca37e95bb14eab6ee986c8d1260a5a08f16e0bfc669739.gz",
+      "compressed_sha256": "c665d30a876a9cd8507e3205dc03044792b0259557283f25ab320669696c7ca3"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libgssapi_krb5.so.2",
+      "bytes": 334304,
+      "sha256": "bc7d5e3ea14504c76dc71d9f7466dd3ac2589910d472412689de1d296722b086",
+      "artifact": "objects/bc7d5e3ea14504c76dc71d9f7466dd3ac2589910d472412689de1d296722b086.gz",
+      "compressed_sha256": "1cc7cdcd8c27c7d13553fd1239f600319b9812eaab2b1fcf92debe051a22914b"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libhogweed.so.6",
+      "bytes": 329656,
+      "sha256": "0495ad11a2266d7300436d57859fc8ebceac79e5235a393c42ae91d6fc23ce84",
+      "artifact": "objects/0495ad11a2266d7300436d57859fc8ebceac79e5235a393c42ae91d6fc23ce84.gz",
+      "compressed_sha256": "5e990c64326a764c93274498b98e4cb5c83bd667bdac603b14da6d806c9e2d84"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libidn2.so.0",
+      "bytes": 132968,
+      "sha256": "34a2427db57d47458b460ab15a24e7de73b56fbc7b458af837556445f60ffb4e",
+      "artifact": "objects/34a2427db57d47458b460ab15a24e7de73b56fbc7b458af837556445f60ffb4e.gz",
+      "compressed_sha256": "1bbf4088105cd0f34877fc6b6f5306e4a834bc18c214de90b152adf35df19100"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libk5crypto.so.3",
+      "bytes": 198920,
+      "sha256": "c6a2380d979bb168328b6dc35ec0d96f50338a7be23fb14f8444497dd8148e05",
+      "artifact": "objects/c6a2380d979bb168328b6dc35ec0d96f50338a7be23fb14f8444497dd8148e05.gz",
+      "compressed_sha256": "9327cc50b25cb02ab404f394dad0b15b286be9ab7909c716a1a1915356a6dbf3"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libkeyutils.so.1",
+      "bytes": 67432,
+      "sha256": "a58e06275e8e2010be20f367b7f2263e56130c04cb83523f29ae94555705ea59",
+      "artifact": "objects/a58e06275e8e2010be20f367b7f2263e56130c04cb83523f29ae94555705ea59.gz",
+      "compressed_sha256": "761ae0980c63bc18832d6d0e38ab348255dc2bbbf2a5c29ba0130b8004d28d08"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libkrb5.so.3",
+      "bytes": 859920,
+      "sha256": "af6c2e7313dbea842a1912a22f14daab2ea24877dd30e576a525b6becc5c029e",
+      "artifact": "objects/af6c2e7313dbea842a1912a22f14daab2ea24877dd30e576a525b6becc5c029e.gz",
+      "compressed_sha256": "3fff237dd5036e2e689385ae810be728fcb3114ae78eb58d24e277f506a63924"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libkrb5support.so.0",
+      "bytes": 68192,
+      "sha256": "6f4ce70567c2c953510bfa5c839f0ce7136330b127cb1746f7ce0ff6f4d4d4f5",
+      "artifact": "objects/6f4ce70567c2c953510bfa5c839f0ce7136330b127cb1746f7ce0ff6f4d4d4f5.gz",
+      "compressed_sha256": "1820b1dc79333ad90d85f94bbea5f6a0a5df924348162b33c96f1305b0d6e15b"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/liblber.so.2",
+      "bytes": 67792,
+      "sha256": "92e756c779c3fa77c4e8ad1ef0d97ebc2eaeccb2f9829da521691c52df4129d5",
+      "artifact": "objects/92e756c779c3fa77c4e8ad1ef0d97ebc2eaeccb2f9829da521691c52df4129d5.gz",
+      "compressed_sha256": "0e504da10dc3d1b9d63b58ecf9aacf56b9e0be3bc31ff97edcac2673eed8238f"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libldap.so.2",
+      "bytes": 396656,
+      "sha256": "6d3332e01734a21c0b1b18e993d6117a31f8227d3859556397704f266e18e262",
+      "artifact": "objects/6d3332e01734a21c0b1b18e993d6117a31f8227d3859556397704f266e18e262.gz",
+      "compressed_sha256": "237912b0255619e5b232b41130c2af356895dda74a60f24e198378cd79fb3fe5"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libm.so.6",
+      "bytes": 591800,
+      "sha256": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+      "artifact": "objects/5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a.gz",
+      "compressed_sha256": "9488f743d1c6a17f718c33675114f7f763b24c77602e48d2516fc3fb6fadd051"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libmpfr.so.6",
+      "bytes": 694240,
+      "sha256": "d3351b048bcab31ca6da447819c1f503d0551f1666ff89a6ebf9cce539c0a1fd",
+      "artifact": "objects/d3351b048bcab31ca6da447819c1f503d0551f1666ff89a6ebf9cce539c0a1fd.gz",
+      "compressed_sha256": "59c86ea8c3439db5035fefe35522ae7f4f72bd48490a8bbb8adced1b45f5769f"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libnettle.so.8",
+      "bytes": 395272,
+      "sha256": "8fd8ed433f1b993fe8b8aa8d3fa5342955ab581dc5ce418381872cd3df3dbb11",
+      "artifact": "objects/8fd8ed433f1b993fe8b8aa8d3fa5342955ab581dc5ce418381872cd3df3dbb11.gz",
+      "compressed_sha256": "f1bfcdcad2b1823cb11782a5a0104e5c47d7b6b1c5cc91f4156920d69b321bcb"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libp11-kit.so.0",
+      "bytes": 1889776,
+      "sha256": "d59c4e2e0135960aee4264dcfe21a677c15b8dc3561ace2f0b2297f79a890aec",
+      "artifact": "objects/d59c4e2e0135960aee4264dcfe21a677c15b8dc3561ace2f0b2297f79a890aec.gz",
+      "compressed_sha256": "241a11607f27a3f723406ba7d6f9c40ca99b1780b3d23d225ae3a712495f7fa2"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libpsl.so.5",
+      "bytes": 132888,
+      "sha256": "95bd0ee93925255421d4f2adc621ac26e451fae04f613c8edd368c288be43488",
+      "artifact": "objects/95bd0ee93925255421d4f2adc621ac26e451fae04f613c8edd368c288be43488.gz",
+      "compressed_sha256": "5c6eedffb7abcd3eb35cd5bacf6f33d52ec5e87a20ec2288e269515fb7bd7377"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libpython3.12.so.1.0",
+      "bytes": 9027968,
+      "sha256": "96b6d71c77f163145c9790517284119179537253b15bd7f5b79b1422939a9d7f",
+      "artifact": "objects/96b6d71c77f163145c9790517284119179537253b15bd7f5b79b1422939a9d7f.gz",
+      "compressed_sha256": "852c55389dd7615d6c6ffc3f0774b666762bd09e514605d59824474775abe23c"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libresolv.so.2",
+      "bytes": 67720,
+      "sha256": "92890287859788043628489a25fa39a623119328f6c0ac8e91f9ca60ab90650e",
+      "artifact": "objects/92890287859788043628489a25fa39a623119328f6c0ac8e91f9ca60ab90650e.gz",
+      "compressed_sha256": "5a27681ac3ae62e9c75d4843cd31ae39afaf38be019e9c8f7fe3262a6aad5497"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/librtmp.so.1",
+      "bytes": 133928,
+      "sha256": "0e449c6660fb3dc7e06c56034f41106e9cf48a3baf5d30c1e0b53a48276d0c51",
+      "artifact": "objects/0e449c6660fb3dc7e06c56034f41106e9cf48a3baf5d30c1e0b53a48276d0c51.gz",
+      "compressed_sha256": "bbf1e9d1184fc0f3a9aadefa52d3693866891fb1c5b8fee6c7d7f7cf608eebfc"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libsasl2.so.2",
+      "bytes": 133800,
+      "sha256": "f936a889bcc2d8b5ac8b89e2b37e4359bbd87cbbe87bd2b2002358dfffe04cce",
+      "artifact": "objects/f936a889bcc2d8b5ac8b89e2b37e4359bbd87cbbe87bd2b2002358dfffe04cce.gz",
+      "compressed_sha256": "1758a2e423b6636dc88ad368651c20f196cb4ce5ed860f0203e815dca179951a"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libsource-highlight.so.4",
+      "bytes": 726168,
+      "sha256": "5e8f90b9e5e45be84bcb512a8ede65afddc789e6ee93742e0a3e6804633379e3",
+      "artifact": "objects/5e8f90b9e5e45be84bcb512a8ede65afddc789e6ee93742e0a3e6804633379e3.gz",
+      "compressed_sha256": "72699b4e8b741968c743352f35baae90e660afba8cfdfd688ccb2da0b9826fcb"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libssh.so.4",
+      "bytes": 466056,
+      "sha256": "4128783c7842fa6076f2ab9dd5000772280a09dc0e061634b0261e35e00dc006",
+      "artifact": "objects/4128783c7842fa6076f2ab9dd5000772280a09dc0e061634b0261e35e00dc006.gz",
+      "compressed_sha256": "edc8ef855f581c32a78dd87d24facc840218ccc9557a7bc8cbfd9bf9fa3231ae"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libstdc++.so.6",
+      "bytes": 2633224,
+      "sha256": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+      "artifact": "objects/6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4.gz",
+      "compressed_sha256": "99587ff93253417de175409bc95c6d255a26a7e2ed760e80533df216ee00b6f6"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libtasn1.so.6",
+      "bytes": 133048,
+      "sha256": "039d653f8fdfa01240882b0033aca6887e1e9e6dc39acbea51d658fa75437955",
+      "artifact": "objects/039d653f8fdfa01240882b0033aca6887e1e9e6dc39acbea51d658fa75437955.gz",
+      "compressed_sha256": "5352532b8f75741a01320efa1128a8ca1692d007aa7bfaa185c37f06b6e0e950"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libtinfo.so.6",
+      "bytes": 265416,
+      "sha256": "2d2f2bb5a2dd09a3f54dfe7847a7f601203a0e3fed210cb58df740d07989f554",
+      "artifact": "objects/2d2f2bb5a2dd09a3f54dfe7847a7f601203a0e3fed210cb58df740d07989f554.gz",
+      "compressed_sha256": "ac42e5dc33f968b81a602174b64c818d68362ef22ef42eda49893ed08fe022ec"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libunistring.so.5",
+      "bytes": 1771448,
+      "sha256": "639c4c15f94e960450b69475d7282e4760fd5895a6a4f4e85f44bb15b74e512c",
+      "artifact": "objects/639c4c15f94e960450b69475d7282e4760fd5895a6a4f4e85f44bb15b74e512c.gz",
+      "compressed_sha256": "3423608f1d5f1b7c0e601b5b63326557d19e673cbd0f71dd491c0240ef3cdf6c"
+    },
+    {
+      "path": "provider//lib/aarch64-linux-gnu/libxxhash.so.0",
+      "bytes": 67352,
+      "sha256": "5c7ed17a05e5a566a780738f57b7563ed464f2c40960b4746d0bcbd43d5e7cc3",
+      "artifact": "objects/5c7ed17a05e5a566a780738f57b7563ed464f2c40960b4746d0bcbd43d5e7cc3.gz",
+      "compressed_sha256": "0c1479fca37d9f0be1b6daf0d1ac0a2721e613b02e4f4f4cdd6fa039286d667a"
+    },
+    {
+      "path": "provider//lib/ld-linux-aarch64.so.1",
+      "bytes": 203968,
+      "sha256": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505",
+      "artifact": "objects/390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505.gz",
+      "compressed_sha256": "6224b83837eefc71c3a40d0dad3d548890f3052f804dbf6037a399e788240d46"
+    },
+    {
+      "path": "provider//tmp/nano-string-scopes-final-euzv826l/normal-allocation",
+      "bytes": 15019040,
+      "sha256": "01164f0cec7feee171ad7e1ef6affc31d7f2728b970687f5262af20f79d2d0b6",
+      "artifact": "objects/01164f0cec7feee171ad7e1ef6affc31d7f2728b970687f5262af20f79d2d0b6.gz",
+      "compressed_sha256": "ee3daf811f622ab903780e608a0b8678f228712524f2a5abc1d9d6956c4e5ebc"
+    },
+    {
+      "path": "provider//usr/bin/gdb",
+      "bytes": 9251176,
+      "sha256": "0a7a6c0c020f1bb52054f89444aba5f2ba813b0ef4a1ff01f72ef97f7185d93c",
+      "artifact": "objects/0a7a6c0c020f1bb52054f89444aba5f2ba813b0ef4a1ff01f72ef97f7185d93c.gz",
+      "compressed_sha256": "4a745f79b7efde3578f66e808e69aeec0f03878fcfec7e720a3c78d34ad9f2d7"
+    },
+    {
+      "path": "input/.test_output/carrier-string-scopes-20261123/native-allocation-driver.c",
+      "bytes": 4100,
+      "sha256": "baf1da42912d8bc569cf3525d4a1504b58b5fe6eaffd7168207ab3cf95c8d802",
+      "artifact": "objects/baf1da42912d8bc569cf3525d4a1504b58b5fe6eaffd7168207ab3cf95c8d802.gz",
+      "compressed_sha256": "5db1f3353c7d76850355606bd29b0c971913ae393234713ac46f47822364c26e"
+    },
+    {
+      "path": "input/tests/fixtures/carrier_active_roots.nano",
+      "bytes": 2659,
+      "sha256": "dca702feb197ee94747f4d1f0060764078f2b30cbff8481f6e550575b8a44c83",
+      "artifact": "objects/dca702feb197ee94747f4d1f0060764078f2b30cbff8481f6e550575b8a44c83.gz",
+      "compressed_sha256": "abe92566144ac750a48a1326cec490600478e807376233f76e9a6142783cc718"
+    },
+    {
+      "path": "source/docs/ROADMAP.md",
+      "bytes": 2521115,
+      "sha256": "020b27a72d4d5db2ec06480cd9ab89ac4c7b39f159cf97cc0d1e773e11e43591",
+      "artifact": "objects/020b27a72d4d5db2ec06480cd9ab89ac4c7b39f159cf97cc0d1e773e11e43591.gz",
+      "compressed_sha256": "5ceaee5673a57fc252ce5297b79c1d44dbf42c583bacba029c072ba9394f6e0e"
+    },
+    {
+      "path": "source/docs/EVAL_CARRIER_OWNERSHIP.md",
+      "bytes": 31715,
+      "sha256": "f83a19fcfc7f99ecffed2b4b0bb7ea6427e999439c88f96041b262ee8ea30937",
+      "artifact": "objects/f83a19fcfc7f99ecffed2b4b0bb7ea6427e999439c88f96041b262ee8ea30937.gz",
+      "compressed_sha256": "2af3d9ad26e5526d2fd80a45c1849ed3b729d7c0a8ee85250bdcba12d0846ef9"
+    }
+  ],
+  "acceptance": {
+    "cache_delta_accounted_for_observed_run": true,
+    "ordinary_native_byte_gate": false,
+    "historical_1776_cause": false,
+    "default_activation": false,
+    "whole_release": false
+  }
+}
