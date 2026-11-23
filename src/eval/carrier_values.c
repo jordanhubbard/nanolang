@@ -292,6 +292,17 @@ bool nl_carrier_values_transfer(NlCarrierValues *heap, const NlCarrierRef *roots
     }
     heap->busy = false; return result;
 }
+bool nl_carrier_values_clear(NlCarrierValues *heap) {
+    if (!heap || heap->busy) return false;
+    heap->busy = true;
+    bool result = nl_carrier_heap_clear(heap->engine);
+    heap->busy = false; return result;
+}
+bool nl_carrier_values_contains(const NlCarrierValues *heap, NlCarrierRef ref) {
+    if (!heap) return false;
+    CarrierValue *value = nl_carrier_heap_context(heap->engine, value_key(ref));
+    return value && value_kind(value->ref) == value_kind(ref);
+}
 bool nl_carrier_values_free(NlCarrierValues *heap) {
     if (!heap) return true;
     if (heap->busy) return false;

@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "eval/carrier_runtime.h"
 #include "checked_borrow_facts.h"
 #include "nanoisa/file_source_snapshot.h"
 #include "service_namespace.h"
@@ -467,6 +468,11 @@ static void env_free_value(Value v) {
     }
 }
 
+/* I defer only explicitly registered binding storage to its owner. */
+static void env_release_binding_value(Environment *env, Value value) {
+    if (!env_carrier_owns(env, value)) env_free_value(value);
+}
+
 /* ── Alias-safe static-array reclamation ─────────────────────────────────
  * Static arrays are owned by the interpreter environment, not by one binding:
  * a container and its owned record/string elements can be referenced from
@@ -600,7 +606,7 @@ static void env_release_value_arrays(EnvArrayReclaim *ctx, Value v) {
 }
 
 void env_reclaim_static_arrays(Environment *env) {
-    if (!env) return;
+    if (!env || env_carrier_enabled(env)) return;
     EnvArrayReclaim ctx;
     memset(&ctx, 0, sizeof ctx);
     for (int i = 0; i < env->symbol_count; i++) {
@@ -631,8 +637,9 @@ void free_environment(Environment *env) {
             free(env->symbols[i].struct_type_name);
         }
         if (!env_type_borrows_value(env->symbols[i].type))
-            env_free_value(env->symbols[i].value);
+            env_release_binding_value(env, env->symbols[i].value);
     }
+    env_carrier_close(env);
     free(env->symbols);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
@@ -873,6 +880,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         StructValue *sv = value.as.struct_val;
         value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        env_carrier_track_binding(env, value);
     }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
@@ -1167,8 +1175,9 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
         if (value.type == VAL_STRUCT && value.as.struct_val) {
             StructValue *sv = value.as.struct_val;
             value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        env_carrier_track_binding(env, value);
         }
-        env_free_value(sym->value);
+        env_release_binding_value(env, sym->value);
         sym->value = value;
 
         /* GC refcount fix: If the new string value is already referenced by
@@ -2002,7 +2011,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
@@ -2015,16 +2024,16 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_push(list: List<T>*, value: T) -> void */
     snprintf(func_name, sizeof(func_name), "%s_push", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("value");
+    params[1].name = env_own_checker_allocation(env, strdup("value"));
     params[1].type = TYPE_STRUCT;
-    params[1].struct_type_name = strdup(element_type);
+    params[1].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_VOID;
@@ -2036,20 +2045,20 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_get(list: List<T>*, index: int) -> T */
     snprintf(func_name, sizeof(func_name), "%s_get", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 2;
-    params = calloc(2, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(2, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;
-    params[1].name = strdup("index");
+    params[1].name = env_own_checker_allocation(env, strdup("index"));
     params[1].type = TYPE_INT;
     params[1].struct_type_name = NULL;
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_STRUCT;
-    func.return_struct_type_name = strdup(element_type);
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
@@ -2057,10 +2066,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     
     /* List_T_length(list: List<T>*) -> int */
     snprintf(func_name, sizeof(func_name), "%s_length", specialized);
-    func.name = strdup(func_name);
+    func.name = env_own_checker_allocation(env, strdup(func_name));
     func.param_count = 1;
-    params = calloc(1, sizeof(Parameter));
-    params[0].name = strdup("list");
+    params = env_own_checker_allocation(env, calloc(1, sizeof(Parameter)));
+    params[0].name = env_own_checker_allocation(env, strdup("list"));
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
     params[0].element_type = TYPE_UNKNOWN;

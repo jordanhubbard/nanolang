@@ -866,6 +866,7 @@ typedef struct {
     GlobalImport *global_imports;
     int symbol_count;
     int symbol_capacity;
+    struct NlEvalCarrierSession *carrier_session; /* Private, explicitly enabled qualification ownership. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;

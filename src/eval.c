@@ -5,6 +5,7 @@
 #include "eval/call_dispatch.h"
 
 #include "nanolang.h"
+#include "eval/carrier_runtime.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -188,6 +189,42 @@ char *nl_unescape_string(const char *raw) {
 }
 
 /* Forward declarations */
+static Environment *g_carrier_environment;
+static Value eval_create_struct(const char *name, char **fields, Value *values, int count) {
+    Value value = create_struct(name, fields, values, count);
+    env_carrier_track(g_carrier_environment, value, true); return value;
+}
+static Value eval_create_union(const char *name, int variant, const char *tag,
+                                char **fields, Value *values, int count) {
+    Value value = create_union(name, variant, tag, fields, values, count);
+    env_carrier_track(g_carrier_environment, value, true); return value;
+}
+static Value eval_create_tuple(Value *values, int count) {
+    Value value = create_tuple(values, count);
+    env_carrier_track(g_carrier_environment, value, false); return value;
+}
+static Value eval_create_array(ValueType type, int length, int capacity) {
+    Value value = create_array(type, length, capacity);
+    env_carrier_track(g_carrier_environment, value, false); return value;
+}
+static bool eval_has_tracked_record(StructValue *record) {
+    Value value = create_void(); value.type = VAL_STRUCT; value.as.struct_val = record;
+    return env_carrier_owns(g_carrier_environment, value);
+}
+static Value eval_expression_impl(ASTNode *expr, Environment *env);
+static Value eval_statement_impl(ASTNode *stmt, Environment *env);
+static Value eval_expression(ASTNode *expr, Environment *env) {
+    if (!env_carrier_enabled(env) && !g_carrier_environment) return eval_expression_impl(expr, env);
+    Environment *saved = g_carrier_environment; g_carrier_environment = env;
+    env_carrier_enter(env); Value value = eval_expression_impl(expr, env); env_carrier_leave(env);
+    g_carrier_environment = saved; return value;
+}
+static Value eval_statement(ASTNode *stmt, Environment *env) {
+    if (!env_carrier_enabled(env) && !g_carrier_environment) return eval_statement_impl(stmt, env);
+    Environment *saved = g_carrier_environment; g_carrier_environment = env;
+    env_carrier_enter(env); Value value = eval_statement_impl(stmt, env); env_carrier_leave(env);
+    g_carrier_environment = saved; return value;
+}
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
 
@@ -250,6 +287,7 @@ static bool eval_match_owns_empty_literal(const ASTNode *scrutinee, Value value)
 }
 
 static void eval_match_release_empty_literal(Value value, bool owned, Value result) {
+    if (env_carrier_owns(g_carrier_environment, value)) return;
     if (!owned || (result.type == VAL_UNION &&
                    result.as.union_val == value.as.union_val)) return;
     UnionValue *u = value.as.union_val;
@@ -1153,7 +1191,7 @@ static Value builtin_at(Value *args) {
                 return create_string(((char**)arr->data)[index]);
             case VAL_STRUCT: {
                 StructValue *sv = ((StructValue**)arr->data)[index];
-                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                return eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
             }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
@@ -1192,7 +1230,7 @@ static Value builtin_at(Value *args) {
                 void *raw = dyn_array_get_struct(arr, index);
                 if (!raw) return create_void();
                 StructValue *sv = *(StructValue**)raw;
-                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                return eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
             }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
@@ -1231,7 +1269,7 @@ static Value builtin_array_new(Value *args) {
     }
     
     ValueType elem_type = args[1].type;
-    Value arr = create_array(elem_type, size, size);
+    Value arr = eval_create_array(elem_type, size, size);
     
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
@@ -1255,7 +1293,7 @@ static Value builtin_array_new(Value *args) {
                 ((char**)arr.as.array_val->data)[i] = strdup(args[1].as.string_val);
                 break;
             case VAL_STRUCT: {
-                Value copy = create_struct(args[1].as.struct_val->struct_name,
+                Value copy = eval_create_struct(args[1].as.struct_val->struct_name,
                     args[1].as.struct_val->field_names,
                     args[1].as.struct_val->field_values,
                     args[1].as.struct_val->field_count);
@@ -1312,7 +1350,7 @@ static Value builtin_array_set(Value *args) {
             case VAL_DYN_ARRAY: dyn_array_set_array(arr, index, args[2].as.dyn_array_val); break;
             case VAL_STRUCT: {
                 StructValue *sv = args[2].as.struct_val;
-                Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                Value copy = eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
                 StructValue *stored = copy.as.struct_val;
                 dyn_array_set_struct(arr, index, &stored, sizeof(stored));
                 break;
@@ -1399,7 +1437,7 @@ static Value builtin_array_set(Value *args) {
                 return create_void();
             }
             {
-                Value copy = create_struct(args[2].as.struct_val->struct_name,
+                Value copy = eval_create_struct(args[2].as.struct_val->struct_name,
                     args[2].as.struct_val->field_names,
                     args[2].as.struct_val->field_values,
                     args[2].as.struct_val->field_count);
@@ -1435,7 +1473,7 @@ static Value builtin_array_slice(Value *args) {
         if (end > len) end = len;
         int64_t out_len = end - start;
 
-        Value out = create_array(arr->element_type, out_len, out_len);
+        Value out = eval_create_array(arr->element_type, out_len, out_len);
         out.as.array_val->is_byte_array = arr->is_byte_array;
         switch (arr->element_type) {
             case VAL_BSTRING:
@@ -1472,7 +1510,7 @@ static Value builtin_array_slice(Value *args) {
             case VAL_STRUCT:
                 for (int64_t i = 0; i < out_len; i++) {
                     StructValue *sv = ((StructValue**)arr->data)[start + i];
-                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    Value copy = eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
                     ((StructValue**)out.as.array_val->data)[i] = copy.as.struct_val;
                 }
                 break;
@@ -1507,7 +1545,7 @@ static Value builtin_array_slice(Value *args) {
                         return create_void();
                     }
                     StructValue *sv = *(StructValue**)raw;
-                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    Value copy = eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
                     StructValue *sv_copy = copy.as.struct_val;
                     dyn_array_push_struct(out, &sv_copy, sizeof(StructValue*));
                     break;
@@ -1663,7 +1701,7 @@ static Value builtin_array_push(Value *args) {
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
         case VAL_STRUCT: {
-            Value copy = create_struct(args[1].as.struct_val->struct_name,
+            Value copy = eval_create_struct(args[1].as.struct_val->struct_name,
                 args[1].as.struct_val->field_names,
                 args[1].as.struct_val->field_values,
                 args[1].as.struct_val->field_count);
@@ -1737,7 +1775,7 @@ static Value builtin_array_pop(Value *args) {
             StructValue *sv = NULL;
             dyn_array_pop_struct(arr, &sv, sizeof(StructValue*), &success);
             if (!success || !sv) return create_void();
-            return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            return eval_create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
         }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
@@ -2142,7 +2180,7 @@ static Value builtin_map(Value *args, Environment *env) {
         int64_t len = input_arr->length;
         
         /* I retain declared scalar output types even when no callback runs. */
-        Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
+        Value result = eval_create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
         output_arr->is_byte_array = byte_result;
         
@@ -2181,7 +2219,7 @@ static Value builtin_map(Value *args, Environment *env) {
                     break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)input_arr->data)[i];
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2253,7 +2291,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         return create_void();
                     }
                     StructValue *record = transformed.as.struct_val;
-                    Value copy = create_struct(record->struct_name, record->field_names,
+                    Value copy = eval_create_struct(record->struct_name, record->field_names,
                                                record->field_values, record->field_count);
                     ((StructValue**)output_arr->data)[i] = copy.as.struct_val;
                     break;
@@ -2308,7 +2346,7 @@ static Value builtin_map(Value *args, Environment *env) {
             fprintf(stderr, "I cannot represent this interpreted binary-string array length.\n");
             return create_void();
         }
-        Value binary_array = binary_output ? create_array(VAL_BSTRING, (int)len, (int)len) : create_void();
+        Value binary_array = binary_output ? eval_create_array(VAL_BSTRING, (int)len, (int)len) : create_void();
         DynArray *output_arr = binary_output ? NULL : dyn_array_new(output_type);
 
         /* Apply transform to each element */
@@ -2341,7 +2379,7 @@ static Value builtin_map(Value *args, Environment *env) {
                     break;
                 case ELEM_STRUCT: {
                     StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2417,7 +2455,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         return create_void();
                     }
                     StructValue *record = transformed.as.struct_val;
-                    Value copy = create_struct(record->struct_name, record->field_names,
+                    Value copy = eval_create_struct(record->struct_name, record->field_names,
                                                record->field_values, record->field_count);
                     dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
                     break;
@@ -2455,7 +2493,7 @@ static Value builtin_filter(Value *args, Environment *env) {
     if (args[0].type == VAL_ARRAY && args[0].as.array_val->element_type == VAL_FUNCTION) {
         Array *input = args[0].as.array_val;
         int length = input->length;
-        Value result = create_array(VAL_FUNCTION, 0, length);
+        Value result = eval_create_array(VAL_FUNCTION, 0, length);
         Array *output = result.as.array_val;
         for (int i = 0; i < length; ++i) {
             if (i >= input->length) {
@@ -2516,7 +2554,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)input_arr->data)[i];
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2542,7 +2580,7 @@ static Value builtin_filter(Value *args, Environment *env) {
             if (keep[i]) out_len++;
         }
 
-        Value result = create_array(input_arr->element_type, out_len, out_len);
+        Value result = eval_create_array(input_arr->element_type, out_len, out_len);
         Array *output_arr = result.as.array_val;
         output_arr->is_byte_array = input_arr->is_byte_array;
 
@@ -2568,7 +2606,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)input_arr->data)[i];
-                    Value copy = create_struct(record->struct_name, record->field_names,
+                    Value copy = eval_create_struct(record->struct_name, record->field_names,
                                                record->field_values, record->field_count);
                     ((StructValue**)output_arr->data)[out_i] = copy.as.struct_val;
                     break;
@@ -2618,7 +2656,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     break;
                 case ELEM_STRUCT: {
                     StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2663,7 +2701,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     break;
                 case ELEM_STRUCT: {
                     StructValue *record = elem.as.struct_val;
-                    Value copy = create_struct(record->struct_name, record->field_names,
+                    Value copy = eval_create_struct(record->struct_name, record->field_names,
                                                record->field_values, record->field_count);
                     dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
                     break;
@@ -2734,7 +2772,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)arr->data)[i];
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2823,7 +2861,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     break;
                 case ELEM_STRUCT: {
                     StructValue *record = *(StructValue**)dyn_array_get_struct(arr, i);
-                    elem = create_struct(record->struct_name, record->field_names,
+                    elem = eval_create_struct(record->struct_name, record->field_names,
                                          record->field_values, record->field_count);
                     break;
                 }
@@ -2916,11 +2954,11 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 Array *a = arg.as.array_val;
                 if (!a) return create_void();
                 if (a->element_type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_array(VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) ((long long*)out.as.array_val->data)[i] = -((long long*)a->data)[i];
                     return out;
                 } else if (a->element_type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_array(VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) ((double*)out.as.array_val->data)[i] = -((double*)a->data)[i];
                     return out;
                 }
@@ -2996,7 +3034,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                     fprintf(stderr, "Error: Array mismatch in operator\n");
                     return create_void();
                 }
-                Value out = create_array(a->element_type, a->length, a->length);
+                Value out = eval_create_array(a->element_type, a->length, a->length);
                 for (int i = 0; i < a->length; i++) {
                     switch (a->element_type) {
                         case VAL_INT: {
@@ -3058,7 +3096,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
 
                 if (a->element_type == VAL_INT && right.type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_array(VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         long long x = ((long long*)a->data)[i];
                         long long s = right.as.int_val;
@@ -3077,7 +3115,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 }
 
                 if (a->element_type == VAL_FLOAT && right.type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_array(VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         double x = ((double*)a->data)[i];
                         double s = right.as.float_val;
@@ -3099,7 +3137,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: string arrays only support +\n");
                         return create_void();
                     }
-                    Value out = create_array(VAL_STRING, a->length, a->length);
+                    Value out = eval_create_array(VAL_STRING, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         const char *x = ((char**)a->data)[i];
                         const char *s = right.as.string_val;
@@ -3121,7 +3159,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 if (!a) return create_void();
 
                 if (a->element_type == VAL_INT && left.type == VAL_INT) {
-                    Value out = create_array(VAL_INT, a->length, a->length);
+                    Value out = eval_create_array(VAL_INT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         long long s = left.as.int_val;
                         long long y = ((long long*)a->data)[i];
@@ -3140,7 +3178,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 }
 
                 if (a->element_type == VAL_FLOAT && left.type == VAL_FLOAT) {
-                    Value out = create_array(VAL_FLOAT, a->length, a->length);
+                    Value out = eval_create_array(VAL_FLOAT, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         double s = left.as.float_val;
                         double y = ((double*)a->data)[i];
@@ -3162,7 +3200,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         fprintf(stderr, "Error: string arrays only support +\n");
                         return create_void();
                     }
-                    Value out = create_array(VAL_STRING, a->length, a->length);
+                    Value out = eval_create_array(VAL_STRING, a->length, a->length);
                     for (int i = 0; i < a->length; i++) {
                         const char *s = left.as.string_val;
                         const char *y = ((char**)a->data)[i];
@@ -4289,6 +4327,8 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                             sv_copy->field_values[i] = copy_array_callable(sv_copy->field_values[i]);
                         }
                     }
+                    Value tracked = create_void(); tracked.type = VAL_STRUCT; tracked.as.struct_val = sv_copy;
+                    env_carrier_track(g_carrier_environment, tracked, false);
                     list_int_push(list, (int64_t)sv_copy);
                 } else {
                     /* For non-struct types, store as int */
@@ -4907,7 +4947,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 return create_void();
             }
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
-            if (!hm) return create_array(VAL_INT, 0, 0);
+            if (!hm) return eval_create_array(VAL_INT, 0, 0);
 
             bool is_keys = (call_name == EVAL_CALL_map_keys);
             ValueType elem_type;
@@ -4917,7 +4957,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 elem_type = (hm->val_type == NL_HM_VAL_STRING) ? VAL_STRING : VAL_INT;
             }
 
-            Value out = create_array(elem_type, (int)hm->size, (int)hm->size);
+            Value out = eval_create_array(elem_type, (int)hm->size, (int)hm->size);
             int out_idx = 0;
             for (int64_t i = 0; i < hm->capacity; i++) {
                 NLHashMapEntry *e = &hm->entries[i];
@@ -4958,6 +4998,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                     /* List_TypeName_new() -> List<TypeName> */
                     /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
                     DynArray *list = dyn_array_new(ELEM_INT);
+                    env_carrier_track_list(g_carrier_environment, list);
                     free(type_name);
                     return create_int((long long)list);
                 } else if (strcmp(func_suffix, "push") == 0) {
@@ -5156,6 +5197,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
         return_value.is_break = false;
         return_value.is_continue = false;
         return_value.as.struct_val = dst;
+        env_carrier_track(g_carrier_environment, return_value, false);
     }
 
     /* I consume only returns addressed to this call, not an enclosing handler owner. */
@@ -5417,12 +5459,14 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
 /* I discard only record/string storage cloned by create_struct. Arrays and
  * other referenced fields remain borrowed, as in that constructor. */
+#define NANO_KEEP_OWNED_RECORD(record) eval_has_tracked_record(record)
 #include "eval/record_carrier_cleanup.inc"
+#undef NANO_KEEP_OWNED_RECORD
 
 /* I retire callable copies only in a fresh create_struct literal tree.
  * The generic raw-array/legacy carrier cleanup keeps its existing policy. */
 static void discard_literal_callable_fields(StructValue *record) {
-    if (!record) return;
+    if (!record || eval_has_tracked_record(record)) return;
     for (int i = 0; i < record->field_count; ++i) {
         Value field = record->field_values[i];
         if (field.type == VAL_FUNCTION) discard_array_callable(field);
@@ -5441,6 +5485,8 @@ static void discard_copied_binding_literal(ASTNode *expression, Value value, con
 }
 
 static void discard_partial_owned_array(Array *array, int initialized) {
+    Value tracked = create_void(); tracked.type = VAL_ARRAY; tracked.as.array_val = array;
+    if (env_carrier_owns(g_carrier_environment, tracked)) return;
     for (int i = 0; i < initialized; i++) {
         if (array->element_type == VAL_FUNCTION) discard_array_callable(((Value *)array->data)[i]);
         else if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
@@ -5452,7 +5498,7 @@ static void discard_partial_owned_array(Array *array, int initialized) {
 }
 
 /* Evaluate expression */
-static Value eval_expression(ASTNode *expr, Environment *env) {
+static Value eval_expression_impl(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
 
 
@@ -5611,7 +5657,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case TYPE_STRUCT: element = VAL_STRUCT; break;
                     default: break;
                 }
-                Value empty = create_array(element, 0, 0);
+                Value empty = eval_create_array(element, 0, 0);
                 empty.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
                 return empty;
             }
@@ -5623,7 +5669,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (elem_type == VAL_DYN_ARRAY) elem_type = VAL_ARRAY;
             
             /* Create array */
-            Value arr = create_array(elem_type, count, count);
+            Value arr = eval_create_array(elem_type, count, count);
             arr.as.array_val->is_byte_array = expr->as.array_literal.element_type == TYPE_U8;
             
             /* Set elements */
@@ -5664,7 +5710,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         break;
                     case VAL_STRUCT: {
                         StructValue *sv = elem.as.struct_val;
-                        Value copy = create_struct(sv->struct_name, sv->field_names,
+                        Value copy = eval_create_struct(sv->struct_name, sv->field_names,
                                                    sv->field_values, sv->field_count);
                         ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
                         break;
@@ -5750,7 +5796,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                 }
                             }
 
-                            Value result = create_union(union_name_buf, variant_idx, variant_name,
+                            Value result = eval_create_union(union_name_buf, variant_idx, variant_name,
                                                       expr->as.struct_literal.field_names, field_values, field_count);
 
                             eval_discard_callable_values(field_values, field_count);
@@ -5823,7 +5869,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                  * produce a struct named T rather than whatever base's type was. */
                 const char *res_name = struct_name ? struct_name
                                      : (base_sv ? base_sv->struct_name : NULL);
-                Value result = create_struct(res_name ? res_name : "anonymous",
+                Value result = eval_create_struct(res_name ? res_name : "anonymous",
                                              merged_names, merged_values, merged_count);
                 eval_discard_callable_values(merged_values + borrowed_fields,
                                              merged_count - borrowed_fields);
@@ -5866,7 +5912,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             
             /* Create struct value */
-            Value result = create_struct(struct_name, field_names, field_values, field_count);
+            Value result = eval_create_struct(struct_name, field_names, field_values, field_count);
             
             
             /* I retire copied callable expression inputs, not borrowed containers. */
@@ -5984,7 +6030,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 }
             }
             
-            Value result = create_union(union_name, variant_idx, variant_name, 
+            Value result = eval_create_union(union_name, variant_idx, variant_name,
                                        field_names, field_values, field_count);
             
             /* Free temporary arrays after their callable inputs were copied. */
@@ -6037,9 +6083,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                 field_names[field] = union_value->field_names[field];
                                 field_values[field] = union_value->field_values[field];
                             }
-                            binding_value = create_struct(
+                            binding_value = eval_create_struct(
                                 union_value->union_name, field_names, field_values,
                                 union_value->field_count);
+                            free(field_names);
+                            free(field_values);
                         } else {
                             binding_value = create_void();
                         }
@@ -6106,7 +6154,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Empty tuple */
             if (element_count == 0) {
-                return create_tuple(NULL, 0);
+                return eval_create_tuple(NULL, 0);
             }
             
             /* Evaluate each element */
@@ -6122,7 +6170,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             /* Create tuple value */
-            Value result = create_tuple(elements, element_count);
+            Value result = eval_create_tuple(elements, element_count);
             eval_discard_callable_values(elements, element_count);
             free(elements);  /* create_tuple makes a copy */
             
@@ -6285,7 +6333,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 }
 
 /* Evaluate statement */
-static Value eval_statement(ASTNode *stmt, Environment *env) {
+static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
     if (!stmt) return create_void();
 
     /* DAP breakpoint/step hook — fires before each statement when debugging */
@@ -7090,6 +7138,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
                 /* List_TypeName_new() -> List<TypeName> */
                 /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
                 DynArray *list = dyn_array_new(ELEM_INT);
+                    env_carrier_track_list(g_carrier_environment, list);
                 free(type_name);
                 return create_int((long long)list);
             } else if (strcmp(func_suffix, "push") == 0) {
@@ -7239,9 +7288,26 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
 
 Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
     /* A builtin callback inherits its invoking call. Host calls have no location. */
-    return call_function_at(name, args, arg_count, env,
-                            g_eval_call_site ? g_eval_call_site->line : 0,
-                            g_eval_call_site ? g_eval_call_site->column : 0);
+    if (!env_carrier_enabled(env) && !g_carrier_environment)
+        return call_function_at(name, args, arg_count, env,
+                                g_eval_call_site ? g_eval_call_site->line : 0,
+                                g_eval_call_site ? g_eval_call_site->column : 0);
+    Environment *saved = g_carrier_environment;
+    g_carrier_environment = env; env_carrier_enter(env);
+    Value value = call_function_at(name, args, arg_count, env,
+                                  g_eval_call_site ? g_eval_call_site->line : 0,
+                                  g_eval_call_site ? g_eval_call_site->column : 0);
+    env_carrier_leave(env); g_carrier_environment = saved;
+    if (!saved && env_carrier_enabled(env)) {
+        const char *suffix = strrchr(name, '_');
+        bool generic = strncmp(name, "List_", 5) == 0;
+        bool borrowed_get = generic && suffix && strcmp(suffix, "_get") == 0;
+        Function *function = generic ? NULL : env_get_function(env, name);
+        bool list = (generic && suffix && strcmp(suffix, "_new") == 0) ||
+            (function && function->return_type == TYPE_LIST_GENERIC);
+        if (!borrowed_get) env_carrier_export(env, value, list);
+    }
+    return value;
 }
 
 /* ============================================================================

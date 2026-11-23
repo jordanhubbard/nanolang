@@ -1,6 +1,9 @@
 /* I share actual owned record-literal cleanup with my boundary unit. */
 static void discard_literal_record(StructValue *record) {
     if (!record) return;
+#ifdef NANO_KEEP_OWNED_RECORD
+    if (NANO_KEEP_OWNED_RECORD(record)) return;
+#endif
     for (int i = 0; i < record->field_count; i++) {
         Value field = record->field_values[i];
         if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);

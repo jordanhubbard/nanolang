@@ -13,6 +13,8 @@ NlCarrierRef nl_carrier_value(Value value);
 NlCarrierRef nl_carrier_record_list(DynArray *list);
 NlCarrierValues *nl_carrier_values_new(void);
 bool nl_carrier_values_free(NlCarrierValues *heap);
+bool nl_carrier_values_clear(NlCarrierValues *heap);
+bool nl_carrier_values_contains(const NlCarrierValues *heap, NlCarrierRef value);
 /* I adopt exactly one header and its owned STRING/FUNCTION scalar storage.
  * Aggregate children remain separately owned. A list must be a managed
  * ELEM_INT record-pointer list; I do not own its referenced records implicitly.

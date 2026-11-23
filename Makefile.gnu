@@ -218,7 +218,7 @@ EXAMPLES_STAGE_SUFFIX = $(if $(EXAMPLES_IS_NANOISA),_nanoisa,$(if $(filter $(EXA
 EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_STAGE_SUFFIX))
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c $(SRC_DIR)/tracing.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c $(SRC_DIR)/tracing.c $(SRC_DIR)/eval/carrier_heap.c $(SRC_DIR)/eval/carrier_values.c $(SRC_DIR)/eval/carrier_runtime.c
 COMMON_SOURCES += $(SRC_DIR)/checked_borrow_facts.c $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c $(SRC_DIR)/service_namespace.c $(SRC_DIR)/service_bodies.c $(SRC_DIR)/service_ownership.c
 COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nanoisa/websocket_flow.o $(OBJ_DIR)/nanoisa/websocket_codec.o $(OBJ_DIR)/nanoisa/service_websocket_nominal.o $(OBJ_DIR)/nanoisa/service_websocket_nominal_plan.o $(OBJ_DIR)/nsi_websocket_binding.o $(OBJ_DIR)/nsi_websocket_plan.o $(OBJ_DIR)/nanoisa/service_multi_nominal.o $(OBJ_DIR)/nanoisa/service_multi_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o $(OBJ_DIR)/nsi_socket_binding.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
 COMPILER_INPUT_ARCHIVE = lib/libnano_compiler_inputs.a
@@ -1547,9 +1547,16 @@ test-eval-carrier-heap:
 
 test-units: test-eval-carrier-heap
 
+.PHONY: test-env-generated-list-metadata
+test-env-generated-list-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_env_generated_list_metadata tests/test_env_generated_list_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_env_generated_list_metadata
+
+test-units: test-env-generated-list-metadata
+
 .PHONY: test-eval-carrier-values
 test-eval-carrier-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o
-	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_values tests/test_eval_carrier_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_values tests/test_eval_carrier_values.c $(filter-out $(OBJ_DIR)/eval/carrier_heap.o $(OBJ_DIR)/eval/carrier_values.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_heap_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(LDFLAGS)
 	$(OBJ_DIR)/test_eval_carrier_values
 
 $(OBJ_DIR)/eval_carrier_heap_allocations.o: src/eval/carrier_heap.c src/eval/carrier_heap.h tests/support/carrier_value_allocations.h Makefile.gnu | $(OBJ_DIR)
@@ -1577,6 +1584,8 @@ test-units: test-eval-scalar-projection-sources
 
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
+
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_trace_metadata_test.o: src/eval/carrier_runtime.h src/eval/carrier_values.h src/eval/carrier_heap.h
 
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_frame_metadata_test.o: src/eval/call_arguments.h
 

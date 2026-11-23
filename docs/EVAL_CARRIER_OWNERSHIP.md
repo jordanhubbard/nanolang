@@ -144,3 +144,62 @@ clone registration, binding/evaluation/argument/typed-field/host/async roots,
 early discard and automatic GC/extern-list lifetime integration remain next.
 The original typed-list source UAF and full source leak reports stay open under
 #1211/#1116/#1140; these C/API storage controls do not accept the source pipeline.
+
+## I qualify real source allocation tracking before default activation
+
+My private `env_carrier_enable` now connects actual evaluator constructors,
+both manual record clones and owned binding copies to a session. It is not
+selected by my CLI or ordinary environment creation. A private Environment
+pointer stores the session; Value/container/FFI layouts are unchanged. The
+tracking-enabled accessor is inline on the disabled evaluator path. Original
+programs keep the legacy carrier policy until complete roots are qualified.
+
+I register fresh interpreter-created record/union/tuple/static-array storage
+and actual uppercase typed record-list producers explicitly. Deep constructor
+record copies are registered individually; manual shallow clones retain shared
+children. Legacy external constructor calls are not automatically adopted.
+Outside evaluation I retain the old shallow nested-record binding policy.
+Tracked binding replacement and literal/callable/empty-union/partial-array
+retirement defer to session ownership; unregistered storage retains legacy
+cleanup. Teardown retires registered headers before definition metadata.
+Recognized host aggregate results transfer out; typed-list get remains a
+borrowed identity-preserving result. This staging does not establish complete
+host/typed-field/argument/async/external-list or automatic GC lifetime rules.
+
+Both unchanged source fixtures now pass privately enabled ASan/UBSan+LSan:
+the original record/union fixture retires19 registrations as18 destructions
+and1 caller transfer; the scalar fixture retires18 as16 destructions and2
+transfers. All six/seven original shadows complete and caller/constructor
+checks remain. The unchanged typed-list source/API witness also passes;
+its source run retires all12 registered carriers. No assertion, shadow
+selection, static permission or original deadline changes.
+
+I retain the first privately enabled full LSan failures:120bytes/6 allocations
+and80/4 are shallow match-binding name/value scratch vectors. My constructor
+copies them, so I now release only those vectors immediately afterward. This
+also improves the default full reports from3720/159 to3600/153 and1937/82 to
+1857/78; default carrier ownership remains incomplete. The source witness
+separately exposes379/14 generated-list descriptor allocations. Under #1212
+I register only their fourteen explicit blocks with the existing checker
+owner. Repeated four-prototype lookup/idempotence/borrowed-declaration and
+actual source/AST teardown pass; the unchanged direct control fails against
+retained old providers with36632bytes/1456 allocations. AST declarations and
+static builtin caches remain borrowed.
+
+Fresh complete normal/sanitizer providers pass all134 original evaluator and88
+checker methods (broad sanitizer runs explicitly disable leak detection),
+complete engine/storage/binding/borrowed-value controls and generated metadata
+controls. Privately enabled source fixtures keep leak detection enabled.
+Default source/API replacement still fails ASan; I retain both failures and
+the current complete default leak reports. Private qualification is not a
+repair of the default source pipeline.
+
+My new actual-source retention observation executes two unchanged64-call
+record-case batches. Live registered carriers grow18 ->210 ->402 with no
+intermediate destructions. Final teardown balances403 registrations as402
+destructions and1 transfer under LSan. This is exact ownership accounting,
+not bounded live heap acceptance. I must next supply complete active-value,
+binding, checked typed-field/list, argument, host and async roots and external
+release/GC-shutdown lifetimes before collecting during calls/loops and enabling
+tracking by default. #1116/#1140/#1211 and full source/platform/release acceptance
+remain open; I do not replace them with teardown-only success.
