@@ -1,0 +1,12 @@
+{
+  "records": 3638,
+  "Git_source_inputs": 3612,
+  "all_hashes_and_lengths_match": true,
+  "original_methods": 129,
+  "unchanged_conditional_skips": 19,
+  "response_cases": 600,
+  "response_returncode_stdout_matches": 600,
+  "response_stderr_matches": 600,
+  "source_and_observed_tool_images_unchanged": true,
+  "scope": "I validate Python/Git data only. I execute no native target. This capture component at0d is separate from later-source/full-platform/release acceptance; installed system tools and dynamic-library closure are not redistributed or claimed frozen."
+}

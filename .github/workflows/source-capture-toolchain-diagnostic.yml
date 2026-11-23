@@ -22,6 +22,40 @@ on:
         description: I qualify actual selected-driver response grammar with original transport controls.
         type: boolean
         default: false
+      qualify_clang_2118_complete:
+        description: I observe the complete source/response corpus and cold capture with a private Clang21 candidate, preserving GNU admission.
+        type: boolean
+        default: false
+      clang_2118_backend:
+        description: I compare the system backend with already-supported GNU2.42 only inside private Clang qualification.
+        type: choice
+        options: [system, qualified-as242]
+        default: system
+      qualify_fixed_as246_complete:
+        description: I qualify an identified fixed GNU2.46 source profile through upstream GAS and original capture/user-guide gates.
+        type: boolean
+        default: false
+      fixed_userguide_from_run:
+        description: I run only the ordinary ten-second guide gate after matching this completed fixed-capture run.
+        type: string
+        default: ''
+      fixed_gcc_from_run:
+        description: I qualify a fresh complete GCC consumer using this completed producer without rebuilding GAS.
+        type: string
+        default: ''
+      fixed_clang_from_run:
+        description: I qualify the complete Clang consumer using this completed fixed-GCC producer without rebuilding GAS.
+        type: string
+        default: ''
+      profile_capture_method:
+        description: I select one original method for bounded retained-image observation.
+        type: choice
+        options: [external-cache, split-search, split-search-process, split-search-shell]
+        default: external-cache
+      profile_fixed_clang_from_run:
+        description: I measure original native external-cache assertions across this retained consumer's tool axes without a full retry.
+        type: string
+        default: ''
   push:
     branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
@@ -32,10 +66,14 @@ on:
       - 'tests/test_source_snapshots.py'
 permissions:
   contents: read
+  actions: read
 jobs:
   linux-capture:
+    if: ${{ !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # I allocate additional cohorts only for the newly added complete mode.
+    # Individual source, native build, debug and cold-capture limits stay fixed.
+    timeout-minutes: ${{ inputs.qualify_clang_2118_complete && 60 || 35 }}
     steps:
       - uses: actions/checkout@v4
       - name: Retain selected Linux compiler and assembler evidence
@@ -43,6 +81,10 @@ jobs:
       - name: Build the actual capture probe and helper
         run: |
           make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so > .test_output/source-capture-diagnostic/linux-probe-build.log 2>&1
+      - name: Check diagnostic identity refusal and timeout evidence retention
+        run: |
+          python3 -m unittest -v tests.test_capture_qualification_modes > .test_output/source-capture-diagnostic/diagnostic-controls.log 2>&1
+          python3 -m unittest -v tests.test_gnu_tool_queries > .test_output/source-capture-diagnostic/gnu-query-controls.log 2>&1
       - name: Observe a cold compiler support capture without changing admission
         run: python3 scripts/ci_source_capture_linux.py
       - name: Qualify the isolated GNU assembler 2.46 candidate
@@ -61,6 +103,29 @@ jobs:
         if: inputs.qualify_response_grammar && !inputs.qualify_as_246
         timeout-minutes: 25
         run: python3 scripts/ci_qualify_as246.py --response-only
+      - name: Build the supported backend for private Clang compatibility
+        if: inputs.qualify_clang_2118_complete && inputs.clang_2118_backend == 'qualified-as242' && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
+        timeout-minutes: 15
+        run: python3 scripts/ci_build_qualified_as242.py
+      - name: Observe complete private Clang 21 capture without changing GNU admission
+        if: inputs.qualify_clang_2118_complete && !inputs.qualify_as_246 && !inputs.diagnose_native_debug && !inputs.qualify_clang_2118 && !inputs.qualify_response_grammar
+        env:
+          QUALIFICATION_BACKEND: ${{ inputs.clang_2118_backend }}
+        timeout-minutes: 40
+        shell: bash
+        run: |
+          # I select a driver only for this explicit private qualification step.
+          # The ordinary cold/default-tool and user-guide jobs keep their tools.
+          if [[ "$QUALIFICATION_BACKEND" == qualified-as242 ]]; then
+            export NANO_QUALIFIED_AS242_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/qualified-as242"
+            export COMPILER_PATH="$NANO_QUALIFIED_AS242_DIRECTORY/bin"
+          fi
+          qualification_tools="$PWD/.test_output/source-capture-diagnostic/clang-qualification-tools"
+          mkdir "$qualification_tools"
+          selected_clang="$(command -v clang)"
+          ln -s "$selected_clang" "$qualification_tools/cc"
+          ln -s "$selected_clang" "$qualification_tools/clang"
+          PATH="$qualification_tools:$PATH" python3 scripts/ci_qualify_as246.py --clang-2118-complete
       - name: Upload Linux capture evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -71,7 +136,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   selected-tools:
-    if: ${{ !inputs.linux_only }}
+    if: ${{ !inputs.linux_only && !inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -161,6 +226,227 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: source-capture-tools-${{ matrix.os }}
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-assembler:
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    runs-on: ubuntu-latest
+    # I bound the sum of independent source build and upstream regression cohorts.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check diagnostic refusal and log retention
+        run: python3 -m unittest -v tests.test_capture_qualification_modes
+      - name: Build and compare the identified fixed assembler
+        run: python3 scripts/ci_build_capture_assembler.py --fixed-as246
+      - name: Retain fixed assembler qualification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246
+          path: .test_output/source-capture-diagnostic/fixed-as246/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-capture:
+    if: inputs.qualify_fixed_as246_complete && inputs.fixed_userguide_from_run == '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    needs: fixed-assembler
+    runs-on: ubuntu-latest
+    # My original capture/test/shadow limits remain inside this additional cohort.
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246
+          path: .test_output/source-capture-diagnostic/fixed-as246/
+      - name: Retain actual original compiler and assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the original capture probe
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
+      - name: Observe original system capture before the private source repair
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify fixed-source capture and original user guide
+        shell: bash
+        run: |
+          export NANO_FIXED_AS246_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/fixed-as246"
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_as246.py --fixed-as246-complete
+      - name: Retain complete fixed-capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-userguide:
+    if: inputs.fixed_userguide_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 16
+      - name: Validate the declared preceding run
+        env:
+          PRECEDING_RUN: ${{ inputs.fixed_userguide_from_run }}
+        run: |
+          python3 - <<'PYVALIDATE'
+          import os, re
+          if not re.fullmatch('[1-9][0-9]{0,19}', os.environ['PRECEDING_RUN']):
+              raise SystemExit('I require one numeric preceding fixed-capture run.')
+          PYVALIDATE
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/prior-capture/
+          run-id: ${{ inputs.fixed_userguide_from_run }}
+          github-token: ${{ github.token }}
+      - name: Check qualification refusal and actual child environment
+        run: python3 -m unittest -v tests.test_capture_qualification_modes tests.test_fixed_userguide_qualification
+      - name: Retain current original tools
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build current original capture tools
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
+      - name: Retain current original cold observation
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify only the ordinary user guide with matching fixed capture
+        shell: bash
+        run: |
+          export NANO_PRIOR_CAPTURE_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/prior-capture"
+          export NANO_FIXED_AS246_DIRECTORY="$NANO_PRIOR_CAPTURE_DIRECTORY/fixed-as246"
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_fixed_userguide.py
+      - name: Retain ordinary user-guide inputs and actual result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-ordinary-userguide
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-gcc-reuse:
+    if: inputs.fixed_gcc_from_run != '' && inputs.fixed_clang_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/prior-fixed-gcc/
+          run-id: ${{ inputs.fixed_gcc_from_run }}
+          github-token: ${{ github.token }}
+      - name: Check original fixture protocol and producer refusal controls
+        run: python3 -m unittest -v tests.test_assembler_search_fixture tests.test_fixed_gcc_inputs tests.test_fixed_clang_inputs tests.test_capture_qualification_modes tests.test_fixed_userguide_qualification
+      - name: Verify the completed producer while preserving the actual GCC compiler
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NANO_PRIOR_CAPTURE_RUN: ${{ inputs.fixed_gcc_from_run }}
+        run: |
+          export NANO_PRIOR_CAPTURE_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/prior-fixed-gcc"
+          python3 scripts/ci_fixed_gcc_inputs.py
+      - name: Retain actual original compiler and system assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the actual original probe and provider
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
+      - name: Retain the original system capture observation
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify complete GCC source response cold and ordinary guide cohorts
+        run: |
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_as246.py --fixed-as246-complete
+      - name: Retain the complete fresh GCC consumer and unchanged producer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  fixed-clang-capture:
+    if: inputs.fixed_clang_from_run != '' && inputs.fixed_gcc_from_run == '' && inputs.profile_fixed_clang_from_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CC: cc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-as246-capture
+          path: .test_output/source-capture-diagnostic/prior-fixed-clang/
+          run-id: ${{ inputs.fixed_clang_from_run }}
+          github-token: ${{ github.token }}
+      - name: Check producer refusal and source continuity controls
+        run: python3 -m unittest -v tests.test_fixed_clang_inputs tests.test_capture_qualification_modes tests.test_fixed_userguide_qualification
+      - name: Verify the completed producer and select only this explicit Clang consumer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NANO_PRIOR_CAPTURE_RUN: ${{ inputs.fixed_clang_from_run }}
+        run: |
+          export NANO_PRIOR_CAPTURE_DIRECTORY="$PWD/.test_output/source-capture-diagnostic/prior-fixed-clang"
+          python3 scripts/ci_fixed_clang_inputs.py
+      - name: Retain original selected Clang and system assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build the actual original Clang probe and helper
+        run: make -f Makefile.gnu -j2 obj/test_module_generation_probe bin/nano_as_capture.so
+      - name: Check actual native GNU query supervision
+        run: python3 -m unittest -v tests.test_gnu_tool_queries
+      - name: Retain the original system-tool capture observation
+        run: python3 scripts/ci_source_capture_linux.py
+      - name: Qualify complete Clang capture with the identical fixed assembler
+        run: |
+          export COMPILER_PATH="$NANO_FIXED_AS246_DIRECTORY/bin"
+          python3 scripts/ci_qualify_as246.py --fixed-clang-complete
+      - name: Retain complete Clang and fixed producer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-clang-capture
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+  capture-pair-profile:
+    if: inputs.profile_fixed_clang_from_run != '' && inputs.fixed_gcc_from_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixed-clang-capture
+          path: .test_output/source-capture-diagnostic/profile-failed/
+          run-id: ${{ inputs.profile_fixed_clang_from_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: source-capture-tools-linux
+          path: .test_output/source-capture-diagnostic/profile-supported/
+          run-id: 45009127688
+          github-token: ${{ github.token }}
+      - name: Measure original native assertions and CPU share without changing production admission
+        env:
+          NANO_CAPTURE_PROFILE_METHOD: ${{ inputs.profile_capture_method }}
+        run: python3 scripts/ci_profile_capture_pair.py
+      - name: Retain every native observation and original input
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-pair-profile
           path: .test_output/source-capture-diagnostic/
           include-hidden-files: true
           if-no-files-found: error

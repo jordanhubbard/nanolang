@@ -74,29 +74,29 @@ class ResponseDriverGrammar(unittest.TestCase):
             output = ROOT / '.test_output/response-driver-grammar-matrix.json'
             output.parent.mkdir(exist_ok=True)
             output.write_text(json.dumps(observations, indent=2) + '\n')
-            marker = directory / 'queried'
-            wrapper = directory / 'selected-cc'
-            for fault in ('unknown', 'timeout'):
-                wrapper.write_text(f'#!{sys.executable}\nimport pathlib,sys,time\n'
-                    f'pathlib.Path({str(marker)!r}).write_text("queried")\n' +
-                    ('print("unrecognized response grammar")\n' if fault == 'unknown' else 'time.sleep(30)\n'))
-                wrapper.chmod(0o700)
-                env = dict(os.environ, NANO_CC=str(wrapper), NANO_CAPTURE_TIMEOUT_MS='50')
-                response.write_text(r"'-DVALUE=a\b'" + '\n')
-                fragment = shlex.quote('@' + str(response))
-                with self.subTest(fault=fault):
-                    captured = subprocess.run([str(self.probe), 'capture-response', fragment],
-                                              env=env, capture_output=True, timeout=5)
-                    self.assertEqual(captured.returncode, 0, captured.stderr)
-                    self.assertEqual(captured.stdout.decode().strip(), fragment)
-                    self.assertTrue(marker.exists())
-                marker.unlink()
-                response.write_text('-DVALUE=42\n')
+            self.response_refusal_and_lazy_selection(directory, response)
+
+    def response_refusal_and_lazy_selection(self, directory, response):
+        marker = directory / 'queried'
+        for fault in ('unknown', 'timeout'):
+            env = dict(os.environ, NANO_CC=str(self.probe), NANO_CAPTURE_TIMEOUT_MS='50',
+                       NANO_TEST_RESPONSE_DRIVER_FAULT=fault,
+                       NANO_TEST_RESPONSE_DRIVER_MARKER=str(marker))
+            response.write_text(r"'-DVALUE=a\b'" + '\n')
+            fragment = shlex.quote('@' + str(response))
+            with self.subTest(fault=fault):
                 captured = subprocess.run([str(self.probe), 'capture-response', fragment],
                                           env=env, capture_output=True, timeout=5)
                 self.assertEqual(captured.returncode, 0, captured.stderr)
-                self.assertEqual(shlex.split(captured.stdout.decode()), ['-DVALUE=42'])
-                self.assertFalse(marker.exists())
+                self.assertEqual(captured.stdout.decode().strip(), fragment)
+                self.assertTrue(marker.exists())
+            marker.unlink()
+            response.write_text('-DVALUE=42\n')
+            captured = subprocess.run([str(self.probe), 'capture-response', fragment],
+                                      env=env, capture_output=True, timeout=5)
+            self.assertEqual(captured.returncode, 0, captured.stderr)
+            self.assertEqual(shlex.split(captured.stdout.decode()), ['-DVALUE=42'])
+            self.assertFalse(marker.exists())
 
 
 if __name__ == '__main__':

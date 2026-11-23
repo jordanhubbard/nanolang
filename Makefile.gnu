@@ -3366,7 +3366,7 @@ test-bytecode-shadows: nano_virt nano_vm nanoisa_dump $(COMPILER_C) $(OBJ_DIR)/t
 	@python3 tests/test_bytecode_shadows.py
 	@python3 -m unittest tests.test_module_cache_publication
 	@python3 -m unittest tests.test_linux_link_cache
-	@python3 -m unittest tests.test_source_snapshots tests.test_response_driver_grammar
+	@python3 -m unittest tests.test_source_snapshots tests.test_response_driver_grammar tests.test_gnu_tool_queries
 	@python3 -m unittest tests.test_link_argument_transport
 	@python3 -m unittest tests.test_link_response_graph
 	@python3 -m unittest tests.test_link_response_query
