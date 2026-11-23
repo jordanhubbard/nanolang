@@ -391,3 +391,36 @@ qualification prerequisite, not default activation or #1217/#1213/full-release
 acceptance. The handwritten queued `spawn`/scheduler paths remain unregistered
 source operations; my retained parser/typechecker refusals do not establish a
 runtime failure on an admitted source route.
+
+## I qualify the STRING candidate through the actual C driver
+
+My [compiler receipt](evidence/string-scope-compiler-linux-20261123/README.md)
+links separately named ordinary and STRING-only C compiler images from exact
+private providers. I replace only environment construction in the candidate;
+production environment creation and five frozen tools stay unchanged. Both
+images retain the declared compiler driver and native emitter. All five original
+STRING/active-root source fixtures now complete their candidate shadows, publish
+native output and execute with their declared main results. The ordinary image
+still fails the sibling/async/combined STRING shadows.
+
+This actual route exposed two separate native publication bugs after successful
+shadow completion: hardcoded Result payload fields and unmapped generated List
+extern names. Under #1218 I use declared Ok/Err fields/tags in the three unwrap
+operations, preserving once-only input/default evaluation and panic/refusal
+boundaries. Under #1219 I map only operations of registered concrete List
+instances, preserving real declarations and local callable priority. Four
+native regression methods pass in both ordinary and STRING-only modes; the
+unchanged shadow-supervisor suite passes all three methods. My normal and
+ASan/UBSan StringBuilder unit suites pass; their sanitizer runs disable LSan.
+
+The candidate completes the first original compiler-source stage in 151.092s
+under its unchanged 600-second parent limit and default shadow deadline: all
+1306 selected shadows complete without failures, and the resulting native
+compiler executes --help. This is not the subsequent self-hosted raw stage,
+bootstrap equality, paired platform qualification or whole-release acceptance.
+I retain the earlier non-File --emit-nvm refusals and setup failures separately.
+
+A separate experimental record-List loop test is checker-refused before C
+emission; #1220 retains that exact red test and the later representation lead.
+It does not weaken the four completed native regression methods. General
+#1116/#1213/#1217 ownership and ordinary activation remain open.

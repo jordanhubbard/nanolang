@@ -1572,6 +1572,10 @@ test-checker-loop-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-checker-loop-metadata
 
+.PHONY: test-cseed-result-list-payloads
+test-cseed-result-list-payloads: $(COMPILER_C)
+	NANO_CSEED_PAYLOAD_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest tests.test_cseed_result_list_payloads -v
+
 .PHONY: test-eval-string-reference-mode
 test-eval-string-reference-mode: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_string_reference_mode tests/test_eval_string_reference_mode.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)

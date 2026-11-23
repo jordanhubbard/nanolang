@@ -553,6 +553,48 @@ static void emit_indent_item(WorkList *list, int level) {
  * HELPER FUNCTIONS
  * ============================================================================ */
 
+/* I resolve only operations belonging to an actual generated List declaration. */
+static const char *generated_list_c_name(const char *name, Function *function,
+                                         Environment *env) {
+    if (!env || !function || !function->is_extern || function->body ||
+        function->module_name || strncmp(name, "List_", 5) != 0) return NULL;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *instance = &env->generic_instances[i];
+        if (!instance->generic_name || strcmp(instance->generic_name, "List") != 0 ||
+            !instance->concrete_name || instance->type_arg_count != 1 ||
+            !instance->type_arg_names || !instance->type_arg_names[0]) continue;
+        size_t n = strlen(instance->concrete_name);
+        if (strncmp(name, instance->concrete_name, n) != 0 || name[n] != '_') continue;
+        const char *operation = name + n + 1;
+        if (strcmp(operation, "new") != 0 && strcmp(operation, "push") != 0 &&
+            strcmp(operation, "get") != 0 && strcmp(operation, "length") != 0) continue;
+        static _Thread_local char mapped[512];
+        int written = snprintf(mapped, sizeof mapped, "nl_list_%s_%s",
+                               instance->type_arg_names[0], operation);
+        if (written < 0 || (size_t)written >= sizeof mapped) return NULL;
+        return mapped;
+    }
+    return NULL;
+}
+
+typedef struct { const char *field; int tag; } NativeResultPayload;
+/* I borrow names from the checked union declaration, as my try lowering does. */
+static NativeResultPayload native_result_payload(ASTNode *value, Environment *env,
+                                                   bool error) {
+    NativeResultPayload result = {error ? "error" : "value", error ? 1 : 0};
+    const char *name = get_struct_type_name(value, env);
+    UnionDef *definition = name ? env_get_union(env, name) : NULL;
+    if (!definition) return result;
+    for (int i = 0; i < definition->variant_count; ++i) {
+        if (strcmp(definition->variant_names[i], error ? "Err" : "Ok") != 0) continue;
+        result.tag = i;
+        if (definition->variant_field_counts[i] > 0)
+            result.field = definition->variant_field_names[i][0];
+        break;
+    }
+    return result;
+}
+
 /* Function name mapping now uses the unified builtin registry */
 #include "builtins_registry.h"
 
@@ -599,6 +641,9 @@ static const char *map_function_name(const char *name, Environment *env) {
         return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
                                            selected->module_name, false);
     }
+
+    const char *generated = generated_list_c_name(name, selected, env);
+    if (generated) return generated;
 
     /* Check unified builtin registry */
     const char *c_name = builtin_c_name(name);
@@ -2076,21 +2121,24 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "; (_r.tag != 0); })");
             }
             else if (strcmp(func_name, "result_unwrap") == 0 && expr->as.call.arg_count == 1) {
+                NativeResultPayload payload = native_result_payload(expr->as.call.args[0], env, false);
                 emit_literal(list, "({ __auto_type _r = ");
                 build_expr(list, expr->as.call.args[0], env);
-                emit_literal(list, "; if (_r.tag != 0) { fprintf(stderr, \"panic: unwrap Err\\n\"); exit(1); } _r.data.Ok.value; })");
+                emit_formatted(list, "; if (_r.tag != %d) { fprintf(stderr, \"panic: unwrap Err\\n\"); exit(1); } _r.data.Ok.%s; })", payload.tag, payload.field);
             }
             else if (strcmp(func_name, "result_unwrap_err") == 0 && expr->as.call.arg_count == 1) {
+                NativeResultPayload payload = native_result_payload(expr->as.call.args[0], env, true);
                 emit_literal(list, "({ __auto_type _r = ");
                 build_expr(list, expr->as.call.args[0], env);
-                emit_literal(list, "; if (_r.tag == 0) { fprintf(stderr, \"panic: unwrap_err Ok\\n\"); exit(1); } _r.data.Err.error; })");
+                emit_formatted(list, "; if (_r.tag != %d) { fprintf(stderr, \"panic: unwrap_err Ok\\n\"); exit(1); } _r.data.Err.%s; })", payload.tag, payload.field);
             }
             else if (strcmp(func_name, "result_unwrap_or") == 0 && expr->as.call.arg_count == 2) {
+                NativeResultPayload payload = native_result_payload(expr->as.call.args[0], env, false);
                 emit_literal(list, "({ __auto_type _r = ");
                 build_expr(list, expr->as.call.args[0], env);
                 emit_literal(list, "; __auto_type _d = ");
                 build_expr(list, expr->as.call.args[1], env);
-                emit_literal(list, "; (_r.tag == 0) ? _r.data.Ok.value : _d; })");
+                emit_formatted(list, "; (_r.tag == %d) ? _r.data.Ok.%s : _d; })", payload.tag, payload.field);
             }
             else if (strcmp(func_name, "result_map") == 0 && expr->as.call.arg_count == 2) {
                 emit_literal(list, "({ __auto_type _r = ");
