@@ -43,6 +43,17 @@ assert len(decoded['files']) == report['all_records'] == 357195
 assert len(decoded['files']) - len(decoded['tracked']) == 92
 assert all(decoded['files'][name]['sha256'] == value for name, value in decoded['tracked'].items())
 assert hashlib.sha256(files['source/ci_bootstrap_checkpoint.py']).hexdigest() == decoded['tracked']['scripts/ci_bootstrap_checkpoint.py']
-assert codec.encode_manifest(decoded) == wire
-result = {'source_commit': report['commit'], 'records': len(files), 'tracked_files': len(decoded['tracked']), 'source_records': len(decoded['files']), 'legacy_v2_bytes': 87810293, 'compact_v3_bytes': len(wire), 'original_bound': report['wire_bound'], 'round_trip_identical_wire': True, 'native_source_guards_reported_unchanged': True, 'scope': 'I validate recorded metadata, terminal identities and hash-bound Python decoding only. I do not execute native products, rerun bootstrap/transfer/consumers, or independently hydrate and hash every Git blob.'}
+observations = []
+original_dumps = codec.json.dumps
+def observe(value, *args, **kwargs):
+    encoded = original_dumps(value, *args, **kwargs)
+    observations.append({'version': value['version'], 'bytes': len(encoded.encode())})
+    return encoded
+try:
+    codec.json.dumps = observe
+    reencoded = codec.encode_manifest(decoded)
+finally:
+    codec.json.dumps = original_dumps
+assert reencoded == wire and observations == report['wire_observations']
+result = {'source_commit': report['commit'], 'records': len(files), 'tracked_files': len(decoded['tracked']), 'source_records': len(decoded['files']), 'legacy_v2_bytes': observations[0]['bytes'], 'compact_v3_bytes': len(wire), 'original_bound': report['wire_bound'], 'round_trip_identical_wire': True, 'native_source_guards_reported_unchanged': True, 'scope': 'I validate recorded metadata, terminal identities and hash-bound Python decoding only. I do not execute native products, rerun bootstrap/transfer/consumers, or independently hydrate and hash every Git blob.'}
 print(json.dumps(result, indent=2))
