@@ -1,0 +1,12 @@
+{
+  "source_commit": "0147a23f4b5c8aece857646674603643ee871478",
+  "records": 7,
+  "tracked_files": 357103,
+  "source_records": 357195,
+  "legacy_v2_bytes": 87810293,
+  "compact_v3_bytes": 30687179,
+  "original_bound": 33554432,
+  "round_trip_identical_wire": true,
+  "native_source_guards_reported_unchanged": true,
+  "scope": "I validate recorded metadata, terminal identities and hash-bound Python decoding only. I do not execute native products, rerun bootstrap/transfer/consumers, or independently hydrate and hash every Git blob."
+}

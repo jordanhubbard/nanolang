@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "run": 45123800085,
+  "source_commit": "0147a23f4b5c8aece857646674603643ee871478",
+  "files": [
+    {
+      "path": "native/result.json",
+      "artifact": "inputs/213473d19a9460b38117e783fb660ce55a9fb705a6a5c95ce96130d63c27b0dc.gz",
+      "bytes": 892,
+      "sha256": "213473d19a9460b38117e783fb660ce55a9fb705a6a5c95ce96130d63c27b0dc",
+      "compressed_bytes": 515,
+      "compressed_sha256": "9f9adb788fc3d4d66d3267e2149e4ee85ab02e0fa86748a25077a07173a366f4"
+    },
+    {
+      "path": "native/source-metadata.json",
+      "artifact": "inputs/3fe7b975396e2fe2d09cd18c6a59e54d9be14dc6000691c45d4dd33fb61eb6a9.gz",
+      "bytes": 30687179,
+      "sha256": "3fe7b975396e2fe2d09cd18c6a59e54d9be14dc6000691c45d4dd33fb61eb6a9",
+      "compressed_bytes": 10833174,
+      "compressed_sha256": "91f1f31dc6c18cb0a1ff2be82ecf66ffe7027f917c7e59c35f7934ac7f351b1a"
+    },
+    {
+      "path": "native/worker.log",
+      "artifact": "inputs/159990515a03cbb075f047cb36d0e69b22d6c7781751ecf48e2979b7aaaa3c00.gz",
+      "bytes": 1026,
+      "sha256": "159990515a03cbb075f047cb36d0e69b22d6c7781751ecf48e2979b7aaaa3c00",
+      "compressed_bytes": 459,
+      "compressed_sha256": "801d3e6536171b8a2ba25c5a93ead0373418295d296e955ff076aad42ca4371e"
+    },
+    {
+      "path": "native/controls.log",
+      "artifact": "inputs/55cd44383f766dd625ff3b51510c4e05b6d463a03b56a452332ed78521b19de1.gz",
+      "bytes": 4061,
+      "sha256": "55cd44383f766dd625ff3b51510c4e05b6d463a03b56a452332ed78521b19de1",
+      "compressed_bytes": 821,
+      "compressed_sha256": "b173363687ab85153bd2713d3d2e5e040bfe0141d34912ae92ed151a30f8b559"
+    },
+    {
+      "path": "source/ci_bootstrap_checkpoint.py",
+      "artifact": "inputs/b7ca7bf0b06247258c4db72fa8a3a18f8866019049f9e3766322aaa28ec194de.gz",
+      "bytes": 28729,
+      "sha256": "b7ca7bf0b06247258c4db72fa8a3a18f8866019049f9e3766322aaa28ec194de",
+      "compressed_bytes": 8094,
+      "compressed_sha256": "54697af46c78134e46f27f3ba0650def746c061c8c6c82f33cde160bbf33ece3"
+    },
+    {
+      "path": "native/run.json",
+      "artifact": "inputs/8d22641517addf739ca0b647e4d4fe489dc0862c309f874de4b0e91fde389f02.gz",
+      "bytes": 12780,
+      "sha256": "8d22641517addf739ca0b647e4d4fe489dc0862c309f874de4b0e91fde389f02",
+      "compressed_bytes": 1573,
+      "compressed_sha256": "41b77469b984e6593c5012aa7b9bbc32854a23c28b7d90e4df76f8c7ca100640"
+    },
+    {
+      "path": "native/jobs.json",
+      "artifact": "inputs/9fe17521a5661bd37af340cc67e6f972ef2f3f967e4abe70dfa841b7886157a1.gz",
+      "bytes": 2436,
+      "sha256": "9fe17521a5661bd37af340cc67e6f972ef2f3f967e4abe70dfa841b7886157a1",
+      "compressed_bytes": 732,
+      "compressed_sha256": "a078c78a8c871be31b61628618e871ebe8de70c6acf51098f776bc4593762560"
+    }
+  ]
+}
