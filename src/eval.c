@@ -4320,6 +4320,13 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
             /* Use list_int as the underlying implementation (stores pointers as int64) */
             if (strcmp(operation, "new") == 0) {
                 List_int *list = list_int_new();  /* Generic list stores pointers */
+                if (env_carrier_enabled(g_carrier_environment) && last_underscore > name + 5) {
+                    const char *start = name + 5;
+                    char *element = strndup(start, (size_t)(last_underscore - start));
+                    if (!element) { fputs("I cannot retain the list constructor identity.\n", stderr); exit(1); }
+                    if (env_get_struct(env, element)) env_carrier_track_legacy_list(env, list);
+                    free(element);
+                }
                 return create_int((long long)list);
             }
             if (strcmp(operation, "with_capacity") == 0) {

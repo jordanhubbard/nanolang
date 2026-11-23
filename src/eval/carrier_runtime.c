@@ -250,6 +250,12 @@ void env_carrier_track_list(Environment *env, DynArray *list) {
     if (!nl_carrier_values_adopt(env->carrier_session->values, value)) ownership_failure();
     env_carrier_hold(env, value);
 }
+void env_carrier_track_legacy_list(Environment *env, List_int *list) {
+    if (!env_carrier_enabled(env)) return;
+    NlCarrierRef value = nl_carrier_legacy_record_list(list);
+    if (!nl_carrier_values_adopt(env->carrier_session->values, value)) ownership_failure();
+    env_carrier_hold(env, value);
+}
 
 bool env_carrier_owns(Environment *env, Value value) {
     return env_carrier_enabled(env) &&

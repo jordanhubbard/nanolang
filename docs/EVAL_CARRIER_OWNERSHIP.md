@@ -536,3 +536,55 @@ flat live GC payload storage and zero objects before shutdown, independently
 in full and STRING-only modes across three profiles. Ordinary environments
 still leave the private session disabled; general default/root/platform/native
 heap acceptance is not inferred from this REPL boundary.
+
+## I distinguish the two existing record-list layouts
+
+Under #1231 my first complete full-private compiler-source attempt stops at
+`diag_list_new`: eight shadows start, seven complete, and collection refuses
+its first lower-case list root. This is a correctness refusal after 1,461
+collections, not a timeout. A small checked source witness reproduces the
+refusal; the unchanged retained sanitizer providers report an eight-byte read
+past a 16-byte `List_int` header in `valid_value`.
+
+Lower-case `list_Record_new` uses a malloc-owned `List_int` pointer vector.
+Upper-case `List_Record_new` uses a managed `DynArray`. I retain both public
+layouts and give my private one-byte reference fact an explicit legacy layout.
+A known source constructor registers only its created header/data; referenced
+records remain separately owned. Explicit borrowed caller facts supply layout
+without adopting storage. Checked logical list facts follow registered or
+current-walk caller provenance. I clear the borrowed fact span on every walk
+outcome, preserve raw INT nonownership and reject malformed layout facts.
+
+My new source/adapter controls pass normally, with ASan/UBSan+LSan and with
+production O3/Werror flags: returned lists, typed fields, 128 repeated scalar
+calls, STRING/callable children, growth, transfer, borrowed caller lifetime,
+same-address layout reuse and negative guards. My first expanded field fixture
+incorrectly roots only the child list while expecting its parent to survive.
+I retain that source/image/assertion and root the intended parent; no production
+cleanup or live-object assertion changes for that setup correction.
+
+All five production consumers of the extended private fact are recompiled;
+`Value`, container and foreign ABI declarations remain unchanged. Existing
+DynArray/unknown-integer/allocation-failure assertions, original evaluator134/
+checker88, borrowed/active-root/STRING/native-byte controls, default REPL34 and
+private REPL41 pass with their original explicit broad LSan boundaries. The
+original native-byte control still measures zero second-batch growth. The
+updated ordinary C seed passes ten lexical/seven payload methods and its full
+1,306-shadow compiler-source stage in 138.369 seconds under original 600/10
+limits, producing a native compiler that runs --help. Shared unaffected provider
+bytes, five frozen tools and nine library identities remain guarded.
+
+This does not accept full private source activation. The changed private stage
+reaches 161 starts/160 completions, then SIGALRM at its original ten-second
+supervisor. At its last reported power-of-two milestone, 65,536 collections
+accumulate 654,262,134 symbol-count observations and 3.765637591 seconds of real
+collector wall time. These are observed milestones, not final call/root counts,
+CPU attribution or a historical timeout explanation. #1232 owns further cost
+qualification at unchanged source assertions/deadlines.
+
+An additional admitted create/get-copy/free/return witness reports ASan use
+of a freed list header through a stale private root after explicit free. #1233
+must coordinate consumption with root ownership while preserving immediate
+free, aliases/callers/address reuse and metadata/native-byte bounds. I retain
+that complete failure. #1231/#1116/#1213, default ownership, paired/raw/bootstrap
+and all 69 release requirements remain open; no ordinary session is enabled.

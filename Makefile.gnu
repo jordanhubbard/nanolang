@@ -1642,6 +1642,17 @@ $(OBJ_DIR)/eval_carrier_values_allocations.o: src/eval/carrier_values.c src/eval
 
 test-units: test-eval-carrier-values
 
+.PHONY: test-eval-legacy-record-lists test-carrier-legacy-list-values
+test-eval-legacy-record-lists: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_legacy_record_lists tests/test_eval_legacy_record_lists.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_legacy_record_lists
+
+test-carrier-legacy-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_legacy_list_values tests/test_carrier_legacy_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_legacy_list_values
+
+test-units: test-eval-legacy-record-lists test-carrier-legacy-list-values
+
 .PHONY: test-eval-scalar-projection-ownership
 test-eval-scalar-projection-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_scalar_projection_ownership tests/test_eval_scalar_projection_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)

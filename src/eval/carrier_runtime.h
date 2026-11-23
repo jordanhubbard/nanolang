@@ -33,6 +33,7 @@ NlCarrierStringStats env_carrier_last_string_stats(void);
 void env_carrier_track(Environment *env, Value value, bool fresh_record_copies);
 void env_carrier_track_binding(Environment *env, Value value);
 void env_carrier_track_list(Environment *env, DynArray *list);
+void env_carrier_track_legacy_list(Environment *env, List_int *list);
 bool env_carrier_owns(Environment *env, Value value);
 void env_carrier_export(Environment *env, Value value, bool record_list);
 void env_carrier_close(Environment *env);
