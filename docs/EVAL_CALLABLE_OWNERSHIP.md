@@ -149,3 +149,23 @@ AST_SET traces an undeclared old_value. A borrowed snapshot read after
 replacement can dangle, so its repair requires an actual tracing-enabled
 build and runtime old/new-value controls. I make no tracing-enabled acceptance
 claim in this [bounded receipt](evidence/record-binding-ownership-linux-20261123/README.md).
+
+Under #1208 I now serialize assignment values synchronously before binding
+replacement can retire old storage. I add no snapshot allocation or Value
+layout change. The focused native observer checks21 live old/new string,
+callable, record and scalar values across enabled, filtered and disabled
+tracing, including self-assignment. The real tracer produces the checked
+output; all14 runtime kinds use a dedicated ValueType label mapping instead
+of incompatible declaration-type ordinals. A private evaluator with retirement
+moved ahead of serialization reports an actual heap-use-after-free in the
+same unchanged regression.
+
+My tracing-enabled fixture passes complete fresh ASan/UBSan providers with
+leak detection enabled. All134 original interpreter methods also pass with
+the tracing-enabled evaluator calling production tracing directly, in normal
+and instrumented builds; that broad suite retains its existing disabled leak
+detection boundary. Ordinary checker/callable/environment neighbors and the
+complete expression/globals leak gate still pass. I retain the unchanged
+record/union3720-byte/159-allocation failure and the original build refusals
+in my [tracing receipt](evidence/tracing-assignment-linux-20261123/README.md).
+General carrier/escape ownership and paired release acceptance remain open.

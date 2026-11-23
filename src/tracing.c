@@ -280,6 +280,27 @@ static const char *format_type_for_trace(Type type) {
     }
 }
 
+/* I label runtime values without reinterpreting declaration-type ordinals. */
+static const char *format_runtime_type_for_trace(ValueType type) {
+    switch (type) {
+        case VAL_INT: return "int";
+        case VAL_FLOAT: return "float";
+        case VAL_BOOL: return "bool";
+        case VAL_STRING: return "string";
+        case VAL_ARRAY: return "array";
+        case VAL_DYN_ARRAY: return "dyn_array";
+        case VAL_STRUCT: return "struct";
+        case VAL_GC_STRUCT: return "gc_struct";
+        case VAL_UNION: return "union";
+        case VAL_FUNCTION: return "function";
+        case VAL_TUPLE: return "tuple";
+        case VAL_COROUTINE: return "coroutine";
+        case VAL_VOID: return "void";
+        case VAL_BSTRING: return "bstring";
+        default: return "unknown";
+    }
+}
+
 /* Format call stack for output */
 static void format_call_stack(char *buffer, size_t size) {
     buffer[0] = '[';
@@ -327,7 +348,7 @@ void trace_function_call(const char *function_name, Value *args, int arg_count,
     for (int i = 0; i < arg_count; i++) {
         const char *param_name = (param_names && i < arg_count) ? param_names[i] : "arg";
         printf("    - name: \"%s\", type: \"%s\", value: %s\n",
-               param_name, format_type_for_trace(args[i].type), format_value_for_trace(args[i]));
+               param_name, format_runtime_type_for_trace(args[i].type), format_value_for_trace(args[i]));
     }
     printf("\n");
 }

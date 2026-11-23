@@ -6329,18 +6329,15 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             Symbol *binding = eval_binding(stmt, env, stmt->as.set.name);
-            env_set_evaluated_binding(env, binding, value, stmt->as.set.value);
-            
-            /* Trace variable assignment */
 #ifdef TRACING_ENABLED
+            /* I serialize both live values before replacement retires the old one. */
+            Value old_value = binding ? binding->value : create_void();
             const char *scope = (g_tracing_config.call_stack_size > 0) ?
                 g_tracing_config.call_stack[g_tracing_config.call_stack_size - 1] : NULL;
-            trace_var_set(stmt->as.set.name, old_value, value, 
+            trace_var_set(stmt->as.set.name, old_value, value,
                          stmt->line, stmt->column, scope);
-#else
-            trace_var_set(stmt->as.set.name, old_value, value, 
-                         stmt->line, stmt->column, NULL);
 #endif
+            env_set_evaluated_binding(env, binding, value, stmt->as.set.value);
             discard_copied_binding_literal(stmt->as.set.value, value, binding);
             return create_void();
         }

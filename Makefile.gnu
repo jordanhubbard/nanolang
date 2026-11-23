@@ -1543,6 +1543,20 @@ $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/s
 
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_frame_metadata_test.o: src/eval/call_arguments.h
 
+# I enable actual tracing only in this observer's evaluator and tracer.
+$(OBJ_DIR)/eval_trace_metadata_test.o: src/eval.c src/tracing.h tests/support/eval_frame_metadata.h src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_INTERPRETER -Dtrace_var_set=nano_test_trace_var_set -Dclock_gettime=nano_test_clock_gettime -include tests/support/eval_frame_metadata.h -c $< -o $@
+
+$(OBJ_DIR)/tracing_enabled_test.o: src/tracing.c src/tracing.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -DNANO_INTERPRETER -c $< -o $@
+
+.PHONY: test-eval-assignment-tracing
+test-eval-assignment-tracing: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_trace_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/tracing_enabled_test.o
+	$(CC) $(CFLAGS) -DNANO_INTERPRETER -o $(OBJ_DIR)/test_eval_assignment_tracing tests/test_eval_assignment_tracing.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_trace_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/tracing_enabled_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_assignment_tracing
+
+test-units: test-eval-assignment-tracing
+
 $(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
 
