@@ -14,11 +14,8 @@ static size_t allocated(void) { return __sanitizer_get_current_allocated_bytes()
 #include <malloc.h>
 static size_t allocated(void) { struct mallinfo2 m=mallinfo2(); return m.uordblks + m.hblkhd; }
 #else
-int g_argc;
-char **g_argv;
-int main(void) { puts("I skip native allocation accounting without glibc or ASan statistics.");return 0; }
+static size_t allocated(void) { return 0; }
 #endif
-#if defined(__GLIBC__) || defined(__SANITIZE_ADDRESS__) || defined(NANO_SCRATCH_ASAN)
 static size_t first_bytes,middle_bytes,last_bytes,observed_calls;
 static Value observed_call_function(const char *,Value *,int,Environment *);
 #define call_function observed_call_function
@@ -69,6 +66,9 @@ static Value observed_call_function(const char *name,Value *args,int count,Envir
     return result;
 }
 int main(void) {
+#if !defined(__GLIBC__) && !defined(__SANITIZE_ADDRESS__) && !defined(NANO_SCRATCH_ASAN)
+    puts("I skip native allocation accounting without glibc or ASan statistics.");return 0;
+#else
     size_t before=allocated();
     void *block=malloc(2*1024*1024);if(!block)return 92;
     ((volatile unsigned char *)block)[0]=1;((volatile unsigned char *)block)[2*1024*1024-1]=2;
@@ -78,6 +78,5 @@ int main(void) {
     printf("I observe native allocation: positive=%zu before=%zu after64=%zu after128=%zu delta=%lld calls=%zu.\n",during-before,first_bytes,middle_bytes,last_bytes,(long long)last_bytes-(long long)middle_bytes,observed_calls);
     if(observed_calls!=128 || last_bytes>middle_bytes+1024)return 94;
     return result;
-}
-
 #endif
+}
