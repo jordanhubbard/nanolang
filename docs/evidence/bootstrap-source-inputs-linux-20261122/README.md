@@ -10,7 +10,7 @@ With those rebuilt tools recorded, my original guarded seed generation and verif
 
 My original `test-nanovm` target passes569591 assertions, checked heap allocation recovery, and stack overflow/failure/entry-atomicity/recovery controls in38.348s, with unchanged source/tool/seed/product guards. My [previous archive](../builder-source-routes-linux-20261122/README.md) preserves the earlier tool images and wider source-route qualification. Neither receipt qualifies a fresh raw/native stage, paired current-source Darwin, Builder C-adapter admission or the full69-requirement release.
 
-I independently check every retained file and rebuilt tool image, the selected sources against my source commit, both seed hashes and the bounded decoded comparison:
+My independent reader verifies1400 records/65821132 logical bytes. I retain all1342 selected inputs:1341 match source commita5fd6696d2bfef515fa8c00a8344330301899ae0, and generated modules/index.json matches its frozen source hash. My first Git-only reader refusal is retained; the corrected reader checks that generated input separately. I check every retained file and rebuilt tool image, both seed hashes and the bounded decoded comparison:
 
 ```sh
 python3 docs/evidence/bootstrap-source-inputs-linux-20261122/read_archive.py
