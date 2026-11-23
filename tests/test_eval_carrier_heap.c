@@ -43,6 +43,7 @@ static bool trace_node(const void *object, NlCarrierVisit visit, void *visitor, 
 static void reject_reentry(Context *ctx, const Node *value) {
     CHECK(!nl_carrier_heap_track(ctx->heap, ctx->spare, trace_node, destroy_node, ctx));
     CHECK(!nl_carrier_heap_forget(ctx->heap, value));
+    CHECK(!nl_carrier_heap_destroy(ctx->heap, value));
     CHECK(!nl_carrier_heap_collect(ctx->heap, NULL, 0));
     CHECK(!nl_carrier_heap_clear(ctx->heap));
     CHECK(!nl_carrier_heap_free(ctx->heap));
@@ -202,7 +203,25 @@ static void deep_graph_and_churn(void) {
     puts("I trace 65536 linked allocations iteratively and balance repeated allocation/removal cohorts.");
 }
 
+static void immediate_destruction(void) {
+    Context ctx = {.heap = nl_carrier_heap_new(), .reentry = true}; CHECK(ctx.heap);
+    Node *value = node("immediate"), *caller = node("caller");
+    ctx.spare = caller;
+    track(&ctx, value);
+    CHECK(!nl_carrier_heap_destroy(ctx.heap, caller));
+    CHECK(!nl_carrier_heap_destroy(ctx.heap, NULL));
+    balance(&ctx, 1, 0, 0);
+    CHECK(nl_carrier_heap_destroy(ctx.heap, value));
+    balance(&ctx, 1, 1, 0);
+    CHECK(!nl_carrier_heap_destroy(ctx.heap, value));
+    CHECK(!strcmp(caller->text, "caller"));
+    CHECK(nl_carrier_heap_free(ctx.heap));
+    release_node(caller);
+    puts("I destroy one owned object immediately, preserve caller storage and reject reentry.");
+}
+
 int main(void) {
+    immediate_destruction();
     roots_and_replacement(); sharing_and_cycles(); transfers_and_readoption();
     refusal_and_reentry(); transfer_between_heaps(); incomplete_trace(); deep_graph_and_churn();
     CHECK(allocated == released);

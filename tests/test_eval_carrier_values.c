@@ -306,10 +306,38 @@ static void allocation_rollback(void) {
     CHECK(injected == 18);
     puts("I preserve all 129 actual carriers across 18 injected graph-walk failures, then recover and release all metadata.");
 }
+static void consumption_allocation_rollback(void) {
+    NlCarrierValues *heap = nl_carrier_values_new(); CHECK(heap);
+    List_int *list = list_int_new(); list_int_push(list, 73);
+    NlCarrierRef root = nl_carrier_legacy_record_list(list);
+    CHECK(nl_carrier_values_adopt(heap, root));
+    size_t before = failures; budget = 0;
+    CHECK(!nl_carrier_values_consume_legacy_list(heap, list));
+    CHECK(failures == before + 1);
+    budget = SIZE_MAX;
+    CHECK(list->length == 1 && list_int_get(list, 0) == 73);
+    stats(heap, 1, 0, 0);
+    CHECK(nl_carrier_values_consume_legacy_list(heap, list));
+    stats(heap, 1, 1, 0);
+    CHECK(nl_carrier_values_collect(heap, &root, 1));
+    CHECK(nl_carrier_values_consumed_count(heap) == 1);
+    list = list_int_new();
+    CHECK(nl_carrier_values_adopt(heap, nl_carrier_legacy_record_list(list)));
+    before = failures; budget = 0;
+    CHECK(nl_carrier_values_consume_legacy_list(heap, list));
+    CHECK(failures == before);
+    budget = SIZE_MAX;
+    CHECK(nl_carrier_values_clear(heap));
+    CHECK(nl_carrier_values_consumed_count(heap) == 0);
+    CHECK(nl_carrier_values_free(heap));
+    CHECK(metadata_count == 0);
+    puts("I preserve payload/ownership on retirement allocation failure and destroy without allocation once metadata capacity exists.");
+}
 int main(int argc, char **argv) {
     CHECK(setvbuf(stdout, NULL, _IONBF, 0) == 0);
     if (argc == 2 && strcmp(argv[1], "--managed-tuple-only") == 0) { managed_tuple_storage(); return 0; }
     CHECK(argc == 1);
+    consumption_allocation_rollback();
     creation_and_adoption_failures(); mixed_constructors(); typed_lists_and_integer_refusal(); nested_typed_list_payload();
     managed_tuple_storage(); transfer_and_array_payloads();
     legacy_names_and_borrowed_elements(); allocation_rollback();

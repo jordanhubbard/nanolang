@@ -8123,3 +8123,17 @@ test-native-nested-array-results: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-ru
 	python3 -m unittest -v tests.test_native_nested_array_result_inference
 
 test-units: test-native-nested-array-results
+
+.PHONY: test-eval-legacy-list-free test-carrier-legacy-list-free
+test-eval-legacy-list-free: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_legacy_list_free tests/test_eval_legacy_list_free.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_legacy_list_free
+
+$(OBJ_DIR)/eval_carrier_list_free_test.o: src/eval/carrier_values.c src/eval/carrier_values.h src/eval/carrier_heap.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dlist_int_free=nano_test_list_int_free -c $< -o $@
+
+test-carrier-legacy-list-free: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_list_free_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_legacy_list_free tests/test_carrier_legacy_list_free.c $(filter-out %/carrier_values.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_carrier_list_free_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_legacy_list_free
+
+test-units: test-eval-legacy-list-free test-carrier-legacy-list-free

@@ -34,6 +34,9 @@ void *nl_carrier_heap_context(const NlCarrierHeap *heap, const void *object);
 /* I transfer one allocation out without destroying it. The adapter must
  * explicitly transfer every owned descendant crossing its API boundary. */
 bool nl_carrier_heap_forget(NlCarrierHeap *heap, const void *object);
+/* I destroy exactly one explicitly owned allocation immediately. Unknown
+ * pointers and reentrant calls fail without changing ownership or counters. */
+bool nl_carrier_heap_destroy(NlCarrierHeap *heap, const void *object);
 /* I follow registered objects iteratively, preserve their identity, then
  * destroy each unreachable allocation once. Destructors retire only their
  * own storage/scalars; they must not recursively destroy registered children.

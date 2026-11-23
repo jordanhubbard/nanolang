@@ -9,6 +9,10 @@ typedef struct {
     unsigned kind;
 } Seen;
 typedef struct {
+    const void *pointer;
+    bool reached;
+} ConsumedList;
+typedef struct {
     struct NlCarrierValues *owner;
     NlCarrierRef ref;
     NlCarrierRef *edges;
@@ -29,6 +33,8 @@ struct NlCarrierValues {
     void *slot_context;
     const NlCarrierRef *roots;
     size_t root_count;
+    ConsumedList *consumed;
+    size_t consumed_count, consumed_capacity;
 };
 
 static size_t reclaimed_arrays;
@@ -209,12 +215,31 @@ static bool append_key(NlCarrierValues *heap, const void *key) {
     heap->keys = keys;
     heap->keys[heap->key_count++] = key; return true;
 }
+static size_t consumed_slot(const NlCarrierValues *heap, const void *pointer) {
+    for (size_t i = 0; i < heap->consumed_count; ++i)
+        if (heap->consumed[i].pointer == pointer) return i;
+    return SIZE_MAX;
+}
+static void forget_consumption(NlCarrierValues *heap, size_t slot) {
+    if (slot != SIZE_MAX) heap->consumed[slot] = heap->consumed[--heap->consumed_count];
+}
+static void prune_consumption(NlCarrierValues *heap) {
+    for (size_t i = 0; i < heap->consumed_count;)
+        if (!heap->consumed[i].reached) forget_consumption(heap, i);
+        else ++i;
+}
 static bool walk(NlCarrierValues *heap) {
     while (heap->pending_count) {
         NlCarrierRef ref = resolve_list(heap, heap->pending[--heap->pending_count]);
         if (ref.record_list > NL_CARRIER_LEGACY_RECORD_LIST) return false;
         void *key = value_key(ref);
         if (!key) { if (ref.record_list && ref.value.type != VAL_INT) return false; continue; }
+        size_t consumed = consumed_slot(heap, key);
+        if (consumed != SIZE_MAX) {
+            if (!ref.record_list || heap->transfer) return false;
+            heap->consumed[consumed].reached = true;
+            continue;
+        }
         CarrierValue *owned = nl_carrier_heap_context(heap->engine, key);
         if (owned && value_kind(owned->ref) != value_kind(ref)) return false;
         if (!valid_value(ref)) return false;
@@ -302,6 +327,7 @@ bool nl_carrier_values_adopt(NlCarrierValues *heap, NlCarrierRef ref) {
     if (!nl_carrier_heap_track(heap->engine, value_key(ref), trace_value, destroy_value, value)) {
         free(value); return false;
     }
+    forget_consumption(heap, consumed_slot(heap, value_key(ref)));
     return true;
 }
 bool nl_carrier_values_edges(NlCarrierValues *heap, NlCarrierRef ref,
@@ -321,6 +347,7 @@ static bool begin_walk(NlCarrierValues *heap, const NlCarrierRef *roots, size_t 
     if (heap->seen_capacity) memset(heap->seen, 0, heap->seen_capacity * sizeof *heap->seen);
     heap->mark = NULL; heap->visitor = NULL; heap->transfer = transfer; heap->busy = true;
     heap->roots = roots; heap->root_count = count;
+    for (size_t i = 0; i < heap->consumed_count; ++i) heap->consumed[i].reached = false;
     for (size_t i = 0; i < count; ++i) if (!push_ref(heap, roots[i])) return false;
     return walk(heap);
 }
@@ -328,6 +355,7 @@ bool nl_carrier_values_collect(NlCarrierValues *heap, const NlCarrierRef *roots,
     if (!heap || heap->busy) return false;
     bool result = begin_walk(heap, roots, count, false);
     if (result) result = nl_carrier_heap_collect(heap->engine, heap->keys, heap->key_count);
+    if (result) prune_consumption(heap);
     heap->roots = NULL; heap->root_count = 0;
     heap->busy = false; return result;
 }
@@ -346,6 +374,7 @@ bool nl_carrier_values_clear(NlCarrierValues *heap) {
     if (!heap || heap->busy) return false;
     heap->busy = true;
     bool result = nl_carrier_heap_clear(heap->engine);
+    if (result) heap->consumed_count = 0;
     heap->busy = false; return result;
 }
 bool nl_carrier_values_contains(const NlCarrierValues *heap, NlCarrierRef ref) {
@@ -359,7 +388,45 @@ bool nl_carrier_values_free(NlCarrierValues *heap) {
     if (heap->busy) return false;
     heap->busy = true;
     if (!nl_carrier_heap_free(heap->engine)) { heap->busy = false; return false; }
-    free(heap->pending); free(heap->seen); free(heap->keys); free(heap); return true;
+    free(heap->pending); free(heap->seen); free(heap->keys); free(heap->consumed); free(heap); return true;
+}
+bool nl_carrier_values_consume_legacy_list(NlCarrierValues *heap, List_int *list) {
+    if (!heap || heap->busy) return false;
+    if (!list) return true;
+    if (consumed_slot(heap, list) != SIZE_MAX) return false;
+    CarrierValue *owned = nl_carrier_heap_context(heap->engine, list);
+    if (owned && owned->ref.record_list != NL_CARRIER_LEGACY_RECORD_LIST) return false;
+    if (gc_is_managed(list) || !valid_value(nl_carrier_legacy_record_list(list)) ||
+        heap->consumed_count == SIZE_MAX) return false;
+    ConsumedList *next = grow(heap->consumed, &heap->consumed_capacity,
+                             heap->consumed_count + 1, sizeof *next);
+    if (!next) return false;
+    heap->consumed = next;
+    heap->busy = true;
+    bool result = true;
+    if (owned) result = nl_carrier_heap_destroy(heap->engine, list);
+    else list_int_free(list);
+    if (result) heap->consumed[heap->consumed_count++] = (ConsumedList){list, false};
+    heap->busy = false;
+    return result;
+}
+bool nl_carrier_values_begin_list_borrow(NlCarrierValues *heap, NlCarrierRef ref) {
+    if (!heap || heap->busy || ref.value.type != VAL_INT ||
+        (ref.record_list != NL_CARRIER_RECORD_LIST &&
+         ref.record_list != NL_CARRIER_LEGACY_RECORD_LIST)) return false;
+    void *list = value_key(ref);
+    if (!list || nl_carrier_heap_contains(heap->engine, list)) return false;
+    if (gc_is_managed(list) && (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST ||
+        gc_get_header(list)->type != GC_TYPE_ARRAY)) return false;
+    if (!valid_value(ref)) return false;
+    forget_consumption(heap, consumed_slot(heap, list));
+    return true;
+}
+size_t nl_carrier_values_consumed_count(const NlCarrierValues *heap) {
+    return heap ? heap->consumed_count : 0;
+}
+size_t nl_carrier_values_consumed_capacity(const NlCarrierValues *heap) {
+    return heap ? heap->consumed_capacity : 0;
 }
 NlCarrierHeapStats nl_carrier_values_stats(const NlCarrierValues *heap) {
     return nl_carrier_heap_stats(heap ? heap->engine : NULL);

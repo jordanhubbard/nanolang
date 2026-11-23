@@ -169,6 +169,16 @@ static void carrier_destroy_slot(NlCarrierHeap *heap, size_t slot) {
     free(entry);
 }
 
+bool nl_carrier_heap_destroy(NlCarrierHeap *heap, const void *object) {
+    if (!heap || heap->collecting || !object) return false;
+    size_t slot = carrier_slot(heap, object, false);
+    if (slot == SIZE_MAX) return false;
+    heap->collecting = true;
+    carrier_destroy_slot(heap, slot);
+    heap->collecting = false;
+    return true;
+}
+
 bool nl_carrier_heap_collect(NlCarrierHeap *heap,
                              const void *const *roots, size_t root_count) {
     if (!heap || heap->collecting || (root_count && !roots)) return false;

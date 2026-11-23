@@ -257,6 +257,22 @@ void env_carrier_track_legacy_list(Environment *env, List_int *list) {
     env_carrier_hold(env, value);
 }
 
+void env_carrier_consume_legacy_list(Environment *env, List_int *list) {
+    if (!env_carrier_enabled(env)) { list_int_free(list); return; }
+    if (!nl_carrier_values_consume_legacy_list(env->carrier_session->values, list)) ownership_failure();
+}
+
+bool env_carrier_begin_list_borrow(Environment *env, NlCarrierRef list) {
+    return !env_carrier_enabled(env) ||
+        nl_carrier_values_begin_list_borrow(env->carrier_session->values, list);
+}
+size_t env_carrier_consumed_count(const Environment *env) {
+    return nl_carrier_values_consumed_count(env_carrier_enabled(env) ? env->carrier_session->values : NULL);
+}
+size_t env_carrier_consumed_capacity(const Environment *env) {
+    return nl_carrier_values_consumed_capacity(env_carrier_enabled(env) ? env->carrier_session->values : NULL);
+}
+
 bool env_carrier_owns(Environment *env, Value value) {
     return env_carrier_enabled(env) &&
         nl_carrier_values_contains(env->carrier_session->values, nl_carrier_value(value));

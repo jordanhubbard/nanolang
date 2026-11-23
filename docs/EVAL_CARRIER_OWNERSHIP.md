@@ -588,3 +588,57 @@ must coordinate consumption with root ownership while preserving immediate
 free, aliases/callers/address reuse and metadata/native-byte bounds. I retain
 that complete failure. #1231/#1116/#1213, default ownership, paired/raw/bootstrap
 and all 69 release requirements remain open; no ordinary session is enabled.
+
+## My explicit legacy list consumption boundary
+
+Under #1233 I release a lower-case record list's malloc-backed header and data
+at its explicit free call. I retain no freed payload. My private heap removes
+that exact registered allocation before invoking its nonrecursive destructor,
+counts its destruction, and refuses unknown or reentrant single-object
+retirement. Referenced record allocations remain separately owned.
+
+My adapter records explicit consumption provenance so later declared aliases
+and typed record fields do not read the released list header. I keep only an
+address and a reached bit. A complete successful collection prunes facts no
+longer reached by typed roots; failed walks retain them. Ordinary INT bits do
+not keep a fact alive. A transfer that reaches a consumed list refuses before
+transferring any allocation. Null free remains a no-op; repeated consumption
+refuses before reading released storage.
+
+A new owned constructor/admission starts a new lifetime at its address. For
+caller-owned storage I require `nl_carrier_values_begin_list_borrow` (or my
+private environment counterpart) with an explicit canonical or legacy layout
+when reusing a consumed address. My caller replaces obsolete caller root
+facts and keeps the supplied storage valid until withdrawing those roots. I
+validate the stated layout and refuse ordinary INT facts, malformed headers,
+wrong managed kinds and already owned addresses. This boundary adopts no
+caller storage. I do not infer a fresh lifetime from pointer bits.
+
+My focused source fixture frees returned lists, aliases, record fields and a
+caller-provided list argument while retaining copied scalar/STRING/record
+results. My C/API controls cover immediate destructor calls, stale alias and
+field tracing, rejected transfer, failed-walk recovery, borrowed teardown in
+both orders, and bounded consumption metadata. My deterministic address-reuse
+model retains an arena header, frees its data, and poisons the old header under
+ASan before presenting a new explicit lifetime. It exercises owned and borrowed
+legacy lifetimes and a caller-owned canonical layout at the same address; it
+is distinct from my real native-free cases. I compile only this test adapter
+with a renamed list destructor, without a platform-specific linker wrapper.
+
+My native source test measures actual allocation at rounds 128 and 512 and
+requires growth no greater than 1,024 bytes, after observing and releasing a
+2 MiB positive control. It still checks source results and metadata bounds on
+hosts lacking that byte counter, and reports the missing metric explicitly.
+My full private compiler cost gate #1232 and complete ordinary ownership
+activation remain separate requirements. This consumption boundary changes
+no public Value/container/foreign layout or ordinary environment selection.
+
+My [Linux consumption receipt](evidence/legacy-list-consumption-linux-20261123/README.md)
+retains the original failing probe and its passing unchanged source across all
+three profiles. Final real source rounds report zero native-byte growth from
+128 to 512 in each profile, with zero live carriers/consumed facts at the
+explicit collection checkpoints and capacity at most 16. All original 1,306
+ordinary compiler-source shadows complete in 139.849 seconds and the native
+product runs `--help`. Default complete admission still has three LSan failures
+of 168/172/172 bytes. I close only the explicit-free semantic blocker; private
+compiler cost, complete default ownership and release acceptance remain open.

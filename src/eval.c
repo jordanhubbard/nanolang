@@ -4456,6 +4456,13 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
             }
             if (strcmp(operation, "free") == 0) {
                 List_int *list = (List_int*)args[0].as.int_val;
+                if (env_carrier_enabled(g_carrier_environment) && last_underscore > name + 5) {
+                    char *element = strndup(name + 5, (size_t)(last_underscore - name - 5));
+                    if (!element) { fputs("I cannot retain the list consumption identity.\n", stderr); exit(1); }
+                    bool record = env_get_struct(env, element) != NULL;
+                    free(element);
+                    if (record) { env_carrier_consume_legacy_list(env, list); return create_void(); }
+                }
                 list_int_free(list);
                 return create_void();
             }

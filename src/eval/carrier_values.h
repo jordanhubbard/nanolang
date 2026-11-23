@@ -41,6 +41,20 @@ bool nl_carrier_values_collect(NlCarrierValues *heap,
  * allocations. Failure transfers none. Caller storage is never adopted. */
 bool nl_carrier_values_transfer(NlCarrierValues *heap,
                                 const NlCarrierRef *roots, size_t count);
+/* I consume malloc-backed legacy storage at an explicit free boundary. I free
+ * its header/data now, not its separately owned record children. A repeated
+ * consumption fails before reading freed storage. The caller grants this
+ * exact destruction; ordinary INT facts never call this operation. */
+bool nl_carrier_values_consume_legacy_list(NlCarrierValues *heap, List_int *list);
+/* I start an explicitly new caller-owned lifetime at a reused address. The
+ * caller supplies the actual canonical or legacy layout and replaces old
+ * caller root facts. Storage remains valid until those roots are withdrawn.
+ * I adopt nothing; owned addresses, ordinary INT facts and malformed layouts
+ * are refused. This explicit boundary is not inferred from pointer bits. */
+bool nl_carrier_values_begin_list_borrow(NlCarrierValues *heap, NlCarrierRef list);
+/* My consumed facts hold addresses only, never released payloads. */
+size_t nl_carrier_values_consumed_count(const NlCarrierValues *heap);
+size_t nl_carrier_values_consumed_capacity(const NlCarrierValues *heap);
 NlCarrierHeapStats nl_carrier_values_stats(const NlCarrierValues *heap);
 size_t nl_carrier_values_reclaimed_arrays(void);
 #endif
