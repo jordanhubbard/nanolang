@@ -1507,12 +1507,22 @@ test-eval-callable-lifetimes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/te
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_lifetimes tests/test_eval_callable_lifetimes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_eval_callable_lifetimes
 
+test-units: test-eval-callable-lifetimes
+
 .PHONY: test-eval-callable-record-escape
 test-eval-callable-record-escape: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_record_escape tests/test_eval_callable_record_escape.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/test_eval_callable_record_escape
 
 test-units: test-eval-callable-record-escape
+
+.PHONY: test-eval-callable-expression-ownership
+test-eval-callable-expression-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_callable_expression_ownership tests/test_eval_callable_expression_ownership.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_callable_expression_ownership
+
+test-units: test-eval-callable-expression-ownership
+
 
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
@@ -4070,6 +4080,12 @@ $(OBJ_DIR)/repl_main.o: $(SRC_DIR)/repl_main.c $(HEADERS) | $(OBJ_DIR)
 $(REPL_BINARY): $(REPL_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(REPL_BINARY) $(REPL_OBJECTS) $(LDFLAGS)
 	@echo "✓ REPL: $(REPL_BINARY)"
+
+.PHONY: test-repl-callable-lifetimes
+test-repl-callable-lifetimes: $(REPL_BINARY)
+	NANO_REPL=$(abspath $(REPL_BINARY)) python3 -m unittest -v tests.test_repl_callable_lifetimes
+
+# I wire this new gate after the preexisting strict REPL build is repaired (#1205).
 
 .PHONY: repl
 repl: $(REPL_BINARY)

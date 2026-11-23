@@ -999,6 +999,8 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 /* REPL support */
+/* I return owned callable name/signature metadata; my caller retires both.
+ * Other result kinds retain their existing lifetime rules. */
 Value repl_eval_node(ASTNode *node, Environment *env);
 void  repl_print_value(Value val);
 

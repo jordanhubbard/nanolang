@@ -98,6 +98,13 @@ static char *read_input(void) {
 
 /* --- value display --------------------------------------------------------- */
 
+/* I consume only the callable metadata owned by an expression result. */
+static void retire_callable_result(Value value) {
+    if (value.type != VAL_FUNCTION) return;
+    free(value.as.function_val.function_name);
+    free_function_signature(value.as.function_val.signature);
+}
+
 static void show_result(Value val) {
     if (val.type == VAL_VOID) return;
     printf("=> ");
@@ -219,6 +226,7 @@ static int eval_source_into_env(const char *path, const char *src, Environment *
     for (int i = 0; i < count; i++) {
         Value result = repl_eval_node(program->as.program.items[i], env);
         show_result(result);
+        retire_callable_result(result);
     }
     if (!adopt_ast) free_ast(program);
     return count;
@@ -299,7 +307,8 @@ static void cmd_reload(const char *path, Environment *env) {
     repl_track(program, src);
 
     for (int i = 0; i < program->as.program.count; i++) {
-        repl_eval_node(program->as.program.items[i], tmp);
+        Value ignored = repl_eval_node(program->as.program.items[i], tmp);
+        retire_callable_result(ignored);
     }
 
     /* Hot-patch: walk tmp function table, apply to live env */
@@ -480,6 +489,7 @@ int run_repl(void) {
             if (node->type == AST_IMPORT) continue;
             Value result = repl_eval_node(node, env);
             show_result(result);
+            retire_callable_result(result);
         }
     }
 

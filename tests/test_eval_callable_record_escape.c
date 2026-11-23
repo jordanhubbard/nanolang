@@ -103,6 +103,27 @@ int main(int argc, char **argv) {
     ASSERT_EQ(result.type,VAL_INT);ASSERT_EQ(result.as.int_val,7);
     result = call_function("union_case", NULL, 0, ctx.env);
     ASSERT_EQ(result.type, VAL_INT); ASSERT_EQ(result.as.int_val, 7);
+    Type argument = TYPE_INT;
+    Value caller = create_function("lifetime_target",
+        create_function_signature(&argument, 1, TYPE_INT));
+    const char *caller_name = caller.as.function_val.function_name;
+    FunctionSignature *caller_signature = caller.as.function_val.signature;
+    Value escaped = call_function("record_factory", &caller, 1, ctx.env);
+    ASSERT_EQ(escaped.type, VAL_STRUCT);
+    Value action = escaped.as.struct_val->field_values[0];
+    ASSERT_EQ(action.type, VAL_FUNCTION);
+    ASSERT(action.as.function_val.function_name != caller_name);
+    ASSERT(action.as.function_val.signature != caller_signature);
+    ASSERT(caller.as.function_val.function_name == caller_name);
+    ASSERT(caller.as.function_val.signature == caller_signature);
+    ASSERT(strcmp(caller_name, "lifetime_target") == 0);
+    Value seven = create_int(7);
+    result = call_function(action.as.function_val.function_name, &seven, 1, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT); ASSERT_EQ(result.as.int_val, 7);
+    release_field(escaped);
+    result = call_function(caller_name, &seven, 1, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT); ASSERT_EQ(result.as.int_val, 7);
+    release_field(caller);
     ASSERT(run_shadow_tests(ctx.program,ctx.env,false));
     puts("I preserve record and union callbacks after their defining calls and run every fixture shadow.");
     run_ctx_free(&ctx);return 0;

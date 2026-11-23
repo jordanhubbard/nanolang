@@ -52,11 +52,14 @@ void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
 
 /* ── Coroutine spawn helpers ─────────────────────────────────────────── */
 
+static void eval_discard_callable_values(Value *values, int count);
+
 /* Argument bundle for spawned coroutines */
 typedef struct {
     char *func_name;    /* Name of the async function to call */
     Value *args;        /* Argument array (malloc'd copy) */
     int arg_count;
+    bool owns_callable_args;
     Environment *env;   /* Shared environment */
 } CoroCallArgs;
 
@@ -66,6 +69,7 @@ static Value coro_trampoline(void *raw_arg, int coro_id) {
     CoroCallArgs *ca = (CoroCallArgs *)raw_arg;
     extern Value call_function(const char *name, Value *args, int arg_count, Environment *env);
     Value result = call_function(ca->func_name, ca->args, ca->arg_count, ca->env);
+    if (ca->owns_callable_args) eval_discard_callable_values(ca->args, ca->arg_count);
     free(ca->args);
     free(ca->func_name);
     free(ca);
@@ -265,11 +269,16 @@ static void eval_pop_binding_metadata(Environment *env, int first) {
     env->symbol_count = first;
 }
 
-/* I restore lexical bindings on every exit, retaining a yielded local string. */
+static Value copy_array_callable(Value value);
+static void discard_array_callable(Value value);
+
+/* I restore lexical bindings on every exit, retaining a yielded local string.
+ * Callable expression results already own independent metadata. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
     Value result = create_void();
     for (int i = 0; i < count; ++i) {
+        if (result.type == VAL_FUNCTION) discard_array_callable(result);
         result = eval_statement(statements[i], env);
         if (result.is_return || result.is_break || result.is_continue) break;
     }
@@ -290,6 +299,8 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
         if (symbol->value.type == VAL_STRING) {
             if (gc_is_managed(symbol->value.as.string_val)) gc_release(symbol->value.as.string_val);
             else free(symbol->value.as.string_val);
+        } else if (symbol->value.type == VAL_FUNCTION) {
+            discard_array_callable(symbol->value);
         }
     }
     env->symbol_count = first;
@@ -1011,15 +1022,37 @@ static Value builtin_println(Value *args) {
 /* I give callable array slots independent names and signature ownership.
  * Reads copy them so replacement, removal and container reclamation cannot
  * invalidate an extracted function value. */
-static Value own_function_identifier(ASTNode *, Environment *, Value);
-
 static Value copy_array_callable(Value value) {
-    return create_function(value.as.function_val.function_name,
-                           copy_function_signature(value.as.function_val.signature));
+    Value copy = create_function(value.as.function_val.function_name,
+                                 copy_function_signature(value.as.function_val.signature));
+    copy.is_return = value.is_return;
+    copy.return_target = value.is_return ? value.return_target : NULL;
+    copy.is_break = value.is_break;
+    copy.is_continue = value.is_continue;
+    return copy;
 }
 static void discard_array_callable(Value value) {
     free(value.as.function_val.function_name);
     free_function_signature(value.as.function_val.signature);
+}
+
+/* I copy borrowed callable metadata at expression reads; other values keep
+ * their existing representation and lifetime rules. */
+static Value eval_borrowed_value(Value value) {
+    return value.type == VAL_FUNCTION ? copy_array_callable(value) : value;
+}
+
+/* Source argument expressions own callable metadata, unlike borrowed C/API
+ * inputs to call_function. A propagated return keeps its own argument slot. */
+static void eval_discard_callable_values(Value *values, int count) {
+    for (int i = 0; i < count; ++i) {
+        if (values[i].type == VAL_FUNCTION) discard_array_callable(values[i]);
+    }
+}
+
+static void eval_release_call_arguments(Value *args, Value *inline_args, int count) {
+    eval_discard_callable_values(args, count);
+    eval_call_arguments_release(args, inline_args);
 }
 
 static Value builtin_at(Value *args) {
@@ -3208,7 +3241,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         Value left = eval_expression(node->as.prefix_op.args[0], env);
         if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
-        if (right.is_return) return right;
+        if (right.is_return) {
+            if (left.type == VAL_FUNCTION) discard_array_callable(left);
+            return right;
+        }
 
         bool equal = false;
         if (left.type == right.type) {
@@ -3289,6 +3325,8 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             }
         }
 
+        if (left.type == VAL_FUNCTION) discard_array_callable(left);
+        if (right.type == VAL_FUNCTION) discard_array_callable(right);
         return create_bool(op == TOKEN_EQ ? equal : !equal);
     }
 
@@ -4180,6 +4218,8 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                         /* Deep-copy strings so they outlive the caller's stack frame */
                         if (sv_copy->field_values[i].type == VAL_STRING && sv_copy->field_values[i].as.string_val) {
                             sv_copy->field_values[i].as.string_val = strdup(sv_copy->field_values[i].as.string_val);
+                        } else if (sv_copy->field_values[i].type == VAL_FUNCTION) {
+                            sv_copy->field_values[i] = copy_array_callable(sv_copy->field_values[i]);
                         }
                     }
                     list_int_push(list, (int64_t)sv_copy);
@@ -4929,6 +4969,8 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
             ca->args = malloc(sizeof(Value) * (size_t)(node->as.call.arg_count > 0 ? node->as.call.arg_count : 1));
             if (ca->args) memcpy(ca->args, args, sizeof(Value) * (size_t)node->as.call.arg_count);
             ca->arg_count = node->as.call.arg_count;
+            /* I await synchronously while the source argument owner stays live. */
+            ca->owns_callable_args = false;
             ca->env = env;
             int coro_id = nano_coro_spawn(coro_trampoline, ca);
             if (coro_id >= 0) {
@@ -4998,6 +5040,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
     env_set_current_file(env, func->source_file);
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
+        if (result.type == VAL_FUNCTION) discard_array_callable(result);
         ASTNode *stmt = func->body->as.block.statements[i];
         if (stmt->type == AST_RETURN) {
             if (stmt->as.return_stmt.value) {
@@ -5028,9 +5071,6 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
     Value return_value = result;
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
-    } else if (result.type == VAL_FUNCTION) {
-        FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
-        return_value = create_function(result.as.function_val.function_name, sig_copy);
     } else if (result.type == VAL_STRUCT && result.as.struct_val) {
         StructValue *src = result.as.struct_val;
         StructValue *dst = allocate_struct_carrier(src->struct_name, src->field_names,
@@ -5039,6 +5079,8 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
             dst->field_values[i] = src->field_values[i];
             if (dst->field_values[i].type == VAL_STRING && dst->field_values[i].as.string_val) {
                 dst->field_values[i].as.string_val = strdup(dst->field_values[i].as.string_val);
+            } else if (dst->field_values[i].type == VAL_FUNCTION) {
+                dst->field_values[i] = copy_array_callable(dst->field_values[i]);
             }
         }
 
@@ -5103,6 +5145,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
         if (!func_name) {
             fprintf(stderr, "Error: Cannot get function name from function value\n");
+            discard_array_callable(func_val);
             return create_void();
         }
 
@@ -5126,22 +5169,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             args[i] = eval_expression(node->as.call.args[i], env);
             if (args[i].is_return) {
                 Value result = args[i];
-                eval_call_arguments_release(args, inline_args);
+                eval_release_call_arguments(args, inline_args, i);
                 free(func_name);
+                discard_array_callable(func_val);
                 return result;
             }
         }
         if (!func) {
             fprintf(stderr, "Error: Function '%s' not found\n", func_name);
-            eval_call_arguments_release(args, inline_args);
+            eval_release_call_arguments(args, inline_args, node->as.call.arg_count);
             free(func_name);
+            discard_array_callable(func_val);
             return create_void();
         }
 
         Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
                                         node->line, node->column);
-        eval_call_arguments_release(args, inline_args);
+        eval_release_call_arguments(args, inline_args, node->as.call.arg_count);
         free(func_name);
+        discard_array_callable(func_val);
         return result;
     }
 
@@ -5166,15 +5212,16 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         ASTNode *fn_arg = node->as.call.args[0];
         const char *async_fn_name = NULL;
+        Value owned_callee = create_void();
         if (fn_arg->type == AST_IDENTIFIER) {
             async_fn_name = fn_arg->as.identifier;
         } else if (fn_arg->type == AST_STRING) {
             async_fn_name = fn_arg->as.string_val;
         } else {
-            Value fn_val = eval_expression(fn_arg, env);
-            if (fn_val.type == VAL_FUNCTION) {
-                async_fn_name = fn_val.as.function_val.function_name;
-            }
+            owned_callee = eval_expression(fn_arg, env);
+            if (owned_callee.is_return) return owned_callee;
+            if (owned_callee.type == VAL_FUNCTION)
+                async_fn_name = owned_callee.as.function_val.function_name;
         }
         if (!async_fn_name) {
             fprintf(stderr, "Error: spawn() first argument must be a function\n");
@@ -5185,14 +5232,33 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         Value *spawn_args = extra_args > 0
             ? malloc(sizeof(Value) * extra_args)
             : NULL;
+        if (extra_args > 0 && !spawn_args) {
+            if (owned_callee.type == VAL_FUNCTION) discard_array_callable(owned_callee);
+            return create_void();
+        }
         for (int i = 0; i < extra_args; i++) {
             spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+            if (spawn_args[i].is_return) {
+                Value result = spawn_args[i];
+                eval_discard_callable_values(spawn_args, i);
+                free(spawn_args);
+                if (owned_callee.type == VAL_FUNCTION) discard_array_callable(owned_callee);
+                return result;
+            }
         }
 
         CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        if (!ca) {
+            eval_discard_callable_values(spawn_args, extra_args);
+            free(spawn_args);
+            if (owned_callee.type == VAL_FUNCTION) discard_array_callable(owned_callee);
+            return create_void();
+        }
         ca->func_name = strdup(async_fn_name);
+        if (owned_callee.type == VAL_FUNCTION) discard_array_callable(owned_callee);
         ca->args = spawn_args;
         ca->arg_count = extra_args;
+        ca->owns_callable_args = true;
         ca->env = env;
 
         if (!g_scheduler.initialized) nano_scheduler_init();
@@ -5200,6 +5266,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (coro_id < 0) {
             fprintf(stderr, "Error: spawn() failed — scheduler full\n");
             free(ca->func_name);
+            eval_discard_callable_values(ca->args, ca->arg_count);
             free(ca->args);
             free(ca);
             return create_void();
@@ -5233,7 +5300,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (node->as.call.arg_count < 1) return create_void();
         Value h = eval_expression(node->as.call.args[0], env);
         return (h.type == VAL_COROUTINE)
-            ? nano_coro_result((int)h.as.int_val)
+            ? eval_borrowed_value(nano_coro_result((int)h.as.int_val))
             : create_void();
     }
 
@@ -5271,13 +5338,13 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         args[i] = eval_expression(node->as.call.args[i], env);
         if (args[i].is_return) {
             Value result = args[i];
-            eval_call_arguments_release(args, inline_args);
+            eval_release_call_arguments(args, inline_args, i);
             return result;
         }
     }
 
     Value result = eval_evaluated_call(node, env, name, call_name, args);
-    eval_call_arguments_release(args, inline_args);
+    eval_release_call_arguments(args, inline_args, node->as.call.arg_count);
     return result;
 }
 
@@ -5350,7 +5417,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 #else
                 trace_var_read(expr->as.identifier, sym->value, expr->line, expr->column, NULL);
 #endif
-                return sym->value;
+                return eval_borrowed_value(sym->value);
             }
             
             /* If not a variable, check if it's a function (for first-class function support) */
@@ -5423,6 +5490,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     args[i] = eval_expression(expr->as.module_qualified_call.args[i], env);
                     if (args[i].is_return) {
                         Value result = args[i];
+                        eval_discard_callable_values(args, i);
                         free(args);
                         free(qualified_name);
                         return result;
@@ -5432,6 +5500,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
             Value result = call_function_at(qualified_name, args, arg_count, env,
                                             expr->line, expr->column);
+            eval_discard_callable_values(args, arg_count);
             free(args);
             free(qualified_name);
             return result;
@@ -5483,11 +5552,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         ((void **)arr.as.array_val->data)[i] = elem.as.bstring_val;
                         break;
                     case VAL_FUNCTION: {
-                        ASTNode *element = expr->as.array_literal.elements[i];
-                        ((Value *)arr.as.array_val->data)[i] = element->type == AST_IDENTIFIER
-                            ? own_function_identifier(element, env, elem) :
-                            (element->type == AST_CALL || element->type == AST_MODULE_QUALIFIED_CALL)
-                                ? elem : copy_array_callable(elem);
+                        ((Value *)arr.as.array_val->data)[i] = elem;
                         break;
                     }
                     case VAL_ARRAY:
@@ -5590,6 +5655,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                     field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
                                     if (field_values[i].is_return) {
                                         Value result = field_values[i];
+                                        eval_discard_callable_values(field_values, i);
                                         free(field_values);
                                         return result;
                                     }
@@ -5599,6 +5665,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             Value result = create_union(union_name_buf, variant_idx, variant_name,
                                                       expr->as.struct_literal.field_names, field_values, field_count);
 
+                            eval_discard_callable_values(field_values, field_count);
                             if (field_values) free(field_values);
                             return result;
                         }
@@ -5639,6 +5706,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         merged_count++;
                     }
                 }
+                int borrowed_fields = merged_count;
                 /* Add override/new fields */
                 for (int oi = 0; oi < over_count; oi++) {
                     merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
@@ -5646,12 +5714,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         expr->as.struct_literal.field_values[oi], env);
                     if (merged_values[merged_count].is_return) {
                         Value result = merged_values[merged_count];
+                        eval_discard_callable_values(merged_values + borrowed_fields,
+                                                     merged_count - borrowed_fields);
                         free(merged_names);
                         free(merged_values);
                         return result;
                     }
                     if (!eval_record_field_context(context, merged_names[merged_count],
                             &merged_values[merged_count])) {
+                        eval_discard_callable_values(merged_values + borrowed_fields,
+                                                     merged_count - borrowed_fields + 1);
                         free(merged_names);
                         free(merged_values);
                         return create_void();
@@ -5665,6 +5737,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                      : (base_sv ? base_sv->struct_name : NULL);
                 Value result = create_struct(res_name ? res_name : "anonymous",
                                              merged_names, merged_values, merged_count);
+                eval_discard_callable_values(merged_values + borrowed_fields,
+                                             merged_count - borrowed_fields);
                 free(merged_names);
                 free(merged_values);
                 return result;
@@ -5689,11 +5763,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
                 if (field_values[i].is_return) {
                     Value result = field_values[i];
+                    eval_discard_callable_values(field_values, i);
                     free(field_names);
                     free(field_values);
                     return result;
                 }
                 if (!eval_record_field_context(struct_def, field_names[i], &field_values[i])) {
+                    eval_discard_callable_values(field_values, i + 1);
                     free(field_names);
                     free(field_values);
                     return create_void();
@@ -5705,7 +5781,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value result = create_struct(struct_name, field_names, field_values, field_count);
             
             
-            /* Free temporary arrays (create_struct makes copies) */
+            /* I retire copied callable expression inputs, not borrowed containers. */
+            eval_discard_callable_values(field_values, field_count);
             free(field_names);
             free(field_values);
             
@@ -5716,7 +5793,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_FIELD_ACCESS: {
             if (expr->checked_global) {
                 Symbol *global = env_get_declared_global(env, expr->checked_global);
-                return global ? global->value : create_void();
+                return global ? eval_borrowed_value(global->value) : create_void();
             }
             /* I already know a live record binding denotes a value. Static
              * source visibility is only needed for enum/import spellings.
@@ -5782,7 +5859,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             const char *field_name = expr->as.field_access.field_name;
             StructValue *sv = obj.as.struct_val;
             
-            return eval_record_field_value(sv, field_name);
+            return eval_borrowed_value(eval_record_field_value(sv, field_name));
         }
 
         case AST_UNION_CONSTRUCT: {
@@ -5811,6 +5888,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     field_values[i] = eval_expression(expr->as.union_construct.field_values[i], env);
                     if (field_values[i].is_return) {
                         Value result = field_values[i];
+                        eval_discard_callable_values(field_values, i);
                         free(field_names);
                         free(field_values);
                         return result;
@@ -5821,7 +5899,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value result = create_union(union_name, variant_idx, variant_name, 
                                        field_names, field_values, field_count);
             
-            /* Free temporary arrays (create_union makes copies) */
+            /* Free temporary arrays after their callable inputs were copied. */
+            eval_discard_callable_values(field_values, field_count);
             if (field_count > 0) {
                 free(field_names);
                 free(field_values);
@@ -5948,6 +6027,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
                 if (elements[i].is_return) {
                     Value result = elements[i];
+                    eval_discard_callable_values(elements, i);
                     free(elements);
                     return result;
                 }
@@ -5955,6 +6035,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Create tuple value */
             Value result = create_tuple(elements, element_count);
+            eval_discard_callable_values(elements, element_count);
             free(elements);  /* create_tuple makes a copy */
             
             return result;
@@ -6010,7 +6091,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         expr->line, expr->column);
                 return create_void();
             }
-            return uv->field_values[0];
+            return eval_borrowed_value(uv->field_values[0]);
         }
         case AST_AWAIT: {
             /*
@@ -6023,7 +6104,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (inner.is_return) return inner;
             if (inner.type == VAL_COROUTINE) {
                 int coro_id = (int)inner.as.int_val;
-                return nano_coro_await_id(coro_id);
+                /* I copy the cached result so repeated awaits remain independent. */
+                return eval_borrowed_value(nano_coro_await_id(coro_id));
             }
             return inner;
         }
@@ -6104,6 +6186,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 args[i] = eval_expression(expr->as.effect_op.args[i], env);
                 if (args[i].is_return) {
                     Value result = args[i];
+                    eval_discard_callable_values(args, i);
                     free(args);
                     return result;
                 }
@@ -6122,7 +6205,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
             g_eval_return_target = saved_return_target;
 
-            /* Restore scope. */
+            /* I retire adopted handler parameters after preserving the result. */
+            for (int i = saved_sym; i < henv->symbol_count; ++i) {
+                if (henv->symbols[i].value.type == VAL_FUNCTION)
+                    discard_array_callable(henv->symbols[i].value);
+            }
             eval_pop_binding_metadata(henv, saved_sym);
 
             /* I preserve lexical returns; ordinary final values resume perform. */
@@ -6134,23 +6221,6 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         default:
             return create_void();
     }
-}
-
-/* An identifier read borrows its environment value. A new binding owns its
- * value, so function identifiers need the same explicit copy that call
- * parameters and returned function values already receive. */
-static Value own_function_identifier(ASTNode *expression, Environment *env,
-                                     Value value) {
-    if (value.type != VAL_FUNCTION || !expression) return value;
-    Symbol *source = expression->checked_global
-        ? env_get_declared_global(env, expression->checked_global)
-        : expression->type == AST_IDENTIFIER
-            ? eval_binding(expression, env, expression->as.identifier) : NULL;
-    if (!source || source->value.type != VAL_FUNCTION ||
-        source->value.as.function_val.function_name !=
-            value.as.function_val.function_name) return value;
-    return create_function(value.as.function_val.function_name,
-        copy_function_signature(value.as.function_val.signature));
 }
 
 /* Evaluate statement */
@@ -6189,7 +6259,6 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             }
             if (value.type == VAL_ARRAY && stmt->as.let.element_type == TYPE_U8)
                 value.as.array_val->is_byte_array = true;
-            value = own_function_identifier(stmt->as.let.value, env, value);
             env_define_evaluated_var(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,
@@ -6226,15 +6295,17 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     StructValue *record = owner->value.as.struct_val;
                     for (int i = 0; i < record->field_count; ++i) {
                         if (!strcmp(record->field_names[i], stmt->as.set.field_name)) {
+                            /* I defer field retirement until complete carrier ownership
+                             * is established, including borrowed C/API records. */
                             record->field_values[i] = value;
                             return create_void();
                         }
                     }
                 }
                 fprintf(stderr, "I cannot resolve a borrowed field during evaluation\n");
+                if (value.type == VAL_FUNCTION) discard_array_callable(value);
                 return create_void();
             }
-            value = own_function_identifier(stmt->as.set.value, env, value);
             env_set_evaluated_binding(env, eval_binding(stmt, env, stmt->as.set.name),
                                       value, stmt->as.set.value);
             
@@ -6258,6 +6329,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 Value condition = eval_expression(stmt->as.while_stmt.condition, env);
                 if (condition.is_return) return condition;
                 if (!is_truthy(condition)) break;
+                if (result.type == VAL_FUNCTION) discard_array_callable(result);
                 result = eval_statement(stmt->as.while_stmt.body, env);
                 /* If body returned a value, propagate it immediately */
                 if (result.is_return) {
@@ -6303,6 +6375,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 Value result = create_void();
                 for (long long i = start; i < end; i++) {
                     env->symbols[loop_var_index].value = create_int(i);
+                    if (result.type == VAL_FUNCTION) discard_array_callable(result);
                     result = eval_statement(stmt->as.for_stmt.body, env);
                     if (result.is_return) {
                         eval_pop_binding_metadata(env, loop_var_index);
@@ -6348,6 +6421,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         env->symbols[loop_var_index].value = elem;
                         if (elem.type == VAL_FUNCTION)
                             env->symbols[loop_var_index].type = TYPE_FUNCTION;
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (elem.type == VAL_FUNCTION) {
                             /* I keep the loop value alive across mutations of its array slot. */
@@ -6382,6 +6456,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -6392,6 +6467,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_int(lst->data[idx]);
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -6402,6 +6478,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_string(lst->data[idx]);
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -6412,6 +6489,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     if (!lst) { eval_pop_binding_metadata(env, loop_var_index); return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_bool(lst->data[idx]);
+                        if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
                         if (result.is_break) { result = create_void(); break; }
@@ -6461,6 +6539,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             Value value = eval_expression(stmt->as.print.expr, env);
             if (value.is_return) return value;
             print_value(value);
+            if (value.type == VAL_FUNCTION) discard_array_callable(value);
             if (stmt->as.print.is_println) printf("\n");
             return create_void();
         }
@@ -6492,6 +6571,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 exit(1);
             }
             for (int i = 0; i < stmt->as.par_block.count; i++) {
+                if (par_result.type == VAL_FUNCTION) discard_array_callable(par_result);
                 par_result = eval_statement(stmt->as.par_block.bindings[order ? order[i] : i], env);
                 if (par_result.is_return || par_result.is_break || par_result.is_continue) break;
             }
@@ -6809,7 +6889,8 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                 bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
                 if (trace_shadows)
                     shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
-                eval_statement(item->as.shadow.body, env);
+                Value shadow_result = eval_statement(item->as.shadow.body, env);
+                if (shadow_result.type == VAL_FUNCTION) discard_array_callable(shadow_result);
                 if (trace_shadows) {
                     double elapsed = -1;
                     if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)
@@ -6921,8 +7002,9 @@ bool run_program(ASTNode *program, Environment *env) {
             continue;
         }
 
-        /* Execute the item */
-        eval_statement(item, env);
+        /* Execute the item and retire an unused callable expression result. */
+        Value ignored = eval_statement(item, env);
+        if (ignored.type == VAL_FUNCTION) discard_array_callable(ignored);
     }
 
     return true;
@@ -7064,7 +7146,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
         return_value = create_string(result.as.string_val);
     }
     
-    if (result.type == VAL_FUNCTION) return_value = copy_array_callable(result);
+    /* I transfer the owned callable expression result without a lost copy. */
 
     /* I consume only this activation's return, after preserving its value. */
     return_value.is_return = result.is_return && result.return_target &&

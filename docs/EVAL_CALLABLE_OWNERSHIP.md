@@ -59,12 +59,43 @@ budgets. The targeted trace and future focused passes cannot close #1140 or
 the full 69-requirement release by themselves. My older dirty callable audit,
 private candidates, stashes and frozen roots remain untouched.
 
-My first repair copies borrowed callable names and complete signatures in
+My first repair at d732326d70 copies borrowed callable names and complete signatures in
 create_struct and create_union. Six constructor values retain independent
 nested signatures after explicit source retirement; this bounded control passes
 with my fresh ASan/UBSan provider build and leak detection enabled. My source
 record/union fixture and all its shadows also finish, then LeakSanitizer reports
-3,920 bytes in169 allocations. I retain that full unsuccessful run. My original
+3,920 bytes in169 allocations. I retain that full unsuccessful run. At that constructor-only pin, my original
 nine-route audit still retains576 names. I have not enabled additional field,
 container or scope cleanup. These constructor copies establish a prerequisite;
 they do not satisfy the required contract above.
+
+My subsequent owned-expression foundation gives variable/field/aggregate reads
+independent callable metadata, transfers returned callables without a lost
+intermediate copy, retires direct callable scope/argument/callee temporaries,
+and preserves borrowed C/API arguments. I preserve control-flow flags and
+logical module targets. Source constructor/tuple inputs retire after copying;
+handler parameters and the two async argument-bundle ownership cases stay
+explicit. I keep existing nested-record copy behavior and add no field or
+carrier reclamation. Borrowed cached task results are copied; complete spawned
+result/handle lifecycle acceptance still remains open.
+
+My unchanged nine-route/64-call audit now retains zero names normally and in
+a fresh complete ASan/UBSan provider build with leak detection enabled. Five
+raw expression reads independently own their results. Four further 64-call
+routes balance discarded results (320/320), reassignment (192/192), effect
+parameters (64/64) and async forwarding (192/192); an external diagnostic of
+those unchanged four methods also passes ASan/UBSan with leak detection enabled.
+The complete interpreter/typechecker suites and record/union plus borrowed
+C/API caller-survival controls pass normally. My new expression control fails
+against retained constructor-only providers.
+
+I preserve both complete fixture sanitizer failures: expression/globals572bytes
+in26allocations and record/union3720bytes in159allocations. Both finish their
+assertions and shadows before LeakSanitizer fails. I do not promote the external
+four-method diagnostic into acceptance of either complete fixture. I record
+the preexisting strict standalone REPL compile failure under #1205, retain its
+new display/load/reload target explicitly, and defer ordinary-unit wiring of
+that new target until the independent build prerequisite passes. The REPL's
+callable retirement changes are not runtime-qualified here. Complete #1140,
+#1116, current-source bootstrap, paired platform and release acceptance remain
+open.
