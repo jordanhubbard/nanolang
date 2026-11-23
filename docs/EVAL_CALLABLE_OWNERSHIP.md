@@ -119,3 +119,33 @@ caused by attaching evaluator test hooks to the standalone checker, then
 qualify the checker with its ordinary provider objects. My [bounded receipt](evidence/borrowed-value-ownership-linux-20261123/README.md) keeps the exact
 commands, source, products and both failures. This repair does not retire
 record literals or callable fields and does not close #1116 or #1140.
+
+My next bounded #1140/#1116 step retires an explicit record-literal temporary
+after a normal binding has copied it and immediate tracing has finished. I
+check the expression kind, actual record result, non-borrowed binding and
+independent destination carrier. I do not retire a returned/projected record
+or a field-store input through this rule. I release callable copies in this
+fresh literal tree before the existing string/record-carrier cleanup; shared
+arrays retain their existing lifetime. I separately retire direct callable
+fields copied into normalized owned environment records during replacement
+and teardown. Generic raw-array cleanup and nested owned-binding record
+reclamation remain unchanged.
+
+My unchanged complete expression/globals fixture now passes fresh complete
+ASan/UBSan providers with leak detection enabled. The repeated global
+initialization/replacement regression balances991 callable allocations and
+991 releases; the identical test linked to retained old providers reports
+991/394 and refuses. Caller-owned legacy fields, raw-array fields, nested
+record lifetime and shared array identity survive the candidate. My original
+134 interpreter/88 checker methods and adjacent callable/environment/borrow
+controls pass; full interpreter/checker sanitizer runs keep leak detection
+disabled for their broader outstanding leaks.
+
+I retain the complete record/union fixture's unchanged3720-byte/159-allocation
+LeakSanitizer failure. This step does not close #1116/#1140, qualify all local
+record escapes or field replacements, or establish paired release acceptance.
+I also retain a preexisting NANO_INTERPRETER syntax failure under #1208:
+AST_SET traces an undeclared old_value. A borrowed snapshot read after
+replacement can dangle, so its repair requires an actual tracing-enabled
+build and runtime old/new-value controls. I make no tracing-enabled acceptance
+claim in this [bounded receipt](evidence/record-binding-ownership-linux-20261123/README.md).

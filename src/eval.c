@@ -5352,6 +5352,27 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
  * other referenced fields remain borrowed, as in that constructor. */
 #include "eval/record_carrier_cleanup.inc"
 
+/* I retire callable copies only in a fresh create_struct literal tree.
+ * The generic raw-array/legacy carrier cleanup keeps its existing policy. */
+static void discard_literal_callable_fields(StructValue *record) {
+    if (!record) return;
+    for (int i = 0; i < record->field_count; ++i) {
+        Value field = record->field_values[i];
+        if (field.type == VAL_FUNCTION) discard_array_callable(field);
+        else if (field.type == VAL_STRUCT) discard_literal_callable_fields(field.as.struct_val);
+    }
+}
+
+static void discard_copied_binding_literal(ASTNode *expression, Value value, const Symbol *binding) {
+    if (!expression || expression->type != AST_STRUCT_LITERAL ||
+        value.type != VAL_STRUCT || !value.as.struct_val || !binding ||
+        binding->type == TYPE_BORROW_SHARED || binding->type == TYPE_BORROW_MUT ||
+        binding->value.type != VAL_STRUCT || binding->value.as.struct_val == value.as.struct_val)
+        return;
+    discard_literal_callable_fields(value.as.struct_val);
+    discard_literal_record(value.as.struct_val);
+}
+
 static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {
         if (array->element_type == VAL_FUNCTION) discard_array_callable(((Value *)array->data)[i]);
@@ -6282,7 +6303,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             trace_var_decl(stmt->as.let.name, stmt->as.let.var_type, value, 
                           stmt->as.let.is_mut, stmt->line, stmt->column, NULL);
 #endif
-            
+            discard_copied_binding_literal(stmt->as.let.value, value,
+                                            &env->symbols[env->symbol_count - 1]);
             return create_void();
         }
 
@@ -6306,8 +6328,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 if (value.type == VAL_FUNCTION) discard_array_callable(value);
                 return create_void();
             }
-            env_set_evaluated_binding(env, eval_binding(stmt, env, stmt->as.set.name),
-                                      value, stmt->as.set.value);
+            Symbol *binding = eval_binding(stmt, env, stmt->as.set.name);
+            env_set_evaluated_binding(env, binding, value, stmt->as.set.value);
             
             /* Trace variable assignment */
 #ifdef TRACING_ENABLED
@@ -6319,7 +6341,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             trace_var_set(stmt->as.set.name, old_value, value, 
                          stmt->line, stmt->column, NULL);
 #endif
-            
+            discard_copied_binding_literal(stmt->as.set.value, value, binding);
             return create_void();
         }
 

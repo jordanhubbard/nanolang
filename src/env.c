@@ -445,6 +445,10 @@ static void env_free_value(Value v) {
                 } else {
                     free(sv->field_values[j].as.string_val);
                 }
+            } else if (sv->field_values[j].type == VAL_FUNCTION) {
+                /* I own direct callable copies in normalized record bindings.
+                 * Nested records and raw array carriers retain their old policy. */
+                env_free_value(sv->field_values[j]);
             }
         }
         release_struct_carrier_names(sv);
