@@ -1,0 +1,39 @@
+{
+  "scope": "I observe the retained original consumer against the exact modules that the candidate accepts, outside the unchanged complete gate.",
+  "rows": [
+    {
+      "command": [
+        "/tmp/nano-scalar-copy-admission-e25cd41i/nvm2c-original",
+        "/tmp/nano-scalar-copy-admission-e25cd41i/products/nano-scalar-copy-regression-faq999jt/called0-slice0-write1-guard0-and.nvm",
+        "-o",
+        "/tmp/nano-scalar-copy-admission-e25cd41i/matched-baseline-called0-slice0-write1-guard0-and.c"
+      ],
+      "module": "called0-slice0-write1-guard0-and.nvm",
+      "module_sha256": "91dc43bd8329770466670902c219224ceb18ce7c0ab1b53269a6610dd5843e88",
+      "consumer_sha256": "c94adddd92eefc081ee5cb28df971a36fe2f7cbe8e9730ec68ca6b1c3d24a7ea",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/tmp/nano-scalar-copy-admission-e25cd41i/products/nano-scalar-copy-regression-faq999jt/called0-slice0-write1-guard0-and.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 37/17 (conversion 37/17)\n",
+      "before_hex": "492072657461696e206d79207072696f722043206f75747075742e00ff0a",
+      "after_hex": "492072657461696e206d79207072696f722043206f75747075742e00ff0a",
+      "seconds": 0.0121561819978524
+    },
+    {
+      "command": [
+        "/tmp/nano-scalar-copy-admission-e25cd41i/nvm2c-original",
+        "/tmp/nano-scalar-copy-admission-e25cd41i/products/nano-scalar-copy-regression-faq999jt/pick-0.nvm",
+        "-o",
+        "/tmp/nano-scalar-copy-admission-e25cd41i/matched-baseline-pick-0.c"
+      ],
+      "module": "pick-0.nvm",
+      "module_sha256": "43255bdab313f63f622faa96773081e95d23bd97f648df3be804464f7afbda9a",
+      "consumer_sha256": "c94adddd92eefc081ee5cb28df971a36fe2f7cbe8e9730ec68ca6b1c3d24a7ea",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/tmp/nano-scalar-copy-admission-e25cd41i/products/nano-scalar-copy-regression-faq999jt/pick-0.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 37/17 (conversion 37/17)\n",
+      "before_hex": "492072657461696e206d79207072696f722043206f75747075742e00ff0a",
+      "after_hex": "492072657461696e206d79207072696f722043206f75747075742e00ff0a",
+      "seconds": 0.009975096996640787
+    }
+  ]
+}
