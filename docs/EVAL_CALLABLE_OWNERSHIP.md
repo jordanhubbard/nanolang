@@ -169,3 +169,19 @@ complete expression/globals leak gate still pass. I retain the unchanged
 record/union3720-byte/159-allocation failure and the original build refusals
 in my [tracing receipt](evidence/tracing-assignment-linux-20261123/README.md).
 General carrier/escape ownership and paired release acceptance remain open.
+
+My #1208 production audit also retains a real interpreter link refusal:
+NANO_INTERPRETER enables evaluator references, but the common source list
+omits tracing.c. I add that source and isolate the explicitly enabled observer
+tracer. Default, tracing-enabled ordinary and tracing-enabled instrumented
+interpreter products now build and run an assertion-bearing string/callable/
+record program, help and version. The focused trace/ownership regressions
+and original interpreter/checker neighbors remain green under their stated
+leak boundaries; I retain the3720-byte record/union failure.
+
+This [production receipt](evidence/tracing-production-linux-20261123/README.md)
+establishes the build dependency and live evaluator/tracer behavior. My
+standalone CLI does not configure its documented trace flags or automatically
+run shadows; I retain that complete contract under #1209 and mark the current
+CLI limitation in FEATURES.md. Neither a product exit0 nor API-level tracing
+accepts that separate interface. Broader #1116/#1140 and release work remains.
