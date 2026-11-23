@@ -1028,6 +1028,7 @@ void free_environment(Environment *env);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+TypeInfo *env_own_checker_type_info(Environment *env, TypeInfo *info);
 bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration);
 const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
 const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);

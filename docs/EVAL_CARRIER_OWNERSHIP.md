@@ -285,3 +285,80 @@ repair must distinguish explicitly fresh source string references from borrowed
 binding/container/C/API references, release consumed temporaries and transfer
 binding/return ownership correctly. My private root collector remains disabled
 by default. I make no historical timeout or performance attribution.
+
+
+## I qualify private STRING reference scopes (#1213/#1217)
+
+My private evaluator now registers explicitly fresh STRING constructor and
+projection references. Named string helpers that always return fresh storage
+also register their results; borrowed identity conversions do not adopt their
+inputs. A binding retains a separate reference when its initializer is scoped,
+suppressing the legacy alias scan's duplicate retain. Temporary references
+remain valid through sibling evaluation and retire when consumed; an escaping
+STRING result moves one reference to its parent or caller. My counters count
+owned references, not distinct payload allocations.
+
+A managed STRING read now retains a separate scoped reference, preserving its
+pointer and its original owner's reference. Multiple read references may name
+the same payload. Scope exit releases each consumed reference and preserves
+exactly one returned reference. I retain an actual sibling-mutation UAF in both
+ordinary/private modes: a later operand replaces a global STRING binding before
+the earlier operand uses its value. The private read reference repairs the
+unchanged source. The ordinary-mode failure remains under #1217 because private
+tracking is still explicit. I do not adopt arbitrary borrowed C/SDK storage.
+
+Both normal and ASan/UBSan+LSan versions of the new ten-shadow source fixture
+pass aliasing, owning record rebinding, tuple/union/record projections, helper
+calls, loop values, sibling mutation and argument evaluation. Both64-call
+batches retain exactly the same93bytes/two objects accounted for by the existing
+global STRING slots. Context teardown leaves zero GC bytes/objects and balances
+20950 reference registrations as20949 releases and one caller export. The
+caller input's pointer/content/refcount remain intact. A separate exact source
+loop-return control exercises duplicate references and balances11/10/1/0 with
+zero GC objects. I retain the new fixture's first one-global assumption failure
+and its two-slot observation; my final assertion derives the baseline from
+actual live binding roots, requires no growth in either batch and requires
+zero after teardown.
+
+I preserve the first unsupported interior STRING-field mutation refusal and
+qualify admitted owning-record rebinding instead. My negative fixture still
+requires the original exclusive borrowed-owner diagnostic. Both direct C
+library controls preserve caller strings. Their old result owners retired
+correctly but leaked13 native scratch bytes in str_concat/str_substring; I now
+free only those copied buffers. Two injected scratch allocation failures
+preserve caller stack storage and recover. I retain the first fault fixture's
+incorrect VOID expectation for substring; its existing empty-string fallback
+remains unchanged.
+
+Under #1214 I add an explicit recursive destructor only for newly copied
+AST_FOR TypeInfo roots in the existing checker owner. Borrowed AST annotations
+and untyped checker blocks keep their existing owners. The completed STRING
+fixture first retires every runtime reference and then reports352bytes/two
+TypeInfo allocations; the fixed checker-only eight-round metadata control,
+borrowed AST read after environment teardown, and32 private runtime shadows
+pass with LSan. Default runtime replay still leaks5080bytes/176 unbound-array
+allocations under #1116; a separate semantic-only replay completes every shadow.
+
+Under #1215 I fetch a nested static-array element from its existing Value slot;
+the original admitted nested-loop shadows had received VOID. The complete
+fixture now tests nested iteration, break and continue without a layout or
+permission change. Under #1216 I preserve NULL/count/descriptor refusal before
+private argument-root observation and pass all134 original evaluator cases in
+ordinary and private tracking modes on both profiles. The original array
+retirement assertion also passes: its counter now includes actual static-array
+frees by the explicit owner, without counting registration or intended cleanup.
+Broad sanitizer evaluator/checker runs explicitly disable LSan; focused source,
+metadata, ownership and fault checks enable it.
+
+My unchanged native observer now reports zero ASan allocated-byte growth with
+its original2MiB positive control. The final ordinary allocator observation
+still adds1776bytes over calls65..128 and exits94 against the unchanged1024-byte
+criterion. An earlier repaired-provider run adds1584. I retain both and assign
+no allocator or product cause. #1213 stays open; I neither raise the allowance
+nor claim that an ASan pass accepts the ordinary result.
+
+My CLI and ordinary environments still do not enable the private ownership
+session. Trusted helper/foreign construction, asynchronous storage, external
+list/GC shutdown lifetimes, complete typed-field roots and full original source/
+compiler/platform gates still precede default activation. #1217/#1213/#1211/
+#1116/#1140 and whole-release acceptance remain open.

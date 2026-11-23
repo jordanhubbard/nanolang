@@ -16,8 +16,17 @@ bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *host_ro
 bool env_carrier_collect(Environment *env);
 void env_carrier_hold(Environment *env, NlCarrierRef value);
 void env_carrier_edges(Environment *env, Value owner, const NlCarrierRef *edges, size_t count);
-size_t env_carrier_root_mark(Environment *env);
-void env_carrier_root_reset(Environment *env, size_t mark);
+typedef struct { size_t roots, strings; } NlCarrierScopeMark;
+typedef struct { size_t registered, released, exported, live; } NlCarrierStringStats;
+NlCarrierScopeMark env_carrier_root_mark(Environment *env);
+void env_carrier_root_reset(Environment *env, NlCarrierScopeMark mark);
+/* I accept only a fresh evaluator-owned STRING reference, never a borrowed read. */
+void env_carrier_track_string(Environment *env, Value value);
+void env_carrier_borrow_string(Environment *env, Value value);
+/* A binding gains its own reference; the temporary remains scoped. */
+bool env_carrier_retain_string(Environment *env, Value value);
+NlCarrierStringStats env_carrier_string_stats(const Environment *env);
+NlCarrierStringStats env_carrier_last_string_stats(void);
 void env_carrier_track(Environment *env, Value value, bool fresh_record_copies);
 void env_carrier_track_binding(Environment *env, Value value);
 void env_carrier_track_list(Environment *env, DynArray *list);

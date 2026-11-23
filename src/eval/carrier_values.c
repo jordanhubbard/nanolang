@@ -29,6 +29,9 @@ struct NlCarrierValues {
     void *slot_context;
 };
 
+static size_t reclaimed_arrays;
+size_t nl_carrier_values_reclaimed_arrays(void) { return reclaimed_arrays; }
+
 NlCarrierRef nl_carrier_value(Value value) {
     return (NlCarrierRef){value, false};
 }
@@ -240,7 +243,7 @@ static void destroy_value(void *object, void *context) {
                     item.as.string_val = ((char **)a->data)[i]; release_scalar(item);
                 }
             } else if (a->element_type == VAL_FUNCTION) release_fields(a->data, a->length);
-            free(a->data); free(a); break;
+            free(a->data); free(a); reclaimed_arrays++; break;
         }
         default: break;
     }

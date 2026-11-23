@@ -1554,6 +1554,31 @@ test-env-generated-list-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-env-generated-list-metadata
 
+.PHONY: test-eval-string-buffer-failures
+test-eval-string-buffer-failures: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/runtime_nl_string_faults.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_string_buffer_failures tests/test_eval_string_buffer_failures.c $(COMMON_OBJECTS) $(filter-out $(OBJ_DIR)/runtime/nl_string.o,$(RUNTIME_OBJECTS)) $(OBJ_DIR)/runtime_nl_string_faults.o $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_string_buffer_failures
+
+$(OBJ_DIR)/runtime_nl_string_faults.o: src/runtime/nl_string.c src/runtime/nl_string.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Dmalloc=nano_string_buffer_malloc -c $< -o $@
+
+test-units: test-eval-string-buffer-failures
+
+.PHONY: test-checker-loop-metadata
+test-checker-loop-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_loop_metadata tests/test_checker_loop_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_loop_metadata
+	$(OBJ_DIR)/test_checker_loop_metadata --private-runtime
+
+test-units: test-checker-loop-metadata
+
+.PHONY: test-eval-carrier-string-scopes
+test-eval-carrier-string-scopes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_string_scopes tests/test_eval_carrier_string_scopes.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_carrier_string_scopes
+
+test-units: test-eval-carrier-string-scopes
+
 .PHONY: test-eval-carrier-active-roots
 test-eval-carrier-active-roots: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_active_roots tests/test_eval_carrier_active_roots.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/env.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_frame_metadata_test.o $(OBJ_DIR)/env_frame_metadata_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)

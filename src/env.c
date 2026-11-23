@@ -322,13 +322,14 @@ bool env_import_module_functions(Environment *env, const char *owner) {
 }
 
 /* I retain checker allocations independently of mutable symbol/function slots.
- * Every registered block is unique and shallowly freed; borrowed subgraphs are
- * never traversed. This deliberately does not change runtime value ownership. */
+ * Untyped blocks are shallowly freed. Only explicitly copied TypeInfo roots
+ * use recursive retirement; ordinary borrowed AST annotations stay borrowed. */
 struct EnvCheckerAllocation {
     void *allocation;
+    void (*release)(void *);
     struct EnvCheckerAllocation *next;
 };
-void *env_own_checker_allocation(Environment *env, void *allocation) {
+static void *own_checker_payload(Environment *env, void *allocation, void (*release)(void *)) {
     if (!allocation) return NULL;
     struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
     if (!entry) {
@@ -336,9 +337,20 @@ void *env_own_checker_allocation(Environment *env, void *allocation) {
         exit(1);
     }
     entry->allocation = allocation;
+    entry->release = release;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return allocation;
+}
+
+void *env_own_checker_allocation(Environment *env, void *allocation) {
+    return own_checker_payload(env, allocation, free);
+}
+static void release_checker_type_info(void *allocation) {
+    free_payload_type_info(allocation);
+}
+TypeInfo *env_own_checker_type_info(Environment *env, TypeInfo *info) {
+    return own_checker_payload(env, info, release_checker_type_info);
 }
 
 /* Create environment */
@@ -489,7 +501,7 @@ typedef struct {
 static size_t s_static_array_reclaims;
 
 size_t env_static_array_reclaim_count(void) {
-    return s_static_array_reclaims;
+    return s_static_array_reclaims + nl_carrier_values_reclaimed_arrays();
 }
 
 /* The type checker owns a few placeholder arrays through the explicit checker
@@ -849,7 +861,7 @@ void free_environment(Environment *env) {
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;
-        free(entry->allocation);
+        entry->release(entry->allocation);
         free(entry);
     }
     free(env);
@@ -887,6 +899,8 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
     }
 
+    if (!env_type_borrows_value(type) && env_carrier_retain_string(env, value))
+        retain_string_aliases = false;
     Symbol sym;
     sym.name = strdup(name);
     sym.type = type;
@@ -1177,6 +1191,7 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
             value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
         env_carrier_track_binding(env, value);
         }
+        if (env_carrier_retain_string(env, value)) retain_string_aliases = false;
         env_release_binding_value(env, sym->value);
         sym->value = value;
 

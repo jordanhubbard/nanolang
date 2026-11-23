@@ -36,4 +36,5 @@ bool nl_carrier_values_collect(NlCarrierValues *heap,
 bool nl_carrier_values_transfer(NlCarrierValues *heap,
                                 const NlCarrierRef *roots, size_t count);
 NlCarrierHeapStats nl_carrier_values_stats(const NlCarrierValues *heap);
+size_t nl_carrier_values_reclaimed_arrays(void);
 #endif

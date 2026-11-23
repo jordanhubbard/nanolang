@@ -1,0 +1,10 @@
+# I retain the exclusive borrowed-owner requirement for interior mutation.
+struct ForbiddenStringBox { text: string }
+fn rejected_string_field() -> int {
+    let mut box: ForbiddenStringBox = ForbiddenStringBox { text: "before" }
+    set box.text "after"
+    return 0
+}
+shadow rejected_string_field { assert (== (rejected_string_field) 0) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

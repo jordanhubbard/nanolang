@@ -6529,7 +6529,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             TypeInfo *iter_info = iter_type == TYPE_ARRAY
                 ? try_get_expr_type_info(range_expr, tc->env) : NULL;
             if (!iter_info && iter_type == TYPE_ARRAY)
-                iter_info = copy_generic_argument_info(range_expr, tc->env, 0);
+                iter_info = env_own_checker_type_info(tc->env,
+                    copy_generic_argument_info(range_expr, tc->env, 0));
             TypeInfo *element_info = iter_info && iter_info->base_type == TYPE_ARRAY
                 ? iter_info->element_type : NULL;
             Value val = create_void();
