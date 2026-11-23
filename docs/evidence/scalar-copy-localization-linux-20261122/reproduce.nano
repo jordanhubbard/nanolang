@@ -1,0 +1,12 @@
+struct Item { variant: int, excluded: array<bool> }
+fn select_flag(item: Item) -> bool {
+ let mut selected: bool = (!= item.variant 0)
+ set selected (at item.excluded 0)
+ (array_set item.excluded 0 selected)
+ return (and selected true)
+}
+fn main() -> int {
+ return 0
+}
+shadow select_flag { assert (select_flag Item { variant: 65535, excluded: [true] }) assert (not (select_flag Item { variant: 65535, excluded: [false] })) }
+shadow main { assert (== (main) 0) }
