@@ -21,6 +21,10 @@ class PublicCFormat(unittest.TestCase):
         self.work=Path(tempfile.mkdtemp(prefix='nano-public-c-format-'))
         print('I retain public C formatting evidence at',self.work,flush=True)
     def run_cmd(self,args,expected=0):
+        if any(Path(str(arg)).parent == ROOT/'tests' and
+               Path(str(arg)).name.startswith('test_public_c_') and
+               Path(str(arg)).name.endswith('_api.c') for arg in args):
+            args = [*args, ROOT/'tests/support/public_c_fixture_providers.c']
         result=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=240)
         self.assertEqual(result.returncode,expected,f'command={args!r}\n{result.stdout}\n{result.stderr}')
         self.assertNotIn('Sanitizer',result.stderr)

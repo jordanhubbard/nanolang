@@ -61,6 +61,10 @@ shadow main{assert true}
             path=self.work/f'ordinary{index}.nano';path.write_text(source+'\nshadow main{assert true}\n')
             output=self.work/'previous.c';output.write_text('previous')
             result=self.run_cmd([ROOT/'bin/nanoc_c','--target','c',path,'-o',output],expected=1)
-            self.assertRegex(result.stderr,'supported exact C value representation|exact complete local C nominal declaration')
+            if index >= 2:
+                self.assertIn('[E0038]', result.stderr)
+                self.assertIn('I cannot admit cyclic by-value type layouts.', result.stderr)
+            else:
+                self.assertRegex(result.stderr,'supported exact C value representation|exact complete local C nominal declaration')
             self.assertEqual(output.read_text(),'previous')
 if __name__=='__main__':unittest.main()

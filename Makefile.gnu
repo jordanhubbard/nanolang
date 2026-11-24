@@ -8189,3 +8189,11 @@ test-enum-int64-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@$(OBJ_DIR)/test_enum_int64_metadata
 
 test-units: test-enum-int64-metadata
+
+.PHONY: test-type-metadata-queries
+test-type-metadata-queries: tests/test_type_metadata_queries.c src/type_metadata_queries.inc src/nanolang.h
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Isrc -o $(OBJ_DIR)/test_type_metadata_queries tests/test_type_metadata_queries.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_type_metadata_queries
+
+test-units: test-type-metadata-queries

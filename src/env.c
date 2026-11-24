@@ -2519,14 +2519,9 @@ static FunctionSignature *payload_signature(const FunctionSignature *source, uns
     copy->return_type_info = payload_copy(source->return_type_info, depth + 1);
     return copy;
 }
-const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback) {
-    if (!info || index < 0 || index >= info->row_field_count) return NULL;
-    if (info->row_field_type_info && info->row_field_type_info[index]) return info->row_field_type_info[index];
-    if (!fallback || !info->row_field_types) return NULL;
-    *fallback = (TypeInfo){.base_type = info->row_field_types[index],
-        .generic_name = info->row_field_type_names ? info->row_field_type_names[index] : NULL};
-    return fallback;
-}
+#define NL_DEFINE_ROW_FIELD_INFO
+#include "type_metadata_queries.inc"
+#undef NL_DEFINE_ROW_FIELD_INFO
 
 static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
     if (!source) return NULL;
