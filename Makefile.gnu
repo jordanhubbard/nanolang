@@ -1953,6 +1953,13 @@ test-typechecker: stage1
 	@./tests/test_typechecker
 	@rm -f tests/test_typechecker
 
+.PHONY: test-env-fresh-record-bindings
+test-env-fresh-record-bindings: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_env_fresh_record_bindings tests/test_env_fresh_record_bindings.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_fresh_record_bindings
+
+test-units: test-env-fresh-record-bindings
+
 .PHONY: test-env-symbol-index
 test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_symbol_index tests/test_env_symbol_index.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
