@@ -896,6 +896,12 @@ test-nanolang-translator-c-text: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-run
 
 test-units: test-nanolang-translator-c-text
 
+.PHONY: test-lexer-snapshot
+test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_lexer_snapshot
+
+test-units: test-lexer-snapshot
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container
