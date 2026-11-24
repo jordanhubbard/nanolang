@@ -6811,7 +6811,8 @@ test-units: test-cseed-shadow-trace
 
 .PHONY: test-shadow-completion-observation
 test-shadow-completion-observation: bin/nanoc_c
-	python3 -m unittest -v tests.test_shadow_completion_observation tests.test_cseed_shadow_trace
+	@mkdir -p .test_output
+	python3 -m unittest -v tests.test_shadow_completion_observation tests.test_cseed_shadow_trace tests.test_shadow_reap_deadline
 
 test-units: test-shadow-completion-observation
 
