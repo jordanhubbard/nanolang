@@ -310,10 +310,11 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
         for (;;) {
             waited = waitpid(child, &status, WNOHANG);
-            if (waited == child || (waited < 0 && errno != EINTR)) break;
+            if (waited < 0 && errno != EINTR) break;
             clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
             timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
                 (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
+            if (waited == child) break;
             if (clock_failed || timed_out) {
                 kill(child, SIGKILL);
                 do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);

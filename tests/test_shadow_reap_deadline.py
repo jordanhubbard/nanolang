@@ -16,15 +16,27 @@ ROOT = Path(__file__).resolve().parents[1]
 LATE_ENTRY = r'''
 #define _POSIX_C_SOURCE 200809L
 #include <signal.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-int delayed_finish(void) {
+int64_t delayed_finish(void) {
     signal(SIGALRM, SIG_IGN);
     fprintf(stderr, "REAP_CONTROL_READY %ld\n", (long)getpid());
     fflush(stderr);
+    const char *gate = getenv("NANO_REAP_GATE");
+    while (gate && access(gate, F_OK) != 0) {
+        struct timespec check = {0, 1000000};
+        nanosleep(&check, NULL);
+    }
     struct timespec pause = {1, 200000000};
     while (nanosleep(&pause, &pause) < 0) {}
+    struct timespec finished;
+    if (clock_gettime(CLOCK_MONOTONIC, &finished) != 0) return -1;
+    fprintf(stderr, "REAP_CONTROL_FINISH %ld %ld %ld\n", (long)getpid(),
+            (long)finished.tv_sec, (long)finished.tv_nsec);
+    fflush(stderr);
     return 42;
 }
 '''
@@ -40,7 +52,10 @@ class ShadowReapDeadline(unittest.TestCase):
         print('I retain actual delayed-parent controls at', cls.work, flush=True)
 
     def delayed_parent(self, argv, directory):
-        environment = dict(os.environ, TMPDIR=str(directory), NANO_SHADOW_TIMEOUT_SECONDS='1',
+        gate = directory/'release-gate'
+        observations = {}
+        environment = dict(os.environ, TMPDIR=str(directory), NANO_REAP_GATE=str(gate),
+                           NANO_SHADOW_TIMEOUT_SECONDS='1',
                            NANO_SHADOW_PHASE_TRACE='1', NANO_SHADOW_TRACE='1')
         stopped = False
         output = (directory/'stdout').open('wb')
@@ -74,6 +89,16 @@ class ShadowReapDeadline(unittest.TestCase):
             self.assertTrue(sleeping, 'I did not observe the original parent polling sleep.')
             os.kill(process.pid, signal.SIGSTOP)
             stopped = True
+            stop_deadline = time.monotonic()+0.2
+            while time.monotonic() < stop_deadline:
+                state = Path(f'/proc/{process.pid}/status').read_text()
+                if '\nState:\tT (stopped)\n' in '\n'+state:
+                    break
+                os.sched_yield()
+            self.assertIn('\nState:\tT (stopped)\n', '\n'+state)
+            observations['parent_stopped_monotonic'] = time.monotonic()
+            observations['child_pid'] = child
+            gate.write_text('go\n')
             descriptor = os.pidfd_open(child)
             try:
                 exited = select.poll()
@@ -84,6 +109,13 @@ class ShadowReapDeadline(unittest.TestCase):
             os.kill(process.pid, signal.SIGCONT)
             stopped = False
             error += process.communicate(timeout=20)[1]
+            finished = [line.split() for line in error.splitlines()
+                        if line.startswith(b'REAP_CONTROL_FINISH ')]
+            self.assertEqual(len(finished), 1, error.decode(errors='replace'))
+            self.assertEqual(int(finished[0][1]), child)
+            stamp = int(finished[0][2])+int(finished[0][3])/1e9
+            observations['child_finished_monotonic'] = stamp
+            self.assertGreater(stamp-observations['parent_stopped_monotonic'], 1)
             self.assertNotEqual(process.returncode, 0, error.decode(errors='replace'))
             self.assertIn(b'after 1 seconds', error)
             return error
@@ -96,10 +128,10 @@ class ShadowReapDeadline(unittest.TestCase):
             output.close()
             (directory/'stderr').write_bytes(error)
             (directory/'process.json').write_text(json.dumps(dict(argv=list(map(str, argv)),
-                returncode=process.returncode, deadline_seconds=1))+'\n')
+                returncode=process.returncode, deadline_seconds=1, observations=observations))+'\n')
 
-    def test_cseed_preserves_output_after_late_clean_exit(self):
-        directory = self.work/'cseed'
+    def source_case(self, label, compiler, *options):
+        directory = self.work/label
         directory.mkdir()
         foreign = directory/'foreign'
         foreign.mkdir()
@@ -113,11 +145,17 @@ class ShadowReapDeadline(unittest.TestCase):
         product = directory/'product'
         prior = b'I retain the prior output after late completion.\n'
         product.write_bytes(prior)
-        compiler = ROOT/'bin/nanoc_c'
         before = hashlib.sha256(compiler.read_bytes()).hexdigest()
-        error = self.delayed_parent([compiler, source, '-o', product], directory)
+        error = self.delayed_parent([compiler, source, *options, '-o', product], directory)
         self.assertEqual(product.read_bytes(), prior)
         self.assertEqual(hashlib.sha256(compiler.read_bytes()).hexdigest(), before)
+        return error
+
+    def test_nanovirt_preserves_output_after_late_clean_exit(self):
+        self.source_case('nanovirt', ROOT/'bin/nano_virt', '--emit-nvm')
+
+    def test_cseed_preserves_output_after_late_clean_exit(self):
+        error = self.source_case('cseed', ROOT/'bin/nanoc_c')
         events = [json.loads(line) for line in error.splitlines()
                   if line.startswith(b'{"event":"cseed-shadow-phase"')]
         status = events[-1]
