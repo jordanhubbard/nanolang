@@ -8165,3 +8165,14 @@ test-eval-carrier-pressure: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@$(OBJ_DIR)/test_eval_carrier_pressure
 
 test-units: test-eval-carrier-pressure
+
+.PHONY: test-carrier-scalar-list-values test-eval-enum-list-values
+test-carrier-scalar-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_carrier_scalar_list_values tests/test_carrier_scalar_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_carrier_scalar_list_values
+
+test-eval-enum-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_enum_list_values tests/test_eval_enum_list_values.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_enum_list_values
+
+test-units: test-carrier-scalar-list-values test-eval-enum-list-values

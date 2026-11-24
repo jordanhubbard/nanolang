@@ -400,6 +400,13 @@ void env_carrier_track_legacy_list(Environment *env, List_int *list) {
     env_carrier_hold(env, value);
 }
 
+void env_carrier_track_scalar_list(Environment *env, List_int *list) {
+    if (!env_carrier_enabled(env)) return;
+    NlCarrierRef value = nl_carrier_legacy_scalar_list(list);
+    if (!nl_carrier_values_adopt(env->carrier_session->values, value)) ownership_failure();
+    env_carrier_hold(env, value);
+}
+
 void env_carrier_consume_legacy_list(Environment *env, List_int *list) {
     if (!env_carrier_enabled(env)) { list_int_free(list); return; }
     if (!nl_carrier_values_consume_legacy_list(env->carrier_session->values, list)) ownership_failure();

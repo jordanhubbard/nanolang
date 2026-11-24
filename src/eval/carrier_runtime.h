@@ -37,6 +37,7 @@ void env_carrier_track(Environment *env, Value value, bool fresh_record_copies);
 void env_carrier_track_binding(Environment *env, Value value);
 void env_carrier_track_list(Environment *env, DynArray *list);
 void env_carrier_track_legacy_list(Environment *env, List_int *list);
+void env_carrier_track_scalar_list(Environment *env, List_int *list);
 void env_carrier_consume_legacy_list(Environment *env, List_int *list);
 bool env_carrier_begin_list_borrow(Environment *env, NlCarrierRef list);
 size_t env_carrier_consumed_count(const Environment *env);

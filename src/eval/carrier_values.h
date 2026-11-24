@@ -5,17 +5,20 @@
 #include "../runtime/list_int.h"
 
 typedef struct NlCarrierValues NlCarrierValues;
-enum { NL_CARRIER_RECORD_LIST = 1, NL_CARRIER_LEGACY_RECORD_LIST = 2 };
+enum { NL_CARRIER_RECORD_LIST = 1, NL_CARRIER_LEGACY_RECORD_LIST = 2,
+       NL_CARRIER_LEGACY_SCALAR_LIST = 3 };
 typedef struct {
     Value value;
     /* I keep this one-byte private fact: 0 ordinary, 1 DynArray/checked
-     * logical list, 2 explicitly identified legacy List_int record storage. */
+     * logical list, 2 explicit legacy List_int record storage, 3 explicit legacy
+     * List_int scalar storage. Scalar cells grant no record edges. */
     unsigned char record_list;
 } NlCarrierRef;
 
 NlCarrierRef nl_carrier_value(Value value);
 NlCarrierRef nl_carrier_record_list(DynArray *list);
 NlCarrierRef nl_carrier_legacy_record_list(List_int *list);
+NlCarrierRef nl_carrier_legacy_scalar_list(List_int *list);
 /* My source adapter may identify typed slots from checked metadata. This
  * borrowed, read-only callback grants edges, never ownership of an INT. */
 typedef bool (*NlCarrierRecordListSlot)(Value owner, int index, void *context);
@@ -37,8 +40,9 @@ bool nl_carrier_values_clear(NlCarrierValues *heap);
 bool nl_carrier_values_contains(const NlCarrierValues *heap, NlCarrierRef value);
 /* I adopt exactly one header and its owned STRING/FUNCTION scalar storage.
  * Aggregate children remain separately owned. A list is explicitly identified
- * as either managed ELEM_INT DynArray or malloc-owned List_int record storage;
- * I do not own its referenced records implicitly.
+ * as managed ELEM_INT DynArray, malloc-owned List_int record storage,
+ * or explicitly identified List_int integer/enum storage. Scalar cells grant
+ * no child edges. I do not own referenced records implicitly.
  * I accept only explicit owned storage, never an arbitrary borrowed C value. */
 bool nl_carrier_values_adopt(NlCarrierValues *heap, NlCarrierRef value);
 /* I copy explicit additional root facts, for fields whose public INT storage

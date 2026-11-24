@@ -4325,6 +4325,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                     char *element = strndup(start, (size_t)(last_underscore - start));
                     if (!element) { fputs("I cannot retain the list constructor identity.\n", stderr); exit(1); }
                     if (env_get_struct(env, element)) env_carrier_track_legacy_list(env, list);
+                    else if (env_get_enum(env, element)) env_carrier_track_scalar_list(env, list);
                     free(element);
                 }
                 return create_int((long long)list);
@@ -4371,7 +4372,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 type_name[type_name_len] = '\0';
                 
                 /* Check if this is a struct type */
-                if (strcmp(type_name, "int") != 0 && 
+                if (!env_get_enum(env, type_name) && strcmp(type_name, "int") != 0 &&
                     strcmp(type_name, "string") != 0 && 
                     strcmp(type_name, "token") != 0 &&
                     strcmp(type_name, "Token") != 0) {
@@ -4403,7 +4404,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 type_name[type_name_len] = '\0';
                 
                 /* Check if this type name is a struct (not int/string/token) */
-                if (strcmp(type_name, "int") != 0 && 
+                if (!env_get_enum(env, type_name) && strcmp(type_name, "int") != 0 &&
                     strcmp(type_name, "string") != 0 && 
                     strcmp(type_name, "token") != 0 &&
                     strcmp(type_name, "Token") != 0) {
@@ -4459,7 +4460,7 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
                 if (env_carrier_enabled(g_carrier_environment) && last_underscore > name + 5) {
                     char *element = strndup(name + 5, (size_t)(last_underscore - name - 5));
                     if (!element) { fputs("I cannot retain the list consumption identity.\n", stderr); exit(1); }
-                    bool record = env_get_struct(env, element) != NULL;
+                    bool record = env_get_struct(env, element) != NULL || env_get_enum(env, element) != NULL;
                     free(element);
                     if (record) { env_carrier_consume_legacy_list(env, list); return create_void(); }
                 }

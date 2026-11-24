@@ -704,3 +704,36 @@ retains source/products, earlier failed trials and the104 unrecovered historical
 provider paths. Current qualification inputs are complete; I claim no deletion
 cause, default aggregate activation, fresh shared-provider build, paired/raw
 acceptance or whole release.
+
+## My enum-list provenance boundary
+
+My accepted `List<enum>` values use legacy `List_int` headers containing scalar
+integers, including explicit and negative enum values. My interpreter get/pop
+checks the declared enum before selecting record-pointer results. In my explicit
+aggregate session, a known enum constructor registers its fresh header with
+private fact 3. Fact 2 remains legacy record-pointer storage; fact 1 remains a
+canonical or checked logical list. A checked generic root resolves through its
+known constructor or explicit caller fact. I never derive ownership or element
+kind from integer pointer bits.
+
+I validate scalar headers and retain or transfer their explicit ownership while
+tracing no cell as a record edge. Explicit free retires the header/data through
+my existing consumption boundary. Caller-owned scalar storage requires an
+explicit borrowed fact and remains caller-owned. An explicit free grants only
+the destruction of that header/data; transfer never adopts caller storage. Conflicting caller scalar/record facts refuse collection
+before payload traversal. I preserve canonical and legacy record semantics.
+
+My native C enum-list names, parameter representation and accepted operations
+remain separately tracked under #1236. This interpreter prerequisite under
+#1235 does not enable aggregate ownership in normal product entrypoints or
+establish paired-platform or whole-release acceptance.
+
+My [Linux enum-list receipt](evidence/carrier-enum-lists-linux-20261123/README.md)
+retains both initial failures and final ordinary/private shadow results. All
+1,306 original compiler-source shadows complete on each rebuilt compiler under
+unchanged 600/default10 limits, and both generated seeds run `--help`. My new
+scalar API and source controls pass normally, with ASan/UBSan+LSan and with
+production O3/Werror flags. Existing evaluator134/checker88 retain their stated
+broad LSan exclusions; borrowed/active/record/STRING/native-byte, allocation
+failure, default REPL34 and private REPL41 controls pass. My active peak remains
+16 and my second 128-call native allocation batch grows by zero bytes.

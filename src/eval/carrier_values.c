@@ -51,6 +51,13 @@ NlCarrierRef nl_carrier_legacy_record_list(List_int *list) {
     return (NlCarrierRef){create_int((long long)(intptr_t)list), NL_CARRIER_LEGACY_RECORD_LIST};
 }
 
+NlCarrierRef nl_carrier_legacy_scalar_list(List_int *list) {
+    return (NlCarrierRef){create_int((long long)(intptr_t)list), NL_CARRIER_LEGACY_SCALAR_LIST};
+}
+static bool legacy_list(unsigned char kind) {
+    return kind == NL_CARRIER_LEGACY_RECORD_LIST || kind == NL_CARRIER_LEGACY_SCALAR_LIST;
+}
+
 static void *value_key(NlCarrierRef ref) {
     if (ref.record_list)
         return ref.value.type == VAL_INT ? (void *)(intptr_t)ref.value.as.int_val : NULL;
@@ -68,25 +75,37 @@ static unsigned value_kind(NlCarrierRef ref) {
 /* A checked logical list follows known constructor/caller layout provenance.
  * I retain caller facts only for this walk, never across a caller's lifetime. */
 static NlCarrierRef resolve_list(const NlCarrierValues *heap, NlCarrierRef ref) {
-    if (ref.record_list != NL_CARRIER_RECORD_LIST || ref.value.type != VAL_INT) return ref;
+    if (!ref.record_list || ref.record_list > NL_CARRIER_LEGACY_SCALAR_LIST ||
+        ref.value.type != VAL_INT) return ref;
     const void *key = value_key(ref);
     CarrierValue *owned = nl_carrier_heap_context(heap->engine, key);
-    if (owned && owned->ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST) return owned->ref;
-    for (size_t i = 0; i < heap->root_count; ++i)
-        if (heap->roots[i].record_list == NL_CARRIER_LEGACY_RECORD_LIST && value_key(heap->roots[i]) == key)
-            return heap->roots[i];
+    if (owned) {
+        if (ref.record_list == NL_CARRIER_RECORD_LIST && legacy_list(owned->ref.record_list))
+            return owned->ref;
+        return ref;
+    }
+    /* I resolve only explicit caller provenance. Conflicting scalar/record
+     * facts fail before either interpretation reads a cell as a pointer. */
+    for (size_t i = 0; i < heap->root_count; ++i) {
+        NlCarrierRef fact = heap->roots[i];
+        if (!legacy_list(fact.record_list) || value_key(fact) != key) continue;
+        if (ref.record_list != NL_CARRIER_RECORD_LIST && ref.record_list != fact.record_list) {
+            ref.record_list = 255; return ref;
+        }
+        ref = fact;
+    }
     return ref;
 }
 static bool valid_slots(int count, const void *slots) {
     return count >= 0 && (count == 0 || slots);
 }
 static bool valid_value(NlCarrierRef ref) {
-    if (ref.record_list > NL_CARRIER_LEGACY_RECORD_LIST) return false;
+    if (ref.record_list > NL_CARRIER_LEGACY_SCALAR_LIST) return false;
     if (ref.record_list && ref.value.type != VAL_INT) return false;
     void *key = value_key(ref);
     if (!key) return true;
     if (ref.record_list) {
-        if (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST) {
+        if (legacy_list(ref.record_list)) {
             List_int *list = key;
             return list->length >= 0 && list->length <= list->capacity &&
                    (!list->length || list->data);
@@ -171,6 +190,7 @@ static size_t field_list_slot(FieldListSlot *slots, const char *name) {
     return slot;
 }
 static bool push_children(NlCarrierValues *heap, NlCarrierRef ref) {
+    if (ref.record_list == NL_CARRIER_LEGACY_SCALAR_LIST) return true;
     if (ref.record_list) {
         if (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST) {
             List_int *list = value_key(ref);
@@ -274,7 +294,7 @@ static void prune_consumption(NlCarrierValues *heap) {
 static bool walk(NlCarrierValues *heap) {
     while (heap->pending_count) {
         NlCarrierRef ref = resolve_list(heap, heap->pending[--heap->pending_count]);
-        if (ref.record_list > NL_CARRIER_LEGACY_RECORD_LIST) return false;
+        if (ref.record_list > NL_CARRIER_LEGACY_SCALAR_LIST) return false;
         void *key = value_key(ref);
         if (!key) { if (ref.record_list && ref.value.type != VAL_INT) return false; continue; }
         size_t consumed = consumed_slot(heap, key);
@@ -328,7 +348,7 @@ static void release_fields(Value *fields, int count) {
 }
 static void destroy_value(void *object, void *context) {
     CarrierValue *value = context;
-    if (value->ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST) list_int_free(object);
+    if (legacy_list(value->ref.record_list)) list_int_free(object);
     else if (value->ref.record_list) gc_release(object);
     else switch (value->ref.value.type) {
         case VAL_STRUCT: {
@@ -373,7 +393,7 @@ NlCarrierValues *nl_carrier_values_new(void) {
 }
 bool nl_carrier_values_adopt(NlCarrierValues *heap, NlCarrierRef ref) {
     if (!heap || heap->busy || !value_key(ref) ||
-        (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST && gc_is_managed(value_key(ref))) || !valid_value(ref) ||
+        (legacy_list(ref.record_list) && gc_is_managed(value_key(ref))) || !valid_value(ref) ||
         (ref.record_list == NL_CARRIER_RECORD_LIST && (!gc_is_managed(value_key(ref)) ||
                             gc_get_header(value_key(ref))->type != GC_TYPE_ARRAY))) return false;
     CarrierValue *value = calloc(1, sizeof *value); if (!value) return false;
@@ -449,7 +469,7 @@ bool nl_carrier_values_consume_legacy_list(NlCarrierValues *heap, List_int *list
     if (!list) return true;
     if (consumed_slot(heap, list) != SIZE_MAX) return false;
     CarrierValue *owned = nl_carrier_heap_context(heap->engine, list);
-    if (owned && owned->ref.record_list != NL_CARRIER_LEGACY_RECORD_LIST) return false;
+    if (owned && !legacy_list(owned->ref.record_list)) return false;
     if (gc_is_managed(list) || !valid_value(nl_carrier_legacy_record_list(list)) ||
         heap->consumed_count == SIZE_MAX) return false;
     ConsumedList *next = grow(heap->consumed, &heap->consumed_capacity,
@@ -467,10 +487,10 @@ bool nl_carrier_values_consume_legacy_list(NlCarrierValues *heap, List_int *list
 bool nl_carrier_values_begin_list_borrow(NlCarrierValues *heap, NlCarrierRef ref) {
     if (!heap || heap->busy || ref.value.type != VAL_INT ||
         (ref.record_list != NL_CARRIER_RECORD_LIST &&
-         ref.record_list != NL_CARRIER_LEGACY_RECORD_LIST)) return false;
+         !legacy_list(ref.record_list))) return false;
     void *list = value_key(ref);
     if (!list || nl_carrier_heap_contains(heap->engine, list)) return false;
-    if (gc_is_managed(list) && (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST ||
+    if (gc_is_managed(list) && (legacy_list(ref.record_list) ||
         gc_get_header(list)->type != GC_TYPE_ARRAY)) return false;
     if (!valid_value(ref)) return false;
     forget_consumption(heap, consumed_slot(heap, list));
