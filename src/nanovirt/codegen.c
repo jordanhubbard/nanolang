@@ -88,6 +88,7 @@ typedef struct {
     ASTNode *body; /* I identify a source function independently of its short name. */
     CgGeneric *generic_owner; /* I keep each instantiation's nested body separate. */
     bool module_intrinsic;
+    bool owned_name; /* I own only synthesized qualified lookup aliases. */
 } FnEntry;
 
 typedef struct {
@@ -5106,6 +5107,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             }
                             if (!qalready && cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = strdup(qname);
+                                cg.functions[cg.fn_count].owned_name = true;
                                 cg.functions[cg.fn_count].fn_idx = idx; /* same fn_idx! */
                                 cg.functions[cg.fn_count].body = mitem->as.function.body;
                                 cg.fn_count++;
@@ -5679,6 +5681,14 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     }
     publish_local_names(&cg);
     publish_passive(&cg);
+    /* I retire private lookup copies after publishing my independent pool names. */
+    for (int i = 0; i < cg.extern_count; ++i) {
+        free(cg.externs[i].name);
+        free(cg.externs[i].module_name);
+    }
+    for (int i = 0; i < cg.fn_count; ++i) {
+        if (cg.functions[i].owned_name) free(cg.functions[i].name);
+    }
     free(cg.code);
     while(cg.generics){CgGeneric *next=cg.generics->next;cg_generic_free(cg.generics);cg.generics=next;}
 
