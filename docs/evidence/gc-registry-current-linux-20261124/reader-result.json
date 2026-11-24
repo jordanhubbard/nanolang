@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "source": "8d970c29319878fbd27b95349a2ed43b10759b1c",
+  "reviewed_origin": "0d3f591b1ec5194550478eba3b3a27195855d614",
+  "records": 4154,
+  "git_inputs": 3519,
+  "native_images": 63,
+  "frozen_inputs": 3501,
+  "gcc_matrix_commands": 12,
+  "clang_matrix_commands": 12,
+  "original_gc_methods": 13,
+  "environment_checks_per_profile": 60,
+  "lexical_methods": 10,
+  "full_source_acceptance": false,
+  "paired_platform": false,
+  "default_ownership_enabled": false,
+  "whole_release": false
+}
