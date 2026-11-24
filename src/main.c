@@ -384,6 +384,72 @@ static int output_paths_alias(const char *artifact, const char *diagnostic,
     return 0;
 }
 
+/* I compare stable entries, including symlink and hard-link aliases. This is
+ * not a sandbox against concurrent filesystem mutation. */
+static int reject_source_output_alias(const char *input, const char *output) {
+    struct stat source, destination;
+    if (!output || !output[0]) return 0;
+    if (stat(input, &source) != 0) {
+        fprintf(stderr, "I cannot verify source identity '%s': %s\n", input, strerror(errno));
+        return -1;
+    }
+    if (stat(output, &destination) != 0) {
+        int failure = errno;
+        if (failure == ENOENT && lstat(output, &destination) != 0 && errno == ENOENT) return 0;
+        fprintf(stderr, "I cannot verify output identity '%s': %s\n", output, strerror(failure));
+        return -1;
+    }
+    if (source.st_dev == destination.st_dev && source.st_ino == destination.st_ino) {
+        fprintf(stderr, "I require separate source and output files: '%s' and '%s'\n", input, output);
+        return -1;
+    }
+    return 0;
+}
+
+static int reject_graph_output_alias(const char *input, const ModuleList *modules,
+                                     const char *output) {
+    if (reject_source_output_alias(input, output) != 0) return -1;
+    if (modules) for (int i = 0; i < modules->count; i++) {
+        if (reject_source_output_alias(modules->module_paths[i], output) != 0) return -1;
+    }
+    return 0;
+}
+
+static int reject_source_diagnostic_aliases(const char *input, const ModuleList *modules,
+                                           const char *output, const CompilerOptions *opts) {
+    const char *paths[] = {output, opts->profile_output_path, opts->profile_flamegraph_path,
+        opts->llm_diags_json_path, opts->llm_diags_toon_path, opts->llm_shadow_json_path,
+        opts->reflect_output_path, opts->bench_json};
+    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++) {
+        if (reject_graph_output_alias(input, modules, paths[i]) != 0) return -1;
+    }
+    return 0;
+}
+
+/* I keep the provisional executable on the destination filesystem. mkstemp
+ * reserves only my own random entry; I never lend the requested path to cc.
+ * Coverage metadata beside this entry remains usable by gcov after publication. */
+static char *create_native_staging(const char *output) {
+    const char *slash = strrchr(output, '/');
+    size_t parent_length = slash ? (size_t)(slash - output) + 1 : 0;
+    const char suffix[] = ".nano-native.XXXXXX";
+    char *path = malloc(parent_length + sizeof(suffix));
+    if (!path) return NULL;
+    memcpy(path, output, parent_length);
+    memcpy(path + parent_length, suffix, sizeof(suffix));
+    int fd = mkstemp(path);
+    if (fd < 0) { free(path); return NULL; }
+    if (close(fd) != 0) { int failure = errno; unlink(path); free(path); errno = failure; return NULL; }
+    return path;
+}
+
+static bool remove_native_staging(char *path) {
+    if (!path) return true;
+    if (unlink(path) == 0 || errno == ENOENT) return true;
+    fprintf(stderr, "I cannot remove provisional native output '%s': %s\n", path, strerror(errno));
+    return false;
+}
+
 static int reject_artifact_diagnostic_aliases(const char *artifact,
                                                const CompilerOptions *opts) {
     const char *diagnostics[] = {
@@ -410,6 +476,19 @@ static int reject_artifact_diagnostic_aliases(const char *artifact,
                     artifact, diagnostics[i]);
             return -1;
         }
+    }
+    return 0;
+}
+
+static int reject_native_auxiliary_aliases(const char *input, const ModuleList *modules,
+                                           const char *output, const char *auxiliary,
+                                           const CompilerOptions *opts) {
+    bool alias = false;
+    if (reject_graph_output_alias(input, modules, auxiliary) != 0 ||
+        reject_artifact_diagnostic_aliases(auxiliary, opts) != 0) return -1;
+    if (output_paths_alias(output, auxiliary, &alias) != 0 || alias) {
+        fprintf(stderr, "I require separate native and generated-C outputs: '%s' and '%s'\n", output, auxiliary);
+        return -1;
     }
     return 0;
 }
@@ -702,6 +781,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 1;
+    }
+    if (reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) {
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }
@@ -1277,11 +1366,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fflush(stdout);
     }
     
+    bool native_paths_valid = true;
     /* Save generated C to .genC file if -S flag is set */
     if (opts->save_asm) {
         char gen_c_file[512];
-        snprintf(gen_c_file, sizeof(gen_c_file), "%s.genC", input_file);
-        FILE *gen_c = fopen(gen_c_file, "w");
+        int length = snprintf(gen_c_file, sizeof(gen_c_file), "%s.genC", input_file);
+        native_paths_valid = length >= 0 && (size_t)length < sizeof(gen_c_file) &&
+            reject_native_auxiliary_aliases(input_file, modules, output_file, gen_c_file, opts) == 0;
+        FILE *gen_c = native_paths_valid ? fopen(gen_c_file, "w") : NULL;
         if (gen_c) {
             fprintf(gen_c, "%s", c_code);
             fclose(gen_c);
@@ -1295,16 +1387,20 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Write C code to temporary file in /tmp (or keep in output dir if --keep-c) */
     char temp_c_file[512];
+    int temp_c_length;
     if (opts->keep_c) {
         /* Keep in output directory if --keep-c is set */
-        snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
+        temp_c_length = snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
     } else {
         /* Use TMPDIR (or /tmp) for temporary files */
-        snprintf(temp_c_file, sizeof(temp_c_file), "%s/nanoc_%d_%s.c",
+        temp_c_length = snprintf(temp_c_file, sizeof(temp_c_file), "%s/nanoc_%d_%s.c",
                  get_tmp_dir(), (int)getpid(), strrchr(output_file, '/') ? strrchr(output_file, '/') + 1 : output_file);
     }
 
-    FILE *c_file = fopen(temp_c_file, "w");
+    native_paths_valid = native_paths_valid && temp_c_length >= 0 &&
+        (size_t)temp_c_length < sizeof(temp_c_file) &&
+        reject_native_auxiliary_aliases(input_file, modules, output_file, temp_c_file, opts) == 0;
+    FILE *c_file = native_paths_valid ? fopen(temp_c_file, "w") : NULL;
     if (!c_file) {
         fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
                 nl_utf8_cstr_or_marker(temp_c_file));
@@ -1739,7 +1835,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     const char *nano_cflags = getenv("NANO_CFLAGS");
     if (!nano_cflags) nano_cflags = "";
 
-    char *quoted_output = module_quote_path(output_file);
+    char *native_staging = create_native_staging(output_file);
+    if (!native_staging) fprintf(stderr, "I cannot stage native output '%s': %s\n", output_file, strerror(errno));
+    char *quoted_output = native_staging ? module_quote_path(native_staging) : NULL;
     char *quoted_temp_source = module_quote_path(temp_c_file);
     int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
@@ -1749,6 +1847,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free(module_objs);
     
     if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
+        (void)remove_native_staging(native_staging);
+        free(native_staging);
         human_diag(NL_DIAG_CC_CMD);
         fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
@@ -1773,13 +1873,32 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     int result = system(compile_cmd);
 
     if (result == 0) {
-        if (deterministic_outputs_enabled()) {
-#ifdef __APPLE__
-            (void)determinize_macho_uuid_and_signature(output_file);
-#endif
+        struct stat product;
+        if (lstat(native_staging, &product) != 0 || !S_ISREG(product.st_mode) ||
+            product.st_nlink != 1 || product.st_size == 0 || !(product.st_mode & 0111)) {
+            fputs("I require a completed regular executable before native publication.\n", stderr);
+            result = -1;
         }
+    }
+    if (result == 0 && deterministic_outputs_enabled()) {
+#ifdef __APPLE__
+        if (determinize_macho_uuid_and_signature(native_staging) != 0) result = -1;
+#endif
+    }
+    if (result == 0 && !opts->keep_c && remove(temp_c_file) != 0) {
+        fprintf(stderr, "I cannot remove temporary C before publication: %s\n", strerror(errno));
+        result = -1;
+    }
+    if (result == 0 && reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) result = -1;
+    if (result == 0 && rename(native_staging, output_file) != 0) {
+        fprintf(stderr, "I cannot publish native output '%s': %s\n", output_file, strerror(errno));
+        result = -1;
+    }
+    if (result == 0) {
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
+        (void)remove_native_staging(native_staging);
+        free(native_staging);
         human_diag(NL_DIAG_CC_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_BACKEND, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
@@ -1800,10 +1919,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;  /* Return error if C compilation failed */
     }
 
-    /* Remove temporary C file unless --keep-c (cleanup on both success and failure) */
-    if (!opts->keep_c) {
-        remove(temp_c_file);
-    }
+    free(native_staging);
 
     llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 0, diags);
     llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 0, diags);
@@ -2246,7 +2362,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (reject_artifact_diagnostic_aliases(output_file, &opts) != 0) {
+    if (reject_source_diagnostic_aliases(input_file, NULL, output_file, &opts) != 0 ||
+        reject_artifact_diagnostic_aliases(output_file, &opts) != 0) {
         free(include_paths);
         free(library_paths);
         free(libraries);

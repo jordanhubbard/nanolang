@@ -8197,3 +8197,7 @@ test-type-metadata-queries: tests/test_type_metadata_queries.c src/type_metadata
 	@$(OBJ_DIR)/test_type_metadata_queries
 
 test-units: test-type-metadata-queries
+
+.PHONY: test-cseed-native-publication
+test-cseed-native-publication: $(COMPILER_C)
+	@python3 -m unittest tests.test_cseed_native_publication
