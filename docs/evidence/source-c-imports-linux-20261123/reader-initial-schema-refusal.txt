@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/mnt/ubumeh-scratch/nanolang/hosts/sparky/wt/01a1fec4/docs/evidence/source-c-imports-linux-20261123/read_archive.py", line 114, in <module>
+    assert tools == js('compiler-tools-after') and len(tools['files']) == 24
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

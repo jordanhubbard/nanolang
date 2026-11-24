@@ -8211,4 +8211,4 @@ test-source-c-graph-api: tests/test_source_c_graph_api.c tests/support/public_c_
 	$(CC) $(CFLAGS) -D_POSIX_C_SOURCE=200809L -Isrc -o $(OBJ_DIR)/test_source_c_graph_api tests/test_source_c_graph_api.c tests/support/public_c_fixture_providers.c $(LDFLAGS)
 	@$(OBJ_DIR)/test_source_c_graph_api $(OBJ_DIR)/source_c_graph_api.c
 
-test-units: test-source-c-graph-api
+test-units: test-source-c-imports
