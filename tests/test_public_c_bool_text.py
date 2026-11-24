@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import unittest
+from tests.support.public_c_fixture import private_c_helper_prefix
 from tests import test_public_c_nonfinite_format as base
 ROOT=Path(__file__).resolve().parents[1]
 class BoolText(unittest.TestCase):
@@ -38,7 +39,7 @@ assert (== (nano_bool_to_string 3) 4) assert (== (nano_rt_bool_text 3) 5) assert
 shadow main{assert true}
 '''
         output,_=self.emit(source)
-        self.assertIn('static const char* nano_cb_1_bool_text(',output.read_text())
+        self.assertEqual(private_c_helper_prefix(output.read_text(), 'bool_text'), 'nano_cb_1_')
         for standard in ('c99','c11'):
             for optimization in ('-O0','-O2'):
                 exe=self.work/(standard+optimization);self.compile(output,exe,standard,optimization);self.assertEqual(self.run_cmd([exe]).stdout,'true\nfalse\ntrue\n')

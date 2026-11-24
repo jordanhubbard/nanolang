@@ -665,6 +665,100 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
     return true;
 }
 
+typedef struct {
+    ASTNode *program;
+    const char *source;
+    char *module;
+} CSourceOwner;
+typedef struct {
+    Environment *env;
+    CSourceOwner *owners;
+    size_t count;
+} CSourceResolution;
+
+/* I reuse my checked owner-scoped lookup and return only its original AST
+ * declaration. I borrow bodies and source owners for this synchronous call. */
+static ASTNode *resolve_c_source_function(void *opaque, ASTNode *owner, const char *name) {
+    CSourceResolution *graph = opaque;
+    CSourceOwner *unit = NULL;
+    for (size_t i = 0; i < graph->count; i++)
+        if (graph->owners[i].program == owner) { unit = &graph->owners[i]; break; }
+    if (!unit) return NULL;
+    char *saved_module = graph->env->current_module;
+    const char *saved_file = env_current_file(graph->env);
+    graph->env->current_module = unit->module;
+    env_set_current_file(graph->env, unit->source);
+    Function *function = env_get_function(graph->env, name);
+    graph->env->current_module = saved_module;
+    env_set_current_file(graph->env, saved_file);
+    if (!function || function->lexical_scope) return NULL;
+    ASTNode *found = NULL;
+    for (size_t i = 0; i < graph->count; i++) {
+        ASTNode *program = graph->owners[i].program;
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *declaration = program->as.program.items[j];
+            if (declaration->type != AST_FUNCTION) continue;
+            bool exact = function->body && function->body == declaration->as.function.body;
+            if (function->is_extern && declaration->as.function.is_extern && function->source_file &&
+                !strcmp(function->source_file, graph->owners[i].source)) {
+                const char *original = function->alias_of ? function->alias_of : function->name;
+                const char *dot = strrchr(original, '.');
+                exact = !strcmp(dot ? dot + 1 : original, declaration->as.function.name);
+            }
+            if (exact) { if (found && found != declaration) return NULL; found = declaration; }
+        }
+    }
+    return found;
+}
+
+static int emit_checked_c_graph(ASTNode *root, Environment *env, ModuleList *modules,
+                                 const char *input, const char *output, const CBOptions *options) {
+    size_t count = (size_t)modules->count + 1, declarations = 0;
+    CSourceOwner *owners = calloc(count, sizeof *owners);
+    ASTNode **items = NULL;
+    CBSourceDeclaration *entries = NULL;
+    int result = 1;
+    if (!owners) goto done;
+    for (size_t i = 0; i < count; i++) {
+        bool entry = i + 1 == count;
+        owners[i].source = entry ? input : modules->module_paths[i];
+        owners[i].program = entry ? root : get_cached_module_ast(owners[i].source);
+        if (!owners[i].program || owners[i].program->type != AST_PROGRAM) goto done;
+        owners[i].module = entry ? (env->current_module ? strdup(env->current_module) : NULL) :
+                                  module_program_name(owners[i].program, owners[i].source);
+        if ((!entry || env->current_module) && !owners[i].module) goto done;
+        size_t size = (size_t)owners[i].program->as.program.count;
+        if (size > INT_MAX - declarations) goto done;
+        declarations += size;
+    }
+    if (declarations > SIZE_MAX / sizeof *items || declarations > SIZE_MAX / sizeof *entries) goto done;
+    items = calloc(declarations ? declarations : 1, sizeof *items);
+    entries = calloc(declarations ? declarations : 1, sizeof *entries);
+    if (!items || !entries) goto done;
+    size_t used = 0;
+    for (size_t i = 0; i < count; i++) {
+        ASTNode *program = owners[i].program;
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *node = program->as.program.items[j];
+            if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL || node->type == AST_SHADOW) continue;
+            items[used] = node;
+            entries[used++] = (CBSourceDeclaration){node, program};
+        }
+    }
+    ASTNode merged = {0};
+    merged.type = AST_PROGRAM;
+    merged.as.program.items = items;
+    merged.as.program.count = (int)used;
+    CSourceResolution resolution = {env, owners, count};
+    CBSourceGraph graph = {root, entries, used, &resolution, resolve_c_source_function};
+    result = c_backend_emit_graph(&merged, &graph, output, input, options);
+done:
+    if (owners) for (size_t i = 0; i < count; i++) free(owners[i].module);
+    free(entries); free(items); free(owners);
+    if (result) fputs("I could not emit my checked C source graph.\n", stderr);
+    return result;
+}
+
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
@@ -986,7 +1080,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
         CBOptions cb_opts = {0}; cb_opts.verbose = opts->verbose;
-        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
+        int c_rc = emit_checked_c_graph(program, env, modules, input_file, c_out, &cb_opts);
         if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);

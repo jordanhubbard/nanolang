@@ -15,6 +15,10 @@ static bool cb_needs_lift(ASTNode *n) {
         for (int i=0;i<n->as.call.arg_count;i++)
             if (cb_needs_lift(n->as.call.args[i])) return true;
         return false;
+    case AST_MODULE_QUALIFIED_CALL:
+        for (int i=0;i<n->as.module_qualified_call.arg_count;i++)
+            if (cb_needs_lift(n->as.module_qualified_call.args[i])) return true;
+        return false;
     case AST_FIELD_ACCESS: return cb_needs_lift(n->as.field_access.object);
     case AST_UNION_CONSTRUCT:
         for (int i=0;i<n->as.union_construct.field_count;i++)
@@ -52,7 +56,7 @@ static bool cb_statement_exits(CBCtx *c, ASTNode *n) {
     case AST_ASSERT:value=n->as.assert.condition;break;
     case AST_PRINT:value=n->as.print.expr;break;
     case AST_IF:value=n->as.if_stmt.condition;break;
-    case AST_CALL:case AST_PREFIX_OP:case AST_COND:value=n;break;
+    case AST_CALL:case AST_MODULE_QUALIFIED_CALL:case AST_PREFIX_OP:case AST_COND:value=n;break;
     default:break;
     }
     if(cb_needs_lift(value) && !cb_info(c,value).continues)return true;
@@ -139,9 +143,10 @@ static CBValueInfo cb_info(CBCtx *c, ASTNode *n) {
             return (CBValueInfo){a.type==TYPE_FLOAT || b.type==TYPE_FLOAT?TYPE_FLOAT:TYPE_INT,NULL,true};
         ctx_error(c,"I require resolved scalar lifted operator results.");return bad;
     }
-    if(n->type==AST_CALL || n->type==AST_UNION_CONSTRUCT || n->type==AST_STRUCT_LITERAL) {
+    if(n->type==AST_CALL || n->type==AST_MODULE_QUALIFIED_CALL || n->type==AST_UNION_CONSTRUCT || n->type==AST_STRUCT_LITERAL) {
         ASTNode **values=NULL;int count=0;
         if(n->type==AST_CALL){values=n->as.call.args;count=n->as.call.arg_count;}
+        else if(n->type==AST_MODULE_QUALIFIED_CALL){values=n->as.module_qualified_call.args;count=n->as.module_qualified_call.arg_count;}
         else if(n->type==AST_UNION_CONSTRUCT){values=n->as.union_construct.field_values;count=n->as.union_construct.field_count;}
         else {values=n->as.struct_literal.field_values;count=n->as.struct_literal.field_count;}
         for(int i=0;i<count;i++)if(cb_needs_lift(values[i]) && !cb_info(c,values[i]).continues)return no;
@@ -271,6 +276,7 @@ static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continu
             const char *binding=n->as.match_expr.pattern_bindings?n->as.match_expr.pattern_bindings[i]:NULL;
             if(!wildcard && binding && strcmp(binding,"_") && owner->as.union_def.variant_field_counts[index]>0) {
                 emit_indent(c);fprintf(c->out,"%spayload_%d_%d %s = %s.as.%s;\n",c->prefix,declaration,index,binding,scrutinee->name,variant);
+                emit_indent(c);fprintf(c->out,"(void)%s;\n",binding);
             }
             ASTNode *guard=n->as.match_expr.guard_exprs?n->as.match_expr.guard_exprs[i]:NULL;
             bool guard_live=true,opened=false;
@@ -293,7 +299,7 @@ static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continu
         if(any){emit_indent(c);fprintf(c->out,"%smatch_end_%zu: ;\n",c->prefix,label);}
         *continues=any;return 0;
     }
-    if(!cb_needs_lift(n) && n->type!=AST_PREFIX_OP && n->type!=AST_CALL &&
+    if(!cb_needs_lift(n) && n->type!=AST_PREFIX_OP && n->type!=AST_CALL && n->type!=AST_MODULE_QUALIFIED_CALL &&
        n->type!=AST_UNION_CONSTRUCT && n->type!=AST_STRUCT_LITERAL)
         return cb_assign(c,n,destination);
     if(n->type==AST_PREFIX_OP && (n->as.prefix_op.op==TOKEN_AND || n->as.prefix_op.op==TOKEN_OR)) {
@@ -317,6 +323,9 @@ static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continu
             ctx_error(c,"I require a direct declared or builtin lifted C call.");return -1;
         }
         children=n->as.call.args;count=n->as.call.arg_count;
+    } else if(n->type==AST_MODULE_QUALIFIED_CALL){
+        if(!ctx_qualified_function(c,n)){ctx_error(c,"I require an exact declared lifted qualified C call.");return -1;}
+        children=n->as.module_qualified_call.args;count=n->as.module_qualified_call.arg_count;
     } else if(n->type==AST_UNION_CONSTRUCT){children=n->as.union_construct.field_values;count=n->as.union_construct.field_count;}
     else if(n->type==AST_STRUCT_LITERAL){children=n->as.struct_literal.field_values;count=n->as.struct_literal.field_count;}
     else {ctx_error(c,"I do not support this compound lifted C value context.");return -1;}
@@ -334,6 +343,7 @@ static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continu
     if(!rc && *continues) {
         if(n->type==AST_PREFIX_OP)view.as.prefix_op.args=args;
         else if(n->type==AST_CALL)view.as.call.args=args;
+        else if(n->type==AST_MODULE_QUALIFIED_CALL)view.as.module_qualified_call.args=args;
         else if(n->type==AST_UNION_CONSTRUCT)view.as.union_construct.field_values=args;
         else view.as.struct_literal.field_values=args;
         rc=cb_assign(c,&view,destination);
@@ -350,7 +360,7 @@ static int cb_lift_statement(CBCtx *c, ASTNode *n, bool *handled) {
     case AST_ASSERT:value=n->as.assert.condition;break;
     case AST_PRINT:value=n->as.print.expr;break;
     case AST_IF:value=n->as.if_stmt.condition;break;
-    case AST_CALL:case AST_PREFIX_OP:case AST_COND:value=n;break;
+    case AST_CALL:case AST_MODULE_QUALIFIED_CALL:case AST_PREFIX_OP:case AST_COND:value=n;break;
     default:return 0;
     }
     if(!cb_needs_lift(value))return 0;

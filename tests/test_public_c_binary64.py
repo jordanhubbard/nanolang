@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.support.public_c_fixture import command_with_public_c_providers
 
 ROOT=Path(__file__).resolve().parents[1]
 class PublicCBinary64(unittest.TestCase):
@@ -11,7 +12,7 @@ class PublicCBinary64(unittest.TestCase):
         self.work=Path(tempfile.mkdtemp(prefix='nano-public-c-binary64-'))
         print('I retain public C evidence at',self.work,flush=True)
     def command(self,*args,success=True):
-        args=list(map(str,args))
+        args=list(map(str,command_with_public_c_providers(args)))
         result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
         message=f'tool={args[0]} command={args!r}\n{result.stdout}\n{result.stderr}'
         (self.assertEqual if success else self.assertNotEqual)(result.returncode,0,message)

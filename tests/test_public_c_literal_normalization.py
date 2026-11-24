@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from tests.support.public_c_fixture import command_with_public_c_providers
 ROOT=Path(__file__).resolve().parents[1]
 CASES=[(r'alpha\nbeta',b'alpha\nbeta'),(r'\t8',b'\t8'),(r'\r7',b'\r7'),
        (r'\"',b'"'),(r"\'",b"'"),(r'\\',b'\\'),
@@ -22,6 +23,7 @@ class PublicCLiterals(unittest.TestCase):
         self.work=Path(tempfile.mkdtemp(prefix='nano-public-c-literal-'))
         print('I retain fresh literal evidence at',self.work,flush=True)
     def run_cmd(self,args):
+        args = command_with_public_c_providers(args)
         result=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,timeout=240)
         self.assertEqual(result.returncode,0,f'command={args!r}\n{result.stdout!r}\n{result.stderr!r}')
         self.assertNotIn(b'Sanitizer',result.stderr);self.assertNotIn(b'runtime error:',result.stderr)

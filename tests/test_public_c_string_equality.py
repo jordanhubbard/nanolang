@@ -5,12 +5,14 @@ import re
 import subprocess
 import tempfile
 import unittest
+from tests.support.public_c_fixture import command_with_public_c_providers, private_c_helper_prefix
 ROOT=Path(__file__).resolve().parents[1]
 class PublicCStringEquality(unittest.TestCase):
     def setUp(self):
         self.work=Path(tempfile.mkdtemp(prefix='nano-public-c-equality-'))
         print('I retain fresh equality evidence at',self.work,flush=True)
     def run_cmd(self,args):
+        args = command_with_public_c_providers(args)
         r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=240)
         self.assertEqual(r.returncode,0,f'command={args!r}\n{r.stdout}\n{r.stderr}')
         self.assertNotIn('Sanitizer',r.stderr);self.assertNotIn('runtime error:',r.stderr)
@@ -43,7 +45,7 @@ class PublicCStringEquality(unittest.TestCase):
         exe=self.work/'native';self.run_cmd([os.environ.get('CC','cc'),'-std=c11','-O2','-fsanitize=address,undefined','-fno-sanitize-recover=all',generated,'-lm','-o',exe]);self.run_cmd([exe])
     def test_private_helper_pointer_and_null_boundary(self):
         _,output,code=self.emit('fn main()->int{return 0} shadow main{assert (== (main) 0)}')
-        prefix=re.search(r'static int (nano_cb_\d+_)string_equal',code).group(1)
+        prefix=private_c_helper_prefix(code, 'string_equal')
         harness=self.work/'helper.c';harness.write_text('#include <assert.h>\n#define main generated_main\n#include "'+str(output)+'"\n#undef main\nint main(void){char a[]={\'q\',0},b[]={\'q\',0};assert('+prefix+'string_equal(a,b));assert('+prefix+'string_equal(a,a));assert(!'+prefix+'string_equal(a,"r"));assert('+prefix+'string_equal(NULL,NULL));assert(!'+prefix+'string_equal(NULL,a));assert(!'+prefix+'string_equal(a,NULL));return 0;}\n')
         exe=self.work/'helper';self.compile(harness,exe);self.run_cmd([exe])
     def test_exact_refusal_prior_output_and_same_process_recovery(self):

@@ -8201,3 +8201,14 @@ test-units: test-type-metadata-queries
 .PHONY: test-cseed-native-publication
 test-cseed-native-publication: $(COMPILER_C)
 	@NANOLANG_PUBLICATION_COMPILER="$(COMPILER_C)" python3 -m unittest tests.test_cseed_native_publication
+
+.PHONY: test-source-c-imports test-source-c-graph-api
+test-source-c-imports: $(COMPILER_C) test-source-c-graph-api
+	@NANO_SOURCE_C_COMPILER="$(COMPILER_C)" python3 -m unittest tests.test_source_c_imports
+
+test-source-c-graph-api: tests/test_source_c_graph_api.c tests/support/public_c_fixture_providers.c src/c_backend.c src/c_backend.h src/c_backend_values.inc
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -D_POSIX_C_SOURCE=200809L -Isrc -o $(OBJ_DIR)/test_source_c_graph_api tests/test_source_c_graph_api.c tests/support/public_c_fixture_providers.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_source_c_graph_api $(OBJ_DIR)/source_c_graph_api.c
+
+test-units: test-source-c-graph-api

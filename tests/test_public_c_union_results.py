@@ -1,5 +1,6 @@
 """I preserve exact declared union result identity and once evaluation."""
 import os
+import re
 from pathlib import Path
 import unittest
 from tests import test_public_c_nonfinite_format as formatting
@@ -24,8 +25,9 @@ class UnionResults(unittest.TestCase):
         return code
     def test_scalar_payload_alias_parameter_local_and_forward_returns(self):
         code=self.qualify(SCALARS,'payload\nempty\n')
-        self.assertIn('NanoUnion_Result relay(',code)
-        self.assertIn('NanoUnion_Result make(',code)
+        relay = re.search(r'\b(NanoUnion_[A-Za-z_][A-Za-z0-9_]*) relay\(', code)
+        self.assertIsNotNone(relay)
+        self.assertIn(relay.group(1) + ' make(', code)
     def test_empty_union_and_distinct_nominal_results(self):
         self.qualify(EMPTY,'yes\nother\n')
     def test_api_nominal_refusal_output_and_recovery(self):

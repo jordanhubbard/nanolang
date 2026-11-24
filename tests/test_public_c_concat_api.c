@@ -9,6 +9,7 @@ static void expression(CBCtx *context,ASTNode *node,char *text,size_t size){
  context->out=tmpfile();assert(context->out);assert(emit_expr(context,node)==0);
  assert(fflush(context->out)==0);rewind(context->out);size_t n=fread(text,1,size-1,context->out);text[n]=0;
  assert(fclose(context->out)==0);
+ free_call_slots(context); context->call_counter=0;
 }
 static void callable_refusal(CBCtx *context,ASTNode *node){
  context->out=tmpfile();assert(context->out);context->error=NULL;
@@ -27,15 +28,17 @@ int main(int argc,char **argv){
  ctx_push_scope(&context);ctx_add_sym(&context,"str_concat",TYPE_FUNCTION);
  callable_refusal(&context,&call);
  assert(infer_expr_type(&context,&call)==TYPE_UNKNOWN);ctx_pop_scope(&context);
- FunctionSignature signature={0};signature.return_type=TYPE_STRING;call.as.call.checked_signature=&signature;
- expression(&context,&call,text,sizeof text);assert(strstr(text,"str_concat(")==text);
+ Type parameter_types[]={TYPE_STRING,TYPE_STRING};
+ FunctionSignature signature={0};signature.return_type=TYPE_STRING;signature.param_types=parameter_types;signature.param_count=2;call.as.call.checked_signature=&signature;
+ expression(&context,&call,text,sizeof text);assert(strstr(text,", str_concat("));assert(!strstr(text,"nano_fixture_string_concat("));
  call.as.call.checked_signature=NULL;
  ASTNode callee={.type=AST_IDENTIFIER};callee.as.identifier="callback";call.as.call.func_expr=&callee;
  callable_refusal(&context,&call);
  assert(infer_expr_type(&context,&call)==TYPE_UNKNOWN);call.as.call.func_expr=NULL;
  ASTNode declared={.type=AST_FUNCTION};declared.as.function.name="str_concat";declared.as.function.return_type=TYPE_STRING;
+ Parameter parameters[]={{.name="left",.type=TYPE_STRING},{.name="right",.type=TYPE_STRING}};declared.as.function.params=parameters;declared.as.function.param_count=2;
  ASTNode *declarations[]={&declared};ASTNode declaration_root={.type=AST_PROGRAM};declaration_root.as.program.items=declarations;declaration_root.as.program.count=1;
- context.root=&declaration_root;expression(&context,&call,text,sizeof text);assert(strstr(text,"str_concat(")==text);context.root=NULL;
+ context.root=&declaration_root;expression(&context,&call,text,sizeof text);assert(strstr(text,", str_concat("));assert(!strstr(text,"nano_fixture_string_concat("));context.root=NULL;
  ASTNode wrong_float={.type=AST_FLOAT},wrong_bool={.type=AST_BOOL},wrong_int={.type=AST_NUMBER};
  ASTNode *wrong[]={&wrong_float,&wrong_bool,&wrong_int};
  for(size_t i=0;i<sizeof wrong/sizeof wrong[0];++i){
