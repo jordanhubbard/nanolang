@@ -1,0 +1,1 @@
+PASS integrity/localization: 4637 records; two unchanged current16b Stage2 methods FAIL on unsupported helper symbols before execution; source/images/tools/hosts and prior product preserved. No repair or full native/release acceptance.
