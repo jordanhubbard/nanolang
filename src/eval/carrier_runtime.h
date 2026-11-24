@@ -17,6 +17,9 @@ void env_carrier_leave_value(Environment *env, Value result, bool record_list);
  * qualification caller. I do not enable collection through ordinary creation. */
 bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *host_roots, size_t count);
 bool env_carrier_collect(Environment *env);
+/* My nested automatic headroom is the last retained live heap, clamped16..64.
+ * Explicit walks, first/shallow/host roots and failed-walk recovery stay full. */
+bool env_carrier_auto_collect(Environment *env);
 void env_carrier_hold(Environment *env, NlCarrierRef value);
 void env_carrier_edges(Environment *env, Value owner, const NlCarrierRef *edges, size_t count);
 typedef struct { size_t roots, strings; } NlCarrierScopeMark;

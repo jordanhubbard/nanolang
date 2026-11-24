@@ -642,3 +642,65 @@ ordinary compiler-source shadows complete in 139.849 seconds and the native
 product runs `--help`. Default complete admission still has three LSan failures
 of 168/172/172 bytes. I close only the explicit-free semantic blocker; private
 compiler cost, complete default ownership and release acceptance remain open.
+
+## I distinguish an explicit walk from automatic reclamation
+
+My private aggregate collector now filters ordinary environment scalar values
+with the same carrier predicate used for expression roots. Struct, union, tuple,
+array and typed-list facts remain roots. Explicit host facts stay unfiltered,
+including malformed facts that must refuse a complete walk. Numeric pointer
+bits still grant no ownership.
+
+I resolve record/union field declarations once per immediate container and
+retain optional declaration descriptors only inside one collection or transfer.
+My unqualified struct index preserves the first array match, current-module
+preference and original-name aliases. Qualified names use the original resolver.
+A partial optional-index allocation failure discards the partial index before
+uncached resolution. Success and failure both clear borrowed descriptors; the
+next walk reads current names, types, modules, field values and list contents.
+A bounded immediate stack name index avoids repeated scans through128-field
+schemas; larger schemas keep the linear path. It preserves first-name
+declarations and resolves hash collisions by comparing complete names. My
+existing per-slot callback remains available. First-name matching, reordered
+fields, failed traces, borrowed storage and exact transfer boundaries remain
+part of the contract.
+
+My retained full walk at every nested evaluation boundary does not meet my original
+compiler-source shadow deadline. I retain those failures and their CPU/root
+observations. My new automatic policy can defer nested expression and statement
+walks until its registration or additional consumed-list count reaches the last
+complete walk's retained live heap size, clamped between 16 and 64. A small last-retained heap
+uses 16-allocation headroom; the maximum is 64. First
+walks, shallow evaluation boundaries, explicit host roots and host-root
+reconfiguration require complete walks. A failed explicit walk invalidates the
+previous automatic checkpoint. `env_carrier_collect` always requests a complete
+walk; `env_carrier_auto_collect` can report deferred reclamation without
+validating the current graph. A caller requiring immediate validation or
+retirement uses the explicit operation.
+
+I keep every constructor and expression root fact while deferring reclamation.
+I cache no graph, payload or validation result for a later walk. Explicit
+transfers still gather the full current reachable graph, and explicit legacy
+frees still release their own header/data immediately. The registration budget
+limits automatic deferral between allocation events; it is not a byte limit or
+a bound on the size of a previously live graph. Environment teardown retains
+its complete ownership accounting. Default aggregate activation remains off.
+
+My earlier64-registration trial completes all1306 shadows, then fails the
+original active-root peak_live<=32 bound. Fixed16 restores the ownership bound
+but fails the source deadline. I retain both trials. My proportional policy
+passes all1306 private shadows in9.125103617 seconds under the original
+ten-second supervisor and publishes a working seed. Both private and ordinary
+complete commands pass at600/default10, with native help checks. Original
+active-root peak16, zero native-byte growth, three-profile ownership/fault/Make
+controls and default34/private41 cohorts pass. The three default168/172/172-byte
+LSan admission failures remain explicit.
+
+Valid unowned scalar arrays retain header validation but skip visited metadata
+and child traversal because their existing walker exposes no carrier edges.
+Owned arrays and all typed-list/container guards keep the full path. My
+[cost and recovery receipt](evidence/carrier-source-cost-linux-20261123/README.md)
+retains source/products, earlier failed trials and the104 unrecovered historical
+provider paths. Current qualification inputs are complete; I claim no deletion
+cause, default aggregate activation, fresh shared-provider build, paired/raw
+acceptance or whole release.

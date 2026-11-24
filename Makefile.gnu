@@ -8137,3 +8137,31 @@ test-carrier-legacy-list-free: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/e
 	@$(OBJ_DIR)/test_carrier_legacy_list_free
 
 test-units: test-eval-legacy-list-free test-carrier-legacy-list-free
+
+.PHONY: test-eval-carrier-root-selection
+test-eval-carrier-root-selection: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_root_selection tests/test_eval_carrier_root_selection.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_root_selection
+
+test-units: test-eval-carrier-root-selection
+
+.PHONY: test-eval-carrier-field-metadata
+test-eval-carrier-field-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_field_metadata tests/test_eval_carrier_field_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_field_metadata
+
+test-units: test-eval-carrier-field-metadata
+
+.PHONY: test-eval-carrier-field-walk
+test-eval-carrier-field-walk: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_field_walk tests/test_eval_carrier_field_walk.c $(filter-out %/carrier_runtime.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_field_walk
+
+test-units: test-eval-carrier-field-walk
+
+.PHONY: test-eval-carrier-pressure
+test-eval-carrier-pressure: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_carrier_pressure tests/test_eval_carrier_pressure.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_carrier_pressure
+
+test-units: test-eval-carrier-pressure

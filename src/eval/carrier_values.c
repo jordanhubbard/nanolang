@@ -30,6 +30,7 @@ struct NlCarrierValues {
     void *visitor;
     bool busy, transfer;
     NlCarrierRecordListSlot slots;
+    NlCarrierRecordListResolver fields;
     void *slot_context;
     const NlCarrierRef *roots;
     size_t root_count;
@@ -160,6 +161,15 @@ static int seen_add(NlCarrierValues *heap, NlCarrierRef ref) {
     }
     heap->seen[slot] = key; heap->seen_count++; return 1;
 }
+typedef struct { const char *name; bool list; } FieldListSlot;
+static size_t field_list_slot(FieldListSlot *slots, const char *name) {
+    uint32_t hash = UINT32_C(2166136261);
+    for (const unsigned char *p = (const unsigned char *)name; *p; ++p)
+        hash = (hash ^ *p) * UINT32_C(16777619);
+    size_t slot = hash & 255u;
+    while (slots[slot].name && strcmp(slots[slot].name, name)) slot = (slot + 1) & 255u;
+    return slot;
+}
 static bool push_children(NlCarrierValues *heap, NlCarrierRef ref) {
     if (ref.record_list) {
         if (ref.record_list == NL_CARRIER_LEGACY_RECORD_LIST) {
@@ -179,10 +189,10 @@ static bool push_children(NlCarrierValues *heap, NlCarrierRef ref) {
         }
         return true;
     }
-    Value *fields = NULL; int count = 0;
+    Value *fields = NULL; char **names = NULL; int count = 0;
     switch (ref.value.type) {
-        case VAL_STRUCT: fields = ref.value.as.struct_val->field_values; count = ref.value.as.struct_val->field_count; break;
-        case VAL_UNION: fields = ref.value.as.union_val->field_values; count = ref.value.as.union_val->field_count; break;
+        case VAL_STRUCT: fields = ref.value.as.struct_val->field_values; names = ref.value.as.struct_val->field_names; count = ref.value.as.struct_val->field_count; break;
+        case VAL_UNION: fields = ref.value.as.union_val->field_values; names = ref.value.as.union_val->field_names; count = ref.value.as.union_val->field_count; break;
         case VAL_TUPLE: fields = ref.value.as.tuple_val->elements; count = ref.value.as.tuple_val->element_count; break;
         case VAL_ARRAY: {
             Array *a = ref.value.as.array_val;
@@ -201,8 +211,41 @@ static bool push_children(NlCarrierValues *heap, NlCarrierRef ref) {
         }
         default: break;
     }
+    NlCarrierRecordListFields declared = {0};
+    if (count && heap->fields) declared = heap->fields(ref.value, heap->slot_context);
+    bool has_lists = false;
+    if (declared.count > 0 && declared.names && declared.types) {
+        if (count && !names) return false;
+        for (int k = 0; k < declared.count; ++k)
+            if (declared.types[k] == TYPE_LIST_GENERIC) { has_lists = true; break; }
+    }
+    /* I index borrowed schema names only for this immediate traversal. Half
+     * occupancy bounds probing; larger schemas retain the exact linear path. */
+    FieldListSlot field_index[256];
+    bool indexed = has_lists && declared.count <= 128;
+    if (indexed) {
+        memset(field_index, 0, sizeof field_index);
+        for (int k = 0; k < declared.count; ++k) {
+            if (!declared.names[k]) { indexed = false; break; }
+            size_t slot = field_list_slot(field_index, declared.names[k]);
+            if (!field_index[slot].name) field_index[slot] =
+                (FieldListSlot){declared.names[k], declared.types[k] == TYPE_LIST_GENERIC};
+        }
+    }
     for (int i = 0; i < count; ++i) {
         bool list = heap->slots && heap->slots(ref.value, i, heap->slot_context);
+        if (indexed && names[i]) list = field_index[field_list_slot(field_index, names[i])].list;
+        else if (has_lists && names[i]) for (int k = 0; k < declared.count; ++k) {
+            if (declared.types[k] != TYPE_LIST_GENERIC || strcmp(names[i], declared.names[k])) continue;
+            list = true;
+            /* An earlier scalar declaration still wins over a duplicate list
+             * name. I search earlier names only after an actual typed hit. */
+            for (int first = 0; first < k; ++first)
+                if (!strcmp(names[i], declared.names[first])) {
+                    list = declared.types[first] == TYPE_LIST_GENERIC; break;
+                }
+            break;
+        }
         if (!push_ref(heap, (NlCarrierRef){fields[i], list})) return false;
     }
     return true;
@@ -243,6 +286,13 @@ static bool walk(NlCarrierValues *heap) {
         CarrierValue *owned = nl_carrier_heap_context(heap->engine, key);
         if (owned && value_kind(owned->ref) != value_kind(ref)) return false;
         if (!valid_value(ref)) return false;
+        if (!owned && !ref.record_list && ref.value.type == VAL_ARRAY) {
+            ValueType element = ref.value.as.array_val->element_type;
+            /* My existing static-array walker exposes no carrier edge for
+             * these tags. I validate caller storage but own or cache none. */
+            if (element != VAL_ARRAY && element != VAL_STRUCT &&
+                element != VAL_UNION && element != VAL_TUPLE) continue;
+        }
         int fresh = seen_add(heap, ref); if (fresh < 0) return false; if (!fresh) continue;
         if (owned) {
             if (heap->mark) { if (!heap->mark(key, heap->visitor)) return false; }
@@ -310,7 +360,11 @@ static void destroy_value(void *object, void *context) {
 }
 void nl_carrier_values_set_slots(NlCarrierValues *heap, NlCarrierRecordListSlot slots, void *context) {
     if (!heap || heap->busy) return;
-    heap->slots = slots; heap->slot_context = context;
+    heap->slots = slots; heap->fields = NULL; heap->slot_context = context;
+}
+void nl_carrier_values_set_fields(NlCarrierValues *heap, NlCarrierRecordListResolver fields, void *context) {
+    if (!heap || heap->busy) return;
+    heap->fields = fields; heap->slots = NULL; heap->slot_context = context;
 }
 NlCarrierValues *nl_carrier_values_new(void) {
     NlCarrierValues *heap = calloc(1, sizeof *heap);

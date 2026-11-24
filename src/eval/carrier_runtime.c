@@ -5,6 +5,14 @@
 #include <stdint.h>
 #include <string.h>
 
+typedef struct {
+    const char *name;
+    uint64_t hash;
+    ValueType kind;
+    int variant;
+    NlCarrierRecordListFields fields;
+    bool preferred;
+} FieldDeclaration;
 struct NlEvalCarrierSession {
     NlCarrierValues *values;
     size_t depth;
@@ -15,7 +23,10 @@ struct NlEvalCarrierSession {
     char **strings;
     size_t string_count, string_capacity;
     NlCarrierStringStats string_stats;
-    bool collect, collecting;
+    bool collect, collecting, fields_active, fields_prepared, fields_complete, have_collection;
+    size_t collected_registered, collected_consumed, collected_live;
+    FieldDeclaration *field_declarations;
+    size_t field_count, field_capacity;
 };
 static NlCarrierHeapStats last_retired;
 static NlCarrierStringStats last_strings;
@@ -24,28 +35,128 @@ static void ownership_failure(void) {
     fputs("I cannot account for interpreter carrier ownership.\n", stderr);
     exit(1);
 }
-static bool record_list_slot(Value value, int index, void *context) {
+static NlCarrierRecordListFields resolve_record_list_fields(Value value, void *context) {
     Environment *env = context;
-    char **names = NULL; Type *types = NULL; int count = 0;
-    const char *name = NULL;
-    if (value.type == VAL_STRUCT && value.as.struct_val && index < value.as.struct_val->field_count) {
-        StructValue *r = value.as.struct_val;
-        StructDef *def = env_get_struct(env, r->struct_name);
-        if (!def) return false;
-        names = def->field_names; types = def->field_types; count = def->field_count;
-        name = r->field_names[index];
-    } else if (value.type == VAL_UNION && value.as.union_val && index < value.as.union_val->field_count) {
+    if (value.type == VAL_STRUCT && value.as.struct_val) {
+        StructDef *def = env_get_struct(env, value.as.struct_val->struct_name);
+        if (def) return (NlCarrierRecordListFields){def->field_names, def->field_types, def->field_count};
+    } else if (value.type == VAL_UNION && value.as.union_val) {
         UnionValue *u = value.as.union_val;
         UnionDef *def = env_get_union(env, u->union_name);
-        if (!def || u->variant_index < 0 || u->variant_index >= def->variant_count) return false;
-        int variant = u->variant_index;
-        names = def->variant_field_names[variant]; types = def->variant_field_types[variant];
-        count = def->variant_field_counts[variant]; name = u->field_names[index];
+        if (def && u->variant_index >= 0 && u->variant_index < def->variant_count) {
+            int variant = u->variant_index;
+            return (NlCarrierRecordListFields){def->variant_field_names[variant],
+                def->variant_field_types[variant], def->variant_field_counts[variant]};
+        }
     }
-    if (!name || !names || !types) return false;
-    for (int i = 0; i < count; ++i)
-        if (strcmp(name, names[i]) == 0) return types[i] == TYPE_LIST_GENERIC;
-    return false;
+    return (NlCarrierRecordListFields){0};
+}
+/* My borrowed declaration descriptors never survive a walk. The caller's
+ * actual field values are still read separately for each visited container. */
+static void clear_field_declarations(struct NlEvalCarrierSession *s) {
+    if (s->field_count) memset(s->field_declarations, 0,
+        s->field_capacity * sizeof *s->field_declarations);
+    s->field_count = 0;
+}
+static void reset_field_declarations(struct NlEvalCarrierSession *s) {
+    clear_field_declarations(s);
+    s->fields_active = s->fields_prepared = s->fields_complete = false;
+}
+static size_t declaration_slot(FieldDeclaration *entries, size_t capacity, uint64_t hash,
+                                const char *name, ValueType kind, int variant) {
+    size_t slot = (size_t)hash & (capacity - 1);
+    while (entries[slot].name) {
+        if (entries[slot].hash == hash && entries[slot].kind == kind &&
+            entries[slot].variant == variant && !strcmp(entries[slot].name, name)) break;
+        slot = (slot + 1) & (capacity - 1);
+    }
+    return slot;
+}
+static bool grow_field_declarations(struct NlEvalCarrierSession *s) {
+    if (s->field_capacity > SIZE_MAX / 2) return false;
+    size_t capacity = s->field_capacity ? s->field_capacity * 2 : 16;
+    if (capacity > SIZE_MAX / sizeof(FieldDeclaration)) return false;
+    FieldDeclaration *entries = calloc(capacity, sizeof *entries);
+    if (!entries) return false;
+    for (size_t i = 0; i < s->field_capacity; ++i) {
+        FieldDeclaration entry = s->field_declarations[i];
+        if (entry.name) entries[declaration_slot(entries, capacity, entry.hash,
+            entry.name, entry.kind, entry.variant)] = entry;
+    }
+    free(s->field_declarations); s->field_declarations = entries; s->field_capacity = capacity;
+    return true;
+}
+static uint64_t field_declaration_hash(const char *name, ValueType kind, int variant) {
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (const unsigned char *p = (const unsigned char *)name; *p; ++p) {
+        hash ^= *p; hash *= UINT64_C(1099511628211);
+    }
+    return hash ^ ((uint64_t)(unsigned)kind << 32) ^ (uint32_t)variant;
+}
+static bool index_field_declaration(struct NlEvalCarrierSession *s, const char *name,
+                                     NlCarrierRecordListFields fields, bool preferred) {
+    if (!name || strchr(name, '.')) return true;
+    uint64_t hash = field_declaration_hash(name, VAL_STRUCT, -1);
+    size_t slot = 0;
+    if (s->field_capacity) {
+        slot = declaration_slot(s->field_declarations, s->field_capacity, hash, name, VAL_STRUCT, -1);
+        FieldDeclaration *entry = &s->field_declarations[slot];
+        if (entry->name) {
+            if (preferred && !entry->preferred) { entry->fields = fields; entry->preferred = true; }
+            return true;
+        }
+    }
+    if (!s->field_capacity || s->field_count + 1 > s->field_capacity / 2) {
+        if (!grow_field_declarations(s)) return false;
+        slot = declaration_slot(s->field_declarations, s->field_capacity, hash, name, VAL_STRUCT, -1);
+    }
+    s->field_declarations[slot] = (FieldDeclaration){name, hash, VAL_STRUCT, -1, fields, preferred};
+    s->field_count++; return true;
+}
+static void prepare_field_declarations(Environment *env) {
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    s->fields_prepared = true;
+    for (int i = 0; i < env->struct_count; ++i) {
+        StructDef *def = &env->structs[i];
+        NlCarrierRecordListFields fields = {def->field_names, def->field_types, def->field_count};
+        bool preferred = env->current_module && def->module_name &&
+            !strcmp(env->current_module, def->module_name);
+        if (!index_field_declaration(s, def->name, fields, preferred) ||
+            !index_field_declaration(s, def->original_name, fields, preferred)) {
+            /* A partial index cannot decide preference or absence. */
+            clear_field_declarations(s); return;
+        }
+    }
+    s->fields_complete = true;
+}
+static NlCarrierRecordListFields record_list_fields(Value value, void *context) {
+    Environment *env = context;
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    const char *name = NULL; int variant = -1;
+    if (value.type == VAL_STRUCT && value.as.struct_val) name = value.as.struct_val->struct_name;
+    if (value.type == VAL_UNION && value.as.union_val) {
+        name = value.as.union_val->union_name; variant = value.as.union_val->variant_index;
+    }
+    if (!s->fields_active || !name) return resolve_record_list_fields(value, context);
+    bool unqualified = value.type == VAL_STRUCT && !strchr(name, '.');
+    if (unqualified && !s->fields_prepared) prepare_field_declarations(env);
+    uint64_t hash = field_declaration_hash(name, value.type, variant);
+    size_t slot = 0;
+    if (s->field_capacity) {
+        slot = declaration_slot(s->field_declarations, s->field_capacity, hash, name, value.type, variant);
+        if (s->field_declarations[slot].name) return s->field_declarations[slot].fields;
+    }
+    if (unqualified && s->fields_complete) return (NlCarrierRecordListFields){0};
+    NlCarrierRecordListFields fields = resolve_record_list_fields(value, context);
+    if (!s->field_capacity || s->field_count + 1 > s->field_capacity / 2) {
+        /* This table is optional metadata. Allocation failure changes cost,
+         * never the resolved list facts or ownership of caller storage. */
+        if (!grow_field_declarations(s)) return fields;
+        slot = declaration_slot(s->field_declarations, s->field_capacity, hash, name, value.type, variant);
+    }
+    s->field_declarations[slot] = (FieldDeclaration){name, hash, value.type, variant, fields, false};
+    s->field_count++;
+    return fields;
 }
 bool env_carrier_enable_strings(Environment *env) {
     if (!env) return false;
@@ -68,7 +179,7 @@ bool env_carrier_enable(Environment *env) {
         if (!existing) { free(session); env->carrier_session = NULL; }
         return false;
     }
-    nl_carrier_values_set_slots(session->values, record_list_slot, env);
+    nl_carrier_values_set_fields(session->values, record_list_fields, env);
     return true;
 }
 static void *reserve(void *data, size_t *capacity, size_t count, size_t width) {
@@ -83,13 +194,16 @@ static void *reserve(void *data, size_t *capacity, size_t count, size_t width) {
     if (!result) ownership_failure();
     *capacity = next; return result;
 }
+static bool carrier_root(NlCarrierRef value) {
+    return value.record_list || value.value.type == VAL_STRUCT || value.value.type == VAL_UNION ||
+        value.value.type == VAL_TUPLE || value.value.type == VAL_ARRAY;
+}
 void env_carrier_hold(Environment *env, NlCarrierRef value) {
     if (!env_carrier_enabled(env)) return;
     struct NlEvalCarrierSession *s = env->carrier_session;
     if (!s->depth) return;
     /* I never retain transient STRING/FUNCTION scalar storage as graph roots. */
-    if (!value.record_list && value.value.type != VAL_STRUCT && value.value.type != VAL_UNION &&
-        value.value.type != VAL_TUPLE && value.value.type != VAL_ARRAY) return;
+    if (!carrier_root(value)) return;
     if (s->root_count == SIZE_MAX) ownership_failure();
     s->roots = reserve(s->roots, &s->root_capacity, s->root_count + 1, sizeof *s->roots);
     s->roots[s->root_count++] = value;
@@ -185,13 +299,14 @@ bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *roots, 
     NlCarrierRef *copy = count ? malloc(count * sizeof *copy) : NULL;
     if (count && !copy) return false;
     if (count) memcpy(copy, roots, count * sizeof *copy);
-    free(s->host_roots); s->host_roots = copy; s->host_count = count; s->collect = true;
+    free(s->host_roots); s->host_roots = copy; s->host_count = count; s->collect = true; s->have_collection = false;
     return true;
 }
 bool env_carrier_collect(Environment *env) {
     if (!env_carrier_enabled(env) || !env->carrier_session->collect) return true;
     struct NlEvalCarrierSession *s = env->carrier_session;
-    if (s->collecting || env->symbol_count < 0) return false;
+    s->have_collection = false;
+    if (s->collecting || s->fields_active || env->symbol_count < 0) return false;
     size_t count = s->root_count;
     if (s->host_count > SIZE_MAX - count) return false;
     count += s->host_count;
@@ -219,13 +334,41 @@ bool env_carrier_collect(Environment *env) {
         Symbol *symbol = &env->symbols[i];
         /* Checker-retained declarations have no runtime payload yet. */
         if (symbol->value.type == VAL_VOID) continue;
-        roots[n++] = (NlCarrierRef){symbol->value, symbol->type == TYPE_LIST_GENERIC};
+        NlCarrierRef value = {symbol->value, symbol->type == TYPE_LIST_GENERIC};
+        if (carrier_root(value)) roots[n++] = value;
     }
-    s->collecting = true;
+    s->collecting = true; s->fields_active = true;
     bool ok = nl_carrier_values_collect(s->values, roots, n);
+    reset_field_declarations(s);
     if (n) memset(roots, 0, n * sizeof *roots);
     s->collecting = false;
+    if (ok) {
+        NlCarrierHeapStats stats = nl_carrier_values_stats(s->values);
+        s->collected_registered = stats.registered;
+        s->collected_live = stats.live;
+        s->collected_consumed = nl_carrier_values_consumed_count(s->values);
+        s->have_collection = true;
+    }
     return ok;
+}
+bool env_carrier_auto_collect(Environment *env) {
+    if (!env_carrier_enabled(env) || !env->carrier_session->collect) return true;
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    if (s->collecting || s->fields_active || env->symbol_count < 0) return false;
+    /* I amortize a complete graph walk against its retained live heap, while
+     * keeping small-heap deferral tight and absolute headroom bounded. */
+    size_t pressure = s->collected_live;
+    if (pressure < 16) pressure = 16;
+    if (pressure > 64) pressure = 64;
+    size_t registered = nl_carrier_values_stats(s->values).registered;
+    size_t consumed = nl_carrier_values_consumed_count(s->values);
+    if (!s->have_collection || s->depth <= 2 || s->host_count ||
+        registered < s->collected_registered || registered - s->collected_registered >= pressure ||
+        (consumed >= s->collected_consumed && consumed - s->collected_consumed >= pressure))
+        return env_carrier_collect(env);
+    /* I defer reclamation only. Every root fact is retained, and my next
+     * complete walk reads current payloads, declarations and caller storage. */
+    return true;
 }
 void env_carrier_track(Environment *env, Value value, bool copies) {
     if (!env_carrier_enabled(env)) return;
@@ -280,7 +423,12 @@ bool env_carrier_owns(Environment *env, Value value) {
 void env_carrier_export(Environment *env, Value value, bool list) {
     if (!env_carrier_enabled(env)) return;
     NlCarrierRef root = list ? nl_carrier_record_list((DynArray *)(intptr_t)value.as.int_val) : nl_carrier_value(value);
-    if (!nl_carrier_values_transfer(env->carrier_session->values, &root, 1)) ownership_failure();
+    struct NlEvalCarrierSession *s = env->carrier_session;
+    if (s->fields_active) ownership_failure();
+    s->fields_active = true;
+    bool ok = nl_carrier_values_transfer(s->values, &root, 1);
+    reset_field_declarations(s);
+    if (!ok) ownership_failure();
 }
 NlCarrierHeapStats env_carrier_stats(const Environment *env) {
     return nl_carrier_values_stats(env_carrier_enabled(env) ? env->carrier_session->values : NULL);
@@ -294,7 +442,7 @@ void env_carrier_close(Environment *env) {
     last_retired = nl_carrier_values_stats(session->values);
     if (!nl_carrier_values_free(session->values)) ownership_failure();
     free(session->roots); free(session->frames); free(session->host_roots); free(session->strings);
-    free(session->collection_roots);
+    free(session->collection_roots); free(session->field_declarations);
     free(session); env->carrier_session = NULL; retired_sessions++;
 }
 NlCarrierHeapStats env_carrier_last_retired_stats(void) { return last_retired; }

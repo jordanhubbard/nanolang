@@ -224,7 +224,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!env_carrier_scopes_enabled(env) && !g_carrier_environment) return eval_expression_impl(expr, env);
     Environment *saved = g_carrier_environment; g_carrier_environment = env;
     env_carrier_enter(env);
-    if (!env_carrier_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
+    if (!env_carrier_auto_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
     Value value = eval_expression_impl(expr, env);
     env_carrier_leave_value(env, value, expr && expr->checked_record_list);
     g_carrier_environment = saved; return value;
@@ -233,7 +233,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
     if (!env_carrier_scopes_enabled(env) && !g_carrier_environment) return eval_statement_impl(stmt, env);
     Environment *saved = g_carrier_environment; g_carrier_environment = env;
     env_carrier_enter(env);
-    if (!env_carrier_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
+    if (!env_carrier_auto_collect(env)) { fputs("I cannot trace active interpreter roots.\n", stderr); exit(1); }
     Value value = eval_statement_impl(stmt, env);
     env_carrier_leave_value(env, value, stmt && stmt->checked_record_list);
     g_carrier_environment = saved; return value;

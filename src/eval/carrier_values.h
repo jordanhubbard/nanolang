@@ -20,6 +20,17 @@ NlCarrierRef nl_carrier_legacy_record_list(List_int *list);
  * borrowed, read-only callback grants edges, never ownership of an INT. */
 typedef bool (*NlCarrierRecordListSlot)(Value owner, int index, void *context);
 void nl_carrier_values_set_slots(NlCarrierValues *heap, NlCarrierRecordListSlot slots, void *context);
+/* I borrow declaration metadata for one immediate field traversal only.
+ * Names map by their first match, including reordered runtime fields.
+ * This read-only resolver grants list edges, never ownership or cached roots. */
+typedef struct {
+    char *const *names;
+    const Type *types;
+    int count;
+} NlCarrierRecordListFields;
+typedef NlCarrierRecordListFields (*NlCarrierRecordListResolver)(Value owner, void *context);
+/* I select either this resolver or the existing per-slot callback. */
+void nl_carrier_values_set_fields(NlCarrierValues *heap, NlCarrierRecordListResolver fields, void *context);
 NlCarrierValues *nl_carrier_values_new(void);
 bool nl_carrier_values_free(NlCarrierValues *heap);
 bool nl_carrier_values_clear(NlCarrierValues *heap);
