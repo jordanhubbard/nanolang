@@ -1,0 +1,164 @@
+import "src_nano/typecheck.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/diagnostics.nano" as ScopeDiagnostics
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+
+fn scope_type_equal(left: NSType, right: NSType) -> bool {
+    return (and (and (== left.kind right.kind) (== left.name right.name)) (and (== left.element_type_kind right.element_type_kind) (== left.element_type_name right.element_type_name)))
+}
+shadow scope_type_equal {
+    assert (scope_type_equal (type_int) (type_int))
+    assert (not (scope_type_equal (type_int) (type_float)))
+    assert (not (scope_type_equal (type_array_of (type_string)) (type_array_of (type_int))))
+}
+
+fn scope_symbol_equal(left: Symbol, right: Symbol) -> bool {
+    if (or (!= left.name right.name) (not (scope_type_equal left.sym_type right.sym_type))) { return false }
+    if (or (!= left.is_mutable right.is_mutable) (!= left.is_function right.is_function)) { return false }
+    if (or (!= left.defined right.defined) (!= left.param_count right.param_count)) { return false }
+    if (not (scope_type_equal left.return_type right.return_type)) { return false }
+    if (!= (array_length left.param_types) (array_length right.param_types)) { return false }
+    let mut index: int = 0
+    while (< index (array_length left.param_types)) {
+        if (not (scope_type_equal (at left.param_types index) (at right.param_types index))) { return false }
+        set index (+ index 1)
+    }
+    return true
+}
+shadow scope_symbol_equal {
+    let first: Symbol = (symbol_new "first" (type_int) false false 0 (empty_param_types) (type_void))
+    let other: Symbol = (symbol_new "other" (type_int) false false 0 (empty_param_types) (type_void))
+    assert (scope_symbol_equal first first)
+    assert (not (scope_symbol_equal first other))
+    let metadata: Symbol = (symbol_new "first" (type_int) true true 1 [(type_bool)] (type_string))
+    assert (not (scope_symbol_equal first metadata))
+}
+
+# I retain the original loop as my comparison, without calling the candidate.
+fn scope_manual_copy(symbols: array<Symbol>) -> array<Symbol> {
+    let mut copy: array<Symbol> = []
+    let mut i: int = 0
+    while (< i (array_length symbols)) {
+        set copy (array_push copy (at symbols i))
+        set i (+ i 1)
+    }
+    return copy
+}
+shadow scope_manual_copy {
+    let input: array<Symbol> = [(symbol_new "outer" (type_int) false false 0 (empty_param_types) (type_void))]
+    let copy: array<Symbol> = (scope_manual_copy input)
+    assert (scope_symbol_equal (at input 0) (at copy 0))
+    (array_set copy 0 (symbol_new "changed" (type_bool) false false 0 (empty_param_types) (type_void)))
+    assert (== (at input 0).name "outer")
+}
+
+fn scope_check_copy(count: int) -> int {
+    let mut input: array<Symbol> = []
+    let mut index: int = 0
+    while (< index count) {
+        let value: Symbol = Symbol {
+            name: (+ "binding-" (int_to_string (% index 3))),
+            sym_type: (type_array_of (type_string)),
+            is_mutable: (== (% index 2) 0), is_function: true,
+            param_count: 2, defined: (!= (% index 3) 0),
+            param_types: [(type_int), (type_array_of (type_bool))], return_type: (type_float)
+        }
+        set input (array_push input value)
+        set index (+ index 1)
+    }
+    let expected: array<Symbol> = (scope_manual_copy input)
+    let actual: array<Symbol> = (env_copy_symbols input)
+    assert (== (array_length actual) count)
+    set index 0
+    while (< index count) {
+        assert (scope_symbol_equal (at expected index) (at actual index))
+        assert (scope_symbol_equal (at input index) (at actual index))
+        set index (+ index 1)
+    }
+    for name in ["binding-0", "binding-1", "binding-2", "absent"] {
+        assert (== (env_lookup actual name) (env_lookup expected name))
+    }
+    if (> count 0) {
+        let child: array<NSType> = (at actual 0).param_types
+        (array_set child 0 (type_bool))
+        assert (== (at (at input 0).param_types 0).kind TypeKind.TYPE_BOOL)
+        assert (== (at (at expected 0).param_types 0).kind TypeKind.TYPE_BOOL)
+        let prior: Symbol = (at input 0)
+        (array_set actual 0 (symbol_new "replacement" (type_int) false false 0 (empty_param_types) (type_void)))
+        assert (scope_symbol_equal (at input 0) prior)
+        assert (scope_symbol_equal (at expected 0) prior)
+        assert (== (at actual 0).name "replacement")
+    }
+    let extended: array<Symbol> = (env_add_symbol actual (symbol_new "appended" (type_bool) false false 0 (empty_param_types) (type_void)))
+    assert (== (array_length extended) (+ count 1))
+    assert (== (array_length input) count)
+    assert (== (array_length expected) count)
+    assert (== (env_lookup extended "appended") count)
+    return count
+}
+shadow scope_check_copy {
+    assert (== (scope_check_copy 0) 0)
+    assert (== (scope_check_copy 3) 3)
+}
+
+fn scope_report_octets(text: string) -> int {
+    let data: array<u8> = (bytes_from_string text)
+    (println (int_to_string (array_length data)))
+    let mut index: int = 0
+    while (< index (array_length data)) {
+        (println (int_to_string (cast_int (at data index))))
+        set index (+ index 1)
+    }
+    return (array_length data)
+}
+shadow scope_report_octets { assert (== (scope_report_octets "é") 2) }
+
+fn scope_report_source(source: string) -> int {
+    let lexical: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "scope.nano" lexical)
+    assert (not (ScopeDiagnostics.diag_list_has_errors lexical))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "scope.nano")
+    assert (not parsed.has_error)
+    let checked: TypecheckPhaseOutput = (typecheck_phase parsed "scope.nano")
+    (println "TYPECHECK")
+    if checked.had_error { (println "1") } else { (println "0") }
+    (println (int_to_string (list_CompilerDiagnostic_length checked.environment.diagnostics)))
+    if checked.environment.has_error { (println "1") } else { (println "0") }
+    (println (int_to_string checked.environment.error_count))
+    (println (int_to_string (list_CompilerDiagnostic_length checked.diagnostics)))
+    let mut index: int = 0
+    while (< index (list_CompilerDiagnostic_length checked.diagnostics)) {
+        let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get checked.diagnostics index)
+        (println (int_to_string diag.phase))
+        (println (int_to_string diag.severity))
+        (scope_report_octets diag.code)
+        (scope_report_octets diag.message)
+        (scope_report_octets diag.location.file)
+        (println (int_to_string diag.location.line))
+        (println (int_to_string diag.location.column))
+        set index (+ index 1)
+    }
+    return checked.environment.error_count
+}
+shadow scope_report_source {
+    assert (== (scope_report_source "fn value()->int{return 1}") 0)
+    assert (> (scope_report_source "fn value()->int{return true}") 0)
+}
+
+fn main() -> int {
+    for count in [0, 1, 2, 7, 8, 9, 15, 16, 17, 63, 64, 65, 127, 128] {
+        assert (== (scope_check_copy count) count)
+    }
+    (println "SCOPE-COPY-OK")
+    unsafe {
+        if (== (get_argc) 1) { return 0 }
+        if (!= (get_argc) 2) { return 2 }
+        let errors: int = (scope_report_source (file_read (get_argv 1)))
+        if (< errors 0) { return 1 }
+    }
+    return 0
+}
+shadow main { assert (== (scope_check_copy 2) 2) }

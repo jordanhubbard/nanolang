@@ -4001,6 +4001,11 @@ shadow env_add_symbol {
 }
 
 fn env_copy_symbols(symbols: array<Symbol>) -> array<Symbol> {
+    let count: int = (array_length symbols)
+    if (<= count 4294967295) {
+        return (array_slice symbols 0 count)
+    }
+    # I retain my original loop beyond the native slice endpoint range.
     let mut copy: array<Symbol> = []
     let mut i: int = 0
     while (< i (array_length symbols)) {
@@ -4016,6 +4021,34 @@ shadow env_copy_symbols {
     let added: array<Symbol> = (env_add_symbol copy (symbol_new "local" (type_int) false false 0 (empty_param_types) (type_void)))
     assert (== (array_length original) 0)
     assert (== (array_length added) 1)
+
+    let params: array<NSType> = [(type_float)]
+    let callable: Symbol = Symbol {
+        name: "same", sym_type: (type_array_of (type_string)),
+        is_mutable: true, is_function: true, param_count: 1, defined: false,
+        param_types: params, return_type: (type_bool)
+    }
+    let input: array<Symbol> = [(symbol_new "same" (type_int) false false 0 (empty_param_types) (type_void)), callable]
+    let cloned: array<Symbol> = (env_copy_symbols input)
+    assert (== (array_length cloned) 2)
+    assert (== (env_lookup cloned "same") 1)
+    let retained: Symbol = (at cloned 1)
+    assert (== retained.name "same")
+    assert (== (type_to_string retained.sym_type) "array<string>")
+    assert retained.is_mutable
+    assert retained.is_function
+    assert (not retained.defined)
+    assert (== retained.param_count 1)
+    assert (== (at retained.param_types 0).kind TypeKind.TYPE_FLOAT)
+    assert (== retained.return_type.kind TypeKind.TYPE_BOOL)
+    (array_set cloned 0 (symbol_new "replacement" (type_string) false false 0 (empty_param_types) (type_void)))
+    assert (== (at input 0).name "same")
+    let extended: array<Symbol> = (env_add_symbol cloned (symbol_new "last" (type_int) false false 0 (empty_param_types) (type_void)))
+    assert (== (array_length extended) 3)
+    assert (== (array_length input) 2)
+    # I copy outer records and preserve their existing nested-array aliases.
+    (array_set retained.param_types 0 (type_int))
+    assert (== (at (at input 1).param_types 0).kind TypeKind.TYPE_INT)
 }
 
 # I classify locals from every statement list, including nested expression blocks.
