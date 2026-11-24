@@ -1,5 +1,52 @@
 # My 5.1 requirement inventory — 2026-10-11
 
+## Current scope reconciliation — 2026-11-24
+
+I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
+the original 67 entries, LITAI-001 and NANOISA-NANOLANG-C-001. My original
+67-row inventory and dated observations below remain historical evidence.
+Their counts do not omit either later requirement from the current release.
+Existing optional and deferred classifications remain unchanged; a headline
+count is not a count of completed requirements.
+
+| Additional entry | Acceptance still required |
+| --- | --- |
+| LITAI-001, [#1039](https://github.com/jordanhubbard/nanolang/issues/1039) | I adopt real native unit authority, locks, lifecycle parity and current independent receipts under my [ordered adoption contract](literate-ai/ADOPTION.md). Metadata or wrappers alone do not complete adoption. |
+| NANOISA-NANOLANG-C-001, [#1142](https://github.com/jordanhubbard/nanolang/issues/1142) | I decode, admit, analyze and emit C in NanoLang, translate the complete required corpus and compiler products, and pass paired Linux/Darwin raw-equality and installed-product gates. An FFI call to my C translator does not implement this requirement. |
+
+I retain my [pure translator implementation boundary](NANOLANG_NANOISA_C_TRANSLATOR.md)
+and every unfinished payload, verifier, ownership, analysis, emitter, service,
+driver, bootstrap and platform requirement. The C-reference translator remains
+a development oracle and bootstrap tool. Its successful bootstrap does not
+establish the required NanoLang translator or authorize its product cutover.
+
+My [exact-cbb Linux checkpoint](evidence/darwin-current-source-20261124/diagnostics/core-supervisor-bootstrap-linux-20261124/README.md)
+records all 17 original Make bootstrap steps, byte-identical raw Stage1/Stage2,
+both native hellos and installed/no-C-seed execution. The same root's original
+native-shadow gate fails five of eighteen methods; its emitter companion does
+not run. My [independent localization](evidence/darwin-current-source-20261124/diagnostics/native-shadow-localization-linux-20261124/README.md)
+records four pre-execution no-main refusals and a missing C-only notice.
+These are recorded results at `cbbfdcb70c`, not final-candidate acceptance.
+
+I track the entry/notice and declared foreign-helper contracts under
+[#1253](https://github.com/jordanhubbard/nanolang/issues/1253). My
+[unsuccessful ordinary development derivation](evidence/darwin-current-source-20261124/diagnostics/shadow-entry-development-linux-20261124/README.md)
+retains its original600/default10 timeout, no compiler product and the separate
+retained-image setup refusal. I admit no repair from those observations.
+Source `16b081fdf4` has a separate cold original bootstrap in progress; its seed,
+seed verification, raw Stage1 generation and Stage1 verification have passed.
+I await its remaining original steps, raw equality and native contracts. A live
+attempt is not an acceptance receipt.
+
+The [original sanitizer directory-cache failure](evidence/darwin-current-source-20261124/diagnostics/core-supervisor-owned-names-linux-20261124/README.md)
+remains open under [#1252](https://github.com/jordanhubbard/nanolang/issues/1252).
+I retain the full ordinary-source, complete sanitizer, current-source paired,
+installed closure, corpus, integration/CI and publication obligations. I keep
+[#976](https://github.com/jordanhubbard/nanolang/issues/976) open until the
+complete contract and exact release-candidate gates pass; this reconciliation
+changes no requirement's acceptance state.
+
+
 ## Additional required 5.1 scope, 2026-10-28
 
 **Required (LITAI-001):** I adopt Literate AI under [#1039](https://github.com/jordanhubbard/nanolang/issues/1039)
