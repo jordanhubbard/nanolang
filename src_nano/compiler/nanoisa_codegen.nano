@@ -258,6 +258,11 @@ let mut nisa_loop_end: string = ""
 let mut nisa_loop_index: string = ""
 let mut nisa_import_names: array<string> = []
 let mut nisa_import_text: string = ""
+let mut nisa_native_owner: int = -1
+let mut nisa_native_artifact: string = ""
+let mut nisa_native_pending: bool = false
+let mut nisa_native_source: string = ""
+
 let mut nisa_artifact_owners: array<int> = []
 let mut nisa_artifact_paths: array<string> = []
 let mut nisa_program_mode: bool = false
@@ -787,6 +792,11 @@ shadow nisa_ordinary_publication {
 }
 
 fn nisa_reset() -> int {
+    set nisa_native_owner -1
+    set nisa_native_artifact ""
+    set nisa_native_pending false
+    set nisa_native_source ""
+
     set nisa_generics []
     set nisa_generic_type_bytes 0
     set nisa_generic_active -1
@@ -4421,6 +4431,133 @@ shadow nisa_register_regex_provider {
     let reset_again: int = (nisa_reset)
 }
 
+# I bind only explicit root-shadow primitives; my builtin ABI stays closed.
+fn nisa_native_ctype(name: string) -> string {
+    if (== name "void") { return "void" }
+    if (== name "int") { return "int64_t" }
+    if (== name "u8") { return "uint8_t" }
+    if (== name "bool") { return "bool" }
+    if (== name "float") { return "double" }
+    return ""
+}
+shadow nisa_native_ctype {
+    assert (== (nisa_native_ctype "int") "int64_t")
+    assert (== (nisa_native_ctype "void") "void")
+    assert (== (nisa_native_ctype "bool") "bool")
+    assert (== (nisa_native_ctype "float") "double")
+    assert (== (nisa_native_ctype "u8") "uint8_t")
+    assert (== (nisa_native_ctype "string") "")
+    assert (== (nisa_native_ctype "array<int>") "")
+}
+
+fn nisa_native_identifier(name: string) -> bool {
+    if (== name "") { return false }
+    let letters: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+    if (not (str_contains letters (str_substring name 0 1))) { return false }
+    for index in (range 1 (str_length name)) {
+        if (not (str_contains (+ letters "0123456789") (str_substring name index 1))) { return false }
+    }
+    return true
+}
+shadow nisa_native_identifier {
+    assert (nisa_native_identifier "native_action_2")
+    assert (not (nisa_native_identifier ""))
+    assert (not (nisa_native_identifier "2action"))
+    assert (not (nisa_native_identifier "action;exit"))
+    assert (not (nisa_native_identifier "module.action"))
+}
+
+fn nisa_native_eligible(parser: Parser, function: ASTFunction) -> bool {
+    if (or (< nisa_native_owner 0) (!= (mb_owner function.line) nisa_native_owner)) { return false }
+    if (or (!= (nisa_module_result function.name) "")
+        (or (>= (nisa_artifact_arity function.name) 0) (!= (nisa_host_result function.name) ""))) { return false }
+    if (or (not (nisa_native_identifier function.name))
+        (or (> function.param_count 8) (== (nisa_native_ctype function.return_type) ""))) { return false }
+    for index in (range 0 function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start index))
+        if (or (== parameter.var_type "void") (== (nisa_native_ctype parameter.var_type) "")) { return false }
+    }
+    return true
+}
+shadow nisa_native_eligible {
+    (mb_reset [1])
+    let tokens: List<LexerToken> = (tokenize_string "extern fn native_action() -> void extern fn get_argc() -> int extern fn pointer_action() -> string" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let _: int = (nisa_reset)
+    assert (not (nisa_native_eligible parser (parser_get_function parser 0)))
+    set nisa_native_owner 0
+    assert (nisa_native_eligible parser (parser_get_function parser 0))
+    assert (not (nisa_native_eligible parser (parser_get_function parser 1)))
+    assert (not (nisa_native_eligible parser (parser_get_function parser 2)))
+    set nisa_native_owner 1
+    assert (not (nisa_native_eligible parser (parser_get_function parser 0)))
+    let reset: int = (nisa_reset)
+    (mb_reset [])
+}
+
+fn nisa_register_native(parser: Parser, function: ASTFunction) -> int {
+    if (not (nisa_native_eligible parser function)) { return -1 }
+    if (== nisa_native_artifact "") {
+        set nisa_native_pending true
+        let rejected: string = (nisa_fail (+ "I require an explicit native shadow artifact for " function.name))
+        return -1
+    }
+    if (not (str_starts_with nisa_native_artifact "/")) {
+        let rejected: string = (nisa_fail "I require an absolute native shadow artifact")
+        return -1
+    }
+    for index in (range 0 (str_length nisa_native_artifact)) {
+        if (== (char_at nisa_native_artifact index) 0) {
+            let rejected: string = (nisa_fail "I require a native shadow artifact without NUL bytes")
+            return -1
+        }
+    }
+    let key: string = (+ "#native-shadow:" function.name)
+    let existing: int = (nisa_import_find key)
+    if (>= existing 0) { return existing }
+    let index: int = (array_length nisa_import_names)
+    set nisa_import_names (array_push nisa_import_names key)
+    let result: string = (nisa_native_ctype function.return_type)
+    let mut parameters: string = "void"
+    if (> function.param_count 0) { set parameters "" }
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string nisa_native_artifact) (+ "\" \"" (+ function.name (+ "\" " (nisa_result_tag parser function.return_type)))))))
+    for argument in (range 0 function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start argument))
+        if (> argument 0) { set parameters (+ parameters ", ") }
+        set parameters (+ parameters (nisa_native_ctype parameter.var_type))
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_result_tag parser parameter.var_type)))
+    }
+    set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))
+    let anchor: string = (+ "__nano_shadow_keep_" (int_to_string index))
+    let pointer: string = (+ "NanoShadowPointer" (int_to_string index))
+    set nisa_native_source (+ nisa_native_source (+ "extern " (+ result (+ " " (+ function.name (+ "(" (+ parameters ");\n")))))))
+    set nisa_native_source (+ nisa_native_source (+ "typedef " (+ result (+ " (*" (+ pointer (+ ")(" (+ parameters ");\n")))))))
+    set nisa_native_source (+ nisa_native_source (+ pointer (+ " " (+ anchor "(void);\n"))))
+    set nisa_native_source (+ nisa_native_source (+ pointer (+ " " (+ anchor (+ "(void) { return " (+ function.name "; }\n"))))))
+    return index
+}
+shadow nisa_register_native {
+    (mb_reset [1])
+    let tokens: List<LexerToken> = (tokenize_string "extern fn native_action() -> void" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let _: int = (nisa_reset)
+    set nisa_native_owner 0
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) -1)
+    assert nisa_native_pending
+    let reset: int = (nisa_reset)
+    set nisa_native_owner 0
+    set nisa_native_artifact "/retained/helpers.so"
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) 0)
+    assert (str_contains nisa_import_text ".import_kind 0 artifact")
+    assert (str_contains nisa_import_text "\"native_action\" void")
+    assert (str_contains nisa_native_source "extern void native_action(void);")
+    let declaration: string = nisa_native_source
+    assert (== (nisa_register_native parser (parser_get_function parser 0)) 0)
+    assert (== declaration nisa_native_source)
+    let again: int = (nisa_reset)
+    (mb_reset [])
+}
+
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     if (!= (nisa_module_result function.name) "") { return 0 }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
@@ -4429,6 +4566,7 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
         return -1
     }
     let result: string = (nisa_host_result function.name)
+    if (and (== result "") (nisa_native_eligible parser function)) { return (nisa_register_native parser function) }
     if (or (== result "") (!= result function.return_type)) {
         let rejected: string = (nisa_fail (+ "unsupported extern result or symbol " function.name))
         return -1
@@ -7425,6 +7563,21 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
         }
     }
+    if (>= declared_index 0) {
+        let declaration: ASTFunction = (parser_get_function parser declared_index)
+        if (and (< declaration.body 0) (nisa_native_eligible parser declaration)) {
+            if (!= call.arg_count declaration.param_count) { return (nisa_fail "I require the exact native shadow call arity") }
+            let index: int = (nisa_register_native parser declaration)
+            if (< index 0) { return "" }
+            let mut arguments: string = ""
+            for argument_index in (range 0 call.arg_count) {
+                let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start argument_index))
+                let parameter: ASTLet = (parser_get_let parser (+ declaration.param_start argument_index))
+                set arguments (+ arguments (nisa_emit_expected_expr parser argument.node_id argument.node_type parameter.var_type))
+            }
+            return (+ arguments (nisa_line_imm "CALL_EXTERN" (int_to_string index)))
+        }
+    }
     if (and nisa_program_mode (>= declared_index 0)) {
         let declaration: ASTFunction = (parser_get_function parser declared_index)
         if (and (< declaration.body 0) (< (nisa_import_find declaration.name) 0)) {
@@ -9547,7 +9700,9 @@ struct NanoisaCheckedText {
     program: string,
     shadows: string,
     lowering_error: string,
-    lowering_stage: int
+    lowering_stage: int,
+    native_pending: bool,
+    native_c: string
 }
 
 fn nisa_checked_borrow_context(context: array<CheckedAdvisoryOutput>) -> array<BorrowFactContext> {
@@ -9665,29 +9820,54 @@ fn nisa_immediate_effect(parser: Parser, function: ASTFunction, index: int, cont
 
 # I own checking and consume its facts synchronously; callers cannot supply facts.
 pub fn nanoisa_check_and_emit(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool) -> NanoisaCheckedText {
+    return (nanoisa_check_and_emit_native parser file_name first_shadow emit_shadows -1 "")
+}
+pub fn nanoisa_check_and_emit_native(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool, native_owner: int, native_artifact: string) -> NanoisaCheckedText {
     (native_phase_marker "typecheck-start")
     let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser file_name first_shadow)
     (native_phase_marker "typecheck-done")
     if checked.phase.had_error {
-        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0 }
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0, native_pending: false, native_c: "" }
     }
     let context: array<CheckedAdvisoryOutput> = [checked]
     (native_phase_marker "program-lowering-start")
     let program: string = (nisa_emit_module_context parser true true context)
     (native_phase_marker "program-lowering-done")
     if (== program "") {
-        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1 }
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1, native_pending: false, native_c: "" }
     }
     let mut shadows: string = ""
     (native_phase_marker "shadow-lowering-start")
     if emit_shadows {
-        set shadows (nisa_emit_shadows_context parser first_shadow true context)
+        set shadows (nisa_emit_shadows_native parser first_shadow true context native_owner native_artifact)
         if (== shadows "") {
-            return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2 }
+            return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2, native_pending: nisa_native_pending, native_c: "" }
         }
     }
     (native_phase_marker "shadow-lowering-done")
-    return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0 }
+    return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0, native_pending: false, native_c: nisa_native_source }
+}
+
+shadow nanoisa_check_and_emit_native {
+    (mb_reset [1])
+    let source: string = "extern fn native_action()->void fn f()->int{return 0} shadow f {unsafe {(native_action)}}"
+    let tokens: List<LexerToken> = (tokenize_string source "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    let strict: NanoisaCheckedText = (nanoisa_check_and_emit parser "native.nano" 0 true)
+    assert (not strict.native_pending)
+    let probe: NanoisaCheckedText = (nanoisa_check_and_emit_native parser "native.nano" 0 true 0 "")
+    assert probe.native_pending
+    let bound: NanoisaCheckedText = (nanoisa_check_and_emit_native parser "native.nano" 0 true 0 "/retained/helpers.so")
+    assert (== bound.lowering_stage 0)
+    assert (str_contains bound.shadows "/retained/helpers.so")
+    assert (str_contains bound.shadows "CALL_EXTERN 0")
+    assert (not (str_contains bound.shadows "CALL native_action"))
+    assert (str_contains bound.native_c "native_action")
+    assert (not (str_contains bound.program "native_action"))
+    assert (== nisa_native_owner -1)
+    assert (== nisa_native_artifact "")
+    let _: int = (nisa_reset)
+    (mb_reset [])
 }
 
 shadow nanoisa_check_and_emit {
@@ -9804,8 +9984,30 @@ fn nisa_emit_shadows_nasm(parser: Parser, first_shadow: int, bound: bool) -> str
     return (nisa_emit_shadows_context parser first_shadow bound [])
 }
 fn nisa_emit_shadows_context(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
+    return (nisa_emit_shadows_native parser first_shadow bound context -1 "")
+}
+shadow nisa_emit_shadows_context {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7} shadow f {assert (== (f) 7)}" "strict.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "strict.nano")
+    assert (str_contains (nisa_emit_shadows_context parser 0 false []) "__nanoisa_shadow_0")
+}
+fn nisa_emit_shadows_native(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>, native_owner: int, native_artifact: string) -> string {
+    let output: string = (nisa_emit_shadows_native_inner parser first_shadow bound context native_owner native_artifact)
+    set nisa_native_owner -1
+    set nisa_native_artifact ""
+    return output
+}
+shadow nisa_emit_shadows_native {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7} shadow f {assert true}" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    assert (!= (nisa_emit_shadows_native parser 0 false [] -1 "") "")
+    assert (== nisa_native_owner -1)
+}
+fn nisa_emit_shadows_native_inner(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>, native_owner: int, native_artifact: string) -> string {
     if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
+    set nisa_native_owner native_owner
+    set nisa_native_artifact native_artifact
     if (not (nisa_module_declarations_valid parser)) { return "" }
     set nisa_program_mode true
     let count: int = parser.shadows_count
@@ -9887,6 +10089,13 @@ fn nisa_emit_shadows_context(parser: Parser, first_shadow: int, bound: bool, con
     set prelude (+ prelude (nisa_str_prelude))
     return (nisa_finish_ordinary parser bound (+ prelude out))
 }
+shadow nisa_emit_shadows_native_inner {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->int{return 7}" "native.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "native.nano")
+    assert (== (nisa_emit_shadows_native_inner parser -1 false [] -1 "") "")
+    let _: int = (nisa_reset)
+}
+
 shadow nanoisa_emit_shadows_nasm {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n main() -> int { return 7 } shadow main { assert (== (main) 7) } shadow main { assert false }")

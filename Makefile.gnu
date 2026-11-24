@@ -3577,7 +3577,7 @@ test-native-shadow-emitter: nanoisa_dump nano_vm nvm2c nvm2c-runtime
 
 .PHONY: test-native-shadows
 test-native-shadows:
-	@python3 -m unittest tests.test_native_shadows tests.test_shadow_runner tests.test_make_timeouts tests.test_native_shadow_only_entry
+	@python3 -m unittest tests.test_native_shadows tests.test_shadow_runner tests.test_make_timeouts tests.test_native_shadow_only_entry tests.test_native_shadow_helpers
 
 .PHONY: test-selfhost-build-isolation
 test-selfhost-build-isolation:

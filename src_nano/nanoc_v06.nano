@@ -18,7 +18,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 from "src_nano/compiler/effect_bindings.nano" import eb_register, eb_import, eb_rewrite
-from "src_nano/compiler/native_product.nano" import publish_native_module, native_phase_marker
+from "src_nano/compiler/native_product.nano" import publish_native_module, native_phase_marker, native_shadow_build, native_shadow_cleanup
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
 module "modules/compiler_support/compiler_support.nano" as DriverSupport
@@ -2094,7 +2094,20 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
             let has_shadows: bool = (< first_shadow parser.shadows_count)
             (native_phase_marker "checked-emit-start")
-            let emitted: NanoisaCheckedText = (nanoisa_check_and_emit parser source_to_compile first_shadow (and has_shadows (not emit_c)))
+            let check_shadows: bool = (and has_shadows (not emit_c))
+            let mut helper_owner: int = -1
+            if (and check_shadows (or (!= (getenv "NANO_CFLAGS") "") (!= (getenv "NANO_LDFLAGS") ""))) {
+                set helper_owner (mb_owner merge_result.root_line)
+            }
+            let mut helper_directory: string = ""
+            let mut emitted: NanoisaCheckedText = (nanoisa_check_and_emit_native parser source_to_compile first_shadow check_shadows helper_owner "")
+            if emitted.native_pending {
+                set helper_directory (mktemp_dir "nano_native_helpers_")
+                if (== helper_directory "") { (println "I could not create native shadow storage") (native_shadow_cleanup helper_directory)
+                        return 1 }
+                # I recheck synchronously; I never reuse the first pass's advisory facts.
+                set emitted (nanoisa_check_and_emit_native parser source_to_compile first_shadow check_shadows helper_owner (+ helper_directory "/helpers.so"))
+            }
             (native_phase_marker "checked-emit-done")
             let tc: TypecheckPhaseOutput = emitted.phase
             if tc.had_error {
@@ -2121,7 +2134,8 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 if (not (== llm_diags_json_path "")) {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 tc.diagnostics)
                 } else { (print "") }
-                return 1
+                (native_shadow_cleanup helper_directory)
+                        return 1
             } else { (print "") }
             
             if verbose {
@@ -2144,21 +2158,25 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 let assembly: string = emitted.program
                 if (== emitted.lowering_stage 2) {
                     (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
-                    return 1
+                    (native_shadow_cleanup helper_directory)
+                        return 1
                 }
                 if (== assembly "") {
                     (println (+ "I cannot lower this checked program: " emitted.lowering_error))
-                    return 1
+                    (native_shadow_cleanup helper_directory)
+                        return 1
                 }
                 if (and has_shadows (not emit_c)) {
                     let shadow_assembly: string = emitted.shadows
                     if (== shadow_assembly "") {
                         (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                     let directory: string = (mktemp_dir "nano_bytecode_shadows_")
                     if (== directory "") {
                         (println "I could not create bytecode shadow storage")
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                     let shadow_file: string = (+ directory "/shadows.nvm")
@@ -2168,7 +2186,17 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     if (!= staged 0) {
                         (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
                         (bytecode_shadow_cleanup directory)
+                        (native_shadow_cleanup helper_directory)
                         return 1
+                    }
+                    if (!= helper_directory "") {
+                        if (or (== emitted.native_c "") (!= (native_shadow_build helper_directory emitted.native_c (resolve_cc_binary)
+                            (native_product_cflags (getenv "NANO_CFLAGS"))
+                            (native_product_ldflags (getenv "NANO_LDFLAGS") (getenv "LDFLAGS")) verbose) 0)) {
+                            (bytecode_shadow_cleanup directory)
+                            (native_shadow_cleanup helper_directory)
+                            return 1
+                        }
                     }
                     let mut vm: string = (getenv "NANO_VM")
                     if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
@@ -2177,8 +2205,12 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     let checked: int = (nl_exec_shell command)
                     (native_phase_marker "shadow-execution-done")
                     (bytecode_shadow_cleanup directory)
+                    let helper_cleaned: int = (native_shadow_cleanup helper_directory)
+                    set helper_directory ""
+                    if (!= helper_cleaned 0) { return 1 }
                     if (!= checked 0) {
                         (println "I will not publish bytecode after failed shadows")
+                        (native_shadow_cleanup helper_directory)
                         return 1
                     }
                 }

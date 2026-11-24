@@ -100,6 +100,62 @@ shadow aot_host_flags {
     assert (== (aot_host_flags "") "unsupported")
 }
 
+# I build a transient provider in the caller's cwd with its complete flag context.
+fn native_shadow_command(directory: string, compiler: string, cflags: string, ldflags: string, platform: string) -> string {
+    let mut mode: string = ""
+    if (or (== platform "Linux\n") (== platform "FreeBSD\n")) { set mode "-fPIC -shared" }
+    if (== platform "Darwin\n") { set mode "-fPIC -dynamiclib" }
+    if (or (== mode "") (or (== directory "") (== compiler ""))) { return "" }
+    let mut command: string = (+ compiler (+ " -std=c11 " (+ mode (+ " " (+ cflags " ")))))
+    set command (+ command (aot_shell_quote (+ directory "/helpers.c")))
+    set command (+ command " -lm")
+    if (== platform "Linux\n") { set command (+ command " -ldl") }
+    return (+ command (+ " " (+ ldflags (+ " -o " (aot_shell_quote (+ directory "/helpers.so"))))))
+}
+shadow native_shadow_command {
+    let command: string = (native_shadow_command "/tmp/a b" "cc" "@native.rsp -DVALUE=9" "-lprovider" "Linux\n")
+    assert (str_contains command "@native.rsp -DVALUE=9")
+    assert (str_contains command "'/tmp/a b/helpers.c'")
+    assert (str_contains command "-lprovider -o '/tmp/a b/helpers.so'")
+    assert (str_contains (native_shadow_command "/tmp/x" "cc" "" "" "Darwin\n") "-dynamiclib")
+    assert (== (native_shadow_command "/tmp/x" "cc" "" "" "unknown") "")
+}
+
+pub fn native_shadow_cleanup(directory: string) -> int {
+    if (== directory "") { return 0 }
+    # My only caller supplies its own mktemp directory, never an input path.
+    let status: int = (nl_exec_shell (+ "rm -rf -- " (aot_shell_quote directory)))
+    if (!= status 0) { (println "I could not remove native shadow storage") }
+    return status
+}
+shadow native_shadow_cleanup {
+    assert (== (native_shadow_cleanup "") 0)
+    let directory: string = (mktemp_dir "nano_native_helpers_test_")
+    assert (!= directory "")
+    unsafe { assert (== (aot_fs.write (+ directory "/compiler-sidecar") "retained") 0) }
+    assert (== (native_shadow_cleanup directory) 0)
+    unsafe { assert (not (aot_fs.exists directory)) }
+}
+
+pub fn native_shadow_build(directory: string, declarations: string, compiler: string, cflags: string, ldflags: string, verbose: bool) -> int {
+    if (or (== directory "") (or (== declarations "") (== compiler ""))) { return 1 }
+    let command: string = (native_shadow_command directory compiler cflags ldflags (nl_exec_capture "uname -s"))
+    if (== command "") { (println "I do not support this native shadow host") return 1 }
+    let source: string = (+ "#include <stdint.h>\n#include <stdbool.h>\n" declarations)
+    unsafe { if (!= (aot_fs.write (+ directory "/helpers.c") source) 0) { return 1 } }
+    if verbose { (println command) }
+    if (!= (nl_exec_shell command) 0) { (println "I could not build native shadow helpers") return 1 }
+    let artifact: string = (aot_shell_quote (+ directory "/helpers.so"))
+    let valid: string = (+ "test ! -L " (+ artifact (+ " && test -f " (+ artifact (+ " && test -s " artifact)))))
+    if (!= (nl_exec_shell valid) 0) { (println "I require a nonempty regular native shadow artifact") return 1 }
+    (native_phase_marker "native-shadow-helper-ready")
+    return 0
+}
+shadow native_shadow_build {
+    assert (== (native_shadow_build "" "" "/bin/false" "" "" false) 1)
+    assert (== (native_shadow_build "/unwritten" "" "/bin/false" "" "" false) 1)
+}
+
 fn publish_native_module(module_path: string, output: string, repo_root: string, compiler: string, cflags: string, ldflags: string, emit_c: bool, keep_c: bool, show_code: bool, verbose: bool) -> int {
     if (or (== module_path "") (== output "")) { return 1 }
     let directory: string = (aot_stage_directory output)
