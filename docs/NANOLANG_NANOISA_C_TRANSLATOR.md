@@ -1150,3 +1150,18 @@ qualification. Current-source Darwin, whole-function instruction transfer and
 convergence, handler/global/effect and private-profile composition, pure C
 emission and executable selection remain open, alongside the separate #1204
 ownership-query/return-merge barrier and full release.
+
+
+## My C-text boundary in progress
+
+I implement byte literals, bounded integer spelling and generated names in
+`src_nano/nvm2c/c_text.nano` before wiring executable emission. Byte literals
+must preserve every byte, including embedded zero, with fixed-width octal
+escapes and a separate length. Unsigned 64-bit spelling uses bounded halves;
+my signed NanoLang arithmetic must not overflow to construct a C constant.
+Signed endpoints and generated names require actual strict-C round trips.
+
+This boundary does not admit a module, solve representation/ownership facts,
+emit an executable translator or change product selection. Full affine and
+profile composition, C control flow/runtime emission, both translator execution
+forms, complete corpus/platform qualification and actual cutover remain required.
