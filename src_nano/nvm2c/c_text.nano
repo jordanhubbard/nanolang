@@ -1,0 +1,107 @@
+module nvm2c_c_text
+
+# I spell C tokens only. I grant no module, representation or execution authority.
+pub fn octet(value: int) -> string {
+    if (or (< value 0) (> value 255)) { return "" }
+    let digits: string = "01234567"
+    return (+ "\\" (+ (str_substring digits (/ value 64) 1)
+        (+ (str_substring digits (% (/ value 8) 8) 1) (str_substring digits (% value 8) 1))))
+}
+shadow octet {
+    assert (== (octet 0) "\\000")
+    assert (== (octet 255) "\\377")
+    assert (== (octet 64) "\\100")
+    assert (== (octet -1) "")
+    assert (== (octet 256) "")
+}
+
+pub fn byte_count_valid(count: int) -> bool {
+    return (and (>= count 0) (<= count 16777216))
+}
+shadow byte_count_valid {
+    assert (byte_count_valid 0)
+    assert (byte_count_valid 16777216)
+    assert (not (byte_count_valid -1))
+    assert (not (byte_count_valid 16777217))
+}
+
+# My fixed-width escapes cannot absorb a following digit or form source tokens.
+# I join bounded blocks instead of repeatedly copying the whole output prefix.
+pub struct Bytes { valid: bool, text: string, length: int }
+
+pub fn bytes_literal(bytes: array<u8>) -> Bytes {
+    let count: int = (array_length bytes)
+    if (not (byte_count_valid count)) { return Bytes { valid: false, text: "", length: 0 } }
+    let mut blocks: array<string> = ["\""]
+    let mut block: string = ""
+    for index in (range 0 count) {
+        set block (+ block (octet (cast_int (at bytes index))))
+        if (== (% (+ index 1) 256) 0) {
+            set blocks (array_push blocks block)
+            set block ""
+        }
+    }
+    set blocks (array_push blocks block)
+    set blocks (array_push blocks "\"")
+    return Bytes { valid: true, text: (str_join blocks ""), length: count }
+}
+shadow bytes_literal {
+    assert (== (bytes_literal []).text "\"\"")
+    assert (== (bytes_literal [0,255,48,34,92]).text "\"\\000\\377\\060\\042\\134\"")
+    let bytes: array<u8> = [0,1,255]
+    let literal: Bytes = (bytes_literal bytes)
+    assert literal.valid
+    assert (== literal.length 3)
+    assert (== (at bytes 0) 0)
+    assert (== (at bytes 2) 255)
+}
+
+pub fn unsigned32(value: int) -> string {
+    if (or (< value 0) (> value 4294967295)) { return "" }
+    return (+ "UINT32_C(" (+ (int_to_string value) ")"))
+}
+shadow unsigned32 {
+    assert (== (unsigned32 0) "UINT32_C(0)")
+    assert (== (unsigned32 4294967295) "UINT32_C(4294967295)")
+    assert (== (unsigned32 -1) "")
+    assert (== (unsigned32 4294967296) "")
+}
+
+pub fn unsigned64(low: int, high: int) -> string {
+    if (or (== (unsigned32 low) "") (== (unsigned32 high) "")) { return "" }
+    return (+ "((UINT64_C(" (+ (int_to_string high) (+ ") << 32) | UINT64_C(" (+ (int_to_string low) "))"))))
+}
+shadow unsigned64 {
+    assert (== (unsigned64 4294967295 4294967295) "((UINT64_C(4294967295) << 32) | UINT64_C(4294967295))")
+    assert (== (unsigned64 0 -1) "")
+    assert (== (unsigned64 4294967296 0) "")
+}
+
+pub fn signed64(value: int) -> string {
+    if (== value (- -9223372036854775807 1)) { return "(-INT64_C(9223372036854775807) - INT64_C(1))" }
+    if (< value 0) { return (+ "(-INT64_C(" (+ (int_to_string (- 0 value)) "))")) }
+    return (+ "INT64_C(" (+ (int_to_string value) ")"))
+}
+shadow signed64 {
+    assert (== (signed64 (- -9223372036854775807 1)) "(-INT64_C(9223372036854775807) - INT64_C(1))")
+    assert (== (signed64 9223372036854775807) "INT64_C(9223372036854775807)")
+    assert (== (signed64 -42) "(-INT64_C(42))")
+    assert (== (signed64 0) "INT64_C(0)")
+}
+
+# My kind and ordinal select a reserved generator namespace, never a source name.
+pub fn name(kind: int, ordinal: int) -> string {
+    if (or (< ordinal 0) (> ordinal 4294967295)) { return "" }
+    let prefixes: array<string> = ["nano_aot_function_", "nano_aot_local_", "nano_aot_label_",
+        "nano_aot_string_", "nano_aot_global_", "nano_aot_module_"]
+    if (or (< kind 0) (>= kind (array_length prefixes))) { return "" }
+    return (+ (at prefixes kind) (int_to_string ordinal))
+}
+shadow name {
+    assert (== (name 0 0) "nano_aot_function_0")
+    assert (== (name 5 4294967295) "nano_aot_module_4294967295")
+    assert (== (name -1 0) "")
+    assert (== (name 6 0) "")
+    assert (== (name 0 -1) "")
+    assert (== (name 0 4294967296) "")
+}

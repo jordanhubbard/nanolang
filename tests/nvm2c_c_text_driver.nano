@@ -1,0 +1,43 @@
+module "src_nano/nvm2c/c_text.nano" as text
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn report() -> void {
+    let halves: array<int> = [-1,0,1,2147483647,2147483648,4294967295,4294967296]
+    for index in (range 0 (array_length halves)) {
+        let value: int = (at halves index)
+        (println (+ "U32|" (+ (int_to_string value) (+ "|" (text.unsigned32 value)))))
+        for other in (range 0 (array_length halves)) {
+            let high: int = (at halves other)
+            (println (+ "U64|" (+ (int_to_string value) (+ "|" (+ (int_to_string high) (+ "|" (text.unsigned64 value high)))))))
+        }
+        for kind in (range -1 7) {
+            (println (+ "N|" (+ (int_to_string kind) (+ "|" (+ (int_to_string value) (+ "|" (text.name kind value)))))))
+        }
+    }
+    let signed: array<int> = [(- -9223372036854775807 1),-9223372036854775807,-2147483648,-1,0,1,2147483647,9223372036854775807]
+    for index in (range 0 (array_length signed)) {
+        let value: int = (at signed index)
+        (println (+ "I64|" (+ (int_to_string value) (+ "|" (text.signed64 value)))))
+    }
+    for value in (range -1 257) {
+        (println (+ "O|" (+ (int_to_string value) (+ "|" (text.octet value)))))
+    }
+}
+shadow report { assert (== (text.unsigned32 -1) "") assert (== (text.signed64 0) "INT64_C(0)") }
+
+fn main() -> int {
+    (report)
+    unsafe {
+        let mut index: int = 1
+        while (< index (get_argc)) {
+            let bytes: array<u8> = (file_read_bytes (get_argv index))
+            let literal: text.Bytes = (text.bytes_literal bytes)
+            (println (+ "B|" (+ (int_to_string literal.length) (+ "|" literal.text))))
+            if (not literal.valid) { return 2 }
+            set index (+ index 1)
+        }
+    }
+    return 0
+}

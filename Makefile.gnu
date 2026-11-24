@@ -889,6 +889,13 @@ test-nvm2c: test-native-byte-array-results
 test-nanolang-translator-services: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_service_reference $(OBJ_DIR)/nvm2c_service_reference_asan
 	python3 -m unittest -v tests.test_nanolang_translator_services
 
+# I check C tokens with actual C execution before translator emission.
+.PHONY: test-nanolang-translator-c-text
+test-nanolang-translator-c-text: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_c_text
+
+test-units: test-nanolang-translator-c-text
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container
