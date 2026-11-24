@@ -29,15 +29,15 @@ receipts; those referenced directories remain required inputs.
 | Existing public products | Five compiler/VM images and nine runtime libraries unchanged |
 | Main/backend builds | Eight original-flag normal, sanitizer and O3 compile/link commands pass |
 | New source-C integration suite | All 20 methods pass with each ordinary/private image |
-| Borrowed graph API | All 18 normal/sanitizer/O3 build/API/C99/C11 commands have expected exits; generated programs return42 |
+| Borrowed graph API | All 18 normal/sanitizer/O3 build/API/C99/C11 commands have expected exits; generated programs return 42 |
 | Allocation refusal | All six actual ordered-slot allocation positions preserve prior output and recover in each API profile |
-| Strict consumer comparison | 207 version/compile/reference/run commands; GCC and supported Clang18 consume identical C99/C11 source and agree on exit/stdout/stderr |
-| Complete public-C Python profile | All original17 modules /66 methods pass; 685 actual commands retained |
+| Strict consumer comparison | 207 version/compile/reference/run commands; GCC and supported Clang 18 consume identical C99/C11 source and agree on exit/stdout/stderr |
+| Complete public-C Python profile | All original 17 modules /66 methods pass; 685 actual commands retained |
 | Original shadow/diagnostic/import neighbors | All16 methods pass, including the previously failing qualified import |
 | Original native publication suite | All18 methods pass with each ordinary/private image |
 | Original enum suite | All21 methods pass with each ordinary/private image |
 | Embedded-fixture policy | Original controls and actual retained lexer policy pass |
-| Actual Make target | `test-source-c-imports` passes all20 methods and its real graph-API prerequisite |
+| Actual Make target | `test-source-c-imports` passes all 20 methods and its real graph-API prerequisite |
 
 My API sanitizer execution enables leak detection and halts on ASan/UBSan
 errors. I check actual sanitizer symbols in the retained API image. I do not
@@ -54,7 +54,7 @@ I document the API and boundaries in [my source-C contract](../../SOURCE_C_IMPOR
 
 ## My original fixture recovery
 
-I preserve the original66-method profile's runtime, refusal, interpreter/VM,
+I preserve the original 66-method profile's runtime, refusal, interpreter/VM,
 standard, optimization, sanitizer and deadline checks. Three independent API
 drivers lacked real shared metadata providers. I add the actual existing provider
 through one shared command adapter; I do not add stub answers or remove flags.
@@ -88,30 +88,30 @@ I retain all intermediate source, images, commands, diagnostics and products tha
 established these repairs:
 
 - My initial15-method graph trials have two failures per image: global/function
-  identity and declaring-owner enum lookup. My next17-method trials retain one
+  identity and declaring-owner enum lookup. My next 17-method trials retain one
   qualified-union refusal per image. Their later complete suites pass.
-- My first20-method early-return fixture uses invalid bare-block syntax. I retain
+- My first 20-method early-return fixture uses invalid bare-block syntax. I retain
   that parse refusal, then use a valid match/return argument. The valid case
   exposes an unused named payload under strict C warnings. I preserve its binding
   and emit an explicit generated use.
-- Strict Clang18 retains thirteen unused compiler-helper errors on both the pushed
+- Strict Clang 18 retains thirteen unused compiler-helper errors on both the pushed
   predecessor and the graph candidate. I annotate only intentionally unused
   private support through compiler-feature detection, with plain-C fallback.
   I change no warning flags, numeric version checks or compiler admission.
-- My first complete66-method profile has56 passes, six failures and four errors.
-  Its summary and all657 command streams/products survive. A controller filename
+- My first complete66-method profile has 56 passes, six failures and four errors.
+  Its summary and all 657 command streams/products survive. A controller filename
   collision overwrote that first combined unittest traceback log. I retain that
   limitation. One fresh named diagnostic run reproduces all six failures/four
   errors with complete tracebacks and657 command records. All ten named methods
   and the final complete66-method suite pass after recovery.
 - My first targeted observer constructs duplicated unittest method names, yielding
   ten loader errors and no native commands. I retain this observer setup failure
-  separately from product results; the corrected targeted observer passes all10.
+  separately from product results; the corrected targeted observer passes all 10.
 - My first independent-reader attempt compares whole tool-report dictionaries;
   the after report contains only image hashes. I retain its schema assertion and
-  correct the reader to compare all24 image identities while separately checking
+  correct the reader to compare all 24 image identities while separately checking
   the original loader reports. No native gate is retried for this reader repair.
-- My ARM64 predecessor and early graph observation both return12 for two
+- My ARM64 predecessor and early graph observation both return 12 for two
   side-effecting arguments. Their emitted C leaves order to the C implementation;
   that source inspection motivates explicit sequencing. I do not claim a
   reproduced wrong result on this worker or a historical timeout cause.

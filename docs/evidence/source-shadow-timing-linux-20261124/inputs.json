@@ -1,0 +1,105 @@
+{
+  "source_checkpoint": "c93263c64f6d5dd1db0e856284d76f1c8e0fa131",
+  "datasets": [
+    {
+      "mode": "ordinary",
+      "kind": "passing",
+      "qualification": {
+        "artifact": "../native-enum-lists-linux-20261123/objects/3e62e5059f8ef35a5f56e1144ab38f0735f6bc2ce88cd7a11ab658cd7eb49a96.gz",
+        "sha256": "3e62e5059f8ef35a5f56e1144ab38f0735f6bc2ce88cd7a11ab658cd7eb49a96",
+        "compressed_sha256": "03129c0a2ec7300564ce5f9ab0af694d6076cabd83f6ac3049fd4d72e343d362",
+        "bytes": 285653
+      },
+      "trace": {
+        "artifact": "../native-enum-lists-linux-20261123/objects/cfc85361d8b8e98e20d5dec8a0bf72390144e4a7c79c23d546a809403548df63.gz",
+        "sha256": "cfc85361d8b8e98e20d5dec8a0bf72390144e4a7c79c23d546a809403548df63",
+        "compressed_sha256": "250bfc9d5190a2d3b95371f0963912b3d5fc68a4f66bf9ef117fb3c52296565c",
+        "bytes": 532470
+      }
+    },
+    {
+      "mode": "ordinary",
+      "kind": "unbound-failure",
+      "qualification": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/fb0422d61839de0920cb2bae8f74b8d3c93a8f6987960e647f4ceee47ceba801.gz",
+        "sha256": "fb0422d61839de0920cb2bae8f74b8d3c93a8f6987960e647f4ceee47ceba801",
+        "compressed_sha256": "6b5d6c86194047923d22ca3bbd0ded942a00e7c8a1ef4e82b5d644f6af9ebd74",
+        "bytes": 352724
+      },
+      "trace": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/162d17a98763f6e8deb653f8f684021e4d2f0ba5d91cbfad1c970739a5587ac6.gz",
+        "sha256": "162d17a98763f6e8deb653f8f684021e4d2f0ba5d91cbfad1c970739a5587ac6",
+        "compressed_sha256": "557866756844cb98e5d86c576c59eed6e7f268f8953c84106846999c0a7f0c1d",
+        "bytes": 527093
+      }
+    },
+    {
+      "mode": "ordinary",
+      "kind": "cpu7-failure",
+      "qualification": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/b7649aa375baba7e5d1a1276b12d75b2c23edfc60a50e77fb6b5c26d008e441f.gz",
+        "sha256": "b7649aa375baba7e5d1a1276b12d75b2c23edfc60a50e77fb6b5c26d008e441f",
+        "compressed_sha256": "fa46bf2853feea30c728949fe7981e45d402607471155a7056fa8ff5ee19dd74",
+        "bytes": 362724
+      },
+      "trace": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/7e3535e19225e1fe431a6e16c5775427cd8ace0db9f9b3758a2fb9926b349d45.gz",
+        "sha256": "7e3535e19225e1fe431a6e16c5775427cd8ace0db9f9b3758a2fb9926b349d45",
+        "compressed_sha256": "58e0e3458cad91dd25be4bfe3705c6792bbeee5a3e49426e94cb744e02273170",
+        "bytes": 439335
+      }
+    },
+    {
+      "mode": "private",
+      "kind": "passing",
+      "qualification": {
+        "artifact": "../native-enum-lists-linux-20261123/objects/fb3025c2ed94c5c7023fd34931af80f0339e743898afd4bd6d0cd39d6e7917f5.gz",
+        "sha256": "fb3025c2ed94c5c7023fd34931af80f0339e743898afd4bd6d0cd39d6e7917f5",
+        "compressed_sha256": "dbb36c409bf511c9a0eafe3494f4b64840340c7d091a6391c9fad71fb58ac9f8",
+        "bytes": 285650
+      },
+      "trace": {
+        "artifact": "../native-enum-lists-linux-20261123/objects/811a3a3205245f453e6c345c8a62e2abc84d2e9a93fa363c8a77200e5892a7d0.gz",
+        "sha256": "811a3a3205245f453e6c345c8a62e2abc84d2e9a93fa363c8a77200e5892a7d0",
+        "compressed_sha256": "ccc1134b1a00c7b5738205720e8945fe104b332439d09512d83bcc4507db6dd0",
+        "bytes": 532470
+      }
+    },
+    {
+      "mode": "private",
+      "kind": "unbound-failure",
+      "qualification": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/369ce301df6e5e5c7e81a8d92d4f543301ed78b8a5a6664042d5d7fc3bdbdf57.gz",
+        "sha256": "369ce301df6e5e5c7e81a8d92d4f543301ed78b8a5a6664042d5d7fc3bdbdf57",
+        "compressed_sha256": "56b044d8d7fa982e686595b54a0f836fcac780165631decf122d63b65c4d9ae3",
+        "bytes": 349332
+      },
+      "trace": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/ff2f6896ea1a473ae4466f66f1d88d9843d52cd43963a2862b42d8a5ac5561dd.gz",
+        "sha256": "ff2f6896ea1a473ae4466f66f1d88d9843d52cd43963a2862b42d8a5ac5561dd",
+        "compressed_sha256": "5ca28a40c4fcc24e43e28e5215af8092c63def3359ca7cae347b93fc4c67b39a",
+        "bytes": 438472
+      }
+    },
+    {
+      "mode": "private",
+      "kind": "cpu7-failure",
+      "qualification": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/8d9a9c05edc2dd477548171065f605aab58b9d4c063bfc04f62e4ae67a94d238.gz",
+        "sha256": "8d9a9c05edc2dd477548171065f605aab58b9d4c063bfc04f62e4ae67a94d238",
+        "compressed_sha256": "23effc1504d60a09dc3a423652aedc35d600e62f25211ab740fde944be4e5719",
+        "bytes": 360845
+      },
+      "trace": {
+        "artifact": "../public-c-fixture-recovery-linux-20261123/objects/df86d8aa1612cb2e399ee9bffd4fa7dd2b7fff1d667cccfff700a2ad6040933e.gz",
+        "sha256": "df86d8aa1612cb2e399ee9bffd4fa7dd2b7fff1d667cccfff700a2ad6040933e",
+        "compressed_sha256": "ac5eb7bf9be5500f262745ab0f617327985675f7c249aeaedca8f4220e8e63e4",
+        "bytes": 426684
+      }
+    }
+  ],
+  "new_native_attempts": 0,
+  "ordinary_full_source": false,
+  "private_full_source": false,
+  "whole_release": false
+}
