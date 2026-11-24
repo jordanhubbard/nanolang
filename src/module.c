@@ -713,7 +713,7 @@ static ASTNode *load_module_body(const char *module_path, Environment *env, bool
     }
     if (!env_module_checkpoint_declarations(env, checkpoint)) {
         fprintf(stderr, "I cannot retain module declaration rollback state.\n");
-        free(identity); free(env->current_module); env->current_module = saved_current_module;
+        free(identity); free(module_name); env->current_module = saved_current_module;
         env_module_rollback(env, checkpoint);
         free_ast(module_ast); free_tokens(tokens, token_count); free(source);
         return NULL;
@@ -739,8 +739,8 @@ static ASTNode *load_module_body(const char *module_path, Environment *env, bool
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
-        /* I retire the current owned spelling, including a declared replacement. */
-        free(env->current_module);
+        /* I retire only my local stem; declared context names belong to metadata. */
+        free(module_name);
         env->current_module = saved_current_module;
         env_module_rollback(env, checkpoint);
         free_ast(module_ast);
@@ -749,9 +749,8 @@ static ASTNode *load_module_body(const char *module_path, Environment *env, bool
         return NULL;
     }
     
-    /* Registered owners have independent storage. A module declaration may
-     * have replaced the initial stem, so I retire the current owned context. */
-    free(env->current_module);
+    /* The cursor borrows metadata or my local stem. I retire only the latter. */
+    free(module_name);
     env->current_module = saved_current_module;
     env_module_commit(checkpoint);
     

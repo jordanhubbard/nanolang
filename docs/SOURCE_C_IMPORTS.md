@@ -64,6 +64,11 @@ mutate or free those borrowed declarations.
 
 The CLI adapter lends its already loaded and checked graph. It restores the
 original environment owner and file immediately after every resolver lookup.
+My declared module-context cursor borrows the environment's registered identity
+names; the loader owns only its temporary filename stem. I restore an earlier
+cursor before withdrawing failed declarations. Repeated match bindings retire
+their owned nominal-name copy before replacing it, without taking AST or caller
+storage.
 I keep source-C output staged until emission succeeds, preserving prior output
 on profile, graph, allocation and I/O refusals. Root-only API capability checks,
 private visibility and exact nominal/callable/array guards remain required.

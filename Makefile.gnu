@@ -8216,3 +8216,10 @@ test-source-c-graph-api: tests/test_source_c_graph_api.c tests/support/public_c_
 	@$(OBJ_DIR)/test_source_c_graph_api $(OBJ_DIR)/source_c_graph_api.c
 
 test-units: test-source-c-imports
+
+.PHONY: test-checker-owned-contexts
+test-checker-owned-contexts: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_owned_contexts tests/test_checker_owned_contexts.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_owned_contexts
+
+test-units: test-checker-owned-contexts

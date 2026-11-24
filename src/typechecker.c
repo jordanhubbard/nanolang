@@ -5561,6 +5561,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Format: "UnionName.VariantName" */
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -7126,6 +7127,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
                         char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
                         sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
+                        free(binding_sym->struct_type_name);
                         binding_sym->struct_type_name = type_name;
 
                         /* Ensure bindings participate in visibility disambiguation */
@@ -8818,6 +8820,17 @@ static bool register_explicit_module_metadata(ASTNode *program, Environment *env
     return true;
 }
 
+/* I borrow a stable name owned by the environment's module registry. */
+static void use_declared_module_context(ASTNode *declaration, Environment *env) {
+    const char *name = declaration->as.module_decl.name;
+    ModuleInfo *owner = env_get_module(env, name);
+    if (!owner) {
+        env_register_module(env, name, env_current_file(env), declaration->as.module_decl.is_unsafe);
+        owner = env_get_module(env, name);
+    }
+    env->current_module = owner->name;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (ast_has_service_declaration(program)) {
         fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
@@ -8911,10 +8924,7 @@ bool type_check(ASTNode *program, Environment *env) {
         /* Handle module declaration */
         if (item->type == AST_MODULE_DECL) {
             /* Set current module context */
-            if (env->current_module) {
-                free(env->current_module);
-            }
-            env->current_module = strdup(item->as.module_decl.name);
+            use_declared_module_context(item, env);
             /* TODO: Check if module is declared as unsafe */
             continue;
         }
@@ -9790,10 +9800,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
         /* Handle module declaration */
         if (item->type == AST_MODULE_DECL) {
             /* Set current module context */
-            if (env->current_module) {
-                free(env->current_module);
-            }
-            env->current_module = strdup(item->as.module_decl.name);
+            use_declared_module_context(item, env);
             continue;
         }
         

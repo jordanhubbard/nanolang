@@ -901,7 +901,7 @@ typedef struct {
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
-    char *current_module;  /* Currently active module name (NULL for global scope) */
+    char *current_module;  /* Borrowed module-context cursor; NULL for global scope. */
     ImportTracker *import_tracker;  /* Track selective imports */
     bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
     ModuleInfo *modules;  /* Module metadata for introspection */

@@ -339,10 +339,10 @@ static int eval_source_into_env(const char *path, char *src, Environment *env) {
             logical_owner = program->as.program.items[i]->as.module_decl.name;
             break; /* I match the import pass's first explicit owner. */
         }
-    char *prior_owner = env->current_module ? strdup(env->current_module) : NULL;
+    char *prior_owner = env->current_module;
     struct EnvModuleCheckpoint *admission = env_module_checkpoint(env, logical_owner, owner);
-    if (!admission || (env->current_module && !prior_owner)) {
-        env_module_commit(admission); free(prior_owner);
+    if (!admission) {
+        env_module_commit(admission);
         fprintf(stderr, "I cannot retain REPL admission state.\n");
         env_set_current_file(env, "<repl>"); typecheck_set_current_file("<repl>");
         return -1;
@@ -352,10 +352,10 @@ static int eval_source_into_env(const char *path, char *src, Environment *env) {
               env_module_checkpoint_declarations(env, admission) && check_source(program, env);
     free_module_list(modules);
     if (ok) {
-        env_module_commit(admission); free(prior_owner); evaluate_source(program, env);
+        env_module_commit(admission); evaluate_source(program, env);
     } else {
+        env->current_module = prior_owner;
         env_module_rollback(env, admission);
-        free(env->current_module); env->current_module = prior_owner;
     }
     env_set_current_file(env, "<repl>"); typecheck_set_current_file("<repl>");
     return ok ? program->as.program.count : -1;
@@ -743,7 +743,6 @@ int run_repl(void) {
         (void)recorded_source(REPL_INPUT, "<repl>", src, env, false);
     }
 
-    free(env->current_module); env->current_module = NULL;
     free_environment(env);
     repl_free_all();
     repl_history_free();
