@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/fresh-record-adoption-linux-20261124/read_archive.py", line 54, in <module>
+    assert sha(blob(m['source_commit']+':'+name))==h
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

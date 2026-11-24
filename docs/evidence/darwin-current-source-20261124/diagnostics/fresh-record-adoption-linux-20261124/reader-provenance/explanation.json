@@ -1,0 +1,8 @@
+{
+  "failed_read_exit": 1,
+  "only_mismatch": "docs/ROADMAP.md",
+  "frozen_roadmap_pin": "5b541462fee79e231925c369c8f47171e7dc78ff",
+  "qualified_code_pin": "63248db641ccca41bfa5ccfb1bff0d1b32574d39",
+  "manifest_unchanged": "20a61ccd3741c31aaf2b154166fbee392359849f7e16cbf6acaf9885dbdaa4f0",
+  "native_retry": false
+}
