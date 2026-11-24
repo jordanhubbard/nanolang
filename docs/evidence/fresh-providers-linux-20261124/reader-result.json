@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "source": "8949313b0a56c0c3bd52509fb363edb4eefba3e4",
+  "records": 14263,
+  "git_inputs": 3520,
+  "native_images": 93,
+  "fresh_profiles": 3,
+  "failed_profiles_retained": 2,
+  "compiler_translation_units_per_profile": 221,
+  "compiler_link_inputs_per_profile": 169,
+  "source_c_methods_per_profile": 20,
+  "lexical_methods_per_profile": 10,
+  "repl_methods_per_profile": 34,
+  "full_compiler_source": false,
+  "paired_platform": false,
+  "whole_release": false
+}
