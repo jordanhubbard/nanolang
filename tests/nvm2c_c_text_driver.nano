@@ -16,9 +16,9 @@ fn report() -> void {
             (println (+ "N|" (+ (int_to_string kind) (+ "|" (+ (int_to_string value) (+ "|" (text.name kind value)))))))
         }
     }
-    let signed: array<int> = [(- -9223372036854775807 1),-9223372036854775807,-2147483648,-1,0,1,2147483647,9223372036854775807]
-    for index in (range 0 (array_length signed)) {
-        let value: int = (at signed index)
+    let signed_values: array<int> = [(- -9223372036854775807 1),-9223372036854775807,-2147483648,-1,0,1,2147483647,9223372036854775807]
+    for index in (range 0 (array_length signed_values)) {
+        let value: int = (at signed_values index)
         (println (+ "I64|" (+ (int_to_string value) (+ "|" (text.signed64 value)))))
     }
     for value in (range -1 257) {
