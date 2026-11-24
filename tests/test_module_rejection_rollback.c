@@ -1,4 +1,7 @@
 /* I withdraw rejected module publications and permit a real corrected retry. */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE
+#endif
 #include "../src/nanolang.h"
 #include <assert.h>
 #include <stdio.h>

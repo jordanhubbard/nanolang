@@ -1,0 +1,64 @@
+{
+  "process": "",
+  "process_exit": 1,
+  "child": "",
+  "terminal": true,
+  "controller_exit": 2,
+  "exception": "AssertionError(('normal-focused', 2))",
+  "commands": [
+    {
+      "label": "normal-sparse",
+      "pid": 58045,
+      "exit": 0,
+      "seconds": 0.04873100000000008
+    },
+    {
+      "label": "normal-checkout",
+      "pid": 58050,
+      "exit": 0,
+      "seconds": 33.812945542
+    },
+    {
+      "label": "normal-plan",
+      "pid": 59977,
+      "exit": 0,
+      "seconds": 0.8615242919999986
+    },
+    {
+      "label": "normal-build",
+      "pid": 60029,
+      "exit": 0,
+      "seconds": 187.198104
+    },
+    {
+      "label": "normal-help",
+      "pid": 70065,
+      "exit": 0,
+      "seconds": 0.7827374580000139
+    },
+    {
+      "label": "normal-tool-controls",
+      "pid": 70109,
+      "exit": 0,
+      "seconds": 4.093488332999982
+    },
+    {
+      "label": "normal-focused",
+      "pid": 70324,
+      "exit": 2,
+      "seconds": 101.74085995899998
+    }
+  ],
+  "profiles": [
+    {
+      "mode": "normal",
+      "build_exit": 0,
+      "focused_exit": null,
+      "private_repl": null
+    }
+  ],
+  "source_stages": [],
+  "stdout": "git-init LIVE 57217\ngit-init TERMINAL 0 0.09513683399999984\ngit-remote LIVE 57223\ngit-remote TERMINAL 0 0.054782749999999325\ngit-promisor LIVE 57226\ngit-promisor TERMINAL 0 0.05124595800000087\ngit-filter LIVE 57228\ngit-filter TERMINAL 0 0.04943641699999901\ngit-fetch LIVE 57235\ngit-fetch TERMINAL 0 16.265779667\nnormal-sparse LIVE 58045\nnormal-sparse TERMINAL 0 0.04873100000000008\nnormal-checkout LIVE 58050\nnormal-checkout TERMINAL 0 33.812945542\nnormal-build ADMITTED [0.9591, 0.983, 0.9875]\nnormal-plan LIVE 59977\nnormal-plan TERMINAL 0 0.8615242919999986\nnormal-build LIVE 60029\nnormal-build TERMINAL 0 187.198104\nnormal-help LIVE 70065\nnormal-help TERMINAL 0 0.7827374580000139\nnormal-tool-controls LIVE 70109\nnormal-tool-controls TERMINAL 0 4.093488332999982\nnormal-focused LIVE 70324\nnormal-focused TERMINAL 2 101.74085995899998\nI retain terminal AssertionError(('normal-focused', 2))\n",
+  "stderr": "",
+  "last_command_stderr": " I could not retain an ordered C argument slot.\n[c_backend] I could not retain an ordered C argument slot.\n[c_backend] I could not allocate ordered C argument slots.\n[c_backend] I could not retain an ordered C argument slot.\n[c_backend] I could not retain an ordered C argument slot.\n....................\n----------------------------------------------------------------------\nRan 20 tests in 20.211s\n\nOK\n-- E001 TYPE MISMATCH --------------- rejected-context.nano\nReturn type mismatch: got string, expected int.\n\nHint: Ensure the returned value matches the function's declared return type.\nWarning at line 5, column 26: Unused variable 'data'\nWarning at line 6, column 25: Unused variable 'data'\ntests/test_module_rejection_rollback.c:37:33: error: call to undeclared function 'asprintf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n   37 |     char *result = NULL; assert(asprintf(&result, \"%s/%s\", directory, name) >= 0); return result;\n      |                                 ^\ntests/test_module_rejection_rollback.c:46:33: error: call to undeclared function 'asprintf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n   46 |     char *helper = NULL; assert(asprintf(&helper, \"%s_new\", instance->concrete_name) >= 0);\n      |                                 ^\ntests/test_module_rejection_rollback.c:50:67: error: call to undeclared function 'mkdtemp'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n   50 |     char directory[] = \"/tmp/nano-module-rollback-XXXXXX\"; assert(mkdtemp(directory));\n      |                                                                   ^\n3 errors generated.\nmake: *** [test-module-rejection-rollback] Error 1\n"
+}
