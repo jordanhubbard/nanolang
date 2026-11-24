@@ -1,0 +1,20 @@
+{
+  "reason": "I retain only my superseded unpublished archive objects outside the current object set; I delete no source or qualification inputs.",
+  "objects": [
+    {
+      "artifact": "objects/8cc8db9575ab205a6e0a1619e0e9354f089708cf2330392af62b5ed1ddea9c3e.gz",
+      "compressed_sha256": "e36a6a190ec541f6fe42b0cf41d7bb1eb9237f393662ca46dbd04f8aa95eabb6",
+      "retained": ".test_output/carrier-cost-publication-20261123/unused-initial-objects/8cc8db9575ab205a6e0a1619e0e9354f089708cf2330392af62b5ed1ddea9c3e.gz"
+    },
+    {
+      "artifact": "objects/199f528290b03ba9c46434a1227f4b75dd4194e658ee248341ccd011dfa5d149.gz",
+      "compressed_sha256": "710a1857ec360b7559014fa237217388398cd3b39c3767270e7db5e10d39986b",
+      "retained": ".test_output/carrier-cost-publication-20261123/unused-initial-objects/199f528290b03ba9c46434a1227f4b75dd4194e658ee248341ccd011dfa5d149.gz"
+    },
+    {
+      "artifact": "objects/f0711d9f8e43e624a7228d1d1a5fffcf47601a45817c217fd3037741bb6c3e08.gz",
+      "compressed_sha256": "48d86d36394c477136f8d2ba65b971a3cdd4a5efea0385838781e7220125715d",
+      "retained": ".test_output/carrier-cost-publication-20261123/unused-initial-objects/f0711d9f8e43e624a7228d1d1a5fffcf47601a45817c217fd3037741bb6c3e08.gz"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "source_pin": "df87909a2a5423ff7588bc8e5dc2293081fe8e33",
+  "manifest_sha256": "311ae9698e34cc10995a0b43f924cc9461730c1a57cafbb2236f9b56cbfde8be",
+  "reader_sha256": "ac8e8a5f0bf31655b785aac1bf0c9fe6c93fa4de46b06bd47d3d72bbc3909190",
+  "exit": 0,
+  "seconds": 24.018181751016527,
+  "records": 6932,
+  "git_inputs": 1447
+}
