@@ -1,0 +1,1 @@
+PASS: 18702 records; strict-C output 81554 bytes SHA256 e3eff8151eddff731c6825c70a866d33e91e86ef9e904c61fa7eda18f62baabe matches across five routes; oversized refusal5/5; two retained terminals and C-keyword defect remain explicit. No full translator, current-stage, paired, whole-runtime sanitizer, cutover or release acceptance.
