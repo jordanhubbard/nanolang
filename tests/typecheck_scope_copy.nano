@@ -59,12 +59,15 @@ fn scope_check_copy(count: int) -> int {
     let mut input: array<Symbol> = []
     let mut index: int = 0
     while (< index count) {
+        let mut parameter_types: array<NSType> = []
+        set parameter_types (array_push parameter_types (type_int))
+        set parameter_types (array_push parameter_types (type_array_of (type_bool)))
         let value: Symbol = Symbol {
             name: (+ "binding-" (int_to_string (% index 3))),
             sym_type: (type_array_of (type_string)),
             is_mutable: (== (% index 2) 0), is_function: true,
             param_count: 2, defined: (!= (% index 3) 0),
-            param_types: [(type_int), (type_array_of (type_bool))], return_type: (type_float)
+            param_types: parameter_types, return_type: (type_float)
         }
         set input (array_push input value)
         set index (+ index 1)

@@ -4028,7 +4028,9 @@ shadow env_copy_symbols {
         is_mutable: true, is_function: true, param_count: 1, defined: false,
         param_types: params, return_type: (type_bool)
     }
-    let input: array<Symbol> = [(symbol_new "same" (type_int) false false 0 (empty_param_types) (type_void)), callable]
+    let mut input: array<Symbol> = []
+    set input (array_push input (symbol_new "same" (type_int) false false 0 (empty_param_types) (type_void)))
+    set input (array_push input callable)
     let cloned: array<Symbol> = (env_copy_symbols input)
     assert (== (array_length cloned) 2)
     assert (== (env_lookup cloned "same") 1)
