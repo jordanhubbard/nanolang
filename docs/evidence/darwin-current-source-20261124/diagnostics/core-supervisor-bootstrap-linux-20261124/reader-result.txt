@@ -1,0 +1,1 @@
+PASS archive integrity: 6490 records, exact-source original17-step bootstrap/equality/install/no-C-seed PASS; original native18 FAIL5 under1253, emitter12 NOT RUN. Complete SAN/paired/pure-translator/release acceptance remains open.
