@@ -33,10 +33,16 @@ I track the entry/notice and declared foreign-helper contracts under
 [unsuccessful ordinary development derivation](evidence/darwin-current-source-20261124/diagnostics/shadow-entry-development-linux-20261124/README.md)
 retains its original600/default10 timeout, no compiler product and the separate
 retained-image setup refusal. I admit no repair from those observations.
-Source `16b081fdf4` has a separate cold original bootstrap in progress; its seed,
-seed verification, raw Stage1 generation and Stage1 verification have passed.
-I await its remaining original steps, raw equality and native contracts. A live
-attempt is not an acceptance receipt.
+My [separate cold source16b checkpoint](evidence/darwin-current-source-20261124/diagnostics/shadow-entry-cold-bootstrap-linux-20261124/README.md)
+passes all17 original bootstrap steps in1951.352s, raw1049944-byte equality,
+both native hellos and installed/no-C-seed execution. Original native24 then
+FAILS two foreign controls; all six new entry/initialization/notice methods pass.
+Its emitter12 companion does not run. A separate old-pin exact artifact API
+observation passes its native marker/refusal/alarm/early-exit controls, while
+all five C-reference unknown-artifact translations still refuse and preserve
+prior output. My reader verifies6543 records. Full native acceptance remains
+open; shared-library derivatives do not establish arbitrary CFLAGS equivalence
+or generic C admission.
 
 The [original sanitizer directory-cache failure](evidence/darwin-current-source-20261124/diagnostics/core-supervisor-owned-names-linux-20261124/README.md)
 remains open under [#1252](https://github.com/jordanhubbard/nanolang/issues/1252).
