@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/core-supervisor-owned-names-linux-20261124/read_archive.py", line 42, in <module>
+    old=js(label+'/cold-matrix-result.json');assert old['terminal'] and old['profiles'][-1]['mode']=='san' and old['profiles'][-1]['focused']['exit']!=0
+                                                                                                               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+KeyError: 'focused'

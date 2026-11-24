@@ -1,0 +1,1 @@
+I preserve the first reader failure: I looked for the focused command inside an unfinished profile record. The original failed harness stores that command in its top-level command journal before raising. My corrected reader checks the actual terminal failed command there. I change no qualification, archive manifest, chunks or native bytes.

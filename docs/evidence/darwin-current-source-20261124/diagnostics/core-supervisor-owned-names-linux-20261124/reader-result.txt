@@ -1,0 +1,1 @@
+PASS archive integrity and declared partial result: 44736 records, exact-source normal/O3 13/10/6/42 PASS; SAN13/10/6 PASS, original42 FAIL only1252; three late-exit controls PASS every profile. Full bootstrap, Stage2, paired and release acceptance remain open.
