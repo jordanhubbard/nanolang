@@ -1152,16 +1152,43 @@ emission and executable selection remain open, alongside the separate #1204
 ownership-query/return-merge barrier and full release.
 
 
-## My C-text boundary in progress
+## My C-text component
 
-I implement byte literals, bounded integer spelling and generated names in
-`src_nano/nvm2c/c_text.nano` before wiring executable emission. Byte literals
-must preserve every byte, including embedded zero, with fixed-width octal
-escapes and a separate length. Unsigned 64-bit spelling uses bounded halves;
-my signed NanoLang arithmetic must not overflow to construct a C constant.
-Signed endpoints and generated names require actual strict-C round trips.
+`src_nano/nvm2c/c_text.nano` spells tokens without admitting a module or
+calling a C translator/analysis API. `bytes_literal` returns `{valid, text,
+length}`. Its fixed-width three-digit octal escapes preserve every byte and
+cannot consume a following digit. Empty input has a valid quoted empty literal
+and length0; counts above16777216 return invalid with empty text/length0. A C
+string literal includes a trailing terminator; consumers retain the explicit
+input length instead of using `strlen`.
 
-This boundary does not admit a module, solve representation/ownership facts,
-emit an executable translator or change product selection. Full affine and
-profile composition, C control flow/runtime emission, both translator execution
-forms, complete corpus/platform qualification and actual cutover remain required.
+`unsigned32` rejects values outside0..4294967295. `unsigned64(low, high)` checks
+both halves before spelling unsigned64 shifts/OR, without forming an overflowing
+signed NanoLang value. `signed64` treats the minimum endpoint before negation.
+`name(kind, ordinal)` accepts kinds0..5 for function/local/label/string/global/
+module and ordinals0..4294967295, using separate generated prefixes. Rejected
+integer/name queries return empty text, distinct from every valid spelling.
+
+My [Linux component receipt](evidence/darwin-current-source-20261124/diagnostics/c-text-boundary-linux-20261124/README.md)
+at sourcee5b20896b343 retains18702 independently verified records. Both methods
+pass through five existing routes in13.422s. I compile and execute every route's
+emitted C11 tokens with strict warnings and UBSan; the complete81554-byte result
+matches SHA256 e3eff8151eddff731c6825c70a866d33e91e86ef9e904c61fa7eda18f62baabe.
+All256 octets, embedded zero, UTF8/non-UTF8 bytes, block boundaries,65536-byte
+payloads, integer endpoints/range refusals and generated identifiers participate.
+All five routes refuse an actual oversized16777217-byte input. The exact maximum
+count is tested by a shadow, not a full maximum-size literal construction.
+Source-consumer generated C is instrumented; the retained runtime object is not
+whole-runtime instrumentation. The chosen NanoLang source producer is the actual
+qualified16b Stage2, never a new current-source compiler claim.
+
+I retain the original legal `signed` local's invalid C-native setup and the
+subsequent report parser's bitwise-OR delimiter failure. #1254 has actual
+local/parameter/nested-shadow generated-C refusals, successful NanoISA execution,
+a safe-name native control and preserved prior outputs. Renaming only the
+fixture to `signed_values` and fixing fixed-field parsing does not repair that
+backend defect. Its source and original expectations remain retained.
+
+This component grants no affine/profile/representation authority and emits no
+complete translator. Full C control flow/runtime/service emission, complete
+corpus/platform qualification, fresh products and actual cutover remain required.
