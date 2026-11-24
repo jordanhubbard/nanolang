@@ -56,5 +56,5 @@ for label in ['corrected','public-control']:
 repo=subprocess.check_output(['git','-C',str(base),'rev-parse','--show-toplevel'],text=True).strip()
 assert subprocess.check_output(['git','show',m['source_pin']+':src/module.c'],cwd=repo)==old
 for name in ['src/module.c','Makefile.gnu','tests/test_module_list_preparation.c']:
- assert subprocess.check_output(['git','show','HEAD:'+name],cwd=repo)==data('candidate/'+name),name
+ assert subprocess.check_output(['git','show','5bf50072752f6e88bad274058663e6e7effc1f89:'+name],cwd=repo)==data('candidate/'+name),name
 print('PASS integrity: %d records; old generator side effect reproduced; normal/SAN/O3 list and original rollback cases pass; cleanup passes. Private/public record-list C refusals retained under#1248; full platform/source qualification remains open.'%len(rows))
