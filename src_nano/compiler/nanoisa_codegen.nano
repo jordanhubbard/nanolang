@@ -9912,6 +9912,7 @@ fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context:
     let _: int = (nisa_reset)
     if (not (nisa_module_declarations_valid parser)) { return "" }
     set nisa_program_mode program
+    let synthetic_main: bool = (and program (and (< (nisa_fn_index parser "main") 0) (> parser.shadows_count 0)))
     let mut selected_owned: bool = (nanoisa_has_borrows parser)
     if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
     if selected_owned {
@@ -9921,8 +9922,9 @@ fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context:
     }
     if program {
         let entry: int = (nisa_fn_index parser "main")
-        if (< entry 0) { return (nisa_fail "no main") }
-        (nisa_require_function entry)
+        if (< entry 0) {
+            if (not synthetic_main) { return (nisa_fail "no main") }
+        } else { (nisa_require_function entry) }
     }
     if (parser_has_error parser) {
         let bad: string = (nisa_fail "parse failed")
@@ -9969,6 +9971,14 @@ fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context:
             }
             set i (+ i 1)
         }
+        if (and synthetic_main (< main_idx 0)) {
+            # I give a checked shadow-only program an inert product entry.
+            # Global initialization keeps its own function and startup policy.
+            set main_idx emitted
+            set out (+ out ".function main 0 0 0 int 1\n  PUSH_I64 0\n  RET\n.end\n\n")
+            set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser "int" 0 []))
+            set nisa_ordinary_count (+ nisa_ordinary_count 1)
+        }
         set out (+ out (+ initializers nisa_lambda_text))
         if (< main_idx 0) {
             let missing: string = (nisa_fail "no main")
@@ -9994,6 +10004,33 @@ fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context:
             }
         }
     }
+}
+
+shadow nisa_emit_module_context {
+    (mb_reset [])
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = "fn answer() -> int { return 7 } shadow answer { assert (== (answer) 7) }"
+    let tokens: List<LexerToken> = (tokenize_string source "shadow-only.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadow-only.nano")
+    let program: string = (nisa_emit_module_context parser true false [])
+    assert (str_contains program ".entry 0")
+    assert (str_contains program ".function main 0 0 0 int 1")
+    assert (not (str_contains program ".function answer "))
+    assert (not (str_contains program "__nanoisa_shadow_"))
+    assert (== (nisa_emit_module_context parser false false []) "")
+    let plain_tokens: List<LexerToken> = (tokenize_string "fn answer() -> int { return 7 }" "library.nano" diagnostics)
+    let plain: Parser = (parse_program plain_tokens (list_LexerToken_length plain_tokens) "library.nano")
+    assert (== (nisa_emit_module_context plain true false []) "")
+    assert (== (nanoisa_last_lowering_error) "no main")
+    let global_source: string = "let startup: int = 7 fn answer() -> int { return startup } shadow answer { assert (== (answer) 7) }"
+    let global_tokens: List<LexerToken> = (tokenize_string global_source "global-shadow.nano" diagnostics)
+    let global_parser: Parser = (parse_program global_tokens (list_LexerToken_length global_tokens) "global-shadow.nano")
+    let global_program: string = (nisa_emit_module_context global_parser true false [])
+    assert (str_contains global_program ".entry 0")
+    assert (str_contains global_program ".function main 0 0 0 int 1")
+    assert (str_contains global_program ".function __init__")
+    assert (str_contains global_program "STORE_GLOBAL 0")
+    (mb_reset [])
 }
 
 shadow nanoisa_emit_nasm {

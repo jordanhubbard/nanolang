@@ -2205,6 +2205,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     (println (+ "I could not publish the requested product: " (Nanoisa.last_error)))
                     return 1
                 }
+                if emit_c { (println "I emit C without executing shadows.") }
                 if (!= llm_diags_json_path "") {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
                 }
