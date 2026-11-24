@@ -87,7 +87,7 @@ assert b'owner == NULL' in provider(red['work'] + '/run.stderr')
 assert provider(red['work'] + '/gc-before.c') == raw('gc-before.c')
 assert provider(red['work'] + '/test.c') == data('source/tests/test_gc_allocation_failure.c').replace(
     b'#include "../src/runtime/gc.c"',
-    ('#include "' + str(REPO / 'src/runtime/gc.c') + '"').encode())
+    ('#include "' + str(Path(js('neighbors')['compiler']).parent.parent / 'src/runtime/gc.c') + '"').encode())
 assert '-fsanitize=address,undefined' in red['commands'][0]['args']
 frozen = js('frozen-source')
 assert frozen['pin'] == pin and len(frozen['files']) == 3501
