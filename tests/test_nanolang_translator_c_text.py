@@ -38,7 +38,8 @@ class CText(unittest.TestCase):
         cls.routes = build_routes(ROOT / 'tests/nvm2c_c_text_driver.nano', cls.directory)
 
     def reports(self, route):
-        rows = [line.split('|') for line in checked([*route, *self.paths]).splitlines()]
+        rows = [line.split('|', 3 if line.startswith(('U64|', 'N|')) else 2)
+                for line in checked([*route, *self.paths]).splitlines()]
         self.assertEqual(len(rows), 7 + 49 + 56 + 8 + 258 + len(self.cases))
         keys = []
         for low in HALVES:
