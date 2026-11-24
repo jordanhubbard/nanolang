@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "source_pin": "23d5612d78937219f15372259885419ebb12be03",
+  "records": 3740,
+  "git_inputs": 1465,
+  "native_images": 167,
+  "focused_c_profile": true,
+  "full_source_acceptance": false,
+  "whole_release": false
+}
