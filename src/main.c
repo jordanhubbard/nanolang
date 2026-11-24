@@ -770,7 +770,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->profile_output_path = opts->profile_output_path;
     
     ModuleList *modules = create_module_list();
-    if (!process_imports_for_service(program, env, modules, input_file)) {
+    bool imports_loaded = process_imports_for_service(program, env, modules, input_file);
+    if (reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) {
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 1;
+    }
+    if (!imports_loaded) {
         human_diag(NL_DIAG_IMPORT_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
         free_ast(program);
@@ -781,16 +792,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
-        nl_list_CompilerDiagnostic_free(diags);
-        return 1;
-    }
-    if (reject_source_diagnostic_aliases(input_file, modules, output_file, opts) != 0) {
-        free_ast(program);
-        free_tokens(tokens, token_count);
-        free_environment(env);
-        free_module_list(modules);
-        clear_module_cache();
-        free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
     }

@@ -169,6 +169,18 @@ class CSeedNativePublication(unittest.TestCase):
                 self.invoke(success=False)
                 self.assertEqual(dependency.read_text(), text)
 
+    def test_failed_import_cannot_overwrite_loaded_dependency_with_diagnostics(self):
+        dependency = self.work / 'dependency.nano'
+        text = 'pub fn value() -> int { return 0 }\nshadow value { assert (== (value) 0) }\n'
+        dependency.write_text(text)
+        source = ('import "' + str(dependency) + '"\nimport "' + str(self.work / 'missing.nano') + '"\n' + VALID)
+        self.source.write_text(source)
+        self.invoke('--llm-diags-json', dependency, success=False)
+        self.assertEqual(dependency.read_text(), text)
+        self.assertEqual(self.source.read_text(), source)
+        self.assertEqual(self.output.read_bytes(), PREVIOUS)
+        self.assertEqual(self.output.stat().st_mode & 0o777, 0o750)
+
     def test_kept_c_cannot_alias_root_or_previous_output(self):
         kept = Path(str(self.output) + '.c')
         kept.symlink_to(self.source)

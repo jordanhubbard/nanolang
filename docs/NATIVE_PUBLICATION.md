@@ -1,7 +1,7 @@
 # My C-seed native publication boundary
 
 I check root and loaded dependency identities before writing native output or
-selected diagnostics. I refuse source aliases through the same path, symlinks
+selected diagnostics, including error reporting after a later import fails. I refuse source aliases through the same path, symlinks
 and hard links. I also require generated C (`--keep-c` and `-S`) to have a
 separate destination from those sources, the native artifact and selected
 diagnostics. These are checks of stable filesystem entries, not protection
