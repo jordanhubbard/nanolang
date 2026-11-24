@@ -1106,24 +1106,47 @@ C-native and both source-producer VM routes, including immutable-input and
 nested-clone checks. I retain my first driver cond-brace parse refusal and its
 ordinary-if correction.
 
-My complete frame five-route gate remains failed under #1202: C AOT refuses
+My initial complete frame five-route gate failed under #1202: C AOT refused
 an optional-to-exact-Boolean aggregate conversion. Both actual producer products
-retain the refusal, and a seven-line frame-library import reproduces it. Read-only
-GDB identifies a deferred Boolean array read whose result is equated with a
-scalar local. The caller repair remains unverified. I preserve the C shape engine's exact-destination
-refusal tests and Puck's source ownership while localizing a caller-side repair.
-I keep all original assertions and deadlines. I do not claim frame acceptance,
-whole-function instruction transfer/convergence, handler/global/effect/private
-composition, paired Darwin, pure C emission or executable selection.
+retain that refusal, and a seven-line frame-library import reproduces it.
+Read-only GDB identifies a deferred Boolean array read whose result is equated
+with a scalar local. I preserve the exact-destination refusal tests and every
+original assertion and deadline. I retain that initial failure as provenance
+for the later repair.
 
+My localization reduces the barrier to a twelve-line source with a mutable
+Boolean read, array write and short-circuit and/or copy. Sixteen basic neighbors
+and all unary-not variants translate. DUP/PICK reuse the local's shape and then
+seed an exact scalar type; LOAD_LOCAL already retains inferred scalar storage.
+My original 64-source/PICK regression retains nine valid translation failures;
+strict invalid-depth and prior-output controls pass. The unchanged graph API
+passes 312 counterfactual, exact-target and mismatched-payload checks normally
+and under ASan/UBSan. My [localization receipt](evidence/scalar-copy-localization-linux-20261122/README.md)
+retains the then-unapplied one-line proposal.
 
-My #1202 localization reduces the frame barrier to a12-line source with a
-mutable Boolean read, array write and short-circuit and/or copy. Sixteen basic
-neighbors and all unary-not variants translate. Read-only traces show that
-DUP/PICK reuse the local's shape and then seed an exact scalar type; LOAD_LOCAL
-already retains inferred scalar storage. My focused64-source/PICK regression
-keeps nine valid translations red, while strict invalid-depth and prior-output
-controls pass. The unchanged graph API passes312 counterfactual, exact-target
-and mismatched-payload checks normally and under ASan/UBSan. My proposed caller
-condition remains unapplied and unqualified pending its narrow ownership
-handoff. I make no new production C admission claim from this API evidence.
+Under the [narrow #1202 handoff](https://github.com/jordanhubbard/nanolang/issues/1158#issuecomment-7093099516),
+I extend only the existing inferred-scalar `LOAD_LOCAL` condition in
+`sim_push_slot` to `DUP`/`PICK` at source
+`0962d3c9dbf4376b2fac82b8f04f0c24e0ccd8b3`. All 64 source
+copies and valid PICK0 translate. Invalid PICK1 retains assembler/verifier/C
+refusal and prior output; all 312 graph and 3890 original shape checks pass
+normally and under ASan/UBSan. I relax no merge function or shape API.
+
+My [Linux copy-admission receipt](evidence/scalar-copy-admission-linux-20261122/README.md)
+at `1b83cdabd3c8cd3103f24b5e6b0a5b639c41a68c` completes the original frame gate:
+all 1001 carriers match actual C through C-seed native and both source producers'
+VM and sanitized-native routes. Every complete report has SHA256
+`f5f4555c26ea20dbc13237f4a9843c42e98b16f7fc6f4e9f9ea3de7b3d3dcbd0`.
+Both original methods pass with zero failures, errors or skips in 422.750 seconds,
+retaining all 665 frame cases, 168386 relation operations, 289 normalized states
+and seven FIFO traces. The independent reader verifies 4711 records and 1384
+exact Git inputs, the one-line change, original/candidate consumers and strict
+negative controls. Generated C is instrumented and links the retained runtime
+object; I do not claim whole-runtime instrumentation or fresh compiler products.
+
+This closes the scoped Linux #1202 copy repair and qualifies internal primitives
+at the recorded source/tool pins. Later integrated revisions require separate
+qualification. Current-source Darwin, whole-function instruction transfer and
+convergence, handler/global/effect and private-profile composition, pure C
+emission and executable selection remain open, alongside the separate #1204
+ownership-query/return-merge barrier and full release.
