@@ -62,14 +62,16 @@ static struct {
  * ============================================================================ */
 
 /* Add pointer to hash table */
-static void gc_hash_add(void* ptr) {
+static bool gc_hash_add(void* ptr) {
     size_t idx = gc_hash_ptr(ptr);
     GCHashEntry* entry = (GCHashEntry*)malloc(sizeof(GCHashEntry));
     if (entry) {
         entry->ptr = ptr;
         entry->next = gc_state.hash_table[idx];
         gc_state.hash_table[idx] = entry;
+        return true;
     }
+    return false;
 }
 
 /* Remove pointer from hash table */
@@ -236,6 +238,14 @@ void* gc_alloc(size_t size, GCObjectType type) {
     header->flags = 0;
     header->size = total_size;
     header->finalizer = NULL;   /* No finalizer by default */
+
+    /* I publish only owners whose registry entry also exists. */
+    void* ptr = gc_header_to_ptr(header);
+    if (!gc_hash_add(ptr)) {
+        free(header);
+        fprintf(stderr, "I cannot allocate a managed object's pointer registry entry.\n");
+        return NULL;
+    }
     
     /* Add to doubly-linked list - O(1) */
     header->prev = NULL;
@@ -244,12 +254,6 @@ void* gc_alloc(size_t size, GCObjectType type) {
         gc_state.all_objects->prev = header;
     }
     gc_state.all_objects = header;
-    
-    /* Get pointer to object */
-    void* ptr = gc_header_to_ptr(header);
-    
-    /* Add to hash table for O(1) lookup */
-    gc_hash_add(ptr);
     
     /* Update statistics */
     gc_state.stats.total_allocated += total_size;
