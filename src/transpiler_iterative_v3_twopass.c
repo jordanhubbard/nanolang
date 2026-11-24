@@ -1781,8 +1781,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     build_expr(list, expr->as.prefix_op.args[1], env);
                     emit_literal(list, ")");
                 } else if ((op == TOKEN_SLASH || op == TOKEN_PERCENT)
-                           && check_expression(expr->as.prefix_op.args[0], env) == TYPE_INT
-                           && check_expression(expr->as.prefix_op.args[1], env) == TYPE_INT) {
+                           && (op_t1 == TYPE_INT || op_t1 == TYPE_ENUM)
+                           && (op_t2 == TYPE_INT || op_t2 == TYPE_ENUM)) {
                     /* Integer / and % must match the language's total semantics
                      * (div-by-zero -> 0; INT64_MIN / -1 and INT64_MIN % -1
                      * defined, not signed-overflow UB/SIGFPE, matching the Coq
@@ -1802,9 +1802,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     if (needs_parens) emit_literal(list, "(");
                     /* I preserve each operand's source grouping, including
                      * nested comparisons, as my Nano emitter does. */
-                    emit_literal(list, "(");
+                    /* I expose my signed64 enum value before C can select
+                     * an unsigned enum promotion for numerical operations. */
+                    emit_literal(list, op_t1 == TYPE_ENUM ? "((int64_t)(" : "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);
-                    emit_literal(list, ")");
+                    emit_literal(list, op_t1 == TYPE_ENUM ? "))" : ")");
 
                     const char *op_str = NULL;
                     switch (op) {
@@ -1824,9 +1826,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         default: op_str = " OP "; break;
                     }
                     emit_literal(list, op_str);
-                    emit_literal(list, "(");
+                    emit_literal(list, op_t2 == TYPE_ENUM ? "((int64_t)(" : "(");
                     build_expr(list, expr->as.prefix_op.args[1], env);
-                    emit_literal(list, ")");
+                    emit_literal(list, op_t2 == TYPE_ENUM ? "))" : ")");
                     if (needs_parens) emit_literal(list, ")");
                 }
             } else if (arg_count == 1) {
@@ -1870,9 +1872,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, "({ assert(false && \"unary minus requires array<int> or array<float>\"); (DynArray*)0; })");
                         }
                     } else {
-                        emit_literal(list, "(-(");
+                        emit_literal(list, t == TYPE_ENUM ? "(-((int64_t)(" : "(-(");
                         build_expr(list, expr->as.prefix_op.args[0], env);
-                        emit_literal(list, "))");
+                        emit_literal(list, t == TYPE_ENUM ? ")))" : "))");
                     }
                 } else if (op == TOKEN_QUESTION) {
                     /* ? try-propagate: desugars to:

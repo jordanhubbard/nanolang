@@ -1161,7 +1161,7 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
 /* I resolve record-list provenance only from checked declarations. */
-const char *get_record_list_element_name(ASTNode *expr, Environment *env) {
+static const char *get_nominal_list_element_name(ASTNode *expr, Environment *env) {
     if (!expr || !env) return NULL;
     const char *name = NULL;
     TypeInfo *info = try_get_expr_type_info(expr, env);
@@ -1177,8 +1177,9 @@ const char *get_record_list_element_name(ASTNode *expr, Environment *env) {
         }
     }
     if (!name && expr->type == AST_CALL) {
+        if (expr->checked_record_list) name = expr->as.call.return_struct_type_name;
         FunctionSignature *signature = expr->as.call.checked_signature;
-        if (signature && signature->return_type == TYPE_LIST_GENERIC)
+        if (!name && signature && signature->return_type == TYPE_LIST_GENERIC)
             name = signature->return_struct_name;
         if (!name && expr->as.call.name) {
             Function *function = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
@@ -1199,14 +1200,34 @@ const char *get_record_list_element_name(ASTNode *expr, Environment *env) {
                 strcmp(record->field_names[i], expr->as.field_access.field_name) == 0)
                 name = record->field_type_names[i];
     }
+    StructDef *record = name ? env_get_struct(env, name) : NULL;
+    EnumDef *enumeration = name ? env_get_enum(env, name) : NULL;
+    return record ? record->name : enumeration ? enumeration->name : NULL;
+}
+
+/* I preserve my existing record-only iteration boundary. */
+const char *get_record_list_element_name(ASTNode *expr, Environment *env) {
+    const char *name = get_nominal_list_element_name(expr, env);
     return name && env_get_struct(env, name) ? name : NULL;
 }
 
-static void retain_record_list_binding_type(ASTNode *binding, Environment *env) {
+static const char *list_annotation_name(Environment *env, const TypeInfo *info, const char *fallback) {
+    const char *name = fallback;
+    if (info && info->base_type == TYPE_LIST_GENERIC) {
+        if (info->type_param_count == 1 && info->type_params && info->type_params[0])
+            name = info->type_params[0]->generic_name;
+        else if (info->generic_name && strcmp(info->generic_name, "List")) name = info->generic_name;
+    }
+    StructDef *record = name ? env_get_struct(env, name) : NULL;
+    EnumDef *enumeration = name ? env_get_enum(env, name) : NULL;
+    return record ? record->name : enumeration ? enumeration->name : NULL;
+}
+
+static void retain_nominal_list_binding_type(ASTNode *binding, Environment *env) {
     const char *name = binding->as.let.type_name ? binding->as.let.type_name :
-        get_record_list_element_name(binding->as.let.value, env);
-    if (name && env_get_struct(env, name)) {
-        binding->as.let.element_type = TYPE_STRUCT;
+        get_nominal_list_element_name(binding->as.let.value, env);
+    if (name && (env_get_struct(env, name) || env_get_enum(env, name))) {
+        if (env_get_struct(env, name)) binding->as.let.element_type = TYPE_STRUCT;
         if (!binding->as.let.type_name) binding->as.let.type_name = strdup(name);
     }
 }
@@ -2504,6 +2525,11 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
                 return false;
         }
         return true;
+    }
+    if (expected->base_type == TYPE_LIST_GENERIC) {
+        const char *wanted = list_annotation_name(env, expected, NULL);
+        const char *given = get_nominal_list_element_name(argument, env);
+        if (wanted && given && strcmp(wanted, given)) return false;
     }
     TypeInfo *info = try_get_expr_type_info(argument, env);
     if (info) return type_infos_equal(expected, info);
@@ -3999,6 +4025,32 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             EnumDef *edef = env_get_enum(env, type_name);
                             
                             if (sdef || edef) {
+                                /* I bind only this selected builtin. Lexical
+                                 * callable resolution has already returned.
+                                 * My enum list and its helpers share the owned
+                                 * declaration identity across module scopes. */
+                                if (edef && strcmp(type_name, edef->name)) {
+                                    size_t owner_length = strlen(edef->name);
+                                    size_t suffix_length = strlen(func_suffix);
+                                    if (owner_length > SIZE_MAX - suffix_length - 6) {
+                                        fputs("I cannot represent this enum-list builtin name.\n", stderr);
+                                        exit(1);
+                                    }
+                                    char *bound = malloc(owner_length + suffix_length + 6);
+                                    char *element = strdup(edef->name);
+                                    if (!bound || !element) {
+                                        free(bound); free(element);
+                                        fputs("I cannot retain this enum-list builtin identity.\n", stderr);
+                                        exit(1);
+                                    }
+                                    snprintf(bound, owner_length + suffix_length + 6,
+                                             "list_%s%s", edef->name, func_suffix);
+                                    free(expr->as.call.name);
+                                    expr->as.call.name = bound;
+                                    func_suffix = strrchr(bound, '_');
+                                    free(type_name);
+                                    type_name = element;
+                                }
                                 /* Type check based on the operation */
                                 const char *operation = func_suffix + 1;  /* Skip the '_' */
                                 
@@ -4011,6 +4063,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
                                     /* Register this instantiation for code generation */
                                     env_register_list_instantiation(env, type_name);
+                                    if (edef && (!expr->as.call.return_struct_type_name ||
+                                        strcmp(expr->as.call.return_struct_type_name, type_name))) {
+                                        free(expr->as.call.return_struct_type_name);
+                                        expr->as.call.return_struct_type_name = strdup(type_name);
+                                    }
                                     free(type_name);
                                     return TYPE_LIST_GENERIC;  /* Returns List<Type> */
                                 } else if (strcmp(operation, "get") == 0) {
@@ -4243,6 +4300,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
                                     "I require the declared nominal record argument.",
                                     "Pass a value from the same record declaration and generic instance.");
+                                return TYPE_UNKNOWN;
+                            }
+                        }
+                        if (func->params[i].type == TYPE_LIST_GENERIC && arg_type == TYPE_LIST_GENERIC) {
+                            const char *wanted = list_annotation_name(env, func->params[i].type_info,
+                                                                     func->params[i].struct_type_name);
+                            const char *given = get_nominal_list_element_name(arg, env);
+                            if (wanted && given && strcmp(wanted, given)) {
+                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                    "I require the declared nominal list argument.",
+                                    "Pass a list with the same declared element identity.");
                                 return TYPE_UNKNOWN;
                             }
                         }
@@ -6067,7 +6135,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     const char *name = get_struct_type_name(stmt->as.let.value, tc->env);
                     if (name) stmt->as.let.type_name = strdup(name);
                 }
-                if (inferred == TYPE_LIST_GENERIC) retain_record_list_binding_type(stmt, tc->env);
+                if (inferred == TYPE_LIST_GENERIC) retain_nominal_list_binding_type(stmt, tc->env);
                 if (!stmt->as.let.type_info) {
                     stmt->as.let.type_info = copy_payload_type_info(
                         try_get_expr_type_info(stmt->as.let.value, tc->env));
@@ -6293,7 +6361,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (declared_type == TYPE_LIST_GENERIC) retain_record_list_binding_type(stmt, tc->env);
+            if (declared_type == TYPE_LIST_GENERIC) retain_nominal_list_binding_type(stmt, tc->env);
 
             /* Extract element type if this is an array */
             Type element_type = stmt->as.let.element_type;  /* Get from type annotation if available */
@@ -6398,8 +6466,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             
             /* If this is an array of structs, store the struct type name for the elements */
             sym = env_get_var(tc->env, stmt->as.let.name);
-            if (sym && (declared_type == TYPE_ARRAY || declared_type == TYPE_LIST_GENERIC) &&
-                element_type == TYPE_STRUCT && stmt->as.let.type_name) {
+            if (sym && stmt->as.let.type_name &&
+                (((declared_type == TYPE_ARRAY || declared_type == TYPE_LIST_GENERIC) &&
+                  element_type == TYPE_STRUCT) ||
+                 (declared_type == TYPE_LIST_GENERIC && env_get_enum(tc->env, stmt->as.let.type_name)))) {
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = strdup(stmt->as.let.type_name);
             }
@@ -9118,7 +9188,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            edef.variant_values = malloc(sizeof *edef.variant_values * edef.variant_count);
             if (!edef.variant_values) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum variant values\n");
                 free(edef.name);
@@ -9963,7 +10033,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 tc.has_error = true;
                 continue;
             }
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            edef.variant_values = malloc(sizeof *edef.variant_values * edef.variant_count);
             if (!edef.variant_values) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum variant values\n");
                 free(edef.name);

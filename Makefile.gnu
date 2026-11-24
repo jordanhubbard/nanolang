@@ -8176,3 +8176,16 @@ test-eval-enum-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@$(OBJ_DIR)/test_eval_enum_list_values
 
 test-units: test-carrier-scalar-list-values test-eval-enum-list-values
+
+.PHONY: test-cseed-enum-lists
+test-cseed-enum-lists: $(COMPILER_C)
+	NANO_ENUM_LIST_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest -v tests.test_cseed_enum_lists
+
+test-units: test-cseed-enum-lists
+
+.PHONY: test-enum-int64-metadata
+test-enum-int64-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_enum_int64_metadata tests/test_enum_int64_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_enum_int64_metadata
+
+test-units: test-enum-int64-metadata

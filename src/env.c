@@ -2025,7 +2025,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
 }
 
 /* Get enum variant value */
-int env_get_enum_variant(Environment *env, const char *variant_name) {
+long long env_get_enum_variant(Environment *env, const char *variant_name) {
     if (!env || !variant_name) return -1;
     
     for (int i = 0; i < env->enum_count; i++) {

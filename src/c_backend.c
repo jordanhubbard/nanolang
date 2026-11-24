@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <unistd.h>
 
@@ -523,6 +524,35 @@ static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
     else if (name) fputs(name, c->out);
 }
 
+/* I resolve enum namespaces only when no lexical value owns the spelling. */
+static ASTNode *cb_enum_member(CBCtx *c, const ASTNode *node) {
+    if (!node || node->type != AST_FIELD_ACCESS || !c->root) return NULL;
+    ASTNode *object = node->as.field_access.object;
+    if (!object || object->type != AST_IDENTIFIER || ctx_has_binding(c, object->as.identifier)) return NULL;
+    ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+    int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+    ASTNode *owner = NULL;
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (!item || item->type != AST_ENUM_DEF) continue;
+        const char *name = object->as.identifier;
+        if (strcmp(name, item->as.enum_def.name) &&
+            (!item->as.enum_def.original_name || strcmp(name, item->as.enum_def.original_name))) continue;
+        if (owner || item->as.enum_def.is_extern) {
+            ctx_error(c, "I require one local enum declaration for this C member."); return NULL;
+        }
+        owner = item;
+    }
+    if (!owner) return NULL;
+    int matches = 0;
+    for (int i = 0; i < owner->as.enum_def.variant_count; ++i)
+        if (!strcmp(owner->as.enum_def.variant_names[i], node->as.field_access.field_name)) matches++;
+    if (matches != 1) {
+        ctx_error(c, "I require one declared enum variant for this C member."); return NULL;
+    }
+    return owner;
+}
+
 /* I resolve absent annotations only from exact scoped declaration identities. */
 static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
                                 const char **variant) {
@@ -546,6 +576,8 @@ static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
             return function->as.function.return_type;
         }
     } else if (node->type == AST_FIELD_ACCESS) {
+        ASTNode *enumeration = cb_enum_member(c, node);
+        if (enumeration) { *nominal = enumeration->as.enum_def.name; return TYPE_ENUM; }
         TypeInfo *checked = node->as.field_access.resolved_type_info;
         if (checked) { *nominal = checked->generic_name; return checked->base_type; }
         const char *owner, *selected;
@@ -879,7 +911,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
         emit_private_source(c, NL_BINARY64_BITS_SOURCE);
         emit_private_source(c, NL_BINARY64_FORMAT_SOURCE);
         emit_private_source(c,
-            "static int nano_rt_string_equal(const char *left, const char *right) {\n"
+            "static inline int nano_rt_string_equal(const char *left, const char *right) {\n"
             "  return left == right || (left && right && strcmp(left, right) == 0);\n"
             "}\n");
         emit_private_source(c,
@@ -918,7 +950,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  }\n"
             "  return left + right;\n"
             "}\n"
-            "static const char *nano_rt_string_concat(const char *left, const char *right) {\n"
+            "static inline const char *nano_rt_string_concat(const char *left, const char *right) {\n"
             "  if (!left || !right) {\n"
             "    fputs(\"I require nonnull C concatenation operands.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
@@ -926,21 +958,21 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  char *result = nano_rt_text_allocate(nano_rt_string_length_sum(a, b));\n"
             "  memcpy(result, left, a); memcpy(result + a, right, b); return result;\n"
             "}\n"
-            "static const char *nano_rt_float_text_new(double value) {\n"
+            "static inline const char *nano_rt_float_text_new(double value) {\n"
             "  char text[64]; int length = nano_rt_f64_format(text, sizeof text, value);\n"
             "  if (length < 0 || (size_t)length >= sizeof text) {\n"
             "    fputs(\"I could not format my C float result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
             "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
             "}\n"
-            "static const char *nano_rt_int_text_new(int64_t value) {\n"
+            "static inline const char *nano_rt_int_text_new(int64_t value) {\n"
             "  char text[32]; int length = snprintf(text, sizeof text, \"%lld\", (long long)value);\n"
             "  if (length < 0 || (size_t)length >= sizeof text) {\n"
             "    fputs(\"I could not format my C integer result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
             "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
             "}\n"
-            "static int nano_rt_public_float_print(double value, int newline) {\n"
+            "static inline int nano_rt_public_float_print(double value, int newline) {\n"
             "  const char *special = nano_rt_f64_nonfinite(value);\n"
             "  return special ? printf(newline ? \"%s\\n\" : \"%s\", special)\n"
             "                 : printf(newline ? \"%g\\n\" : \"%g\", value);\n"
@@ -949,7 +981,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
 
     /* I keep boolean literals stable under my collision-free private namespace. */
     emit_private_source(c,
-        "static const char* nano_rt_bool_text(int b) {\n"
+        "static inline const char* nano_rt_bool_text(int b) {\n"
         "    return b ? \"true\" : \"false\";\n"
         "}\n\n");
 
@@ -1366,6 +1398,13 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_FIELD_ACCESS: {
+        ASTNode *enumeration = cb_enum_member(c, node);
+        if (c->error) return -1;
+        if (enumeration) {
+            fprintf(c->out, "((int64_t)NanoEnum_%s_%s)", enumeration->as.enum_def.name,
+                    node->as.field_access.field_name);
+            return 0;
+        }
         if (emit_expr(c, node->as.field_access.object)) return -1;
         fprintf(c->out, ".%s", node->as.field_access.field_name);
         return 0;
@@ -1899,13 +1938,33 @@ static void emit_struct_def(CBCtx *c, ASTNode *node) {
 
 static void emit_enum_def(CBCtx *c, ASTNode *node) {
     if (node->as.enum_def.is_extern) return;
+    /* I retain my signed64 carrier without requiring C23 wide enumerators. */
+    bool wide = false;
+    for (int i = 0; node->as.enum_def.variant_values && i < node->as.enum_def.variant_count; ++i)
+        if (node->as.enum_def.variant_values[i] < INT_MIN ||
+            node->as.enum_def.variant_values[i] > INT_MAX) wide = true;
+    if (wide) {
+        fprintf(c->out, "typedef int64_t NanoEnum_%s;\n", node->as.enum_def.name);
+        for (int i = 0; i < node->as.enum_def.variant_count; ++i) {
+            fprintf(c->out, "#define NanoEnum_%s_%s (",
+                    node->as.enum_def.name, node->as.enum_def.variant_names[i]);
+            if (node->as.enum_def.variant_values[i] == LLONG_MIN)
+                fputs("-9223372036854775807LL - 1LL", c->out);
+            else fprintf(c->out, "%lldLL", node->as.enum_def.variant_values[i]);
+            fputs(")\n", c->out);
+        }
+        fputc('\n', c->out);
+        return;
+    }
     fprintf(c->out, "typedef enum {\n");
     for (int i = 0; i < node->as.enum_def.variant_count; i++) {
         fputs("  ", c->out);
         fprintf(c->out, "NanoEnum_%s_%s",
                 node->as.enum_def.name, node->as.enum_def.variant_names[i]);
         if (node->as.enum_def.variant_values) {
-            fprintf(c->out, " = %d", node->as.enum_def.variant_values[i]);
+            if (node->as.enum_def.variant_values[i] == LLONG_MIN)
+                fputs(" = (-9223372036854775807LL - 1LL)", c->out);
+            else fprintf(c->out, " = %lldLL", node->as.enum_def.variant_values[i]);
         }
         if (i < node->as.enum_def.variant_count - 1) fputc(',', c->out);
         fputc('\n', c->out);

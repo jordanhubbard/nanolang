@@ -442,7 +442,7 @@ struct ASTNode {
             char *name;               // Enum name
             char *original_name;      /* I retain the source spelling after module binding. */
             char **variant_names;     // Array of variant names
-            int *variant_values;      // Array of variant values (or NULL for auto)
+            long long *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
             bool is_pub;              // Visibility: public (pub) vs private
             bool is_extern;           // External C type: do not emit definition
@@ -717,7 +717,7 @@ typedef struct {
     char *name;
     char *original_name;
     char **variant_names;
-    int *variant_values;
+    long long *variant_values;
     int variant_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_extern;   /* External C type: do not emit definition */
@@ -1100,7 +1100,7 @@ void env_register_hashmap_instantiation(Environment *env, const char *key_type, 
 char *typeinfo_to_generic_arg_name(TypeInfo *info);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
-int env_get_enum_variant(Environment *env, const char *variant_name);
+long long env_get_enum_variant(Environment *env, const char *variant_name);
 /* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);

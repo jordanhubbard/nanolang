@@ -7,6 +7,7 @@
 #include "builtins_registry.h"
 #include <stdarg.h>
 #include <libgen.h>
+#include <limits.h>
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -1629,7 +1630,7 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    int capacity;\n");
             sb_appendf(sb, "};\n\n");
 
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
+            sb_appendf(sb, "static inline List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
             sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
             sb_appendf(sb, "    if (!list) return NULL;\n");
             sb_appendf(sb, "    list->capacity = 4;\n");
@@ -1639,7 +1640,7 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    return list;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
+            sb_appendf(sb, "static inline void nl_list_%s_push(List_%s *list, %s value) {\n",
                       type_name, type_name, prefixed_elem_type);
             sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
@@ -1653,20 +1654,33 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    list->data[list->count++] = value;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
+            sb_appendf(sb, "static inline %s nl_list_%s_get(List_%s *list, int index) {\n",
                       prefixed_elem_type, type_name, type_name);
             sb_appendf(sb, "    return list->data[index];\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
+            sb_appendf(sb, "static inline void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
                       type_name, type_name, prefixed_elem_type);
             sb_appendf(sb, "    if (!list) return;\n");
             sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
             sb_appendf(sb, "    list->data[index] = value;\n");
             sb_appendf(sb, "}\n\n");
 
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "static inline int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
             sb_appendf(sb, "    return list ? list->count : 0;\n");
+            sb_appendf(sb, "}\n\n");
+
+            /* I copy the selected value before retiring its list storage.
+             * Record/STRING payload ownership remains with existing values. */
+            sb_appendf(sb, "static inline %s nl_list_%s_pop(List_%s *list) {\n",
+                      prefixed_elem_type, type_name, type_name);
+            sb_append(sb, "    if (!list || list->count == 0) { fputs(\"I cannot pop an empty list.\\n\", stderr); exit(1); }\n");
+            sb_appendf(sb, "    return list->data[--list->count];\n");
+            sb_appendf(sb, "}\n\n");
+            sb_appendf(sb, "static inline void nl_list_%s_free(List_%s *list) {\n", type_name, type_name);
+            sb_appendf(sb, "    if (!list) return;\n");
+            sb_appendf(sb, "    free(list->data);\n");
+            sb_appendf(sb, "    free(list);\n");
             sb_appendf(sb, "}\n\n");
 
             /* Emit unqualified aliases (without nl_ prefix) so user code that
@@ -1687,6 +1701,14 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "#ifndef list_%s_length\n", type_name);
             sb_appendf(sb, "#define list_%s_length nl_list_%s_length\n", type_name, type_name);
             sb_appendf(sb, "#endif\n\n");
+
+            const char *retirement_ops[] = {"pop", "free"};
+            for (int op = 0; op < 2; ++op) {
+                sb_appendf(sb, "#ifndef list_%s_%s\n", type_name, retirement_ops[op]);
+                sb_appendf(sb, "#define list_%s_%s nl_list_%s_%s\n",
+                           type_name, retirement_ops[op], type_name, retirement_ops[op]);
+                sb_append(sb, "#endif\n");
+            }
 
             free(prefixed_elem_type);
         }
@@ -2030,9 +2052,10 @@ static void generate_enum_definitions(Environment *env, StringBuilder *sb) {
         for (int j = 0; j < edef->variant_count; j++) {
             /* Prefix variants: nl_EnumName_VARIANT */
             const char *prefixed_variant = get_prefixed_variant_name(edef->name, edef->variant_names[j]);
-            sb_appendf(sb, "    %s = %d",
-                      prefixed_variant,
-                      edef->variant_values[j]);
+            sb_appendf(sb, "    %s = ", prefixed_variant);
+            if (edef->variant_values[j] == LLONG_MIN)
+                sb_append(sb, "(-9223372036854775807LL - 1LL)");
+            else sb_appendf(sb, "%lldLL", edef->variant_values[j]);
             if (j < edef->variant_count - 1) sb_append(sb, ",\n");
             else sb_append(sb, "\n");
         }

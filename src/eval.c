@@ -6835,7 +6835,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
             }
             
             /* Duplicate variant values */
-            edef.variant_values = malloc(sizeof(int) * edef.variant_count);
+            edef.variant_values = malloc(sizeof *edef.variant_values * edef.variant_count);
             if (!edef.variant_values) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum variant values\n");
                 free(edef.name);

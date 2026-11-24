@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <limits.h>
+#include <errno.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
@@ -3875,14 +3876,15 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
     int capacity = 8;
     int count = 0;
     char **variant_names = malloc(sizeof(char*) * capacity);
-    int *variant_values = malloc(sizeof(int) * capacity);
-    int next_auto_value = 0;
+    long long *variant_values = malloc(sizeof *variant_values * capacity);
+    long long next_auto_value = 0;
+    bool auto_overflow = false;
     
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
             capacity *= 2;
             variant_names = realloc(variant_names, sizeof(char*) * capacity);
-            variant_values = realloc(variant_values, sizeof(int) * capacity);
+            variant_values = realloc(variant_values, sizeof *variant_values * capacity);
         }
         
         /* Parse variant name */
@@ -3910,23 +3912,35 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
         }
         advance(p);
         
-        /* Check for explicit value */
+        /* I retain signed64 values before any enum/list lowering. */
+        long long value = 0;
         if (match(p, TOKEN_ASSIGN)) {
             advance(p);
-            if (!match(p, TOKEN_NUMBER)) {
-                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected number after '='\n",
-                        current_token(p)->line, current_token(p)->column);
-                variant_values[count] = next_auto_value++;
+            Token *number = current_token(p);
+            if (!match(p, TOKEN_NUMBER) || !number || !number->value) {
+                parser_error(p, number ? number->line : line, number ? number->column : column,
+                             "I require an integer enum value.\n");
             } else {
-                Token *num_tok = current_token(p);
-                variant_values[count] = (num_tok && num_tok->value) ? atoi(num_tok->value) : 0;
-                next_auto_value = variant_values[count] + 1;
+                char *end = NULL;
+                errno = 0;
+                value = strtoll(number->value, &end, 10);
+                if (errno == ERANGE || end == number->value || !end || *end) {
+                    parser_error(p, number->line, number->column,
+                                 "I require an enum value in my signed64 range.\n");
+                    value = 0;
+                }
                 advance(p);
             }
+        } else if (auto_overflow) {
+            parser_error(p, tok->line, tok->column,
+                         "I cannot infer an enum successor beyond my signed64 range.\n");
         } else {
-            variant_values[count] = next_auto_value++;
+            value = next_auto_value;
         }
-        
+        variant_values[count] = value;
+        auto_overflow = value == LLONG_MAX;
+        next_auto_value = auto_overflow ? LLONG_MAX : value + 1;
+
         count++;
         
         /* Optional comma */

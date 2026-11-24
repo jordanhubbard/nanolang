@@ -103,7 +103,7 @@ typedef struct {
 typedef struct {
     char *name;
     char **variant_names;
-    int *variant_values;
+    long long *variant_values;
     int variant_count;
     uint32_t def_idx;
 } CgEnumDef;
@@ -3348,7 +3348,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                              ed->name, field);
                     break;
                 }
-                int val = (ed->variant_values) ? ed->variant_values[vi] : vi;
+                long long val = (ed->variant_values) ? ed->variant_values[vi] : vi;
                 /* My source enums interoperate with integers, including
                  * negative and non-contiguous explicitly assigned values. */
                 emit_op(cg, OP_PUSH_I64, (int64_t)val);

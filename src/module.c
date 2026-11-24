@@ -2442,7 +2442,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             }
             if (env->enums[i].variant_count > 0) {
                 meta->enums[i].variant_names = malloc(sizeof(char*) * env->enums[i].variant_count);
-                meta->enums[i].variant_values = malloc(sizeof(int) * env->enums[i].variant_count);
+                meta->enums[i].variant_values = malloc(sizeof *meta->enums[i].variant_values * env->enums[i].variant_count);
                 for (int j = 0; j < env->enums[i].variant_count; j++) {
                     if (env->enums[i].variant_names[j]) {
                         meta->enums[i].variant_names[j] = strdup(env->enums[i].variant_names[j]);
