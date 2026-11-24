@@ -8188,6 +8188,12 @@ test-eval-enum-list-values: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-carrier-scalar-list-values test-eval-enum-list-values
 
+.PHONY: test-cseed-record-lists
+test-cseed-record-lists: $(COMPILER_C)
+	NANO_RECORD_LIST_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest -v tests.test_cseed_record_lists
+
+test-units: test-cseed-record-lists
+
 .PHONY: test-cseed-enum-lists
 test-cseed-enum-lists: $(COMPILER_C)
 	NANO_ENUM_LIST_COMPILER="$(abspath $(COMPILER_C))" python3 -m unittest -v tests.test_cseed_enum_lists

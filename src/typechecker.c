@@ -4027,24 +4027,25 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             if (sdef || edef) {
                                 /* I bind only this selected builtin. Lexical
                                  * callable resolution has already returned.
-                                 * My enum list and its helpers share the owned
-                                 * declaration identity across module scopes. */
-                                if (edef && strcmp(type_name, edef->name)) {
-                                    size_t owner_length = strlen(edef->name);
+                                 * My list and its helpers share the selected
+                                 * record or enum declaration's owned identity. */
+                                const char *owner_name = edef ? edef->name : sdef->name;
+                                if (strcmp(type_name, owner_name)) {
+                                    size_t owner_length = strlen(owner_name);
                                     size_t suffix_length = strlen(func_suffix);
                                     if (owner_length > SIZE_MAX - suffix_length - 6) {
-                                        fputs("I cannot represent this enum-list builtin name.\n", stderr);
+                                        fputs("I cannot represent this owned-list builtin name.\n", stderr);
                                         exit(1);
                                     }
                                     char *bound = malloc(owner_length + suffix_length + 6);
-                                    char *element = strdup(edef->name);
+                                    char *element = strdup(owner_name);
                                     if (!bound || !element) {
                                         free(bound); free(element);
-                                        fputs("I cannot retain this enum-list builtin identity.\n", stderr);
+                                        fputs("I cannot retain this owned-list builtin identity.\n", stderr);
                                         exit(1);
                                     }
                                     snprintf(bound, owner_length + suffix_length + 6,
-                                             "list_%s%s", edef->name, func_suffix);
+                                             "list_%s%s", owner_name, func_suffix);
                                     free(expr->as.call.name);
                                     expr->as.call.name = bound;
                                     func_suffix = strrchr(bound, '_');
@@ -4063,8 +4064,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
                                     /* Register this instantiation for code generation */
                                     env_register_list_instantiation(env, type_name);
-                                    if (edef && (!expr->as.call.return_struct_type_name ||
-                                        strcmp(expr->as.call.return_struct_type_name, type_name))) {
+                                    if (!expr->as.call.return_struct_type_name ||
+                                        strcmp(expr->as.call.return_struct_type_name, type_name)) {
                                         free(expr->as.call.return_struct_type_name);
                                         expr->as.call.return_struct_type_name = strdup(type_name);
                                     }
@@ -4072,7 +4073,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                     return TYPE_LIST_GENERIC;  /* Returns List<Type> */
                                 } else if (strcmp(operation, "get") == 0) {
                                     /* Set struct type name on the call node for field access */
-                                    if (!edef && sdef) {
+                                    if (!edef && sdef && (!expr->as.call.return_struct_type_name ||
+                                        strcmp(expr->as.call.return_struct_type_name, type_name))) {
+                                        free(expr->as.call.return_struct_type_name);
                                         expr->as.call.return_struct_type_name = strdup(type_name);
                                     }
                                     free(type_name);
