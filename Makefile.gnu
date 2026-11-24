@@ -902,6 +902,12 @@ test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 
 test-units: test-lexer-snapshot
 
+.PHONY: test-typecheck-scope-copy
+test-typecheck-scope-copy: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_typecheck_scope_copy
+
+test-units: test-typecheck-scope-copy
+
 .PHONY: test-nanolang-translator-container
 test-nanolang-translator-container: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_container_reference
 	python3 -m unittest -v tests.test_nanolang_translator_container
