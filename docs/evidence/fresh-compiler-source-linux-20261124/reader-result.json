@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "source": "8949313b0a56c0c3bd52509fb363edb4eefba3e4",
+  "records": 18963,
+  "git_inputs": 3520,
+  "native_images": 220,
+  "original_shadows_per_mode": 1306,
+  "ordinary_pass": true,
+  "private_pass": true,
+  "retained_setup_assertion_failures": 2,
+  "tool_native_cases": 4,
+  "tool_commands": 20,
+  "focused_original_shadows": 9,
+  "current_publication_methods_per_mode": 18,
+  "current_public_c_methods": 66,
+  "current_public_c_commands": 685,
+  "enum_namespace_commands": 38,
+  "unchanged_profile_components": 25,
+  "ordinary_ownership_enabled": false,
+  "raw_bootstrap": false,
+  "paired_platform": false,
+  "whole_release": false
+}
