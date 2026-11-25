@@ -8304,3 +8304,13 @@ test-nanolang-translator-affine-globals: $(COMPILER_C) nano_virt nano_vm nvm2c n
 	NANOLANG_AFFINE_GLOBALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_globals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_globals.AffineGlobals
 
 test-units: test-nanolang-translator-affine-globals
+
+# I compare all nine affine array operations with the unchanged C step.
+.PHONY: test-nanolang-translator-affine-arrays
+$(OBJ_DIR)/nvm2c_affine_arrays_reference: tests/nvm2c_affine_arrays_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_array_flow.inc $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_arrays_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-arrays: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_arrays_reference
+	NANOLANG_AFFINE_ARRAYS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_arrays_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_arrays.AffineArrays
+
+test-units: test-nanolang-translator-affine-arrays

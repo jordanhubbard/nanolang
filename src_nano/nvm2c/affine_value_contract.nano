@@ -1,0 +1,22 @@
+module nvm2c_affine_value_contract
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+
+# I match the existing effect/array positional value rule, not global storage.
+pub fn matches(locals: state.State, item: frame.Value, declared: facts.Slot) -> bool {
+    if (or item.observation (or (!= item.tag declared.tag)
+        (!= item.owned (state.type_owned locals declared)))) { return false }
+    if (or (== declared.tag 8) (or (== declared.tag 10) (== declared.tag 7))) {
+        return (state.types_equal locals (facts.slot item.tag item.layout) declared)
+    }
+    return true
+}
+shadow matches {
+    let locals: state.State = (state.empty)
+    assert (matches locals (frame.value 1 false 7 false 3 0) (facts.slot 1 4294967295))
+    assert (not (matches locals (frame.value 1 true 7 false 3 0) (facts.slot 1 4294967295)))
+    assert (not (matches locals (frame.value 1 false 7 true 3 0) (facts.slot 1 4294967295)))
+    assert (not (matches locals (frame.value 2 false 7 false 3 0) (facts.slot 1 4294967295)))
+    assert (not (matches locals (frame.value 7 false 7 false 0 0) (facts.slot 7 0)))
+}

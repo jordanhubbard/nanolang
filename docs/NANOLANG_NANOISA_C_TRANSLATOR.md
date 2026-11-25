@@ -1233,3 +1233,44 @@ This is an implementation contract, not executable qualification. Global
 load/store transfer does not complete interprocedural summaries, effect
 activation/return semantics, CFG convergence, private admission, C body/runtime
 emission, product selection or the full69-entry release.
+
+## My complete affine array-transfer contract
+
+I port all nine cases in `affine_array_flow.inc` as one internal pure transfer:
+ARR_NEW, ARR_LITERAL, ARR_PUSH, ARR_POP, ARR_GET, ARR_SET, ARR_LEN, ARR_SLICE
+and ARR_REMOVE. I consume decoded operands, checked local type facts, raw
+ownership bytes and their existing pure query context, plus the exact current
+function and instruction byte offset. These inputs do not constitute profile
+or executable authority. My current C array step does not consult the
+value-graph switch; I preserve that boundary rather than adding one.
+
+I first require retained array types. Empty constructors query their exact
+function/offset declaration through `ownership_queries.array_constructor`;
+absent explicit selection uses the existing unambiguous tag query. Nonempty
+literals derive the element descriptor from the first source-order operand,
+resolve its retained array type and check every element's complete ownership
+and structural nominal/array identity. I share that matcher with future
+call/effect transfers instead of changing global stores' stricter layout test.
+
+All other operations require the complete operand count before reading the
+array type. Length accepts an unowned value or an accessible owner observation,
+and refuses a staged owned array. Remaining operations refuse observation
+escapes; only PUSH accepts an owned array. Extraction/disposal contracts remain
+required for other operations on owned arrays. Index and slice-end operands
+are exact nonowned, unobserved INT values. PUSH/SET check their element value
+against the declared descriptor. GET/POP return the element type; other
+operations return the array type. I derive result ownership from checked type
+facts and retain the C step's error order, original256-slot limit and exact
+messages. No new resource-array operation is admitted.
+
+Success and refusal return independent complete frame snapshots, including
+nested exclusion/local/global storage. My separate diagnostic fixture calls
+the unchanged C step, keeps every old frame carrier/protocol and compares
+complete reports against named independent expectations. I cover explicit,
+absent, ambiguous and invalid constructor metadata; first/every literal
+element; structurally equal and mismatched array recipes; owner/observation
+flags; live/moved/held roots; index tags; stack bounds; malformed carriers; and
+original source-order/atomicity controls. Old8/600 and new32-or8KiB/60 batching,
+600-second builds and default10 shadows remain. Source routes, generated and
+targeted actual-C sanitizers, paired hosts and complete composition remain
+required before acceptance.
