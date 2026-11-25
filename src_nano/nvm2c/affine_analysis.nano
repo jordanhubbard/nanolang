@@ -1,0 +1,434 @@
+module nvm2c_affine_analysis
+module "src_nano/nvm2c/affine_analysis_cache.nano" as cache
+module "src_nano/nvm2c/affine_call_context.nano" as calls_context
+module "src_nano/nvm2c/affine_preflight.nano" as preflight
+module "src_nano/nvm2c/affine_worklist.nano" as work
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_scalar.nano" as scalar
+module "src_nano/nvm2c/affine_locals.nano" as locals
+module "src_nano/nvm2c/affine_globals.nano" as globals
+module "src_nano/nvm2c/affine_global_flow.nano" as relations
+module "src_nano/nvm2c/affine_arrays.nano" as arrays
+module "src_nano/nvm2c/affine_owners.nano" as owners
+module "src_nano/nvm2c/affine_aggregates.nano" as aggregates
+module "src_nano/nvm2c/affine_effects.nano" as effects
+module "src_nano/nvm2c/affine_value_calls.nano" as value_calls
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/passive_calls.nano" as declarations
+
+# I mirror the private body analysis. My public effect-global proof and product
+# admission remain separate; no caller may substitute seeded summaries for me.
+pub struct Fact { instruction_offset: int, was_reachable: bool, entry_stack_depth: int, entry_top_tag: int, unpack_fields: int }
+pub struct Context { analysis_cache: cache.Cache, instruction_facts: array<Fact> }
+pub struct Analysis { updated_context: Context, analysis_result: cache.Result }
+struct Transfer { updated_context: Context, next_frame: frame.Frame, step_error: string }
+struct Store { flow_frames: array<frame.Frame>, flow_present: array<bool>, flow_visited: array<bool>, flow_queue: work.Queue, flow_message: string }
+
+let sample_ownership: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+
+pub fn create(ownership: array<u8>, model: owner.Module) -> Context {
+    return Context { analysis_cache: (cache.create (calls_context.create ownership model 0 true)), instruction_facts: [] }
+}
+shadow create {
+    let input: Context = (create sample_ownership (sample [61]))
+    assert input.analysis_cache.context.globals_valid assert input.analysis_cache.context.value_graph
+    assert (== (array_length input.instruction_facts) 0) assert (== (at input.analysis_cache.status 0) 0)
+}
+
+fn selected(request: preflight.Request, function: int, caller: bool, reference: int) -> preflight.Request {
+    return preflight.Request { present: request.present, functions_present: request.functions_present, function: function,
+        caller_present: caller, reference: reference, module_identity: request.module_identity, analysis: request.analysis,
+        facts_present: request.facts_present, fact_function: request.fact_function, fact_capacity: request.fact_capacity }
+}
+shadow selected {
+    let request: preflight.Request = (selected (sample_request) 1 true 7)
+    assert (== request.function 1) assert request.caller_present assert (== request.reference 7) assert (== request.module_identity 1)
+}
+
+fn outcome(input: Context, request: preflight.Request, ok: bool, offset: int, reachable: int, visits: int, message: string) -> Analysis {
+    let result: cache.Result = cache.Result { ok: ok, byte_offset: offset, reachable: reachable, visits: visits, message: message }
+    return Analysis { updated_context: Context { analysis_cache: (cache.finish input.analysis_cache request.function request.caller_present result),
+        instruction_facts: (array_slice input.instruction_facts 0 (array_length input.instruction_facts)) }, analysis_result: result }
+}
+shadow outcome {
+    let input: Context = (create sample_ownership (sample [61]))
+    let result: Analysis = (outcome input (sample_request) false 7 2 3 "refused")
+    let saved: cache.Result = (at result.updated_context.analysis_cache.results 0)
+    assert (== result.analysis_result.byte_offset 7) assert (== saved.visits 3) assert (== saved.message "refused")
+    assert (== (at result.updated_context.analysis_cache.status 0) 2) assert (== (at input.analysis_cache.status 0) 0)
+}
+
+fn row(rows: array<array<int>>, function: int) -> array<int> {
+    if (or (< function 0) (>= function (array_length rows))) { return [] }
+    return (at rows function)
+}
+shadow row { assert (== (array_length (row [[7]] 1)) 0) assert (== (at (row [[7]] 0) 0) 7) }
+
+fn put(rows: array<array<int>>, function: int, value: array<int>) -> void {
+    if (and (>= function 0) (< function (array_length rows))) { (array_set rows function value) }
+}
+shadow put { let rows: array<array<int>> = [[0]] (put rows 0 [7]) (put rows 1 [9]) assert (== (at (at rows 0) 0) 7) }
+
+fn transferred(input: Context, step: scalar.Transition) -> Transfer {
+    let mut message: string = step.message
+    if (not step.handled) { set message "I require a connected affine instruction contract" }
+    return Transfer { updated_context: input, next_frame: step.frame, step_error: message }
+}
+shadow transferred {
+    let input: Context = (create sample_ownership (sample [61]))
+    let refused: Transfer = (transferred input (scalar.transfer (frame.create (state.empty) 0) 255 0 true))
+    assert (== refused.step_error "I require a connected affine instruction contract")
+}
+
+fn store(initial: frame.Frame, count: int) -> Store {
+    let mut frames: array<frame.Frame> = [] let mut present: array<bool> = [] let mut visited: array<bool> = []
+    if (and (>= count 1) (<= count 4096)) {
+        for index in (range 0 count) {
+            set frames (array_push frames (frame.create (state.empty) 0))
+            set present (array_push present false) set visited (array_push visited false)
+        }
+        (array_set frames 0 (frame.clone initial)) (array_set present 0 true)
+        let queued: work.Change = (work.enqueue (work.create count) 0)
+        return Store { flow_frames: frames, flow_present: present, flow_visited: visited, flow_queue: queued.queue, flow_message: "" }
+    }
+    return Store { flow_frames: frames, flow_present: present, flow_visited: visited, flow_queue: (work.create 0), flow_message: "I exceeded my bounded affine instruction count" }
+}
+shadow store {
+    let input: Store = (store (frame.create (state.empty) 0) 2)
+    assert (at input.flow_present 0) assert (not (at input.flow_present 1)) assert (not (at input.flow_visited 0))
+    assert (== input.flow_queue.pending 1) assert (not (store (frame.create (state.empty) 0) 0).flow_queue.valid)
+}
+
+# I own this store inside one walk. Leaf joins copy their incoming snapshots.
+fn propagate(input: Store, target: int, incoming: frame.Frame) -> Store {
+    if (or (< target 0) (>= target (array_length input.flow_frames))) {
+        return Store { flow_frames: input.flow_frames, flow_present: input.flow_present, flow_visited: input.flow_visited, flow_queue: input.flow_queue,
+            flow_message: "I require a bounded affine branch" }
+    }
+    let mut changed: bool = true
+    if (at input.flow_present target) {
+        let joined: frame.Join = (frame.meet (at input.flow_frames target) incoming)
+        if (not joined.valid) { return Store { flow_frames: input.flow_frames, flow_present: input.flow_present, flow_visited: input.flow_visited, flow_queue: input.flow_queue, flow_message: joined.message } }
+        (array_set input.flow_frames target joined.frame) set changed joined.changed
+    } else { (array_set input.flow_frames target (frame.clone incoming)) (array_set input.flow_present target true) }
+    let mut queue: work.Queue = input.flow_queue
+    if changed {
+        let queued: work.Change = (work.enqueue queue target)
+        if (not queued.valid) { return Store { flow_frames: input.flow_frames, flow_present: input.flow_present, flow_visited: input.flow_visited, flow_queue: queue,
+            flow_message: "I exceeded my bounded affine worklist" } }
+        set queue queued.queue
+    }
+    return Store { flow_frames: input.flow_frames, flow_present: input.flow_present, flow_visited: input.flow_visited, flow_queue: queue, flow_message: "" }
+}
+shadow propagate {
+    let input: Store = (store (frame.create (state.empty) 1) 2)
+    let first: Store = (propagate input 1 (frame.create (state.empty) 1))
+    assert (at first.flow_present 1) assert (== first.flow_queue.pending 2)
+    let outside: Store = (propagate first 2 (frame.create (state.empty) 1))
+    assert (== outside.flow_message "I require a bounded affine branch")
+}
+
+fn literal(input: frame.Frame, model: owner.Module, index: int) -> scalar.Transition {
+    if (or (< index 0) (>= index (array_length model.strings))) {
+        return scalar.Transition { handled: true, valid: false, frame: input, message: "I require an instantiated string literal without embedded NUL" }
+    }
+    let bytes: array<u8> = (at model.strings index)
+    for position in (range 0 (array_length bytes)) {
+        if (== (at bytes position) 0) { return scalar.Transition { handled: true, valid: false, frame: input,
+            message: "I require an instantiated string literal without embedded NUL" } }
+    }
+    let pushed: frame.Join = (frame.push input (frame.value 5 false 65535 false 4294967295 65535))
+    let mut message: string = ""
+    if (not pushed.valid) { set message "I cannot extend my analysis stack" }
+    return scalar.Transition { handled: true, valid: pushed.valid, frame: pushed.frame, message: message }
+}
+shadow literal {
+    let value: scalar.Transition = (literal (frame.create (state.empty) 0) (sample [61]) 0)
+    assert (not value.valid) assert (== value.message "I require an instantiated string literal without embedded NUL")
+}
+
+fn terminal(input: frame.Frame, opcode: int) -> string {
+    let count: int = (array_length input.stack)
+    if (== opcode 61) {
+        let mut tag: int = 0
+        if (and (== count 1) (not (at input.stack 0).observation)) { set tag (at input.stack 0).tag }
+        else if (!= count 0) { return "I refuse an observation escape or extra return operands" }
+        let mut exact: bool = false
+        if (== count 1) {
+            let value: frame.Value = (at input.stack 0)
+            set exact (or value.owned (or (== value.tag 10) (or (== value.tag 8) (== value.tag 7))))
+        }
+        let mut valid: bool = (state.can_exit_scalar input.locals tag)
+        if exact { set valid (state.can_exit_type input.locals (facts.slot tag (at input.stack 0).layout)) }
+        if (not valid) { return "I require an exact declared result and no live owned obligations" }
+        return ""
+    }
+    if (== opcode 168) {
+        if (or (== input.activation 0) (or (!= count 1) (at input.stack 0).observation)) {
+            return "I require the active operation result and resolved arm ownership at resumption"
+        }
+        let value: frame.Value = (at input.stack 0)
+        let mut layout: int = 4294967295
+        if (or (== value.tag 8) (or (== value.tag 10) (== value.tag 7))) { set layout value.layout }
+        if (or (not (state.can_resume input.locals (facts.slot value.tag layout)))
+            (!= value.owned (state.type_owned input.locals (facts.slot value.tag value.layout)))) {
+            return "I require the active operation result and resolved arm ownership at resumption"
+        }
+        return ""
+    }
+    if (or (!= count 0) (or (!= input.activation 0) (not (state.can_suspend input.locals)))) {
+        return "I require an empty stack and resolved owners at my terminal invariant"
+    }
+    return ""
+}
+shadow terminal {
+    assert (== (terminal (frame.create (state.empty) 0) 61) "I require an exact declared result and no live owned obligations")
+    assert (== (terminal (frame.create (state.empty) 0) 168) "I require the active operation result and resolved arm ownership at resumption")
+}
+
+fn query_context(model: owner.Module, ownership_present: bool) -> queries.Context {
+    return queries.Context { present: true, ownership_present: ownership_present, layouts_present: true, model: model }
+}
+shadow query_context { assert (query_context (sample []) true).ownership_present }
+
+fn step(ownership: array<u8>, model: owner.Module, input: Context, request: preflight.Request,
+    current: frame.Frame, item: instructions.Instruction, offset: int) -> Transfer {
+    let opcode: int = item.opcode
+    let a: int = (instructions.integer item 0) let b: int = (instructions.integer item 1)
+    let c: int = (instructions.integer item 2) let d: int = (instructions.integer item 3)
+    let context: queries.Context = (query_context model (> (array_length ownership) 0))
+    let graph: bool = input.analysis_cache.context.value_graph
+    if (== opcode 59) {
+        let plan: value_calls.Plan = (value_calls.prepare current opcode a ownership context graph)
+        if (not plan.valid) { return Transfer { updated_context: input, next_frame: current, step_error: plan.message } }
+        let called: Analysis = (analyze ownership model input (selected request a false 0) (state.empty))
+        let active: Context = called.updated_context
+        let summary: value_calls.Summary = value_calls.Summary { target: a, ok: called.analysis_result.ok,
+            keys: (row active.analysis_cache.keys a), global_allowed: (row active.analysis_cache.allowed a), global_returns: (row active.analysis_cache.returns a) }
+        let transferred: value_calls.Transition = (value_calls.apply_summary current (row active.analysis_cache.allowed request.function)
+            (row active.analysis_cache.keys request.function) plan summary context request.function active.analysis_cache.context.effect_globals)
+        if transferred.valid {
+            (put active.analysis_cache.allowed request.function transferred.allowed) (put active.analysis_cache.keys request.function transferred.keys)
+        } else {
+            # These are the two phases after escape-key recording begins in C.
+            if (or (== transferred.message "I cannot retain escaping operation identities") (== transferred.message "I cannot retain a checked value-call result")) {
+                let mut keys: array<int> = (row active.analysis_cache.keys request.function)
+                let mut complete: bool = true
+                for index in (range 0 (array_length summary.keys)) {
+                    if complete {
+                        let recorded: effects.Escape = (effects.record_escape current keys context request.function (at summary.keys index))
+                        if recorded.valid { set keys recorded.keys (put active.analysis_cache.keys request.function keys) }
+                        else { set complete false }
+                    }
+                }
+                if (and complete (not active.analysis_cache.context.effect_globals)) {
+                    let allowed: array<int> = (row active.analysis_cache.allowed request.function)
+                    for global in (range 0 (array_length current.globals)) {
+                        (array_set allowed global (relations.intersect (at allowed global) (relations.require (at current.globals global) (at summary.global_allowed global))))
+                    }
+                }
+            }
+        }
+        return Transfer { updated_context: active, next_frame: transferred.frame, step_error: transferred.message }
+    }
+    if (== opcode 15) {
+        if (or (!= request.function 0) (or (!= (array_length model.functions) 2) (!= a 1))) {
+            return Transfer { updated_context: input, next_frame: current, step_error: "I require entry-to-helper reference calls without recursion" }
+        }
+        let called: Analysis = (analyze ownership model input (selected request 1 true b) current.locals)
+        if (not called.analysis_result.ok) { return Transfer { updated_context: called.updated_context, next_frame: current, step_error: "I require checked caller authority and a non-escaping helper" } }
+        let declaration: declarations.Function = (at model.functions 1)
+        let tag: int = (at model.results 1)
+        if (or (!= declaration.results 1) (not (or (== tag 1) (or (== tag 4) (== tag 2))))) {
+            return Transfer { updated_context: called.updated_context, next_frame: current, step_error: "I require a single scalar reference-call result" }
+        }
+        let pushed: frame.Join = (frame.push current (frame.value tag false 65535 false 4294967295 65535))
+        let mut message: string = ""
+        if (not pushed.valid) { set message "I cannot extend my analysis stack" }
+        return Transfer { updated_context: called.updated_context, next_frame: pushed.frame, step_error: message }
+    }
+    if (effects.handles opcode) {
+        let transferred: effects.Transition = (effects.transfer current (row input.analysis_cache.keys request.function) opcode a b request.function ownership context)
+        if transferred.valid { (put input.analysis_cache.keys request.function transferred.keys) }
+        else if (== transferred.message "I cannot retain a resumed effect value") {
+            let retained: queries.Query = (queries.signature ownership context a true)
+            let recorded: effects.Escape = (effects.record_escape current (row input.analysis_cache.keys request.function) context request.function retained.signature.key)
+            (put input.analysis_cache.keys request.function recorded.keys)
+        }
+        return Transfer { updated_context: input, next_frame: transferred.frame, step_error: transferred.message }
+    }
+    if (globals.handles opcode) {
+        let transferred: globals.Transition = (globals.transfer current (row input.analysis_cache.allowed request.function) input.analysis_cache.context.globals opcode a graph input.analysis_cache.context.effect_globals)
+        if transferred.valid { (put input.analysis_cache.allowed request.function transferred.allowed) }
+        else if (and (== transferred.message "I cannot retain a checked global load") (not input.analysis_cache.context.effect_globals)) {
+            let allowed: array<int> = (row input.analysis_cache.allowed request.function)
+            (array_set allowed a (relations.intersect (at allowed a) (relations.require (at current.globals a) 2)))
+        }
+        return Transfer { updated_context: input, next_frame: transferred.frame, step_error: transferred.message }
+    }
+    if (== opcode 4) { return (transferred input (literal current model a)) }
+    if (locals.handles opcode) { return (transferred input (locals.transfer current opcode a (at model.functions request.function).locals graph)) }
+    if (arrays.handles opcode) { return (transferred input (arrays.transfer current opcode a b ownership context request.function offset)) }
+    if (owners.handles opcode) { return (transferred input (owners.transfer current opcode a b c ownership context)) }
+    if (aggregates.handles opcode) { return (transferred input (aggregates.transfer current opcode a b c d graph ownership context)) }
+    return (transferred input (scalar.transfer current opcode a graph))
+}
+shadow step {
+    let input: Context = (create sample_ownership (sample [61]))
+    let empty: frame.Frame = (frame.create (state.empty) 0)
+    let item: instructions.Instruction = (instructions.decode [0] 0 1)
+    let result: Transfer = (step sample_ownership (sample [61]) input (sample_request) empty item 0)
+    assert (== result.step_error "") assert (== (array_length result.next_frame.stack) 0)
+}
+
+pub fn analyze(ownership: array<u8>, model: owner.Module, input: Context, request: preflight.Request, caller: state.State) -> Analysis {
+    let ready: preflight.Prepared = (preflight.prepare ownership model input.analysis_cache request caller)
+    let mut active: Context = Context { analysis_cache: ready.cache, instruction_facts: (array_slice input.instruction_facts 0 (array_length input.instruction_facts)) }
+    if (not ready.proceed) { return Analysis { updated_context: active, analysis_result: ready.result } }
+    let decoded: bodies.Function = ready.decoded
+    let count: int = (array_length decoded.instructions)
+    let mut nodes: Store = (store ready.initial count)
+    let mut visits: int = 0 let mut reachable: int = 0 let mut offset: int = 0
+    let declaration: declarations.Function = (at model.functions request.function)
+    while (> nodes.flow_queue.pending 0) {
+        if (>= visits ready.visit_limit) { return (outcome active request false offset reachable visits "I exceeded my bounded affine visit count") }
+        set visits (+ visits 1)
+        let taken: work.Change = (work.dequeue nodes.flow_queue)
+        let index: int = taken.index
+        set nodes Store { flow_frames: nodes.flow_frames, flow_present: nodes.flow_present, flow_visited: nodes.flow_visited, flow_queue: taken.queue, flow_message: "" }
+        set offset (at decoded.starts index)
+        if (not (at nodes.flow_visited index)) { (array_set nodes.flow_visited index true) set reachable (+ reachable 1) }
+        let item: instructions.Instruction = (at decoded.instructions index)
+        let opcode: int = item.opcode
+        let mut current: frame.Frame = (frame.clone (at nodes.flow_frames index))
+        if (or (== opcode 61) (or (== opcode 168) (== opcode 163))) {
+            let message: string = (terminal current opcode)
+            if (!= message "") { return (outcome active request false offset reachable visits message) }
+            if (== opcode 61) {
+                let returns: array<int> = (row active.analysis_cache.returns request.function)
+                for global in (range 0 (array_length current.globals)) {
+                    (array_set returns global (relations.unite (at returns global) (at current.globals global)))
+                }
+            }
+        } else {
+            let transferred: Transfer = (step ownership model active request current item offset)
+            set active transferred.updated_context
+            if (!= transferred.step_error "") { return (outcome active request false offset reachable visits transferred.step_error) }
+            set current transferred.next_frame
+            let mut fallthrough: bool = true
+            if (== opcode 165) {
+                if (== (array_length current.handlers) 64) { return (outcome active request false offset reachable visits "I exceeded my bounded affine handler depth") }
+                let key: int = (instructions.integer item 0)
+                let first: int = (instructions.integer item 2)
+                set current frame.Frame { locals: current.locals, stack: current.stack, globals: current.globals,
+                    handlers: (array_push current.handlers frame.Handler { key: key, site: index }), floor: current.floor, activation: current.activation }
+                let context: queries.Context = (query_context model (> (array_length ownership) 0))
+                let retained: queries.Query = (queries.signature ownership context key true)
+                let arm: state.Transition = (state.handler_enter current.locals retained.signature.key first)
+                if (not arm.valid) { return (outcome active request false offset reachable visits "I require a fresh exact handler activation") }
+                let target: int = (bodies.index_at decoded (- (at decoded.targets index) declaration.start))
+                if (< target 0) { return (outcome active request false offset reachable visits "I require a valid handler entry edge") }
+                let branched: frame.Frame = frame.Frame { locals: arm.state, stack: [], globals: current.globals,
+                    handlers: current.handlers, floor: (array_length current.handlers), activation: (+ index 1) }
+                set nodes (propagate nodes target branched)
+                if (!= nodes.flow_message "") { return (outcome active request false offset reachable visits nodes.flow_message) }
+            }
+            if (== opcode 107) {
+                let target: int = (bodies.index_at decoded (- (at decoded.targets index) declaration.start))
+                let wanted: int = (instructions.integer item 0)
+                if (< target 0) { return (outcome active request false offset reachable visits "I require an instruction at my match target") }
+                let top: int = (- (array_length current.stack) 1)
+                let tested: frame.Value = (at current.stack top)
+                let known: int = tested.variant
+                let excluded: bool = (at tested.excluded wanted)
+                if (or (and (== known 65535) (not excluded)) (== known wanted)) {
+                    let matched: frame.Join = (frame.refine current wanted)
+                    if (not matched.valid) { return (outcome active request false offset reachable visits "I require a checked scalar-union match edge") }
+                    set nodes (propagate nodes target matched.frame)
+                    if (!= nodes.flow_message "") { return (outcome active request false offset reachable visits nodes.flow_message) }
+                }
+                if (== known wanted) { set fallthrough false }
+                else if (== known 65535) {
+                    (array_set tested.excluded wanted true)
+                    let mut remaining: int = 0 let mut last: int = 0 let mut scanning: bool = true
+                    for variant in (range 0 256) {
+                        if scanning {
+                            if (< (facts.variant_index current.locals.facts tested.layout variant) 0) { set scanning false }
+                            else if (not (at tested.excluded variant)) { set remaining (+ remaining 1) set last variant }
+                        }
+                    }
+                    if (== remaining 0) { set fallthrough false }
+                    else if (== remaining 1) {
+                        (array_set current.stack top (frame.value tested.tag tested.observation tested.root tested.owned tested.layout last))
+                    }
+                }
+            }
+            if (or (== opcode 56) (or (== opcode 57) (== opcode 58))) {
+                let target: int = (bodies.index_at decoded (- (at decoded.targets index) declaration.start))
+                if (< target 0) { return (outcome active request false offset reachable visits "I require an instruction at my branch target") }
+                set nodes (propagate nodes target current)
+                if (!= nodes.flow_message "") { return (outcome active request false offset reachable visits nodes.flow_message) }
+            }
+            if (and (!= opcode 56) fallthrough) {
+                if (== (+ index 1) count) { return (outcome active request false offset reachable visits "I require an explicit return rather than fallthrough") }
+                set nodes (propagate nodes (+ index 1) current)
+                if (!= nodes.flow_message "") { return (outcome active request false offset reachable visits nodes.flow_message) }
+            }
+        }
+    }
+    let allowed: array<int> = (row active.analysis_cache.allowed request.function)
+    for global in (range 0 (array_length active.analysis_cache.context.globals)) {
+        if (or (== (at allowed global) 0) (and (== request.function 0) (== (% (at allowed global) 2) 0))) {
+            return (outcome active request false offset reachable visits "I require global initialization before reads and no repeated immutable store")
+        }
+    }
+    if (and request.facts_present (and (not request.caller_present) (== request.function request.fact_function))) {
+        let mut converged: array<Fact> = []
+        for index in (range 0 count) {
+            let mut depth: int = 0 let mut tag: int = 0 let mut unpack: int = 0
+            let visited: bool = (at nodes.flow_visited index)
+            if visited {
+                let current: frame.Frame = (at nodes.flow_frames index)
+                set depth (array_length current.stack)
+                if (> depth 0) { set tag (at current.stack (- depth 1)).tag }
+                if (== (at decoded.instructions index).opcode 14) {
+                    let local: int = (instructions.integer (at decoded.instructions index) 0)
+                    let typed: state.Query = (state.local_type current.locals local)
+                    let fields: state.Query = (state.owned_local_fields current.locals local 256 true)
+                    if (or (not typed.valid) (not fields.valid)) { return (outcome active request false offset reachable visits "I require exact destructive-unpack facts") }
+                    set unpack fields.number
+                }
+            }
+            set converged (array_push converged Fact { instruction_offset: (at decoded.starts index), was_reachable: visited, entry_stack_depth: depth, entry_top_tag: tag, unpack_fields: unpack })
+        }
+        set active Context { analysis_cache: active.analysis_cache, instruction_facts: converged }
+    }
+    return (outcome active request true 0 reachable visits "")
+}
+shadow analyze {
+    let model: owner.Module = (sample [1,0,0,0,0,0,0,0,0,61])
+    let input: Context = (create sample_ownership model)
+    let result: Analysis = (analyze sample_ownership model input (sample_request) (state.empty))
+    assert result.analysis_result.ok assert (== result.analysis_result.visits 2) assert (== result.analysis_result.reachable 2)
+    assert (== (at result.updated_context.analysis_cache.status 0) 2) assert (== (at input.analysis_cache.status 0) 0)
+    let invalid: Analysis = (analyze sample_ownership (sample [61]) input (sample_request) (state.empty))
+    assert (not invalid.analysis_result.ok) assert (== invalid.analysis_result.visits 1)
+    assert (== invalid.analysis_result.message "I require an exact declared result and no live owned obligations")
+}
+
+fn sample(code: array<u8>) -> owner.Module {
+    return owner.Module { layouts: [0,0,0,0], code: code, strings: [],
+        functions: [declarations.Function { start: 0, length: (array_length code), arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+}
+shadow sample { assert (== (at (sample [61]).functions 0).length 1) }
+fn sample_request() -> preflight.Request {
+    return preflight.Request { present: true, functions_present: true, function: 0, caller_present: false, reference: 0,
+        module_identity: 1, analysis: 1, facts_present: false, fact_function: 0, fact_capacity: 0 }
+}
+shadow sample_request { assert (sample_request).present assert (not (sample_request).facts_present) }
