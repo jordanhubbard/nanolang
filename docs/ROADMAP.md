@@ -18033,3 +18033,5 @@ I own tests/nanoisa/test_disasm_roundtrip.c and this evidence/roadmap checkpoint
 I own tests/test_native_string_retention.py on fix/5.1-disasm-fixture-bounds for this separately tracked repair. I do not infer an infrastructure cause from the timeout.
 
 I retain both original gate failures, artifact identities, commands and scoped local results in [the qualification harness repair record](evidence/qualification-harness-repair-20261027/README.md). These repairs do not close the full5.1 scope or claim release acceptance.
+
+- [x] Under #1142 I preserve my initial owner/reference audit setup refusal before compilation and the subsequent14541-case C audit: all1001 original reports match, while fourteen path cases reject the shared empty retained-path declaration before transfer. I correct only that fixture to a nonempty out-of-range field, retain empty-path model rejection separately, and require a fresh exact-source audit. Original roots: `/var/tmp/nanolang-affine-owners-c-audit-20261125-g3z347ny` and `/var/tmp/nanolang-affine-owners-c-audit-v2-20261125-70r6v07c`. These are harness/fixture failures, without product or NanoLang runtime acceptance.

@@ -127,7 +127,7 @@ def owner_cases():
          expected(refs={2:reference(region=2,mode=1,parent=1)}),expected(error=FIELD),
          expected(region=1,refs={2:(0,)*10}),expected(stack=[value(1)]),
          expected(region=0,refs={1:(0,)*10}),expected(error=FIELD)])
-    path_model=owner_model(nested=True,paths=[(0,),(1,),(0,0),()])
+    path_model=owner_model(nested=True,paths=[(0,),(1,),(0,0),(2,)])
     for code, path in product((28,29),(0,1,2,3,4,NO)):
         valid=path in (0,1)
         error='' if valid else BORROW if path in (2,3) else PATH
@@ -219,6 +219,8 @@ def owner_cases():
     add('mixed-pack-wrong-order',[op(13,1)],[expected(error=PACK_FIELD)],carrier=owner_model(mixed=True),values=[value(4),value(8,owned=True,layout=0)])
     good=add('valid-malformed-base',[op(22)],[expected(region=1)])
     malformed=[b'',words(9),words(10),words(9,0,0,0,0),words(9,65,0,0,0),words(9,1,2,0,0),good+b'\0']
+    invalid_paths=add('malformed-empty-retained-path-model',[op(22)],[expected(region=1)],carrier=owner_model(nested=True,paths=[(0,),(1,),(0,0),()]))
+    cases[-1]=(cases[-1][0],invalid_paths,'D')
     malformed += [good[:cut] for cut in (1,3,4,8,12,16,19,len(good)-1)]
     for instruction in [op(10),op(32),op(11,65536),op(24,1,65536)]:malformed.append(good[:-16]+words(*instruction))
     cases += [(f'malformed-{i}',raw,'D') for i,raw in enumerate(malformed)]
