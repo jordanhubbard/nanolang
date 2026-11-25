@@ -90,3 +90,32 @@ This preparation grants no terminal or full-five acceptance. The queued
 global/array gate remains unexecuted, and #1259 remains open for the compiler
 projection repair. I require the changed run's actual full terminal before
 updating its downstream admission contract.
+
+## My corrected downstream preparation
+
+I prepare a replacement global/array gate at exact7b75651234 in
+`/var/tmp/nanolang-affine-global-array-typed-five-20261125-4lckzllg` and preserve
+both earlier unexecuted preparations. The replacement still has two original
+methods,1001 original frame reports each,3688 global and17056 array cases,
+five source routes and unchanged600/old8-600/new32-or8KiB-60/default10 limits.
+My [downstream preparation reader](global-array-preparation/read_preparation.py)
+normalizes its collector to the original two-method AST and checks all three
+metadata save sites, the qualified journal hash and observer guards.
+
+Before any checkout, I require the current corrected foundation's complete
+five-method PASS, exact published `affine-typed-five-linux-20261125` receipt and
+reader, remote ancestry, matching result bytes and the same original producer.
+I bind its observer helper to the qualified foundation's unchanged observer
+source. Fresh admission checks the binding and all source/image/tool/host,
+CPU/storage/process requirements again. My early-refusal control uses the exact
+prepared setup and proves that the live incomplete foundation launches zero
+commands and creates no checkout. This replacement gate has not started.
+
+I also preserve unexecuted guarded terminal collector/reader templates for the
+current full run. The reader binds observer hashes to published preparation,
+replays every journal event and the single terminal commit, and expects the
+actual original corpus sizes, including25643 scalar cases and257934 complete
+reports if all five methods finish successfully. Templates have not observed
+or accepted a terminal. I preserve the draft downstream reader's metadata
+spelling refusal and correct it to the exact original slash-separated limit
+string; numerical limits and normalized collector assertions do not change.

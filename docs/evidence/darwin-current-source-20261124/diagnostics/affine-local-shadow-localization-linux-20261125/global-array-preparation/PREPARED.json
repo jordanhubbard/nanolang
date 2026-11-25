@@ -1,0 +1,20 @@
+{
+  "source_pin": "7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8",
+  "started": false,
+  "supersedes_unexecuted": "/var/tmp/nanolang-affine-global-array-five-20261125-dt_0nb51",
+  "requires": "Terminal independently read/published prior exactb430 five-method gate; retained original7b9 bootstrap/native provenance; fresh source/tool/host/CPU/storage/process admission",
+  "full_source_routes": 5,
+  "method_count": 2,
+  "original_frame_cases_per_method": 1001,
+  "new_global_cases": 3688,
+  "new_array_cases": 17056,
+  "limits": "Original600 build, old8/600 frame batches, new32-or8KiB/60 batches, default10 shadow",
+  "new_bootstrap": false,
+  "release_acceptance": false,
+  "enforced_foundation": "Exact prior five-method terminal, zero failures/errors/skips, matching archived result, published ancestry, exact reader and successful read-back before source checkout; same genuine producer",
+  "foundation_environment": "NANOLANG_AFFINE_FOUNDATION_EVIDENCE_COMMIT",
+  "live_root": "/var/tmp/nanolang-affine-global-array-typed-five-20261125-4lckzllg",
+  "foundation_root": "/var/tmp/nanolang-affine-typed-five-20261125-udz2o6c_",
+  "foundation_receipt": "affine-typed-five-linux-20261125",
+  "observer": "Qualified journal, identical normalized original two-method logic, explicit metadata sites and observer guards; no changed cases/assertions/limits"
+}

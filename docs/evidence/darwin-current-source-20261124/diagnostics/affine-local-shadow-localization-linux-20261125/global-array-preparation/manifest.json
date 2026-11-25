@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "scope": "I preserve unexecuted downstream preparation, refusal control and guarded unexecuted foundation terminal templates",
+  "source_pin": "7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8",
+  "started": false,
+  "accepted_component": false,
+  "files": {
+    "PREPARED.json": "310361f9036bee0e4d80eb08656e26bc845fa3598feb0147ac44670d82251902",
+    "admit.py": "742cf69e1b627e8bd8b9b8577353d3ff3030af739caefa67100d66b90644b384",
+    "cohort.py": "415700dd770d9f933f927ba7aceee55132bde60a24911c343064688bf663b83c",
+    "cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+    "collector-equivalence.json": "d88502b8f5b4c80d549a7c79fd3b9327f98353b4f780648d56dae5f2b81d9d0a",
+    "foundation-terminal-templates/package_terminal.py": "ef1e6ab8902d8b35fd91f16d0b6f0d05aa8332bc877785373f350570c67ebb45",
+    "foundation-terminal-templates/read_terminal.template.py": "62ab4f28f040212ea4b3173e3e65ebee86fe11e606487fd3545b3caf479a7443",
+    "live-foundation-refusal/cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+    "live-foundation-refusal/control.json": "bc00c64ccc620dc27158899dc11ae1b83fab3214876173fb342eaf586dd8d52a",
+    "live-foundation-refusal/control.stderr": "1d79d38f855e6962116e26379c2b51aa80b3b0618074f4f0cb98accde5caf981",
+    "live-foundation-refusal/control.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "live-foundation-refusal/exception.log": "1d79d38f855e6962116e26379c2b51aa80b3b0618074f4f0cb98accde5caf981",
+    "live-foundation-refusal/result.json": "ef614f65ebe4bc559c83cdce10dc0fd5fc1218e9bf61d294cca19700db1670c3",
+    "live-foundation-refusal/setup.py": "66598a97045d55e6a9f1090fb4384df6171c3d64d75ceeb34911945e707279d9",
+    "original-cohort.py": "d5c439279f3e8ad098395c7eb8cb9d93c8a37f5153f3de41a9e64829cc53cc83",
+    "refusal-control.json": "52e3cc7c9c590bf992debf70403202ba698dea6845dfe954207635b759813a9d",
+    "setup.py": "66598a97045d55e6a9f1090fb4384df6171c3d64d75ceeb34911945e707279d9"
+  }
+}
