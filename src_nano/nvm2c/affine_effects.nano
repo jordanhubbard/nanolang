@@ -1,0 +1,169 @@
+module nvm2c_affine_effects
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_value_contract.nano" as values
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+pub struct Escape { valid: bool, keys: array<int> }
+pub struct Transition { handled: bool, valid: bool, frame: frame.Frame, keys: array<int>, message: string }
+
+pub fn handles(opcode: int) -> bool { return (and (>= opcode 165) (<= opcode 167)) }
+shadow handles {
+    assert (handles 165) assert (handles 166) assert (handles 167)
+    assert (not (handles 164)) assert (not (handles 168))
+}
+
+# I preserve equal stored lengths and C-string comparison, including NUL stops.
+pub fn key_equal(context: queries.Context, a: int, b: int) -> bool {
+    let count: int = (array_length context.model.strings)
+    if (or (not context.present) (or (< a 0) (or (>= a count) (or (< b 0) (>= b count))))) { return false }
+    let left: array<u8> = (at context.model.strings a)
+    let right: array<u8> = (at context.model.strings b)
+    if (!= (array_length left) (array_length right)) { return false }
+    for index in (range 0 (array_length left)) {
+        if (!= (at left index) (at right index)) { return false }
+        if (== (at left index) 0) { return true }
+    }
+    return true
+}
+shadow key_equal {
+    let context: queries.Context = queries.Context { present: true, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [[97,0,120],[97,0,121],[97,98,120],[]],
+            functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    assert (key_equal context 0 1) assert (not (key_equal context 0 2))
+    assert (key_equal context 3 3) assert (not (key_equal context 0 4))
+    assert (not (key_equal context -1 0))
+}
+
+pub fn record_escape(input: frame.Frame, escaped: array<int>, context: queries.Context, function: int, key: int) -> Escape {
+    let copied: array<int> = (array_slice escaped 0 (array_length escaped))
+    for index in (range 0 (array_length input.handlers)) {
+        let held: frame.Handler = (at input.handlers index)
+        if (key_equal context key held.key) { return Escape { valid: true, keys: copied } }
+    }
+    if (or (< function 0) (>= function 8)) { return Escape { valid: false, keys: copied } }
+    for index in (range 0 (array_length escaped)) {
+        if (key_equal context key (at escaped index)) { return Escape { valid: true, keys: copied } }
+    }
+    if (>= (array_length escaped) 256) { return Escape { valid: false, keys: copied } }
+    return Escape { valid: true, keys: (array_push copied key) }
+}
+shadow record_escape {
+    let input: frame.Frame = (frame.create (state.empty) 0)
+    let context: queries.Context = queries.Context { present: true, ownership_present: false, layouts_present: false,
+        model: owner.Module { layouts: [], code: [], strings: [[111,112],[111,112],[120]],
+            functions: [], params: [], results: [], records: 0, enums: 0, unions: 0 } }
+    let keys: array<int> = [0]
+    let alias: Escape = (record_escape input keys context 0 1)
+    assert alias.valid assert (== (array_length alias.keys) 1) assert (== (at alias.keys 0) 0)
+    (array_set alias.keys 0 2)
+    assert (== (at keys 0) 0)
+    let invalid: Escape = (record_escape input keys context 8 0)
+    assert (not invalid.valid)
+    let held: frame.Frame = frame.Frame { locals: input.locals, stack: input.stack, globals: input.globals,
+        handlers: [frame.Handler { key: 1, site: 5 }], floor: 1, activation: 0 }
+    let caught: Escape = (record_escape held keys context 8 0)
+    assert caught.valid assert (== (array_length caught.keys) 1)
+    let mut full: array<int> = []
+    for index in (range 0 256) { set full (array_push full 2) }
+    let refused: Escape = (record_escape input full context 0 0)
+    assert (not refused.valid) assert (== (array_length refused.keys) 256)
+}
+
+fn snapshot(input: frame.Frame, escaped: array<int>, handled: bool, message: string) -> Transition {
+    return Transition { handled: handled, valid: false, frame: (frame.clone input),
+        keys: (array_slice escaped 0 (array_length escaped)), message: message }
+}
+shadow snapshot {
+    let input: frame.Frame = (frame.create (state.empty) 1)
+    let keys: array<int> = [0]
+    let refused: Transition = (snapshot input keys true "refused")
+    (array_set refused.keys 0 1) (array_set refused.frame.globals 0 15)
+    assert refused.handled assert (not refused.valid) assert (== refused.message "refused")
+    assert (== (at keys 0) 0) assert (== (at input.globals 0) 9)
+}
+
+pub fn transfer(input: frame.Frame, escaped: array<int>, opcode: int, operand: int, argument_count: int,
+    function: int, ownership: array<u8>, context: queries.Context) -> Transition {
+    if (not (handles opcode)) { return (snapshot input escaped false "") }
+    if (== opcode 165) {
+        return Transition { handled: true, valid: true, frame: (frame.clone input),
+            keys: (array_slice escaped 0 (array_length escaped)), message: "" }
+    }
+    if (== opcode 166) {
+        if (> operand (- (array_length input.handlers) input.floor)) {
+            return (snapshot input escaped true "I cannot pop absent or inherited handlers")
+        }
+        let copied: frame.Frame = (frame.clone input)
+        return Transition { handled: true, valid: true, message: "",
+            keys: (array_slice escaped 0 (array_length escaped)), frame: frame.Frame {
+                locals: copied.locals, stack: copied.stack, globals: copied.globals,
+                handlers: (array_slice copied.handlers 0 (- (array_length copied.handlers) operand)),
+                floor: copied.floor, activation: copied.activation } }
+    }
+    let retained: queries.Query = (queries.signature ownership context operand true)
+    let total: int = (array_length input.stack)
+    if (or (!= retained.status 0) (or (!= (array_length retained.signature.parameters) argument_count) (< total argument_count))) {
+        return (snapshot input escaped true "I require the exact retained performed signature")
+    }
+    let first: int = (- total argument_count)
+    for index in (range 0 argument_count) {
+        let declared: queries.Value = (at retained.signature.parameters index)
+        if (not (values.matches input.locals (at input.stack (+ first index)) (facts.slot declared.tag declared.layout))) {
+            return (snapshot input escaped true "I require exact positional effect argument ownership")
+        }
+    }
+    for index in (range 0 first) {
+        let item: frame.Value = (at input.stack index)
+        if (or item.owned item.observation) { return (snapshot input escaped true "I cannot abandon a staged owner across an effect") }
+    }
+    if (not (state.can_suspend input.locals)) {
+        return (snapshot input escaped true "I cannot abandon a local owner or borrow across an effect")
+    }
+    let recorded: Escape = (record_escape input escaped context function retained.signature.key)
+    if (not recorded.valid) { return (snapshot input escaped true "I cannot retain escaping operation identities") }
+    let result_type: facts.Slot = (facts.slot retained.signature.result.tag retained.signature.result.layout)
+    let reduced: frame.Frame = frame.Frame { locals: input.locals, stack: (array_slice input.stack 0 first),
+        globals: input.globals, handlers: input.handlers, floor: input.floor, activation: input.activation }
+    let pushed: frame.Join = (frame.push reduced (frame.value result_type.tag false 65535
+        (state.type_owned input.locals result_type) result_type.layout 65535))
+    if (not pushed.valid) { return (snapshot input escaped true "I cannot retain a resumed effect value") }
+    return Transition { handled: true, valid: true, frame: pushed.frame, keys: recorded.keys, message: "" }
+}
+
+shadow transfer {
+    let declarations: facts.Facts = facts.Facts { valid: true, analysis: 1, module_identity: 1, function: 0,
+        rows: [], flags: [], locals: [], result: (facts.slot 0 4294967295), parameters: 0,
+        result_count: 0, result_tag: 0, arrays: [], variants: [], effects: [] }
+    let input: frame.Frame = (frame.create (state.create declarations 0) 1)
+    let ownership: array<u8> = [3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,255,255,255,255,4,0,0,0,0,0,0,0,1,0,0,0,4,0,1,0,28,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,255,255,255,255,1,0,0,0,255,255,255,255]
+    let context: queries.Context = queries.Context { present: true, ownership_present: true, layouts_present: true,
+        model: owner.Module { layouts: [0,0,0,0], code: [163], strings: [[111,112],[111,112]],
+            functions: [calls.Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 0 }],
+            params: [[]], results: [0], records: 0, enums: 0, unions: 0 } }
+    let keys: array<int> = []
+    let argument: frame.Join = (frame.push input (frame.value 1 false 7 false 17 3))
+    let performed: Transition = (transfer argument.frame keys 167 1 1 0 ownership context)
+    assert performed.valid assert (== (array_length performed.keys) 1) assert (== (at performed.keys 0) 0)
+    assert (== (array_length performed.frame.stack) 1) assert (== (at performed.frame.stack 0).root 65535)
+    assert (== (at performed.frame.stack 0).layout 4294967295)
+    assert (== (at argument.frame.stack 0).root 7) assert (== (array_length keys) 0)
+    let invalid: Transition = (transfer argument.frame keys 167 0 0 0 ownership context)
+    assert (not invalid.valid) assert (== (array_length invalid.frame.stack) 1)
+    let held: frame.Frame = frame.Frame { locals: input.locals, stack: input.stack, globals: input.globals,
+        handlers: [frame.Handler { key: 0, site: 5 },frame.Handler { key: 1, site: 7 }], floor: 1, activation: 23 }
+    let pushed: Transition = (transfer held keys 165 0 0 0 ownership context)
+    assert pushed.valid assert (== (array_length pushed.frame.handlers) 2)
+    let popped: Transition = (transfer held keys 166 1 0 0 ownership context)
+    assert popped.valid assert (== (array_length popped.frame.handlers) 1) assert (== popped.frame.floor 1)
+    assert (== popped.frame.activation 23) assert (== (array_length held.handlers) 2)
+    let inherited: Transition = (transfer held keys 166 2 0 0 ownership context)
+    assert (not inherited.valid) assert (== inherited.message "I cannot pop absent or inherited handlers")
+    let other: Transition = (transfer held keys 168 0 0 0 ownership context)
+    assert (not other.handled)
+    (array_set performed.keys 0 1) (array_set performed.frame.globals 0 15)
+    assert (== (array_length keys) 0) assert (== (at input.globals 0) 9)
+}

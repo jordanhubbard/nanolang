@@ -1372,3 +1372,42 @@ build passes, but NanoVirt refuses its imported transfer shadow with BOOL_NOT
 requires a boolean before any local differential route completes. I retain
 all10409 local inputs and1001 original controls. I track localization in #1259,
 do not accept the full foundation and do not admit the queued global/array gate.
+
+## My effect-step and escape-identity contract
+
+I port the current HANDLER_PUSH165 step as an isolated no-op, HANDLER_POP166
+with inherited-floor bounds, and PERFORM167. The outer affine walk must still
+validate handler signatures and destinations, create both handler edges and
+bind activations; this leaf grants none of those obligations. I preserve the
+existing frame activation, floor and handler order when popping local handlers.
+
+I query the retained performed signature before checking exact positional
+argument ownership with the shared effect/array matcher. I reject staged
+owners/observations below the arguments, then unresolved local owners/borrows,
+then failed escape recording, in the C step's order. The result always replaces
+arguments with one fresh declared value, including VOID, with nominal or array
+ownership derived from checked facts. Failed full-stack publication preserves
+the original frame and escape table; no partial successor or summary is granted.
+
+I represent the current function's bounded escape vector separately from its
+frame. A matching handler catches an operation before the eight-function bound;
+otherwise an existing equal key is retained before the256-key capacity guard.
+New PERFORM entries use the signature's canonical key, including queries through
+byte-identical aliases. Identity preserves C's equal stored lengths and strcmp
+NUL-stop comparison; embedded-NUL suffixes matter only in private diagnostic
+key comparisons because valid declared operation keys exclude NUL.
+
+My key and escape C helpers require a nonnull checked module; I do not call
+nvm_get_string with a null module in a diagnostic. Out-of-range string indices
+are compared as absent keys, and defensive escape-table/function bounds remain
+separate from whole-module admission. Diagnostic-only vectors can probe those
+private defensive branches without authorizing them as a valid call graph.
+Null-module PERFORM signature refusal and handler step behavior retain their
+own defined C paths.
+
+I compare unchanged C steps/identity helpers with independent complete frame,
+mutable authority, handler context and escape-vector expectations, preserving
+all1001 old frame/flow/FIFO controls. I require useful shadows, isolated returned
+storage and the original full-source/generated-sanitizer/paired routes before
+acceptance. This source does not resolve call summaries, handler/resume CFG,
+private/executable admission or pure C-emission/cutover.

@@ -8333,3 +8333,12 @@ test-nanolang-translator-affine-aggregates: $(COMPILER_C) nano_virt nano_vm nvm2
 	NANOLANG_AFFINE_AGGREGATES_REFERENCE="$(OBJ_DIR)/nvm2c_affine_aggregates_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_aggregates.AffineAggregates
 
 test-units: test-nanolang-translator-affine-aggregates
+
+.PHONY: test-nanolang-translator-affine-effects
+$(OBJ_DIR)/nvm2c_affine_effects_reference: tests/nvm2c_affine_effects_reference.c tests/nvm2c_affine_owners_state.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_effects_reference.c tests/nvm2c_affine_owners_state.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o $(OBJ_DIR)/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-effects: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_effects_reference
+	NANOLANG_AFFINE_EFFECTS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_effects_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_effects.AffineEffects
+
+test-units: test-nanolang-translator-affine-effects
