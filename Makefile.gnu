@@ -8129,7 +8129,7 @@ test-units: test-regex-replacement-runtime
 # I compare CFG frame primitives before whole-function affine admission.
 .PHONY: test-nanolang-translator-affine-frame
 $(OBJ_DIR)/nvm2c_affine_frame_reference: tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_frame_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_frame_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
 
 test-nanolang-translator-affine-frame: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
 	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineFrame
@@ -8278,7 +8278,7 @@ test-units: test-nanolang-translator-affine-operands
 # I compare my scalar transfer leaf with the actual unchanged C instruction step.
 .PHONY: test-nanolang-translator-affine-scalar
 $(OBJ_DIR)/nvm2c_affine_scalar_reference: tests/nvm2c_affine_scalar_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_scalar_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_scalar_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
 
 test-nanolang-translator-affine-scalar: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_scalar_reference
 	NANOLANG_AFFINE_SCALAR_REFERENCE="$(OBJ_DIR)/nvm2c_affine_scalar_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_scalar.AffineScalar
@@ -8288,7 +8288,7 @@ test-units: test-nanolang-translator-affine-scalar
 # I compare my local transfer leaf with the actual unchanged C instruction step.
 .PHONY: test-nanolang-translator-affine-locals
 $(OBJ_DIR)/nvm2c_affine_locals_reference: tests/nvm2c_affine_locals_reference.c tests/nvm2c_affine_scalar_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_locals_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_locals_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
 
 test-nanolang-translator-affine-locals: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_locals_reference
 	NANOLANG_AFFINE_LOCALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_locals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_locals.AffineLocals
@@ -8298,7 +8298,7 @@ test-units: test-nanolang-translator-affine-locals
 # I compare exact global transfer and entry preconditions with the unchanged C step.
 .PHONY: test-nanolang-translator-affine-globals
 $(OBJ_DIR)/nvm2c_affine_globals_reference: tests/nvm2c_affine_globals_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_globals_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_globals_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
 
 test-nanolang-translator-affine-globals: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_globals_reference
 	NANOLANG_AFFINE_GLOBALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_globals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_globals.AffineGlobals
