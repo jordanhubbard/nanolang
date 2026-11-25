@@ -1495,3 +1495,12 @@ They do not derive a callee proof or establish C differential, full source,
 generated-sanitizer/paired, CFG/lifetime, executable or emission acceptance.
 
 I publish [my ordinary cache-shadow receipt](evidence/darwin-current-source-20261124/diagnostics/affine-analysis-cache-shadows-linux-20261125/README.md): reader750 records verifies all imported shadows, actual additive Make target, unchanged assertions and two explicit Declaration-result bindings that avoid demonstrated #1259 field-projection failures. The compiler defect remains open. The private lifecycle does not replace pure callee derivation, convergence or C differential/full-route acceptance.
+
+My cache-path differential diagnostic calls the unchanged private C analyzer with
+bounded seeded status1/2 slots. It admits only completed-result hits, in-progress
+recursion refusals and earlier declaration/global guards. Both drivers refuse
+any carrier that would enter fresh body analysis or caller binding. I compare
+complete analysis results, context flags/global rows and all eight mutable cache
+slots, including failed-result memoization and caller-bound done-path bypass.
+Synthetic seeds prove these private transitions only; fresh allowed-mask reset,
+pure callee derivation, caller binding and whole-walk acceptance remain separate.
