@@ -27,6 +27,19 @@ def stack_text(values):
                    + ''.join(map(str, item[6]))+';' for item in values)
 
 
+def scalar_batches(paths, max_count=32, max_bytes=8192):
+    """I retain every case and isolate large frames under the same 60s limit."""
+    batch = []; size = 0
+    for path in paths:
+        length = path.stat().st_size
+        if batch and (len(batch) == max_count or size+length > max_bytes):
+            yield batch
+            batch = []; size = 0
+        batch.append(path); size += length
+    if batch:
+        yield batch
+
+
 def scalar_cases():
     carrier = model(locals_=[[desc(1), desc(1)]])
     cases = [(f'applicability-{op}', words(4, op), str(int(op in LEAF)))
@@ -175,8 +188,10 @@ class AffineScalar(unittest.TestCase):
         for label, command in products:
             for group, cases, paths, batch, budget in prepared:
                 actual = []
-                for start in range(0, len(paths), batch):
-                    actual += routes.checked([*command, *paths[start:start+batch]], timeout=budget).splitlines()
+                chunks = ([paths[start:start+batch] for start in range(0, len(paths), batch)]
+                          if group == 'original' else scalar_batches(paths, batch))
+                for chunk in chunks:
+                    actual += routes.checked([*command, *chunk], timeout=budget).splitlines()
                 self.assertEqual(len(actual), len(cases), (label, group))
                 raw = ('\n'.join(actual)+'\n').encode();(work/f'{group}-{label}.reports').write_bytes(raw)
                 if group == 'original':

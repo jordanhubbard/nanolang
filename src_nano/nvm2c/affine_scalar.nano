@@ -48,12 +48,14 @@ fn wrap(result: frame.Join, message: string) -> Transition {
     if result.valid {
         return Transition { handled: true, valid: true, frame: result.frame, message: "" }
     }
-    return Transition { handled: true, valid: false, frame: result.frame, message: message }
+    return Transition { handled: true, valid: false, frame: (frame.clone result.frame), message: message }
 }
 shadow wrap {
-    let input: frame.Frame = (frame.create (state.empty) 0)
+    let input: frame.Frame = (frame.create (state.empty) 1)
     let failed: Transition = (wrap (frame.pop_scalar input 3) "missing")
     assert (not failed.valid) assert (== failed.message "missing")
+    (array_set failed.frame.globals 0 15)
+    assert (== (at input.globals 0) 9)
     let added: Transition = (wrap (frame.push input (frame.value 3 false 65535 false 4294967295 65535)) "unused")
     assert added.valid assert (== added.message "")
     assert (== (array_length added.frame.stack) 1)
