@@ -1,0 +1,65 @@
+{
+  "format": "plain-controller-v1",
+  "prepared_root": "/var/tmp/nanolang-path-copy-six-leaves-five-20261125-uz4l7yp9",
+  "source_base": "67d99e5121521428740d385d10071b9679e66013",
+  "prepared": true,
+  "execution_started": false,
+  "source_created": false,
+  "whole_release": false,
+  "query_publication": "dec468a6bda61adf5d268c365832811c448d69f0",
+  "pending_global_root": "/var/tmp/nanolang-path-copy-global-array-five-20261125-jsj5x9iu",
+  "baseline_manifest": "docs/evidence/darwin-current-source-20261124/diagnostics/affine-report-consumers-preparation-linux-20261125/manifest.json",
+  "baseline_manifest_sha256": "87b05a2bfe09518a03d36eac0b616fd749cd73bd5c46c2f861d961237ec11522",
+  "baseline_records": [
+    "six/cohort.py",
+    "six-negative-control/cohort.py",
+    "prior-six/cohort.py"
+  ],
+  "files": [
+    {
+      "path": "setup.py",
+      "bytes": 8811,
+      "sha256": "db8dabff20011b2004ec2be25d00ba350ae550417c1a099bb70dbee300176d72"
+    },
+    {
+      "path": "cohort.py",
+      "bytes": 7819,
+      "sha256": "73b3349e873f98b59e82b16a52e48e887c132dfb8f20e357df8c5519ae5d3c50"
+    },
+    {
+      "path": "cohort_journal.py",
+      "bytes": 5878,
+      "sha256": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d"
+    },
+    {
+      "path": "admit.py",
+      "bytes": 2210,
+      "sha256": "b229993b709fe631aca3f9c157e9c2fdf78c6a3c3c31e0018bd7612e8aab00dc"
+    },
+    {
+      "path": "live-parent-refusal.json",
+      "bytes": 668,
+      "sha256": "d843befabdae2636593235b33957a47cb4558e7738e442720a8bcf5c1c4c29a1"
+    },
+    {
+      "path": "live-parent-refusal.stdout",
+      "bytes": 62,
+      "sha256": "eaa31415ad08407a7509b2a976804aa9a484d7b6d661434701f4c143af2acac5"
+    },
+    {
+      "path": "live-parent-refusal.stderr",
+      "bytes": 530,
+      "sha256": "7578eb9fdf2c9cd27f1190c701d8b18f8f07b67683e756ae0f68203d8e0543ed"
+    },
+    {
+      "path": "preparation.json",
+      "bytes": 583,
+      "sha256": "dc3029c89cf5cbe0e4184e82298d14cdfa2b2a05a9adbc6776dae1c0cef48ea7"
+    },
+    {
+      "path": "baseline-cohort.py",
+      "bytes": 7640,
+      "sha256": "e487c242a3ce1b4e4919a0d5c457ae19646d5be058d83099bcdd41a48961f55e"
+    }
+  ]
+}

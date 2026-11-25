@@ -1,0 +1,15 @@
+{
+  "terminal": true,
+  "source_base": "67d99e5121521428740d385d10071b9679e66013",
+  "working_overlay": true,
+  "whole_release": false,
+  "ordinary_seconds": 10,
+  "new_bootstrap": false,
+  "stage_alias": false,
+  "commands": [],
+  "readiness_root": "/var/tmp/nanolang-path-copy-readiness-20261125-e0jzzo8k",
+  "readiness_sha256": "d941d639cbc4c2a72157d63ef5729625d3c48893f63e0e9a73df6949e269305d",
+  "genuine_readiness_sha256": "35298e08971a6da0848124bd5553d76a3e919f9cf8fb0012dad485a50a6f5064",
+  "readiness_publication": "67d99e5121521428740d385d10071b9679e66013",
+  "readiness_manifest_sha256": "059daeb734e96daac1eaec34d926b4449a0b74a36f3df57d233c03fcd43d2ac9"
+}
