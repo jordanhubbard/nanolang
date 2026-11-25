@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/symbol-copy-cold-bootstrap-linux-20261124/read_archive.first.py", line 74, in <module>
+    assert recipe(data('bootstrap/source/Makefile.gnu'))==recipe(olddata('bootstrap/source/Makefile.gnu'))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/symbol-copy-cold-bootstrap-linux-20261124/read_archive.first.py", line 73, in <lambda>
+    recipe=lambda raw:raw.split(b'\n'+target+b':\n',1)[1].split(b'\n\n',1)[0]
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
