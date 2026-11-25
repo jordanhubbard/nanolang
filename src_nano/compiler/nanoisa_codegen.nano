@@ -1788,11 +1788,12 @@ shadow nisa_opaque_index {
 }
 
 fn nisa_enum_index(parser: Parser, name: string) -> int {
+    let enums: List<ASTEnum> = parser.enums
+    let count: int = (list_ASTEnum_length enums)
     let mut found: int = -1
     let mut i: int = 0
-    while (< i (parser_get_enum_count parser)) {
-        let declaration: ASTEnum = (parser_get_enum parser i)
-        if (== declaration.name name) {
+    while (< i count) {
+        if (== (list_ASTEnum_get enums i).name name) {
             if (>= found 0) { return -1 }
             set found i
         }
@@ -1805,6 +1806,16 @@ shadow nisa_enum_index {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
     assert (== (nisa_enum_index parser "Mode") 0)
     assert (== (nisa_enum_index parser "Missing") -1)
+    let empty: Parser = (parser_init_ast_lists)
+    assert (== (nisa_enum_index empty "Mode") -1)
+    let first: Parser = (parser_store_enum empty "First" 1 1 1 ["A"] [0])
+    let selected: Parser = (parser_store_enum first "Mode" 1 2 1 ["B"] [0])
+    let last: Parser = (parser_store_enum selected "Last" 1 3 1 ["C"] [0])
+    assert (== (nisa_enum_index last "Mode") 1)
+    assert (== (nisa_enum_index last "Last") 2)
+    assert (== (nisa_enum_index last "mode") -1)
+    let duplicate: Parser = (parser_store_enum last "Mode" 1 4 1 ["D"] [0])
+    assert (== (nisa_enum_index duplicate "Mode") -1)
 }
 
 fn nisa_enum_receiver(parser: Parser, access: ASTFieldAccess) -> int {
@@ -3099,10 +3110,11 @@ shadow nisa_label_line {
 }
 
 fn nisa_fn_index(parser: Parser, name: string) -> int {
-    let n: int = (parser_get_function_count parser)
+    let functions: List<ASTFunction> = parser.functions
+    let n: int = (list_ASTFunction_length functions)
     let mut i: int = 0
     while (< i n) {
-        if (== (list_ASTFunction_get parser.functions i).name name) {
+        if (== (list_ASTFunction_get functions i).name name) {
             return i
         } else {
             (print "")
@@ -4946,10 +4958,11 @@ fn nisa_call_index(parser: Parser, call: ASTCall) -> int {
     }
     let owner: int = (mb_target_owner (mb_owner call.line) original)
     if (>= owner 0) {
-        let count: int = (list_ASTFunction_length parser.functions)
+        let functions: List<ASTFunction> = parser.functions
+        let count: int = (list_ASTFunction_length functions)
         let mut i: int = 0
         while (< i count) {
-            if (and (== (list_ASTFunction_get parser.functions i).name name) (== (mb_owner (list_ASTFunction_get parser.functions i).line) owner)) { return i }
+            if (and (== (list_ASTFunction_get functions i).name name) (== (mb_owner (list_ASTFunction_get functions i).line) owner)) { return i }
             set i (+ i 1)
         }
     }
