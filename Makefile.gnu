@@ -8381,3 +8381,12 @@ test-nanolang-translator-affine-preflight-shadows: nano_virt | $(OBJ_DIR)
 	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_preflight_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_preflight_shadows.nvm
 
 test-units: test-nanolang-translator-affine-preflight-shadows
+
+.PHONY: test-nanolang-translator-affine-preflight
+$(OBJ_DIR)/nvm2c_affine_preflight_reference: tests/nvm2c_affine_preflight_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_preflight_reference.c $(filter-out $(OBJ_DIR)/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-preflight: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_preflight_reference
+	NANOLANG_AFFINE_PREFLIGHT_REFERENCE="$(OBJ_DIR)/nvm2c_affine_preflight_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_preflight.AffinePreflight
+
+test-units: test-nanolang-translator-affine-preflight
