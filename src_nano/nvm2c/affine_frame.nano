@@ -53,6 +53,58 @@ shadow clone {
     assert (== (at frame.globals 0) 9)
 }
 
+# I operate on checked frame snapshots; validity here describes this operation.
+pub fn push(frame: Frame, item: Value) -> Join {
+    if (>= (array_length frame.stack) 256) { return (refused frame "") }
+    let out: Frame = (clone frame)
+    return Join { valid: true, changed: true, message: "", frame: Frame {
+        locals: out.locals, stack: (array_push out.stack (copy_value item)),
+        globals: out.globals, handlers: out.handlers, floor: out.floor, activation: out.activation } }
+}
+shadow push {
+    let before: Frame = (create (state.empty) 1)
+    let item: Value = (value 8 true 7 true 11 65535)
+    (array_set item.excluded 255 true)
+    let added: Join = (push before item)
+    assert added.valid assert added.changed
+    assert (== (array_length before.stack) 0)
+    assert (== (at added.frame.stack 0).root 7)
+    assert (at (at added.frame.stack 0).excluded 255)
+    (array_set item.excluded 255 false)
+    (array_set added.frame.globals 0 15)
+    assert (at (at added.frame.stack 0).excluded 255)
+    assert (== (at before.globals 0) 9)
+    let mut full: array<Value> = []
+    for index in (range 0 256) { set full (array_push full (value 1 false 65535 false 4294967295 65535)) }
+    let maximum: Frame = Frame { locals: before.locals, stack: full, globals: [], handlers: [], floor: 0, activation: 0 }
+    assert (not (push maximum item).valid)
+    assert (== (array_length maximum.stack) 256)
+}
+
+# I match the C helper's exact tag rule, including its non-scalar physical tags.
+pub fn pop_scalar(frame: Frame, tag: int) -> Join {
+    let count: int = (array_length frame.stack)
+    if (== count 0) { return (refused frame "") }
+    let item: Value = (at frame.stack (- count 1))
+    if (or item.observation (or item.owned (!= item.tag tag))) { return (refused frame "") }
+    let out: Frame = (clone frame)
+    return Join { valid: true, changed: true, message: "", frame: Frame {
+        locals: out.locals, stack: (array_slice out.stack 0 (- count 1)),
+        globals: out.globals, handlers: out.handlers, floor: out.floor, activation: out.activation } }
+}
+shadow pop_scalar {
+    let before: Frame = (create (state.empty) 1)
+    assert (not (pop_scalar before 1).valid)
+    let text: Frame = (push before (value 5 false 65535 false 4294967295 65535)).frame
+    assert (pop_scalar text 5).valid
+    assert (not (pop_scalar text 1).valid)
+    assert (== (array_length text.stack) 1)
+    let observed: Frame = (push before (value 1 true 0 false 4294967295 65535)).frame
+    let owned: Frame = (push before (value 1 false 65535 true 4294967295 65535)).frame
+    assert (not (pop_scalar observed 1).valid)
+    assert (not (pop_scalar owned 1).valid)
+}
+
 pub fn observes_owner(frame: Frame, root: int) -> bool {
     for index in (range 0 (array_length frame.stack)) {
         let item: Value = (at frame.stack index)

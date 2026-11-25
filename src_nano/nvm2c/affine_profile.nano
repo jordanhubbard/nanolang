@@ -1,0 +1,36 @@
+module nvm2c_affine_profile
+
+# I retain the current affine analyzer's complete primary-opcode predicate.
+# The caller establishes its graph mode and checks instruction operands.
+let nvm2c_affine_core_ops: array<int> = [
+    0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+    40, 41, 42, 43, 44, 45, 48, 49, 50, 56, 57, 58, 59, 61,
+    80, 81, 82, 83, 84, 85, 86, 87, 88, 97, 107, 161, 163,
+    165, 166, 167, 168, 200, 201, 202, 203, 204,
+    216, 217, 218, 219, 220, 221, 251, 252, 254
+]
+
+pub fn supported(opcode: int, value_graph: bool) -> bool {
+    if (or (< opcode 0) (> opcode 255)) { return false }
+    for index in (range 0 (array_length nvm2c_affine_core_ops)) {
+        if (== (at nvm2c_affine_core_ops index) opcode) { return true }
+    }
+    if value_graph {
+        return (or (== opcode 4) (or (== opcode 18) (or (== opcode 19)
+            (or (== opcode 160) (== opcode 164)))))
+    }
+    return false
+}
+shadow supported {
+    assert (supported 0 false)
+    assert (supported 59 false)
+    assert (supported 97 false)
+    assert (supported 163 true)
+    assert (not (supported 4 false)) assert (supported 4 true)
+    assert (not (supported 18 false)) assert (supported 18 true)
+    assert (not (supported 160 false)) assert (supported 160 true)
+    assert (not (supported 60 false)) assert (not (supported 60 true))
+    assert (not (supported 255 false)) assert (not (supported 255 true))
+    assert (not (supported -1 true)) assert (not (supported 256 true))
+}

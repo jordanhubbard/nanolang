@@ -1,4 +1,5 @@
 module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_profile.nano" as profile
 module "src_nano/nvm2c/affine_worklist.nano" as work
 module "src_nano/nvm2c/affine_global_flow.nano" as global
 module "src_nano/nvm2c/affine_state.nano" as state
@@ -115,7 +116,7 @@ fn describe_frames(c: read.Cursor) -> string {
     let argument: int = (read.read_u32 c)
     let size: int = (read.read_u32 c)
     let start: int = (read.skip c size)
-    if (or (!= (read.status c) 0) (or (> op 4) (> argument 65535))) { return "D" }
+    if (or (!= (read.status c) 0) (or (> op 6) (> argument 65535))) { return "D" }
     let image: fixture.Fixture = (fixture.parse (array_slice c.data start size))
     if (or (not image.valid) (== (array_length image.model.functions) 0)) { return "D" }
     let local_count: int = (at image.model.functions 0).locals
@@ -124,6 +125,7 @@ fn describe_frames(c: read.Cursor) -> string {
     let a: Parsed = (read_frame c initial)
     let b: Parsed = (read_frame c initial)
     if (or (not a.valid) (or (not b.valid) (!= (read.position c) (array_length c.data)))) { return "D" }
+    if (or (and (== op 5) (!= (array_length b.value.stack) 1)) (and (== op 6) (> argument 255))) { return "D" }
     let before_a: string = (snapshot a.value)
     let before_b: string = (snapshot b.value)
     let mut result: frame.Join = frame.Join { valid: false, changed: false, frame: a.value, message: "" }
@@ -131,7 +133,9 @@ fn describe_frames(c: read.Cursor) -> string {
     else if (== op 1) { set result (frame.meet a.value b.value) }
     else if (== op 2) { set result (frame.refine a.value argument) }
     else if (== op 3) { set result frame.Join { valid: true, changed: false, frame: (frame.clone a.value), message: "" } }
-    else { set result frame.Join { valid: (frame.observes_owner a.value argument), changed: false, frame: a.value, message: "" } }
+    else if (== op 4) { set result frame.Join { valid: (frame.observes_owner a.value argument), changed: false, frame: a.value, message: "" } }
+    else if (== op 5) { set result (frame.push a.value (at b.value.stack 0)) }
+    else { set result (frame.pop_scalar a.value argument) }
     assert (== (snapshot a.value) before_a) assert (== (snapshot b.value) before_b)
     let mut message: string = ""
     if (== op 1) { set message result.message }
@@ -192,6 +196,19 @@ fn describe_flows(c: read.Cursor) -> string {
 }
 shadow describe_flows { assert (== (describe_flows (read.open [0,0,0,0])) "") }
 
+fn describe_profile(c: read.Cursor) -> string {
+    let opcode: int = (read.read_u32 c)
+    let graph: int = (read.read_u32 c)
+    if (or (!= (read.status c) 0) (or (> opcode 255) (> graph 1))) { return "D" }
+    return (flag (profile.supported opcode (== graph 1)))
+}
+shadow describe_profile {
+    assert (== (describe_profile (read.open [0,0,0,0,0,0,0,0])) "1")
+    assert (== (describe_profile (read.open [4,0,0,0,0,0,0,0])) "0")
+    assert (== (describe_profile (read.open [4,0,0,0,1,0,0,0])) "1")
+    assert (== (describe_profile (read.open [])) "D")
+}
+
 fn describe(bytes: array<u8>) -> string {
     if (< (array_length bytes) 4) { return "D" }
     let cursor: read.Cursor = (read.open bytes)
@@ -200,6 +217,7 @@ fn describe(bytes: array<u8>) -> string {
     if (== kind 0) { set text (describe_flows cursor) }
     if (== kind 1) { set text (describe_queue cursor) }
     if (== kind 2) { set text (describe_frames cursor) }
+    if (== kind 3) { set text (describe_profile cursor) }
     if (or (!= (read.status cursor) 0) (!= (read.position cursor) (array_length bytes))) { return "D" }
     return text
 }

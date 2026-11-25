@@ -67,13 +67,14 @@ static Frame *read_frame(Reader *r,const NvmAffineState *initial) {
 static void frames(Reader *r) {
     uint32_t operation=word(r),argument=word(r),size=word(r);size_t at=0;
     NvmModule model={0};
-    if(!r->ok || operation>4 || argument>65535 || !take(&r->pos,size,r->size,&at) ||
+    if(!r->ok || operation>6 || argument>65535 || !take(&r->pos,size,r->size,&at) ||
        !load_model(r->bytes+at,size,&model) || !model.function_count){r->ok=false;return;}
     NvmAffineState *initial=nvm_affine_state_create(&model,0,model.functions[0].local_count);
     if(!initial){free_model(&model);r->ok=false;return;}
     Frame *a=read_frame(r,initial),*b=read_frame(r,initial),*out=NULL;
     nvm_affine_state_free(initial);
     bool ok=false,changed=false;const char *error="";
+    if(r->ok && ((operation==5 && b->count!=1) || (operation==6 && argument>255)))r->ok=false;
     if(r->ok && r->pos==r->size) {
         out=frame_clone(a);if(!out)exit(2);
         if(operation==0)ok=stack_meet(out,b,&changed);
@@ -85,6 +86,8 @@ static void frames(Reader *r) {
         if(operation==2)ok=argument<256 && match_refine(out,(uint16_t)argument);
         if(operation==3)ok=true;
         if(operation==4)ok=observes_owner(out,(uint16_t)argument);
+        if(operation==5)changed=ok=push(out,b->stack[0]);
+        if(operation==6)changed=ok=pop_scalar(out,(uint8_t)argument);
         if(!ok){frame_free(out);out=frame_clone(a);changed=false;}
         if(operation!=1)error="";
         printf("%u%u|%s|",ok,changed,error);snapshot(out,&model);
@@ -121,6 +124,11 @@ static void flows(Reader *r) {
         number(result.allowed);number(result.normal);number(result.lexical_return);putchar(';');
     }
 }
+static void profile(Reader *r) {
+    uint32_t opcode=word(r),graph=word(r);
+    if(!r->ok || opcode>255 || graph>1 || r->pos!=r->size){r->ok=false;return;}
+    putchar(supported((uint8_t)opcode,graph!=0)?'1':'0');
+}
 int main(int argc,char **argv) {
     for(int i=1;i<argc;i++) {
         FILE *file=fopen(argv[i],"rb");if(!file){puts("D");continue;}
@@ -129,7 +137,7 @@ int main(int argc,char **argv) {
         uint8_t *bytes=malloc((size_t)length);if(!bytes)exit(2);
         bool loaded=fread(bytes,1,(size_t)length,file)==(size_t)length;fclose(file);
         Reader r={bytes,(size_t)length,0,loaded};uint32_t kind=word(&r);
-        if(kind==0)flows(&r);else if(kind==1)queue(&r);else if(kind==2)frames(&r);else r.ok=false;
+        if(kind==0)flows(&r);else if(kind==1)queue(&r);else if(kind==2)frames(&r);else if(kind==3)profile(&r);else r.ok=false;
         if(!r.ok || r.pos!=r.size)printf("D");
         putchar('\n');free(bytes);
     }

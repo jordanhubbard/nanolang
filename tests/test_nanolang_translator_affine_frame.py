@@ -256,3 +256,88 @@ class AffineFlow(unittest.TestCase):
             record_['routes'].append(dict(label=label, command=[str(x) for x in command],
                 reports=len(reports), sha256=hashlib.sha256(('\n'.join(reports)+'\n').encode()).hexdigest()))
             save()
+
+
+def operand_cases():
+    """I cover every physical tag and flag combination against the C primitives."""
+    cases = []
+    for tag, observed, owned in product(range(256), (False, True), (False, True)):
+        item = value(tag, observation=observed, owned=owned, root=17, layout=0x12345678,
+                     variant=UNKNOWN, excluded=(0, 63, 64, 255))
+        cases.append((f'push-{tag}-{observed}-{owned}',
+                      program(frame(), frame(stack=(item,)), operation=5), '11||'))
+        for expected in (tag, (tag+1) % 256):
+            ok = not observed and not owned and expected == tag
+            cases.append((f'pop-{tag}-{observed}-{owned}-{expected}',
+                          program(frame(stack=(item,)), operation=6, argument=expected),
+                          '11||' if ok else '00||'))
+    cases.append(('empty-pop', program(frame(), operation=6, argument=1), '00||'))
+    item = value(1, excluded=(1, 127, 128, 254))
+    for count in (1, 255, 256):
+        for operation in (5, 6):
+            first = frame(stack=(item,)*count, globals_=(9, 15),
+                          handlers=((7, 19),), floor=1, activation=0xffffffff)
+            ok = operation == 6 or count < 256
+            cases.append((f'boundary-{count}-{operation}',
+                          program(first, frame(stack=(item,)), operation=operation, argument=1),
+                          '11||' if ok else '00||'))
+    cases.extend([
+        ('push-missing-value', program(frame(), operation=5), 'D'),
+        ('pop-tag-not-byte', program(frame(stack=(item,)), operation=6, argument=256), 'D'),
+        ('stack-over-limit', program(frame(stack=(item,)*257), operation=6, argument=1), 'D'),
+    ])
+    # I name policy boundaries independently of the NanoLang opcode table.
+    fixed = {0: True, 59: True, 60: False, 61: True, 62: False,
+             97: True, 163: True, 255: False}
+    for opcode, graph in product(range(256), (0, 1)):
+        expected = fixed.get(opcode)
+        if opcode in (4, 18, 19, 160, 164):
+            expected = bool(graph)
+        cases.append((f'profile-{opcode}-{graph}', words(3, opcode, graph),
+                      '' if expected is None else str(int(expected))))
+    cases.extend((name, data, 'D') for name, data in [
+        ('profile-short', words(3, 0)),
+        ('profile-wide-opcode', words(3, 256, 1)),
+        ('profile-wide-mode', words(3, 0, 2)),
+        ('profile-trailing', words(3, 0, 0)+b'x'),
+    ])
+    return cases
+
+
+class AffineOperands(unittest.TestCase):
+    def test_complete_operand_and_profile_primitives_against_actual_c(self):
+        work = Path(tempfile.mkdtemp(prefix='nano-affine-operands-'))
+        cases = operand_cases()
+        paths = []
+        record_ = dict(scope='I check bounded stack primitives and the complete opcode predicate; '
+                       'I grant no instruction/function/private/executable admission.',
+                       corpus=[], routes=[])
+        for index, (name, data, expected) in enumerate(cases):
+            path = work/f'{index:04d}.bin'
+            path.write_bytes(data)
+            paths.append(path)
+            record_['corpus'].append(dict(name=name, path=str(path), bytes=len(data),
+                sha256=hashlib.sha256(data).hexdigest(), expected=expected))
+        def save():
+            (work/'manifest.json').write_text(json.dumps(record_, indent=2)+'\n')
+        def execute(command, label):
+            reports = []
+            for start in range(0, len(paths), 8):
+                reports += checked([*command, *paths[start:start+8]], timeout=60).splitlines()
+            self.assertEqual(len(reports), len(cases), label)
+            (work/(label+'.reports')).write_text('\n'.join(reports)+'\n')
+            for (name, _, expected), actual in zip(cases, reports):
+                with self.subTest(route=label, case=name):
+                    if expected in ('D', '0', '1'):
+                        self.assertEqual(actual, expected)
+                    elif expected:
+                        self.assertTrue(actual.startswith(expected), (expected, actual[:200]))
+            record_['routes'].append(dict(label=label, command=list(map(str, command)),
+                reports=len(reports), sha256=hashlib.sha256(('\n'.join(reports)+'\n').encode()).hexdigest()))
+            save()
+            return reports
+        save()
+        reference = Path(os.environ.get('NANOLANG_AFFINE_FRAME_REFERENCE', ROOT/'obj/nvm2c_affine_frame_reference'))
+        expected = execute([reference], 'actual-c')
+        for label, command in build_routes(ROOT/'tests/nvm2c_affine_frame_driver.nano', work):
+            self.assertEqual(execute(command, label), expected, label)

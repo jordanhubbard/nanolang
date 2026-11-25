@@ -8267,3 +8267,10 @@ test-units: test-checker-owned-contexts
 .PHONY: test-native-c-keywords
 test-native-c-keywords: $(BIN_DIR)/nano $(BIN_DIR)/nanoc_c $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm
 	PYTHONPATH=. python3 -m unittest -v tests.test_native_c_names tests.test_native_keyword_bindings
+
+# I compare the complete opcode predicate and bounded stack operations with C.
+.PHONY: test-nanolang-translator-affine-operands
+test-nanolang-translator-affine-operands: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_frame_reference
+	NANOLANG_AFFINE_FRAME_REFERENCE="$(OBJ_DIR)/nvm2c_affine_frame_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_frame.AffineOperands
+
+test-units: test-nanolang-translator-affine-operands
