@@ -1895,12 +1895,13 @@ shadow nisa_union_arguments {
 }
 
 fn nisa_union_index(parser: Parser, name: string) -> int {
-    if (== (parser_get_union_count parser) 0) { return -1 }
+    let count: int = (list_ASTUnion_length parser.unions)
+    if (== count 0) { return -1 }
     let base: string = (nisa_union_base name)
     let mut found: int = -1
     let mut i: int = 0
-    while (< i (parser_get_union_count parser)) {
-        if (== (parser_get_union parser i).name base) {
+    while (< i count) {
+        if (== (list_ASTUnion_get parser.unions i).name base) {
             if (>= found 0) { return -1 }
             set found i
         }
@@ -1919,6 +1920,11 @@ shadow nisa_union_index {
     let collision_tokens: List<LexerToken> = (tokenize_string "struct Choice { value: int } union Choice { Empty {} }" "union.nano" (diag_list_new))
     let collision: Parser = (parse_program collision_tokens (list_LexerToken_length collision_tokens) "union.nano")
     assert (== (nisa_union_index collision "Choice") -1)
+    assert (== (nisa_union_index p "Choice<int>") 0)
+    let repeated_tokens: List<LexerToken> = (tokenize_string "union First { A {} } union Choice { B {} } union Choice { C {} }" "duplicate.nano" (diag_list_new))
+    let repeated: Parser = (parse_program repeated_tokens (list_LexerToken_length repeated_tokens) "duplicate.nano")
+    assert (== (nisa_union_index repeated "Choice") -1)
+    assert (== (nisa_union_index repeated "First") 0)
 }
 
 fn nisa_union_variant(definition: ASTUnion, name: string) -> int {
@@ -3096,8 +3102,7 @@ fn nisa_fn_index(parser: Parser, name: string) -> int {
     let n: int = (parser_get_function_count parser)
     let mut i: int = 0
     while (< i n) {
-        let f: ASTFunction = (parser_get_function parser i)
-        if (== f.name name) {
+        if (== (list_ASTFunction_get parser.functions i).name name) {
             return i
         } else {
             (print "")
@@ -3115,6 +3120,14 @@ shadow nisa_fn_index {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_fn_index p "add") 0)
     assert (== (nisa_fn_index p "nope") (- 0 1))
+    let empty_tokens: List<LexerToken> = (tokenize_string "" "empty.nano" (diag_list_new))
+    let empty: Parser = (parse_program empty_tokens 0 "empty.nano")
+    assert (== (nisa_fn_index empty "add") -1)
+    let many_tokens: List<LexerToken> = (tokenize_string "extern fn first()->int extern fn chosen()->int extern fn chosen()->int extern fn last()->int" "many.nano" (diag_list_new))
+    let many: Parser = (parse_program many_tokens (list_LexerToken_length many_tokens) "many.nano")
+    assert (== (nisa_fn_index many "chosen") 1)
+    assert (== (nisa_fn_index many "last") 3)
+    assert (== (nisa_fn_index many "Chosen") -1)
 }
 
 # I visit each directly required function once, including recursive cycles.
@@ -4833,10 +4846,10 @@ shadow nisa_indirect_call {
 fn nisa_identifier_function(parser: Parser, identifier: ASTIdentifier) -> int {
     let name: string = (mb_resolve identifier.name identifier.line nisa_names)
     let owner: int = (mb_target_owner (mb_owner identifier.line) identifier.name)
+    let count: int = (list_ASTFunction_length parser.functions)
     let mut i: int = 0
-    while (< i (parser_get_function_count parser)) {
-        let function: ASTFunction = (parser_get_function parser i)
-        if (and (== function.name name) (or (< owner 0) (== (mb_owner function.line) owner))) { return i }
+    while (< i count) {
+        if (and (== (list_ASTFunction_get parser.functions i).name name) (or (< owner 0) (== (mb_owner (list_ASTFunction_get parser.functions i).line) owner))) { return i }
         set i (+ i 1)
     }
     return -1
@@ -4847,6 +4860,13 @@ shadow nisa_identifier_function {
     let tokens: List<LexerToken> = (tokenize_string "fn answer()->int{return 42} fn main()->fn()->int{return answer}" "reference.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reference.nano")
     assert (== (nisa_identifier_function parser (parser_get_identifier parser 0)) 0)
+    let references: List<LexerToken> = (tokenize_string "extern fn target()->int\nextern fn target()->int\nfn main()->fn()->int{return selected}" "owners.nano" (diag_list_new))
+    let owners: Parser = (parse_program references (list_LexerToken_length references) "owners.nano")
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "selected" "target" 1)
+    assert (== (nisa_identifier_function owners (parser_get_identifier owners 0)) 1)
+    (mb_reset [])
+    assert (== (nisa_identifier_function owners (parser_get_identifier owners 0)) -1)
 }
 
 # I resolve qualified function values with the same owner map as calls.
@@ -4926,16 +4946,16 @@ fn nisa_call_index(parser: Parser, call: ASTCall) -> int {
     }
     let owner: int = (mb_target_owner (mb_owner call.line) original)
     if (>= owner 0) {
+        let count: int = (list_ASTFunction_length parser.functions)
         let mut i: int = 0
-        while (< i (parser_get_function_count parser)) {
-            let function: ASTFunction = (parser_get_function parser i)
-            if (and (== function.name name) (== (mb_owner function.line) owner)) { return i }
+        while (< i count) {
+            if (and (== (list_ASTFunction_get parser.functions i).name name) (== (mb_owner (list_ASTFunction_get parser.functions i).line) owner)) { return i }
             set i (+ i 1)
         }
     }
     let fallback: int = (nisa_fn_index parser name)
     if (or (< owner 0) (< fallback 0)) { return fallback }
-    if (>= (parser_get_function parser fallback).body 0) { return fallback }
+    if (>= (list_ASTFunction_get parser.functions fallback).body 0) { return fallback }
     return -1
 }
 shadow nisa_call_index {
@@ -4945,6 +4965,9 @@ shadow nisa_call_index {
     (mb_reset [1, 2, 3])
     (mb_add_target 2 "second" "path_basename" 1)
     assert (== (nisa_call_index parser (parser_get_call parser 0)) 1)
+    (mb_reset [1, 2, 3])
+    (mb_add_target 2 "second" "path_basename" 9)
+    assert (== (nisa_call_index parser (parser_get_call parser 0)) -1)
     (mb_reset [])
     let reset_again: int = (nisa_reset)
 }

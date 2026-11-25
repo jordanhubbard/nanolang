@@ -1,0 +1,31 @@
+# I retain complete lowering text and refusal diagnostics across lookup changes.
+from "src_nano/compiler/nanoisa_codegen.nano" import nanoisa_emit_nasm, nanoisa_last_lowering_error
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+
+fn lookup_lowering_report(source: string) -> string {
+    let assembly: string = (nanoisa_emit_nasm source)
+    return (+ assembly (+ "\nLOOKUP-ERROR:\n" (nanoisa_last_lowering_error)))
+}
+shadow lookup_lowering_report {
+    let valid: string = (lookup_lowering_report "fn chosen()->int{return 7} fn main()->int{return (chosen)}")
+    assert (str_contains valid "CALL chosen")
+    assert (str_contains valid "LOOKUP-ERROR:")
+    let invalid: string = (lookup_lowering_report "fn main()->array<(int,int)>{return []}")
+    assert (str_contains invalid "unsupported result type")
+}
+
+fn main() -> int {
+    unsafe {
+        if (== (get_argc) 2) {
+            (println (lookup_lowering_report (file_read (get_argv 1))))
+            return 0
+        }
+    }
+    let report: string = (lookup_lowering_report "fn first()->int{return 1} fn chosen()->int{return 7} fn last()->int{return 3} fn main()->int{return (chosen)}")
+    assert (str_contains report "CALL chosen")
+    (println "LOOKUP-PROJECTION-OK")
+    return 0
+}
+shadow main { assert (== (main) 0) }
