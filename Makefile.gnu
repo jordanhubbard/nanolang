@@ -8375,3 +8375,9 @@ test-nanolang-translator-affine-analysis-cache: $(COMPILER_C) nano_virt nano_vm 
 	NANOLANG_AFFINE_ANALYSIS_CACHE_REFERENCE="$(OBJ_DIR)/nvm2c_affine_analysis_cache_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_analysis_cache.AffineAnalysisCache
 
 test-units: test-nanolang-translator-affine-analysis-cache
+
+.PHONY: test-nanolang-translator-affine-preflight-shadows
+test-nanolang-translator-affine-preflight-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_preflight_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_preflight_shadows.nvm
+
+test-units: test-nanolang-translator-affine-preflight-shadows

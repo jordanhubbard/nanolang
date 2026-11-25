@@ -1,0 +1,20 @@
+module "src_nano/nvm2c/affine_preflight.nano" as preflight
+module "src_nano/nvm2c/affine_analysis_cache.nano" as cache
+module "src_nano/nvm2c/affine_call_context.nano" as context
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/passive_calls.nano" as calls
+fn main() -> int { return 0 }
+shadow main {
+    let input: cache.Cache = (cache.create context.Context { globals_valid: true, value_graph: true, effect_globals: false, globals: [] })
+    let model: owner.Module = owner.Module { layouts: [0,0,0,0], code: [61], strings: [],
+        functions: [calls.Function { start: 0, length: 1, arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+    let ownership: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+    let request: preflight.Request = preflight.Request { present: true, functions_present: true, function: 0, caller_present: false,
+        reference: 0, module_identity: 17, analysis: 23, facts_present: true, fact_function: 0, fact_capacity: 1 }
+    let prepared: preflight.Prepared = (preflight.prepare ownership model input request (state.empty))
+    assert prepared.proceed assert (not prepared.result.ok) assert (== prepared.result.visits 0)
+    assert (== prepared.initial.locals.facts.module_identity 17) assert (== prepared.initial.locals.facts.analysis 23)
+    assert (== prepared.queue.pending 1) assert (== (main) 0)
+}

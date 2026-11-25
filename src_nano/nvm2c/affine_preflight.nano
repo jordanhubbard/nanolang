@@ -1,0 +1,196 @@
+module nvm2c_affine_preflight
+module "src_nano/nvm2c/affine_analysis_cache.nano" as cache
+module "src_nano/nvm2c/affine_facts.nano" as facts
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/affine_frame.nano" as frame
+module "src_nano/nvm2c/affine_worklist.nano" as work
+module "src_nano/nvm2c/affine_profile.nano" as profile
+module "src_nano/nvm2c/functions.nano" as bodies
+module "src_nano/nvm2c/instructions.nano" as instructions
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+module "src_nano/nvm2c/passive_calls.nano" as calls
+
+module "src_nano/nvm2c/affine_call_context.nano" as context
+let context_sample: context.Context = context.Context { globals_valid: true, value_graph: true, effect_globals: false, globals: [] }
+let ownership_sample: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+
+# I prepare one invocation. My caller must walk and converge before admission.
+pub struct Request {
+    present: bool, functions_present: bool, function: int, caller_present: bool, reference: int,
+    module_identity: int, analysis: int, facts_present: bool, fact_function: int, fact_capacity: int
+}
+pub struct Prepared {
+    proceed: bool, cached: bool, cache: cache.Cache, result: cache.Result,
+    decoded: bodies.Function, initial: frame.Frame, queue: work.Queue, visit_limit: int
+}
+
+fn stopped(input: cache.Cache, result: cache.Result, cached: bool) -> Prepared {
+    return Prepared { proceed: false, cached: cached, cache: input, result: result,
+        decoded: (bodies.decode [] 0 0 0), initial: (frame.create (state.empty) 0), queue: (work.create 0), visit_limit: 0 }
+}
+shadow stopped {
+    let input: cache.Cache = (cache.create context_sample)
+    let result: Prepared = (stopped input (cache.empty_result) true)
+    assert result.cached assert (not result.proceed) assert (not result.decoded.valid)
+    assert (not result.initial.locals.valid) assert (not result.queue.valid) assert (== result.visit_limit 0)
+}
+
+fn refused(input: cache.Cache, request: Request, offset: int, message: string) -> Prepared {
+    let result: cache.Result = cache.Result { ok: false, byte_offset: offset, reachable: 0, visits: 0, message: message }
+    return (stopped (cache.finish input request.function request.caller_present result) result false)
+}
+shadow refused {
+    let input: cache.Cache = (cache.create context_sample)
+    let failed: Prepared = (refused input (request_sample) 7 "refused")
+    let saved: cache.Result = (at failed.cache.results 0)
+    assert (not failed.proceed) assert (not failed.cached) assert (== saved.byte_offset 7)
+    assert (== saved.message "refused") assert (== (at failed.cache.status 0) 2) assert (== (at input.status 0) 0)
+}
+
+pub fn prepare(ownership: array<u8>, model: owner.Module, input: cache.Cache, request: Request, caller: state.State) -> Prepared {
+    let entry: cache.Entry = (cache.enter input request.present request.functions_present (array_length model.functions) request.function request.caller_present)
+    if (not entry.proceed) { return (stopped entry.cache entry.result entry.cached) }
+    let active: cache.Cache = entry.cache
+    let declaration: calls.Function = (at model.functions request.function)
+    if (or (> declaration.locals 256) (> declaration.length 131072)) {
+        return (refused active request 0 "I exceeded my bounded affine analysis size")
+    }
+    let local_facts: facts.Facts = (facts.prepare ownership model request.function request.module_identity request.analysis)
+    let mut initial: state.State = (state.create local_facts declaration.locals)
+    if (not initial.valid) { return (refused active request 0 "I require checked ownership declarations") }
+    if request.caller_present {
+        let bound: state.Transition = (state.bind_caller initial caller request.reference)
+        if (not bound.valid) { return (refused active request 0 "I require exact caller-origin parameter authority") }
+        set initial bound.state
+    }
+    let decoded: bodies.Function = (bodies.decode model.code declaration.start declaration.length (array_length model.functions))
+    if (not decoded.valid) { return (refused active request 0 "I require decodable function control flow") }
+    let count: int = (array_length decoded.instructions)
+    if (or (== count 0) (> count 4096)) { return (refused active request 0 "I exceeded my bounded affine instruction count") }
+    # I scan the complete profile before inspecting any effect or global operand.
+    for index in (range 0 count) {
+        let item: instructions.Instruction = (at decoded.instructions index)
+        if (not (profile.supported item.opcode active.context.value_graph)) {
+            let mut message: string = "I require a connected affine instruction contract"
+            if (== item.opcode 4) { set message "I require string literals inside an owned value-call graph" }
+            if (or (== item.opcode 160) (== item.opcode 164)) { set message "I require string output inside an owned value-call graph" }
+            return (refused active request (at decoded.starts index) message)
+        }
+    }
+    let query_context: queries.Context = queries.Context { present: true, ownership_present: (> (array_length ownership) 0), layouts_present: true, model: model }
+    for index in (range 0 count) {
+        let item: instructions.Instruction = (at decoded.instructions index)
+        if (or (== item.opcode 165) (== item.opcode 167)) {
+            let signature: queries.Query = (queries.signature ownership query_context (instructions.integer item 0) true)
+            let mut arity: int = (instructions.integer item 1)
+            if (== item.opcode 165) { set arity (instructions.integer item 3) }
+            if (or (!= signature.status 0) (!= arity (array_length signature.signature.parameters))) {
+                return (refused active request 0 "I require a retained exact effect signature at every operation")
+            }
+            if (== item.opcode 165) {
+                let first: int = (instructions.integer item 2)
+                if (> (+ first arity) declaration.locals) { return (refused active request 0 "I require bounded handler parameter slots") }
+                for parameter in (range 0 arity) {
+                    let found: state.Query = (state.local_type initial (+ first parameter))
+                    let expected: queries.Value = (at signature.signature.parameters parameter)
+                    if (or (not found.valid) (not (facts.same local_facts found.value (facts.slot expected.tag expected.layout)))) {
+                        return (refused active request 0 "I require exact declared handler parameter types")
+                    }
+                }
+            }
+        }
+        if (or (== item.opcode 18) (== item.opcode 19)) {
+            if (>= (instructions.integer item 0) (array_length active.context.globals)) {
+                return (refused active request (at decoded.starts index) "I require an exact declared global slot")
+            }
+        }
+    }
+    if (and request.facts_present (and (not request.caller_present) (and (== request.function request.fact_function) (!= count request.fact_capacity)))) {
+        return (refused active request 0 "I require exact instruction fact capacity")
+    }
+    let queue: work.Change = (work.enqueue (work.create count) 0)
+    return Prepared { proceed: true, cached: false, cache: active, result: (cache.empty_result), decoded: decoded,
+        initial: (frame.create initial (array_length active.context.globals)), queue: queue.queue,
+        visit_limit: (* count (+ (+ (+ (* 2 declaration.locals) (* 4 (array_length active.context.globals))) 1) (* 256 257))) }
+}
+shadow prepare {
+    let input: cache.Cache = (cache.create context_sample)
+    let model: owner.Module = (model_sample [61])
+    let ready: Prepared = (prepare ownership_sample model input (request_sample) (state.empty))
+    assert ready.proceed assert (not ready.cached) assert (== (at ready.cache.status 0) 1)
+    assert (not ready.result.ok) assert (== ready.result.visits 0)
+    assert ready.initial.locals.valid assert (== (array_length ready.initial.stack) 0)
+    assert (== ready.queue.pending 1) assert (at ready.queue.queued 0) assert (== ready.visit_limit 65793)
+    assert (== ready.initial.locals.facts.module_identity 1) assert (== ready.initial.locals.facts.analysis 1)
+    let repeated: Prepared = (prepare ownership_sample model input (request_sample) (state.empty))
+    (array_set ready.queue.queued 0 false)
+    assert (at repeated.queue.queued 0)
+    # RET without its value passes preflight; my future walk must reject it.
+    assert (== (array_length ready.decoded.instructions) 1)
+    let invalid: Prepared = (prepare ownership_sample (model_sample [255]) input (request_sample) (state.empty))
+    assert (not invalid.proceed) assert (== invalid.result.message "I require decodable function control flow")
+    let missing: Prepared = (prepare [] model input (request_sample) (state.empty))
+    assert (not missing.proceed) assert (== missing.result.message "I require checked ownership declarations")
+    let profile_first: Prepared = (prepare ownership_sample (model_sample [18,0,0,0,0,64,61]) input (request_sample) (state.empty))
+    assert (== profile_first.result.byte_offset 5)
+    assert (== profile_first.result.message "I require a connected affine instruction contract")
+    let global_slot: Prepared = (prepare ownership_sample (model_sample [0,18,0,0,0,0,61]) input (request_sample) (state.empty))
+    assert (== global_slot.result.byte_offset 1) assert (== global_slot.result.message "I require an exact declared global slot")
+    let effect_first: Prepared = (prepare ownership_sample (model_sample [167,0,0,0,0,0,0,18,0,0,0,0,61]) input (request_sample) (state.empty))
+    assert (== effect_first.result.byte_offset 0)
+    assert (== effect_first.result.message "I require a retained exact effect signature at every operation")
+    let cached: Prepared = (prepare ownership_sample model global_slot.cache (request_sample) (state.empty))
+    assert cached.cached assert (not cached.proceed) assert (== cached.result.message global_slot.result.message)
+    let ordinary: cache.Cache = (cache.create context.Context { globals_valid: true, value_graph: false, effect_globals: false, globals: [] })
+    let literal: Prepared = (prepare ownership_sample (model_sample [0,4,0,0,0,0,61]) ordinary (request_sample) (state.empty))
+    assert (== literal.result.byte_offset 1) assert (== literal.result.message "I require string literals inside an owned value-call graph")
+    let output: Prepared = (prepare ownership_sample (model_sample [0,160,61]) ordinary (request_sample) (state.empty))
+    assert (== output.result.byte_offset 1) assert (== output.result.message "I require string output inside an owned value-call graph")
+    let capacity: Request = Request { present: true, functions_present: true, function: 0, caller_present: false, reference: 0,
+        module_identity: 1, analysis: 1, facts_present: true, fact_function: 0, fact_capacity: 0 }
+    let mismatch: Prepared = (prepare ownership_sample model input capacity (state.empty))
+    assert (not mismatch.proceed) assert (== mismatch.result.message "I require exact instruction fact capacity")
+    let exact: Request = Request { present: true, functions_present: true, function: 0, caller_present: false, reference: 0,
+        module_identity: 1, analysis: 1, facts_present: true, fact_function: 0, fact_capacity: 1 }
+    let captured: Prepared = (prepare ownership_sample model input exact (state.empty))
+    assert captured.proceed
+    let caller_request: Request = Request { present: true, functions_present: true, function: 0, caller_present: true, reference: 0,
+        module_identity: 1, analysis: 1, facts_present: true, fact_function: 0, fact_capacity: 0 }
+    let bad_caller: Prepared = (prepare ownership_sample model input caller_request (state.empty))
+    assert (== bad_caller.result.message "I require exact caller-origin parameter authority")
+    assert (== (at bad_caller.cache.status 0) 0)
+    let empty: Prepared = (prepare ownership_sample (model_sample []) input (request_sample) (state.empty))
+    assert (== empty.result.message "I exceeded my bounded affine instruction count")
+    let local_bound: Prepared = (prepare ownership_sample (model_bounds [] 257 0) input (request_sample) (state.empty))
+    let byte_bound: Prepared = (prepare ownership_sample (model_bounds [] 0 131073) input (request_sample) (state.empty))
+    assert (== local_bound.result.message "I exceeded my bounded affine analysis size")
+    assert (== byte_bound.result.message local_bound.result.message)
+    let mut many: array<u8> = []
+    for index in (range 0 4097) { set many (array_push many 0) }
+    let count_bound: Prepared = (prepare ownership_sample (model_sample many) input (request_sample) (state.empty))
+    assert (== count_bound.result.message "I exceeded my bounded affine instruction count")
+    assert (== (at input.status 0) 0) assert (== ready.queue.pending 1)
+    let maximum: Prepared = (prepare ownership_sample (model_sample (array_slice many 0 4096)) input (request_sample) (state.empty))
+    assert maximum.proceed assert (== (array_length maximum.decoded.instructions) 4096)
+    assert (== (array_length maximum.queue.items) 4096) assert (== maximum.queue.pending 1)
+}
+
+fn request_sample() -> Request {
+    return Request { present: true, functions_present: true, function: 0, caller_present: false, reference: 0,
+        module_identity: 1, analysis: 1, facts_present: false, fact_function: 0, fact_capacity: 0 }
+}
+shadow request_sample { assert (request_sample).present assert (not (request_sample).caller_present) }
+fn model_sample(code: array<u8>) -> owner.Module {
+    return owner.Module { layouts: [0,0,0,0], code: code, strings: [],
+        functions: [calls.Function { start: 0, length: (array_length code), arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+}
+shadow model_sample { assert (== (at (model_sample [61]).functions 0).length 1) }
+
+fn model_bounds(code: array<u8>, locals: int, length: int) -> owner.Module {
+    return owner.Module { layouts: [0,0,0,0], code: code, strings: [],
+        functions: [calls.Function { start: 0, length: length, arity: 0, locals: locals, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+}
+shadow model_bounds { assert (== (at (model_bounds [] 257 131073).functions 0).locals 257) }
