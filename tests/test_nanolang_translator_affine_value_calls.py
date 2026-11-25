@@ -101,7 +101,7 @@ def value_call_cases():
                   context=context,authority=authority_text(state),allowed=numbers(after_allowed),keys=numbers(keys),derived=derived)
         cases.append((name,raw,want));return raw
     for graph,target,functions in product((False,True),(0,1,7,8,NO),(2,8)):
-        add(f'graph-target-{graph}-{target}-{functions}',target=target,functions=functions,
+        add(f'graph-target-{graph}-{target}-{functions}',graph=graph,target=target,functions=functions,
             error='' if graph and 0<target<functions else CALL)
     for declared,tag,observed,owned in product(range(1,6),range(256),(False,True),(False,True)):
         error=SHAPE if declared==3 else '' if tag==declared and not observed and not owned else ARGUMENT
