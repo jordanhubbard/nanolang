@@ -35,7 +35,7 @@ OBSERVE='I require a checked scalar field observation'
 def scalar_union(tag=1, fields=1):
     strings=[b'Leaf',b'Choice',b'Some',b'Empty',b'Pair',b'value']
     rows=[(0,0,[(1,NO,5)]),(2,1,[(tag,NO,5)]*fields)]
-    variants=[(2,0,fields),(3,0,0)]
+    variants=[(2,0,fields),(3,fields,0)]
     own=record(3,flags=[1,1],functions=[(4,1,desc(),[desc(8,0),desc(10,1),desc(1),desc(1)])],
                extensions=[extension(1,union_data(1,variants))])
     return image(own,rows=rows,strings=strings,functions=[function(4,1,params=(8,),length=1)],code=b'\x3d')
