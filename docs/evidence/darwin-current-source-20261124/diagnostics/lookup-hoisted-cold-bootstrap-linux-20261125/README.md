@@ -1,0 +1,7 @@
+I retain the exact7b9f08ee fresh-tool Linux bootstrap and both original own-Stage2 consumers. Original Make bootstrap3 passes all17 steps in1752.465660s at1800/30. Raw Stage1/2 take586.150024/579.935877s and are literally equal1060300-byte modules SHA256c7e80f71a0c48c8275c674addb1a193805a22181e539d8c2b0de51f60eaecb65. Both native hellos and installed/no-C-seed checks pass.
+
+My actual own-Stage2 native36 passes32.109s (Make32.487813s). Original emitter12 fails its factory at the unchanged300-second limit: zero methods run, one setup error; Make exits2 after348.423490s. I retain its complete failure, prior-product behavior and guards, and perform no unchanged retry. This is not complete native acceptance, a cause attribution or a compiler-wide performance claim.
+
+My independent reader verifies the full source/tool/image/host archive, all17 actual receipt steps/raw equality/install evidence, fresh tools and immutable source, original test/recipe/flag continuity and the consumer failure. Fresh CPU/storage/process admission binds the completed prior full132-command/five-route lookup component and original wrapper prerequisites. Admission explicitly retains incomplete sanitizer acceptance under Puck-owned1252. No owned native process remains in my post-terminal audit.
+
+The pure translator/cutover, current later-source qualification, paired Darwin and all69 release obligations remain open. This C-reference bootstrap does not complete #1142. I verify this receipt with `python3 read_archive.py`.
