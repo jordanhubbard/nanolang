@@ -101,12 +101,15 @@ shadow transfer {
     assert (== (array_length input.stack) 0)
     let mismatch: scalar.Transition = (transfer loaded.frame 17 1 2 false)
     assert (not mismatch.valid) assert (== mismatch.message "I require the exact scalar local type")
-    assert (not (state.local_info loaded.frame.locals 1).valid)
+    let prior_info: state.Query = (state.local_info loaded.frame.locals 1)
+    assert (not prior_info.valid)
     let floating: frame.Frame = (scalar.transfer input 2 0 false).frame
     let stored: scalar.Transition = (transfer floating 17 1 2 false)
-    assert stored.valid assert (state.local_info stored.frame.locals 1).valid
+    let stored_info: state.Query = (state.local_info stored.frame.locals 1)
+    assert stored.valid assert stored_info.valid
     assert (== (array_length stored.frame.stack) 0)
-    assert (not (state.local_info floating.locals 1).valid)
+    let floating_info: state.Query = (state.local_info floating.locals 1)
+    assert (not floating_info.valid)
     (array_set stored.frame.globals 0 15)
     assert (== (at floating.globals 0) 9)
 }
