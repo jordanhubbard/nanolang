@@ -143,7 +143,7 @@ fn describe_frames(c: read.Cursor) -> string {
     assert (== (snapshot a.value) before_a) assert (== (snapshot b.value) before_b)
     let mut message: string = ""
     if (== op 1) { set message result.message }
-    let text: string = (+ (+ (flag result.valid) (flag result.changed)) (+ "|" (+ message (+ "|" (+ (snapshot result.frame) (+ "|" (authority_snapshot result.frame.locals)))))))
+    let text: string = (+ (+ (flag result.valid) (flag result.changed)) (+ "|" (+ message (+ "|" (snapshot result.frame)))))
     # I mutate independently cloned nested storage after every observed result.
     let copied: frame.Frame = (frame.clone result.frame)
     if (> (array_length copied.stack) 0) { (array_set (at copied.stack 0).excluded 0 (not (at (at copied.stack 0).excluded 0))) }
@@ -152,7 +152,25 @@ fn describe_frames(c: read.Cursor) -> string {
     assert (== (snapshot a.value) before_a) assert (== (snapshot b.value) before_b)
     return text
 }
-shadow describe_frames { assert (== (describe_frames (read.open [])) "D") }
+shadow describe_frames {
+    assert (== (describe_frames (read.open [])) "D")
+    let bytes: array<u8> = [
+        2,0,0,0,1,0,0,0,0,0,0,0,105,0,0,0,4,0,0,0,
+        40,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,0,0,
+        0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+        1,0,0,0,0,0,0,0,1,0,0,0,2,0,0,0,1,0,0,0,
+        255,255,255,255,1,0,0,0,255,255,255,255,1,0,0,0,255,255,255,255,
+        61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0
+    ]
+    let cursor: read.Cursor = (read.open bytes)
+    let kind: int = (read.read_u32 cursor)
+    assert (== kind 2)
+    assert (== (describe_frames cursor) "10||0,0,0,65535,0,0,0,65535,///0,0,")
+    assert (== (read.position cursor) (array_length bytes))
+}
 
 fn describe_queue(c: read.Cursor) -> string {
     let capacity: int = (read.read_u32 c)
