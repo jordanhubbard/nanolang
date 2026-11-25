@@ -46,7 +46,8 @@ fn validate(bytes: array<u8>, ctx: Context) -> int {
         return 0
     }
     if (or (not ctx.ownership_present) (not ctx.layouts_present)) { return 8 }
-    return (owned.validate bytes ctx.model).status
+    let checked: owned.Declaration = (owned.validate bytes ctx.model)
+    return checked.status
 }
 shadow validate {
     assert (== (validate [] (context true false true)) 0)

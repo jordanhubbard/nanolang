@@ -194,7 +194,8 @@ shadow extension_facts {
 pub fn prepare(bytes: array<u8>, model: owned.Module, function: int, module_identity: int, analysis: int) -> Facts {
     if (or (or (<= module_identity 0) (<= analysis 0))
         (or (== (array_length bytes) 0) (or (< function 0) (>= function (array_length model.functions))))) { return (empty) }
-    if (!= (owned.validate bytes model).status 0) { return (empty) }
+    let checked: owned.Declaration = (owned.validate bytes model)
+    if (!= checked.status 0) { return (empty) }
     let table: payload.PayloadTable = (payload.decode model.layouts 4)
     if (!= table.status 0) { return (empty) }
     let c: read.Cursor = (read.open bytes)

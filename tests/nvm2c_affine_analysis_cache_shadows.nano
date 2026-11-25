@@ -1,0 +1,15 @@
+module "src_nano/nvm2c/affine_analysis_cache.nano" as cache
+module "src_nano/nvm2c/affine_call_context.nano" as context
+
+fn main() -> int { return 0 }
+shadow main {
+    let initial: cache.Cache = (cache.create context.Context { globals_valid: true, value_graph: true, effect_globals: false, globals: [] })
+    let entry: cache.Entry = (cache.enter initial true true 2 1 false)
+    assert entry.proceed assert (== (at entry.cache.status 1) 1)
+    let result: cache.Result = cache.Result { ok: true, byte_offset: 0, reachable: 2, visits: 2, message: "" }
+    let bound: cache.Cache = (cache.finish entry.cache 1 true result)
+    assert (== (at bound.status 1) 1)
+    let done: cache.Cache = (cache.finish entry.cache 1 false result)
+    let reused: cache.Entry = (cache.enter done true true 2 1 false)
+    assert reused.cached assert reused.result.ok
+}

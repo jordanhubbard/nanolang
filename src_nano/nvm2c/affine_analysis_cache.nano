@@ -1,0 +1,155 @@
+module nvm2c_affine_analysis_cache
+module "src_nano/nvm2c/affine_call_context.nano" as context
+module "src_nano/nvm2c/ownership_queries.nano" as queries
+
+# I belong to one analysis invocation. My walk derives every stored result.
+pub struct Result { ok: bool, byte_offset: int, reachable: int, visits: int, message: string }
+pub struct Cache {
+    context: context.Context, status: array<int>, results: array<Result>,
+    allowed: array<array<int>>, returns: array<array<int>>, keys: array<array<int>>
+}
+pub struct Entry { proceed: bool, cached: bool, cache: Cache, result: Result }
+
+pub fn empty_result() -> Result { return Result { ok: false, byte_offset: 0, reachable: 0, visits: 0, message: "" } }
+shadow empty_result {
+    let result: Result = (empty_result)
+    assert (not result.ok) assert (== result.byte_offset 0) assert (== result.reachable 0)
+    assert (== result.visits 0) assert (== result.message "")
+}
+
+pub fn create(input: context.Context) -> Cache {
+    let mut status: array<int> = [] let mut results: array<Result> = []
+    let mut allowed: array<array<int>> = [] let mut returns: array<array<int>> = [] let mut keys: array<array<int>> = []
+    for function in (range 0 8) {
+        set status (array_push status 0) set results (array_push results (empty_result))
+        let mut row: array<int> = [] let mut output: array<int> = []
+        for global in (range 0 (array_length input.globals)) { set row (array_push row 0) set output (array_push output 0) }
+        set allowed (array_push allowed row) set returns (array_push returns output) set keys (array_push keys [])
+    }
+    let copied: context.Context = context.Context { globals_valid: input.globals_valid, value_graph: input.value_graph,
+        effect_globals: input.effect_globals, globals: (array_slice input.globals 0 (array_length input.globals)) }
+    return Cache { context: copied, status: status, results: results, allowed: allowed, returns: returns, keys: keys }
+}
+shadow create {
+    let input: context.Context = context.Context { globals_valid: true, value_graph: true, effect_globals: false,
+        globals: [queries.Global { tag: 1, mutable: true, layout: 4294967295 }] }
+    let cache: Cache = (create input)
+    assert (== (array_length cache.status) 8) assert (== (array_length cache.allowed) 8)
+    for index in (range 0 8) {
+        let result: Result = (at cache.results index)
+        assert (== (at cache.status index) 0) assert (not result.ok) assert (== result.visits 0)
+        assert (== (at (at cache.allowed index) 0) 0) assert (== (at (at cache.returns index) 0) 0)
+        assert (== (array_length (at cache.keys index)) 0)
+    }
+    (array_set (at cache.allowed 0) 0 3)
+    assert (== (at (at cache.allowed 1) 0) 0)
+    (array_set cache.context.globals 0 queries.Global { tag: 4, mutable: false, layout: 4294967295 })
+    assert (== (at input.globals 0).tag 1)
+}
+
+pub fn clone(input: Cache) -> Cache {
+    let mut allowed: array<array<int>> = [] let mut returns: array<array<int>> = [] let mut keys: array<array<int>> = []
+    for function in (range 0 8) {
+        let a: array<int> = (at input.allowed function) let r: array<int> = (at input.returns function) let k: array<int> = (at input.keys function)
+        set allowed (array_push allowed (array_slice a 0 (array_length a)))
+        set returns (array_push returns (array_slice r 0 (array_length r)))
+        set keys (array_push keys (array_slice k 0 (array_length k)))
+    }
+    return Cache { context: context.Context { globals_valid: input.context.globals_valid, value_graph: input.context.value_graph,
+        effect_globals: input.context.effect_globals, globals: (array_slice input.context.globals 0 (array_length input.context.globals)) },
+        status: (array_slice input.status 0 8), results: (array_slice input.results 0 8), allowed: allowed, returns: returns, keys: keys }
+}
+shadow clone {
+    let input: Cache = (create context.Context { globals_valid: true, value_graph: true, effect_globals: false,
+        globals: [queries.Global { tag: 1, mutable: true, layout: 4294967295 }] })
+    (array_set input.keys 1 [7])
+    let copied: Cache = (clone input)
+    (array_set copied.status 1 2) (array_set (at copied.allowed 1) 0 3) (array_set (at copied.returns 1) 0 9)
+    (array_set (at copied.keys 1) 0 8) (array_set copied.results 1 Result { ok: true, byte_offset: 1, reachable: 2, visits: 3, message: "checked" })
+    (array_set copied.context.globals 0 queries.Global { tag: 4, mutable: false, layout: 4294967295 })
+    let result: Result = (at input.results 1)
+    assert (== (at input.status 1) 0) assert (== (at (at input.allowed 1) 0) 0) assert (== (at (at input.returns 1) 0) 0)
+    assert (== (at (at input.keys 1) 0) 7) assert (not result.ok) assert (== (at input.context.globals 0).tag 1)
+}
+
+# I call this only with the current walk's result and existing per-function vectors.
+pub fn finish(input: Cache, function: int, caller_present: bool, result: Result) -> Cache {
+    let copied: Cache = (clone input)
+    if (and input.context.value_graph (and (not caller_present) (and (>= function 0) (< function 8)))) {
+        (array_set copied.results function result) (array_set copied.status function 2)
+    }
+    return copied
+}
+shadow finish {
+    let input: Cache = (create context.Context { globals_valid: true, value_graph: true, effect_globals: false, globals: [] })
+    let result: Result = Result { ok: false, byte_offset: 7, reachable: 2, visits: 3, message: "refused" }
+    let stored: Cache = (finish input 1 false result)
+    let saved: Result = (at stored.results 1)
+    assert (== (at stored.status 1) 2) assert (== saved.byte_offset 7) assert (== saved.message "refused")
+    let bound: Cache = (finish input 1 true result)
+    let outside: Cache = (finish input 8 false result)
+    assert (== (at bound.status 1) 0) assert (== (at outside.status 1) 0) assert (== (at input.status 1) 0)
+}
+
+fn refused(input: Cache, function: int, caller_present: bool, message: string) -> Entry {
+    let result: Result = Result { ok: false, byte_offset: 0, reachable: 0, visits: 0, message: message }
+    return Entry { proceed: false, cached: false, cache: (finish input function caller_present result), result: result }
+}
+shadow refused {
+    let input: Cache = (create context.Context { globals_valid: false, value_graph: true, effect_globals: false, globals: [] })
+    let entry: Entry = (refused input 1 false "refused")
+    let saved: Result = (at entry.cache.results 1)
+    assert (not entry.proceed) assert (not entry.cached) assert (== entry.result.message "refused")
+    assert (== (at entry.cache.status 1) 2) assert (== saved.message "refused") assert (== (at input.status 1) 0)
+}
+
+pub fn enter(input: Cache, present: bool, functions_present: bool, functions: int, function: int, caller_present: bool) -> Entry {
+    if (or (not present) (or (not functions_present) (or (< function 0) (or (>= function functions) (not input.context.globals_valid))))) {
+        return (refused input function caller_present "I require checked ownership declarations")
+    }
+    if (and (> (array_length input.context.globals) 0) (not input.context.value_graph)) {
+        return (refused input function caller_present "I require a bounded acyclic value graph for global flow")
+    }
+    if (and input.context.value_graph (not caller_present)) {
+        # My real graph admits at most eight functions. I refuse malformed private data.
+        if (>= function 8) { return (refused input function caller_present "I require bounded checked analysis cache slots") }
+        if (== (at input.status function) 2) {
+            return Entry { proceed: false, cached: true, cache: (clone input), result: (at input.results function) }
+        }
+        if (== (at input.status function) 1) { return (refused input function caller_present "I refuse recursive owned value analysis") }
+        let copied: Cache = (clone input)
+        (array_set copied.status function 1)
+        for global in (range 0 (array_length input.context.globals)) { (array_set (at copied.allowed function) global 3) }
+        return Entry { proceed: true, cached: false, cache: copied, result: (empty_result) }
+    }
+    return Entry { proceed: true, cached: false, cache: (clone input), result: (empty_result) }
+}
+shadow enter {
+    let input: Cache = (create context.Context { globals_valid: true, value_graph: true, effect_globals: false,
+        globals: [queries.Global { tag: 1, mutable: true, layout: 4294967295 }] })
+    (array_set (at input.returns 1) 0 10) (array_set input.keys 1 [7])
+    let fresh: Entry = (enter input true true 2 1 false)
+    assert fresh.proceed assert (not fresh.cached) assert (== (at fresh.cache.status 1) 1)
+    assert (== (at (at fresh.cache.allowed 1) 0) 3) assert (== (at (at fresh.cache.returns 1) 0) 10)
+    assert (== (at (at fresh.cache.keys 1) 0) 7) assert (== (at input.status 1) 0)
+    let recursion: Entry = (enter fresh.cache true true 2 1 false)
+    assert (not recursion.proceed) assert (not recursion.cached) assert (== (at recursion.cache.status 1) 2)
+    assert (== recursion.result.message "I refuse recursive owned value analysis")
+    let memo: Entry = (enter recursion.cache true true 2 1 false)
+    assert memo.cached assert (not memo.proceed) assert (== memo.result.message recursion.result.message)
+    let caller: Entry = (enter recursion.cache true true 2 1 true)
+    assert caller.proceed assert (not caller.cached) assert (== (at caller.cache.status 1) 2)
+    let missing: Entry = (enter recursion.cache false true 2 1 false)
+    assert (not missing.cached) assert (== missing.result.message "I require checked ownership declarations")
+    let nongraph: Cache = (create context.Context { globals_valid: true, value_graph: false, effect_globals: false,
+        globals: [queries.Global { tag: 1, mutable: true, layout: 4294967295 }] })
+    let invalid: Entry = (enter nongraph true true 2 1 false)
+    assert (not invalid.proceed) assert (== invalid.result.message "I require a bounded acyclic value graph for global flow")
+    let no_globals: Cache = (create context.Context { globals_valid: true, value_graph: false, effect_globals: false, globals: [] })
+    let ordinary: Entry = (enter no_globals true true 2 1 false)
+    assert ordinary.proceed assert (== (at ordinary.cache.status 1) 0)
+    let success: Result = Result { ok: true, byte_offset: 0, reachable: 2, visits: 2, message: "" }
+    let completed: Cache = (finish fresh.cache 1 false success)
+    let reused: Entry = (enter completed true true 2 1 false)
+    assert reused.cached assert reused.result.ok assert (== reused.result.reachable 2) assert (== reused.result.visits 2)
+}

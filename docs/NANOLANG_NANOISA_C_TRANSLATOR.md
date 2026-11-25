@@ -1474,3 +1474,22 @@ flags/global rows with unchanged C initialization and independent expectations.
 Full source/generated-sanitizer/paired qualification remains required.
 
 I publish my [context C audit](evidence/darwin-current-source-20261124/diagnostics/affine-call-context-c-audit-linux-20261125/README.md) at sourced992d95bb3:165 original-limit commands,1001 unchanged baseline reports and834 complete new context reports pass. My reader verifies5337 records, all guards and the retained zero-extension fixture correction with unchanged expectations/algorithm. Ordinary imported shadows pass; pure callee and full-route acceptance remain required.
+
+## My private per-analysis cache lifecycle
+
+I initialize eight zeroed function slots and isolate status, result, allowed-entry,
+return-relation and escape-key rows. These slots belong to one analysis invocation;
+I do not reuse them across module identities or caller-origin bindings. My walk
+must derive every result and update its function vectors before finalization.
+
+Entry preserves declaration/global guard order before memo lookup. A finished
+value-call result reuses success or failure; an in-progress value call refuses
+recursion and memoizes that failure through the normal done path. A fresh value
+analysis marks its slot in progress and resets only its allowed-entry masks to3.
+Caller-bound reference analysis bypasses lookup, reset and result memoization.
+Ordinary no-global nongraph analysis also bypasses value memoization. Failed early
+guards still follow the existing value-graph/caller/function-bound done condition.
+
+My ordinary shadows check these transitions and mutable-vector/result isolation.
+They do not derive a callee proof or establish C differential, full source,
+generated-sanitizer/paired, CFG/lifetime, executable or emission acceptance.
