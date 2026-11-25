@@ -1361,3 +1361,14 @@ first5305 metadata-fixture refusals with unchanged expected reports. Strict
 syntax, typed AST and shadow presence pass. I still require execution of my
 new NanoLang shadows and all source/generated-sanitizer/paired routes before
 whole-walk, profile or emission qualification.
+
+## My foundation qualification failure
+
+My [complete five-method terminal](evidence/darwin-current-source-20261124/diagnostics/affine-foundation-shadow-failure-linux-20261125/README.md)
+atb43042ec finishes with four passes and one failure. Flow/FIFO, frame,
+operand/profile and scalar retain189474 complete actual-C/five-route reports,
+with all guards and original limits. The local method's C-seed native driver
+build passes, but NanoVirt refuses its imported transfer shadow with BOOL_NOT
+requires a boolean before any local differential route completes. I retain
+all10409 local inputs and1001 original controls. I track localization in #1259,
+do not accept the full foundation and do not admit the queued global/array gate.
