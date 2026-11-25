@@ -1,0 +1,7 @@
+{
+  "exit": 1,
+  "expected_rejection": true,
+  "no_commands": true,
+  "no_checkout": true,
+  "prepared_root_started": false
+}

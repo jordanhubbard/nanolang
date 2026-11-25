@@ -1,0 +1,11 @@
+{
+  "terminal": true,
+  "source_base": "af6530cc54ed4b9554233795b903fa43fe4d8bcf",
+  "working_overlay": false,
+  "commands": [],
+  "ordinary_seconds": 10,
+  "new_bootstrap": false,
+  "stage_alias": false,
+  "whole_release": false,
+  "exception": "AssertionError('I require the terminal qualified five-method foundation before a new gate')"
+}

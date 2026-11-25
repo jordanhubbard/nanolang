@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-combined-foundation-admission-20261125-k2bd9qwg/setup.py", line 16, in <module>
+    assert foundation.get('terminal') and foundation.get('accepted_component') and foundation.get('all_guards_match'), 'I require the terminal qualified five-method foundation before a new gate'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require the terminal qualified five-method foundation before a new gate
