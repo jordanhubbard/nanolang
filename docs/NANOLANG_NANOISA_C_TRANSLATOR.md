@@ -1504,3 +1504,5 @@ complete analysis results, context flags/global rows and all eight mutable cache
 slots, including failed-result memoization and caller-bound done-path bypass.
 Synthetic seeds prove these private transitions only; fresh allowed-mask reset,
 pure callee derivation, caller binding and whole-walk acceptance remain separate.
+
+I publish [my cache-path audit](evidence/darwin-current-source-20261124/diagnostics/affine-cache-paths-c-audit-linux-20261125/README.md), source8848877933:281 original-limit C commands,1001 unchanged baseline reports and3317 complete cache-path reports pass. Twelve selected VM runtime controls match those full C reports. My reader verifies5891 records and all guards; full3317-case VM/source/sanitizer/paired and fresh/whole-walk acceptance remain required.
