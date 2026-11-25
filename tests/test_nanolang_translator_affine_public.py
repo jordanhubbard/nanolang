@@ -5,7 +5,7 @@ import hashlib,json,os,random,struct,tempfile,unittest
 from tests import nanolang_translator_routes as routes
 from tests.test_nanolang_translator_affine_frame import words,flow_cases,queue_cases,frame_cases
 from tests.test_nanolang_translator_affine_analysis import analysis_cases,definition,module,assemble,i64,u16,u32,instruction_count
-from tests.test_nanolang_translator_ownership import desc
+from tests.test_nanolang_translator_ownership import desc,extension,globals_data
 
 ROOT=Path(__file__).resolve().parents[1]
 NO=0xffffffff
@@ -82,6 +82,12 @@ def public_cases():
     for branch in (57,58):
         code,labels=assemble([b'\x03\1',(branch,0,'read'),i64(),u32(19,0),'read',u32(18,0),b'\x3d'])
         for mode in (0,1,2):add(f'joined-global-{branch}-{mode}',module([definition(code)],globals_=1),mode=mode,capacity=instruction_count(code),expected=dict(ok=False,sentinels=True))
+    immutable=[extension(3,globals_data([struct.pack('<BBHI',1,0,0,NO)]))]
+    code,labels=assemble(['loop',u32(19,0),(56,0,'loop')])
+    add('immutable-canonical-store-requeue',module([definition(code)],extra=immutable),mode=2,expected=dict(result=(False,0,0,3,EFFECT_GLOBAL)))
+    code,labels=assemble([('handler',0,'arm',0,0),'loop',i64(),u32(19,0),b'\xa7'+words(0)+b'\0\0\x08',(56,0,'loop'),'arm',i64(),b'\xa8'])
+    carrier=module([definition(code)],extra=immutable,strings=[b'op'],effects=operations)
+    for mode in (0,1):add(f'immutable-resumed-store-{mode}',carrier,mode=mode,capacity=instruction_count(code),expected=dict(ok=False,error=EFFECT_GLOBAL,sentinels=True))
     rng=random.Random(20261125)
     tuples=[(0,0,0,0,0),(NO,0,NO,NO,NO),(1,2,3,4,5)]+[tuple(rng.randrange(2**32) for _ in range(5)) for _ in range(128)]
     for index,values in enumerate(tuples):
