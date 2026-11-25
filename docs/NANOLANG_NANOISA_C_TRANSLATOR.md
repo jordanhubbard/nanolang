@@ -1192,3 +1192,44 @@ backend defect. Its source and original expectations remain retained.
 This component grants no affine/profile/representation authority and emits no
 complete translator. Full C control flow/runtime/service emission, complete
 corpus/platform qualification, fresh products and actual cutover remain required.
+
+## My global-transfer implementation contract
+
+I next implement LOAD_GLOBAL and STORE_GLOBAL as an internal pure transfer,
+using checked `ownership_queries.Global` declarations and affine local-state
+type ownership. This consumes an already established value-call-graph decision;
+it does not establish that graph or validate a global declaration table.
+
+My result carries a fresh frame and a fresh vector of allowed function-entry
+states. I preserve all local, stack, handler, activation, exclusion and untouched
+global facts. Refusal returns isolated input snapshots and no successor. Before
+transferring, I require matching declaration, frame-relation and allowed-mask
+vectors of at most256 entries, four-bit relations and two-bit allowed masks.
+Unsupported opcodes remain explicitly unhandled.
+
+I preserve my C step's order: require the value graph and declared slot; refuse
+resource-bearing types; then either load the exact declared value or require a
+store value with exact tag/layout and no observation/owned escape. Loads
+intersect the function's allowed-entry mask with the preimage of initialized
+states. Immutable stores intersect it with the preimage of uninitialized
+states; mutable stores keep that mask. Stores compose the slot relation with10
+and pop exactly one value. With effect-global analysis selected, I leave these
+allowed masks unchanged: the separate activation/handler proof owns those
+preconditions. An empty allowed mask is a computed precondition, not a step
+error. Full stacks retain the original load failure.
+
+I compare the unchanged actual C `step` through a separate fixture, preserving
+its production source and every old protocol and assertion. The fixture
+normalizes failed transitions to isolated input snapshots, as my scalar/local
+fixtures do, and reports both complete frame facts and allowed-entry masks.
+Independent expectations cover every relation/allowed/mutability/effect mode,
+physical tag and exact owner/nominal/array boundaries, stack limits, missing
+slots, caller aliases and malformed carriers. All source routes, generated
+sanitisers, targeted actual-C sanitizers and paired qualification remain
+required. I retain any ownership-query dependency refusal under #1204 rather
+than replacing that shared declaration type with a narrower substitute.
+
+This is an implementation contract, not executable qualification. Global
+load/store transfer does not complete interprocedural summaries, effect
+activation/return semantics, CFG convergence, private admission, C body/runtime
+emission, product selection or the full69-entry release.
