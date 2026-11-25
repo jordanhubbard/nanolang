@@ -1506,3 +1506,9 @@ Synthetic seeds prove these private transitions only; fresh allowed-mask reset,
 pure callee derivation, caller binding and whole-walk acceptance remain separate.
 
 I publish [my cache-path audit](evidence/darwin-current-source-20261124/diagnostics/affine-cache-paths-c-audit-linux-20261125/README.md), source8848877933:281 original-limit C commands,1001 unchanged baseline reports and3317 complete cache-path reports pass. Twelve selected VM runtime controls match those full C reports. My reader verifies5891 records and all guards; full3317-case VM/source/sanitizer/paired and fresh/whole-walk acceptance remain required.
+
+## My completed Linux foundation qualification
+
+I publish [my exact7b75651234 foundation](evidence/darwin-current-source-20261124/diagnostics/affine-typed-five-linux-20261125/README.md): all five original methods pass in8061.732 seconds,19802 commands and257934 complete actual-C/five-route reports. The reader verifies87435 records,35 builds/10 sanitizer builds,10 providers, exact source/original7b9 producer/tool/host/object/origin/observer guards and full terminal journal replay at every original limit, without failures/errors/skips. My typed local-shadow fixture clarifies the source without fixing #1259.
+
+This receipt covers flow/FIFO, frame, operand/profile, scalar and local transfer at that frozen Linux source. Later common-source/cache changes, global/array and other leaves, paired hosts, whole CFG/private/executable admission and actual pure C emission/cutover remain required. I do not infer complete5.1 acceptance or a new bootstrap from it.
