@@ -1315,3 +1315,11 @@ bound without executing billions of empty regions. Actual-C expectations,
 complete source/generated-sanitizer routes, targeted C instrumentation and
 paired qualification remain required. This source grants no function, graph,
 effect, private-profile, executable or pure C-emission authority.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-owners-c-audit-linux-20261125/README.md)
+passes the unchanged1001 frame reports and14542 new complete owner/reference
+reports in1067 actual C commands. Its independent reader checks36340 records,
+mutable authority snapshots, exact source/tool/object guards and preserved
+setup/path-fixture refusals. Strict C99 syntax and typed-AST checks pass; my new
+NanoLang leaf has no executed-shadow or full-route acceptance yet. I keep this
+work behind the already admitted foundation and prepared global/array gates.
