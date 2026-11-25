@@ -111,7 +111,7 @@ def array_cases():
         if mode:commands += [(6, 0, 0, 0), (8, 1, 0, mode)]
         add(f'length-root-access-{live}-{mode}', 85, [value(7, observation=True, root=0, layout=0)],
             carrier=constructor_model(parameter=True), commands=commands,
-            error='' if live and mode != 2 else LENGTH, result=[value(1)], live={0: live})
+            error='' if live and mode != 2 else LENGTH, result=[value(1)], live={0: live and mode != 2})
     for op, index in product((80, 88), (0, 1, 4)):
         add(f'explicit-empty-{op}-{index}', op, tag=TYPES[index][0], carrier=constructor_model(selected=index, tag=TYPES[index][0]), result=[value(7, layout=index)])
     for op in (80, 88):
