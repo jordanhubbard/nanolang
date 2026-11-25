@@ -1323,3 +1323,33 @@ mutable authority snapshots, exact source/tool/object guards and preserved
 setup/path-fixture refusals. Strict C99 syntax and typed-AST checks pass; my new
 NanoLang leaf has no executed-shadow or full-route acceptance yet. I keep this
 work behind the already admitted foundation and prepared global/array gates.
+
+## My aggregate-transfer contract
+
+I port STRUCT_GET97, MATCH_TAG107, AGG_PACK251, AGG_GET252 and AGG_TAG254
+as pure frame transfers. I retain the C step's distinct constructor contracts.
+A copyable record requires value-graph mode, zero variant, a complete copyable
+layout and exact declared field count, tags, physical layouts and absence of
+owner/observation authority. A union constructor queries its retained ordinal
+and variant before checking payload facts and the shared owned-field matcher.
+Its output preserves the selected variant and derived ownership; it does not
+acquire a new value-graph precondition.
+
+MATCH_TAG checks a union stack value without observing or consuming it, scans
+retained ordinals for the concrete layout/variant, and leaves exclusions and
+selected arm unchanged. Branch refinement and convergence remain separate.
+AGG_TAG accepts a plain union and returns a fresh INT. Ordinary record projection
+requires a complete copyable layout and nonowned field. Union projection needs
+a proven arm and permits only scalar/STRING fields; aggregate payloads still
+require destructive unpack. I preserve the established observation fallback,
+including its root/hold checks, scalar-first lookup and graph-gated STRING
+lookup. That fallback does not impose an extra physical stack-tag check.
+
+I compare complete frame and mutable authority snapshots with unchanged C,
+preserve the1001 original reports, and use physical-tag/flag, declaration/layout,
+variant, graph, full-stack, held-root and malformed-carrier controls. My new
+source has useful shadows and caller-isolation assertions. C expectation audits,
+executed NanoLang shadows, full source/generated-sanitizer/paired routes and
+whole-walk integration remain distinct requirements. No AGG_SET implementation,
+branch convergence, executable admission or pure emission follows from this
+five-instruction leaf.
