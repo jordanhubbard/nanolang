@@ -12,7 +12,7 @@ from tests.test_nanolang_translator_affine_frame import words, value, frame, flo
 from tests.test_nanolang_translator_affine_graph import model
 from tests.test_nanolang_translator_affine_scalar import scalar_batches, stack_text
 from tests.test_nanolang_translator_affine_state import array_model
-from tests.test_nanolang_translator_ownership import desc, record, function, image, extension, effect_data
+from tests.test_nanolang_translator_ownership import desc, record, function, image, extension, effect_data, union_data
 
 ROOT = Path(__file__).resolve().parents[1]
 NO = 0xffffffff
@@ -44,7 +44,7 @@ def constructor_model(types=TYPES, *, selected=None, revision=3, tag=1, paramete
                  functions=[function(len(slots), int(parameter), params=(8,) if parameter else (), length=len(code))], code=code)
 
 
-def array_cases():
+def array_core_cases():
     cases = []
     def add(name, opcode, values=(), *, tag=0, count=0, function_=0, offset=0,
             carrier=None, commands=(), error='', result=None, live=None):
@@ -158,6 +158,57 @@ def array_cases():
     malformed += [good[:cut] for cut in (1, 3, 4, 8, 12, 16, 20, 24, 27, len(good)-1)]
     cases += [(f'malformed-{i}', raw, 'D') for i, raw in enumerate(malformed)]
     return cases
+
+
+def value_array_model(resource, tag):
+    types = [(1, NO), (2, NO), (3, NO), (4, NO), (5, NO), (8, 0), (10, 1), (7, 0)]
+    slots = [desc(7, i) for i in range(len(types))]
+    code = bytes([80, tag, 0, 61])
+    own = record(3, flags=[3 if resource else 1]*2,
+                 functions=[(len(slots), 0, desc(), slots)],
+                 extensions=[extension(1, union_data(1, [(2, 0, 1)])),
+                             extension(4, effect_data(2, types=[desc(t, n) for t, n in types]), 2)])
+    return image(own, rows=[(0, 0, [(1, NO, 3)]), (2, 1, [(8, 0, 3)])],
+                 strings=[b'Item', b'Choice', b'Some', b'field', b'op'],
+                 functions=[function(len(slots), length=len(code))], code=code)
+
+
+def array_value_cases():
+    cases = []
+    types = [('int', 1, NO), ('u8', 2, NO), ('float', 3, NO), ('bool', 4, NO),
+             ('string', 5, NO), ('record', 8, 0), ('union', 10, 1), ('array', 7, 0)]
+    for resource, (layout, (name, tag, nested)), op in product((False, True), enumerate(types), range(80, 89)):
+        owned = resource and tag in (8, 10)
+        receiver = value(7, layout=layout, owned=owned)
+        item = value(tag, layout=nested, owned=owned, variant=0 if tag == 10 else 65535)
+        count = 1 if op == 88 else 0
+        values = ([] if op == 80 else [item] if op == 88 else
+                  [receiver, item] if op == 81 else
+                  [receiver, value(1)] if op in (83, 87) else
+                  [receiver, value(1), item] if op == 84 else
+                  [receiver, value(1), value(1)] if op == 86 else [receiver])
+        error = LENGTH if owned and op == 85 else EXTRACT if owned and op not in (80, 81, 88) else ''
+        result = ([value(1)] if op == 85 else [value(tag, layout=nested, owned=owned)] if op in (82, 83) else [receiver])
+        carrier = value_array_model(resource, tag)
+        def add(label, stack, message, expected):
+            raw = words(8, op, tag, count, 0, 0, len(carrier))+carrier+frame(stack, globals_=[9], handlers=[(5, 7)], floor=1, activation=23)
+            cases.append((f'{label}-{name}-{resource}-{op}', raw,
+                          dict(valid=not message, message=message, stack=stack_text(stack if message else expected), live={})))
+        add('positive', values, error, result)
+        if op in (81, 84) and tag != 1:
+            wrong = values[:];wrong[-1] = value(1)
+            add('wrong-element', wrong, EXTRACT if owned and op == 84 else ELEMENT, result)
+            if tag in (7, 8, 10):
+                wrong = values[:];wrong[-1] = value(tag, layout=1 if tag == 8 else 0 if tag == 10 else 4, owned=owned)
+                add('wrong-layout', wrong, EXTRACT if owned and op == 84 else ELEMENT, result)
+        if op in (83, 84, 86, 87) and tag in (2, 3, 4, 5):
+            wrong = values[:];wrong[1] = value(tag)
+            add('element-tag-is-not-index', wrong, INDEX, result)
+    return cases
+
+
+def array_cases():
+    return array_core_cases()+array_value_cases()
 
 
 class AffineArrays(unittest.TestCase):
