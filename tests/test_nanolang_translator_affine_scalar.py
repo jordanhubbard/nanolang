@@ -157,7 +157,8 @@ def scalar_cases():
     malformed = [b'', words(6), words(4), words(4, 256), words(4, 0)+b'\0',
                  words(5, 256, 0, 0, 0), words(5, 1, 256, 0, 0),
                  words(5, 1, 0, 2, 0), words(5, 4, 0, 0, 0), valid+b'\0',
-                 words(5, 1, 0, 0, 28)+words(*([0]*7))]
+                 words(5, 1, 0, 0, 28)+words(*([0]*7)),
+                 words(2, 3, 0, 28)+words(*([0]*7))]
     malformed += [valid[:cut] for cut in (1, 3, 4, 8, 12, 16, 19, len(valid)-1)]
     cases += [(f'malformed-{i}', data, 'D') for i, data in enumerate(malformed)]
     return cases

@@ -68,7 +68,8 @@ static void frames(Reader *r) {
     uint32_t operation=word(r),argument=word(r),size=word(r);size_t at=0;
     NvmModule model={0};
     if(!r->ok || operation>6 || argument>65535 || !take(&r->pos,size,r->size,&at) ||
-       !load_model(r->bytes+at,size,&model) || !model.function_count){r->ok=false;return;}
+       !load_model(r->bytes+at,size,&model)){r->ok=false;return;}
+    if(!model.function_count){free_model(&model);r->ok=false;return;}
     NvmAffineState *initial=nvm_affine_state_create(&model,0,model.functions[0].local_count);
     if(!initial){free_model(&model);r->ok=false;return;}
     Frame *a=read_frame(r,initial),*b=read_frame(r,initial),*out=NULL;
