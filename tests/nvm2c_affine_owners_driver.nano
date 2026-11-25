@@ -1,3 +1,4 @@
+module "tests/nvm2c_affine_report.nano" as report_text
 module "src_nano/nvm2c/affine_owners.nano" as owners
 module "src_nano/nvm2c/affine_scalar.nano" as scalar
 module "src_nano/nvm2c/ownership_queries.nano" as queries
@@ -33,7 +34,7 @@ fn snapshot(f: frame.Frame) -> string {
         set text (+ text (+ (number item.tag) (+ (flag item.observation) ",")))
         set text (+ text (+ (number item.root) (+ (flag item.owned) ",")))
         set text (+ text (+ (number item.layout) (number item.variant)))
-        for arm in (range 0 256) { set text (+ text (flag (at item.excluded arm))) }
+        set text (+ text (report_text.exclusions item.excluded))
         set text (+ text ";")
     }
     set text (+ text "/")

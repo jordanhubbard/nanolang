@@ -1512,3 +1512,19 @@ I publish [my cache-path audit](evidence/darwin-current-source-20261124/diagnost
 I publish [my exact7b75651234 foundation](evidence/darwin-current-source-20261124/diagnostics/affine-typed-five-linux-20261125/README.md): all five original methods pass in8061.732 seconds,19802 commands and257934 complete actual-C/five-route reports. The reader verifies87435 records,35 builds/10 sanitizer builds,10 providers, exact source/original7b9 producer/tool/host/object/origin/observer guards and full terminal journal replay at every original limit, without failures/errors/skips. My typed local-shadow fixture clarifies the source without fixing #1259.
 
 This receipt covers flow/FIFO, frame, operand/profile, scalar and local transfer at that frozen Linux source. Later common-source/cache changes, global/array and other leaves, paired hosts, whole CFG/private/executable admission and actual pure C emission/cutover remain required. I do not infer complete5.1 acceptance or a new bootstrap from it.
+
+## My test-report formatter
+
+I preserve the complete256 exclusion bits and their order while building that
+fixed-width string before appending it to a growing frame report. I apply this
+only to my eight new leaf drivers. Product source, older foundation drivers,
+all case generators/references/expectations, every existing assertion and every
+build/execution limit remain unchanged.
+
+My [isolated old/new comparison](evidence/darwin-current-source-20261124/diagnostics/affine-report-benchmark-linux-20261125/README.md)
+retains72 byte-identical C reports across two counterbalanced VM/sanitized-native
+rounds, with exact published-foundation and idle/source/tool/host/provider/artifact
+guards. For one full-stack report, VM8.124/8.041 seconds become0.417/0.425;
+sanitized native19.287/19.577 become2.876/2.916. This measures test reporting on
+one Linux host. Full current-source/corpus/sanitizer/paired qualification remains
+required; I claim no compiler-wide gain or release acceptance.
