@@ -266,19 +266,22 @@ fn describe_cache(c: read.Cursor) -> string {
     let guarded: bool = (or (== present 0) (or (== functions_present 0) (or (>= function count)
         (or (== globals_valid 0) (and (> declared.number 0) (== graph 0))))))
     if (and (not guarded) (or (== caller_present 1) (== graph 0))) { return "D" }
-    let input: cache_ops.Cache = (cache_ops.create context_ops.Context { globals_valid: (== globals_valid 1), value_graph: (== graph 1),
+    let seeded: cache_ops.Cache = (cache_ops.create context_ops.Context { globals_valid: (== globals_valid 1), value_graph: (== graph 1),
         effect_globals: (== effect_mode 1), globals: declared.globals })
+    let mut prepared_keys: array<array<int>> = []
     for f in (range 0 8) {
-        (array_set input.status f status)
-        (array_set input.results f cache_ops.Result { ok: (== ok 1), byte_offset: offset, reachable: reachable, visits: visits, message: (+ "cached-" (int_to_string f)) })
+        (array_set seeded.status f status)
+        (array_set seeded.results f cache_ops.Result { ok: (== ok 1), byte_offset: offset, reachable: reachable, visits: visits, message: (+ "cached-" (int_to_string f)) })
         for g in (range 0 declared.number) {
-            (array_set (at input.allowed f) g (% (+ allowed (+ f g)) 4))
-            (array_set (at input.returns f) g (% (+ returns (+ f g)) 16))
+            (array_set (at seeded.allowed f) g (% (+ allowed (+ f g)) 4))
+            (array_set (at seeded.returns f) g (% (+ returns (+ f g)) 16))
         }
         let mut row: array<int> = []
         for key in (range 0 keys) { set row (array_push row (+ (* f 100) key)) }
-        (array_set input.keys f row)
+        set prepared_keys (array_push prepared_keys row)
     }
+    let input: cache_ops.Cache = cache_ops.Cache { context: seeded.context, status: seeded.status, results: seeded.results,
+        allowed: seeded.allowed, returns: seeded.returns, keys: prepared_keys }
     let before: string = (cache_snapshot input)
     let entry: cache_ops.Entry = (cache_ops.enter input (== present 1) (== functions_present 1) count function (== caller_present 1))
     assert (not entry.proceed)
@@ -294,7 +297,26 @@ fn describe_cache(c: read.Cursor) -> string {
     assert (== (cache_snapshot input) before)
     return text
 }
-shadow describe_cache { assert (== (describe_cache (read.open [])) "D") }
+shadow describe_cache {
+    assert (== (describe_cache (read.open [])) "D")
+    let packet: array<u8> = [
+        15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+        42,0,0,0,7,0,0,0,11,0,0,0,1,0,0,0,6,0,0,0,
+        2,0,0,0,134,0,0,0,4,0,0,0,36,0,0,0,0,0,0,0,
+        2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
+        1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,
+        0,0,0,0,1,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,
+        1,0,0,0,255,255,255,255,0,0,0,0,1,0,0,0,255,255,255,255,
+        61,61
+    ]
+    let cursor: read.Cursor = (read.open packet)
+    assert (== (read.read_u32 cursor) 15)
+    assert (== (describe_cache cursor) "0|0,0,0,0,I require checked ownership declarations|0,0,0,0||1~0,42,7,11,cached-0~//0,1,#1~0,42,7,11,cached-1~//100,101,#1~0,42,7,11,cached-2~//200,201,#1~0,42,7,11,cached-3~//300,301,#1~0,42,7,11,cached-4~//400,401,#1~0,42,7,11,cached-5~//500,501,#1~0,42,7,11,cached-6~//600,601,#1~0,42,7,11,cached-7~//700,701,#")
+    assert (== (read.position cursor) (array_length packet))
+}
 
 fn describe(bytes: array<u8>) -> string {
     if (< (array_length bytes) 4) { return "D" }
