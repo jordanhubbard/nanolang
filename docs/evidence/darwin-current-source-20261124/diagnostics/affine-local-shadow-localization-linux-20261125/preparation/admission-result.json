@@ -1,0 +1,38 @@
+{
+  "terminal": true,
+  "free_bytes": 50686681088,
+  "loadavg": [
+    1.8984375,
+    2.6142578125,
+    3.32275390625
+  ],
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "other_jobs": [],
+  "filesystem": "ext2/ext3",
+  "output_directories": {
+    "products": true,
+    "tmp": true
+  },
+  "accepted": true
+}

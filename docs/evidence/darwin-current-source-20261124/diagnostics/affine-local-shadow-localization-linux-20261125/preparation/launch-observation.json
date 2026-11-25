@@ -1,0 +1,19 @@
+{
+  "observed_utc": "2026-11-25T17:42:43.613312+00:00",
+  "pid": 1170182,
+  "cmdline": [
+    "python3",
+    "/var/tmp/nanolang-affine-typed-five-20261125-udz2o6c_/cohort.py"
+  ],
+  "executable": "/home/linuxbrew/.linuxbrew/Cellar/python@3.15/3.15.2/bin/python3.15",
+  "progress": {
+    "terminal": false,
+    "commands": 149,
+    "events": 451,
+    "complete_terminal_file": false
+  },
+  "terminal": false,
+  "accepted_component": false,
+  "source_pin": "7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8",
+  "producer_sha256": "5a537570a4f6708212fd22c7ccedd8be69207e53a11db4e5bc579a443126b1c3"
+}

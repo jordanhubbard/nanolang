@@ -61,3 +61,32 @@ No compiler repair, collector replacement, full five-method foundation,
 source/generated-sanitizer/paired, CFG/profile, pure C-emission/cutover or release
 acceptance follows from this diagnostic receipt. The queued global/array gate
 remains unexecuted. A corrected full foundation still needs fresh admission.
+
+## My freshly admitted full qualification
+
+After this diagnostic receipt is published inf588f39687, I admit a changed
+fixture run at exact7b75651234 in the new local root
+`/var/tmp/nanolang-affine-typed-five-20261125-udz2o6c_`. My archived
+[preparation reader](preparation/read_preparation.py) checks exact source Git
+objects, both published receipt readers before checkout, helper/source binding,
+the same original producer, fresh CPU/storage/process admission and a live
+launch observation for PID1170182. That observation is nonterminal.
+
+I deploy the qualified journal adapter only in that new run. I independently
+normalize its collector AST back to the complete original collector, retaining
+all five methods, command logic, assertions and limits. The only adapter edits
+are the journal writer, tracked command rows, four explicit provider/setup
+metadata save sites and five observer-source hash guards with two added
+observer assertions. Existing source/image/tool/host/object/provider checks
+remain. I preserve the old failed run and both earlier prepared gates.
+
+For the new live run, `cohort-progress.json` is the current atomic command/event
+counter, and `cohort-journal.jsonl` retains each update. `cohort-result.json`
+keeps its initial nonterminal snapshot until a complete atomic terminal write;
+its empty initial command vector does not mean execution stopped. I verify the
+specific controller/process or exec session before classifying a wait.
+
+This preparation grants no terminal or full-five acceptance. The queued
+global/array gate remains unexecuted, and #1259 remains open for the compiler
+projection repair. I require the changed run's actual full terminal before
+updating its downstream admission contract.

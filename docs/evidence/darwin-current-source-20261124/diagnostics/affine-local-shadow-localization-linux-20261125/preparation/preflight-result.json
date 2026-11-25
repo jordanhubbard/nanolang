@@ -1,0 +1,40 @@
+{
+  "terminal": true,
+  "source_pin": "7b75651234c3235cd5a0ddd82d0a02c45fb3c8a8",
+  "evidence_commit": "f588f39687b1863576472d5961baa71cef1a07f7",
+  "commands": [
+    {
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.15/bin/python3.15",
+        "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/affine-foundation-shadow-failure-linux-20261125/read_archive.py"
+      ],
+      "exit": 0,
+      "seconds": 9.094085627999448,
+      "timeout": 180
+    },
+    {
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.15/bin/python3.15",
+        "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/affine-local-shadow-localization-linux-20261125/read_archive.py"
+      ],
+      "exit": 0,
+      "seconds": 2.581929432999459,
+      "timeout": 180
+    }
+  ],
+  "receipts": {
+    "affine-foundation-shadow-failure-linux-20261125": {
+      "manifest_sha256": "994bb06c1eebb5c9034115ae291fd5a69ccabc2bd697dce531403af1c42d14fb",
+      "reader_sha256": "37d0096858ecbeb5239f04ce12e508d7742ff6e3698d02411e59263cf8669f46"
+    },
+    "affine-local-shadow-localization-linux-20261125": {
+      "manifest_sha256": "6101cb0c7d2fa544e8a63a15d814d9e977dfd88a23ae6f27af34b20abdc2b319",
+      "reader_sha256": "bd6340ac393e513350fbbaf3629f6280c32f1e458785361da984cda3876a3659"
+    }
+  },
+  "observer_helper_sha256": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d",
+  "source_checkout_started": false,
+  "failed_result_sha256": "c230ac693b106fcc4adc613e260a065e73ff2d62a705873b8a3c550e9d9fe66b",
+  "typed_fixture_sha256": "b8b4bdf462bfae03063dc9891a94fba1f383557218a7dac735a0803044bbfdea",
+  "accepted": true
+}
