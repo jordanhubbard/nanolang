@@ -1455,3 +1455,20 @@ callee, reference-call, complete graph/CFG/private/executable or pure-emission
 acceptance follows from this preparation/application interface.
 
 I publish my [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-value-calls-c-audit-linux-20261125/README.md) at source121d1b58b0:1255 original-limit commands,1001 unchanged baseline reports and15644 new complete reports pass. Twelve uncached controls assert supplied summaries against actual C callee analysis. My reader verifies39585 records and the retained fixture failures/corrections; ordinary C-producer imported shadows pass. I still require pure callee summary derivation/convergence and full source/generated-sanitizer/paired qualification.
+
+## My private call-analysis context initialization
+
+I query complete global declarations before admitting value-graph mode. I retain
+those rows even when an unrelated graph constraint refuses. Only a valid graph
+with at least one declared global triggers my second decoded-function scan.
+HANDLER_PUSH165, HANDLER_POP166, PERFORM167 and EFFECT_RESUME168 select effect-global
+analysis even in an unreachable function or instruction. Zero-global and invalid
+graphs do not receive that flag. The later decoded-function failure guard preserves
+the declarations and earlier scan flags while revoking globals-valid status.
+
+My input already contains a concrete function array; missing-module handling
+remains explicit. These flags initialize private data. They establish no callee
+summary, recursion/cache identity, convergence, CFG/lifetime, executable or
+emission authority. I retain the original1001 reports and compare full context
+flags/global rows with unchanged C initialization and independent expectations.
+Full source/generated-sanitizer/paired qualification remains required.
