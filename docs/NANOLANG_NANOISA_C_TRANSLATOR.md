@@ -1453,3 +1453,5 @@ reference authority and deliberately bypasses the ordinary value-call cache.
 A signature-only or unbound cached success cannot replace that check. No
 callee, reference-call, complete graph/CFG/private/executable or pure-emission
 acceptance follows from this preparation/application interface.
+
+I publish my [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-value-calls-c-audit-linux-20261125/README.md) at source121d1b58b0:1255 original-limit commands,1001 unchanged baseline reports and15644 new complete reports pass. Twelve uncached controls assert supplied summaries against actual C callee analysis. My reader verifies39585 records and the retained fixture failures/corrections; ordinary C-producer imported shadows pass. I still require pure callee summary derivation/convergence and full source/generated-sanitizer/paired qualification.
