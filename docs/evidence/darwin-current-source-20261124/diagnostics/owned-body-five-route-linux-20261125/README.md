@@ -1,0 +1,11 @@
+# My owned-function scope full-route qualification
+
+I qualify exact source `00025ff76979b4009b84f10f8cb8f07492c62210` in a fresh local root without overlays. My source producer is the actual `a518cdc2` Stage2 from the original passing exact880613 bootstrap. It remains a qualified earlier producer; this component does not create a new compiler or stage alias.
+
+All 132 stock-helper commands pass at the original 600-second build, 60-second runtime and ordinary ten-second shadow limits. My five routes pass all controls, all 14 original copy sizes and all 24 complete diagnostic records per route. Both generated C native products pass with ASan/UBSan instrumentation. Their builds take 397.269 and 403.242 seconds; source-producer generation takes 298.942 seconds. These timings establish no whole-compiler gain or historical cause.
+
+I preserve all 839 earlier typechecker assertion lines, the original fixture outside added controls and the byte-identical statement loop after its helper-name and initial-table substitutions. New controls cover private caller tables and aliases, nested scopes, parameter/global separation, float recursion, direct value checking and enclosing-function state restoration. Both retained C routes show the owned-function call and copying general wrappers. The unchanged for-loop path retains its separate scope copy.
+
+All 3,903 source inputs, selected tool/image/producer-host maps and actual emitted-module library bindings match their guards. Read-only observers capture the C module before command4 and the NanoLang-produced module before command7, then check both after the functional cohort. I make no closure claim for earlier build shadows. The C module is 797,780 bytes, SHA256 `a46980c47b4e5a96fca6f5a11fa1edcfa0d69bab35e3c0d126e4f30b90781cc5`; the NanoLang-produced module is 467,876 bytes, SHA256 `ca846f8406758fafe2c4f88fa34a3cd51d0c10a730970be894a864026a87e079`.
+
+Run `python3 read_archive.py` here. I link the independent earlier comparison and its retained fixture/observer refusals. An actual updated compiler, original factory300/native36+emitter12, fresh raw bootstrap, paired qualification, pure translator cutover and all 69 release entries remain separate requirements.
