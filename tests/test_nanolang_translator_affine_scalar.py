@@ -15,10 +15,11 @@ from tests.test_nanolang_translator_affine_graph import model
 from tests.test_nanolang_translator_ownership import desc
 
 ROOT = Path(__file__).resolve().parents[1]
+I64, U8, F64, BOOL, TEXT = 1, 2, 3, 4, 5
 LEAF = ({0, 1, 2, 3, 5, 6, 7, 8, 9, 56, 57, 58, 160, 161, 163, 164}
         | set(range(32, 38)) | set(range(40, 46)) | set(range(48, 51))
         | set(range(200, 205)) | set(range(216, 222)))
-SCALARS = {1, 2, 3, 4}
+SCALARS = {I64, U8, F64, BOOL}
 
 
 def stack_text(values):
@@ -40,8 +41,8 @@ def scalar_cases():
         tag, observation=observation, owned=owned, root=7, layout=11,
         variant=3, excluded=(0, 63, 64, 127, 128, 191, 192, 255))
     flags = list(product((0, 1), repeat=2))
-    for op, tag, operand in [(1, 1, 0), (2, 2, 0), (3, 3, 0),
-                             (3, 3, 1), (5, 0, 0), (6, 4, 255)]:
+    for op, tag, operand in [(1, I64, 0), (2, F64, 0), (3, BOOL, 0),
+                             (3, BOOL, 1), (5, 0, 0), (6, U8, 255)]:
         for count, graph in product((0, 1, 255, 256), (False, True)):
             values = [sample(1)]*count
             error = 'I cannot extend my analysis stack' if count == 256 else ''
@@ -94,13 +95,13 @@ def scalar_cases():
                  'I require an exact Boolean branch condition')
         add(f'condition-empty-{op}', op, error=error)
         for tag, (observed, owned) in product(range(256), flags):
-            valid = tag == 3 and not observed and not owned
+            valid = tag == BOOL and not observed and not owned
             add(f'condition-{op}-{tag}-{observed}-{owned}', op,
                 [sample(tag, observed, owned)], result=[], error='' if valid else error)
-    families = [((32, 33, 34, 35, 36, 37), 1, 1, 37, 'I require integer arithmetic operands'),
-                ((48, 49, 50), 3, 3, 50, 'I require Boolean operands'),
-                ((200, 201, 202, 203, 204), 2, 2, 204, 'I require float arithmetic operands'),
-                ((216, 217, 218, 219, 220, 221), 2, 3, -1, 'I require float comparison operands')]
+    families = [((32, 33, 34, 35, 36, 37), I64, I64, 37, 'I require integer arithmetic operands'),
+                ((48, 49, 50), BOOL, BOOL, 50, 'I require Boolean operands'),
+                ((200, 201, 202, 203, 204), F64, F64, 204, 'I require float arithmetic operands'),
+                ((216, 217, 218, 219, 220, 221), F64, BOOL, -1, 'I require float comparison operands')]
     for ops, tag, output, unary, error in families:
         for op in ops:
             needed = 1 if op == unary else 2
@@ -124,7 +125,7 @@ def scalar_cases():
             valid = tag in SCALARS or string
             error = '' if valid else 'I require scalar comparison operands'
             add(f'comparison-{op}-{tag}-{graph}', op, [sample(tag)]*2,
-                graph=graph, result=[value(3)], error=error)
+                graph=graph, result=[value(BOOL)], error=error)
             add(f'comparison-one-{op}-{tag}-{graph}', op, [sample(tag)], graph=graph,
                 error=('I require exact STRING equality operands' if string else
                        'I require matching comparison tags' if tag in SCALARS else
@@ -138,7 +139,7 @@ def scalar_cases():
                      'I require matching comparison tags')
             add(f'comparison-flags-{op}-{graph}-{top_tag}-{lower_tag}-{top_flags}-{lower_flags}',
                 op, [sample(lower_tag, *lower_flags), sample(top_tag, *top_flags)], graph=graph,
-                result=[value(3)], error=error)
+                result=[value(BOOL)], error=error)
     valid = words(5, 1, 0, 0, len(carrier))+carrier+frame()
     malformed = [b'', words(6), words(4), words(4, 256), words(4, 0)+b'\0',
                  words(5, 256, 0, 0, 0), words(5, 1, 256, 0, 0),

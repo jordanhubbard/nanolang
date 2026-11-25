@@ -5,6 +5,12 @@ module "src_nano/nvm2c/affine_state.nano" as state
 
 pub struct Transition { handled: bool, valid: bool, frame: frame.Frame, message: string }
 
+let affine_int_tag: int = 1
+let affine_u8_tag: int = 2
+let affine_float_tag: int = 3
+let affine_bool_tag: int = 4
+let affine_string_tag: int = 5
+
 # I dispatch only context-independent scalar transfers, not profile admission.
 pub fn handles(opcode: int) -> bool {
     if (and (>= opcode 0) (<= opcode 9)) { return (!= opcode 4) }
@@ -63,9 +69,11 @@ pub fn transfer(input: frame.Frame, opcode: int, operand: int, value_graph: bool
         return Transition { handled: true, valid: true, frame: (frame.clone input), message: "" }
     }
     if (and (>= opcode 1) (<= opcode 6)) {
-        let mut tag: int = opcode
+        let mut tag: int = affine_int_tag
+        if (== opcode 2) { set tag affine_float_tag }
+        if (== opcode 3) { set tag affine_bool_tag }
         if (== opcode 5) { set tag 0 }
-        if (== opcode 6) { set tag 4 }
+        if (== opcode 6) { set tag affine_u8_tag }
         if (and (== opcode 3) (or (< operand 0) (> operand 1))) {
             return (reject input "I require a Boolean literal")
         }
@@ -76,14 +84,14 @@ pub fn transfer(input: frame.Frame, opcode: int, operand: int, value_graph: bool
         if (== count 0) { return (reject input "I refuse to duplicate reference authority") }
         let top: frame.Value = (at input.stack (- count 1))
         if (or top.observation top.owned) { return (reject input "I refuse to duplicate reference authority") }
-        if (and (not value_graph) (== top.tag 5)) { return (reject input "I refuse unsupported string duplication") }
+        if (and (not value_graph) (== top.tag affine_string_tag)) { return (reject input "I refuse unsupported string duplication") }
         return (wrap (frame.push input top) "I cannot extend my analysis stack")
     }
     if (== opcode 8) {
         if (== count 0) { return (reject input "I require a scalar discard; an observation is not an owned consume") }
         let top: frame.Value = (at input.stack (- count 1))
         if (or top.observation top.owned) { return (reject input "I require a scalar discard; an observation is not an owned consume") }
-        if (and (not value_graph) (== top.tag 5)) { return (reject input "I require PRINT or PRINTLN to consume a string") }
+        if (and (not value_graph) (== top.tag affine_string_tag)) { return (reject input "I require PRINT or PRINTLN to consume a string") }
         return (wrap (frame.pop_scalar input top.tag) "I require a scalar discard; an observation is not an owned consume")
     }
     if (== opcode 9) {
@@ -93,7 +101,7 @@ pub fn transfer(input: frame.Frame, opcode: int, operand: int, value_graph: bool
         if (or upper.observation (or upper.owned (or lower.observation lower.owned))) {
             return (reject input "I require scalar stack permutation")
         }
-        if (and (not value_graph) (or (== upper.tag 5) (== lower.tag 5))) {
+        if (and (not value_graph) (or (== upper.tag affine_string_tag) (== lower.tag affine_string_tag))) {
             return (reject input "I refuse unsupported string permutation")
         }
         let copied: frame.Frame = (frame.clone input)
@@ -105,13 +113,13 @@ pub fn transfer(input: frame.Frame, opcode: int, operand: int, value_graph: bool
     }
     if (or (== opcode 160) (== opcode 164)) {
         if (not value_graph) { return (reject input "I require string output inside an owned value-call graph") }
-        return (wrap (frame.pop_scalar input 5) "I require one exact immutable string print operand")
+        return (wrap (frame.pop_scalar input affine_string_tag) "I require one exact immutable string print operand")
     }
     if (== opcode 161) {
-        return (wrap (frame.pop_scalar input 3) "I require an exact Boolean assertion condition")
+        return (wrap (frame.pop_scalar input affine_bool_tag) "I require an exact Boolean assertion condition")
     }
     if (or (== opcode 57) (== opcode 58)) {
-        return (wrap (frame.pop_scalar input 3) "I require an exact Boolean branch condition")
+        return (wrap (frame.pop_scalar input affine_bool_tag) "I require an exact Boolean branch condition")
     }
 
     let mut tag: int = 0
@@ -119,28 +127,28 @@ pub fn transfer(input: frame.Frame, opcode: int, operand: int, value_graph: bool
     let mut needed: int = 2
     let mut error: string = ""
     if (and (>= opcode 48) (<= opcode 50)) {
-        set tag 3 set result_tag 3 set error "I require Boolean operands"
+        set tag affine_bool_tag set result_tag affine_bool_tag set error "I require Boolean operands"
         if (== opcode 50) { set needed 1 }
     } else if (and (>= opcode 32) (<= opcode 37)) {
-        set tag 1 set result_tag 1 set error "I require integer arithmetic operands"
+        set tag affine_int_tag set result_tag affine_int_tag set error "I require integer arithmetic operands"
         if (== opcode 37) { set needed 1 }
     } else if (and (>= opcode 200) (<= opcode 204)) {
-        set tag 2 set result_tag 2 set error "I require float arithmetic operands"
+        set tag affine_float_tag set result_tag affine_float_tag set error "I require float arithmetic operands"
         if (== opcode 204) { set needed 1 }
     } else if (and (>= opcode 216) (<= opcode 221)) {
-        set tag 2 set result_tag 3 set error "I require float comparison operands"
+        set tag affine_float_tag set result_tag affine_bool_tag set error "I require float comparison operands"
     } else {
         if (== count 0) { return (reject input "I require scalar comparison operands") }
         let top: frame.Value = (at input.stack (- count 1))
-        if (and value_graph (and (or (== opcode 40) (== opcode 41)) (== top.tag 5))) {
-            set tag 5 set error "I require exact STRING equality operands"
+        if (and value_graph (and (or (== opcode 40) (== opcode 41)) (== top.tag affine_string_tag))) {
+            set tag affine_string_tag set error "I require exact STRING equality operands"
         } else {
             if (or top.observation (or top.owned (not (facts.scalar top.tag)))) {
                 return (reject input "I require scalar comparison operands")
             }
             set tag top.tag set error "I require matching comparison tags"
         }
-        set result_tag 3
+        set result_tag affine_bool_tag
     }
     if (< count needed) { return (reject input error) }
     for offset in (range 0 needed) {
@@ -161,6 +169,9 @@ shadow transfer {
     assert (== (transfer empty 3 2 false).message "I require a Boolean literal")
     assert (== (transfer empty 160 0 false).message "I require string output inside an owned value-call graph")
     let integer: frame.Frame = (transfer empty 1 0 false).frame
+    assert (== (at (transfer empty 6 255 false).frame.stack 0).tag 2)
+    assert (== (at (transfer empty 2 0 false).frame.stack 0).tag 3)
+    assert (== (at (transfer empty 3 1 false).frame.stack 0).tag 4)
     let pair: frame.Frame = (transfer integer 1 0 false).frame
     let added: Transition = (transfer pair 32 0 false)
     assert added.valid assert (== (array_length added.frame.stack) 1)
