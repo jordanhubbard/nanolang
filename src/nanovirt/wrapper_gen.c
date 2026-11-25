@@ -319,6 +319,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
+        "eval/carrier_heap.o", "eval/carrier_values.o", "eval/carrier_runtime.o",
         "module.o", "module_metadata.o", "utf8.o", "service_namespace.o", "service_bodies.o", "service_ownership.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
         "resource_tracking.o", "checked_borrow_facts.o", "resource_flow.o", "nominal_types.o", "eval.o", "interpreter_ffi.o",
