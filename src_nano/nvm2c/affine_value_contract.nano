@@ -20,3 +20,19 @@ shadow matches {
     assert (not (matches locals (frame.value 2 false 7 false 3 0) (facts.slot 1 4294967295)))
     assert (not (matches locals (frame.value 7 false 7 false 0 0) (facts.slot 7 0)))
 }
+
+# I retain the distinct owned/variant constructor rule, including array fields.
+pub fn field_matches(locals: state.State, item: frame.Value, declared: facts.Slot) -> bool {
+    if (or item.observation (or (!= item.tag declared.tag)
+        (!= item.owned (state.type_owned locals declared)))) { return false }
+    if (or (== declared.tag 8) (== declared.tag 10)) { return (== item.layout declared.layout) }
+    return true
+}
+shadow field_matches {
+    let locals: state.State = (state.empty)
+    assert (field_matches locals (frame.value 1 false 7 false 3 0) (facts.slot 1 4294967295))
+    assert (field_matches locals (frame.value 7 false 7 false 3 0) (facts.slot 7 0))
+    assert (not (field_matches locals (frame.value 8 false 7 false 3 0) (facts.slot 8 0)))
+    assert (not (field_matches locals (frame.value 1 true 7 false 3 0) (facts.slot 1 4294967295)))
+    assert (not (field_matches locals (frame.value 1 false 7 true 3 0) (facts.slot 1 4294967295)))
+}

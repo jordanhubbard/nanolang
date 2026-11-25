@@ -1274,3 +1274,44 @@ original source-order/atomicity controls. Old8/600 and new32-or8KiB/60 batching,
 600-second builds and default10 shadows remain. Source routes, generated and
 targeted actual-C sanitizers, paired hosts and complete composition remain
 required before acceptance.
+
+## My complete owner/reference-transfer contract
+
+I port the fourteen current region, local/path borrow, reborrow, reference-field
+and explicit owner move/store/pack/unpack instructions after their paired
+local-state and frame primitives. I consume decoded operands and the existing
+pure ownership query context. I retain the C switch's error order and strings,
+including a failed path query before an exclusive observation guard, deeper
+region/parent authority, exact field access before REF_SET stack typing, and
+observation checks before moving or unpacking a local.
+
+OWN_STORE accepts the C step's owned token and exact available destination,
+then refines a known union arm before consuming it. A failed refinement returns
+the original state. OWN_PACK preserves its distinct field rule: exact tag and
+ownership, no observation, exact nominal record/union layout, with the C rule
+for other field layouts. I share that rule with future aggregate construction,
+without substituting the structurally checked array/effect matcher or global
+storage's stricter descriptor comparison. OWN_UNPACK validates every field and
+all output space before consuming the source and emits fields in declaration
+order. I preserve the original256-slot bound and every local/path bound.
+
+Every result owns mutable frame storage: local liveness/variants, reference
+paths and control, globals and stack exclusion masks. Facts remain the existing
+immutable shared metadata. I compare the unchanged C step using separate test
+translation units: the owner/reference oracle and a read-only view of the
+unchanged C state implementation. The view records mutable authority state
+instead of exposing nondeterministic pointers or immutable reference counts.
+It does not become product ABI. Original frame protocols and1001 reports stay
+unchanged; state implementation source replaces only its ordinary object in
+this diagnostic closure to avoid duplicate symbols.
+
+Bounded instruction sequences test borrow/reborrow lifetimes, shared versus
+exclusive parent access, region cleanup, live/moved/held roots, ownership
+round trips, field order, exact destination/variant refusals, full-stack and
+path boundaries, malformed carriers and direct caller isolation. Failed steps
+normalize to independent input snapshots and can be followed by later probes.
+Diagnostic-only empty-reference region setup covers the original UINT32_MAX
+bound without executing billions of empty regions. Actual-C expectations,
+complete source/generated-sanitizer routes, targeted C instrumentation and
+paired qualification remain required. This source grants no function, graph,
+effect, private-profile, executable or pure C-emission authority.
