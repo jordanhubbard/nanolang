@@ -107,6 +107,39 @@ shadow scope_check_copy {
     assert (== (scope_check_copy 3) 3)
 }
 
+fn scope_function_tables() -> void {
+    let parser: Parser = (resource_test_parser "extern fn observed(outside:string, enabled:bool)->float fn reader(amount:int)->int{return (+ outside amount)} fn floating(amount:float)->float{if (<= amount 0.0){return 0.0}return (floating (- amount 1.0))}")
+    assert (not parser.has_error)
+    let original: Symbol = (symbol_new "outside" (type_int) false false 0 (empty_param_types) (type_void))
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols original)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let prototype: ASTFunction = (parser_get_function parser 0)
+    assert (< prototype.body 0)
+    assert (check_function parser prototype symbols diagnostics "function-scope.nano")
+    assert (== (array_length symbols) 1)
+    assert (scope_symbol_equal (at symbols 0) original)
+    assert (< (env_lookup symbols "enabled") 0)
+    let empty: array<Symbol> = []
+    assert (check_function parser prototype empty diagnostics "function-scope.nano")
+    assert (== (array_length empty) 0)
+    let defined: ASTFunction = (parser_get_function parser 1)
+    assert (== defined.body 0)
+    assert (check_function parser defined symbols diagnostics "function-scope.nano")
+    assert (scope_symbol_equal (at symbols 0) original)
+    assert (< (env_lookup symbols "amount") 0)
+    assert (check_function parser (parser_get_function parser 2) symbols diagnostics "function-scope.nano")
+    assert (< (env_lookup symbols "floating") 0)
+    assert (not (ScopeDiagnostics.diag_list_has_errors diagnostics))
+    let reserved: Parser = (resource_test_parser "fn float_from_bits(amount:int)->float{return 0.0}")
+    let refused: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (not (check_function reserved (parser_get_function reserved 0) symbols refused "function-scope.nano"))
+    assert (== (list_CompilerDiagnostic_length refused) 1)
+    assert (== (list_CompilerDiagnostic_get refused 0).code "E0010")
+    assert (scope_symbol_equal (at symbols 0) original)
+}
+shadow scope_function_tables { (scope_function_tables) }
+
 fn scope_report_octets(text: string) -> int {
     let data: array<u8> = (bytes_from_string text)
     (println (int_to_string (array_length data)))
@@ -152,6 +185,7 @@ shadow scope_report_source {
 }
 
 fn main() -> int {
+    (scope_function_tables)
     for count in [0, 1, 2, 7, 8, 9, 15, 16, 17, 63, 64, 65, 127, 128] {
         assert (== (scope_check_copy count) count)
     }
@@ -164,4 +198,4 @@ fn main() -> int {
     }
     return 0
 }
-shadow main { assert (== (scope_check_copy 2) 2) }
+shadow main { assert (== (scope_check_copy 2) 2) (scope_function_tables) }

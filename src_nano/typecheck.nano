@@ -7879,10 +7879,9 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     }
     let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
-    /* Create a fresh symbol table for this function.
-     * All symbols at this point are functions or mutable globals (set up in Phase 1),
-     * so no filtering is needed — just use them all. This avoids the O(n^2) rebuild. */
-    let mut func_symbols: array<Symbol> = (env_copy_symbols symbols)
+    # I validate every parameter below. Only a body needs a private lexical table.
+    let mut func_symbols: array<Symbol> = symbols
+    if (>= func.body 0) { set func_symbols (env_copy_symbols symbols) }
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0
@@ -7894,7 +7893,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         else { if (str_starts_with parameter_type "&") { set parameter_type (str_substring parameter_type 1 (str_length parameter_type)) } }
         let ptype: NSType = (type_from_string_with_parser parser parameter_type)
         let psym: Symbol = (symbol_new param_let.name ptype (or param_let.is_mut exclusive) false 0 (empty_param_types) (type_void))
-        set func_symbols (env_add_symbol func_symbols psym)
+        if (>= func.body 0) { set func_symbols (env_add_symbol func_symbols psym) }
         set i (+ i 1)
     }
 
@@ -7927,6 +7926,21 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
 }
 
 shadow check_function { assert true }
+
+shadow check_function {
+    let parser: Parser = (resource_test_parser "extern fn observed(outside:string)->int fn scoped(amount:int)->int{return (+ outside amount)}")
+    assert (not parser.has_error)
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols (symbol_new "outside" (type_int) false false 0 (empty_param_types) (type_void)))
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_function parser (parser_get_function parser 0) symbols diagnostics "function-scope.nano")
+    assert (== (array_length symbols) 1)
+    assert (== (at symbols 0).sym_type.kind TypeKind.TYPE_INT)
+    assert (check_function parser (parser_get_function parser 1) symbols diagnostics "function-scope.nano")
+    assert (== (array_length symbols) 1)
+    assert (< (env_lookup symbols "amount") 0)
+    assert (not (Diagnostics.diag_list_has_errors diagnostics))
+}
 
 /* =============================================================================
  * TYPE CHECKING WRAPPER - Top-level entry point for type checking a program
