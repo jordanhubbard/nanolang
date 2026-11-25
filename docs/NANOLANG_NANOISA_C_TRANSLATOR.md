@@ -1528,3 +1528,56 @@ guards. For one full-stack report, VM8.124/8.041 seconds become0.417/0.425;
 sanitized native19.287/19.577 become2.876/2.916. This measures test reporting on
 one Linux host. Full current-source/corpus/sanitizer/paired qualification remains
 required; I claim no compiler-wide gain or release acceptance.
+
+
+## My fresh-function and private-body checkpoints
+
+I now implement fresh-function preflight and the private affine body walk in
+pure NanoLang. Preflight preserves local/code/instruction bounds, caller-origin
+binding, profile/effect/global guard order and failed-result memoization. My
+private walk derives actual value-callee summaries, retains reference-caller
+authority, propagates joined frames through a FIFO worklist, follows handler and
+union-match edges and publishes converged instruction facts. Neither component
+calls the C translator or C ownership analyzer.
+
+My [preflight C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-preflight-c-vm-linux-20261125/README.md)
+at source `14fc376fb1` checks 228 boundary reports and 1,001 original C reports. The
+observer returns the original visit bound unchanged; 201 actual C terminals match
+its observer-disabled twin. The reader verifies 15,613 records and retains the
+failed drafts and command-separator correction.
+
+My [private-body C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-private-body-c-vm-linux-20261125/README.md)
+at source `c3018e1795` checks 308 complete result/cache/fact reports and 1,001 original
+C reports. Its 15,243-record reader retains derived/cached/failed calls, reference
+authority, handler aliases, union exhaustion, FIFO requeue, global summaries and
+late-failure cache metadata. All 256 primary encodings include checked refusals;
+that sweep does not establish every successful operand combination. I preserve
+all draft failures and the invalid array fixture beside its corrected control.
+
+## My public effect/global checkpoint
+
+I compose the private walk with a separate effect/global checker and both public
+analyzer wrappers at source `05b1dc70bb`. I preserve activation/handler/point
+identities, original control-storage bounds, lexical returns and resumption,
+global initialization relations and runtime depth traps. The instruction wrapper
+publishes derived facts only after both checks pass.
+
+My [public C/VM checkpoint](evidence/darwin-current-source-20261124/diagnostics/affine-public-effect-globals-c-vm-linux-20261125/README.md)
+checks 842 complete reports; the `d1687ded5c` supplement adds three immutable-store
+controls against identical production artifacts without changing earlier
+carriers. The reader verifies 13,429 records and 2,493 successful commands, 1,001
+original C reports, 845 complete C/VM reports and 675 public controls against an
+observer-disabled C twin. Canonical point input survives STORE/JMP requeue, and
+repeated resumed stores fail while retaining prior facts. Ordinary imported
+shadows and the actual additive Make target pass with original limits and guards.
+
+These later checkpoints execute their new carriers through the C-produced VM
+route. They do not establish their complete original-frame VM, genuine-source,
+sanitized-native or paired-platform qualification. My separate
+[ownership path-copy candidate](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-readiness-linux-20261125/README.md)
+passes translation readiness for query/global/array consumers through both
+producers, but remains isolated pending complete runtime qualification. It does
+not repair #1204's product C defect. Public profile admission, runtime C emission,
+executable cutover and every remaining 5.1 release requirement remain open.
+
+My [complete Linux query receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-query-five-linux-20261125/README.md) now checks all 3,080 unchanged cases across seven products: ordinary/sanitized actual C, C-seed native and VM/sanitized-native routes through both producers. All 21,560 reports match; the reader verifies 13,506 records and 1,360 commands with exact guards and original limits. This qualifies the isolated candidate's Linux query behavior. Product source remains unchanged, and fresh global/array plus paired-platform qualification remain required.
