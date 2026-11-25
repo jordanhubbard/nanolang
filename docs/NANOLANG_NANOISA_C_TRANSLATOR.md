@@ -1411,3 +1411,12 @@ all1001 old frame/flow/FIFO controls. I require useful shadows, isolated returne
 storage and the original full-source/generated-sanitizer/paired routes before
 acceptance. This source does not resolve call summaries, handler/resume CFG,
 private/executable admission or pure C-emission/cutover.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-effects-c-audit-linux-20261125/README.md)
+passes all878 commands, original1001 unchanged reports and8128 complete
+frame/authority/key/escape reports. Its independent reader verifies11848
+records, exact selected-source/production-C/tool/object guards, the proper
+driver AST and shadow-presence checks, and the retained library-only missing-main
+diagnostic. Executed NanoLang shadows and all source/generated-sanitizer/paired
+routes remain pending. I do not infer handler CFG, call, profile, emission or
+release acceptance from these C expectations.
