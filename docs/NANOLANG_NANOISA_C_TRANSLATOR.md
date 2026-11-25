@@ -1493,3 +1493,5 @@ guards still follow the existing value-graph/caller/function-bound done conditio
 My ordinary shadows check these transitions and mutable-vector/result isolation.
 They do not derive a callee proof or establish C differential, full source,
 generated-sanitizer/paired, CFG/lifetime, executable or emission acceptance.
+
+I publish [my ordinary cache-shadow receipt](evidence/darwin-current-source-20261124/diagnostics/affine-analysis-cache-shadows-linux-20261125/README.md): reader750 records verifies all imported shadows, actual additive Make target, unchanged assertions and two explicit Declaration-result bindings that avoid demonstrated #1259 field-projection failures. The compiler defect remains open. The private lifecycle does not replace pure callee derivation, convergence or C differential/full-route acceptance.
