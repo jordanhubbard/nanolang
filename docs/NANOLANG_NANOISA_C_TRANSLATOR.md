@@ -1420,3 +1420,36 @@ driver AST and shadow-presence checks, and the retained library-only missing-mai
 diagnostic. Executed NanoLang shadows and all source/generated-sanitizer/paired
 routes remain pending. I do not infer handler CFG, call, profile, emission or
 release acceptance from these C expectations.
+
+## My direct value-call preparation and summary application
+
+I split CALL59 at the existing recursive analysis boundary. Preparation checks
+my already established graph mode and nonentry target, creates its exact callee
+signature state, applies the existing eight-parameter/value-result rules, and
+checks positional tags, observations, ownership and structural aggregate/array
+identity. Unsupported signature shapes remain refusals. A Plan is internal data;
+it grants no function or executable proof.
+
+My pure walk must then analyze the callee and derive its converged Summary.
+Application requires successful resolution before effect suspension checks.
+For escaping callees I check local obligations before staged prefix owners,
+then merge caught/escaping operation identities in order. This preserves the
+C call step's order, which differs from PERFORM. I compose global allowed-entry
+preimages and return relations unless effect-global proof owns that work.
+An empty allowed mask remains a step result; the converged function/entry proof
+must reject it when required. A VOID call pushes no value, while other results
+receive fresh declared type/ownership and unknown variant facts.
+
+Every refused application restores the input frame, allowed vector and escape
+table, including partial escape growth or full-stack result refusal. Synthetic
+cached C summaries exercise these private application branches only. My
+uncached C controls independently check supplied expected summaries against
+actual callee analysis; they do not implement a NanoLang callee walk. Pure
+cache status/module/function identity, recursion/convergence, handler context
+and full source/generated-sanitizer/paired evidence remain required.
+
+CALL_REF15 remains separate. Its analyzer binds concrete caller-origin
+reference authority and deliberately bypasses the ordinary value-call cache.
+A signature-only or unbound cached success cannot replace that check. No
+callee, reference-call, complete graph/CFG/private/executable or pure-emission
+acceptance follows from this preparation/application interface.
