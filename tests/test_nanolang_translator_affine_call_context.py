@@ -21,7 +21,7 @@ def context_model(bodies=(b'\x3d',),globals_=(),*,entry_tag=1,upvalues=0,locals_
     count=len(bodies);extensions=[]
     if globals_ or globals_extension:extensions=[extension(3,globals_data([struct.pack('<BBHI',*g) for g in globals_]))]
     declarations=[(locals_ if i==0 else 0,0,desc(entry_tag if i==0 else 1),[desc(1)]*(locals_ if i==0 else 0)) for i in range(count)]
-    owned=record(3,functions=declarations,extensions=extensions) if own is None else own
+    owned=record(3 if extensions else 1,functions=declarations,extensions=extensions) if own is None else own
     rows=[];offset=0
     for i,body in enumerate(bodies):
         f=bytearray(function(locals_ if i==0 else 0,results=1,result_tag=entry_tag if i==0 else 1,start=offset,length=len(body)))

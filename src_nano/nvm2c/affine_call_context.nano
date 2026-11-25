@@ -52,6 +52,13 @@ shadow create {
     assert (not absent.globals_valid) assert (not absent.value_graph) assert (not absent.effect_globals)
     let bad_graph: Context = (create ownership model 1 true)
     assert bad_graph.globals_valid assert (not bad_graph.value_graph) assert (not bad_graph.effect_globals)
+    let global_ownership: array<u8> = [3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,4,0,0,0,0,0,0,0,1,0,0,0,3,0,1,0,12,0,0,0,1,0,0,0,1,1,0,0,255,255,255,255]
+    let selected: Context = (create global_ownership model 0 true)
+    assert selected.globals_valid assert selected.value_graph assert selected.effect_globals
+    assert (== (array_length selected.globals) 1) assert (== (at selected.globals 0).tag 1)
+    (array_set selected.globals 0 queries.Global { tag: 4, mutable: false, layout: 4294967295 })
+    let repeated: Context = (create global_ownership model 0 true)
+    assert (== (at repeated.globals 0).tag 1) assert (at repeated.globals 0).mutable
     let invalid: Context = (create [255] model 0 true)
     assert (not invalid.globals_valid) assert (not invalid.value_graph)
 }
