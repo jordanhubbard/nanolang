@@ -180,6 +180,41 @@ fn scope_lookup_names() -> void {
 }
 shadow scope_lookup_names { (scope_lookup_names) }
 
+fn scope_body_tables() -> void {
+    let source: string = "fn isolated(outside:int)->int{let total:int=outside if true{let outside:bool=true assert outside let branch_only:string=\"branch\"} while false{let outside:string=\"loop\"} for item in [1]{let outside:bool=true assert outside} unsafe{let outside:float=1.0} return (+ total outside)}"
+    let parser: Parser = (resource_test_parser source)
+    assert (not parser.has_error)
+    let outer: Symbol = (symbol_new "outside" (type_bool) true false 0 (empty_param_types) (type_void))
+    let mut symbols: array<Symbol> = []
+    set symbols (array_push symbols outer)
+    let alias: array<Symbol> = symbols
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_function parser (parser_get_function parser 0) symbols diagnostics "body-scope.nano")
+    assert (not (ScopeDiagnostics.diag_list_has_errors diagnostics))
+    assert (== (array_length symbols) 1)
+    assert (== (array_length alias) 1)
+    assert (scope_symbol_equal (at alias 0) outer)
+    for name in ["total", "branch_only", "item"] { assert (< (env_lookup symbols name) 0) }
+    let invalid: Parser = (resource_test_parser "fn isolated()->int{if true{let branch_only:int=1} return branch_only}")
+    let refused: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_function invalid (parser_get_function invalid 0) symbols refused "body-scope.nano")
+    assert (ScopeDiagnostics.diag_list_has_errors refused)
+    assert (scope_symbol_equal (at symbols 0) outer)
+
+    let direct: Parser = (resource_test_parser "fn value()->int{let outside:string=\"private\" let local:int=3 if true{let nested:bool=false} local}")
+    let block: ASTBlock = (parser_get_block direct (parser_get_function direct 0).body)
+    let direct_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let value: CheckedBlock = (check_statement_list direct block.statements symbols (type_int) direct_diags "body-scope.nano" "value" true)
+    assert value.ok
+    assert (== value.value_type.kind TypeKind.TYPE_INT)
+    assert (not (ScopeDiagnostics.diag_list_has_errors direct_diags))
+    assert (== (array_length symbols) 1)
+    assert (scope_symbol_equal (at alias 0) outer)
+    assert (< (env_lookup symbols "local") 0)
+    assert (< (env_lookup symbols "nested") 0)
+}
+shadow scope_body_tables { (scope_body_tables) }
+
 fn scope_report_octets(text: string) -> int {
     let data: array<u8> = (bytes_from_string text)
     (println (int_to_string (array_length data)))
@@ -227,6 +262,7 @@ shadow scope_report_source {
 fn main() -> int {
     (scope_lookup_names)
     (scope_function_tables)
+    (scope_body_tables)
     for count in [0, 1, 2, 7, 8, 9, 15, 16, 17, 63, 64, 65, 127, 128] {
         assert (== (scope_check_copy count) count)
     }
@@ -239,4 +275,4 @@ fn main() -> int {
     }
     return 0
 }
-shadow main { assert (== (scope_check_copy 2) 2) (scope_function_tables) (scope_lookup_names) }
+shadow main { assert (== (scope_check_copy 2) 2) (scope_function_tables) (scope_lookup_names) (scope_body_tables) }

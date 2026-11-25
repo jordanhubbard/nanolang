@@ -7613,8 +7613,13 @@ fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expe
 }
 
 fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string, value_context: bool) -> CheckedBlock {
+    return (check_owned_statement_list parser statements (env_copy_symbols symbols) expected_return diags file_name current_function value_context)
+}
+
+# I reuse only a table whose caller has already isolated this lexical scope.
+fn check_owned_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string, value_context: bool) -> CheckedBlock {
     let stmt_count: int = (list_ASTStmtRef_length statements)
-    let mut local_symbols: array<Symbol> = (env_copy_symbols symbols)
+    let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
     let mut returned: bool = false
     let mut value_type: NSType = (type_void)
@@ -7753,6 +7758,22 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
     }
 
     return CheckedBlock { ok: ok, value_type: value_type }
+}
+
+shadow check_owned_statement_list {
+    let parser: Parser = (resource_test_parser "fn value()->int{let outside:bool=true if outside{let nested:string=\"inner\"} 7}")
+    assert (not parser.has_error)
+    let block: ASTBlock = (parser_get_block parser (parser_get_function parser 0).body)
+    let original: array<Symbol> = [(symbol_new "outside" (type_int) false false 0 (empty_param_types) (type_void))]
+    let owned: array<Symbol> = (env_copy_symbols original)
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let checked: CheckedBlock = (check_owned_statement_list parser block.statements owned (type_int) diagnostics "owned-scope.nano" "value" true)
+    assert checked.ok
+    assert (== checked.value_type.kind TypeKind.TYPE_INT)
+    assert (not (Diagnostics.diag_list_has_errors diagnostics))
+    assert (== (array_length original) 1)
+    assert (== (at original 0).sym_type.kind TypeKind.TYPE_INT)
+    assert (< (env_lookup original "nested") 0)
 }
 
 shadow check_block_value {
@@ -7931,11 +7952,34 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         let previous_return: string = tc_enclosing_return
         set tc_enclosing_function func.name
         set tc_enclosing_return func.return_type
-        let ok: bool = (check_block parser func.body local_symbols return_type diags file_name func.name)
+        let body: ASTBlock = (parser_get_block parser func.body)
+        let checked: CheckedBlock = (check_owned_statement_list parser body.statements local_symbols return_type diags file_name func.name false)
+        let ok: bool = checked.ok
         set tc_enclosing_function previous_function
         set tc_enclosing_return previous_return
         return ok
     }
+}
+
+shadow check_function {
+    let parser: Parser = (resource_test_parser "fn scoped()->int{let local:int=7 return local} fn refused()->int{return missing}")
+    let symbols: array<Symbol> = []
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let previous_function: string = tc_enclosing_function
+    let previous_return: string = tc_enclosing_return
+    set tc_enclosing_function "scope-caller"
+    set tc_enclosing_return "bool"
+    assert (check_function parser (parser_get_function parser 0) symbols diagnostics "body-state.nano")
+    assert (not (Diagnostics.diag_list_has_errors diagnostics))
+    assert (== tc_enclosing_function "scope-caller")
+    assert (== tc_enclosing_return "bool")
+    let invalid_ok: bool = (check_function parser (parser_get_function parser 1) symbols diagnostics "body-state.nano")
+    assert (Diagnostics.diag_list_has_errors diagnostics)
+    assert (== tc_enclosing_function "scope-caller")
+    assert (== tc_enclosing_return "bool")
+    assert (== (array_length symbols) 0)
+    set tc_enclosing_function previous_function
+    set tc_enclosing_return previous_return
 }
 
 shadow check_function { assert true }
