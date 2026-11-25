@@ -1,0 +1,7 @@
+I inspect the actual5a537 own-Stage2 image and generated C from my exact7b9 bootstrap, without running the product or editing any producer. My read-only GDB disassembly shows nrarr_get performs a4656-byte memcpy for a returned record. nisa_fn_index calls that helper for each visited function entry; its own entry also contains two4656-byte copies. The generated runtime has80 physical field slots. These are static emitted-code facts, not an executed call count, measured bottleneck, timeout cause or performance gain.
+
+My initial sizeof/ptype queries report no nrec_t symbol in the current debugger context. I retain both errors and all loader warnings. Disassembly succeeds; a separate query records nrarr_get itself. Image/generated-C hashes remain exact before/after. My independent reader binds both full files to the previously published cac73fa60c bootstrap manifest and verifies all commands/excerpts/output.
+
+A possible C-side investigation is an immediate, nonescaping record-field projection that avoids a full record return, preserving array bounds, field tag/layout/ownership guards and failure order. This is an unimplemented review lead. Puck retains C adapter/runtime ownership; I make no C production edit or admission change. I require actual current-tool localization and original controls before adopting any fix.
+
+The complete original five-method pure-component gate remains separate. I verify this receipt with `python3 read_archive.py`.
