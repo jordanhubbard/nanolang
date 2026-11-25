@@ -1353,3 +1353,11 @@ executed NanoLang shadows, full source/generated-sanitizer/paired routes and
 whole-walk integration remain distinct requirements. No AGG_SET implementation,
 branch convergence, executable admission or pure emission follows from this
 five-instruction leaf.
+
+My [C expectation audit](evidence/darwin-current-source-20261124/diagnostics/affine-aggregates-c-audit-linux-20261125/README.md)
+passes all1158 commands, original1001 unchanged reports and15222 complete
+aggregate/authority reports. Its reader checks38061 records and preserves the
+first5305 metadata-fixture refusals with unchanged expected reports. Strict
+syntax, typed AST and shadow presence pass. I still require execution of my
+new NanoLang shadows and all source/generated-sanitizer/paired routes before
+whole-walk, profile or emission qualification.
