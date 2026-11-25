@@ -1,0 +1,70 @@
+module nvm2c_affine_public
+module "src_nano/nvm2c/affine_analysis.nano" as body
+module "src_nano/nvm2c/affine_preflight.nano" as preflight
+module "src_nano/nvm2c/affine_analysis_cache.nano" as results
+module "src_nano/nvm2c/affine_effect_global_proof.nano" as globals
+module "src_nano/nvm2c/affine_state.nano" as state
+module "src_nano/nvm2c/ownership.nano" as owner
+module "src_nano/nvm2c/passive_calls.nano" as declarations
+
+let sample_ownership: array<u8> = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255]
+
+# I compose the public checkers. Product profile and emitter selection remain
+# separate consumers; successful metadata alone grants no execution.
+pub struct Report { public_result: results.Result, public_facts: array<body.Fact> }
+
+fn request(function: int, facts: bool, capacity: int) -> preflight.Request {
+    return preflight.Request { present: true, functions_present: true, function: function, caller_present: false,
+        reference: 0, module_identity: 1, analysis: 1, facts_present: facts, fact_function: function, fact_capacity: capacity }
+}
+shadow request {
+    let input: preflight.Request = (request 1 true 7)
+    assert (== input.function 1) assert input.facts_present assert (== input.fact_capacity 7)
+}
+
+pub fn analyze_function(ownership: array<u8>, model: owner.Module, function: int) -> results.Result {
+    let context: body.Context = (body.create ownership model)
+    let result: body.Analysis = (body.analyze ownership model context (request function false 0) (state.empty))
+    if (and result.analysis_result.ok result.updated_context.analysis_cache.context.effect_globals) {
+        let checked: results.Result = (globals.check model result.updated_context.analysis_cache.context.globals)
+        if (not checked.ok) { return checked }
+    }
+    return result.analysis_result
+}
+shadow analyze_function {
+    let result: results.Result = (analyze_function sample_ownership (sample) 0)
+    assert result.ok assert (== result.visits 2) assert (== result.reachable 2)
+}
+
+pub fn analyze_instructions(ownership: array<u8>, model: owner.Module, function: int,
+    output: array<body.Fact>, output_present: bool, capacity: int) -> Report {
+    let previous: array<body.Fact> = (array_slice output 0 (array_length output))
+    if (or (not output_present) (or (<= capacity 0) (> capacity 4096))) {
+        return Report { public_result: results.Result { ok: false, byte_offset: 0, reachable: 0, visits: 0,
+            message: "I require a bounded instruction fact buffer" }, public_facts: previous }
+    }
+    let initial: body.Context = (body.create ownership model)
+    let context: body.Context = body.Context { analysis_cache: initial.analysis_cache, instruction_facts: previous }
+    let result: body.Analysis = (body.analyze ownership model context (request function true capacity) (state.empty))
+    if (and result.analysis_result.ok result.updated_context.analysis_cache.context.effect_globals) {
+        let checked: results.Result = (globals.check model result.updated_context.analysis_cache.context.globals)
+        if (not checked.ok) { return Report { public_result: checked, public_facts: previous } }
+    }
+    return Report { public_result: result.analysis_result, public_facts: result.updated_context.instruction_facts }
+}
+shadow analyze_instructions {
+    let prior: array<body.Fact> = [body.Fact { instruction_offset: 77, was_reachable: true, entry_stack_depth: 3, entry_top_tag: 4, unpack_fields: 5 }]
+    let result: Report = (analyze_instructions sample_ownership (sample) 0 prior true 2)
+    assert result.public_result.ok assert (== (array_length result.public_facts) 2)
+    assert (== (at prior 0).instruction_offset 77)
+    let refused: Report = (analyze_instructions sample_ownership (sample) 0 prior false 2)
+    assert (not refused.public_result.ok) assert (== (at refused.public_facts 0).instruction_offset 77)
+    assert (== refused.public_result.message "I require a bounded instruction fact buffer")
+}
+
+fn sample() -> owner.Module {
+    return owner.Module { layouts: [0,0,0,0], code: [1,0,0,0,0,0,0,0,0,61], strings: [],
+        functions: [declarations.Function { start: 0, length: 10, arity: 0, locals: 0, upvalues: 0, results: 1 }],
+        params: [[]], results: [1], records: 0, enums: 0, unions: 0 }
+}
+shadow sample { assert (== (array_length (sample).code) 10) }
