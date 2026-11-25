@@ -118,7 +118,7 @@ def global_cases():
     add('type-before-immutable-precondition', 19, [value(4)], allowed=[3], relations=[8], error=TYPE)
     add('owner-before-empty-store', 19, carrier=signature_model(flags=3), declarations=[(8, False, 0)], error=OWNER)
     add('slot-before-owner', 18, carrier=signature_model(flags=3), declarations=[(8, False, 0)], graph=False, error=SLOT)
-    good = add('valid-malformed-base', 18)
+    good = add('valid-malformed-base', 18, result=[value(1)], after_allowed=[2])
     basic = model()
     malformed = [b'', words(7), words(8), words(7, 17, 0, 1, 0, 0),
                  words(7, 18, 0, 2, 0, 0), words(7, 18, 0, 1, 2, 0),
