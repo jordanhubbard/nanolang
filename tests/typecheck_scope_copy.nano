@@ -140,6 +140,46 @@ fn scope_function_tables() -> void {
 }
 shadow scope_function_tables { (scope_function_tables) }
 
+fn scope_lookup_names() -> void {
+    let mut symbols: array<Symbol> = []
+    assert (== (env_lookup symbols "") -1)
+    assert (== (env_lookup symbols "alpha") -1)
+    set symbols (array_push symbols (symbol_new "" (type_void) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "alpha" (type_int) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "Alpha" (type_bool) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "alpha" (type_string) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "alphabet" (type_float) false false 0 (empty_param_types) (type_void)))
+    let mut index: int = 0
+    while (< index 128) {
+        set symbols (array_push symbols (symbol_new (+ "slot-" (int_to_string index)) (type_array_of (type_string)) false false 0 (empty_param_types) (type_void)))
+        set index (+ index 1)
+    }
+    assert (== (env_lookup symbols "") 0)
+    assert (== (env_lookup symbols "alpha") 3)
+    assert (== (env_lookup symbols "Alpha") 2)
+    assert (== (env_lookup symbols "alphabet") 4)
+    assert (== (env_lookup symbols "alph") -1)
+    assert (== (env_lookup symbols "slot-0") 5)
+    assert (== (env_lookup symbols "slot-64") 69)
+    assert (== (env_lookup symbols "slot-127") 132)
+    assert (== (env_lookup symbols "slot-128") -1)
+    assert (== (env_lookup symbols "SLOT-0") -1)
+    let copied: array<Symbol> = (env_copy_symbols symbols)
+    let alias: array<Symbol> = symbols
+    (array_set alias 3 (symbol_new "renamed" (type_int) false false 0 (empty_param_types) (type_void)))
+    assert (== (array_length symbols) 133)
+    assert (== (env_lookup symbols "alpha") 1)
+    assert (== (env_lookup symbols "renamed") 3)
+    assert (== (env_lookup copied "alpha") 3)
+    assert (== (env_lookup copied "renamed") -1)
+    (array_set alias 1 (symbol_new "replaced" (type_bool) false false 0 (empty_param_types) (type_void)))
+    assert (== (env_lookup symbols "alpha") -1)
+    assert (== (env_lookup symbols "replaced") 1)
+    assert (== (env_lookup copied "alpha") 3)
+    assert (== (env_lookup symbols "Alpha") 2)
+}
+shadow scope_lookup_names { (scope_lookup_names) }
+
 fn scope_report_octets(text: string) -> int {
     let data: array<u8> = (bytes_from_string text)
     (println (int_to_string (array_length data)))
@@ -185,6 +225,7 @@ shadow scope_report_source {
 }
 
 fn main() -> int {
+    (scope_lookup_names)
     (scope_function_tables)
     for count in [0, 1, 2, 7, 8, 9, 15, 16, 17, 63, 64, 65, 127, 128] {
         assert (== (scope_check_copy count) count)
@@ -198,4 +239,4 @@ fn main() -> int {
     }
     return 0
 }
-shadow main { assert (== (scope_check_copy 2) 2) (scope_function_tables) }
+shadow main { assert (== (scope_check_copy 2) 2) (scope_function_tables) (scope_lookup_names) }

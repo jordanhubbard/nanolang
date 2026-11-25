@@ -4075,8 +4075,7 @@ fn env_lookup(symbols: array<Symbol>, name: string) -> int {
     let mut i: int = (- count 1)  /* Search backwards for most recent definition */
     
     while (>= i 0) {
-        let sym: Symbol = (at symbols i)
-        if (== sym.name name) {
+        if (== (at symbols i).name name) {
             return i
         } else {
             (print "")
@@ -4159,6 +4158,20 @@ shadow tc_str_ends_with {
 shadow env_lookup {
     /* Note: array<Symbol> testing skipped in shadow tests */
     assert (== 1 1)
+}
+
+shadow env_lookup {
+    let mut symbols: array<Symbol> = []
+    assert (== (env_lookup symbols "name") -1)
+    set symbols (array_push symbols (symbol_new "name" (type_int) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "Name" (type_bool) false false 0 (empty_param_types) (type_void)))
+    set symbols (array_push symbols (symbol_new "name" (type_string) false false 0 (empty_param_types) (type_void)))
+    assert (== (env_lookup symbols "name") 2)
+    assert (== (env_lookup symbols "Name") 1)
+    assert (== (env_lookup symbols "names") -1)
+    (array_set symbols 2 (symbol_new "other" (type_float) false false 0 (empty_param_types) (type_void)))
+    assert (== (env_lookup symbols "name") 0)
+    assert (== (env_lookup symbols "other") 2)
 }
 
 /* Check if symbol exists */
