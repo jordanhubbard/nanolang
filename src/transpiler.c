@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "native_local_names.h"
 #include "generic_bindings.h"
 #include "nanoisa/regex_host_contracts.h"
 #include "module_symbol.h"
@@ -110,6 +111,13 @@ static bool build_monomorphized_name(char *dest, size_t dest_size,
     }
     
     return true;
+}
+
+static void append_native_parameter_name(StringBuilder *sb, const char *source_name) {
+    char *name = native_c_parameter_name(source_name);
+    if (!name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
+    sb_append(sb, name);
+    free(name);
 }
 
 /* Helper to build monomorphized name from TypeInfo parameters */
@@ -989,7 +997,7 @@ static void emit_contextual_header(StringBuilder *sb, const ASTNode *orig,
         emit_contextual_type(sb, env, registry, sig->param_types[i],
             sig->param_struct_names ? sig->param_struct_names[i] : NULL,
             info, info ? info->fn_sig : NULL);
-        sb_appendf(sb, " %s", orig->as.function.params[i].name);
+        sb_append(sb, " "); append_native_parameter_name(sb, orig->as.function.params[i].name);
     }
     if (!sig->param_count) sb_append(sb, "void");
     sb_append(sb, ")");
@@ -1032,8 +1040,8 @@ static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
         Type pt = orig->as.function.params[j].type;
         const char *ps = orig->as.function.params[j].struct_type_name;
         const char *pname = resolve_generic_param_c(pt, ps, inst);
-        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
-        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+        sb_appendf(sb, "%s ", pname ? pname : type_to_c(pt));
+        append_native_parameter_name(sb, orig->as.function.params[j].name);
     }
     sb_append(sb, ");\n");
     (void)env;
@@ -3640,7 +3648,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     sb_append(sb, type_to_c(param->type));
                 }
                 if (param->name) {
-                    sb_appendf(sb, " %s", param->name);
+                    sb_append(sb, " "); append_native_parameter_name(sb, param->name);
                 } else {
                     sb_appendf(sb, " param%d", p);
                 }
@@ -3777,18 +3785,20 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
+                char *parameter_name = native_c_parameter_name(item->as.function.params[j].name);
+                if (!parameter_name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     /* Function parameter: use typedef */
                     const char *typedef_name = register_function_signature(fn_registry, 
                                                                           item->as.function.params[j].fn_sig);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                              parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
                     if (item->as.function.params[j].type_info &&
                         item->as.function.params[j].type_info->generic_name &&
@@ -3800,25 +3810,25 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                                 item->as.function.params[j].type_info->generic_name,
                                 item->as.function.params[j].type_info->type_params,
                                 item->as.function.params[j].type_info->type_param_count)) {
-                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                            sb_appendf(sb, "%s* %s", monomorphized_name, parameter_name);
                         } else {
-                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                            sb_appendf(sb, "void* %s", parameter_name);
                         }
                     } else {
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
-                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
+                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), parameter_name);
                 } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
                         /* Opaque types are stored as void* */
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION &&
                            item->as.function.params[j].type_info &&
@@ -3831,24 +3841,25 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                             item->as.function.params[j].type_info->generic_name,
                             item->as.function.params[j].type_info->type_params,
                             item->as.function.params[j].type_info->type_param_count)) {
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "int64_t %s", parameter_name);
                     } else {
                         const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
                     /* Tuple parameter: use typedef name */
                     const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
-                              item->as.function.params[j].name);
+                              parameter_name);
                 }
+                free(parameter_name);
             }
             sb_append(sb, ");\n");
         }
@@ -3963,8 +3974,8 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
         Type pt = orig->as.function.params[j].type;
         const char *ps = orig->as.function.params[j].struct_type_name;
         const char *pname = resolve_generic_param_c(pt, ps, inst);
-        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
-        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+        sb_appendf(sb, "%s ", pname ? pname : type_to_c(pt));
+        append_native_parameter_name(sb, orig->as.function.params[j].name);
     }
     sb_append(sb, ") ");
 
@@ -4105,18 +4116,20 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
+                char *parameter_name = native_c_parameter_name(item->as.function.params[j].name);
+                if (!parameter_name) { fputs("I cannot allocate a native parameter name.\n", stderr); exit(1); }
                 if (j > 0) sb_append(sb, ", ");
                 
                 if (item->as.function.params[j].type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
                     /* Function parameter: use typedef */
                     const char *typedef_name = register_function_signature(fn_registry, 
                                                                           item->as.function.params[j].fn_sig);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_LIST_GENERIC && item->as.function.params[j].struct_type_name) {
                     /* Generic list parameter: List<ElementType> -> List_ElementType* */
                     sb_appendf(sb, "List_%s* %s",
                               item->as.function.params[j].struct_type_name,
-                              item->as.function.params[j].name);
+                              parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_HASHMAP) {
                     if (item->as.function.params[j].type_info &&
                         item->as.function.params[j].type_info->generic_name &&
@@ -4128,25 +4141,25 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                                 item->as.function.params[j].type_info->generic_name,
                                 item->as.function.params[j].type_info->type_params,
                                 item->as.function.params[j].type_info->type_param_count)) {
-                            sb_appendf(sb, "%s* %s", monomorphized_name, item->as.function.params[j].name);
+                            sb_appendf(sb, "%s* %s", monomorphized_name, parameter_name);
                         } else {
-                            sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                            sb_appendf(sb, "void* %s", parameter_name);
                         }
                     } else {
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
-                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
+                    sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), parameter_name);
                 } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
                         /* Opaque types are stored as void* */
-                        sb_appendf(sb, "void* %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "void* %s", parameter_name);
                     } else {
                         /* Use prefixed type name for regular structs */
                         const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION &&
                            item->as.function.params[j].type_info &&
@@ -4159,24 +4172,25 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                             item->as.function.params[j].type_info->generic_name,
                             item->as.function.params[j].type_info->type_params,
                             item->as.function.params[j].type_info->type_param_count)) {
-                        sb_appendf(sb, "int64_t %s", item->as.function.params[j].name);
+                        sb_appendf(sb, "int64_t %s", parameter_name);
                     } else {
                         const char *prefixed_name = get_prefixed_type_name(monomorphized_name);
-                        sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                        sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                     }
                 } else if (item->as.function.params[j].type == TYPE_UNION && item->as.function.params[j].struct_type_name) {
                     /* Use prefixed union name */
                     const char *prefixed_name = get_prefixed_type_name(item->as.function.params[j].struct_type_name);
-                    sb_appendf(sb, "%s %s", prefixed_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", prefixed_name, parameter_name);
                 } else if (item->as.function.params[j].type == TYPE_TUPLE && item->as.function.params[j].type_info) {
                     /* Tuple parameter: use typedef name */
                     const char *typedef_name = register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
-                    sb_appendf(sb, "%s %s", typedef_name, item->as.function.params[j].name);
+                    sb_appendf(sb, "%s %s", typedef_name, parameter_name);
                 } else {
                     sb_appendf(sb, "%s %s",
                               type_to_c(item->as.function.params[j].type),
-                              item->as.function.params[j].name);
+                              parameter_name);
                 }
+                free(parameter_name);
             }
             sb_append(sb, ") ");
 
@@ -4862,7 +4876,7 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                     sb_append(sb, type_to_c(func->params[j].type));
                 }
                 
-                sb_appendf(sb, " %s", func->params[j].name);
+                sb_append(sb, " "); append_native_parameter_name(sb, func->params[j].name);
             }
             sb_append(sb, ");\n");
         }

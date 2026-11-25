@@ -1,0 +1,80 @@
+union KeywordChoice { Some { value: int } None {} }
+
+fn keyword_scalar(signed: int) -> int {
+    let signed: int = (+ signed 1)
+    let mut unsigned: int = signed
+    set unsigned (+ unsigned 2)
+    if true {
+        let signed: bool = true
+        assert signed
+    }
+    let signed: int = (+ signed 3)
+    return (+ signed unsigned)
+}
+shadow keyword_scalar { assert (== (keyword_scalar 3) 13) }
+
+fn keyword_prefix(__nl_keyword_p_7369676e6564: int) -> int {
+    let signed: int = 2
+    let __nl_keyword_l_0: int = 3
+    return (+ __nl_keyword_p_7369676e6564 (+ signed __nl_keyword_l_0))
+}
+shadow keyword_prefix { assert (== (keyword_prefix 10) 15) }
+
+fn keyword_loops() -> int {
+    let signed: array<int> = [2, 3]
+    let mut total: int = 0
+    for unsigned in signed { set total (+ total unsigned) }
+    for signed in (range 0 (array_length signed)) {
+        set total (+ total signed)
+    }
+    assert (== (array_get signed 0) 2)
+    return total
+}
+shadow keyword_loops { assert (== (keyword_loops) 6) }
+
+fn keyword_increment(value: int) -> int { return (+ value 1) }
+shadow keyword_increment { assert (== (keyword_increment 4) 5) }
+
+fn keyword_calls(register: fn(int)->int) -> int {
+    let register: fn(int)->int = register
+    return (register 4)
+}
+shadow keyword_calls { assert (== (keyword_calls keyword_increment) 5) }
+
+fn keyword_patterns() -> int {
+    let signed: int = 3
+    let choice: KeywordChoice = KeywordChoice.Some { value: 4 }
+    let result: int = (match choice {
+        Some(signed) if (> signed.value 0) => signed.value
+        Some(other) => other.value
+        None(empty) => 0
+    })
+    assert (== signed 3)
+    return (+ signed result)
+}
+shadow keyword_patterns { assert (== (keyword_patterns) 7) }
+
+fn keyword_cleanup() -> int {
+    if true {
+        let signed: HashMap<string, int> = (map_new)
+        (map_put signed "first" 1)
+        assert (== (map_get signed "first") 1)
+        let signed: HashMap<string, int> = (map_new)
+        (map_put signed "second" 2)
+        assert (== (map_get signed "second") 2)
+    }
+    return 0
+}
+shadow keyword_cleanup { assert (== (keyword_cleanup) 0) }
+
+fn main() -> int {
+    assert (== (keyword_scalar 3) 13)
+    assert (== (keyword_prefix 10) 15)
+    assert (== (keyword_loops) 6)
+    assert (== (keyword_calls keyword_increment) 5)
+    assert (== (keyword_patterns) 7)
+    assert (== (keyword_cleanup) 0)
+    (println "C-KEYWORD-OK")
+    return 0
+}
+shadow main { assert (== (main) 0) }

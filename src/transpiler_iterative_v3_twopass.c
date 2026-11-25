@@ -9,6 +9,7 @@
  */
 
 #include "nanolang.h"
+#include "native_local_names.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -16,6 +17,7 @@
 #include "checked_loop_binding.h"
 #include <stdarg.h>
 #include <string.h>
+#include <limits.h>
 
 /* Forward declarations for types defined in transpiler.c (only when not included from transpiler.c) */
 #ifndef TRANSPILER_INTERNAL_TYPES_DEFINED
@@ -204,6 +206,13 @@ typedef struct UnderscoreAlias {
     char name[64];
 } UnderscoreAlias;
 
+typedef struct NativeBindingAlias {
+    struct NativeBindingAlias *allocated_next;
+    struct NativeBindingAlias *visible_previous;
+    const char *source_name;
+    char *storage_name;
+} NativeBindingAlias;
+
 typedef struct {
     WorkItem *items;
     int capacity;
@@ -211,6 +220,9 @@ typedef struct {
     FunctionTypeRegistry *fn_registry;
     UnderscoreAlias *underscore_aliases;
     const char *underscore_name;
+    NativeBindingAlias *binding_allocations;
+    NativeBindingAlias *visible_bindings;
+    unsigned binding_serial;
 } WorkList;
 
 static WorkList *worklist_create(int initial_capacity) {
@@ -224,6 +236,9 @@ static WorkList *worklist_create(int initial_capacity) {
     list->fn_registry = NULL;
     list->underscore_aliases = NULL;
     list->underscore_name = NULL;
+    list->binding_allocations = NULL;
+    list->visible_bindings = NULL;
+    list->binding_serial = 0;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
     if (!list->items) {
         fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
@@ -252,13 +267,48 @@ static void worklist_free(WorkList *list) {
         free(list->underscore_aliases);
         list->underscore_aliases = next;
     }
+    while (list->binding_allocations) {
+        NativeBindingAlias *next = list->binding_allocations->allocated_next;
+        free(list->binding_allocations->storage_name);
+        free(list->binding_allocations);
+        list->binding_allocations = next;
+    }
     free(list);
 }
 
 /* I change native storage names, never source names or diagnostic locations. */
+static NativeBindingAlias *allocate_native_binding(WorkList *list, const char *source_name,
+                                                   bool parameter) {
+    if (!native_c_name_needs_alias(source_name)) return NULL;
+    NativeBindingAlias *alias = calloc(1, sizeof *alias);
+    if (!alias) { fputs("I cannot allocate a native binding.\n", stderr); exit(1); }
+    alias->source_name = source_name;
+    if (parameter) alias->storage_name = native_c_parameter_name(source_name);
+    else {
+        if (list->binding_serial == UINT_MAX) { fputs("I cannot number another native binding.\n", stderr); exit(1); }
+        char name[64];
+        snprintf(name, sizeof name, NL_NATIVE_LOCAL_PREFIX "l_%u", list->binding_serial++);
+        alias->storage_name = strdup(name);
+    }
+    if (!alias->storage_name) { free(alias); fputs("I cannot allocate a native storage name.\n", stderr); exit(1); }
+    alias->allocated_next = list->binding_allocations;
+    list->binding_allocations = alias;
+    return alias;
+}
+
+static void activate_native_binding(WorkList *list, NativeBindingAlias *alias) {
+    if (!alias) return;
+    alias->visible_previous = list->visible_bindings;
+    list->visible_bindings = alias;
+}
+
 static const char *native_local_name(WorkList *list, const char *name) {
-    return name && !strcmp(name, "_") && list->underscore_name
-        ? list->underscore_name : name;
+    if (!name) return NULL;
+    if (name && !strcmp(name, "_") && list->underscore_name) return list->underscore_name;
+    for (NativeBindingAlias *alias = list->visible_bindings; alias; alias = alias->visible_previous)
+        if (!strcmp(alias->source_name, name)) return alias->storage_name;
+    NativeBindingAlias *parameter = allocate_native_binding(list, name, true);
+    return parameter ? parameter->storage_name : name;
 }
 
 static const char *new_underscore_name(WorkList *list, Environment *env) {
@@ -316,6 +366,7 @@ typedef struct {
 typedef struct {
     ScopeVar *vars;
     const char *underscore_name;
+    NativeBindingAlias *visible_bindings;
     int capacity;
     int count;
 } Scope;
@@ -366,6 +417,7 @@ static void scope_stack_push(ScopeStack *stack, WorkList *list) {
     }
     Scope *scope = &stack->scopes[stack->count++];
     scope->underscore_name = list->underscore_name;
+    scope->visible_bindings = list->visible_bindings;
     scope->capacity = 16;
     scope->count = 0;
     scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
@@ -444,6 +496,7 @@ static void scope_stack_pop(ScopeStack *stack, WorkList *list) {
 
     Scope *scope = &stack->scopes[--stack->count];
     list->underscore_name = scope->underscore_name;
+    list->visible_bindings = scope->visible_bindings;
     for (int i = 0; i < scope->count; i++) {
         free(scope->vars[i].name);
     }
@@ -455,8 +508,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
 static void build_loop_body(WorkList *list, ScopeStack *scopes, ASTNode *body,
                             ASTNode *loop, int indent, Environment *env,
-                            FunctionTypeRegistry *registry) {
+                            FunctionTypeRegistry *registry, NativeBindingAlias *binding) {
     const char *outer = list->underscore_name;
+    NativeBindingAlias *outer_bindings = list->visible_bindings;
+    activate_native_binding(list, binding);
     if (!reestablish_checked_loop_binding(env, loop)) {
         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", loop->line);
         exit(1);
@@ -464,6 +519,7 @@ static void build_loop_body(WorkList *list, ScopeStack *scopes, ASTNode *body,
     if (!strcmp(loop->as.for_stmt.var_name, "_")) list->underscore_name = NULL;
     build_stmt(list, scopes, body, indent, env, registry);
     list->underscore_name = outer;
+    list->visible_bindings = outer_bindings;
 }
 
 static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode *body,
@@ -3603,6 +3659,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    NativeBindingAlias *outer_bindings = list->visible_bindings;
+                    NativeBindingAlias *arm_binding = allocate_native_binding(list, binding_name, false);
+                    if (arm_binding) binding_name = arm_binding->storage_name;
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
                     ASTNode *guard = expr->as.match_expr.guard_exprs ? expr->as.match_expr.guard_exprs[i] : NULL;
@@ -3649,6 +3708,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, variant_name);
                             emit_literal(list, " ");
                             emit_literal(list, binding_name);
+                            activate_native_binding(list, arm_binding);
                             emit_literal(list, " = _m.data.");
                             emit_literal(list, variant_name);
                             emit_literal(list, "; ");
@@ -3674,6 +3734,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         emit_literal(list, "} ");  /* close if (guard) */
                     }
                     emit_literal(list, "} ");  /* close if (!_matched && ...) */
+                    list->visible_bindings = outer_bindings;
                 }
 
                 emit_literal(list, "_out; })");
@@ -3699,6 +3760,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
+                    NativeBindingAlias *outer_bindings = list->visible_bindings;
+                    NativeBindingAlias *arm_binding = allocate_native_binding(list, binding_name, false);
+                    if (arm_binding) binding_name = arm_binding->storage_name;
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
 
@@ -3758,6 +3822,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, variant_name);
                             emit_literal(list, " ");
                             emit_literal(list, binding_name);
+                            activate_native_binding(list, arm_binding);
                             emit_literal(list, " = _m.data.");
                             emit_literal(list, variant_name);
                             emit_literal(list, "; ");
@@ -3772,6 +3837,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                         emit_literal(list, "break; } ");
                     }
+                    list->visible_bindings = outer_bindings;
                 }
 
                 /* Close switch and compound expression */
@@ -3987,14 +4053,16 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
             for (int i = 0; i < stmt->as.par_let.count; i++) {
                 emit_indent_item(list, indent);
+                NativeBindingAlias *binding = allocate_native_binding(list, stmt->as.par_let.names[i], false);
                 const char *binding_name = !strcmp(stmt->as.par_let.names[i], "_")
-                    ? new_underscore_name(list, env) : stmt->as.par_let.names[i];
+                    ? new_underscore_name(list, env) : (binding ? binding->storage_name : stmt->as.par_let.names[i]);
                 emit_literal(list, "__auto_type ");
                 emit_literal(list, binding_name);
                 emit_literal(list, " = ");
                 build_expr(list, stmt->as.par_let.values[i], env);
                 emit_literal(list, "; /* par-let binding */\n");
                 if (!strcmp(stmt->as.par_let.names[i], "_")) list->underscore_name = binding_name;
+                activate_native_binding(list, binding);
             }
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
@@ -4052,6 +4120,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    NativeBindingAlias *outer_bindings = list->visible_bindings;
+                    NativeBindingAlias *arm_binding = allocate_native_binding(list, binding_name, false);
+                    if (arm_binding) binding_name = arm_binding->storage_name;
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
                     ASTNode *guard = stmt->as.match_expr.guard_exprs ? stmt->as.match_expr.guard_exprs[i] : NULL;
@@ -4100,6 +4171,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                             emit_literal(list, variant_name);
                             emit_literal(list, " ");
                             emit_literal(list, binding_name);
+                            activate_native_binding(list, arm_binding);
                             emit_literal(list, " = _m.data.");
                             emit_literal(list, variant_name);
                             emit_literal(list, ";\n");
@@ -4129,6 +4201,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "}\n");
+                    list->visible_bindings = outer_bindings;
                 }
             } else {
                 /* No guards: use original switch-based approach */
@@ -4150,6 +4223,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
+                    NativeBindingAlias *outer_bindings = list->visible_bindings;
+                    NativeBindingAlias *arm_binding = allocate_native_binding(list, binding_name, false);
+                    if (arm_binding) binding_name = arm_binding->storage_name;
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
                     restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
 
@@ -4217,6 +4293,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                                 emit_literal(list, variant_name);
                                 emit_literal(list, " ");
                                 emit_literal(list, binding_name);
+                            activate_native_binding(list, arm_binding);
                                 emit_literal(list, " = _m.data.");
                                 emit_literal(list, variant_name);
                                 emit_literal(list, ";\n");
@@ -4240,6 +4317,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "}\n");
                     }
+                    list->visible_bindings = outer_bindings;
                 }
 
                 /* Add default: __builtin_unreachable() only when no wildcard arm.
@@ -4309,8 +4387,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
             
         case AST_LET: {
+            NativeBindingAlias *binding = allocate_native_binding(list, stmt->as.let.name, false);
             const char *binding_name = !strcmp(stmt->as.let.name, "_")
-                ? new_underscore_name(list, env) : stmt->as.let.name;
+                ? new_underscore_name(list, env) : (binding ? binding->storage_name : stmt->as.let.name);
             emit_indent_item(list, indent);
             
             /* A checked empty pattern over a name has no fields or runtime work. */
@@ -4539,6 +4618,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
             /* The initializer above sees the previous lexical binding. */
             if (!strcmp(stmt->as.let.name, "_")) list->underscore_name = binding_name;
+            activate_native_binding(list, binding);
 
             /* Register in environment */
             Symbol *checked_binding = NULL;
@@ -4665,7 +4745,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
         case AST_FOR: {
             /* I evaluate both bounds once, in order, before binding the loop variable. */
-            const char *var = stmt->as.for_stmt.var_name;
+            NativeBindingAlias *binding = allocate_native_binding(list, stmt->as.for_stmt.var_name, false);
+            const char *var = binding ? binding->storage_name : stmt->as.for_stmt.var_name;
             ASTNode *range = stmt->as.for_stmt.range_expr;
             if (range && range->type == AST_CALL &&
                 range->as.call.name && strcmp(range->as.call.name, "range") == 0 &&
@@ -4678,7 +4759,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_indent_item(list, indent + 1);
                 emit_formatted(list, "for (int64_t %s = __nl_arg_%u_0; %s < __nl_arg_%u_1; %s++) ",
                                var, bounds_id, var, bounds_id, var);
-                build_loop_body(list, scopes, stmt->as.for_stmt.body, stmt, indent + 1, env, fn_registry);
+                build_loop_body(list, scopes, stmt->as.for_stmt.body, stmt, indent + 1, env, fn_registry, binding);
                 emit_indent_item(list, indent);
                 emit_literal(list, "}\n");
             } else {
@@ -4761,9 +4842,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         exit(1);
                     }
                     if (dyn_elem_type == TYPE_FUNCTION) {
-                        Symbol *binding = env_get_var(env, var);
-                        FunctionSignature *signature = binding && binding->type_info
-                            ? binding->type_info->fn_sig : NULL;
+                        Symbol *loop_symbol = env_get_var(env, stmt->as.for_stmt.var_name);
+                        FunctionSignature *signature = loop_symbol && loop_symbol->type_info
+                            ? loop_symbol->type_info->fn_sig : NULL;
                         if (!signature) {
                             fprintf(stderr, "I require the complete callable loop signature.\n");
                             exit(1);
@@ -4781,6 +4862,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     /* Emit body statements */
                     ASTNode *dyn_body = stmt->as.for_stmt.body;
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
+                    activate_native_binding(list, binding);
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
                             build_stmt(list, scopes, dyn_body->as.block.statements[bi], indent + 2, env, fn_registry);
@@ -4889,6 +4971,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         exit(1);
                     }
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
+                    activate_native_binding(list, binding);
                     if (body && body->type == AST_BLOCK) {
                         for (int bi = 0; bi < body->as.block.count; bi++) {
                             build_stmt(list, scopes, body->as.block.statements[bi], indent + 2, env, fn_registry);
@@ -5144,8 +5227,12 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
         EffectOp *op = body_helper ? &body_op : effect_get_op(env_get_effect(env, expr->as.handle_expr.effect_name), name);
         ASTNode *handler_body = body_helper ? expr->as.handle_expr.body : expr->as.handle_expr.handler_bodies[h];
         sb_appendf(helper_source, "static void nl_handler_%d_%d(NlEffectFrame *_frame, void **_args, void *_result) {\n", id, h);
-        for (int p = 0; p < op->param_count; ++p)
-            sb_appendf(helper_source, "%s %s = *(%s *)_args[%d];\n", effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), expr->as.handle_expr.handler_param_names[h][p], effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), p);
+        for (int p = 0; p < op->param_count; ++p) {
+            char *name = native_c_parameter_name(expr->as.handle_expr.handler_param_names[h][p]);
+            if (!name) { fputs("I cannot allocate a native handler parameter name.\n", stderr); exit(1); }
+            sb_appendf(helper_source, "%s %s = *(%s *)_args[%d];\n", effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), name, effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), p);
+            free(name);
+        }
         if (op->return_type != TYPE_VOID) sb_appendf(helper_source, "%s _out = {0};\n", effect_c_type(op->return_type, op->return_type_name, env));
         WorkList *handler = worklist_create(100);
         handler->fn_registry = list->fn_registry;
@@ -5189,7 +5276,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
     }
     emit_literal(list, "({ ");
     emit_formatted(list, "void *_captures_%d[] = {", id);
-    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name);
+    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", native_local_name(list, saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name));
     if (!count) emit_literal(list, "NULL");
     emit_literal(list, "}; ");
     emit_formatted(list, "NlEffectEntry _entries_%d[] = {", id);

@@ -265,7 +265,7 @@ SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
-HEADERS += $(RUNTIME_DIR)/native_array_abi.h
+HEADERS += $(RUNTIME_DIR)/native_array_abi.h $(SRC_DIR)/native_local_names.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_STAMP)
@@ -8263,3 +8263,7 @@ test-checker-owned-contexts: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(OBJ_DIR)/test_checker_owned_contexts
 
 test-units: test-checker-owned-contexts
+
+.PHONY: test-native-c-keywords
+test-native-c-keywords: $(BIN_DIR)/nano $(BIN_DIR)/nanoc_c $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm
+	PYTHONPATH=. python3 -m unittest -v tests.test_native_c_names tests.test_native_keyword_bindings
