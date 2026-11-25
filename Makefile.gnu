@@ -8284,3 +8284,13 @@ test-nanolang-translator-affine-scalar: $(COMPILER_C) nano_virt nano_vm nvm2c nv
 	NANOLANG_AFFINE_SCALAR_REFERENCE="$(OBJ_DIR)/nvm2c_affine_scalar_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_scalar.AffineScalar
 
 test-units: test-nanolang-translator-affine-scalar
+
+# I compare my local transfer leaf with the actual unchanged C instruction step.
+.PHONY: test-nanolang-translator-affine-locals
+$(OBJ_DIR)/nvm2c_affine_locals_reference: tests/nvm2c_affine_locals_reference.c tests/nvm2c_affine_scalar_reference.c tests/nvm2c_affine_frame_reference.c tests/nvm2c_affine_model_reader.h src/nanoisa/affine_bytecode.c src/nanoisa/affine_global_flow.h $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $@ tests/nvm2c_affine_locals_reference.c $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -lm
+
+test-nanolang-translator-affine-locals: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(OBJ_DIR)/nvm2c_affine_locals_reference
+	NANOLANG_AFFINE_LOCALS_REFERENCE="$(OBJ_DIR)/nvm2c_affine_locals_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_locals.AffineLocals
+
+test-units: test-nanolang-translator-affine-locals
