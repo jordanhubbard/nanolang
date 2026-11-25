@@ -8360,3 +8360,9 @@ test-nanolang-translator-affine-call-context: $(COMPILER_C) nano_virt nano_vm nv
 	NANOLANG_AFFINE_CALL_CONTEXT_REFERENCE="$(OBJ_DIR)/nvm2c_affine_call_context_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_call_context.AffineCallContext
 
 test-units: test-nanolang-translator-affine-call-context
+
+.PHONY: test-nanolang-translator-affine-analysis-cache-shadows
+test-nanolang-translator-affine-analysis-cache-shadows: nano_virt | $(OBJ_DIR)
+	@perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/nvm2c_affine_analysis_cache_shadows.nano --emit-nvm -o $(OBJ_DIR)/nvm2c_affine_analysis_cache_shadows.nvm
+
+test-units: test-nanolang-translator-affine-analysis-cache-shadows
