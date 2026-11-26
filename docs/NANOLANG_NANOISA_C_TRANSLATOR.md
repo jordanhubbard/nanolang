@@ -1232,7 +1232,7 @@ than replacing that shared declaration type with a narrower substitute.
 This is an implementation contract, not executable qualification. Global
 load/store transfer does not complete interprocedural summaries, effect
 activation/return semantics, CFG convergence, private admission, C body/runtime
-emission, product selection or the full69-entry release.
+emission, product selection or the full 69-entry release.
 
 ## My complete affine array-transfer contract
 
@@ -1580,7 +1580,48 @@ producers, but remains isolated pending complete runtime qualification. It does
 not repair #1204's product C defect. Public profile admission, runtime C emission,
 executable cutover and every remaining 5.1 release requirement remain open.
 
-My [complete Linux query receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-query-five-linux-20261125/README.md) now checks all 3,080 unchanged cases across seven products: ordinary/sanitized actual C, C-seed native and VM/sanitized-native routes through both producers. All 21,560 reports match; the reader verifies 13,506 records and 1,360 commands with exact guards and original limits. This qualifies the isolated candidate's Linux query behavior. Product source remains unchanged; the newer receipt below records Linux global/array qualification. Paired-platform qualification remains required.
+My [complete Linux query receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-query-five-linux-20261125/README.md) now checks all 3,080 unchanged cases across seven products: ordinary/sanitized actual C, C-seed native and VM/sanitized-native routes through both producers. All 21,560 reports match; the reader verifies 13,506 records and 1,360 commands with exact guards and original limits. This qualifies the isolated candidate's Linux query behavior. My ownership-query library source remains unchanged; the newer receipt below records Linux global/array qualification. Paired-platform qualification remains required.
 
 
 My [complete isolated Linux global/array receipt](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-global-array-five-linux-20261125/README.md) now verifies both unchanged permanent methods in 1703.305 seconds: 15,382 successful commands and 136,476 complete actual-C/five-route reports, including every original frame and all 3,688 global/17,056 array controls. The independent reader checks 57,460 records, original limits, exact journal replay and complete source/Git/image/tool/object/host/provider/observer guards. Its source and overlay match the published full query gate. This qualifies these Linux component contracts; it does not integrate the candidate, repair #1204 or qualify six leaves, paired platforms, later private/public components or runtime emission/cutover. All 69 release requirements remain in force.
+
+
+## My leaf failures and diagnostic fixture repairs
+
+My [complete failed six-method run](evidence/darwin-current-source-20261124/diagnostics/ownership-path-copy-six-leaves-failed-linux-20261125/README.md)
+retains source 67d99e5121 plus the isolated query-copy expression, 11,093 commands
+and all final guards. Owners and call-context pass their six products. Three
+other diagnostic drivers append authority text to the original frame report;
+the unchanged original-stream assertion rejects each. Genuine cache translation
+separately refuses an array write before reports. The archive preserves all four
+failures, all packets/products and 149,268 retained reports, including the 3,003
+mismatching native reports. I do not accept the six-method component.
+
+I restore only the original report text in those three fixtures at c886e6dc73.
+My [directed repair controls](evidence/darwin-current-source-20261124/diagnostics/affine-original-frame-report-fix-linux-20261125/README.md)
+verify 9,009 complete original reports through native and both VM producers,
+plus typed-AST and ordinary shadows. New feature reports and existing assertions
+remain required. Their complete corrected feature/sanitizer qualification remains
+separate under #1261.
+
+My [read-only cache localization](evidence/darwin-current-source-20261124/diagnostics/affine-cache-array-write-localization-linux-20261125/README.md)
+finds the first-pass unknown receiver at `describe_cache` offset 1645, the
+`input.keys` row write. My [small factory controls](evidence/darwin-current-source-20261124/diagnostics/affine-cache-forward-factory-controls-linux-20261125/README.md)
+retain a genuine-produced forward-factory module that runs correctly in NanoVM
+but refuses C translation; the inline-construction control translates. I keep
+the original refusal open under #1262.
+
+My test-source clarification at 901caef8e6 accumulates explicitly typed key rows
+before constructing the diagnostic input record. Other initial state still comes
+from the factory. Every preceding/following function and the complete
+post-seeding clone/mutation body remain unchanged. My [complete four-route cache controls](evidence/darwin-current-source-20261124/diagnostics/affine-cache-key-seed-controls-linux-20261125/README.md)
+verify all 1,001 original plus 3,317 new packets through actual C, C-seed native and
+both VM producers: 17,272 matching reports, 1,126 commands and matching recorded
+guards. Both C translations and ordinary native shadows pass, including the new
+202-byte positive report shadow.
+
+These controls do not execute sanitized generated C. My full permanent cache
+method, combined leaf qualification, paired platforms, public profile admission,
+pure runtime C emission and executable cutover remain required. The ownership-query
+copy expression remains isolated, and no fixture repair closes the original C
+translator defects or the full 69-entry release contract.
