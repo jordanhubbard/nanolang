@@ -1,0 +1,22 @@
+{
+  "original_manifest_sha256": "35a0fcecc66caf801892544b50a57f9d69fc6222f85a0af9bcb3255586b62551",
+  "post_terminal_read_only_analysis": true,
+  "files": [
+    {
+      "path": "metadata/generated_schema.h",
+      "bytes": 27037,
+      "sha256": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+      "stored": "objects/d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8.gz",
+      "stored_bytes": 4432,
+      "stored_sha256": "951afccaf1eb93c0c8dcd4d0ec96bc93f7742dfb6c9ebbcf8807ee190027fede"
+    },
+    {
+      "path": "metadata/opcode-observation.json",
+      "bytes": 2691,
+      "sha256": "5e8d71c91401ce3662868e9288f9b768d3d1bf90ed99d3507b8da911e6f183c1",
+      "stored": "objects/5e8d71c91401ce3662868e9288f9b768d3d1bf90ed99d3507b8da911e6f183c1.gz",
+      "stored_bytes": 652,
+      "stored_sha256": "94e26c8799ae0dd4e2082f265ce8cec87987f816b8e42ecf9559459b57047d0d"
+    }
+  ]
+}

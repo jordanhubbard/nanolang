@@ -68,6 +68,16 @@ probe timings do not establish the original timeout cause or a repair. I retain
 the per-function localization and every original acceptance gate under #1265.
 
 
+My [finer Darwin observation stopped under fleet policy](evidence/darwin-current-source-20261124/diagnostics/darwin-lowering-detail-policy-stop-20261126/README.md)
+retains the explicit owned-process SIGTERM at2026-11-26T21:06:44Z. The VM exits-15
+after251.386299s during typechecking, before lowering. Its controller records
+diagnostic_valid=false; source/tool/host/frozen-input guards and cleanup pass.
+The reader checks40 new records and the complete parent chain. I start no
+replacement unattended Puck loop. Under the updated fleet policy, sustained
+measurement and builds belong on sparky or madmax; Puck remains in the fleet
+on light duty. I preserve its originals and all original Darwin acceptance.
+
+
 ## Current scope reconciliation — 2026-11-24
 
 I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
