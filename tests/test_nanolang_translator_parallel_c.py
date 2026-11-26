@@ -12,10 +12,13 @@ from tests.nanolang_translator_routes import build_routes, checked, source_compi
 from tests.native_process import native_link_flags
 from tests.test_nanolang_translator_module_verifier import assembled
 from tests.test_nanolang_translator_stack_heights import ins
-from tests.test_nanolang_translator_scalar_c import MASK, signed
+from tests.test_nanolang_translator_scalar_c import MASK, signed, SCHEMA
 from tests.test_nanolang_translator_binary64_c import PATTERNS
 
 ROOT = Path(__file__).resolve().parents[1]
+TAGS = {item['name']: item['code'] for item in SCHEMA['value_tags']}
+INTEGER, BOOLEAN, FLOAT, U8 = (TAGS[name] for name in ('i64', 'bool', 'f64', 'u8'))
+
 
 
 def corpus():
@@ -42,6 +45,11 @@ def corpus():
     cases.extend((('late-source',list(range(65)),[*range(1,65),1<<32],[1]*65),
                   ('late-tag',list(range(65)),list(range(1,66)),[1]*64+[4]),
                   ('late-duplicate',list(range(64))+[0],list(range(1,66)),[1]*65)))
+    # I retain all 523 old raw packets before adding canonical boolean neighbors.
+    cases.extend(('canonical-'+label.replace('-2','-4',1), list(destinations), list(sources),
+                  [BOOLEAN if tag == U8 else tag for tag in tags])
+                 for label,destinations,sources,tags in list(cases) if U8 in tags)
+    cases.extend((f'wire-tag-{tag}',[0],[1],[tag]) for tag in range(-1,257))
     return cases
 
 
@@ -50,7 +58,7 @@ def register_types(destinations, sources, tags):
     if len(destinations) != len(set(destinations)): return None
     types = {}
     for destination, source, tag in zip(destinations, sources, tags):
-        if tag not in (1,2,3): return None
+        if tag not in (INTEGER,BOOLEAN,FLOAT): return None
         for register in (destination, source):
             if not 0 <= register < 1<<32: return None
             if register in types and types[register] != tag: return None
@@ -63,7 +71,7 @@ def values_for(types, variant):
     integers = (0, 1, MASK, 1<<63, (1<<63)-1, 0x0123456789abcdef, 0xfedcba9876543210)
     values = {}
     for index, (register, tag) in enumerate(sorted(types.items())):
-        if tag == 2: value = (index + variant) % 2
+        if tag == BOOLEAN: value = (index + variant) % 2
         elif variant >= len(PATTERNS): value = rng.getrandbits(64)
         elif tag == 1: value = integers[(index + variant) % len(integers)]
         else: value = PATTERNS[(index + variant) % len(PATTERNS)]
@@ -148,19 +156,20 @@ def reference_module(cases):
         for register in registers:
             value, tag = values[register], types[register]
             if tag == 3: code.extend(bytes([2]) + struct.pack('<Q',value))
-            else: code.extend(ins('PUSH_BOOL',value) if tag == 2 else ins('PUSH_I64',signed(value)))
-            code.extend(ins('STORE_LOCAL',dense[register]))
+            else: code.extend(ins('PUSH_BOOL',value) if tag == BOOLEAN else ins('PUSH_I64',signed(value)))
+            code.extend(ins('DUP') + ins('TYPE_CHECK',tag) + ins('ASSERT') + ins('STORE_LOCAL',dense[register]))
         for _ in range(2):
             for source in sources: code.extend(ins('LOAD_LOCAL',dense[source]))
             for destination in reversed(destinations): code.extend(ins('STORE_LOCAL',dense[destination]))
         result = expected(destinations, sources, values, 2)
         for register in registers:
             code.extend(ins('LOAD_LOCAL',dense[register]))
+            code.extend(ins('DUP') + ins('TYPE_CHECK',types[register]) + ins('ASSERT'))
             if types[register] == 3: code.extend(ins('F64_TO_BITS'))
             code.extend(ins('CAST_INT') + ins('PRINTLN'))
             wanted.append(str(signed(result[register]))+'\n')
         code.extend(ins('PUSH_I64',0) + ins('RET'))
-        bodies.append(bytes(code));local_counts.append(len(registers));depths.append(max(1,len(destinations)))
+        bodies.append(bytes(code));local_counts.append(len(registers));depths.append(max(2,len(destinations)))
     return assembled(bodies, returns=[[1]]*len(bodies), locals_=local_counts, declared=depths,
                      strings=(b'parallel_reference',)), ''.join(wanted)
 
@@ -173,6 +182,12 @@ class ParallelC(unittest.TestCase):
         cls.directory = Path(cls.workspace.name)
         cls.fixture = ROOT / 'tests/nvm2c_parallel_c_driver.nano'
         cls.routes = build_routes(cls.fixture, cls.directory)
+
+    def test_canonical_wire_tag_identity(self):
+        self.assertEqual((INTEGER,U8,FLOAT,BOOLEAN),(1,2,3,4))
+        self.assertEqual(register_types([0],[1],[BOOLEAN]),{0:BOOLEAN,1:BOOLEAN})
+        self.assertIsNone(register_types([0],[1],[U8]))
+        self.assertEqual(len(TAGS),16)
 
     def test_actual_vm_and_reference_c(self):
         raw, wanted = reference_module(corpus())
@@ -190,8 +205,8 @@ class ParallelC(unittest.TestCase):
     def test_reports_and_actual_emitted_c(self):
         original = None
         cases = corpus()
-        self.assertEqual(len(cases),523)
-        self.assertEqual(sum(register_types(*c[1:]) is not None for c in cases),497)
+        self.assertEqual(len(cases),947)
+        self.assertEqual(sum(register_types(*c[1:]) is not None for c in cases),501)
         for route_name, route in self.routes:
             with self.subTest(route=route_name):
                 report = checked(route)

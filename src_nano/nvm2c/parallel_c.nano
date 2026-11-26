@@ -15,16 +15,16 @@ shadow refused {
 }
 
 fn c_type(tag: int) -> string {
-    if (or (== tag 1) (== tag 2)) { return "int64_t" }
+    if (or (== tag 1) (== tag 4)) { return "int64_t" }
     if (== tag 3) { return "double" }
     return ""
 }
 shadow c_type {
     assert (== (c_type 1) "int64_t")
-    assert (== (c_type 2) "int64_t")
+    assert (== (c_type 4) "int64_t")
     assert (== (c_type 3) "double")
     assert (== (c_type 0) "")
-    assert (== (c_type 4) "")
+    assert (== (c_type 2) "")
     assert (== (c_type -1) "")
 }
 
@@ -65,12 +65,12 @@ shadow columns_valid {
     assert (columns_valid [0,1] [1,0] [1,1])
     assert (columns_valid [0,1] [2,2] [3,3])
     assert (columns_valid [0,2] [1,3] [1,3])
-    assert (columns_valid [4294967295] [0] [2])
+    assert (columns_valid [4294967295] [0] [4])
     assert (not (columns_valid [0] [] [1]))
     assert (not (columns_valid [0] [0] []))
     assert (not (columns_valid [0] [-1] [1]))
     assert (not (columns_valid [4294967296] [0] [1]))
-    assert (not (columns_valid [0] [0] [4]))
+    assert (not (columns_valid [0] [0] [2]))
     assert (not (columns_valid [0,0] [1,2] [1,1]))
     assert (not (columns_valid [1,2] [0,0] [1,3]))
     assert (not (columns_valid [1,0] [0,2] [1,3]))
@@ -103,6 +103,14 @@ pub fn emit(destinations: array<int>, sources: array<int>, tags: array<int>) -> 
     return Transfer { valid: true, count: count, text: (str_join lines "") }
 }
 shadow emit {
+    let boolean: Transfer = (emit [0] [1] [4])
+    assert boolean.valid
+    assert (== boolean.count 1)
+    assert (str_starts_with boolean.text "{\n    int64_t nano_aot_edge_0 = nano_aot_local_1;")
+    let narrow: Transfer = (emit [0] [1] [2])
+    assert (== narrow.valid false)
+    assert (== narrow.count 0)
+    assert (== narrow.text "")
     let empty: Transfer = (emit [] [] [])
     assert empty.valid
     assert (== empty.count 0)

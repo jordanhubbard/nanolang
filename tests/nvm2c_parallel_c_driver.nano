@@ -138,8 +138,34 @@ fn report() -> void {
     (array_set tags 64 1)
     (array_set destinations 64 0)
     (print (row "late-duplicate" destinations sources tags))
+    # I retain every old raw packet above, including its formerly mistaken tags.
+    let canonical_tag: int = 4
+    for width in (range 1 6) {
+        for rank in (range 0 (factorial width)) {
+            let label: string = (+ "canonical-perm-4-" (+ (int_to_string width) (+ "-" (int_to_string rank))))
+            (print (row label (sequence width 0) (permutation width rank) (repeated width canonical_tag)))
+        }
+    }
+    let endpoints: array<int> = [0,1,4294967295]
+    for left in (range 0 3) {
+        for right in (range 0 3) {
+            let label: string = (+ "canonical-endpoint-4-" (+ (int_to_string left) (+ "-" (int_to_string right))))
+            (print (row label [(at endpoints left)] [(at endpoints right)] [canonical_tag]))
+        }
+    }
+    (print (row "canonical-fanout-4" [0,1,2,3] [3,3,3,3] (repeated 4 canonical_tag)))
+    (print (row "canonical-chain-4" [0,1,2,3] [1,2,3,4] (repeated 4 canonical_tag)))
+    let mut cycle: array<int> = (sequence 256 1)
+    set cycle (array_push cycle 0)
+    (print (row "canonical-wide-4" (sequence 257 0) cycle (repeated 257 canonical_tag)))
+    (print (row "canonical-mixed" [0,1,2,3,4,5] [1,0,3,2,5,4] [1,1,4,4,3,3]))
+    for value_tag in (range -1 257) {
+        (print (row (+ "wire-tag-" (int_to_string value_tag)) [0] [1] [value_tag]))
+    }
 }
 shadow report {
+    assert (copies.emit [0] [1] [4]).valid
+    assert (== (copies.emit [0] [1] [2]).valid false)
     assert (copies.emit [0,1] [1,0] [3,3]).valid
     assert (== (copies.emit [0,0] [1,2] [1,1]).valid false)
 }

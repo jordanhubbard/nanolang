@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-parallel-c-canonical-archive-20261126-95fz9l2d/package.py", line 43, in <module>
+    external={**q['host_tools_after'],**q['producer_hosts_after'],q['producer']:q['producer_after']};clang=json.loads((roots[-1][1]/'result.json').read_bytes());external[clang['compiler']]=clang['compiler_after']
+                                                                                                                                                                                             ~~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'compiler_after'

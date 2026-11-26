@@ -1,0 +1,18 @@
+{
+  "terminal": true,
+  "overlay": {
+    "src_nano/nvm2c/parallel_c.nano": "36220ffbc2befcf732dbe563bd12d5a7507e45b7504bd1b90421a24bd3c14b72",
+    "tests/nvm2c_parallel_c_driver.nano": "bad8664f103c6737045cd6c44a9830e6f9e926f95f28ad739b932621d819babd",
+    "tests/test_nanolang_translator_parallel_c.py": "835f6d237cd273897e3dd9ce4779f28b1b0f0d89acf2cf1c8c70b03841c62640"
+  },
+  "manifest_sha256": "6dd2543455edeaaff2f857434129d2ae3940fb8fd6ea774b0e744ecec37e0f52",
+  "reader_sha256": "5265dff73ce6fea944e0334789b10ad51bca1a0516233dd8c3037771abe495c9",
+  "canonical_wire_tags": {
+    "i64": 1,
+    "u8": 2,
+    "f64": 3,
+    "bool": 4
+  },
+  "prior_canonical_claim_withdrawn": true,
+  "compiler_closure_unchanged": true
+}
