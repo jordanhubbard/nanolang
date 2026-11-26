@@ -1,0 +1,149 @@
+module "src_nano/nvm2c/shape_graph.nano" as shape
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn decimal(value: int) -> string { return (int_to_string value) }
+shadow decimal { assert (== (decimal 4294967295) "4294967295") }
+
+fn framed(bytes: array<u8>) -> bool {
+    if (or (< (array_length bytes) 4) (> (array_length bytes) 16777216)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (> count (/ (- (array_length bytes) 4) 8)) { return false }
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        if (not (wire.contains bytes cursor 8)) { return false }
+        let mode: int = (wire.read_u32 bytes cursor)
+        let operations: int = (wire.read_u32 bytes (+ cursor 4))
+        set cursor (+ cursor 8)
+        if (or (> mode 1) (> operations (/ (- (array_length bytes) cursor) 24))) { return false }
+        for index in (range 0 operations) {
+            let at_index: int = (+ cursor (* index 24))
+            let opcode: int = (wire.read_u32 bytes at_index)
+            if (> opcode 13) { return false }
+            if (> (wire.read_u32 bytes (+ at_index 20)) 1) { return false }
+            if (and (== opcode 6) (> (wire.read_u32 bytes (+ at_index 8)) 65535)) { return false }
+            if (and (== opcode 10) (> (wire.read_u32 bytes (+ at_index 12)) 1)) { return false }
+        }
+        set cursor (+ cursor (* operations 24))
+    }
+    return (== cursor (array_length bytes))
+}
+shadow framed {
+    assert (== (framed []) false)
+    assert (framed [0,0,0,0])
+    assert (== (framed [0,0,0,0,0]) false)
+    assert (== (framed [255,255,255,255]) false)
+}
+
+fn event(label: string, item: int, index: int, result: int, target: int, g: shape.Graph) -> string {
+    let parts: array<string> = [label,(decimal item),(decimal index),(decimal result),
+        (decimal target),(decimal (array_length g.nodes)),(shape.error g)]
+    return (+ (str_join parts "|") "\n")
+}
+shadow event { assert (== (event "E" 0 1 2 3 (shape.create)) "E|0|1|2|3|0|\n") }
+
+fn snapshot(g: shape.Graph) -> string {
+    let mut lines: array<string> = []
+    if (shape.healthy g) {
+        for id in (range 1 (+ (array_length g.nodes) 1)) {
+            let resolved: int = (shape.root g id)
+            let position: int = (at g.nodes (- resolved 1))
+            let mut cursor: int = (at g.arena (+ position 5))
+            let mut edges: array<string> = []
+            while (!= cursor 0) {
+                set edges (array_push edges (+ (decimal (at g.arena (- cursor 1)))
+                    (+ ":" (decimal (shape.root g (at g.arena cursor))))))
+                set cursor (at g.arena (+ cursor 1))
+            }
+            set cursor (at g.arena (+ position 7))
+            let mut functions: array<string> = []
+            while (!= cursor 0) {
+                set functions (array_push functions (decimal (at g.arena (- cursor 1))))
+                set cursor (at g.arena cursor)
+            }
+            let fields: array<string> = ["N",(decimal id),(decimal resolved),(decimal (shape.kind g id)),
+                (decimal (shape.tags g id)),(decimal (array_length edges)),(str_join edges ","),
+                (decimal (array_length functions)),(str_join functions ",")]
+            let line: string = (+ (str_join fields "|") "\n")
+            set lines (array_push lines line)
+        }
+    }
+    return (str_join lines "")
+}
+shadow snapshot {
+    let created: shape.Step = (shape.new_node (shape.create) 7)
+    assert (== (snapshot created.state) "N|1|1|7|0|0||0|\n")
+}
+
+fn describe(bytes: array<u8>) -> string {
+    if (not (framed bytes)) { return "INVALID\n" }
+    let mut lines: array<string> = []
+    for k in (range 0 15) { set lines (array_push lines (+ "K|" (+ (decimal k) (+ "|" (+ (shape.kind_name k) "\n"))))) }
+    let count: int = (wire.read_u32 bytes 0)
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        let mode: int = (wire.read_u32 bytes cursor)
+        let operations: int = (wire.read_u32 bytes (+ cursor 4))
+        set cursor (+ cursor 8)
+        let mut g: shape.Graph = (shape.create)
+        for index in (range 0 operations) {
+            let opcode: int = (wire.read_u32 bytes cursor)
+            let a: int = (wire.read_u32 bytes (+ cursor 4))
+            let b: int = (wire.read_u32 bytes (+ cursor 8))
+            let c: int = (wire.read_u32 bytes (+ cursor 12))
+            let expected: int = (wire.read_u32 bytes (+ cursor 16))
+            let check: int = (wire.read_u32 bytes (+ cursor 20))
+            set cursor (+ cursor 24)
+            let mut result: int = 0
+            let mut output: int = 305419896
+            if (== opcode 0) {
+                let created: shape.Step = (shape.new_node g a)
+                set g created.state set result created.number
+            } else if (== opcode 1) { set result (shape.root g a)
+            } else if (== opcode 2) { set result (shape.kind g a)
+            } else if (== opcode 3) {
+                let projected: shape.Step = (shape.child g a b)
+                set g projected.state set result projected.number
+            } else if (== opcode 4) { set result (shape.lookup g a b)
+            } else if (== opcode 5) {
+                let joined: shape.Step = (shape.unify g a b)
+                set g joined.state set result joined.number
+            } else if (== opcode 6) { set result (shape.tags_add g a b)
+            } else if (== opcode 7) { set result (shape.tags g a)
+            } else if (== opcode 8) {
+                let added: shape.Step = (shape.function_add g a b)
+                set g added.state set result added.number
+            } else if (== opcode 9) { set result (shape.function_count g a)
+            } else if (== opcode 10) {
+                let queried: shape.Target = (shape.function_target g a b (!= c 0))
+                if queried.valid { set result 1 set output queried.number }
+            } else if (== opcode 11) { set g (shape.destroy g)
+            } else if (== opcode 12) {
+                let mut requested: int = b
+                # Every nonzero high word exceeds the finite uint32 target set.
+                if (!= c 0) { set requested -1 }
+                let queried: shape.Target = (shape.function_target g a requested true)
+                if queried.valid { set result 1 set output queried.number }
+            } else if (== opcode 13) {
+                if (shape.healthy g) { set result 1 }
+            }
+            if (and (!= check 0) (!= result expected)) {
+                let fields: array<string> = ["ASSERT",(decimal item),(decimal index),(decimal result),(decimal expected)]
+                return (+ (str_join fields "|") "\n")
+            }
+            if (== mode 0) { set lines (array_push lines (event "E" item index result output g)) }
+        }
+        set lines (array_push lines (event "Z" item operations 0 305419896 g))
+        set lines (array_push lines (snapshot g))
+    }
+    return (str_join lines "")
+}
+shadow describe { assert (== (describe []) "INVALID\n") }
+
+fn main() -> int {
+    unsafe {
+        for index in (range 1 (get_argc)) { (print (describe (file_read_bytes (get_argv index)))) }
+    }
+    return 0
+}

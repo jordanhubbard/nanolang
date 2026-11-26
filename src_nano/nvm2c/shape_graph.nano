@@ -1,0 +1,488 @@
+module nvm2c_shape_graph
+
+# I consume one current mutable analysis state. Shape kinds are not wire tags.
+# Arena header: first error and five details, then a reserved solver flag.
+# Node: parent, rank, kind, inferred-kind, producer mask, edge head/tail, targets.
+pub struct Graph { arena: array<int>, nodes: array<int> }
+pub struct Step { state: Graph, number: int }
+pub struct Target { valid: bool, number: int }
+
+pub fn create() -> Graph { return Graph { arena: [0,0,0,0,0,0,0], nodes: [] } }
+shadow create {
+    let g: Graph = (create)
+    assert (== (array_length g.arena) 7)
+    assert (== (array_length g.nodes) 0)
+}
+
+pub fn healthy(g: Graph) -> bool {
+    if (< (array_length g.arena) 7) { return false }
+    return (== (at g.arena 0) 0)
+}
+shadow healthy { assert (healthy (create)) }
+
+fn step(g: Graph, number: int) -> Step { return Step { state: g, number: number } }
+shadow step { assert (== (step (create) 7).number 7) }
+
+fn unsigned(value: int, maximum: int) -> bool {
+    return (and (>= value 0) (<= value maximum))
+}
+shadow unsigned {
+    assert (unsigned 4294967295 4294967295)
+    assert (== (unsigned -1 4294967295) false)
+    assert (== (unsigned 4294967296 4294967295) false)
+}
+
+pub fn kind_name(kind: int) -> string {
+    let names: array<string> = ["unknown","int","string","array","record","map","optional",
+        "bool","float","numeric","variant-scalar","variant-int-array","function","u8","bstring"]
+    if (not (unsigned kind 14)) { return "unknown" }
+    return (at names kind)
+}
+shadow kind_name {
+    assert (== (kind_name 4) "record")
+    assert (== (kind_name 7) "bool")
+    assert (== (kind_name 13) "u8")
+    assert (== (kind_name 14) "bstring")
+    assert (== (kind_name -1) "unknown")
+}
+
+fn poison(g: Graph, code: int, a: int, b: int, c: int, d: int, e: int) -> int {
+    if (healthy g) {
+        (array_set g.arena 0 code)
+        (array_set g.arena 1 a) (array_set g.arena 2 b) (array_set g.arena 3 c)
+        (array_set g.arena 4 d) (array_set g.arena 5 e)
+    }
+    return 0
+}
+shadow poison {
+    let g: Graph = (create)
+    assert (== (poison g 1 2 3 4 5 6) 0)
+    assert (== (at g.arena 0) 1)
+    assert (== (poison g 2 0 0 0 0 0) 0)
+    assert (== (at g.arena 0) 1)
+    assert (== (at g.arena 5) 6)
+}
+
+pub fn error(g: Graph) -> string {
+    if (< (array_length g.arena) 7) { return "I require a constructed representation graph." }
+    let code: int = (at g.arena 0)
+    if (== code 0) { return "" }
+    if (== code 1) { return "I cannot create an invalid shape kind" }
+    if (== code 2) { return "I cannot represent another shape ID" }
+    if (== code 3) { return "I cannot resolve an invalid shape ID" }
+    if (== code 4) { return "I require an exact function shape for a callable target" }
+    if (== code 5) { return "I found an invalid shape projection" }
+    if (== code 7) { return "I found conflicting shape projections" }
+    if (== code 8) { return "I require a function shape before inspecting callable targets" }
+    if (== code 9) { return "I require an existing callable target and an output slot" }
+    if (== code 10) { return "I cannot represent shape storage" }
+    if (== code 6) {
+        return (+ "I found conflicting aggregate shape kinds " (+ (kind_name (at g.arena 1))
+            (+ "/" (+ (kind_name (at g.arena 2)) (+ " at nodes " (+ (int_to_string (at g.arena 3))
+            (+ "/" (int_to_string (at g.arena 4)))))))))
+    }
+    return "I require a constructed representation graph."
+}
+shadow error {
+    let g: Graph = (create)
+    assert (== (error g) "")
+    (poison g 6 1 2 3 4 0)
+    assert (== (error g) "I found conflicting aggregate shape kinds int/string at nodes 3/4")
+}
+
+pub fn destroy(previous: Graph) -> Graph { return (create) }
+shadow destroy {
+    let g: Graph = (create)
+    (poison g 1 0 0 0 0 0)
+    assert (healthy (destroy g))
+    assert (== (array_length (destroy g).nodes) 0)
+}
+
+fn address(g: Graph, id: int) -> int { return (at g.nodes (- id 1)) }
+shadow address {
+    let created: Step = (new_node (create) 4)
+    assert (== (address created.state 1) 7)
+}
+
+fn append(g: Graph, words: array<int>) -> Step {
+    if (not (healthy g)) { return (step g 0) }
+    let position: int = (array_length g.arena)
+    if (> (array_length words) (- 2305843009213693951 position)) {
+        (poison g 10 0 0 0 0 0)
+        return (step g 0)
+    }
+    let mut arena: array<int> = g.arena
+    for index in (range 0 (array_length words)) { set arena (array_push arena (at words index)) }
+    return (step Graph { arena: arena, nodes: g.nodes } (+ position 1))
+}
+shadow append {
+    let result: Step = (append (create) [11,12])
+    assert (== result.number 8)
+    assert (== (array_length result.state.arena) 9)
+    assert (== (at result.state.arena 8) 12)
+}
+
+pub fn new_node(g: Graph, kind: int) -> Step {
+    if (not (healthy g)) { return (step g 0) }
+    if (not (unsigned kind 14)) { (poison g 1 0 0 0 0 0) return (step g 0) }
+    if (>= (array_length g.nodes) 4294967295) { (poison g 2 0 0 0 0 0) return (step g 0) }
+    let id: int = (+ (array_length g.nodes) 1)
+    let added: Step = (append g [id,0,kind,0,0,0,0,0])
+    if (== added.number 0) { return added }
+    let nodes: array<int> = (array_push added.state.nodes (- added.number 1))
+    return (step Graph { arena: added.state.arena, nodes: nodes } id)
+}
+shadow new_node {
+    let first: Step = (new_node (create) 14)
+    assert (== first.number 1)
+    assert (== (array_length first.state.nodes) 1)
+    assert (== (kind first.state 1) 14)
+    let bad: Step = (new_node (create) 15)
+    assert (== bad.number 0)
+    assert (== (error bad.state) "I cannot create an invalid shape kind")
+}
+
+pub fn root(g: Graph, id: int) -> int {
+    if (not (healthy g)) { return 0 }
+    if (or (<= id 0) (> id (array_length g.nodes))) { return (poison g 3 0 0 0 0 0) }
+    let mut result: int = id
+    while (!= (at g.arena (address g result)) result) { set result (at g.arena (address g result)) }
+    let mut cursor: int = id
+    while (!= cursor result) {
+        let position: int = (address g cursor)
+        let next: int = (at g.arena position)
+        (array_set g.arena position result)
+        set cursor next
+    }
+    return result
+}
+shadow root {
+    let created: Step = (new_node (create) 0)
+    assert (== (root created.state 1) 1)
+    assert (== (root created.state 0) 0)
+    assert (== (error created.state) "I cannot resolve an invalid shape ID")
+}
+
+pub fn kind(g: Graph, id: int) -> int {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return 0 }
+    return (at g.arena (+ (address g resolved) 2))
+}
+shadow kind {
+    let created: Step = (new_node (create) 7)
+    assert (== (kind created.state 1) 7)
+    assert (== (kind created.state 2) 0)
+}
+
+pub fn allows_edge(kind: int, index: int) -> bool {
+    if (not (unsigned index 4294967295)) { return false }
+    return (or (or (== kind 0) (== kind 4)) (or (and (== kind 5) (< index 2))
+        (and (or (== kind 3) (== kind 6)) (== index 0))))
+}
+shadow allows_edge {
+    assert (allows_edge 0 4294967295)
+    assert (allows_edge 4 17)
+    assert (allows_edge 5 1)
+    assert (== (allows_edge 5 2) false)
+    assert (== (allows_edge 3 1) false)
+    assert (== (allows_edge 7 0) false)
+}
+
+fn edge_at(g: Graph, id: int, index: int) -> int {
+    let mut cursor: int = (at g.arena (+ (address g id) 5))
+    while (!= cursor 0) {
+        if (== (at g.arena (- cursor 1)) index) { return cursor }
+        set cursor (at g.arena (+ cursor 1))
+    }
+    return 0
+}
+shadow edge_at {
+    let created: Step = (new_node (create) 4)
+    assert (== (edge_at created.state 1 0) 0)
+    let projected: Step = (child created.state 1 0)
+    assert (> (edge_at projected.state 1 0) 0)
+}
+
+pub fn lookup(g: Graph, id: int, index: int) -> int {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return 0 }
+    if (not (allows_edge (kind g resolved) index)) { return (poison g 5 0 0 0 0 0) }
+    let edge: int = (edge_at g resolved index)
+    if (== edge 0) { return 0 }
+    return (root g (at g.arena edge))
+}
+shadow lookup {
+    let created: Step = (new_node (create) 3)
+    assert (== (lookup created.state 1 0) 0)
+    assert (== (array_length created.state.nodes) 1)
+    assert (healthy created.state)
+    assert (== (lookup created.state 1 1) 0)
+    assert (== (error created.state) "I found an invalid shape projection")
+}
+
+fn link_edge(g: Graph, id: int, index: int, child: int) -> Step {
+    let added: Step = (append g [index,child,0])
+    if (== added.number 0) { return added }
+    let position: int = (address added.state id)
+    let tail: int = (at added.state.arena (+ position 6))
+    if (== tail 0) { (array_set added.state.arena (+ position 5) added.number) }
+    else { (array_set added.state.arena (+ tail 1) added.number) }
+    (array_set added.state.arena (+ position 6) added.number)
+    return (step added.state child)
+}
+shadow link_edge {
+    let first: Step = (new_node (create) 4)
+    let second: Step = (new_node first.state 1)
+    let linked: Step = (link_edge second.state 1 42 2)
+    assert (== (lookup linked.state 1 42) 2)
+}
+
+pub fn child(g: Graph, id: int, index: int) -> Step {
+    let found: int = (lookup g id index)
+    if (or (!= found 0) (not (healthy g))) { return (step g found) }
+    let resolved: int = (root g id)
+    let created: Step = (new_node g 0)
+    if (== created.number 0) { return created }
+    return (link_edge created.state resolved index created.number)
+}
+shadow child {
+    let created: Step = (new_node (create) 4)
+    let projected: Step = (child created.state 1 4294967295)
+    assert (== projected.number 2)
+    assert (== (child projected.state 1 4294967295).number 2)
+    assert (== (array_length projected.state.nodes) 2)
+}
+
+fn mask_or(left: int, right: int) -> int {
+    if (== left right) { return left }
+    if (== left 0) { return right }
+    if (== right 0) { return left }
+    let mut result: int = 0
+    let mut bit: int = 1
+    for index in (range 0 16) {
+        if (or (!= (% (/ left bit) 2) 0) (!= (% (/ right bit) 2) 0)) { set result (+ result bit) }
+        set bit (* bit 2)
+    }
+    return result
+}
+shadow mask_or {
+    assert (== (mask_or 0 65535) 65535)
+    assert (== (mask_or 21845 43690) 65535)
+    assert (== (mask_or 1 2) 3)
+}
+
+pub fn tags_add(g: Graph, id: int, tags: int) -> int {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return 0 }
+    if (not (unsigned tags 65535)) { return (poison g 10 0 0 0 0 0) }
+    let position: int = (+ (address g resolved) 4)
+    (array_set g.arena position (mask_or (at g.arena position) tags))
+    return 1
+}
+shadow tags_add {
+    let created: Step = (new_node (create) 0)
+    assert (== (tags_add created.state 1 16) 1)
+    assert (== (tags_add created.state 1 1) 1)
+    assert (== (tags created.state 1) 17)
+    assert (== (kind created.state 1) 0)
+}
+
+pub fn tags(g: Graph, id: int) -> int {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return 0 }
+    return (at g.arena (+ (address g resolved) 4))
+}
+shadow tags {
+    let created: Step = (new_node (create) 7)
+    assert (== (tags created.state 1) 0)
+    assert (== (tags created.state 0) 0)
+    assert (== (healthy created.state) false)
+}
+
+fn function_insert(g: Graph, id: int, target: int) -> Step {
+    let position: int = (+ (address g id) 7)
+    let mut cursor: int = (at g.arena position)
+    let mut prior: int = 0
+    while (!= cursor 0) {
+        if (>= (at g.arena (- cursor 1)) target) { break }
+        set prior cursor
+        set cursor (at g.arena cursor)
+    }
+    if (!= cursor 0) {
+        if (== (at g.arena (- cursor 1)) target) { return (step g 1) }
+    }
+    let added: Step = (append g [target,cursor])
+    if (== added.number 0) { return added }
+    if (== prior 0) { (array_set added.state.arena position added.number) }
+    else { (array_set added.state.arena prior added.number) }
+    return (step added.state 1)
+}
+shadow function_insert {
+    let created: Step = (new_node (create) 12)
+    let added: Step = (function_insert created.state 1 17)
+    assert (== added.number 1)
+    assert (== (function_count added.state 1) 1)
+}
+
+pub fn function_add(g: Graph, id: int, target: int) -> Step {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return (step g 0) }
+    let position: int = (address g resolved)
+    let k: int = (kind g resolved)
+    if (or (not (unsigned target 4294967295))
+        (or (and (!= k 0) (!= k 12)) (!= (at g.arena (+ position 5)) 0))) {
+        (poison g 4 0 0 0 0 0)
+        return (step g 0)
+    }
+    (array_set g.arena (+ position 2) 12)
+    return (function_insert g resolved target)
+}
+shadow function_add {
+    let created: Step = (new_node (create) 0)
+    let first: Step = (function_add created.state 1 4294967295)
+    let second: Step = (function_add first.state 1 0)
+    let duplicate: Step = (function_add second.state 1 0)
+    assert (== (kind duplicate.state 1) 12)
+    assert (== (function_count duplicate.state 1) 2)
+    assert (== (function_target duplicate.state 1 0 true).number 0)
+    assert (== (function_target duplicate.state 1 1 true).number 4294967295)
+}
+
+pub fn function_count(g: Graph, id: int) -> int {
+    let resolved: int = (root g id)
+    if (== resolved 0) { return 0 }
+    if (!= (kind g resolved) 12) { return (poison g 8 0 0 0 0 0) }
+    let mut cursor: int = (at g.arena (+ (address g resolved) 7))
+    let mut count: int = 0
+    while (!= cursor 0) { set count (+ count 1) set cursor (at g.arena cursor) }
+    return count
+}
+shadow function_count {
+    let created: Step = (new_node (create) 12)
+    assert (== (function_count created.state 1) 0)
+    assert (healthy created.state)
+    let unknown: Step = (new_node (create) 0)
+    assert (== (function_count unknown.state 1) 0)
+    assert (== (error unknown.state) "I require a function shape before inspecting callable targets")
+}
+
+pub fn function_target(g: Graph, id: int, index: int, output_present: bool) -> Target {
+    let count: int = (function_count g id)
+    if (not (healthy g)) { return Target { valid: false, number: 0 } }
+    if (or (not output_present) (or (< index 0) (>= index count))) {
+        (poison g 9 0 0 0 0 0)
+        return Target { valid: false, number: 0 }
+    }
+    let mut cursor: int = (at g.arena (+ (address g (root g id)) 7))
+    for at_index in (range 0 index) { set cursor (at g.arena cursor) }
+    return Target { valid: true, number: (at g.arena (- cursor 1)) }
+}
+shadow function_target {
+    let created: Step = (new_node (create) 12)
+    assert (== (function_target created.state 1 0 true).valid false)
+    assert (== (error created.state) "I require an existing callable target and an output slot")
+}
+
+fn push_pair(pairs: array<int>, top: int, left: int, right: int) -> array<int> {
+    if (< top (array_length pairs)) {
+        (array_set pairs top left) (array_set pairs (+ top 1) right)
+        return pairs
+    }
+    let first: array<int> = (array_push pairs left)
+    return (array_push first right)
+}
+shadow push_pair {
+    let pairs: array<int> = (push_pair [1,2] 0 3 4)
+    assert (== (at pairs 0) 3)
+    assert (== (array_length (push_pair pairs 2 5 6)) 4)
+}
+
+pub fn unify(input: Graph, a: int, b: int) -> Step {
+    let mut g: Graph = input
+    if (not (healthy g)) { return (step g 0) }
+    let mut pairs: array<int> = [a,b]
+    let mut top: int = 2
+    while (and (> top 0) (healthy g)) {
+        set top (- top 2)
+        let mut left: int = (root g (at pairs top))
+        let mut right: int = (root g (at pairs (+ top 1)))
+        if (or (== left 0) (== right 0)) { break }
+        if (!= left right) {
+            let left_kind: int = (kind g left)
+            let right_kind: int = (kind g right)
+            if (and (and (!= left_kind 0) (!= right_kind 0)) (!= left_kind right_kind)) {
+                (poison g 6 left_kind right_kind left right 0)
+                break
+            }
+            if (< (at g.arena (+ (address g left) 1)) (at g.arena (+ (address g right) 1))) {
+                let saved: int = left
+                set left right set right saved
+            }
+            let x: int = (address g left)
+            let y: int = (address g right)
+            let mut k: int = (at g.arena (+ x 2))
+            if (== k 0) { set k (at g.arena (+ y 2)) }
+            let inferred: bool = (and (!= k 0) (and
+                (or (== (at g.arena (+ x 2)) 0) (!= (at g.arena (+ x 3)) 0))
+                (or (== (at g.arena (+ y 2)) 0) (!= (at g.arena (+ y 3)) 0))))
+            let mut edge: int = (at g.arena (+ x 5))
+            while (!= edge 0) {
+                if (not (allows_edge k (at g.arena (- edge 1)))) { (poison g 7 0 0 0 0 0) }
+                set edge (at g.arena (+ edge 1))
+            }
+            set edge (at g.arena (+ y 5))
+            while (!= edge 0) {
+                if (not (allows_edge k (at g.arena (- edge 1)))) { (poison g 7 0 0 0 0 0) }
+                set edge (at g.arena (+ edge 1))
+            }
+            if (not (healthy g)) { break }
+            (array_set g.arena y left)
+            (array_set g.arena (+ x 2) k)
+            let mut inferred_number: int = 0
+            if inferred { set inferred_number 1 }
+            (array_set g.arena (+ x 3) inferred_number)
+            (array_set g.arena (+ x 4) (mask_or (at g.arena (+ x 4)) (at g.arena (+ y 4))))
+            if (== (at g.arena (+ x 1)) (at g.arena (+ y 1))) { (array_set g.arena (+ x 1) (+ (at g.arena (+ x 1)) 1)) }
+            let mut function: int = (at g.arena (+ y 7))
+            while (and (!= function 0) (healthy g)) {
+                let next: int = (at g.arena function)
+                let added: Step = (function_insert g left (at g.arena (- function 1)))
+                set g added.state
+                set function next
+            }
+            (array_set g.arena (+ y 7) 0)
+            set edge (at g.arena (+ y 5))
+            while (and (!= edge 0) (healthy g)) {
+                let index: int = (at g.arena (- edge 1))
+                let child_id: int = (at g.arena edge)
+                let next: int = (at g.arena (+ edge 1))
+                let found: int = (edge_at g left index)
+                if (!= found 0) {
+                    set pairs (push_pair pairs top (at g.arena found) child_id)
+                    set top (+ top 2)
+                } else {
+                    let linked: Step = (link_edge g left index child_id)
+                    set g linked.state
+                }
+                set edge next
+            }
+            (array_set g.arena (+ y 5) 0) (array_set g.arena (+ y 6) 0)
+        }
+    }
+    let mut success: int = 0
+    if (healthy g) { set success 1 }
+    return (step g success)
+}
+shadow unify {
+    let first: Step = (new_node (create) 4)
+    let projected: Step = (child first.state 1 0)
+    let cycle: Step = (unify projected.state 2 1)
+    assert (== cycle.number 1)
+    assert (== (lookup cycle.state 1 0) (root cycle.state 1))
+    assert (== (kind cycle.state 1) 4)
+    let other: Step = (new_node cycle.state 1)
+    let failed: Step = (unify other.state 1 3)
+    assert (== failed.number 0)
+    assert (== (error failed.state) "I found conflicting aggregate shape kinds record/int at nodes 2/3")
+    assert (== (new_node failed.state 1).number 0)
+}
