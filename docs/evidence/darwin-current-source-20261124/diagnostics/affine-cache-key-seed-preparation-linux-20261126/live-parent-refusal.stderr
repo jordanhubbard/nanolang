@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-cache-key-seed-five-20261126-of3upyax/setup.py", line 18, in <module>
+    triple=json.loads(prior.read_bytes());assert triple['terminal'] and triple['accepted_component'] and triple['all_guards_match'], 'I require accepted terminal corrected three-method evidence before preparing my cache run'
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require accepted terminal corrected three-method evidence before preparing my cache run
