@@ -1,0 +1,3 @@
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+make: *** No rule to make target `bin/nano_as_capture.so'.  Stop.

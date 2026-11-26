@@ -1,0 +1,6 @@
+make: Nothing to be done for `src_nano/generated/compiler_schema.nano'.
+make: Nothing to be done for `src_nano/generated/compiler_ast.nano'.
+mkdir -p obj/build_bootstrap
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+make: `src/nanoisa/generated_schema.h' is up to date.

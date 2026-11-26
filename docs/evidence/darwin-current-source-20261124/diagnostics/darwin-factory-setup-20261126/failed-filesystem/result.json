@@ -1,0 +1,46 @@
+{
+  "terminal": true,
+  "accepted": false,
+  "whole_release": false,
+  "component_only": true,
+  "source_pin": "d907f264d16d348b4589d3760bd213803e1c6f35",
+  "root": "/private/var/tmp/nanolang-5.1-current-20261126-xa_jgr1d",
+  "source": "/private/var/tmp/nanolang-5.1-current-20261126-xa_jgr1d/source",
+  "pid": 84776,
+  "commands": [],
+  "admissions": [
+    {
+      "label": "before-reservation",
+      "utc": "2026-11-26T18:58:11Z",
+      "other_nanolang_jobs": [],
+      "free_bytes": 104602312704,
+      "filesystem": "/",
+      "loadavg": [
+        47.220703125,
+        36.310546875,
+        33.21240234375
+      ],
+      "cpu": []
+    }
+  ],
+  "source_before": {},
+  "images_before": {},
+  "tools_before": {},
+  "host_libraries_before": {},
+  "phases": [],
+  "ordinary_seconds": 10,
+  "stage_seconds": 1800,
+  "compiler_shadow_seconds": 30,
+  "emitter_helper_seconds": 300,
+  "c_product_source_edit": false,
+  "process_start": "Thu Nov 26 10:58:11 2026",
+  "initial_environment": {
+    "PATH": "/Users/jkh/.local/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jkh/.cargo/bin:/Users/jkh/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/Users/jkh/.docker/bin"
+  },
+  "exception": "AssertionError({'label': 'before-reservation', 'utc': '2026-11-26T18:58:11Z', 'other_nanolang_jobs': [], 'free_bytes': 104602312704, 'filesystem': '/', 'loadavg': (47.220703125, 36.310546875, 33.21240234375), 'cpu': []})",
+  "images_after": {},
+  "tools_after": {},
+  "host_libraries_after": {},
+  "remaining_owned_processes": [],
+  "guards_match": false
+}

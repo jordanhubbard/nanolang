@@ -1,0 +1,44 @@
+{
+  "nano": {
+    "bytes": 10323992,
+    "sha256": "54fbc6f8a79816df27b4bb36d39a1742cb3a7da5802630c7b1a39ff588a202e0",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nanoc_c": {
+    "bytes": 12847512,
+    "sha256": "acf20a5920ad15718fd1dc2e09380adf0b18042fba4f3a875238893d76be6cb7",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nano_vm": {
+    "bytes": 12445000,
+    "sha256": "8cf6a4d4df00fa72e816c5b5aabdc5786bbd059776387fbe16d174f6d2959698",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nvm2c": {
+    "bytes": 1707096,
+    "sha256": "292e8c4e311ae81599fd9d855cf72736b0f23f873eb87b4ec317c8bcf776d2da",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nanoisa": {
+    "bytes": 1285416,
+    "sha256": "f0d5c43007baf0efec1a87cbe8d68bb9e911a745b0f1a080666d7ddc00bdb487",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nano_virt": {
+    "bytes": 12814152,
+    "sha256": "cb95133f664cb3857363f66762157c6e7d30879c1e27a8057e6a12fd58109f50",
+    "magic": "cffaedfe",
+    "symlink": false
+  },
+  "nano_aot_runtime.o": {
+    "bytes": 8447472,
+    "sha256": "1d6e35f9b0678a031d0bd84bd5f1ad7f7e28aad430c5d311b6fe11ff6ec8a0a6",
+    "magic": "cffaedfe",
+    "symlink": false
+  }
+}
