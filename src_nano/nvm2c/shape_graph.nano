@@ -1,7 +1,7 @@
 module nvm2c_shape_graph
 
 # I consume one current mutable analysis state. Shape kinds are not wire tags.
-# Arena header: first error and five details, then a reserved solver flag.
+# Arena header: first error and five details, then a lazy solver-header link.
 # Node: parent, rank, kind, inferred-kind, producer mask, edge head/tail, targets.
 pub struct Graph { arena: array<int>, nodes: array<int> }
 pub struct Step { state: Graph, number: int }
@@ -76,6 +76,20 @@ pub fn error(g: Graph) -> string {
     if (== code 8) { return "I require a function shape before inspecting callable targets" }
     if (== code 9) { return "I require an existing callable target and an output slot" }
     if (== code 10) { return "I cannot represent shape storage" }
+    if (== code 11) { return "I found incompatible projections during storage conversion" }
+    if (== code 13) { return "I require proved scalar producers for variant scalar storage" }
+    if (== code 14) { return "I require an exact integer element for variant array storage" }
+    if (== code 12) {
+        let fields: array<string> = ["I cannot widen an exactly constrained ",(kind_name (at g.arena 1)),
+            " destination at nodes ",(int_to_string (at g.arena 2)),"/",(int_to_string (at g.arena 3)),
+            " (conversion ",(int_to_string (at g.arena 4)),"/",(int_to_string (at g.arena 5)),")"]
+        return (str_join fields "")
+    }
+    if (== code 15) {
+        let fields: array<string> = ["I cannot convert aggregate storage ",(kind_name (at g.arena 1)),
+            " to ",(kind_name (at g.arena 2))," at nodes ",(int_to_string (at g.arena 3)),"/",(int_to_string (at g.arena 4))]
+        return (str_join fields "")
+    }
     if (== code 6) {
         return (+ "I found conflicting aggregate shape kinds " (+ (kind_name (at g.arena 1))
             (+ "/" (+ (kind_name (at g.arena 2)) (+ " at nodes " (+ (int_to_string (at g.arena 3))
@@ -485,4 +499,517 @@ shadow unify {
     assert (== failed.number 0)
     assert (== (error failed.state) "I found conflicting aggregate shape kinds record/int at nodes 2/3")
     assert (== (new_node failed.state 1).number 0)
+}
+
+# Solver header: four head/tail/count triples, then the fixed-point change flag.
+# Facts retain insertion IDs: source, target, alias/resolved, checked, next.
+fn solver_base(g: Graph) -> int { return (- (at g.arena 6) 1) }
+shadow solver_base { assert (== (solver_base (create)) -1) }
+
+fn solver_create(g: Graph) -> Step {
+    if (not (healthy g)) { return (step g 0) }
+    if (!= (at g.arena 6) 0) { return (step g (at g.arena 6)) }
+    let added: Step = (append g [0,0,0,0,0,0,0,0,0,0,0,0,0])
+    if (!= added.number 0) { (array_set added.state.arena 6 added.number) }
+    return added
+}
+shadow solver_create {
+    let made: Step = (solver_create (create))
+    assert (== (solver_base made.state) 7)
+    assert (== (solver_create made.state).number made.number)
+}
+
+pub fn fact_count(g: Graph, group: int) -> int {
+    if (or (< group 0) (> group 3)) { return 0 }
+    if (== (at g.arena 6) 0) { return 0 }
+    return (at g.arena (+ (solver_base g) (+ (* group 3) 2)))
+}
+shadow fact_count { assert (== (fact_count (create) 0) 0) assert (== (fact_count (create) 4) 0) }
+
+fn fact_head(g: Graph, group: int) -> int {
+    if (== (at g.arena 6) 0) { return 0 }
+    return (at g.arena (+ (solver_base g) (* group 3)))
+}
+shadow fact_head { assert (== (fact_head (create) 0) 0) }
+
+fn fact_find(g: Graph, group: int, source: int, target: int) -> bool {
+    let mut cursor: int = (fact_head g group)
+    while (!= cursor 0) {
+        if (and (== (at g.arena (- cursor 1)) source) (== (at g.arena cursor) target)) { return true }
+        set cursor (at g.arena (+ cursor 3))
+    }
+    return false
+}
+shadow fact_find { assert (== (fact_find (create) 1 1 2) false) }
+
+fn fact_append(input: Graph, group: int, source: int, target: int, alias: int, checked: int) -> Step {
+    let made: Step = (solver_create input)
+    if (== made.number 0) { return made }
+    let added: Step = (append made.state [source,target,alias,checked,0])
+    if (== added.number 0) { return added }
+    let base: int = (+ (solver_base added.state) (* group 3))
+    let tail: int = (at added.state.arena (+ base 1))
+    if (== tail 0) { (array_set added.state.arena base added.number) }
+    else { (array_set added.state.arena (+ tail 3) added.number) }
+    (array_set added.state.arena (+ base 1) added.number)
+    (array_set added.state.arena (+ base 2) (+ (at added.state.arena (+ base 2)) 1))
+    return added
+}
+shadow fact_append {
+    let added: Step = (fact_append (create) 0 1 2 0 0)
+    assert (== (fact_count added.state 0) 1)
+    assert (fact_find added.state 0 1 2)
+}
+
+fn changed(g: Graph) -> int {
+    (array_set g.arena (+ (solver_base g) 12) 1)
+    return 1
+}
+shadow changed {
+    let made: Step = (solver_create (create))
+    (changed made.state)
+    assert (== (at made.state.arena (+ (solver_base made.state) 12)) 1)
+}
+
+fn conversion(g: Graph, source: int, target: int, alias: int, checked: int) -> Step {
+    if (== (root g source) 0) { return (step g 0) }
+    if (== (root g target) 0) { return (step g 0) }
+    let added: Step = (fact_append g 0 source target alias checked)
+    if (== added.number 0) { return added }
+    return (step added.state 1)
+}
+shadow conversion {
+    let a: Step = (new_node (create) 1)
+    let b: Step = (new_node a.state 0)
+    let c: Step = (conversion b.state 1 2 0 0)
+    assert (== c.number 1)
+    assert (== (kind c.state 2) 0)
+    assert (== (fact_count c.state 0) 1)
+}
+
+pub fn convert(g: Graph, source: int, target: int) -> Step { return (conversion g source target 0 0) }
+shadow convert {
+    let a: Step = (new_node (create) 1)
+    let b: Step = (new_node a.state 0)
+    assert (== (convert b.state 1 2).number 1)
+}
+
+pub fn checked_payload(g: Graph, source: int, target: int) -> Step { return (conversion g source target 0 1) }
+shadow checked_payload {
+    let a: Step = (new_node (create) 6)
+    let b: Step = (new_node a.state 1)
+    let c: Step = (checked_payload b.state 1 2)
+    assert (== (at c.state.arena (+ (fact_head c.state 0) 2)) 1)
+}
+
+pub fn alias_view(g: Graph, source: int, target: int) -> Step { return (conversion g source target 1 0) }
+shadow alias_view {
+    let a: Step = (new_node (create) 6)
+    let b: Step = (new_node a.state 1)
+    let c: Step = (alias_view b.state 1 2)
+    assert (== (at c.state.arena (+ (fact_head c.state 0) 1)) 1)
+}
+
+pub fn array_alias(g: Graph, caller: int, callee: int) -> Step {
+    let left: int = (root g caller)
+    let right: int = (root g callee)
+    if (or (== left 0) (== right 0)) { return (step g 0) }
+    if (== left right) { return (step g 1) }
+    if (fact_find g 1 left right) { return (step g 1) }
+    let added: Step = (fact_append g 1 left right 0 0)
+    if (== added.number 0) { return added }
+    return (step added.state 1)
+}
+shadow array_alias {
+    let a: Step = (new_node (create) 3)
+    let b: Step = (new_node a.state 3)
+    let c: Step = (array_alias b.state 1 2)
+    let d: Step = (array_alias c.state 1 2)
+    assert (== (fact_count d.state 1) 1)
+    assert (== (array_alias d.state 1 1).number 1)
+}
+
+pub fn array_write(g: Graph, array_id: int, value: int) -> Step {
+    let left: int = (root g array_id)
+    let right: int = (root g value)
+    if (or (== left 0) (== right 0)) { return (step g 0) }
+    if (fact_find g 2 left right) { return (step g 1) }
+    let added: Step = (fact_append g 2 left right 0 0)
+    if (== added.number 0) { return added }
+    let projected: Step = (child added.state left 0)
+    return (alias_view projected.state right projected.number)
+}
+shadow array_write {
+    let a: Step = (new_node (create) 3)
+    let b: Step = (new_node a.state 1)
+    let c: Step = (array_write b.state 1 2)
+    assert (== c.number 1)
+    assert (== (fact_count c.state 2) 1)
+    assert (== (fact_count c.state 0) 1)
+    assert (== (array_length c.state.nodes) 3)
+}
+
+pub fn array_read(g: Graph, element: int, result: int) -> Step {
+    if (== (root g element) 0) { return (step g 0) }
+    if (== (root g result) 0) { return (step g 0) }
+    let added: Step = (fact_append g 3 element result 0 0)
+    if (== added.number 0) { return added }
+    return (step added.state 1)
+}
+shadow array_read {
+    let a: Step = (new_node (create) 1)
+    let b: Step = (new_node a.state 0)
+    let c: Step = (array_read b.state 1 2)
+    assert (== (fact_count c.state 3) 1)
+    assert (== (kind c.state 2) 0)
+}
+
+fn scalar_read(k: int) -> bool {
+    return (or (or (or (== k 1) (== k 2)) (or (== k 7) (== k 8)))
+        (or (== k 12) (or (== k 13) (== k 14))))
+}
+shadow scalar_read { assert (scalar_read 14) assert (== (scalar_read 3) false) }
+
+fn scalar_member(k: int) -> bool {
+    return (or (or (== k 1) (== k 2)) (or (== k 7) (or (== k 8) (== k 13))))
+}
+shadow scalar_member { assert (scalar_member 13) assert (== (scalar_member 14) false) }
+
+fn boxed_member(k: int) -> bool { return (or (scalar_read k) (or (== k 3) (== k 5))) }
+shadow boxed_member { assert (boxed_member 3) assert (== (boxed_member 4) false) }
+
+fn reads_solve(input: Graph) -> Step {
+    let mut g: Graph = input
+    let mut cursor: int = (fact_head g 3)
+    while (and (!= cursor 0) (healthy g)) {
+        let next: int = (at g.arena (+ cursor 3))
+        if (== (at g.arena (+ cursor 1)) 0) {
+            let element: int = (at g.arena (- cursor 1))
+            let result: int = (at g.arena cursor)
+            let mut k: int = (kind g element)
+            if (and (== k 0) (== (kind g result) 4)) {
+                let made: Step = (new_node g 4)
+                let joined: Step = (unify made.state element made.number)
+                set g joined.state
+                if (== joined.number 0) { return joined }
+                set k 4
+            }
+            if (!= k 0) {
+                let mut producer: int = element
+                if (scalar_read k) {
+                    let made: Step = (new_node g 6)
+                    set g made.state set producer made.number
+                    if (== producer 0) { return (step g 0) }
+                    let projected: Step = (child g producer 0)
+                    let joined: Step = (unify projected.state projected.number element)
+                    set g joined.state
+                    if (== joined.number 0) { return joined }
+                }
+                let added: Step = (convert g producer result)
+                set g added.state
+                if (== added.number 0) { return added }
+                (array_set g.arena (+ cursor 1) 1)
+                (changed g)
+            }
+        }
+        set cursor next
+    }
+    let mut success: int = 0
+    if (healthy g) { set success 1 }
+    return (step g success)
+}
+shadow reads_solve {
+    let a: Step = (new_node (create) 14)
+    let b: Step = (new_node a.state 0)
+    let c: Step = (array_read b.state 1 2)
+    let d: Step = (reads_solve c.state)
+    assert (== d.number 1)
+    assert (== (fact_count d.state 0) 1)
+    assert (== (array_length d.state.nodes) 4)
+    assert (== (reads_solve d.state).number 1)
+    assert (== (array_length d.state.nodes) 4)
+}
+
+fn writes_propagate(input: Graph) -> Step {
+    let mut g: Graph = input
+    if (or (== (fact_count g 1) 0) (== (fact_count g 2) 0)) { return (step g 1) }
+    let mut heads: array<int> = []
+    for index in (range 0 (array_length g.nodes)) { set heads (array_push heads 0) }
+    let mut links: array<int> = []
+    let mut aliases: array<int> = []
+    let mut cursor: int = (fact_head g 1)
+    while (and (!= cursor 0) (healthy g)) {
+        let target: int = (root g (at g.arena cursor))
+        if (== target 0) { return (step g 0) }
+        set aliases (array_push aliases (at g.arena (- cursor 1)))
+        set links (array_push links (at heads (- target 1)))
+        (array_set heads (- target 1) (array_length aliases))
+        set cursor (at g.arena (+ cursor 3))
+    }
+    set cursor (fact_head g 2)
+    while (and (!= cursor 0) (healthy g)) {
+        let array_id: int = (root g (at g.arena (- cursor 1)))
+        let value: int = (at g.arena cursor)
+        if (== array_id 0) { return (step g 0) }
+        let mut at_index: int = (at heads (- array_id 1))
+        while (and (!= at_index 0) (healthy g)) {
+            let added: Step = (array_write g (at aliases (- at_index 1)) value)
+            set g added.state
+            if (== added.number 0) { return added }
+            set at_index (at links (- at_index 1))
+        }
+        # Appending a discovered write can extend this same linked worklist.
+        set cursor (at g.arena (+ cursor 3))
+    }
+    let mut success: int = 0
+    if (healthy g) { set success 1 }
+    return (step g success)
+}
+shadow writes_propagate {
+    let a: Step = (new_node (create) 3)
+    let b: Step = (new_node a.state 3)
+    let c: Step = (new_node b.state 1)
+    let d: Step = (array_alias c.state 1 2)
+    let e: Step = (array_write d.state 2 3)
+    let f: Step = (writes_propagate e.state)
+    assert (== f.number 1)
+    assert (== (fact_count f.state 2) 2)
+    assert (== (fact_count (writes_propagate f.state).state 2) 2)
+}
+
+fn flow_kind(g: Graph, target: int, k: int) -> int {
+    let position: int = (address g target)
+    let mut cursor: int = (at g.arena (+ position 5))
+    while (!= cursor 0) {
+        if (not (allows_edge k (at g.arena (- cursor 1)))) { return (poison g 11 0 0 0 0 0) }
+        set cursor (at g.arena (+ cursor 1))
+    }
+    if (!= (at g.arena (+ position 2)) k) {
+        (array_set g.arena (+ position 2) k) (array_set g.arena (+ position 3) 1)
+        (changed g)
+    }
+    return 1
+}
+shadow flow_kind {
+    let a: Step = (new_node (create) 0)
+    let b: Step = (solver_create a.state)
+    assert (== (flow_kind b.state 1 2) 1)
+    assert (== (at b.state.arena (+ (address b.state 1) 3)) 1)
+}
+
+fn queue_add(queue: array<int>, source: int, target: int, exact: int, alias: int, optional: int) -> array<int> {
+    let a: array<int> = (array_push queue source)
+    let b: array<int> = (array_push a target)
+    let c: array<int> = (array_push b exact)
+    let d: array<int> = (array_push c alias)
+    return (array_push d optional)
+}
+shadow queue_add { assert (== (at (queue_add [] 1 2 3 4 5) 4) 5) }
+
+fn truth(value: bool) -> int { if value { return 1 } return 0 }
+shadow truth { assert (== (truth true) 1) assert (== (truth false) 0) }
+
+fn flow_one(input: Graph, conversion_at: int, final: bool) -> Step {
+    let mut g: Graph = input
+    let origin: int = (at g.arena (- conversion_at 1))
+    let destination: int = (at g.arena conversion_at)
+    let alias: int = (at g.arena (+ conversion_at 1))
+    let checked: int = (at g.arena (+ conversion_at 2))
+    let mut producer: int = origin
+    if (!= checked 0) {
+        let k: int = (kind g producer)
+        if (== k 0) { return (step g (truth (healthy g))) }
+        if (== k 6) {
+            let projected: Step = (child g producer 0)
+            set g projected.state set producer projected.number
+        }
+    }
+    let mut queue: array<int> = (queue_add [] producer destination checked alias 0)
+    let mut cursor: int = 0
+    while (and (< cursor (array_length queue)) (healthy g)) {
+        let pair: int = cursor
+        set cursor (+ cursor 5)
+        let source: int = (root g (at queue pair))
+        let target: int = (root g (at queue (+ pair 1)))
+        let exact: int = (at queue (+ pair 2))
+        let view: int = (at queue (+ pair 3))
+        let optional: int = (at queue (+ pair 4))
+        if (or (== source 0) (== target 0)) { break }
+        if (== source target) { continue }
+        let mut seen: bool = false
+        let mut previous: int = 0
+        while (< previous pair) {
+            if (and (and (== (root g (at queue previous)) source)
+                         (== (root g (at queue (+ previous 1))) target))
+                (and (== (at queue (+ previous 2)) exact)
+                     (and (== (at queue (+ previous 3)) view) (== (at queue (+ previous 4)) optional)))) { set seen true }
+            set previous (+ previous 5)
+        }
+        if seen { continue }
+        let merged: int = (mask_or (tags g source) (tags g target))
+        if (!= merged (tags g target)) { (tags_add g target merged) (changed g) }
+        let producer_kind: int = (kind g source)
+        let mut to: int = (kind g target)
+        if (== producer_kind 0) {
+            if (and final (or (== to 10) (== to 11))) { (poison g 13 0 0 0 0 0) break }
+            continue
+        }
+        if (== to 0) {
+            if (== (flow_kind g target producer_kind) 0) { break }
+            set to producer_kind
+        }
+        if (and (!= view 0) (and (== producer_kind 6) (boxed_member to))) {
+            let payload: Step = (child g source 0)
+            set g payload.state
+            if (== payload.number 0) { break }
+            set queue (queue_add queue payload.number target 1 view 0)
+            continue
+        }
+        if (and (== exact 0) (and (== producer_kind 6) (or (or (== to 1) (== to 2)) (or (== to 7) (== to 8))))) {
+            if (== (at g.arena (+ (address g target) 3)) 0) {
+                (poison g 12 to source target origin destination) break
+            }
+            if (== (flow_kind g target 6) 0) { break }
+            let payload: Step = (child g target 0)
+            set g payload.state
+            if (== payload.number 0) { break }
+            if (== (flow_kind g payload.number to) 0) { break }
+            set to 6
+        }
+        if (and (== exact 0) (and (boxed_member producer_kind) (== to 6))) {
+            let payload: Step = (child g target 0)
+            set g payload.state
+            if (== payload.number 0) { break }
+            set queue (queue_add queue source payload.number 1 view 0)
+            continue
+        }
+        if (and (and (!= optional 0) (!= (at g.arena (+ (address g target) 3)) 0))
+            (and (== producer_kind 10) (scalar_member to))) {
+            if (== (flow_kind g target producer_kind) 0) { break }
+            set to producer_kind
+        }
+        if (and (== to 9) (or (== producer_kind 1) (== producer_kind 8))) { continue }
+        if (and (== to 10) (scalar_member producer_kind)) { continue }
+        if (== to 11) {
+            if (or (scalar_member producer_kind) (== producer_kind 10)) { continue }
+            if (== producer_kind 3) {
+                let element: int = (lookup g source 0)
+                let mut member: int = 0
+                if (!= element 0) { set member (kind g element) }
+                if (== member 1) { continue }
+                if (and (== member 0) (not final)) { continue }
+                (poison g 14 0 0 0 0 0) break
+            }
+        }
+        if (!= producer_kind to) { (poison g 15 producer_kind to source target 0) break }
+        if (== producer_kind 3) {
+            let added: Step = (array_alias g source target)
+            set g added.state
+            if (== added.number 0) { break }
+        }
+        if (== producer_kind 12) {
+            let mut function: int = (at g.arena (+ (address g source) 7))
+            while (and (!= function 0) (healthy g)) {
+                let before: int = (function_count g target)
+                let added: Step = (function_insert g target (at g.arena (- function 1)))
+                set g added.state
+                if (!= before (function_count g target)) { (changed g) }
+                set function (at g.arena function)
+            }
+        }
+        let mut edge: int = (at g.arena (+ (address g source) 5))
+        while (and (!= edge 0) (healthy g)) {
+            let index: int = (at g.arena (- edge 1))
+            let child_source: int = (root g (at g.arena edge))
+            let mut child_target: int = (lookup g target index)
+            if (and (== child_target 0) (healthy g)) {
+                let k: int = (kind g child_source)
+                let mut earlier: int = 0
+                while (< earlier cursor) {
+                    if (or (or (== k 4) (== k 3)) (or (== k 5) (== k 6))) {
+                        if (and (== (root g (at queue earlier)) child_source)
+                            (== (kind g (at queue (+ earlier 1))) k)) {
+                            set child_target (root g (at queue (+ earlier 1))) break
+                        }
+                    }
+                    set earlier (+ earlier 5)
+                }
+                if (== child_target 0) {
+                    let made: Step = (new_node g 0)
+                    set g made.state set child_target made.number
+                }
+                if (== child_target 0) { break }
+                let linked: Step = (link_edge g target index child_target)
+                set g linked.state
+                (changed g)
+            }
+            set queue (queue_add queue child_source child_target
+                (truth (or (!= exact 0) (or (== producer_kind 6) (== producer_kind 5))))
+                (truth (or (!= view 0) (and (== producer_kind 3) (== (kind g child_source) 4))))
+                (truth (== producer_kind 6)))
+            set edge (at g.arena (+ edge 1))
+        }
+    }
+    return (step g (truth (healthy g)))
+}
+shadow flow_one {
+    let a: Step = (new_node (create) 1)
+    let b: Step = (new_node a.state 0)
+    let c: Step = (convert b.state 1 2)
+    let d: Step = (flow_one c.state (fact_head c.state 0) false)
+    assert (== d.number 1)
+    assert (== (kind d.state 2) 1)
+    assert (!= (root d.state 1) (root d.state 2))
+}
+
+pub fn solve(input: Graph) -> Step {
+    let ready: Step = (solver_create input)
+    let mut g: Graph = ready.state
+    if (== ready.number 0) { return (step g 0) }
+    let flag: int = (+ (solver_base g) 12)
+    while (healthy g) {
+        (array_set g.arena flag 0)
+        let prior_writes: int = (fact_count g 2)
+        let prior_aliases: int = (fact_count g 1)
+        let reads: Step = (reads_solve g)
+        set g reads.state
+        if (== reads.number 0) { return reads }
+        let mut cursor: int = (fact_head g 0)
+        while (and (!= cursor 0) (healthy g)) {
+            let flowed: Step = (flow_one g cursor false)
+            set g flowed.state
+            if (== flowed.number 0) { return flowed }
+            set cursor (at g.arena (+ cursor 3))
+        }
+        let writes: Step = (writes_propagate g)
+        set g writes.state
+        if (== writes.number 0) { return writes }
+        if (or (!= prior_writes (fact_count g 2)) (!= prior_aliases (fact_count g 1))) { (changed g) }
+        if (== (at g.arena flag) 0) { break }
+    }
+    let mut cursor: int = (fact_head g 0)
+    while (and (!= cursor 0) (healthy g)) {
+        let flowed: Step = (flow_one g cursor true)
+        set g flowed.state
+        if (== flowed.number 0) { return flowed }
+        set cursor (at g.arena (+ cursor 3))
+    }
+    return (step g (truth (healthy g)))
+}
+shadow solve {
+    let a: Step = (new_node (create) 1)
+    let b: Step = (new_node a.state 0)
+    let c: Step = (array_read b.state 1 2)
+    let d: Step = (solve c.state)
+    assert (== d.number 1)
+    assert (== (kind d.state 2) 6)
+    assert (== (kind d.state (lookup d.state 2 0)) 1)
+    assert (== (solve d.state).number 1)
+    assert (== (fact_count d.state 0) 1)
+    let unknown: Step = (new_node (create) 0)
+    let finite: Step = (new_node unknown.state 10)
+    let added: Step = (convert finite.state 1 2)
+    let refused: Step = (solve added.state)
+    assert (== refused.number 0)
+    assert (== (error refused.state) "I require proved scalar producers for variant scalar storage")
 }
