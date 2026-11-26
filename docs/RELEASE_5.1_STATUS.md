@@ -55,6 +55,13 @@ root and all original budgets, and make no unchanged full retry or historical
 #1247/infrastructure-cause claim. Existing C ownership, frozen inputs and
 NAS/TCC/migration pauses remain in force.
 
+My subsequent [bounded phase diagnostic](evidence/darwin-current-source-20261124/diagnostics/darwin-stage1-phase-diagnostic-20261126/README.md)
+records imports37.433/lex47.444/parse61.992/typecheck69.447→294.712/program-lowering
+294.828s before its300s cutoff. Typechecking completes; lowering has no terminal
+outcome. Source/tool/host/frozen-input guards and cleanup pass. This localizes
+phase boundaries without establishing the original timeout cause or qualifying
+any compiler. Measurement inside lowering remains open under #1265.
+
 
 ## Current scope reconciliation — 2026-11-24
 
