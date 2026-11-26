@@ -1625,3 +1625,15 @@ method, combined leaf qualification, paired platforms, public profile admission,
 pure runtime C emission and executable cutover remain required. The ownership-query
 copy expression remains isolated, and no fixture repair closes the original C
 translator defects or the full 69-entry release contract.
+
+
+My [later-fixture readiness failure](evidence/darwin-current-source-20261124/diagnostics/affine-later-fixture-readiness-failed-linux-20261126/README.md)
+retains 27 commands: preflight translates through both producers, while private
+body and public fixtures refuse translation through both. All nine positive
+probes reuse one original frame carrier; they do not test the feature corpora.
+Four read-only traces identify the same `affine_analysis.put` write at byte 42,
+with its nested-array receiver still unknown during the first inference pass.
+The exact helper and shadow pass all eight standalone controls, including both
+translations. I retain this contextual distinction under #1262. Readiness
+remains false, the C owner retains the product repair, and complete later
+native/sanitizer and release qualification remain open.
