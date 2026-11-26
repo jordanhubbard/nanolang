@@ -60,7 +60,12 @@ records imports37.433/lex47.444/parse61.992/typecheck69.447→294.712/program-lo
 294.828s before its300s cutoff. Typechecking completes; lowering has no terminal
 outcome. Source/tool/host/frozen-input guards and cleanup pass. This localizes
 phase boundaries without establishing the original timeout cause or qualifying
-any compiler. Measurement inside lowering remains open under #1265.
+any compiler. My [subsequent reversible lowering probe](evidence/darwin-current-source-20261124/diagnostics/darwin-lowering-window-diagnostic-20261126/README.md)
+reaches index/global setup by4.489s and queue indices0/32/64 at4.598/21.551/115.356s
+within its requested120s lowering window. It records no whole lowering return;
+the observer stops the VM. Source reversal, all guards and cleanup pass, but
+probe timings do not establish the original timeout cause or a repair. I retain
+the per-function localization and every original acceptance gate under #1265.
 
 
 ## Current scope reconciliation — 2026-11-24
