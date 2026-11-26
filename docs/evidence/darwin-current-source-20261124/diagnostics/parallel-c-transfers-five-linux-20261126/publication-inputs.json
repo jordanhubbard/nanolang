@@ -1,0 +1,12 @@
+{
+  "terminal": true,
+  "overlay": {
+    "Makefile.gnu": "2e3a79ecb5ad0478273237fc00eac97114a99f5db0018c598b087e0c204b4532",
+    "src_nano/nvm2c/parallel_c.nano": "8fc0e43c7dd754b395025d1776daa83abf046d27a1cf661d2e3e304e83341f5d",
+    "tests/nvm2c_parallel_c_driver.nano": "e51054cf68c08e6d38a7327a514c2d46173ed4d203ae99496e85a66b408c5df1",
+    "tests/test_nanolang_translator_parallel_c.py": "6ceb0adee7f221522d8c5f435af8e98462b8f686b0fb5841cf1ea7f3d979cf26"
+  },
+  "manifest_sha256": "370b8f618512471ffb7fb0f56015a560275fd637e77f5aff91878db95e95b67a",
+  "reader_sha256": "4fd564957364f9385611db4ca3f6276aeb90ea95aba30157906ac1450805b6b1",
+  "compiler_closure_unchanged": true
+}
