@@ -22,6 +22,9 @@ assert all(q['phases'][i]['monotonic']<q['phases'][i+1]['monotonic'] for i in ra
 if q.get('timed_out'):assert q['exit']==-9 and q['deadline_observed_monotonic']-q['start_monotonic']>=300
 else:assert q['exit']==0
 for name,v in q['product'].items():assert rows['observation/'+name]['sha256']==v['sha256'] and rows['observation/'+name]['bytes']==v['bytes']
+assert q['timed_out'] and not q['product'] and len(q['snapshot'])==306 and sum(r['bytes'] for r in q['snapshot'])==20659060 and all(r['stable_stat'] for r in q['snapshot'])
+assert not data('observation/stdout') and not data('observation/stderr')
+assert [r['phase'] for r in q['phases']]==['inputs-start','imports-done','lex-done','parse-done','checked-emit-start','typecheck-start','typecheck-done','program-lowering-start']
 for r in q.get('snapshot',[]):assert rows['observation/terminal-snapshot/'+str(Path(r['path']).relative_to(m['roots']['observation']))]['sha256']==r['sha256']
 pm,pr,pd,pj=read_archive(base.parent/'lookup-hoisted-cold-bootstrap-linux-20261125','d232ed852a6f375dc76f1d34cac02b22c87aa05c5b220073180f8dbbe39d7e49');b=pj('bootstrap/bootstrap-result.json');installed=pj('bootstrap/source/bin/nanoc_bootstrap.json');consumer=pj('bootstrap/native-gates-result.json')
 assert b['terminal'] and b['original_make_pass'] and b['exit']==0 and installed['phase']=='stage2' and installed['raw_stage1_stage2_equal'] and len(installed['steps'])==17 and all(r['exit_code']==0 for r in installed['steps'])
