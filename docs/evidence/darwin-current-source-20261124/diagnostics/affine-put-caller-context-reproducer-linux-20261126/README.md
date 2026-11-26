@@ -35,3 +35,5 @@ nvm2c /var/tmp/put-repro.nvm -o /var/tmp/put-repro.c
 I retain the genuine producer route and its same refusal in the archive. Other tool builds need their own observations. The archive reader needs this repository's recorded source commit and the adjacent shared `read_chunks.py`; extraction does not execute a compiler.
 
 My manifest SHA-256 is `af05221123efd8afe0e3aa237cf0aed5a16e26ed2b2139ca1099d9d57bfcbc9c`, with 100 content-addressed records. I preserve the earlier positive standalone-helper control separately. I stop after these three variants. This receipt accepts the reproducer matrix only: #1262 remains open, no C implementation changes, and no component, five-route, paired-platform or release acceptance follows.
+
+My [source-path binding](FAILURE_PATH.md) explains the immediate nonfinal fallback/refusal using exact Git spans and both existing traces, without another compiler invocation. `read_failure_path.py` independently checks that binding; #1262 remains open.
