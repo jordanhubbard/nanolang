@@ -1717,11 +1717,11 @@ shadow nisa_is_inline_call {
 }
 
 fn nisa_struct_index(parser: Parser, name: string) -> int {
-    let n: int = (parser_get_struct_def_count parser)
+    let records: List<ASTStruct> = parser.structs
+    let n: int = (list_ASTStruct_length records)
     let mut i: int = 0
     while (< i n) {
-        let s: ASTStruct = (parser_get_struct_def parser i)
-        if (== s.name name) {
+        if (== (list_ASTStruct_get records i).name name) {
             return i
         } else {
             (print "")
@@ -1729,6 +1729,43 @@ fn nisa_struct_index(parser: Parser, name: string) -> int {
         set i (+ i 1)
     }
     return (- 0 1)
+}
+
+shadow nisa_struct_index {
+    let empty_tokens: List<LexerToken> = (tokenize_string "" "empty-lookup.nano" (diag_list_new))
+    let empty: Parser = (parse_program empty_tokens (list_LexerToken_length empty_tokens) "empty-lookup.nano")
+    assert (== (nisa_struct_index empty "Missing") -1)
+    assert (== (nisa_struct_index empty "") -1)
+    let tokens: List<LexerToken> = (tokenize_string "struct First { value: int } resource struct Chosen { value: int } struct Chosen { value: bool } struct Last { value: string }" "record-lookup.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "record-lookup.nano")
+    assert (not (parser_has_error parser))
+    assert (== (nisa_struct_index parser "First") 0)
+    assert (== (nisa_struct_index parser "Chosen") 1)
+    assert (== (nisa_struct_index parser "Last") 3)
+    assert (== (nisa_struct_index parser "chosen") -1)
+    assert (== (nisa_struct_index parser "Chose") -1)
+    assert (== (nisa_struct_index parser "Missing") -1)
+    let changed_tokens: List<LexerToken> = (tokenize_string "struct Changed { value: float } struct Tail { value: bool }" "changed-lookup.nano" (diag_list_new))
+    let changed: Parser = (parse_program changed_tokens (list_LexerToken_length changed_tokens) "changed-lookup.nano")
+    assert (not (parser_has_error changed))
+    let alias: Parser = parser
+    let records: List<ASTStruct> = parser.structs
+    (list_ASTStruct_set records 1 (parser_get_struct_def changed 0))
+    assert (== (parser_get_struct_def_count parser) 4)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index parser "Chosen") 2)
+    (list_ASTStruct_push records (parser_get_struct_def changed 0))
+    assert (== (parser_get_struct_def_count alias) 5)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index alias "Last") 3)
+    while (< (list_ASTStruct_length records) 132) {
+        (list_ASTStruct_push records (parser_get_struct_def changed 0))
+    }
+    (list_ASTStruct_push records (parser_get_struct_def changed 1))
+    assert (== (parser_get_struct_def_count alias) 133)
+    assert (== (nisa_struct_index alias "Tail") 132)
+    assert (== (nisa_struct_index alias "Changed") 1)
+    assert (== (nisa_struct_index alias "Missing") -1)
 }
 
 shadow nisa_struct_index {
