@@ -1637,3 +1637,13 @@ The exact helper and shadow pass all eight standalone controls, including both
 translations. I retain this contextual distinction under #1262. Readiness
 remains false, the C owner retains the product repair, and complete later
 native/sanitizer and release qualification remain open.
+
+
+My [full Linux three-driver repair qualification](evidence/darwin-current-source-20261124/diagnostics/affine-original-frame-three-five-linux-20261125/README.md)
+now passes all three corrected permanent methods: 251,982 complete reports and
+19,752 commands, including every original frame, all new aggregate/effect/value-call
+criteria and both producers' sanitized products. The independent reader verifies
+85,492 records, original limits, exact source/image/tool/object/host/provider/observer
+guards and journal replay. This verifies the formatter repairs; complete cache,
+combined leaf, paired-platform and later profile/runtime emission requirements
+remain separate. It does not repair #1262 or admit the release.
