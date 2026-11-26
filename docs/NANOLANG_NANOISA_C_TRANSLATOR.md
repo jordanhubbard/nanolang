@@ -1647,3 +1647,13 @@ criteria and both producers' sanitized products. The independent reader verifies
 guards and journal replay. This verifies the formatter repairs; complete cache,
 combined leaf, paired-platform and later profile/runtime emission requirements
 remain separate. It does not repair #1262 or admit the release.
+
+
+My [complete Linux typed cache qualification](evidence/darwin-current-source-20261124/diagnostics/affine-cache-key-seed-five-linux-20261126/README.md)
+now passes all 4,318 unchanged packets across six products: 25,908 complete
+reports and 1,688 commands, including both sanitized products. The independent
+reader checks 11,642 records, original limits, published dependencies and full
+source/image/tool/object/host/provider/observer guards and journal. I retain the
+original failed combined six-method run and require a fresh combined gate on the
+corrected source before later qualification. #1262, paired platforms, runtime
+emission and release cutover remain open.
