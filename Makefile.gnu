@@ -926,6 +926,12 @@ test-nanolang-translator-shape-solver: $(COMPILER_C) nano_virt nano_vm nvm2c nvm
 
 test-units: test-nanolang-translator-shape-solver
 
+.PHONY: test-nanolang-translator-constant-reachability
+test-nanolang-translator-constant-reachability: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_constant_reachability
+
+test-units: test-nanolang-translator-constant-reachability
+
 .PHONY: test-lexer-snapshot
 test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_lexer_snapshot
