@@ -100,6 +100,18 @@ Further retained-input profiling, C-owner coordination and a demonstrated repair
 remain; no original Darwin timeout cause or compiler/release acceptance follows.
 
 
+My [retained-input compiler profile](evidence/darwin-current-source-20261124/diagnostics/retained-compiler-profile-linux-20261126/README.md)
+records4486 events for2243 real compiler invocations. Each file_product cache hit
+invokes cc331 times, including85 assembly emissions taking21.422708/21.178067s.
+All four positive lookups reuse their pinned prefix paths/bytes. The66-record
+reader replays all spans and source mappings, checks4683 Git blobs and the151-record
+parent chain, and verifies four observer/direct-compiler controls. The wrapper
+changes compiler identity and adds overhead; I do not equate its full lookup
+timings with production timings. All guards and cleanup pass. A reviewed C-owner
+repair or handoff, the original Darwin failure, #1262 and full69 acceptance remain
+open; no production source or qualification deadline changes.
+
+
 ## Current scope reconciliation — 2026-11-24
 
 I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
