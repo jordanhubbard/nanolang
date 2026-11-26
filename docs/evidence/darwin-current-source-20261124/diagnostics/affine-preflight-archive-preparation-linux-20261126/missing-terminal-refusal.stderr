@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-preflight-after-six-archive-20261126-_nm1untl/package_terminal.py", line 6, in <module>
+    assert terminal_file.is_file(), 'I require accepted terminal preflight evidence before archiving'
+           ~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError: I require accepted terminal preflight evidence before archiving

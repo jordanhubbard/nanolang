@@ -1,0 +1,8 @@
+{
+  "source_commit": "67d99e5121521428740d385d10071b9679e66013",
+  "source_path": "tests/test_nanolang_translator_affine_preflight.py",
+  "source_sha256": "b88552363b68e891719a240c2e1021554c10abc23043960a332414c4d6fd6f47",
+  "cases": 228,
+  "expected_stream_sha256": "bf39b8692e5b95198377eef1c35683dc78404c94667024967a339cc8884b8a2c",
+  "compiler_commands": 0
+}
