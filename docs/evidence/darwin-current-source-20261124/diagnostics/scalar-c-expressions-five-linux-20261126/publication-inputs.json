@@ -1,0 +1,13 @@
+{
+  "terminal": true,
+  "overlay": {
+    "Makefile.gnu": "e6621deac77141ba7491cfa552eafe2704f25824c3f958cea41fd00216c9bf26",
+    "src_nano/nvm2c/scalar_c.nano": "0d493926a6287035f9b1dd811961a292e77022272df52947c6da7f14829c8883",
+    "tests/nvm2c_scalar_c_driver.nano": "f699867b2137cdf0ac4c4e9c2f837e7f75f03f635ec8e671ce6a2b7022f76512",
+    "tests/test_nanolang_translator_scalar_c.py": "23558aa2f680d330a8b34c0d4710552c1df7d2bc529bc2cf58f2e73c52c8d64a"
+  },
+  "schema_source": "04cee11a861af22dfd4540f369eb2c6bb42a9cfd:spec/nanoisa.yaml",
+  "schema_sha256": "5a629313b053ea8292d3e28b4a728539dc75eaecd4872249f613ade245258e53",
+  "manifest_sha256": "d409b1db854e3bd789ffec47fc19255b41694e0b88013689269f906e16fa056b",
+  "reader_sha256": "a84a0b3162cba9b3ca8e4c7b1140fdc4c7fc44304819aeca0025828ee10d0f5d"
+}

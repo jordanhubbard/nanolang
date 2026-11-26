@@ -1,0 +1,186 @@
+module nvm2c_scalar_c
+module "src_nano/nvm2c/c_text.nano" as tokens
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I spell expressions over already checked, evaluated integer/boolean registers.
+# I grant no wire, type, representation, ownership or execution authority.
+pub struct Expression { valid: bool, arity: int, boolean: bool, text: string }
+
+fn refused() -> Expression {
+    return Expression { valid: false, arity: 0, boolean: false, text: "" }
+}
+shadow refused {
+    let result: Expression = (refused)
+    assert (== result.valid false)
+    assert (== result.arity 0)
+    assert (== result.boolean false)
+    assert (== result.text "")
+}
+
+fn arity(opcode: int) -> int {
+    let integer: bool = (and (>= opcode 192) (<= opcode 197))
+    let comparison: bool = (and (>= opcode 208) (<= opcode 213))
+    let boolean: bool = (and (>= opcode 224) (<= opcode 226))
+    if (not (or integer (or comparison boolean))) { return 0 }
+    let mut count: int = 2
+    if (or (== opcode 197) (== opcode 226)) { set count 1 }
+    if (!= (isa.primary_pops opcode) count) { return 0 }
+    if (!= (isa.primary_pushes opcode) 1) { return 0 }
+    return count
+}
+shadow arity {
+    assert (== (arity 192) 2)
+    assert (== (arity 196) 2)
+    assert (== (arity 197) 1)
+    assert (== (arity 208) 2)
+    assert (== (arity 213) 2)
+    assert (== (arity 224) 2)
+    assert (== (arity 226) 1)
+    assert (== (arity -1) 0)
+    assert (== (arity 198) 0)
+    assert (== (arity 227) 0)
+    assert (== (arity 256) 0)
+}
+
+fn boolean_result(opcode: int) -> bool {
+    return (or (and (>= opcode 208) (<= opcode 213))
+               (and (>= opcode 224) (<= opcode 226)))
+}
+shadow boolean_result {
+    assert (not (boolean_result 192))
+    assert (not (boolean_result 197))
+    assert (boolean_result 208)
+    assert (boolean_result 213)
+    assert (boolean_result 224)
+    assert (boolean_result 226)
+    assert (not (boolean_result 223))
+    assert (not (boolean_result 227))
+}
+
+fn binary_symbol(opcode: int) -> string {
+    if (== opcode 192) { return "+" }
+    if (== opcode 193) { return "-" }
+    if (== opcode 194) { return "*" }
+    if (== opcode 208) { return "==" }
+    if (== opcode 209) { return "!=" }
+    if (== opcode 210) { return "<" }
+    if (== opcode 211) { return "<=" }
+    if (== opcode 212) { return ">" }
+    if (== opcode 213) { return ">=" }
+    if (== opcode 224) { return "&&" }
+    if (== opcode 225) { return "||" }
+    return ""
+}
+shadow binary_symbol {
+    assert (== (binary_symbol 192) "+")
+    assert (== (binary_symbol 194) "*")
+    assert (== (binary_symbol 195) "")
+    assert (== (binary_symbol 197) "")
+    assert (== (binary_symbol 208) "==")
+    assert (== (binary_symbol 213) ">=")
+    assert (== (binary_symbol 224) "&&")
+    assert (== (binary_symbol 225) "||")
+    assert (== (binary_symbol 226) "")
+    assert (== (binary_symbol 256) "")
+}
+
+# I reconstruct wrapped bits without an out-of-range signed conversion.
+pub fn prelude() -> string {
+    return (+ "#include <stdint.h>\n"
+        (+ "static inline int64_t nano_aot_i64_from_bits(uint64_t bits) {\n"
+           "    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);\n}\n"))
+}
+shadow prelude {
+    let source: string = (prelude)
+    assert (str_starts_with source "#include <stdint.h>\nstatic inline int64_t nano_aot_i64_from_bits(")
+    assert (> (str_length source) 100)
+}
+
+pub fn emit(opcode: int, inputs: array<int>) -> Expression {
+    let count: int = (arity opcode)
+    if (or (== count 0) (!= (array_length inputs) count)) { return (refused) }
+    let left: string = (tokens.name 1 (at inputs 0))
+    if (== left "") { return (refused) }
+    if (== opcode 197) {
+        return Expression { valid: true, arity: 1, boolean: false,
+            text: (+ "nano_aot_i64_from_bits(UINT64_C(0) - (uint64_t)" (+ left ")")) }
+    }
+    if (== opcode 226) {
+        return Expression { valid: true, arity: 1, boolean: true, text: (+ "(!" (+ left ")")) }
+    }
+    let right: string = (tokens.name 1 (at inputs 1))
+    if (== right "") { return (refused) }
+    if (and (and (>= opcode 208) (<= opcode 213)) (== (at inputs 0) (at inputs 1))) {
+        let mut bit: int = 0
+        if (or (== opcode 208) (or (== opcode 211) (== opcode 213))) { set bit 1 }
+        return Expression { valid: true, arity: 2, boolean: true,
+            text: (+ "((void)" (+ left (+ ", " (+ (tokens.signed64 bit) ")")))) }
+    }
+    let mut expression: string = ""
+    if (== opcode 195) {
+        set expression (+ "(" (+ right (+ " == INT64_C(0) ? INT64_C(0) : (" (+ left
+            (+ " == INT64_MIN && " (+ right (+ " == -INT64_C(1)) ? INT64_MIN : " (+ left (+ " / " (+ right ")"))))))))))
+    } else {
+        if (== opcode 196) {
+            set expression (+ "(" (+ right (+ " == INT64_C(0) || (" (+ left
+                (+ " == INT64_MIN && " (+ right (+ " == -INT64_C(1)) ? INT64_C(0) : " (+ left (+ " % " (+ right ")"))))))))))
+        } else {
+            let symbol: string = (binary_symbol opcode)
+            if (== symbol "") { return (refused) }
+            if (and (>= opcode 192) (<= opcode 194)) {
+                set expression (+ "nano_aot_i64_from_bits((uint64_t)" (+ left
+                    (+ " " (+ symbol (+ " (uint64_t)" (+ right ")"))))))
+            } else {
+                set expression (+ "(" (+ left (+ " " (+ symbol (+ " " (+ right ")"))))))
+            }
+        }
+    }
+    return Expression { valid: true, arity: count, boolean: (boolean_result opcode), text: expression }
+}
+shadow emit {
+    let sum: Expression = (emit 192 [0,1])
+    assert sum.valid
+    assert (== sum.arity 2)
+    assert (== sum.boolean false)
+    assert (== sum.text "nano_aot_i64_from_bits((uint64_t)nano_aot_local_0 + (uint64_t)nano_aot_local_1)")
+    let inverse: Expression = (emit 226 [7])
+    assert inverse.valid
+    assert inverse.boolean
+    assert (== inverse.arity 1)
+    assert (== inverse.text "(!nano_aot_local_7)")
+    let mut accepted: int = 0
+    for opcode in (range 0 256) {
+        let mut inputs: array<int> = [0,1]
+        if (or (== opcode 197) (== opcode 226)) { set inputs [0] }
+        if (emit opcode inputs).valid { set accepted (+ accepted 1) }
+    }
+    assert (== accepted 15)
+    let invalid: Expression = (emit 192 [0])
+    assert (== invalid.valid false)
+    assert (== invalid.arity 0)
+    assert (== invalid.boolean false)
+    assert (== invalid.text "")
+    assert (== (emit 197 [0,1]).valid false)
+    assert (== (emit -1 []).valid false)
+    assert (== (emit 256 [0,1]).valid false)
+    assert (== (emit 192 [-1,0]).valid false)
+    assert (== (emit 192 [0,4294967296]).valid false)
+    assert (emit 192 [4294967295,0]).valid
+    assert (emit 192 [0,4294967295]).valid
+    let equal: Expression = (emit 208 [4294967295,4294967295])
+    assert equal.valid
+    assert equal.boolean
+    assert (== equal.arity 2)
+    assert (== equal.text "((void)nano_aot_local_4294967295, INT64_C(1))")
+    let unequal: Expression = (emit 209 [5,5])
+    assert (== unequal.text "((void)nano_aot_local_5, INT64_C(0))")
+    assert (== (emit 208 [-1,-1]).valid false)
+    assert (== (emit 213 [4294967296,4294967296]).valid false)
+    let inputs: array<int> = [5,5]
+    let alias: Expression = (emit 192 inputs)
+    assert (== alias.text "nano_aot_i64_from_bits((uint64_t)nano_aot_local_5 + (uint64_t)nano_aot_local_5)")
+    (array_set inputs 0 6)
+    let changed: Expression = (emit 192 inputs)
+    assert (!= changed.text alias.text)
+    assert (== (at inputs 1) 5)
+}

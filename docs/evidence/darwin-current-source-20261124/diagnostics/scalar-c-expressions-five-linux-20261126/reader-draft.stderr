@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/darwin-current-source-20261124/diagnostics/scalar-c-expressions-five-linux-20261126/read_archive.py", line 62, in <module>
+    f=js(label+'/qualification-result.json');assert f['terminal'] and f['methods']==count and f['failures']==failures and len(f['commands'])==commands
+                                                                      ~^^^^^^^^^^^
+KeyError: 'methods'
