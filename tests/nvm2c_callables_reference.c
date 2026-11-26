@@ -14,7 +14,7 @@ int main(int argc,char **argv){
   NvmModule m={0};int framed=0;
   if(size>=12){
    uint32_t fc=word(p),sc=word(p+4),ic=word(p+8);size_t pos=12+(size_t)fc*24;
-   if(pos<=(size_t)size && ic<=((size_t)size-pos)/20){
+   if(pos<=(size_t)size && ic<=((size_t)size-pos)/20 && sc<=((size_t)size-pos)/4){
     m.functions=calloc(fc?fc:1,sizeof *m.functions);m.strings=calloc(sc?sc:1,sizeof *m.strings);
     m.imports=calloc(ic?ic:1,sizeof *m.imports);m.import_param_types=calloc(ic?ic:1,sizeof *m.import_param_types);
     if(!m.functions || !m.strings || !m.imports || !m.import_param_types)return 2;

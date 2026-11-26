@@ -59,8 +59,8 @@ conversion IDs in three graph-error templates. Function indexes, byte offsets,
 stack counts, all other diagnostic bytes, ordered target sets and projection
 masks remain exact.
 
-My [diagnostic receipt](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-diagnostic-linux-20261126/README.md)
-retains 978 matrix cases, 424 explicit expectations, all505 unchanged original C
+My [diagnostic receipt](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-bounds-linux-20261126/README.md)
+retains 989 matrix cases, 435 explicit expectations, all505 unchanged original C
 assertions and all26 captured original module inputs. Ordinary/sanitized actual
 C agrees with C-seed native and both producer VM routes. Generated native routes
 remain refused. This is not five-route or paired-platform acceptance.

@@ -148,6 +148,19 @@ def cases():
         fns=[(0,len(main),0,0,0,0)]+[(len(main)+k,1,0,0,0,0) for k in range(4)]
         add(f'random-global-join-{i}',bodies,('callee',len(prefix)+5,tuple(sorted({left,right}))),functions=fns)
     rows.extend([('short-packet',b'',('packet',)),('oversized-count',struct.pack('<III',0xffffffff,0,0),('packet',))])
+    rows.extend([
+        ('oversized-name-count',struct.pack('<III',0,0xffffffff,0),('packet',)),
+        ('oversized-import-count',struct.pack('<III',0,0,0xffffffff),('packet',)),
+        ('oversized-name-length',struct.pack('<IIII',0,1,0,0xffffffff),('packet',)),
+        ('oversized-function-locals',packet(b'',[(0,0,0,65536,0,0)]),('packet',)),
+        ('oversized-function-arity',packet(b'',[(0,0,65536,65536,0,0)]),('packet',)),
+        ('oversized-function-captures',packet(b'',[(0,0,0,0,65536,0)]),('packet',)),
+        ('oversized-function-results',packet(b'',[(0,0,0,0,0,256)]),('packet',)),
+        ('oversized-import-parameters',struct.pack('<8I',0,0,1,0,0,65536,0,1),('packet',)),
+        ('oversized-import-result',struct.pack('<8I',0,0,1,0,0,0,256,0),('packet',)),
+        ('oversized-import-present',struct.pack('<8I',0,0,1,0,0,0,0,2),('packet',)),
+        ('oversized-import-tag',struct.pack('<9I',0,0,1,0,0,1,0,1,256),('packet',)),
+    ])
     return rows
 
 class CallableTests(unittest.TestCase):
