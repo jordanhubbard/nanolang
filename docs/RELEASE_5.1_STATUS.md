@@ -43,10 +43,17 @@ for that architecture. Full exact-candidate CI, LITAI-001 acceptance, source/
 service/ownership/reconstruction requirements, release prose, tag and publication
 remain open under [#976](https://github.com/jordanhubbard/nanolang/issues/976).
 
-I have re-established read-only SSH access to the approved Puck profile. Native
-capacity and reservation admission remain separate from connectivity; I start
-no Darwin build merely because SSH succeeds. Existing C ownership, frozen
-inputs and NAS/TCC/migration pauses remain in force.
+My restored approved Puck connection now has a
+[published fresh Darwin factory failure](evidence/darwin-current-source-20261124/diagnostics/darwin-stage1-generation-timeout-20261126/README.md)
+at source d907f264d1. Cold tools pass214.086792s, but original Stage1 VM generation
+times out at1800.018317s; Make bootstrap3 exits2 after1951.020760s. Only seed and
+seed verification complete. No Darwin Stage1/Stage2 native product, raw equality,
+installed/no-C-seed or native36/emitter12 acceptance follows. Full guards and
+cleanup pass. I track bounded localization and repair under
+[#1265](https://github.com/jordanhubbard/nanolang/issues/1265), preserve the failed
+root and all original budgets, and make no unchanged full retry or historical
+#1247/infrastructure-cause claim. Existing C ownership, frozen inputs and
+NAS/TCC/migration pauses remain in force.
 
 
 ## Current scope reconciliation — 2026-11-24
