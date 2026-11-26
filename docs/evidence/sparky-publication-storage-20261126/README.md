@@ -16,8 +16,11 @@ roadmap change, and its binary diff SHA256 remains
 `9f0274487f25469954ea2de795e9ab406da2d388289fe9058ef1dea710533be9`.
 The recorded commit and status describe the cutover, not future branch state.
 
-I retain the original copy at the receipt's exact `retained_original` path until
-post-cutover checks and publication complete. I preserve other owners' worktrees
-and Puck originals. Further large outputs, temporary files and caches use the
+I retain the original copy through post-cutover reader checks and successful
+publication9aafa84d91. I then remove only that verified duplicate, after checking
+for active use, nested mounts and correct Git registration. My reclamation receipt
+records6236938240 allocated bytes removed and6236897280 bytes of observed root
+headroom gained; other filesystem activity remains possible. I preserve other
+owners' worktrees and Puck originals. Further large outputs, temporary files and caches use the
 mounted volume. This storage receipt adds no requirement to my69-entry release
 contract and establishes no compiler or whole-release acceptance.
