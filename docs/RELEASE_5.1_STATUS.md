@@ -78,6 +78,16 @@ measurement and builds belong on sparky or madmax; Puck remains in the fleet
 on light duty. I preserve its originals and all original Darwin acceptance.
 
 
+My [subsequent Linux finer-lowering observation](evidence/darwin-current-source-20261124/diagnostics/linux-lowering-detail-diagnostic-20261126/README.md)
+on sparky reaches program-lowering-done112.060742s after lowering begins. Entry41→42
+(`publish_service_source`) takes25.898833s and49→50 (`assemble_text_save`) takes
+6.537230s. The33-record reader re-verifies4683 Git blobs and the7088-record Linux
+prerequisite; all guards and cleanup pass. I stop the VM at that return marker,
+before complete compiler acceptance. These intervals include observer/loop costs;
+helper attribution, a demonstrated repair and original Darwin acceptance remain
+open. I change no production source, C ownership, original assertion or deadline.
+
+
 ## Current scope reconciliation — 2026-11-24
 
 I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
