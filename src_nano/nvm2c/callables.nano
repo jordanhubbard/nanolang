@@ -1,0 +1,566 @@
+module nvm2c_callables
+module "src_nano/nvm2c/shape_graph.nano" as shape
+module "src_nano/nvm2c/functions.nano" as body
+module "src_nano/nvm2c/instructions.nano" as primary
+module "src_nano/nvm2c/container.nano" as wire
+module "src_nano/nvm2c/effect_flow.nano" as effects
+
+# I retain module-local provenance, not executable admission or runtime captures.
+pub struct Function { start: int, length: int, arity: int, locals: int, upvalues: int, results: int }
+pub struct Foreign { library: int, symbol: int, parameters: int, result: int, typed: bool, types: array<int> }
+pub struct Module { code: array<u8>, functions: array<Function>, imports: array<Foreign>, names: array<array<u8>> }
+pub struct Analysis {
+    valid: bool, graph: shape.Graph, callees: array<array<int>>,
+    projections: array<array<int>>, lengths: array<int>, error: string
+}
+struct Call { callee: int, result: int, arguments: array<int>, linked: array<int>, arity: int, results: int }
+struct Context {
+    input: Module, graph: array<shape.Graph>, message: array<string>,
+    locals: array<array<int>>, captures: array<array<int>>, results: array<int>,
+    globals: array<array<int>>, counts: array<int>, variants: array<array<int>>,
+    calls: array<array<Call>>, flows: array<array<int>>,
+    callees: array<array<int>>, projections: array<array<int>>, lengths: array<int>,
+    handlers: array<array<effects.Handler>>, effect_results: array<array<int>>
+}
+struct Frames { stacks: array<array<int>>, seen: array<bool>, queue: array<array<int>> }
+
+fn zeros(count: int) -> array<int> {
+    let mut result: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set result (array_push result 0) set i (+ i 1) }
+    return result
+}
+shadow zeros { assert (== (array_length (zeros 3)) 3) assert (== (at (zeros 1) 0) 0) }
+fn empty_module() -> Module { return Module { code: [], functions: [], imports: [], names: [] } }
+shadow empty_module { assert (== (array_length (empty_module).functions) 0) }
+fn context(input: Module) -> Context {
+    let count: int = (array_length input.functions)
+    let mut locals: array<array<int>> = []
+    let mut captures: array<array<int>> = []
+    let mut callees: array<array<int>> = []
+    let mut projections: array<array<int>> = []
+    for i in (range 0 count) {
+        set locals (array_push locals []) set captures (array_push captures [])
+        set callees (array_push callees []) set projections (array_push projections [])
+    }
+    return Context { input: input, graph: [(shape.create)], message: [""], locals: locals,
+        captures: captures, results: (zeros count), globals: [[]], counts: [0,0], variants: [[]],
+        calls: [[]], flows: [[]], callees: callees, projections: projections, lengths: (zeros count),
+        handlers: [[]], effect_results: [[]] }
+}
+shadow context { assert (== (array_length (context (empty_module)).results) 0) }
+fn fail(a: Context, message: string) -> bool {
+    if (== (at a.message 0) "") { (array_set a.message 0 message) }
+    return false
+}
+shadow fail {
+    let a: Context = (context (empty_module))
+    assert (not (fail a "first")) assert (not (fail a "second")) assert (== (at a.message 0) "first")
+}
+fn graph(a: Context) -> shape.Graph { return (at a.graph 0) }
+shadow graph { assert (shape.healthy (graph (context (empty_module)))) }
+fn accept(a: Context, step: shape.Step) -> int {
+    (array_set a.graph 0 step.state)
+    return step.number
+}
+shadow accept {
+    let a: Context = (context (empty_module))
+    assert (== (accept a (shape.new_node (graph a) 0)) 1)
+    assert (== (array_length (graph a).nodes) 1)
+}
+fn fresh(a: Context) -> int { return (accept a (shape.new_node (graph a) 0)) }
+shadow fresh { assert (== (fresh (context (empty_module))) 1) }
+fn field(a: Context, value: int, index: int) -> int { return (accept a (shape.child (graph a) value index)) }
+shadow field {
+    let a: Context = (context (empty_module)) let id: int = (fresh a)
+    assert (!= (field a id 0) 0) assert (== (shape.lookup (graph a) id 0) 2)
+}
+fn flow(a: Context, source: int, destination: int) -> bool {
+    let good: int = (accept a (shape.convert (graph a) source destination))
+    if (== good 0) { return false }
+    let mut pairs: array<int> = (at a.flows 0)
+    set pairs (array_push pairs source) set pairs (array_push pairs destination)
+    (array_set a.flows 0 pairs)
+    return true
+}
+shadow flow {
+    let a: Context = (context (empty_module)) let x: int = (fresh a) let y: int = (fresh a)
+    assert (flow a x y) assert (== (array_length (at a.flows 0)) 2)
+}
+fn exact(a: Context, value: int, kind: int) -> bool {
+    let other: int = (accept a (shape.new_node (graph a) kind))
+    return (!= (accept a (shape.unify (graph a) value other)) 0)
+}
+shadow exact {
+    let a: Context = (context (empty_module)) let x: int = (fresh a)
+    assert (exact a x 3) assert (== (shape.kind (graph a) x) 3)
+}
+fn tags(a: Context, value: int, mask: int) -> bool { return (!= (shape.tags_add (graph a) value mask) 0) }
+shadow tags {
+    let a: Context = (context (empty_module)) let x: int = (fresh a)
+    assert (tags a x 32) assert (== (shape.tags (graph a) x) 32)
+}
+fn contains(values: array<int>, value: int) -> bool {
+    for i in (range 0 (array_length values)) { if (== (at values i) value) { return true } }
+    return false
+}
+shadow contains { assert (contains [2,3] 3) assert (not (contains [] 0)) }
+fn connect_call(a: Context, target: int, arguments: array<int>, arity: int, results: int, result: int) -> bool {
+    if (or (< target 0) (>= target (array_length a.input.functions))) { return (fail a "I require a module-local callable target") }
+    let entry: Function = (at a.input.functions target)
+    if (or (!= entry.arity arity) (or (!= entry.results results) (> results 1))) {
+        return (fail a "I require matching callable argument and result counts")
+    }
+    for i in (range 0 arity) {
+        if (not (flow a (at arguments i) (at (at a.locals target) i))) { return false }
+    }
+    if (== results 0) { return true }
+    return (flow a (at a.results target) result)
+}
+shadow connect_call { assert (not (connect_call (context (empty_module)) 0 [] 0 0 0)) }
+fn frames(count: int) -> Frames {
+    let mut stacks: array<array<int>> = [] let mut seen: array<bool> = []
+    for i in (range 0 (+ count 1)) { set stacks (array_push stacks []) set seen (array_push seen false) }
+    return Frames { stacks: stacks, seen: seen, queue: [[]] }
+}
+shadow frames { assert (== (array_length (frames 2).stacks) 3) }
+fn edge(a: Context, frames: Frames, destination: int, stack: array<int>) -> bool {
+    let count: int = (array_length stack)
+    if (not (at frames.seen destination)) {
+        let mut slots: array<int> = []
+        for i in (range 0 count) { set slots (array_push slots (fresh a)) }
+        (array_set frames.stacks destination slots) (array_set frames.seen destination true)
+        (array_set frames.queue 0 (array_push (at frames.queue 0) destination))
+    }
+    let slots: array<int> = (at frames.stacks destination)
+    if (!= (array_length slots) count) { return (fail a "I require equal callable stack heights at joins") }
+    for i in (range 0 count) { if (not (flow a (at stack i) (at slots i))) { return false } }
+    return true
+}
+shadow edge {
+    let a: Context = (context (empty_module)) let f: Frames = (frames 1)
+    assert (edge a f 0 []) assert (edge a f 0 []) assert (== (array_length (at f.queue 0)) 1)
+    assert (not (edge a f 0 [(fresh a)]))
+}
+fn name_is(names: array<array<u8>>, index: int, expected: string) -> bool {
+    if (or (< index 0) (>= index (array_length names))) { return false }
+    let value: array<u8> = (at names index)
+    let mut length: int = 0
+    while (< length (array_length value)) { if (== (at value length) 0) { break } set length (+ length 1) }
+    if (!= length (str_length expected)) { return false }
+    for i in (range 0 length) { if (!= (at value i) (char_at expected i)) { return false } }
+    return true
+}
+shadow name_is { assert (name_is [[97,0,98]] 0 "a") assert (not (name_is [] 0 "")) }
+
+# I derive these producer masks origin the pinned C switch and canonical schema.
+fn producer_tags(op: int) -> int {
+    if (or (== op 64) (or (== op 69) (or (== op 85) (or (== op 127) (or (== op 254) (or (== op 108) (or (== op 136) (or (== op 142) (or (== op 192) (or (== op 193) (or (== op 194) (or (== op 195) (or (== op 196) (or (== op 197) (or (== op 227) (or (== op 228) (or (== op 233) (or (== op 234) (or (== op 235) (or (== op 236) (or (== op 237) (or (== op 238) (or (== op 239) (or (== op 1) false)))))))))))))))))))))))) { return 2 }
+    if (or (== op 200) (or (== op 201) (or (== op 202) (or (== op 203) (or (== op 204) (or (== op 137) (or (== op 141) (or (== op 2) false)))))))) { return 8 }
+    if (or (== op 40) (or (== op 41) (or (== op 42) (or (== op 43) (or (== op 44) (or (== op 45) (or (== op 48) (or (== op 49) (or (== op 50) (or (== op 224) (or (== op 225) (or (== op 226) (or (== op 208) (or (== op 209) (or (== op 210) (or (== op 211) (or (== op 212) (or (== op 213) (or (== op 229) (or (== op 230) (or (== op 231) (or (== op 232) (or (== op 216) (or (== op 217) (or (== op 218) (or (== op 219) (or (== op 220) (or (== op 221) (or (== op 67) (or (== op 68) (or (== op 75) (or (== op 76) (or (== op 123) (or (== op 138) (or (== op 140) (or (== op 177) (or (== op 3) false))))))))))))))))))))))))))))))))))))) { return 16 }
+    if (or (== op 65) (or (== op 66) (or (== op 70) (or (== op 71) (or (== op 72) (or (== op 73) (or (== op 74) (or (== op 78) (or (== op 139) (or (== op 4) false)))))))))) { return 32 }
+    if (or (== op 5) false) { return 1 }
+    if (or (== op 143) (or (== op 6) false)) { return 4 }
+    return 32768
+}
+shadow producer_tags { assert (== (producer_tags 1) 2) assert (== (producer_tags 3) 16) assert (== (producer_tags 0) 32768) }
+
+
+fn opcode_name(op: int) -> string {
+    let names: array<string> = ["NOP","PUSH_I64","PUSH_F64","PUSH_BOOL","PUSH_STR","PUSH_VOID","PUSH_U8","DUP","POP","SWAP","ROT3","OWN_MOVE_LOCAL","OWN_STORE_LOCAL","OWN_PACK","OWN_UNPACK_LOCAL","CALL_REF","LOAD_LOCAL","STORE_LOCAL","LOAD_GLOBAL","STORE_GLOBAL","LOAD_UPVALUE","STORE_UPVALUE","REGION_BEGIN","REGION_END","BORROW_LOCAL_SHARED","BORROW_LOCAL_EXCLUSIVE","REF_GET","REF_SET","BORROW_PATH_SHARED","BORROW_PATH_EXCLUSIVE","REBORROW_SHARED","REBORROW_EXCLUSIVE","ADD","SUB","MUL","DIV","MOD","NEG","","","EQ","NE","LT","LE","GT","GE","","","AND","OR","NOT","TAIL_CALL","","","","","JMP","JMP_TRUE","JMP_FALSE","CALL","CALL_INDIRECT","RET","CALL_EXTERN","CALL_MODULE","STR_LEN","STR_CONCAT","STR_SUBSTR","STR_CONTAINS","STR_EQ","STR_CHAR_AT","STR_FROM_INT","STR_FROM_FLOAT","STR_TRIM","STR_TO_LOWER","STR_TO_UPPER","STR_STARTS_WITH","STR_ENDS_WITH","STR_SPLIT","STR_REPLACE","","ARR_NEW","ARR_PUSH","ARR_POP","ARR_GET","ARR_SET","ARR_LEN","ARR_SLICE","ARR_REMOVE","ARR_LITERAL","","","","","","","","STRUCT_NEW","STRUCT_GET","STRUCT_SET","STRUCT_LITERAL","","","","","UNION_CONSTRUCT","UNION_TAG","UNION_FIELD","MATCH_TAG","ENUM_VAL","","","","TUPLE_NEW","TUPLE_GET","","","","","","","HM_NEW","HM_GET","HM_SET","HM_HAS","HM_DELETE","HM_KEYS","HM_VALUES","HM_LEN","GC_RETAIN","GC_RELEASE","","","","","","","CAST_INT","CAST_FLOAT","CAST_BOOL","CAST_STRING","TYPE_CHECK","F64_FROM_BITS","F64_TO_BITS","CAST_U8","CLOSURE_NEW","FILE_SERVICE","FILE_RESULT_BRANCH","FILE_RESULT_TAKE","FILE_DROP_LOCAL","FILE_DROP_STACK","FILE_END_BORROW","FILE_CALL_REFS","FILE_CALL_INDIRECT_REFS","","","","","","","","PRINT","ASSERT","DEBUG_LINE","HALT","PRINTLN","HANDLER_PUSH","HANDLER_POP","PERFORM","EFFECT_RESUME","","","","","","","","OPAQUE_NULL","OPAQUE_VALID","MEM_LOAD8","MEM_LOAD16","MEM_LOAD32","MEM_LOAD64","MEM_STORE8","MEM_STORE16","MEM_STORE32","MEM_STORE64","","","","","","","I64_ADD","I64_SUB","I64_MUL","I64_DIV_S","I64_REM_S","I64_NEG","","","F64_ADD","F64_SUB","F64_MUL","F64_DIV","F64_NEG","","","","I64_EQ","I64_NE","I64_LT_S","I64_LE_S","I64_GT_S","I64_GE_S","","","F64_EQ","F64_NE","F64_LT","F64_LE","F64_GT","F64_GE","","","BOOL_AND","BOOL_OR","BOOL_NOT","I64_DIV_U","I64_REM_U","I64_LT_U","I64_LE_U","I64_GT_U","I64_GE_U","I64_AND","I64_OR","I64_XOR","I64_INVERT","I64_SHL","I64_SHR_S","I64_SHR_U","I64_ADD_CARRY","I64_SUB_BORROW","I64_MUL_WIDE_S","I64_MUL_WIDE_U","PICK","ROLL","ARRAY_ADD","ARRAY_SUB","ARRAY_MUL","ARRAY_DIV","FUNCREF","AGG_PACK","AGG_GET","AGG_SET","AGG_TAG"]
+    if (or (< op 0) (>= op (array_length names))) { return "" }
+    return (at names op)
+}
+shadow opcode_name { assert (== (opcode_name 8) "POP") }
+
+fn collect_function(a: Context, function: int) -> bool {
+    let entry: Function = (at a.input.functions function)
+    let plan: body.Function = (body.decode a.input.code entry.start entry.length (array_length a.input.functions))
+    if (not plan.valid) { return false }
+    let count: int = (array_length plan.instructions)
+    let frames: Frames = (frames count)
+    let mut branch_targets: array<bool> = []
+    for i in (range 0 (+ count 1)) { set branch_targets (array_push branch_targets false) }
+    for i in (range 0 count) {
+        let item: primary.Instruction = (at plan.instructions i)
+        let op: int = item.opcode
+        if (or (or (== op 56) (== op 57)) (or (== op 58) (== op 165))) {
+            let mut operand: int = 0 if (== op 165) { set operand 1 }
+            let to: int = (+ (at plan.starts i) (primary.integer item operand))
+            let mut destination: int = count
+            if (!= to entry.length) { set destination (body.index_at plan to) }
+            if (< destination 0) { return (fail a "I require valid callable branch boundaries") }
+            (array_set branch_targets destination true)
+        }
+    }
+    if (not (edge a frames 0 [])) { return false }
+    let mut head: int = 0
+    while (< head (array_length (at frames.queue 0))) {
+        let index: int = (at (at frames.queue 0) head) set head (+ head 1)
+        if (== index count) { continue }
+        let item: primary.Instruction = (at plan.instructions index)
+        let op: int = item.opcode
+        let target: int = (primary.integer item 0)
+        let mut pop: int = item.pops let mut push: int = item.pushes
+        if (or (== op 59) (== op 51)) {
+            if (>= target (array_length a.input.functions)) { return (fail a "I require a valid direct call target") }
+            let called: Function = (at a.input.functions target) set pop called.arity set push called.results
+        } else if (== op 62) {
+            if (>= target (array_length a.input.imports)) { return (fail a "I require a valid callable-analysis import") }
+            let imported: Foreign = (at a.input.imports target) set pop imported.parameters set push 0
+            if (!= imported.result 0) { set push 1 }
+        } else if (== op 60) { set pop (+ target 1) set push (primary.integer item 1)
+        } else if (== op 144) { set pop (primary.integer item 1) set push 1
+        } else if (== op 251) { set pop (primary.integer item 3) set push 1
+        } else if (or (== op 88) (== op 167)) { set pop (primary.integer item 1) set push 1
+        } else if (== op 244) { set pop 0 set push 1
+        } else if (== op 61) { set pop entry.results set push 0 }
+        if (or (< pop 0) (or (< push 0) (> push 3))) { return (fail a "I require an explicit stack contract for callable analysis") }
+        let stack: array<int> = (at frames.stacks index)
+        let before: int = (array_length stack)
+        if (and (== op 244) (>= target before)) { return (fail a "I require an existing stack slot for callable PICK") }
+        if (> pop before) {
+            let parts: array<string> = ["I found callable-analysis stack underflow in function ", (int_to_string function),
+                " at ", (int_to_string (at plan.starts index)), " (", (opcode_name op), ": ", (int_to_string before),
+                " available, ", (int_to_string pop), " required)"]
+            return (fail a (str_join parts ""))
+        }
+        let base: int = (- before pop)
+        let mut output: array<int> = [0,0,0]
+        for i in (range 0 push) { (array_set output i (fresh a)) }
+        if (== op 167) {
+            if (>= target (array_length a.input.names)) { return (fail a "I require a valid effect operation") }
+            let operation: int = (effects.operation a.input.names target)
+            (array_set output 0 (at (at a.effect_results 0) operation))
+            let handlers: array<effects.Handler> = (at a.handlers 0)
+            for h in (range 0 (array_length handlers)) {
+                let handler: effects.Handler = (at handlers h)
+                if (and (== handler.operation operation) (== handler.count pop)) {
+                    for p in (range 0 pop) {
+                        if (not (flow a (at stack (+ base p)) (at (at a.locals handler.function) (+ handler.start p)))) { return false }
+                    }
+                }
+            }
+        } else if (== op 168) {
+            let handlers: array<effects.Handler> = (at a.handlers 0)
+            for h in (range 0 (array_length handlers)) {
+                let handler: effects.Handler = (at handlers h)
+                if (and (== handler.function function) (at handler.flow (at plan.starts index))) {
+                    if (not (flow a (at stack base) (at (at a.effect_results 0) handler.operation))) { return false }
+                }
+            }
+        } else if (or (== op 250) (== op 144)) {
+            if (== op 250) {
+                if (>= target (array_length a.input.functions)) { return (fail a "I require a valid function reference") }
+            } else {
+                if (>= target (array_length a.input.functions)) { return (fail a "I require matching closure target and capture counts") }
+                if (!= (at a.input.functions target).upvalues pop) { return (fail a "I require matching closure target and capture counts") }
+            }
+            if (== (accept a (shape.function_add (graph a) (at output 0) target)) 0) { return false }
+            if (== op 144) {
+                for i in (range 0 pop) { if (not (flow a (at stack (+ base i)) (at (at a.captures target) i))) { return false } }
+            }
+        } else if (or (== op 20) (== op 21)) {
+            let slot: int = (primary.integer item 1)
+            if (or (!= target 0) (>= slot entry.upvalues)) { return (fail a "I require a valid flattened callable capture") }
+            if (== op 20) { (array_set output 0 (at (at a.captures function) slot)) }
+            else { if (not (flow a (at stack base) (at (at a.captures function) slot))) { return false } }
+        } else if (or (== op 16) (== op 17)) {
+            if (>= target entry.locals) { return (fail a "I require a valid callable local") }
+            if (== op 16) { (array_set output 0 (at (at a.locals function) target)) }
+            else { if (not (flow a (at stack base) (at (at a.locals function) target))) { return false } }
+        } else if (or (== op 18) (== op 19)) {
+            if (>= target (at a.counts 0)) { return (fail a "I require a valid callable global") }
+            if (== op 18) { (array_set output 0 (at (at a.globals 0) target)) }
+            else { if (not (flow a (at stack base) (at (at a.globals 0) target))) { return false } }
+        } else if (== op 7) { (array_set output 0 (at stack base)) (array_set output 1 (at stack base))
+        } else if (== op 244) { (array_set output 0 (at stack (- (- before 1) target)))
+        } else if (== op 9) { (array_set output 0 (at stack (+ base 1))) (array_set output 1 (at stack base))
+        } else if (== op 10) { (array_set output 0 (at stack (+ base 2))) (array_set output 1 (at stack base)) (array_set output 2 (at stack (+ base 1)))
+        } else if (== op 251) {
+            if (not (exact a (at output 0) 4)) { return false }
+            for i in (range 0 pop) {
+                if (not (flow a (at stack (+ base i)) (field a (at output 0) i))) { return false }
+                if (== target 1) {
+                    let selected: int = (field a (at output 0) (+ 65536 (primary.integer item 2)))
+                    if (not (exact a selected 4)) { return false }
+                    if (not (flow a (at stack (+ base i)) (field a selected i))) { return false }
+                }
+            }
+        } else if (== op 252) {
+            (array_set output 0 (field a (at stack base) target))
+            (array_set (at a.projections function) (at plan.starts index) (at output 0))
+        } else if (or (== op 80) (== op 120)) {
+            let mut kind: int = 3 if (== op 120) { set kind 5 }
+            if (not (exact a (at output 0) kind)) { return false }
+        } else if (== op 62) {
+            let imported: Foreign = (at a.input.imports target)
+            let builtin: bool = (and (name_is a.input.names imported.library "") (and (== pop 1) (and (== push 1) imported.typed)))
+            let mut parameter: int = -1
+            if (> (array_length imported.types) 0) { set parameter (at imported.types 0) }
+            if (and builtin (and (name_is a.input.names imported.symbol "vm_array_sort") (and (== imported.result 7) (== parameter 7)))) {
+                if (not (exact a (at output 0) 3)) { return false }
+                let origin: int = (field a (at stack base) 0) let to: int = (field a (at output 0) 0)
+                if (not (flow a origin to)) { return false }
+                if (not (tags a (at output 0) 128)) { return false }
+            } else if (and builtin (and (name_is a.input.names imported.symbol "vm_bytes_from_string") (and (== imported.result 7) (== parameter 5)))) {
+                if (not (exact a (at output 0) 3)) { return false }
+                if (not (tags a (at output 0) 128)) { return false }
+                if (not (tags a (field a (at output 0) 0) 4)) { return false }
+            } else if (and builtin (and (name_is a.input.names imported.symbol "vm_string_from_bytes") (and (== imported.result 5) (== parameter 7)))) {
+                if (not (tags a (at output 0) 32)) { return false }
+            } else { for i in (range 0 push) { if (not (tags a (at output i) 32768)) { return false } } }
+        } else if (== op 77) {
+            if (not (exact a (at output 0) 3)) { return false }
+            if (not (tags a (field a (at output 0) 0) 32)) { return false }
+        } else if (or (== op 88) (== op 86)) {
+            if (not (exact a (at output 0) 3)) { return false }
+            if (== op 88) {
+                for i in (range 0 pop) { if (not (flow a (at stack (+ base i)) (field a (at output 0) 0))) { return false } }
+            } else {
+                let origin: int = (field a (at stack base) 0) let to: int = (field a (at output 0) 0)
+                if (not (flow a origin to)) { return false }
+            }
+        } else if (or (or (== op 87) (== op 124)) (or (== op 84) (== op 81))) {
+            (array_set output 0 (at stack base))
+            if (or (== op 84) (== op 81)) {
+                if (not (flow a (at stack (- before 1)) (field a (at output 0) 0))) { return false }
+            }
+        } else if (or (== op 82) (or (== op 83) (== op 121))) {
+            let mut key: int = 0 if (== op 121) { set key 1 }
+            (array_set output 0 (field a (at stack base) key))
+        } else if (== op 122) {
+            (array_set output 0 (at stack base))
+            if (not (flow a (at stack (+ base 1)) (field a (at output 0) 0))) { return false }
+            if (not (flow a (at stack (+ base 2)) (field a (at output 0) 1))) { return false }
+        } else if (or (== op 59) (== op 51)) {
+            if (not (connect_call a target (array_slice stack base pop) pop push (at output 0))) { return false }
+            if (and (== op 51) (!= push 0)) {
+                if (not (flow a (at output 0) (at a.results function))) { return false }
+            }
+        } else if (== op 60) {
+            if (> push 1) { return (fail a "I require at most one native callable result") }
+            let call: Call = Call { callee: (at stack (- before 1)), result: (at output 0), arguments: (array_slice stack base (- pop 1)),
+                linked: [], arity: (- pop 1), results: push }
+            (array_set a.calls 0 (array_push (at a.calls 0) call))
+            (array_set (at a.callees function) (at plan.starts index) call.callee)
+        } else if (== op 61) {
+            if (> pop 1) { return false }
+            if (!= pop 0) { if (not (flow a (at stack base) (at a.results function))) { return false } }
+        } else { for i in (range 0 push) { if (not (tags a (at output i) (producer_tags op))) { return false } } }
+        if (and (!= push 0) (or (or (== op 80) (== op 88)) (or (== op 86) (== op 77)))) {
+            if (not (tags a (at output 0) 128)) { return false }
+        }
+        if (and (!= push 0) (or (== op 250) (== op 144))) {
+            if (not (tags a (at output 0) 2048)) { return false }
+        }
+        if (not (shape.healthy (graph a))) { return false }
+        let mut after: array<int> = (array_slice stack 0 base)
+        for i in (range 0 push) { set after (array_push after (at output i)) }
+        if (or (or (== op 61) (== op 163)) (or (== op 51) (== op 168))) { continue }
+        if (== op 165) {
+            let to: int = (+ (at plan.starts index) (primary.integer item 1))
+            if (not (edge a frames (body.index_at plan to) [])) { return false }
+        }
+        if (or (== op 56) (or (== op 57) (== op 58))) {
+            let to: int = (+ (at plan.starts index) target)
+            let mut destination: int = count if (!= to entry.length) { set destination (body.index_at plan to) }
+            if (not (edge a frames destination after)) { return false }
+            if (== op 56) { continue }
+            if (and (== op 58) (and (>= index 4) (> (array_length after) 0))) {
+                let dup: primary.Instruction = (at plan.instructions (- index 4))
+                let tag: primary.Instruction = (at plan.instructions (- index 3))
+                let value: primary.Instruction = (at plan.instructions (- index 2))
+                let eq: primary.Instruction = (at plan.instructions (- index 1))
+                let mut interrupted: bool = false
+                for i in (range (- index 3) (+ index 1)) { if (at branch_targets i) { set interrupted true } }
+                if (and (not interrupted) (and (== dup.opcode 7) (and (== tag.opcode 254)
+                    (and (== value.opcode 1) (or (== eq.opcode 40) (== eq.opcode 208)))))) {
+                    let variant: int = (primary.integer value 0)
+                    if (and (>= variant 0) (<= variant 65535)) {
+                        let slot: int = (- (array_length after) 1)
+                        let original: int = (at after slot)
+                        let view: int = (accept a (shape.new_node (graph a) 4))
+                        let selected: int = (field a original (+ 65536 variant))
+                        for i in (range 0 (at a.counts 1)) {
+                            let origin: int = (field a selected i) let to: int = (field a view i)
+                            if (not (flow a origin to)) { return false }
+                        }
+                        let variants: array<int> = (at a.variants 0)
+                        for i in (range 0 (array_length variants)) {
+                            let key: int = (+ 65536 (at variants i))
+                            let origin: int = (field a original key) let to: int = (field a view key)
+                            if (not (flow a origin to)) { return false }
+                        }
+                        (array_set after slot view)
+                    }
+                }
+            }
+        }
+        if (not (edge a frames (+ index 1) after)) { return false }
+    }
+    return true
+}
+shadow collect_function {
+    let m: Module = Module { code: [], functions: [Function { start: 0, length: 0, arity: 0, locals: 0, upvalues: 0, results: 0 }], imports: [], names: [] }
+    assert (collect_function (context m) 0)
+}
+
+fn connect_aliases(a: Context) -> int {
+    let mut changed: int = 0
+    let conversions: array<int> = (at a.flows 0)
+    let mut c: int = 0
+    while (< c (array_length conversions)) {
+        let mut pairs: array<int> = [(at conversions c),(at conversions (+ c 1))] set c (+ c 2)
+        let mut cursor: int = 0
+        while (and (< cursor (array_length pairs)) (shape.healthy (graph a))) {
+            let source: int = (shape.root (graph a) (at pairs cursor))
+            let target: int = (shape.root (graph a) (at pairs (+ cursor 1))) set cursor (+ cursor 2)
+            if (== source target) { continue }
+            let kind: int = (shape.kind (graph a) source)
+            if (!= kind (shape.kind (graph a) target)) { continue }
+            if (or (== kind 3) (== kind 5)) {
+                let mut fields: int = 1 if (== kind 5) { set fields 2 }
+                for f in (range 0 fields) {
+                    if (not (shape.healthy (graph a))) { break }
+                    let origin: int = (field a source f) let to: int = (field a target f)
+                    if (!= (shape.root (graph a) origin) (shape.root (graph a) to)) {
+                        if (== (accept a (shape.unify (graph a) origin to)) 0) { break }
+                        set changed 1
+                    }
+                }
+            } else if (== kind 4) {
+                let variants: array<int> = (at a.variants 0)
+                for f in (range 0 (+ (at a.counts 1) (array_length variants))) {
+                    let mut key: int = f
+                    if (>= f (at a.counts 1)) { set key (+ 65536 (at variants (- f (at a.counts 1)))) }
+                    let origin: int = (shape.lookup (graph a) source key)
+                    let to: int = (shape.lookup (graph a) target key)
+                    if (or (== origin 0) (or (== to 0) (== origin to))) { continue }
+                    let mut seen: bool = false let mut i: int = 0
+                    while (< i (array_length pairs)) {
+                        if (and (== (shape.root (graph a) (at pairs i)) origin)
+                            (== (shape.root (graph a) (at pairs (+ i 1))) to)) { set seen true break }
+                        set i (+ i 2)
+                    }
+                    if (not seen) { set pairs (array_push pairs origin) set pairs (array_push pairs to) }
+                }
+            }
+        }
+        if (not (shape.healthy (graph a))) { return -1 }
+    }
+    return changed
+}
+shadow connect_aliases { assert (== (connect_aliases (context (empty_module))) 0) }
+
+fn prepare(a: Context) -> bool {
+    let m: Module = a.input
+    if (== (array_length m.functions) 0) { return (fail a "I require callable module functions") }
+    for f in (range 0 (array_length m.functions)) {
+        let entry: Function = (at m.functions f)
+        if (or (or (< entry.arity 0) (> entry.arity 65535)) (or (< entry.locals 0) (> entry.locals 65535))) { return false }
+        if (or (or (< entry.upvalues 0) (> entry.upvalues 65535)) (or (< entry.results 0) (> entry.results 255))) { return false }
+        if (or (> entry.arity entry.locals) (not (wire.contains m.code entry.start entry.length))) { return false }
+        if (or (> entry.start 4294967295) (> entry.length 4294967295)) { return false }
+        (array_set a.lengths f entry.length)
+        (array_set a.callees f (zeros entry.length)) (array_set a.projections f (zeros entry.length))
+        (array_set a.results f (fresh a))
+        let mut locals: array<int> = [] let mut captures: array<int> = []
+        for i in (range 0 entry.locals) { set locals (array_push locals (fresh a)) }
+        for i in (range 0 entry.upvalues) { set captures (array_push captures (fresh a)) }
+        (array_set a.locals f locals) (array_set a.captures f captures)
+        let mut pc: int = 0
+        while (< pc entry.length) {
+            let item: primary.Instruction = (primary.decode m.code (+ entry.start pc) (- entry.length pc))
+            if (== item.length 0) { return false }
+            let op: int = item.opcode
+            let mut fields: int = 0
+            if (== op 251) { set fields (primary.integer item 3) }
+            if (== op 252) { set fields (+ (primary.integer item 0) 1) }
+            if (> fields (at a.counts 1)) { (array_set a.counts 1 fields) }
+            if (and (== op 251) (== (primary.integer item 0) 1)) {
+                let variant: int = (primary.integer item 2)
+                if (not (contains (at a.variants 0) variant)) { (array_set a.variants 0 (array_push (at a.variants 0) variant)) }
+            }
+            if (or (== op 18) (== op 19)) {
+                let slot: int = (primary.integer item 0)
+                if (>= slot 4096) { return false }
+                if (>= slot (at a.counts 0)) { (array_set a.counts 0 (+ slot 1)) }
+            }
+            set pc (+ pc item.length)
+        }
+    }
+    let mut globals: array<int> = []
+    for i in (range 0 (at a.counts 0)) { set globals (array_push globals (fresh a)) }
+    (array_set a.globals 0 globals)
+    let mut functions: array<effects.Function> = []
+    for f in (range 0 (array_length m.functions)) {
+        let entry: Function = (at m.functions f)
+        set functions (array_push functions effects.Function { start: entry.start, length: entry.length, locals: entry.locals })
+    }
+    let handlers: effects.Collection = (effects.collect m.code functions m.names)
+    if (not handlers.valid) { return false }
+    (array_set a.handlers 0 handlers.handlers)
+    let mut results: array<int> = []
+    for i in (range 0 (array_length m.names)) { set results (array_push results (fresh a)) }
+    (array_set a.effect_results 0 results)
+    return true
+}
+shadow prepare { assert (not (prepare (context (empty_module)))) }
+fn execute(a: Context) -> bool {
+    if (not (prepare a)) { return false }
+    for f in (range 0 (array_length a.input.functions)) { if (not (collect_function a f)) { return false } }
+    while true {
+        if (== (accept a (shape.solve (graph a))) 0) { return false }
+        let alias_changes: int = (connect_aliases a)
+        if (< alias_changes 0) { return false }
+        let mut changed: bool = (!= alias_changes 0)
+        let calls: array<Call> = (at a.calls 0)
+        for c in (range 0 (array_length calls)) {
+            let call: Call = (at calls c)
+            if (!= (shape.kind (graph a) call.callee) 12) { continue }
+            let count: int = (shape.function_count (graph a) call.callee)
+            let mut linked: array<int> = call.linked
+            for i in (range 0 count) {
+                let target: shape.Target = (shape.function_target (graph a) call.callee i true)
+                if (not target.valid) { return false }
+                if (contains linked target.number) { continue }
+                if (not (connect_call a target.number call.arguments call.arity call.results call.result)) { return false }
+                set linked (array_push linked target.number) set changed true
+            }
+            (array_set calls c Call { callee: call.callee, result: call.result, arguments: call.arguments,
+                linked: linked, arity: call.arity, results: call.results })
+        }
+        if (not changed) { break }
+    }
+    return true
+}
+shadow execute { assert (not (execute (context (empty_module)))) }
+pub fn analyze(input: Module) -> Analysis {
+    let a: Context = (context input)
+    let valid: bool = (execute a)
+    let mut error: string = (at a.message 0)
+    if (and (not valid) (== error "")) {
+        set error (shape.error (graph a))
+        if (== error "") { set error "I cannot construct callable constraints" }
+    }
+    return Analysis { valid: valid, graph: (graph a), callees: a.callees, projections: a.projections, lengths: a.lengths, error: error }
+}
+shadow analyze { assert (== (analyze (empty_module)).error "I require callable module functions") }
+pub fn callee(a: Analysis, function: int, offset: int) -> int {
+    if (or (!= a.error "") (or (< function 0) (>= function (array_length a.lengths)))) { return 0 }
+    if (or (< offset 0) (>= offset (at a.lengths function))) { return 0 }
+    let id: int = (at (at a.callees function) offset)
+    if (== id 0) { return 0 }
+    if (!= (shape.kind a.graph id) 12) { return 0 }
+    return id
+}
+shadow callee { assert (== (callee (analyze (empty_module)) 0 0) 0) }
+pub fn projection_tags(a: Analysis, function: int, offset: int) -> int {
+    if (or (!= a.error "") (or (< function 0) (>= function (array_length a.lengths)))) { return 32768 }
+    if (or (< offset 0) (>= offset (at a.lengths function))) { return 32768 }
+    let id: int = (at (at a.projections function) offset)
+    if (== id 0) { return 32768 }
+    return (shape.tags a.graph id)
+}
+shadow projection_tags { assert (== (projection_tags (analyze (empty_module)) 0 0) 32768) }

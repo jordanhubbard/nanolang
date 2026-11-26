@@ -938,6 +938,12 @@ test-nanolang-translator-effect-flow: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2
 
 test-units: test-nanolang-translator-effect-flow
 
+.PHONY: test-nanolang-translator-callables
+test-nanolang-translator-callables: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	python3 -m unittest -v tests.test_nanolang_translator_callables
+
+test-units: test-nanolang-translator-callables
+
 .PHONY: test-lexer-snapshot
 test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_lexer_snapshot
