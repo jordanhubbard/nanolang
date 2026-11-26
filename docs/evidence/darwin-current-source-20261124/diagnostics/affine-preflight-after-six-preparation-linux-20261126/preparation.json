@@ -1,0 +1,21 @@
+{
+  "prepared": true,
+  "execution_started": false,
+  "source_created": false,
+  "commands": 0,
+  "refusal_exit": 1,
+  "source_base": "67d99e5121521428740d385d10071b9679e66013",
+  "ordinary_seconds": 10,
+  "original_cases": 1001,
+  "new_cases": 228,
+  "methods": 1,
+  "expected_reports": 7374,
+  "parent_root": "/var/tmp/nanolang-path-copy-six-corrected-five-20261126-ghighxh3",
+  "prepared_root": "/var/tmp/nanolang-preflight-after-six-five-20261126-szx5u9d2",
+  "controller_sha256": {
+    "setup.py": "cb1c7ec2d79cf023ca0100d471a724eb8b0f41610947259589af3f0f6f45a9ed",
+    "cohort.py": "d767892ac9e2876753cc1b724360d8f8162e6b7023ef4184e9cece694d4ab132",
+    "admit.py": "e6da087a3638378f1902327688ee1941ee42ae604b9d4ab6945b24e496cad597",
+    "cohort_journal.py": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d"
+  }
+}

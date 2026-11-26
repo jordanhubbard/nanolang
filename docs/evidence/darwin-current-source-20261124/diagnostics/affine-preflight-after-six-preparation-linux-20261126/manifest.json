@@ -1,0 +1,53 @@
+{
+  "format": "plain-controller-v1",
+  "prepared_only": true,
+  "accepted_component": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "admit.py",
+      "bytes": 2854,
+      "sha256": "e6da087a3638378f1902327688ee1941ee42ae604b9d4ab6945b24e496cad597"
+    },
+    {
+      "path": "cohort.py",
+      "bytes": 6818,
+      "sha256": "d767892ac9e2876753cc1b724360d8f8162e6b7023ef4184e9cece694d4ab132"
+    },
+    {
+      "path": "cohort_journal.py",
+      "bytes": 5878,
+      "sha256": "4e5a202045b7d4576c7cfa8ed9845cc895e5b2bf4cd2e727e68534a2a34c652d"
+    },
+    {
+      "path": "nonterminal-parent-refusal.json",
+      "bytes": 668,
+      "sha256": "d843befabdae2636593235b33957a47cb4558e7738e442720a8bcf5c1c4c29a1"
+    },
+    {
+      "path": "nonterminal-parent-refusal.stderr",
+      "bytes": 549,
+      "sha256": "94c68bc8f15fcec2b37fc2bab6b8e97afbf2140a8d04fe7a0f23fefad7a4d835"
+    },
+    {
+      "path": "nonterminal-parent-refusal.stdout",
+      "bytes": 61,
+      "sha256": "df4526f223708e6753c462eb8947fc4edd852ac9d0d9c810d9801da61c329cb9"
+    },
+    {
+      "path": "preparation.json",
+      "bytes": 838,
+      "sha256": "6eabf5197bcb521c4412fcbbb0ef00a02366301c4914de2fa2d0dd04a519ffa3"
+    },
+    {
+      "path": "reference-binding.json",
+      "bytes": 11231,
+      "sha256": "089579e167dc03f8a43fc3dd483d586e17d4c81d49359026134ab5945fda9ff5"
+    },
+    {
+      "path": "setup.py",
+      "bytes": 15054,
+      "sha256": "cb1c7ec2d79cf023ca0100d471a724eb8b0f41610947259589af3f0f6f45a9ed"
+    }
+  ]
+}
