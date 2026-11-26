@@ -88,6 +88,18 @@ helper attribution, a demonstrated repair and original Darwin acceptance remain
 open. I change no production source, C ownership, original assertion or deadline.
 
 
+My [Linux helper and artifact-boundary observations](evidence/darwin-current-source-20261124/diagnostics/linux-lowering-helper-diagnostic-20261126/README.md)
+place the two intervals inside body emission25.373321s/6.365149s. An unchanged
+module-artifact witness reproduces25.427272/25.503232s for first/repeated
+file_product lookup and6.839779/6.692734s for nanoisa, returning the pinned prefix
+library paths/bytes. I preserve all observer failures, including a raw watcher
+cleanup failure reconciled by an exact-identity post-terminal audit. Built-in
+tracing passes with3 cache reuses/1 miss and163ms across ten timed tool queries.
+My151-record readers verify4683 source blobs per case plus33/7088 parent records.
+Further retained-input profiling, C-owner coordination and a demonstrated repair
+remain; no original Darwin timeout cause or compiler/release acceptance follows.
+
+
 ## Current scope reconciliation — 2026-11-24
 
 I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):
