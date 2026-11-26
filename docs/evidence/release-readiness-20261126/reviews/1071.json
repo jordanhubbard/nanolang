@@ -1,0 +1,13 @@
+{
+  "endpoint": "repos/jordanhubbard/nanolang/pulls/1071/reviews",
+  "page_count": 1,
+  "reviews": [
+    {
+      "id": 5812961730,
+      "state": "COMMENTED",
+      "commit_id": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+      "submitted_at": "2026-11-07T14:48:34Z",
+      "user": "copilot-pull-request-reviewer[bot]"
+    }
+  ]
+}

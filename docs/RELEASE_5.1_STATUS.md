@@ -1,5 +1,54 @@
 # My 5.1 requirement inventory — 2026-10-11
 
+## Current execution and readiness — 2026-11-26
+
+I retain all69 headline entries in [my scope contract](RELEASE_5.1_SCOPE.md).
+The dated inventories below remain historical observations. I do not infer
+completion from their counts or from a private component checkpoint.
+
+My [current GitHub scope inventory](evidence/release-readiness-20261126/README.md)
+captures134 open issues and22 open PRs at integration source
+`4a1d4e24eeeb134addfc362411ef3bec844e743e`. I classify132 issues and all22 PRs
+as release-scoped after reviewing body text and release links. I preserve
+#1089's explicit legacy AST-to-C non-gate and #1195's separate fleet migration.
+The original69-entry contract and every optional/deferred decision are unchanged.
+No APPROVED review record is present across the22 PRs. Eighteen heads, including
+the integration head itself, are ancestors of integration; none is an ancestor
+of observed main. I close or merge no item from that ancestry. Readiness fails.
+
+My [published exact04cee Linux compiler receipt](evidence/darwin-current-source-20261124/diagnostics/typechecker-vector-prefix-cold-bootstrap-linux-20261126/README.md)
+now records the original17-step bootstrap, byte-identical1064460-byte raw
+Stage1/Stage2 modules, both native hellos, installation and no-C-seed execution.
+The original native36 and emitter12 suites pass with their original limits.
+[#1255](https://github.com/jordanhubbard/nanolang/issues/1255) is closed for that
+Linux acceptance. The earlier cbb/16b/3021 failures below remain retained;
+these later results do not turn them into passes or establish the final paired
+release candidate.
+
+My private pure translator now includes the graph/directed solver, bounded
+constant reachability and shared effect-arm collector, each with its published
+Linux dependency receipt. My [whole callable collector/linker draft](NANOLANG_CALLABLE_CONSTRAINTS.md)
+has989 matching diagnostic packets on C-seed native and both producer VM routes,
+plus505 original C assertions and26 captured original module inputs. Its full
+five-route native gate remains failed under
+[#1262](https://github.com/jordanhubbard/nanolang/issues/1262). Both producer
+modules reach the unknown-receiver/array-valued-write fallback. I preserve the
+C owner's repair/handoff boundary; the diagnostic records accepted=false.
+
+I still require complete callable/native acceptance, representation and body/
+runtime emission, module/profile/ownership composition, the original private/
+public consumers, paired Linux/Darwin products and installed pure-translator
+cutover. The current C-reference bootstrap remains a development prerequisite
+for that architecture. Full exact-candidate CI, LITAI-001 acceptance, source/
+service/ownership/reconstruction requirements, release prose, tag and publication
+remain open under [#976](https://github.com/jordanhubbard/nanolang/issues/976).
+
+I have re-established read-only SSH access to the approved Puck profile. Native
+capacity and reservation admission remain separate from connectivity; I start
+no Darwin build merely because SSH succeeds. Existing C ownership, frozen
+inputs and NAS/TCC/migration pauses remain in force.
+
+
 ## Current scope reconciliation — 2026-11-24
 
 I retain **69 headline entries** in [my release contract](RELEASE_5.1_SCOPE.md):

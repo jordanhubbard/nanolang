@@ -1,0 +1,34 @@
+{
+  "endpoint": "repos/jordanhubbard/nanolang/pulls/1068/reviews",
+  "page_count": 1,
+  "reviews": [
+    {
+      "id": 5812807276,
+      "state": "COMMENTED",
+      "commit_id": "d2f3cca748c3478d70ac4da2233b961f53b3e3dc",
+      "submitted_at": "2026-11-07T14:28:41Z",
+      "user": "copilot-pull-request-reviewer[bot]"
+    },
+    {
+      "id": 5813246609,
+      "state": "COMMENTED",
+      "commit_id": "2fedb21aa1920493968727316c9357be0e646d77",
+      "submitted_at": "2026-11-07T15:23:28Z",
+      "user": "copilot-pull-request-reviewer[bot]"
+    },
+    {
+      "id": 5813390109,
+      "state": "COMMENTED",
+      "commit_id": "b196a572e7d8dcb7b7cf2cb74fc637893e286c4b",
+      "submitted_at": "2026-11-07T15:51:24Z",
+      "user": "copilot-pull-request-reviewer[bot]"
+    },
+    {
+      "id": 5814046334,
+      "state": "COMMENTED",
+      "commit_id": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+      "submitted_at": "2026-11-07T17:38:12Z",
+      "user": "copilot-pull-request-reviewer[bot]"
+    }
+  ]
+}
