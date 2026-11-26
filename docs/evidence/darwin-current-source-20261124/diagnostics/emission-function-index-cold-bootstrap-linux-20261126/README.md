@@ -1,0 +1,15 @@
+# My exact-source bootstrap and native consumers
+
+I build fresh production C tools and run my original Make bootstrap3 at `8fa1025477ca2b7db9266f1019b7192de20175d1`. My selected compiler/src/module/stdlib/emitter-fixture closure differs from the prior qualified source only in my component-qualified emission-scoped function index. I select the new source root explicitly and introduce no C-source change or hand-created stage alias or receipt.
+
+My cold tools pass in 99.287744 seconds. The original bootstrap passes in 1598.316493 seconds with all 17 recorded steps exiting zero. Raw Stage1 and Stage2 modules are byte-identical: 1062712 bytes, SHA `a0d89c2aae15d21ba6d153268754e7ba56a37a28ee3a717edd5751de57c5194b`. Both native hello checks, genuine Stage2 installation and execution with the C seed removed pass. Stage2 generation uses the raw Stage1 module in NanoVM; the native Stage1 hello is a separate check. My native Stage2 SHA is `7f431c60c2f344f877f031be669ac64d8b17bd198f218c4fe0d15754795a6695`. All 3971 selected source inputs and my original tool/image/host guards match.
+
+My original native shadow gate passes all 36 tests with no failure, error or skip. My original emitter gate is **FAIL**, exit 2, 0 methods reported, 346.397576 seconds. I retain its full stdout/stderr and every original fixture, assertion and recipe. A failed setup does not execute its twelve methods and does not establish emitter acceptance.
+
+I preserve the original 1800-second build-stage, 30-second compiler-suite, ten-second ordinary-shadow and 300-second emitter-helper factory limits. I retain both actual collector refusals: first while the bootstrap is nonterminal, then after its success while native consumers are nonterminal. My post-terminal audit checks raw equality, native ELF identity, unchanged sources/tools/images/hosts and absence of observed Nano jobs. I capture and preserve the actual nonterminal native-consumer result before collection.
+
+I bind the independently published [lookup component reports](../emission-function-index-five-linux-20261126/README.md), manifest `ad2870976cf26941a50ee7b392e8238b81c9612b5b4a71376658f80a5eed192a`. Its standalone comparison passes all 270 commands, 240 unchanged complete reports, ten controls with identical added shadows in baseline and candidate; it does not claim a permanent unittest invocation. I retain its original production flags and verified source change as prerequisites.
+
+This is exact-source Linux compiler evidence. I establish no controlled whole-compiler speedup, paired qualification, full-runtime sanitizer acceptance, pure translator cutover or completion of all 69 release requirements. C-owner repairs and any unmet original native consumer acceptance remain open. Every previous root and failure remains intact.
+
+Run `python3 read_archive.py` to verify all 7091 archived records, exact Git inputs, all 17 steps and logs, raw equality, installed native products, unchanged original native tests/recipes, prerequisite receipts, terminal outcome and guards.
