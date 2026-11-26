@@ -902,6 +902,12 @@ test-nanolang-translator-scalar-c: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-r
 
 test-units: test-nanolang-translator-scalar-c
 
+.PHONY: test-nanolang-translator-binary64-c
+test-nanolang-translator-binary64-c: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_binary64_c
+
+test-units: test-nanolang-translator-binary64-c
+
 .PHONY: test-lexer-snapshot
 test-lexer-snapshot: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_lexer_snapshot

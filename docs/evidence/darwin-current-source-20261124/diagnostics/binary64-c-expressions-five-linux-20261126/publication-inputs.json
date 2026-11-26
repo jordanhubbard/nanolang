@@ -1,0 +1,15 @@
+{
+  "terminal": true,
+  "overlay": {
+    "Makefile.gnu": "f736fd81bf48a4e9bc611a960486fb860de8498d6d9953034956ef82d3162812",
+    "src_nano/nvm2c/scalar_c.nano": "0d493926a6287035f9b1dd811961a292e77022272df52947c6da7f14829c8883",
+    "tests/nvm2c_scalar_c_driver.nano": "f699867b2137cdf0ac4c4e9c2f837e7f75f03f635ec8e671ce6a2b7022f76512",
+    "tests/test_nanolang_translator_scalar_c.py": "23558aa2f680d330a8b34c0d4710552c1df7d2bc529bc2cf58f2e73c52c8d64a",
+    "src_nano/nvm2c/binary64_c.nano": "8e7f40e2cecd171519db0304a959809a7cc3e3746e330e94e9246a0ea4753015",
+    "tests/nvm2c_binary64_c_driver.nano": "2fae5a21eb3e55f6941ad9f957ccbef08647dd84e0d1d265ed6023b783cf73cc",
+    "tests/test_nanolang_translator_binary64_c.py": "7317a92c87c039c0d7fc215e725ed893f3a1e4ee31814aa4a5b6f412110bea9f"
+  },
+  "manifest_sha256": "882b1f54bb588c5dd82f7acd4912e2823eca3290d365f3722213ea1c62dc8360",
+  "reader_sha256": "19301158c85ff65497dbcc304e68d7e7f1e7884dd10166a9a94826ff74c78506",
+  "compiler_closure_unchanged": true
+}
