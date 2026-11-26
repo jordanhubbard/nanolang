@@ -47,6 +47,11 @@ from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message
 let mut tc_enclosing_function: string = ""
 let mut tc_enclosing_return: string = "void"
 
+# I index one completed global prefix during sequential advisory checking.
+let mut tc_global_prefix_names: array<string> = []
+let mut tc_global_prefix_count: int = 0
+let mut tc_global_prefix_active: bool = false
+
 struct CheckedBlock {
     ok: bool,
     value_type: NSType
@@ -4070,6 +4075,20 @@ shadow typecheck_local_lets {
 
 /* Look up symbol by name */
 fn env_lookup(symbols: array<Symbol>, name: string) -> int {
+    if (and tc_global_prefix_active (>= (array_length symbols) tc_global_prefix_count)) {
+        let mut local: int = (- (array_length symbols) 1)
+        while (>= local tc_global_prefix_count) {
+            if (== (at symbols local).name name) { return local }
+            (print "")
+            set local (- local 1)
+        }
+        let target: int = (tc_global_prefix_last name)
+        let mut skipped: int = tc_global_prefix_count
+        if (>= target 0) { set skipped (- (- tc_global_prefix_count target) 1) }
+        let mut printed: int = 0
+        while (< printed skipped) { (print "") set printed (+ printed 1) }
+        return target
+    }
     /* Returns index of symbol, or -1 if not found */
     let count: int = (array_length symbols)
     let mut i: int = (- count 1)  /* Search backwards for most recent definition */
@@ -7564,6 +7583,7 @@ shadow check_par_statement {
 }
 
 fn check_legacy_par(parser: Parser, block: ASTBlock, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    (tc_global_prefix_clear)
     let count: int = (- (list_ASTStmtRef_length block.statements) 1)
     let mut result: array<Symbol> = (env_copy_symbols symbols)
     let mut i: int = 0
@@ -8838,188 +8858,10 @@ shadow check_reserved_builtin_declarations {
 }
 
 fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int, collect_advisory: bool) -> CheckedAdvisoryOutput {
-    let mut borrow_context: array<BorrowFactContext> = []
-    if collect_advisory { set borrow_context (borrow_fact_context_new) }
-    let env: TypeEnvironment = (env_new)
-    (tc_effect_declarations parser env.diagnostics file_name)
-    if (not (tc_validate_layouts parser env.diagnostics file_name)) {
-        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
-    }
-    if (> parser.services_count 0) {
-        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0037" "I have not resolved File service declarations for this consumer." (Diagnostics.diag_location file_name 0 0)))
-        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
-    }
-    let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
-    let mut error_count: int = (check_reserved_builtin_declarations parser env.diagnostics file_name)
-
-    /* Get function count using accessor */
-    let func_count: int = (parser_get_function_count parser)
-
-    # I refuse parser-only annotations before building signatures or publishing output.
-    let mut borrow_fn: int = 0
-    while (< borrow_fn func_count) {
-        let item: ASTFunction = (parser_get_function parser borrow_fn)
-        let mut argument: int = 0
-        while (< argument item.param_count) {
-            let parameter: ASTLet = (parser_get_let parser (+ item.param_start argument))
-            if (str_starts_with parameter.var_type "&") {
-                if (or (< item.body 0) (not (scalar_borrow_shape parser parameter.var_type))) {
-                    (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0036" "I currently borrow only checked fixed resource records with numeric or boolean fields" (Diagnostics.diag_location file_name parameter.line parameter.column)))
-                    return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
-                }
-            }
-            set argument (+ argument 1)
-        }
-        set borrow_fn (+ borrow_fn 1)
-    }
-
-    /* Validate we have at least one function */
-    if (<= func_count 0) {
-        (println "Error: No functions found")
-        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_TYPECHECK "TC0001" "No functions found" (Diagnostics.diag_location file_name 0 0))
-        (Diagnostics.diag_list_add env.diagnostics diag)
-        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
-    } else {
-        (print "")
-    }
-    
-    /* Add built-in functions to symbol table */
-    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols println_sym)
-    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols print_sym)
-
-    /* Minimal builtins used by nanoc_v06 */
-    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types) (type_int))
-    set symbols (env_add_symbol symbols system_sym)
-    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types) (type_string))
-    set symbols (env_add_symbol symbols str_concat_sym)
-    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol symbols str_equals_sym)
-    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol symbols not_sym)
-    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol symbols and_sym)
-    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol symbols or_sym)
-
-    /* Phase 0.5: Add global let constants to symbol table */
-    let global_let_count: int = (parser_get_let_count parser)
-    let local_lets: array<bool> = (typecheck_local_lets parser)
-    let mut gli: int = 0
-    while (< gli global_let_count) {
-        let gl: ASTLet = (parser_get_let parser gli)
-        if (not (at local_lets gli)) {
-            (resource_check_global parser gl env.diagnostics file_name)
-            let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
-            if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
-                let gl_sym: Symbol = (symbol_new (mb_lookup (mb_owner gl.line) gl.name) gl_type gl.is_mut false 0 (empty_param_types) (type_void))
-                set symbols (env_add_symbol symbols gl_sym)
-            } else { (print "") }
-        } else { (print "") }
-        set gli (+ gli 1)
-    }
-
-    /* Phase 1: Add all user function signatures to symbol table */
-    let mut i: int = 0
-    while (< i func_count) {
-        let func: ASTFunction = (parser_get_function parser i)
-        let return_type: NSType = (type_from_string_with_parser parser func.return_type)
-        let mut param_types: array<NSType> = []
-        if (and (> func.param_count 0) (>= func.param_start 0)) {
-            let mut pidx: int = 0
-            while (< pidx func.param_count) {
-                let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
-                let param_type: NSType = (type_from_string_with_parser parser param_let.var_type)
-                set param_types (array_push param_types param_type)
-                set pidx (+ pidx 1)
-            }
-        } else {
-            (print "")
-        }
-
-        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types return_type)
-        set symbols (env_add_symbol symbols func_sym)
-        set i (+ i 1)
-    }
-    
-    # I validate global initializers after every function signature is available.
-    set gli 0
-    while (< gli global_let_count) {
-        if (not (at local_lets gli)) {
-            # Initializer validation appends to the shared symbol array. I use
-            # the declaration's bound identity, never its module-local spelling.
-            let declaration: ASTLet = (parser_get_let parser gli)
-            set symbols (check_let_statement_named parser declaration gli symbols env.diagnostics file_name (mb_lookup (mb_owner declaration.line) declaration.name))
-        }
-        set gli (+ gli 1)
-    }
-
-    /* Phase 2: NSType check each function body */
-    set i 0
-    while (< i func_count) {
-        let func: ASTFunction = (parser_get_function parser i)
-        # I check anonymous bodies at their creation expression with lexical bindings.
-        if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
-        let valid: bool = (check_function parser func symbols env.diagnostics file_name)
-        (parser_set_function_affine parser i (resource_check_function_context parser func env.diagnostics file_name borrow_context))
-        if (and func.is_pure (>= func.body 0)) {
-            if (!= (purity_summary parser i symbols) 0) {
-                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E002" "I cannot prove a closed empty effect summary for this pure fn" (Diagnostics.diag_location file_name func.line func.column)))
-                set error_count (+ error_count 1)
-            }
-        }
-        if (not valid) {
-            set error_count (+ error_count 1)
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-
-    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) {
-        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0001" "I cannot select this shadow range" (Diagnostics.diag_location file_name 0 0)))
-        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
-    }
-    set i first_shadow
-    while (< i parser.shadows_count) {
-        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
-        let mut target: int = -1
-        let mut fi: int = 0
-        while (< fi func_count) {
-            let func: ASTFunction = (parser_get_function parser fi)
-            if (== func.name sh.target_name) { set target fi }
-            set fi (+ fi 1)
-        }
-        if (< target 0) {
-            (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0002" (+ "I cannot find the shadow target: " sh.target_name) (Diagnostics.diag_location file_name sh.line sh.column)))
-            set error_count (+ error_count 1)
-        } else {
-            let func: ASTFunction = (parser_get_function parser target)
-            if (< func.body 0) {
-                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
-                set error_count (+ error_count 1)
-            } else {
-                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false, self_name: "", checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }
-                if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
-            }
-        }
-        set i (+ i 1)
-    }
-    # I include expression diagnostics even when their unknown result permits
-    # the enclosing function check to continue without incrementing its count.
-    let mut diagnostic_errors: int = 0
-    for diagnostic_index in (range 0 (Diagnostics.diag_list_count env.diagnostics)) {
-        let diagnostic: CompilerDiagnostic = (Diagnostics.diag_list_get env.diagnostics diagnostic_index)
-        if (== diagnostic.severity DiagnosticSeverity.DIAG_ERROR) {
-            set diagnostic_errors (+ diagnostic_errors 1)
-        }
-    }
-    if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
-    let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
-    let phase: TypecheckPhaseOutput = (typecheck_output env.diagnostics error_count had_error)
-    if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols borrow_context) }
-    return (checked_advisory_empty phase)
+    (tc_global_prefix_clear)
+    let output: CheckedAdvisoryOutput = (typecheck_global_prefix_body parser file_name initial_symbols first_shadow collect_advisory)
+    (tc_global_prefix_clear)
+    return output
 }
 
 shadow typecheck_advisory_core {
@@ -9360,4 +9202,363 @@ shadow resource_check_function_context {
     let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "ownership.nano" 0)
     assert checked.phase.had_error
     assert (== (array_length checked.borrow_context) 0)
+}
+
+fn tc_global_prefix_clear() -> void {
+    set tc_global_prefix_active false
+    set tc_global_prefix_count 0
+    set tc_global_prefix_names []
+}
+
+fn tc_global_prefix_begin(symbols: array<Symbol>) -> void {
+    (tc_global_prefix_clear)
+    let count: int = (array_length symbols)
+    if (or (< count 0) (> count 4294967295)) { return }
+    let mut index: int = 0
+    while (< index count) {
+        set tc_global_prefix_names (array_push tc_global_prefix_names (at symbols index).name)
+        set index (+ index 1)
+    }
+    set tc_global_prefix_count count
+    set tc_global_prefix_active true
+}
+
+fn tc_global_prefix_last(name: string) -> int {
+    if (not tc_global_prefix_active) { return -1 }
+    let mut index: int = (- (array_length tc_global_prefix_names) 1)
+    while (>= index 0) {
+        if (== (at tc_global_prefix_names index) name) { return index }
+        set index (- index 1)
+    }
+    return -1
+}
+
+fn typecheck_global_prefix_body(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int, collect_advisory: bool) -> CheckedAdvisoryOutput {
+    let mut borrow_context: array<BorrowFactContext> = []
+    if collect_advisory { set borrow_context (borrow_fact_context_new) }
+    let env: TypeEnvironment = (env_new)
+    (tc_effect_declarations parser env.diagnostics file_name)
+    if (not (tc_validate_layouts parser env.diagnostics file_name)) {
+        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
+    }
+    if (> parser.services_count 0) {
+        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0037" "I have not resolved File service declarations for this consumer." (Diagnostics.diag_location file_name 0 0)))
+        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
+    }
+    let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
+    let mut error_count: int = (check_reserved_builtin_declarations parser env.diagnostics file_name)
+
+    /* Get function count using accessor */
+    let func_count: int = (parser_get_function_count parser)
+
+    # I refuse parser-only annotations before building signatures or publishing output.
+    let mut borrow_fn: int = 0
+    while (< borrow_fn func_count) {
+        let item: ASTFunction = (parser_get_function parser borrow_fn)
+        let mut argument: int = 0
+        while (< argument item.param_count) {
+            let parameter: ASTLet = (parser_get_let parser (+ item.param_start argument))
+            if (str_starts_with parameter.var_type "&") {
+                if (or (< item.body 0) (not (scalar_borrow_shape parser parameter.var_type))) {
+                    (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0036" "I currently borrow only checked fixed resource records with numeric or boolean fields" (Diagnostics.diag_location file_name parameter.line parameter.column)))
+                    return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
+                }
+            }
+            set argument (+ argument 1)
+        }
+        set borrow_fn (+ borrow_fn 1)
+    }
+
+    /* Validate we have at least one function */
+    if (<= func_count 0) {
+        (println "Error: No functions found")
+        let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_TYPECHECK "TC0001" "No functions found" (Diagnostics.diag_location file_name 0 0))
+        (Diagnostics.diag_list_add env.diagnostics diag)
+        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
+    } else {
+        (print "")
+    }
+
+    /* Add built-in functions to symbol table */
+    let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types) (type_void))
+    set symbols (env_add_symbol symbols println_sym)
+    let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types) (type_void))
+    set symbols (env_add_symbol symbols print_sym)
+
+    /* Minimal builtins used by nanoc_v06 */
+    let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types) (type_int))
+    set symbols (env_add_symbol symbols system_sym)
+    let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types) (type_string))
+    set symbols (env_add_symbol symbols str_concat_sym)
+    let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol symbols str_equals_sym)
+    let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol symbols not_sym)
+    let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol symbols and_sym)
+    let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
+    set symbols (env_add_symbol symbols or_sym)
+
+    /* Phase 0.5: Add global let constants to symbol table */
+    let global_let_count: int = (parser_get_let_count parser)
+    let local_lets: array<bool> = (typecheck_local_lets parser)
+    let mut gli: int = 0
+    while (< gli global_let_count) {
+        let gl: ASTLet = (parser_get_let parser gli)
+        if (not (at local_lets gli)) {
+            (resource_check_global parser gl env.diagnostics file_name)
+            let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
+            if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
+                let gl_sym: Symbol = (symbol_new (mb_lookup (mb_owner gl.line) gl.name) gl_type gl.is_mut false 0 (empty_param_types) (type_void))
+                set symbols (env_add_symbol symbols gl_sym)
+            } else { (print "") }
+        } else { (print "") }
+        set gli (+ gli 1)
+    }
+
+    /* Phase 1: Add all user function signatures to symbol table */
+    let mut i: int = 0
+    while (< i func_count) {
+        let func: ASTFunction = (parser_get_function parser i)
+        let return_type: NSType = (type_from_string_with_parser parser func.return_type)
+        let mut param_types: array<NSType> = []
+        if (and (> func.param_count 0) (>= func.param_start 0)) {
+            let mut pidx: int = 0
+            while (< pidx func.param_count) {
+                let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
+                let param_type: NSType = (type_from_string_with_parser parser param_let.var_type)
+                set param_types (array_push param_types param_type)
+                set pidx (+ pidx 1)
+            }
+        } else {
+            (print "")
+        }
+
+        let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types return_type)
+        set symbols (env_add_symbol symbols func_sym)
+        set i (+ i 1)
+    }
+
+    # I validate global initializers after every function signature is available.
+    set gli 0
+    while (< gli global_let_count) {
+        if (not (at local_lets gli)) {
+            # Initializer validation appends to the shared symbol array. I use
+            # the declaration's bound identity, never its module-local spelling.
+            let declaration: ASTLet = (parser_get_let parser gli)
+            set symbols (check_let_statement_named parser declaration gli symbols env.diagnostics file_name (mb_lookup (mb_owner declaration.line) declaration.name))
+        }
+        set gli (+ gli 1)
+    }
+
+    (tc_global_prefix_begin symbols)
+    /* Phase 2: NSType check each function body */
+    set i 0
+    while (< i func_count) {
+        let func: ASTFunction = (parser_get_function parser i)
+        # I check anonymous bodies at their creation expression with lexical bindings.
+        if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
+        let valid: bool = (check_function parser func symbols env.diagnostics file_name)
+        (parser_set_function_affine parser i (resource_check_function_context parser func env.diagnostics file_name borrow_context))
+        if (and func.is_pure (>= func.body 0)) {
+            if (!= (purity_summary parser i symbols) 0) {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E002" "I cannot prove a closed empty effect summary for this pure fn" (Diagnostics.diag_location file_name func.line func.column)))
+                set error_count (+ error_count 1)
+            }
+        }
+        if (not valid) {
+            set error_count (+ error_count 1)
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+
+    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) {
+        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0001" "I cannot select this shadow range" (Diagnostics.diag_location file_name 0 0)))
+        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
+    }
+    set i first_shadow
+    while (< i parser.shadows_count) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        let mut target: int = -1
+        let mut fi: int = 0
+        while (< fi func_count) {
+            let func: ASTFunction = (parser_get_function parser fi)
+            if (== func.name sh.target_name) { set target fi }
+            set fi (+ fi 1)
+        }
+        if (< target 0) {
+            (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0002" (+ "I cannot find the shadow target: " sh.target_name) (Diagnostics.diag_location file_name sh.line sh.column)))
+            set error_count (+ error_count 1)
+        } else {
+            let func: ASTFunction = (parser_get_function parser target)
+            if (< func.body 0) {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
+                set error_count (+ error_count 1)
+            } else {
+                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false, self_name: "", checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }
+                if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
+            }
+        }
+        set i (+ i 1)
+    }
+    # I include expression diagnostics even when their unknown result permits
+    # the enclosing function check to continue without incrementing its count.
+    let mut diagnostic_errors: int = 0
+    for diagnostic_index in (range 0 (Diagnostics.diag_list_count env.diagnostics)) {
+        let diagnostic: CompilerDiagnostic = (Diagnostics.diag_list_get env.diagnostics diagnostic_index)
+        if (== diagnostic.severity DiagnosticSeverity.DIAG_ERROR) {
+            set diagnostic_errors (+ diagnostic_errors 1)
+        }
+    }
+    if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
+    let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
+    let phase: TypecheckPhaseOutput = (typecheck_output env.diagnostics error_count had_error)
+    if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols borrow_context) }
+    return (checked_advisory_empty phase)
+}
+
+
+
+shadow tc_global_prefix_clear {
+    (tc_global_prefix_clear)
+    let symbols: array<Symbol> = [(symbol_new "chosen" (type_int) false false 0 [] (type_void))]
+    (tc_global_prefix_begin symbols)
+    assert tc_global_prefix_active
+    assert (== (tc_global_prefix_last "chosen") 0)
+    (tc_global_prefix_clear)
+    assert (not tc_global_prefix_active)
+    assert (== tc_global_prefix_count 0)
+    assert (== (tc_global_prefix_last "chosen") -1)
+}
+
+shadow tc_global_prefix_begin {
+    (tc_global_prefix_begin [])
+    assert tc_global_prefix_active
+    assert (== tc_global_prefix_count 0)
+    assert (== (tc_global_prefix_last "missing") -1)
+    let symbols: array<Symbol> = [(symbol_new "" (type_int) false false 0 [] (type_void)),
+        (symbol_new "dup" (type_int) false false 0 [] (type_void)),
+        (symbol_new "Dup" (type_bool) false false 0 [] (type_void)),
+        (symbol_new "dup" (type_string) false false 0 [] (type_void))]
+    (tc_global_prefix_begin symbols)
+    assert (== tc_global_prefix_count 4)
+    assert (== (tc_global_prefix_last "") 0)
+    assert (== (tc_global_prefix_last "dup") 3)
+    assert (== (tc_global_prefix_last "Dup") 2)
+    assert (== (tc_global_prefix_last "du") -1)
+    (tc_global_prefix_clear)
+}
+
+shadow tc_global_prefix_last {
+    (tc_global_prefix_clear)
+    assert (== (tc_global_prefix_last "chosen") -1)
+    (tc_global_prefix_begin [(symbol_new "chosen" (type_int) false false 0 [] (type_void))])
+    assert (== (tc_global_prefix_last "chosen") 0)
+    assert (== (tc_global_prefix_last "Chosen") -1)
+    (tc_global_prefix_clear)
+    assert (== (tc_global_prefix_last "chosen") -1)
+}
+
+shadow env_lookup {
+    (tc_global_prefix_clear)
+    let globals: array<Symbol> = [(symbol_new "first" (type_int) false false 0 [] (type_void)),
+        (symbol_new "dup" (type_float) false false 0 [] (type_void)),
+        (symbol_new "dup" (type_string) false false 0 [] (type_void))]
+    let mut local: array<Symbol> = (env_copy_symbols globals)
+    (tc_global_prefix_begin globals)
+    assert (== (env_lookup local "first") 0)
+    assert (== (env_lookup local "dup") 2)
+    assert (== (env_lookup local "missing") -1)
+    set local (env_add_symbol local (symbol_new "dup" (type_bool) false false 0 [] (type_void)))
+    set local (env_add_symbol local (symbol_new "tail" (type_int) false false 0 [] (type_void)))
+    assert (== (env_lookup local "dup") 3)
+    let alias: array<Symbol> = local
+    (array_set alias 3 (symbol_new "renamed" (type_string) false false 0 [] (type_void)))
+    assert (== (env_lookup local "dup") 2)
+    assert (== (env_lookup local "renamed") 3)
+    (array_set alias 0 (symbol_new "first" (type_float) true false 0 [] (type_void)))
+    let live: OptionType = (env_get_type local "first")
+    assert live.has_value
+    assert (== live.value.kind TypeKind.TYPE_FLOAT)
+    assert (== (at globals 0).sym_type.kind TypeKind.TYPE_INT)
+    let shorter: array<Symbol> = [(symbol_new "solo" (type_int) false false 0 [] (type_void))]
+    assert (== (env_lookup shorter "solo") 0)
+    assert (== (env_lookup shorter "first") -1)
+    let mut index: int = (array_length local)
+    while (< index 135) {
+        set local (env_add_symbol local (symbol_new (+ "grow-" (int_to_string index)) (type_int) false false 0 [] (type_void)))
+        set index (+ index 1)
+    }
+    assert (== (env_lookup local "grow-134") 134)
+    assert (== (env_lookup local "dup") 2)
+    (tc_global_prefix_clear)
+    let standalone_alias: array<Symbol> = local
+    (array_set standalone_alias 0 (symbol_new "outside" (type_bool) false false 0 [] (type_void)))
+    assert (== (env_lookup local "outside") 0)
+    assert (== (env_lookup local "first") -1)
+}
+
+shadow typecheck_advisory_core {
+    (tc_global_prefix_clear)
+    (mb_reset [])
+    let a: Parser = (resource_test_parser "fn selected()->int{return outside}")
+    let b: Parser = (resource_test_parser "fn selected()->int{return other}")
+    let first: array<Symbol> = [(symbol_new "outside" (type_int) false false 0 [] (type_void))]
+    let second: array<Symbol> = [(symbol_new "other" (type_int) false false 0 [] (type_void))]
+    (tc_global_prefix_begin [(symbol_new "poison" (type_void) false false 0 [] (type_void))])
+    assert (not (typecheck_phase_with_symbols a "a-prefix.nano" first).had_error)
+    assert (not tc_global_prefix_active)
+    assert (== tc_global_prefix_count 0)
+    assert (not (typecheck_phase_with_symbols b "b-prefix.nano" second).had_error)
+    assert (not tc_global_prefix_active)
+    assert (typecheck_phase_with_symbols a "missing-prefix.nano" second).had_error
+    assert (not tc_global_prefix_active)
+    assert (not (typecheck_phase_with_symbols a "again-prefix.nano" first).had_error)
+    let advised: Parser = (resource_test_parser "let fixed:int=7 fn value()->int{return fixed} fn main()->int{return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission advised "advised-prefix.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (== (array_length checked.masks) 2)
+    assert (== (at checked.masks 0) 0)
+    assert (not tc_global_prefix_active)
+    let failed: Parser = (resource_test_parser "fn bad(value:&int)->int{return 0}")
+    assert (typecheck_phase failed "borrow-prefix.nano").had_error
+    assert (not tc_global_prefix_active)
+    let effect_parser: Parser = (resource_test_parser "effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{(+ value 1)}}}")
+    assert (not (typecheck_phase effect_parser "effect-prefix.nano").had_error)
+    assert (not tc_global_prefix_active)
+    (mb_reset [])
+}
+
+shadow check_legacy_par {
+    (tc_global_prefix_clear)
+    (mb_reset [])
+    let initial: array<Symbol> = [(symbol_new "right" (type_int) false false 0 [] (type_void))]
+    let bad: Parser = (resource_test_parser "fn selected(p0:int,p1:int,p2:int,p3:int,p4:int,p5:int,p6:int,p7:int,p8:int,p9:int,p10:int,p11:int)->int{par-let left=right right=8 in (+ left right) return left}")
+    let refused: TypecheckPhaseOutput = (typecheck_phase_with_symbols bad "filtered-prefix.nano" initial)
+    assert refused.had_error
+    let mut missing: bool = false
+    let mut index: int = 0
+    while (< index (list_CompilerDiagnostic_length refused.diagnostics)) {
+        let diagnostic: CompilerDiagnostic = (list_CompilerDiagnostic_get refused.diagnostics index)
+        if (and (== diagnostic.code "E0011") (== diagnostic.message "I cannot find this name in the current scope: right")) { set missing true }
+        set index (+ index 1)
+    }
+    assert missing
+    assert (not tc_global_prefix_active)
+    let good: Parser = (resource_test_parser "fn selected(p0:int,p1:int,p2:int,p3:int,p4:int,p5:int,p6:int,p7:int,p8:int,p9:int,p10:int,p11:int)->int{par-let left=7 right=8 in (+ left right) return left}")
+    assert (not (typecheck_phase_with_symbols good "filtered-good-prefix.nano" initial).had_error)
+    assert (not tc_global_prefix_active)
+    (mb_reset [])
+}
+
+shadow typecheck_global_prefix_body {
+    (tc_global_prefix_clear)
+    (mb_reset [])
+    let parser: Parser = (resource_test_parser "fn bad(value:&int)->int{return 0}")
+    let failed: CheckedAdvisoryOutput = (typecheck_global_prefix_body parser "body-prefix.nano" [] 0 false)
+    assert failed.phase.had_error
+    assert (not tc_global_prefix_active)
+    (tc_global_prefix_clear)
 }
