@@ -1,0 +1,19 @@
+{
+  "format": "read-only-os-observation-v1",
+  "observed_utc": "2026-11-26T03:23:24.142418Z",
+  "qualification_admitted": false,
+  "product_acceptance": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "os-observation.json",
+      "bytes": 3761,
+      "sha256": "6238303e667e9fc0b2b4104186098b4d2020f3ba499291b223b43ec00935ccf9"
+    },
+    {
+      "path": "transport.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
