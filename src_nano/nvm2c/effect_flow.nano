@@ -1,0 +1,142 @@
+module nvm2c_effect_flow
+module "src_nano/nvm2c/functions.nano" as body
+module "src_nano/nvm2c/instructions.nano" as primary
+
+# I collect byte-addressed arm reachability, not executable effect admission.
+pub struct Function { start: int, length: int, locals: int }
+pub struct Handler {
+    function: int, operation: int, target: int, start: int, count: int,
+    flow: array<bool>
+}
+pub struct Collection { valid: bool, handlers: array<Handler> }
+
+fn refused() -> Collection { return Collection { valid: false, handlers: [] } }
+shadow refused { assert (not (refused).valid) }
+
+# I match the reference's NUL-terminated operation names, including embedded NUL.
+fn same_name(left: array<u8>, right: array<u8>) -> bool {
+    let mut i: int = 0
+    while true {
+        let mut a: int = 0
+        let mut b: int = 0
+        if (< i (array_length left)) { set a (cast_int (at left i)) }
+        if (< i (array_length right)) { set b (cast_int (at right i)) }
+        if (!= a b) { return false }
+        if (== a 0) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow same_name {
+    assert (same_name [97,0,98] [97])
+    assert (same_name [] [0,255])
+    assert (not (same_name [97] [98]))
+}
+
+pub fn operation(names: array<array<u8>>, name: int) -> int {
+    if (or (< name 0) (>= name (array_length names))) { return -1 }
+    let mut i: int = 0
+    while (< i name) {
+        if (same_name (at names i) (at names name)) { return i }
+        set i (+ i 1)
+    }
+    return name
+}
+shadow operation {
+    assert (== (operation [[97],[98],[97,0,99]] 2) 0)
+    assert (== (operation [[97],[98]] 1) 1)
+    assert (== (operation [] 0) -1)
+}
+
+fn terminal(op: int) -> bool {
+    # RET, HALT, EFFECT_RESUME, TAIL_CALL: canonical primary identities.
+    return (or (== op 61) (or (== op 163) (or (== op 168) (== op 51))))
+}
+shadow terminal {
+    assert (terminal 168)
+    assert (terminal 51)
+    assert (not (terminal 165))
+    assert (not (terminal 166))
+}
+
+fn arm_flow(plan: body.Function, target: int) -> array<bool> {
+    let mut flow: array<bool> = []
+    let mut i: int = 0
+    while (<= i plan.size) { set flow (array_push flow false) set i (+ i 1) }
+    let mut queue: array<int> = [target]
+    (array_set flow target true)
+    let mut head: int = 0
+    while (< head (array_length queue)) {
+        let position: int = (at queue head)
+        set head (+ head 1)
+        if (< position plan.size) {
+            let index: int = (body.index_at plan position)
+            let item: primary.Instruction = (at plan.instructions index)
+            if (not (terminal item.opcode)) {
+                let mut edges: array<int> = [(at plan.next index)]
+                if (or (== item.opcode 56) (or (== item.opcode 57) (== item.opcode 58))) {
+                    let destination: int = (+ position (primary.integer item 0))
+                    if (== item.opcode 56) { (array_set edges 0 destination) }
+                    else { set edges (array_push edges destination) }
+                }
+                for edge_index in (range 0 (array_length edges)) {
+                    let edge: int = (at edges edge_index)
+                    if (not (at flow edge)) {
+                        (array_set flow edge true)
+                        set queue (array_push queue edge)
+                    }
+                }
+            }
+        }
+    }
+    return flow
+}
+shadow arm_flow {
+    let plan: body.Function = (body.decode [0,168,0] 0 3 1)
+    let flow: array<bool> = (arm_flow plan 0)
+    assert (at flow 0)
+    assert (at flow 1)
+    assert (not (at flow 2))
+    assert (not (at flow 3))
+}
+
+pub fn collect(code: array<u8>, functions: array<Function>, names: array<array<u8>>) -> Collection {
+    let mut handlers: array<Handler> = []
+    let mut f: int = 0
+    while (< f (array_length functions)) {
+        let entry: Function = (at functions f)
+        if (or (< entry.locals 0) (> entry.locals 65535)) { return (refused) }
+        let plan: body.Function = (body.decode code entry.start entry.length (array_length functions))
+        if (not plan.valid) { return (refused) }
+        let mut i: int = 0
+        while (< i (array_length plan.instructions)) {
+            let item: primary.Instruction = (at plan.instructions i)
+            if (== item.opcode 165) {
+                let name: int = (primary.integer item 0)
+                let target: int = (+ (at plan.starts i) (primary.integer item 1))
+                let start: int = (primary.integer item 2)
+                let count: int = (primary.integer item 3)
+                if (or (>= name (array_length names)) (or (< target 0) (>= target entry.length))) { return (refused) }
+                if (> (+ start count) entry.locals) { return (refused) }
+                if (not (body.has_boundary plan target)) { return (refused) }
+                set handlers (array_push handlers Handler { function: f, operation: (operation names name),
+                    target: target, start: start, count: count, flow: (arm_flow plan target) })
+            }
+            set i (+ i 1)
+        }
+        set f (+ f 1)
+    }
+    return Collection { valid: true, handlers: handlers }
+}
+shadow collect {
+    assert (collect [] [] []).valid
+    let code: array<u8> = [165,0,0,0,0,13,0,0,0,0,0,0,0,168]
+    let yes: Collection = (collect code [Function { start: 0, length: 14, locals: 0 }] [[97]])
+    assert yes.valid
+    assert (== (array_length yes.handlers) 1)
+    assert (== (at yes.handlers 0).target 13)
+    assert (at (at yes.handlers 0).flow 13)
+    assert (not (at (at yes.handlers 0).flow 14))
+    assert (not (collect code [Function { start: 0, length: 13, locals: 0 }] [[97]]).valid)
+    assert (not (collect code [Function { start: 0, length: 14, locals: 0 }] []).valid)
+}
