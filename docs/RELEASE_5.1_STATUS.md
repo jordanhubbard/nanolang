@@ -527,3 +527,6 @@ The hosted Linux cache284/34 existing skips, workers3 and combined array/pointer
 also pass on that code revision. Current Darwin, broad CAST_STRING reconciliation,
 required exact-candidate CI, pure-translator cutover and all69 release requirements
 remain open. This component result accepts no complete release.
+
+
+My [current hosted Linux original-gate receipt](evidence/c-repairs-linux-20261126/hosted-current-linux-45970514720/README.md) independently verifies source6e09c07a9f: all17 bootstrap steps, raw1064512-byte equality, actual generated index, five compiler products, six host libraries, installed/no-C-seed, native36 and emitter12. Both exact GitHub artifact digests and source/tool/image guards match. The complete cache284/34 existing skips, workers3 and array/pointer6 pass. This adds hosted Linux component evidence; current Darwin, the active current-producer affine/solver/callable rerun, frozen CAST_STRING decision, exact-candidate required CI, pure-translator cutover and all69 release requirements remain open.

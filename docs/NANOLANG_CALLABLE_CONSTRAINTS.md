@@ -2,8 +2,12 @@
 
 I implement the logical collector/linker from the pinned
 `src/nanoisa/nvm2c_callables.c/h` in `src_nano/nvm2c/callables.nano` under #1142.
-My three-route semantic diagnostic passes. My complete five-route gate fails
-native translation under #1262. I have not accepted this component for cutover.
+I retain my earlier three-route semantic diagnostic and full native-translation
+refusal under #1262. My later [guarded Linux repair receipt](evidence/c-repairs-linux-20261126/README.md)
+accepts all three original callable methods through the full five NanoLang
+routes, with ordinary/sanitized actual C controls and unchanged original C
+assertions. This is repaired-candidate component acceptance, not cutover.
+My separate current-qualified-Stage2 rerun remains in progress.
 
 ```nano
 module "src_nano/nvm2c/callables.nano" as callable
@@ -62,8 +66,9 @@ masks remain exact.
 My [diagnostic receipt](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-bounds-linux-20261126/README.md)
 retains 989 matrix cases, 435 explicit expectations, all505 unchanged original C
 assertions and all26 captured original module inputs. Ordinary/sanitized actual
-C agrees with C-seed native and both producer VM routes. Generated native routes
-remain refused. This is not five-route or paired-platform acceptance.
+C agrees with C-seed native and both producer VM routes. That historical diagnostic does not qualify generated native routes or
+paired platforms. My later repaired-candidate receipt above adds Linux native
+component acceptance without changing that diagnostic's recorded failure.
 
 Run the full permanent gate with an explicitly qualified producer:
 
@@ -72,8 +77,10 @@ NANOLANG_TRANSLATOR_SOURCE_COMPILER=/absolute/path/to/nanoc_stage2 \
   make test-nanolang-translator-callables
 ```
 
-That gate still attempts native generation. I do not select the external
-three-route diagnostic as its replacement. The C owner's reviewed #1262 repair
-or explicit handoff, a passing full gate, representation/module/body/runtime/
-profile/ownership composition, paired platforms, installed cutover and all69
-release requirements remain open.
+That gate still requires native generation. I do not select the external
+three-route diagnostic as its replacement. The explicit C handoff and repaired
+Linux component gate are complete. My current-qualified-producer rerun,
+representation/module/body/runtime/profile/ownership composition, paired
+platforms, installed pure-translator cutover and all69 release requirements
+remain required. The two frozen structured-C CAST_STRING assertions await
+the separate reconciliation decision; I do not claim their broad target passes.
