@@ -1172,6 +1172,51 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
     return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack);
 }
 
+/* I share ordinary admission within one immutable producer query. */
+NvmVerifyResult nvm_infer_function_max_stacks(const NvmModule *mod,
+                                             void *records, uint32_t count,
+                                             size_t record_size, size_t depth_offset) {
+    if (!mod || count != mod->function_count ||
+        (count && (!records || record_size < sizeof(uint16_t) ||
+                   depth_offset > record_size - sizeof(uint16_t) ||
+                   record_size > SIZE_MAX / count)))
+        return fail("I require one independent max-stack field per function");
+    if (!count) return ok_result();
+    unsigned char *bytes = records;
+    const uint16_t zero = 0;
+    for (uint32_t i = 0; i < count; ++i)
+        memcpy(bytes + (size_t)i * record_size + depth_offset, &zero, sizeof zero);
+    if (nvm_service_execution_pending(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    bool private_profile = nvm_record_map_selected(nvm_record_map_route(mod)) ||
+        nvm_owned_array_route(mod) != NVM_OWNER_ARRAY_NOT_SELECTED ||
+        nvm_mixed_samples_candidate(mod) || nvm_record_array_candidate(mod);
+    bool owned_admitted = false;
+    if (!private_profile) {
+        NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
+        if (!structure.ok) return structure;
+        if (!owned_admitted && mod->ownership_size)
+            owned_admitted = nvm_verify_owned_module(mod).ok;
+    }
+    NvmVerifyResult first = ok_result();
+    for (uint32_t i = 0; i < count; ++i) {
+        uint16_t depth = 0;
+        NvmVerifyResult result;
+        if (private_profile)
+            result = verify_function_impl(mod, i, NULL, 0, &depth);
+        else if (owned_admitted) {
+            depth = NVM_AFFINE_MAX_STACK;
+            result = ok_result();
+        } else
+            result = verify_function_body(mod, i, NULL, 0, &depth, NULL, NULL);
+        if (result.ok)
+            memcpy(bytes + (size_t)i * record_size + depth_offset, &depth, sizeof depth);
+        else if (first.ok)
+            first = result;
+    }
+    return first;
+}
+
 /* ========================================================================
  * Public API
  * ======================================================================== */

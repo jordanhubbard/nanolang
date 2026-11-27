@@ -2572,6 +2572,18 @@ test-verifier: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@./tests/nanoisa/test_verifier
 	@rm -f tests/nanoisa/test_verifier
 
+.PHONY: test-function-depth-batch
+test-function-depth-batch: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_batch tests/nanoisa/test_function_depth_batch.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_batch
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_profiles tests/nanoisa/test_function_depth_profiles.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_profiles
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Dmalloc=depth_test_malloc -Dcalloc=depth_test_calloc -Drealloc=depth_test_realloc -Dfree=depth_test_free -c $(NANOISA_DIR)/verifier.c -o $(OBJ_DIR)/verifier_depth_alloc.o
+	$(CC) $(CFLAGS) -UNDEBUG -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_function_depth_alloc tests/nanoisa/test_function_depth_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(OBJ_DIR)/verifier_depth_alloc.o $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_function_depth_alloc
+
+test-units: test-function-depth-batch
+
 .PHONY: test-nvm-v2-imports
 test-nvm-v2-imports: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 IMPORTS/LINKS/METADATA/DEBUG tests..."
