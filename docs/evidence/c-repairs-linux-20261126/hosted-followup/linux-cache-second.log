@@ -1,0 +1,1686 @@
+﻿2026-11-27T06:30:44.3763022Z Current runner version: '2.338.2'
+2026-11-27T06:30:44.3787808Z ##[group]Runner Image Provisioner
+2026-11-27T06:30:44.3788695Z Hosted Compute Agent
+2026-11-27T06:30:44.3789299Z Version: 20261111.635
+2026-11-27T06:30:44.3790008Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-27T06:30:44.3790852Z Build Date: 2026-11-11T01:49:01Z
+2026-11-27T06:30:44.3791619Z Worker ID: {bf1b1990-0753-4f14-830d-37d5c501a20d}
+2026-11-27T06:30:44.3792751Z Region: westus2
+2026-11-27T06:30:44.3793517Z Cloud: Azure
+2026-11-27T06:30:44.3794155Z ##[endgroup]
+2026-11-27T06:30:44.3795694Z ##[group]Operating System
+2026-11-27T06:30:44.3796369Z Ubuntu
+2026-11-27T06:30:44.3797004Z 26.04.1
+2026-11-27T06:30:44.3797526Z LTS
+2026-11-27T06:30:44.3798091Z ##[endgroup]
+2026-11-27T06:30:44.3798719Z ##[group]Runner Image
+2026-11-27T06:30:44.3799373Z Image: ubuntu-26.04
+2026-11-27T06:30:44.3800010Z Version: 20261122.9.1
+2026-11-27T06:30:44.3801247Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261122.9/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-27T06:30:44.3803297Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261122.9
+2026-11-27T06:30:44.3804323Z ##[endgroup]
+2026-11-27T06:30:44.3805520Z ##[group]GITHUB_TOKEN Permissions
+2026-11-27T06:30:44.3807417Z Contents: read
+2026-11-27T06:30:44.3808135Z Metadata: read
+2026-11-27T06:30:44.3808744Z ##[endgroup]
+2026-11-27T06:30:44.3810849Z Secret source: Actions
+2026-11-27T06:30:44.3811840Z Cache mode: write
+2026-11-27T06:30:44.3812911Z Prepare workflow directory
+2026-11-27T06:30:44.4221836Z Prepare all required actions
+2026-11-27T06:30:44.4269563Z Getting action download info
+2026-11-27T06:30:44.7417553Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-27T06:30:44.8371960Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-27T06:30:45.0377240Z Complete job name: C repair original gates (ubuntu-latest, cache)
+2026-11-27T06:30:45.1239113Z ##[group]Run test 'github-hosted' = github-hosted
+2026-11-27T06:30:45.1239963Z [36;1mtest 'github-hosted' = github-hosted[0m
+2026-11-27T06:30:45.1240618Z [36;1muname -a[0m
+2026-11-27T06:30:45.1241196Z [36;1mecho "I qualify $GITHUB_SHA on $RUNNER_NAME."[0m
+2026-11-27T06:30:45.1277883Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:30:45.1278892Z ##[endgroup]
+2026-11-27T06:30:45.1440284Z Linux runnervm3lb7s 7.0.0-1020-azure #21-Ubuntu SMP PREEMPT Tue Oct 27 22:34:38 UTC 2026 x86_64 GNU/Linux
+2026-11-27T06:30:45.1442771Z I qualify ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 on GitHub Actions 1000225536.
+2026-11-27T06:30:45.1678830Z ##[group]Run actions/checkout@v4
+2026-11-27T06:30:45.1679439Z with:
+2026-11-27T06:30:45.1679895Z   repository: jordanhubbard/nanolang
+2026-11-27T06:30:45.1683818Z   token: ***
+2026-11-27T06:30:45.1684277Z   ssh-strict: true
+2026-11-27T06:30:45.1684745Z   ssh-user: git
+2026-11-27T06:30:45.1685216Z   persist-credentials: true
+2026-11-27T06:30:45.1685757Z   clean: true
+2026-11-27T06:30:45.1686226Z   sparse-checkout-cone-mode: true
+2026-11-27T06:30:45.1686770Z   fetch-depth: 1
+2026-11-27T06:30:45.1687223Z   fetch-tags: false
+2026-11-27T06:30:45.1687692Z   show-progress: true
+2026-11-27T06:30:45.1688153Z   lfs: false
+2026-11-27T06:30:45.1688588Z   submodules: false
+2026-11-27T06:30:45.1689056Z   set-safe-directory: true
+2026-11-27T06:30:45.1689586Z   allow-unsafe-pr-checkout: false
+2026-11-27T06:30:45.1690131Z ##[endgroup]
+2026-11-27T06:30:45.4738465Z Syncing repository: jordanhubbard/nanolang
+2026-11-27T06:30:45.4741496Z ##[group]Getting Git version info
+2026-11-27T06:30:45.4743123Z Working directory is '/home/runner/work/nanolang/nanolang'
+2026-11-27T06:30:45.4744977Z [command]/usr/bin/git version
+2026-11-27T06:30:45.4747714Z git version 2.56.1
+2026-11-27T06:30:45.4769901Z ##[endgroup]
+2026-11-27T06:30:45.4784001Z Temporarily overriding HOME='/home/runner/work/_temp/e1ef9048-eaea-4473-9365-2c85bd43cab4' before making global git config changes
+2026-11-27T06:30:45.4787006Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T06:30:45.4789243Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-11-27T06:30:45.4875863Z Deleting the contents of '/home/runner/work/nanolang/nanolang'
+2026-11-27T06:30:45.4879521Z ##[group]Initializing the repository
+2026-11-27T06:30:45.4884045Z [command]/usr/bin/git init /home/runner/work/nanolang/nanolang
+2026-11-27T06:30:45.5008333Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-27T06:30:45.5009904Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-27T06:30:45.5010930Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-27T06:30:45.5011846Z hint: call:
+2026-11-27T06:30:45.5012274Z hint:
+2026-11-27T06:30:45.5013111Z hint: 	git config --global init.defaultBranch <name>
+2026-11-27T06:30:45.5013775Z hint:
+2026-11-27T06:30:45.5014497Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-27T06:30:45.5015496Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-27T06:30:45.5016253Z hint:
+2026-11-27T06:30:45.5016683Z hint: 	git branch -m <name>
+2026-11-27T06:30:45.5017176Z hint:
+2026-11-27T06:30:45.5100063Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-27T06:30:45.5102349Z Initialized empty Git repository in /home/runner/work/nanolang/nanolang/.git/
+2026-11-27T06:30:45.5105744Z [command]/usr/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-11-27T06:30:45.5107441Z ##[endgroup]
+2026-11-27T06:30:45.5108213Z ##[group]Disabling automatic garbage collection
+2026-11-27T06:30:45.5108895Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-27T06:30:45.5128531Z ##[endgroup]
+2026-11-27T06:30:45.5129311Z ##[group]Setting up auth
+2026-11-27T06:30:45.5134723Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T06:30:45.5165820Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T06:30:45.5609939Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T06:30:45.5647874Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T06:30:45.5926438Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T06:30:45.5963273Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T06:30:45.6239037Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-27T06:30:45.6278323Z ##[endgroup]
+2026-11-27T06:30:45.6279322Z ##[group]Fetching the repository
+2026-11-27T06:30:45.6290655Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1:refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T06:34:16.9244673Z From https://github.com/jordanhubbard/nanolang
+2026-11-27T06:34:16.9245478Z  * [new ref]               ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 -> origin/feat/5.1-service-module-integration
+2026-11-27T06:34:16.9249086Z ##[endgroup]
+2026-11-27T06:34:16.9249637Z ##[group]Determining the checkout info
+2026-11-27T06:34:16.9252103Z ##[endgroup]
+2026-11-27T06:34:16.9257755Z [command]/usr/bin/git sparse-checkout disable
+2026-11-27T06:34:16.9317124Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-27T06:34:16.9346585Z ##[group]Checking out the ref
+2026-11-27T06:34:16.9351068Z [command]/usr/bin/git checkout --progress --force -B feat/5.1-service-module-integration refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T06:34:18.6875996Z Updating files:   2% (12002/584454)
+2026-11-27T06:34:19.1658645Z Updating files:   3% (17534/584454)
+2026-11-27T06:34:19.3711967Z Updating files:   4% (23379/584454)
+2026-11-27T06:34:19.6348003Z Updating files:   4% (27785/584454)
+2026-11-27T06:34:20.2439427Z Updating files:   5% (29223/584454)
+2026-11-27T06:34:20.3710632Z Updating files:   6% (35068/584454)
+2026-11-27T06:34:20.7155767Z Updating files:   6% (36635/584454)
+2026-11-27T06:34:21.3722840Z Updating files:   7% (40912/584454)
+2026-11-27T06:34:21.4263608Z Updating files:   7% (46317/584454)
+2026-11-27T06:34:22.3767119Z Updating files:   8% (46757/584454)
+2026-11-27T06:34:23.0526799Z Updating files:   8% (50141/584454)
+2026-11-27T06:34:23.3734073Z Updating files:   9% (52601/584454)
+2026-11-27T06:34:24.3721600Z Updating files:   9% (53944/584454)
+2026-11-27T06:34:25.2232002Z Updating files:   9% (54582/584454)
+2026-11-27T06:34:25.3967116Z Updating files:  10% (58446/584454)
+2026-11-27T06:34:26.4050325Z Updating files:  10% (58650/584454)
+2026-11-27T06:34:27.3715464Z Updating files:  10% (58693/584454)
+2026-11-27T06:34:28.3876979Z Updating files:  10% (59158/584454)
+2026-11-27T06:34:29.3766691Z Updating files:  10% (59537/584454)
+2026-11-27T06:34:30.4580515Z Updating files:  10% (59892/584454)
+2026-11-27T06:34:31.7063963Z Updating files:  10% (60074/584454)
+2026-11-27T06:34:32.4616588Z Updating files:  10% (60100/584454)
+2026-11-27T06:34:33.5059644Z Updating files:  10% (60110/584454)
+2026-11-27T06:34:34.3847963Z Updating files:  10% (60124/584454)
+2026-11-27T06:34:35.3710129Z Updating files:  10% (60295/584454)
+2026-11-27T06:34:36.2480295Z Updating files:  10% (60630/584454)
+2026-11-27T06:34:36.3710299Z Updating files:  11% (64290/584454)
+2026-11-27T06:34:36.4987948Z Updating files:  11% (66646/584454)
+2026-11-27T06:34:37.3781898Z Updating files:  12% (70135/584454)
+2026-11-27T06:34:37.3979965Z Updating files:  12% (75931/584454)
+2026-11-27T06:34:37.6899594Z Updating files:  13% (75980/584454)
+2026-11-27T06:34:37.9029655Z Updating files:  14% (81824/584454)
+2026-11-27T06:34:38.3709586Z Updating files:  15% (87669/584454)
+2026-11-27T06:34:38.4303046Z Updating files:  15% (91946/584454)
+2026-11-27T06:34:38.9264978Z Updating files:  16% (93513/584454)
+2026-11-27T06:34:39.4290859Z Updating files:  17% (99358/584454)
+2026-11-27T06:34:39.5670631Z Updating files:  17% (101408/584454)
+2026-11-27T06:34:39.7689526Z Updating files:  18% (105202/584454)
+2026-11-27T06:34:39.9716755Z Updating files:  19% (111047/584454)
+2026-11-27T06:34:40.3594048Z Updating files:  20% (116891/584454)
+2026-11-27T06:34:40.3784187Z Updating files:  21% (122736/584454)
+2026-11-27T06:34:40.5770419Z Updating files:  21% (122959/584454)
+2026-11-27T06:34:40.7881455Z Updating files:  22% (128580/584454)
+2026-11-27T06:34:41.1307001Z Updating files:  23% (134425/584454)
+2026-11-27T06:34:41.3760585Z Updating files:  24% (140269/584454)
+2026-11-27T06:34:41.7589353Z Updating files:  24% (141825/584454)
+2026-11-27T06:34:41.9954997Z Updating files:  25% (146114/584454)
+2026-11-27T06:34:42.4039912Z Updating files:  26% (151959/584454)
+2026-11-27T06:34:43.4103642Z Updating files:  26% (155410/584454)
+2026-11-27T06:34:44.2384985Z Updating files:  26% (155454/584454)
+2026-11-27T06:34:44.3729798Z Updating files:  27% (157803/584454)
+2026-11-27T06:34:45.1032224Z Updating files:  27% (159505/584454)
+2026-11-27T06:34:45.3020315Z Updating files:  28% (163648/584454)
+2026-11-27T06:34:45.4879519Z Updating files:  29% (169492/584454)
+2026-11-27T06:34:45.6593771Z Updating files:  29% (170807/584454)
+2026-11-27T06:34:46.3710307Z Updating files:  30% (175337/584454)
+2026-11-27T06:34:46.4769763Z Updating files:  30% (178381/584454)
+2026-11-27T06:34:46.6797587Z Updating files:  31% (181181/584454)
+2026-11-27T06:34:47.2437913Z Updating files:  32% (187026/584454)
+2026-11-27T06:34:47.4014847Z Updating files:  33% (192870/584454)
+2026-11-27T06:34:47.9322832Z Updating files:  33% (193506/584454)
+2026-11-27T06:34:48.1382870Z Updating files:  34% (198715/584454)
+2026-11-27T06:34:48.3463905Z Updating files:  35% (204559/584454)
+2026-11-27T06:34:48.3760343Z Updating files:  36% (210404/584454)
+2026-11-27T06:34:48.5838022Z Updating files:  36% (211071/584454)
+2026-11-27T06:34:49.2114409Z Updating files:  37% (216248/584454)
+2026-11-27T06:34:49.3709099Z Updating files:  38% (222093/584454)
+2026-11-27T06:34:49.4491115Z Updating files:  38% (225938/584454)
+2026-11-27T06:34:49.6956969Z Updating files:  39% (227938/584454)
+2026-11-27T06:34:50.3710948Z Updating files:  40% (233782/584454)
+2026-11-27T06:34:50.4129039Z Updating files:  40% (239197/584454)
+2026-11-27T06:34:51.3770055Z Updating files:  41% (239627/584454)
+2026-11-27T06:34:52.3749982Z Updating files:  41% (241407/584454)
+2026-11-27T06:34:52.7577855Z Updating files:  41% (244031/584454)
+2026-11-27T06:34:53.3736549Z Updating files:  42% (245471/584454)
+2026-11-27T06:34:54.4441257Z Updating files:  42% (246159/584454)
+2026-11-27T06:34:55.4784938Z Updating files:  42% (247108/584454)
+2026-11-27T06:34:56.3718203Z Updating files:  42% (247769/584454)
+2026-11-27T06:34:57.2352049Z Updating files:  42% (250135/584454)
+2026-11-27T06:34:57.3709791Z Updating files:  43% (251316/584454)
+2026-11-27T06:34:58.3756301Z Updating files:  43% (251864/584454)
+2026-11-27T06:34:59.3710038Z Updating files:  43% (253135/584454)
+2026-11-27T06:35:00.4062636Z Updating files:  43% (254594/584454)
+2026-11-27T06:35:01.4063142Z Updating files:  43% (255074/584454)
+2026-11-27T06:35:02.3715953Z Updating files:  43% (255218/584454)
+2026-11-27T06:35:02.4948464Z Updating files:  43% (256326/584454)
+2026-11-27T06:35:03.3773426Z Updating files:  44% (257160/584454)
+2026-11-27T06:35:04.3728920Z Updating files:  44% (259319/584454)
+2026-11-27T06:35:05.0631908Z Updating files:  44% (261353/584454)
+2026-11-27T06:35:05.4094484Z Updating files:  45% (263005/584454)
+2026-11-27T06:35:06.3741239Z Updating files:  45% (264032/584454)
+2026-11-27T06:35:07.2813904Z Updating files:  45% (265848/584454)
+2026-11-27T06:35:07.5174229Z Updating files:  46% (268849/584454)
+2026-11-27T06:35:08.3731782Z Updating files:  46% (270030/584454)
+2026-11-27T06:35:09.3710331Z Updating files:  46% (270351/584454)
+2026-11-27T06:35:10.4066260Z Updating files:  46% (271684/584454)
+2026-11-27T06:35:11.2737459Z Updating files:  46% (272364/584454)
+2026-11-27T06:35:11.3725364Z Updating files:  47% (274694/584454)
+2026-11-27T06:35:12.3714160Z Updating files:  47% (275593/584454)
+2026-11-27T06:35:13.4869455Z Updating files:  47% (277338/584454)
+2026-11-27T06:35:14.2471081Z Updating files:  47% (279387/584454)
+2026-11-27T06:35:14.3718289Z Updating files:  48% (280538/584454)
+2026-11-27T06:35:15.4499530Z Updating files:  48% (280611/584454)
+2026-11-27T06:35:16.4084387Z Updating files:  48% (281841/584454)
+2026-11-27T06:35:17.3709878Z Updating files:  48% (282532/584454)
+2026-11-27T06:35:17.7537152Z Updating files:  48% (283516/584454)
+2026-11-27T06:35:18.3710203Z Updating files:  49% (286383/584454)
+2026-11-27T06:35:18.4671906Z Updating files:  49% (289447/584454)
+2026-11-27T06:35:18.9092350Z Updating files:  50% (292227/584454)
+2026-11-27T06:35:19.3758806Z Updating files:  51% (298072/584454)
+2026-11-27T06:35:19.5323747Z Updating files:  51% (302191/584454)
+2026-11-27T06:35:20.3714757Z Updating files:  52% (303917/584454)
+2026-11-27T06:35:21.3723034Z Updating files:  52% (306950/584454)
+2026-11-27T06:35:21.8818706Z Updating files:  52% (308669/584454)
+2026-11-27T06:35:22.3717176Z Updating files:  53% (309761/584454)
+2026-11-27T06:35:23.3709690Z Updating files:  53% (311711/584454)
+2026-11-27T06:35:24.0596432Z Updating files:  53% (315227/584454)
+2026-11-27T06:35:24.4248543Z Updating files:  54% (315606/584454)
+2026-11-27T06:35:24.5333142Z Updating files:  54% (319652/584454)
+2026-11-27T06:35:25.4735887Z Updating files:  55% (321450/584454)
+2026-11-27T06:35:25.9983250Z Updating files:  55% (323317/584454)
+2026-11-27T06:35:26.3545398Z Updating files:  56% (327295/584454)
+2026-11-27T06:35:26.3709989Z Updating files:  57% (333139/584454)
+2026-11-27T06:35:27.1928509Z Updating files:  57% (333343/584454)
+2026-11-27T06:35:27.4100837Z Updating files:  58% (338984/584454)
+2026-11-27T06:35:28.3776368Z Updating files:  58% (339823/584454)
+2026-11-27T06:35:29.3749666Z Updating files:  58% (340640/584454)
+2026-11-27T06:35:30.4187891Z Updating files:  58% (340986/584454)
+2026-11-27T06:35:30.9460574Z Updating files:  58% (342539/584454)
+2026-11-27T06:35:31.2685777Z Updating files:  59% (344828/584454)
+2026-11-27T06:35:31.3709927Z Updating files:  60% (350673/584454)
+2026-11-27T06:35:32.3864774Z Updating files:  60% (353198/584454)
+2026-11-27T06:35:32.6758037Z Updating files:  60% (355148/584454)
+2026-11-27T06:35:33.2545507Z Updating files:  61% (356517/584454)
+2026-11-27T06:35:33.3709843Z Updating files:  62% (362362/584454)
+2026-11-27T06:35:33.8008210Z Updating files:  62% (363359/584454)
+2026-11-27T06:35:34.3766692Z Updating files:  63% (368207/584454)
+2026-11-27T06:35:35.3814679Z Updating files:  63% (369847/584454)
+2026-11-27T06:35:36.4313130Z Updating files:  63% (370817/584454)
+2026-11-27T06:35:37.3898513Z Updating files:  63% (371040/584454)
+2026-11-27T06:35:38.1510841Z Updating files:  63% (371287/584454)
+2026-11-27T06:35:38.3747832Z Updating files:  64% (374051/584454)
+2026-11-27T06:35:38.4977894Z Updating files:  64% (377319/584454)
+2026-11-27T06:35:39.0274220Z Updating files:  65% (379896/584454)
+2026-11-27T06:35:39.3557969Z Updating files:  66% (385740/584454)
+2026-11-27T06:35:39.3713999Z Updating files:  67% (391585/584454)
+2026-11-27T06:35:39.8069839Z Updating files:  67% (391820/584454)
+2026-11-27T06:35:40.3710931Z Updating files:  68% (397429/584454)
+2026-11-27T06:35:40.4099948Z Updating files:  68% (402979/584454)
+2026-11-27T06:35:41.3725322Z Updating files:  69% (403274/584454)
+2026-11-27T06:35:42.4428746Z Updating files:  69% (404098/584454)
+2026-11-27T06:35:43.3734733Z Updating files:  69% (406807/584454)
+2026-11-27T06:35:44.4636404Z Updating files:  69% (407176/584454)
+2026-11-27T06:35:45.4271205Z Updating files:  69% (407474/584454)
+2026-11-27T06:35:45.9771504Z Updating files:  69% (407602/584454)
+2026-11-27T06:35:46.3728004Z Updating files:  70% (409118/584454)
+2026-11-27T06:35:46.8391183Z Updating files:  70% (410961/584454)
+2026-11-27T06:35:47.1741544Z Updating files:  71% (414963/584454)
+2026-11-27T06:35:47.3710074Z Updating files:  72% (420807/584454)
+2026-11-27T06:35:47.4335672Z Updating files:  72% (424970/584454)
+2026-11-27T06:35:47.6495270Z Updating files:  73% (426652/584454)
+2026-11-27T06:35:47.8650260Z Updating files:  74% (432496/584454)
+2026-11-27T06:35:48.0809297Z Updating files:  75% (438341/584454)
+2026-11-27T06:35:48.3045689Z Updating files:  76% (444186/584454)
+2026-11-27T06:35:48.3715518Z Updating files:  77% (450030/584454)
+2026-11-27T06:35:48.5376093Z Updating files:  77% (451663/584454)
+2026-11-27T06:35:48.7505915Z Updating files:  78% (455875/584454)
+2026-11-27T06:35:49.2199796Z Updating files:  79% (461719/584454)
+2026-11-27T06:35:49.4282134Z Updating files:  80% (467564/584454)
+2026-11-27T06:35:50.0133469Z Updating files:  80% (467744/584454)
+2026-11-27T06:35:50.3724024Z Updating files:  81% (473408/584454)
+2026-11-27T06:35:51.4716476Z Updating files:  81% (473880/584454)
+2026-11-27T06:35:51.9491106Z Updating files:  81% (474166/584454)
+2026-11-27T06:35:52.3603709Z Updating files:  82% (479253/584454)
+2026-11-27T06:35:52.3730942Z Updating files:  83% (485097/584454)
+2026-11-27T06:35:53.3730254Z Updating files:  83% (485271/584454)
+2026-11-27T06:35:54.3732988Z Updating files:  83% (486804/584454)
+2026-11-27T06:35:55.7317595Z Updating files:  83% (490540/584454)
+2026-11-27T06:35:56.6297533Z Updating files:  83% (490630/584454)
+2026-11-27T06:35:57.4393389Z Updating files:  83% (490848/584454)
+2026-11-27T06:35:57.5183213Z Updating files:  83% (490869/584454)
+2026-11-27T06:35:58.3718500Z Updating files:  84% (490942/584454)
+2026-11-27T06:35:58.6874883Z Updating files:  84% (494809/584454)
+2026-11-27T06:35:59.3764734Z Updating files:  85% (496786/584454)
+2026-11-27T06:35:59.6646857Z Updating files:  85% (499896/584454)
+2026-11-27T06:36:00.1005719Z Updating files:  86% (502631/584454)
+2026-11-27T06:36:00.3709906Z Updating files:  87% (508475/584454)
+2026-11-27T06:36:00.5414039Z Updating files:  87% (510232/584454)
+2026-11-27T06:36:00.8668646Z Updating files:  88% (514320/584454)
+2026-11-27T06:36:01.3734583Z Updating files:  89% (520165/584454)
+2026-11-27T06:36:02.3735287Z Updating files:  89% (523532/584454)
+2026-11-27T06:36:02.9592920Z Updating files:  89% (524573/584454)
+2026-11-27T06:36:03.3771233Z Updating files:  90% (526009/584454)
+2026-11-27T06:36:04.2084398Z Updating files:  90% (528385/584454)
+2026-11-27T06:36:04.3710278Z Updating files:  91% (531854/584454)
+2026-11-27T06:36:04.9319590Z Updating files:  91% (535998/584454)
+2026-11-27T06:36:05.4653487Z Updating files:  92% (537698/584454)
+2026-11-27T06:36:06.3709607Z Updating files:  92% (538452/584454)
+2026-11-27T06:36:07.4312321Z Updating files:  92% (540519/584454)
+2026-11-27T06:36:08.4176933Z Updating files:  92% (540921/584454)
+2026-11-27T06:36:09.3721464Z Updating files:  92% (541679/584454)
+2026-11-27T06:36:09.9194858Z Updating files:  92% (542589/584454)
+2026-11-27T06:36:10.2569187Z Updating files:  93% (543543/584454)
+2026-11-27T06:36:10.3929783Z Updating files:  94% (549387/584454)
+2026-11-27T06:36:10.5628303Z Updating files:  94% (550830/584454)
+2026-11-27T06:36:10.8987568Z Updating files:  95% (555232/584454)
+2026-11-27T06:36:11.3719296Z Updating files:  96% (561076/584454)
+2026-11-27T06:36:12.2949499Z Updating files:  96% (562704/584454)
+2026-11-27T06:36:12.3763504Z Updating files:  97% (566921/584454)
+2026-11-27T06:36:13.3814594Z Updating files:  97% (567199/584454)
+2026-11-27T06:36:14.4203854Z Updating files:  97% (569178/584454)
+2026-11-27T06:36:15.1319515Z Updating files:  97% (569218/584454)
+2026-11-27T06:36:15.3735008Z Updating files:  98% (572765/584454)
+2026-11-27T06:36:15.9933928Z Updating files:  98% (577474/584454)
+2026-11-27T06:36:16.4218191Z Updating files:  99% (578610/584454)
+2026-11-27T06:36:17.3596881Z Updating files:  99% (579110/584454)
+2026-11-27T06:36:17.3597475Z Updating files: 100% (584454/584454)
+2026-11-27T06:36:17.3598043Z Updating files: 100% (584454/584454), done.
+2026-11-27T06:36:18.0655935Z Switched to a new branch 'feat/5.1-service-module-integration'
+2026-11-27T06:36:18.0664120Z branch 'feat/5.1-service-module-integration' set up to track 'origin/feat/5.1-service-module-integration'.
+2026-11-27T06:36:18.2298590Z ##[endgroup]
+2026-11-27T06:36:18.2441623Z [command]/usr/bin/git log -1 --format=%H
+2026-11-27T06:36:18.2442040Z ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1
+2026-11-27T06:36:18.2615177Z ##[group]Run python3 - <<'PY'
+2026-11-27T06:36:18.2615617Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:36:18.2615874Z [36;1mimport os, shutil, tempfile[0m
+2026-11-27T06:36:18.2616271Z [36;1mfor path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:[0m
+2026-11-27T06:36:18.2616689Z [36;1m    disk = shutil.disk_usage(path)[0m
+2026-11-27T06:36:18.2617238Z [36;1m    assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10, (path, disk)[0m
+2026-11-27T06:36:18.2617876Z [36;1mPY[0m
+2026-11-27T06:36:18.3139151Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:18.3139580Z ##[endgroup]
+2026-11-27T06:36:18.3716910Z ##[group]Run ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+2026-11-27T06:36:18.3717615Z [36;1m./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \[0m
+2026-11-27T06:36:18.3718188Z [36;1m  libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \[0m
+2026-11-27T06:36:18.3718608Z [36;1m  libsdl2-ttf-dev libutf8proc-dev[0m
+2026-11-27T06:36:18.3750966Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:18.3751319Z ##[endgroup]
+2026-11-27T06:36:18.3911772Z apt install attempt 1/3 (timeout 420s): build-essential pkg-config libssl-dev libffi-dev libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev
+2026-11-27T06:36:18.3984034Z sudo: preserving the entire environment is not supported, '-E' is ignored
+2026-11-27T06:36:23.4202783Z sudo: preserving the entire environment is not supported, '-E' is ignored
+2026-11-27T06:36:23.4399581Z Reading package lists...
+2026-11-27T06:36:23.6034876Z Building dependency tree...
+2026-11-27T06:36:23.6055466Z Reading state information...
+2026-11-27T06:36:23.6399073Z pkg-config is already the newest version (2.5.1-4).
+2026-11-27T06:36:23.6399975Z libssl-dev is already the newest version (3.5.5-1ubuntu3.7).
+2026-11-27T06:36:23.6400647Z libffi-dev is already the newest version (3.5.2-4).
+2026-11-27T06:36:23.6401254Z libffi-dev set to manually installed.
+2026-11-27T06:36:23.7065225Z Solving dependencies...
+2026-11-27T06:36:23.7915994Z The following additional packages will be installed:
+2026-11-27T06:36:23.7916868Z   bzip2-doc flac gir1.2-freedesktop gir1.2-freedesktop-dev gir1.2-glib-2.0-dev
+2026-11-27T06:36:23.7917805Z   gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 girepository-tools libasound2-data
+2026-11-27T06:36:23.7918686Z   libasound2-dev libasound2t64 libasyncns0 libblkid-dev libbrotli-dev
+2026-11-27T06:36:23.7919632Z   libbz2-dev libdbus-1-dev libdecor-0-0 libdecor-0-dev libdecor-0-plugin-1-gtk
+2026-11-27T06:36:23.7920569Z   libdeflate-dev libdrm-dev libdrm-nouveau2 libdrm-radeon1 libegl-dev
+2026-11-27T06:36:23.7921456Z   libegl-mesa0 libegl1 libfftw3-single3 libflac++11 libflac-dev libflac14
+2026-11-27T06:36:23.7922392Z   libfluidsynth3 libfreetype-dev libgbm-dev libgio-2.0-dev libgio-2.0-dev-bin
+2026-11-27T06:36:23.7923476Z   libgl-dev libgles-dev libgles1 libgles2 libglib2.0-dev libglib2.0-dev-bin
+2026-11-27T06:36:23.7924165Z   libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+2026-11-27T06:36:23.7924930Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+2026-11-27T06:36:23.7925719Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libjack-jackd2-0 libjbig-dev
+2026-11-27T06:36:23.7926488Z   libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev libmount-dev
+2026-11-27T06:36:23.7927333Z   libmp3lame0 libmpg123-0t64 libmpg123-dev libogg-dev libopus-dev libopus0
+2026-11-27T06:36:23.7928216Z   libopusfile-dev libopusfile0 libout123-0t64 libpciaccess-dev
+2026-11-27T06:36:23.7929052Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpng-dev libpng-tools
+2026-11-27T06:36:23.7929908Z   libpulse-dev libpulse-mainloop-glib0 libpulse0 libsamplerate0
+2026-11-27T06:36:23.7930722Z   libsamplerate0-dev libsdl2-2.0-0 libsdl2-classic libsdl2-image-2.0-0
+2026-11-27T06:36:23.7931344Z   libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0 libsdl3-0 libselinux-dev libsepol-dev
+2026-11-27T06:36:23.7931916Z   libsharpyuv-dev libsm-dev libsndfile1 libsndio-dev libsndio7.0
+2026-11-27T06:36:23.7932692Z   libspa-0.2-modules libsqlite3-0 libsyn123-0t64 libsysprof-capture-4-dev
+2026-11-27T06:36:23.7933349Z   libsystemd-dev libtiff-dev libtiff6 libtiffxx6 libudev-dev libutf8proc3
+2026-11-27T06:36:23.7933966Z   libvorbis-dev libvorbisenc2 libwayland-bin libwayland-dev libwayland-server0
+2026-11-27T06:36:23.7934642Z   libwebp-dev libwebpdecoder3 libwebrtc-audio-processing-1-3 libx11-dev
+2026-11-27T06:36:23.7935537Z   libxau-dev libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev libxfixes-dev
+2026-11-27T06:36:23.7936764Z   libxi-dev libxi6 libxinerama-dev libxkbcommon-dev libxmp-dev libxmp4
+2026-11-27T06:36:23.7937261Z   libxrandr-dev libxrender-dev libxrender1 libxss-dev libxt-dev libxv-dev
+2026-11-27T06:36:23.7937751Z   libxv1 libxxf86vm-dev native-architecture sqlite3 timgm6mb-soundfont
+2026-11-27T06:36:23.7938171Z   uuid-dev x11proto-dev xorg-sgml-doctools xtrans-dev
+2026-11-27T06:36:23.7938492Z Suggested packages:
+2026-11-27T06:36:23.7938829Z   libasound2-doc libfftw3-bin libfftw3-dev freetype2-doc libglib2.0-doc
+2026-11-27T06:36:23.7939309Z   libgdk-pixbuf2.0-bin libxml2-utils libgraphite2-utils libice-doc jackd2
+2026-11-27T06:36:23.7939761Z   opus-tools pipewire pulseaudio libayatana-appindicator3-1
+2026-11-27T06:36:23.7940221Z   | libappindicator3-1 libopengl0 libsm-doc sndiod libwayland-doc libx11-doc
+2026-11-27T06:36:23.7940659Z   libxcb-doc libxext-doc libxt-doc fluid-soundfont-gm
+2026-11-27T06:36:23.8863284Z The following NEW packages will be installed:
+2026-11-27T06:36:23.8864051Z   build-essential bzip2-doc flac gir1.2-freedesktop gir1.2-freedesktop-dev
+2026-11-27T06:36:23.8864874Z   gir1.2-glib-2.0-dev gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 girepository-tools
+2026-11-27T06:36:23.8865671Z   libasound2-dev libasyncns0 libblkid-dev libbrotli-dev libbz2-dev
+2026-11-27T06:36:23.8866413Z   libdbus-1-dev libdecor-0-0 libdecor-0-dev libdecor-0-plugin-1-gtk
+2026-11-27T06:36:23.8867183Z   libdeflate-dev libdrm-dev libdrm-nouveau2 libdrm-radeon1 libegl-dev
+2026-11-27T06:36:23.8868094Z   libegl-mesa0 libegl1 libfftw3-single3 libflac++11 libflac-dev libflac14
+2026-11-27T06:36:23.8869104Z   libfluidsynth3 libfreetype-dev libgbm-dev libgio-2.0-dev libgio-2.0-dev-bin
+2026-11-27T06:36:23.8870107Z   libgl-dev libgles-dev libgles1 libgles2 libglib2.0-dev libglib2.0-dev-bin
+2026-11-27T06:36:23.8870998Z   libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+2026-11-27T06:36:23.8871763Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+2026-11-27T06:36:23.8872887Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libjack-jackd2-0 libjbig-dev
+2026-11-27T06:36:23.8873775Z   libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev libmount-dev
+2026-11-27T06:36:23.8874537Z   libmp3lame0 libmpg123-0t64 libmpg123-dev libogg-dev libopus-dev libopus0
+2026-11-27T06:36:23.8875265Z   libopusfile-dev libopusfile0 libout123-0t64 libpciaccess-dev
+2026-11-27T06:36:23.8875951Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpng-dev libpng-tools
+2026-11-27T06:36:23.8876628Z   libpulse-dev libpulse-mainloop-glib0 libpulse0 libsamplerate0
+2026-11-27T06:36:23.8877312Z   libsamplerate0-dev libsdl2-2.0-0 libsdl2-classic libsdl2-dev
+2026-11-27T06:36:23.8878102Z   libsdl2-image-2.0-0 libsdl2-image-dev libsdl2-mixer-2.0-0 libsdl2-mixer-dev
+2026-11-27T06:36:23.8878946Z   libsdl2-ttf-2.0-0 libsdl2-ttf-dev libsdl3-0 libselinux-dev libsepol-dev
+2026-11-27T06:36:23.8879731Z   libsharpyuv-dev libsm-dev libsndfile1 libsndio-dev libsndio7.0
+2026-11-27T06:36:23.8880558Z   libspa-0.2-modules libsyn123-0t64 libsysprof-capture-4-dev libsystemd-dev
+2026-11-27T06:36:23.8881440Z   libtiff-dev libtiffxx6 libudev-dev libutf8proc-dev libutf8proc3
+2026-11-27T06:36:23.8882288Z   libvorbis-dev libvorbisenc2 libwayland-bin libwayland-dev libwayland-server0
+2026-11-27T06:36:23.8883317Z   libwebp-dev libwebpdecoder3 libwebrtc-audio-processing-1-3 libx11-dev
+2026-11-27T06:36:23.8884171Z   libxau-dev libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev libxfixes-dev
+2026-11-27T06:36:23.8885132Z   libxi-dev libxinerama-dev libxkbcommon-dev libxmp-dev libxmp4 libxrandr-dev
+2026-11-27T06:36:23.8885993Z   libxrender-dev libxss-dev libxt-dev libxv-dev libxv1 libxxf86vm-dev
+2026-11-27T06:36:23.8886795Z   native-architecture timgm6mb-soundfont uuid-dev x11proto-dev
+2026-11-27T06:36:23.8887394Z   xorg-sgml-doctools xtrans-dev
+2026-11-27T06:36:23.8887827Z The following packages will be upgraded:
+2026-11-27T06:36:23.8892401Z   libasound2-data libasound2t64 libsqlite3-0 libsqlite3-dev libtiff6 libxi6
+2026-11-27T06:36:23.8896153Z   libxrender1 sqlite3
+2026-11-27T06:36:23.9185629Z 8 upgraded, 136 newly installed, 0 to remove and 30 not upgraded.
+2026-11-27T06:36:23.9186289Z Need to get 40.5 MB of archives.
+2026-11-27T06:36:23.9186852Z After this operation, 124 MB of additional disk space will be used.
+2026-11-27T06:36:23.9187567Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-27T06:36:23.9438374Z Get:2 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libsqlite3-dev amd64 3.46.1-9ubuntu0.4 [937 kB]
+2026-11-27T06:36:23.9515899Z Get:3 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 sqlite3 amd64 3.46.1-9ubuntu0.4 [149 kB]
+2026-11-27T06:36:23.9543638Z Get:4 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libsqlite3-0 amd64 3.46.1-9ubuntu0.4 [723 kB]
+2026-11-27T06:36:23.9661441Z Get:5 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 build-essential amd64 12.12ubuntu2.26.04.2 [5172 B]
+2026-11-27T06:36:23.9669427Z Get:6 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 bzip2-doc all 1.0.8-6ubuntu0.1 [498 kB]
+2026-11-27T06:36:23.9730651Z Get:7 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libflac14 amd64 1.5.0+ds-5 [172 kB]
+2026-11-27T06:36:23.9754131Z Get:8 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 flac amd64 1.5.0+ds-5 [147 kB]
+2026-11-27T06:36:23.9774577Z Get:9 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 gir1.2-freedesktop amd64 1.86.0-6build1 [66.0 kB]
+2026-11-27T06:36:23.9791834Z Get:10 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 gir1.2-glib-2.0-dev amd64 2.88.0-1ubuntu0.1 [867 kB]
+2026-11-27T06:36:23.9863827Z Get:11 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 gir1.2-freedesktop-dev amd64 1.86.0-6build1 [37.0 kB]
+2026-11-27T06:36:23.9873840Z Get:12 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libharfbuzz-gobject0 amd64 12.3.2-2 [33.3 kB]
+2026-11-27T06:36:23.9885898Z Get:13 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 gir1.2-harfbuzz-0.0 amd64 12.3.2-2 [44.6 kB]
+2026-11-27T06:36:23.9894912Z Get:14 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libibus-1.0-5 amd64 1.5.34~rc2-1ubuntu0.1 [182 kB]
+2026-11-27T06:36:23.9916792Z Get:15 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 gir1.2-ibus-1.0 amd64 1.5.34~rc2-1ubuntu0.1 [87.4 kB]
+2026-11-27T06:36:23.9941015Z Get:16 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 native-architecture all 0.2.6build1 [2256 B]
+2026-11-27T06:36:23.9956710Z Get:17 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 girepository-tools amd64 2.88.0-1ubuntu0.1 [111 kB]
+2026-11-27T06:36:23.9981137Z Get:18 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libasound2t64 amd64 1.2.15.3-1ubuntu1.2 [418 kB]
+2026-11-27T06:36:24.0016052Z Get:19 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libasound2-data all 1.2.15.3-1ubuntu1.2 [19.7 kB]
+2026-11-27T06:36:24.0467600Z Get:20 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libasound2-dev amd64 1.2.15.3-1ubuntu1.2 [121 kB]
+2026-11-27T06:36:24.0483575Z Get:21 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libasyncns0 amd64 0.8-7 [12.5 kB]
+2026-11-27T06:36:24.0492999Z Get:22 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libbrotli-dev amd64 1.2.0-3ubuntu0.1 [371 kB]
+2026-11-27T06:36:24.0537271Z Get:23 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libbz2-dev amd64 1.0.8-6ubuntu0.1 [37.2 kB]
+2026-11-27T06:36:24.0545331Z Get:24 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libsystemd-dev amd64 259.9-0ubuntu0.1 [1370 kB]
+2026-11-27T06:36:24.0684973Z Get:25 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdbus-1-dev amd64 1.16.2-2ubuntu4 [190 kB]
+2026-11-27T06:36:24.0734026Z Get:26 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdecor-0-0 amd64 0.2.5-1 [16.5 kB]
+2026-11-27T06:36:24.0743475Z Get:27 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwayland-server0 amd64 1.24.0-2 [36.0 kB]
+2026-11-27T06:36:24.0755645Z Get:28 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwayland-bin amd64 1.24.0-2 [22.0 kB]
+2026-11-27T06:36:24.0775538Z Get:29 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwayland-dev amd64 1.24.0-2 [75.8 kB]
+2026-11-27T06:36:24.0786616Z Get:30 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdecor-0-dev amd64 0.2.5-1 [5732 B]
+2026-11-27T06:36:24.0795183Z Get:31 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdecor-0-plugin-1-gtk amd64 0.2.5-1 [22.7 kB]
+2026-11-27T06:36:24.0825826Z Get:32 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdeflate-dev amd64 1.23-2ubuntu1 [55.8 kB]
+2026-11-27T06:36:24.0849680Z Get:33 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdrm-radeon1 amd64 2.4.131-1 [21.4 kB]
+2026-11-27T06:36:24.0858526Z Get:34 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdrm-nouveau2 amd64 2.4.131-1 [18.9 kB]
+2026-11-27T06:36:24.0867153Z Get:35 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libpciaccess-dev amd64 0.18.1-1ubuntu4.1 [22.3 kB]
+2026-11-27T06:36:24.0875420Z Get:36 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libdrm-dev amd64 2.4.131-1 [323 kB]
+2026-11-27T06:36:24.0908241Z Get:37 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libegl-mesa0 amd64 26.0.8-1ubuntu0.3 [134 kB]
+2026-11-27T06:36:24.0933761Z Get:38 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libegl1 amd64 1.7.0-3 [29.8 kB]
+2026-11-27T06:36:24.1387754Z Get:39 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 xorg-sgml-doctools all 1:1.11-1.1build1 [10.3 kB]
+2026-11-27T06:36:24.1395985Z Get:40 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 x11proto-dev all 2025.1-1 [608 kB]
+2026-11-27T06:36:24.1434750Z Get:41 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxau-dev amd64 1:1.0.11-1build2 [9780 B]
+2026-11-27T06:36:24.1442347Z Get:42 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxdmcp-dev amd64 1:1.1.5-2 [25.7 kB]
+2026-11-27T06:36:24.1453882Z Get:43 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 xtrans-dev all 1.6.0-1build1 [66.2 kB]
+2026-11-27T06:36:24.1470045Z Get:44 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxcb1-dev amd64 1.17.0-2ubuntu1 [86.4 kB]
+2026-11-27T06:36:24.1481517Z Get:45 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libx11-dev amd64 2:1.8.13-1ubuntu0.1 [743 kB]
+2026-11-27T06:36:24.1532660Z Get:46 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libglx-dev amd64 1.7.0-3 [14.1 kB]
+2026-11-27T06:36:24.1539631Z Get:47 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libgl-dev amd64 1.7.0-3 [103 kB]
+2026-11-27T06:36:24.1553634Z Get:48 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libegl-dev amd64 1.7.0-3 [18.2 kB]
+2026-11-27T06:36:24.1563425Z Get:49 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libfftw3-single3 amd64 3.3.10-2fakesync1build3 [865 kB]
+2026-11-27T06:36:24.1614236Z Get:50 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libflac++11 amd64 1.5.0+ds-5 [39.5 kB]
+2026-11-27T06:36:24.1622971Z Get:51 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libogg-dev amd64 1.3.6-2 [169 kB]
+2026-11-27T06:36:24.1637738Z Get:52 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libflac-dev amd64 1.5.0+ds-5 [282 kB]
+2026-11-27T06:36:24.1660576Z Get:53 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libmpg123-0t64 amd64 1.33.3-2 [180 kB]
+2026-11-27T06:36:24.1677776Z Get:54 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libmp3lame0 amd64 3.101~svn6525+dfsg-2ubuntu0.1 [123 kB]
+2026-11-27T06:36:24.1693272Z Get:55 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libopus0 amd64 1.6.1-1 [3557 kB]
+2026-11-27T06:36:24.2510783Z Get:56 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libvorbisenc2 amd64 1.3.7-3build2 [79.9 kB]
+2026-11-27T06:36:24.2523329Z Get:57 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsndfile1 amd64 1.2.2-4 [229 kB]
+2026-11-27T06:36:24.2982114Z Get:58 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libinstpatch-1.0-2 amd64 1.1.7-1.1 [253 kB]
+2026-11-27T06:36:24.3017280Z Get:59 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsamplerate0 amd64 0.2.2-4build2 [1342 kB]
+2026-11-27T06:36:24.3201493Z Get:60 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libjack-jackd2-0 amd64 1.9.22~dfsg-5build1 [294 kB]
+2026-11-27T06:36:24.3237120Z Get:61 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwebrtc-audio-processing-1-3 amd64 1.3-3build2 [416 kB]
+2026-11-27T06:36:24.3296300Z Get:62 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libspa-0.2-modules amd64 1.6.2-1ubuntu1.3 [1163 kB]
+2026-11-27T06:36:24.3403225Z Get:63 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libpipewire-0.3-0t64 amd64 1.6.2-1ubuntu1.3 [302 kB]
+2026-11-27T06:36:24.3440354Z Get:64 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libpulse0 amd64 1:17.0+dfsg1-2ubuntu4 [295 kB]
+2026-11-27T06:36:24.3480323Z Get:65 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libxi6 amd64 2:1.8.2-2ubuntu0.26.04.1 [34.2 kB]
+2026-11-27T06:36:24.3491101Z Get:66 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl3-0 amd64 3.4.2+ds-1ubuntu1 [1155 kB]
+2026-11-27T06:36:24.3652448Z Get:67 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 timgm6mb-soundfont all 1.3-5build1 [5577 kB]
+2026-11-27T06:36:24.4869746Z Get:68 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libfluidsynth3 amd64 2.4.8+dfsg-1 [273 kB]
+2026-11-27T06:36:24.4899270Z Get:69 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libpng-dev amd64 1.6.57-1ubuntu0.1 [276 kB]
+2026-11-27T06:36:24.4931329Z Get:70 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libfreetype-dev amd64 2.14.2+dfsg-1ubuntu0.2 [591 kB]
+2026-11-27T06:36:24.4995054Z Get:71 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libgbm-dev amd64 26.0.8-1ubuntu0.3 [12.0 kB]
+2026-11-27T06:36:24.5005456Z Get:72 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 uuid-dev amd64 2.41.3-3ubuntu2.2 [49.1 kB]
+2026-11-27T06:36:24.5033371Z Get:73 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libblkid-dev amd64 2.41.3-3ubuntu2.2 [227 kB]
+2026-11-27T06:36:24.5052690Z Get:74 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsepol-dev amd64 3.9-2 [410 kB]
+2026-11-27T06:36:24.5106133Z Get:75 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libselinux-dev amd64 3.9-4build1 [177 kB]
+2026-11-27T06:36:24.5542167Z Get:76 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libmount-dev amd64 2.41.3-3ubuntu2.2 [29.3 kB]
+2026-11-27T06:36:24.5552054Z Get:77 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsysprof-capture-4-dev amd64 50.0-1 [52.1 kB]
+2026-11-27T06:36:24.5563981Z Get:78 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libgio-2.0-dev amd64 2.88.0-1ubuntu0.1 [1830 kB]
+2026-11-27T06:36:24.5812827Z Get:79 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libgio-2.0-dev-bin amd64 2.88.0-1ubuntu0.1 [130 kB]
+2026-11-27T06:36:24.5829788Z Get:80 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libgles1 amd64 1.7.0-3 [11.5 kB]
+2026-11-27T06:36:24.5837923Z Get:81 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libgles2 amd64 1.7.0-3 [17.5 kB]
+2026-11-27T06:36:24.5846847Z Get:82 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libgles-dev amd64 1.7.0-3 [50.6 kB]
+2026-11-27T06:36:24.5858750Z Get:83 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libglib2.0-dev-bin amd64 2.88.0-1ubuntu0.1 [18.1 kB]
+2026-11-27T06:36:24.5867750Z Get:84 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libglib2.0-dev amd64 2.88.0-1ubuntu0.1 [18.8 kB]
+2026-11-27T06:36:24.5878463Z Get:85 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libgraphite2-dev amd64 1.3.14-11ubuntu1.1 [14.7 kB]
+2026-11-27T06:36:24.5886867Z Get:86 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libharfbuzz-cairo0 amd64 12.3.2-2 [25.6 kB]
+2026-11-27T06:36:24.5897155Z Get:87 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libharfbuzz-icu0 amd64 12.3.2-2 [11.8 kB]
+2026-11-27T06:36:24.5905981Z Get:88 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libharfbuzz-subset0 amd64 12.3.2-2 [497 kB]
+2026-11-27T06:36:24.5944688Z Get:89 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libharfbuzz-dev amd64 12.3.2-2 [147 kB]
+2026-11-27T06:36:24.5969555Z Get:90 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libibus-1.0-dev amd64 1.5.34~rc2-1ubuntu0.1 [194 kB]
+2026-11-27T06:36:24.5986674Z Get:91 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libice-dev amd64 2:1.1.1-1build1 [53.7 kB]
+2026-11-27T06:36:24.5996228Z Get:92 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libjpeg-turbo8-dev amd64 2.1.5-4ubuntu4 [310 kB]
+2026-11-27T06:36:24.6018883Z Get:93 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libjpeg8-dev amd64 8c-2ubuntu12 [1490 B]
+2026-11-27T06:36:24.6025423Z Get:94 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libjpeg-dev amd64 8c-2ubuntu12 [1492 B]
+2026-11-27T06:36:24.6463399Z Get:95 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 liblerc-dev amd64 4.0.0+ds-5ubuntu2 [220 kB]
+2026-11-27T06:36:24.6483398Z Get:96 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libout123-0t64 amd64 1.33.3-2 [32.5 kB]
+2026-11-27T06:36:24.6493029Z Get:97 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsyn123-0t64 amd64 1.33.3-2 [107 kB]
+2026-11-27T06:36:24.6508546Z Get:98 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libmpg123-dev amd64 1.33.3-2 [61.7 kB]
+2026-11-27T06:36:24.6519825Z Get:99 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libopus-dev amd64 1.6.1-1 [3645 kB]
+2026-11-27T06:36:24.7319934Z Get:100 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libopusfile0 amd64 0.12-4build4 [46.1 kB]
+2026-11-27T06:36:24.7329051Z Get:101 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libopusfile-dev amd64 0.12-4build4 [64.8 kB]
+2026-11-27T06:36:24.7340962Z Get:102 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libpipewire-0.3-common all 1.6.2-1ubuntu1.3 [12.3 kB]
+2026-11-27T06:36:24.7400399Z Get:103 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libpng-tools amd64 1.6.57-1ubuntu0.1 [28.8 kB]
+2026-11-27T06:36:24.7413365Z Get:104 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libpulse-mainloop-glib0 amd64 1:17.0+dfsg1-2ubuntu4 [12.6 kB]
+2026-11-27T06:36:24.7424117Z Get:105 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libpulse-dev amd64 1:17.0+dfsg1-2ubuntu4 [75.5 kB]
+2026-11-27T06:36:24.7443624Z Get:106 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsamplerate0-dev amd64 0.2.2-4build2 [61.5 kB]
+2026-11-27T06:36:24.7459908Z Get:107 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsdl2-classic amd64 2.32.10+dfsg-6 [716 kB]
+2026-11-27T06:36:24.7538232Z Get:108 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsdl2-2.0-0 amd64 2.32.10+dfsg-6 [14.0 kB]
+2026-11-27T06:36:24.7548688Z Get:109 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsndio7.0 amd64 1.10.0-0.2 [31.3 kB]
+2026-11-27T06:36:24.7559259Z Get:110 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsndio-dev amd64 1.10.0-0.2 [24.0 kB]
+2026-11-27T06:36:24.7570337Z Get:111 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libudev-dev amd64 259.9-0ubuntu0.1 [22.0 kB]
+2026-11-27T06:36:24.7581967Z Get:112 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libxrender1 amd64 1:0.9.12-1ubuntu0.26.04.1 [19.7 kB]
+2026-11-27T06:36:24.7594810Z Get:113 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libxrender-dev amd64 1:0.9.12-1ubuntu0.26.04.1 [29.7 kB]
+2026-11-27T06:36:24.7608729Z Get:114 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxfixes-dev amd64 1:6.0.0-2build2 [12.5 kB]
+2026-11-27T06:36:24.7620294Z Get:115 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxcursor-dev amd64 1:1.2.3-1build1 [33.3 kB]
+2026-11-27T06:36:24.7633864Z Get:116 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxext-dev amd64 2:1.3.4-1build3 [84.0 kB]
+2026-11-27T06:36:24.7648593Z Get:117 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libxi-dev amd64 2:1.8.2-2ubuntu0.26.04.1 [196 kB]
+2026-11-27T06:36:24.7675614Z Get:118 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxinerama-dev amd64 2:1.1.4-3build2 [8036 B]
+2026-11-27T06:36:24.7685727Z Get:119 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxkbcommon-dev amd64 1.13.1-1 [63.9 kB]
+2026-11-27T06:36:24.7701170Z Get:120 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxrandr-dev amd64 2:1.5.4-1build1 [26.6 kB]
+2026-11-27T06:36:24.8187036Z Get:121 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxss-dev amd64 1:1.2.3-1build4 [12.3 kB]
+2026-11-27T06:36:24.8197042Z Get:122 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsm-dev amd64 2:1.2.6-1build1 [18.8 kB]
+2026-11-27T06:36:24.8208206Z Get:123 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxt-dev amd64 1:1.2.1-1.3build1 [397 kB]
+2026-11-27T06:36:24.8256224Z Get:124 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxv1 amd64 2:1.0.13-1 [11.0 kB]
+2026-11-27T06:36:24.8267059Z Get:125 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxv-dev amd64 2:1.0.13-1 [33.2 kB]
+2026-11-27T06:36:24.8277345Z Get:126 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libxxf86vm-dev amd64 1:1.1.4-2 [14.3 kB]
+2026-11-27T06:36:24.8287358Z Get:127 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-dev amd64 2.32.10+dfsg-6 [1174 kB]
+2026-11-27T06:36:24.8408587Z Get:128 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libtiff6 amd64 4.7.0-3ubuntu5.1 [209 kB]
+2026-11-27T06:36:24.8430887Z Get:129 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-image-2.0-0 amd64 2.8.8+dfsg-2 [67.9 kB]
+2026-11-27T06:36:24.8445691Z Get:130 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libjbig-dev amd64 2.1-6.1ubuntu3 [28.3 kB]
+2026-11-27T06:36:24.8456064Z Get:131 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwebpdecoder3 amd64 1.5.0-0.1build1 [144 kB]
+2026-11-27T06:36:24.8478024Z Get:132 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libsharpyuv-dev amd64 1.5.0-0.1build1 [19.5 kB]
+2026-11-27T06:36:24.8491110Z Get:133 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libwebp-dev amd64 1.5.0-0.1build1 [410 kB]
+2026-11-27T06:36:24.8530863Z Get:134 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libtiffxx6 amd64 4.7.0-3ubuntu5.1 [5786 B]
+2026-11-27T06:36:24.8540645Z Get:135 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 libtiff-dev amd64 4.7.0-3ubuntu5.1 [361 kB]
+2026-11-27T06:36:24.8588590Z Get:136 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-image-dev amd64 2.8.8+dfsg-2 [13.6 kB]
+2026-11-27T06:36:24.8598112Z Get:137 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libxmp4 amd64 4.6.3-1 [319 kB]
+2026-11-27T06:36:24.8641371Z Get:138 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-mixer-2.0-0 amd64 2.8.1+dfsg-5 [88.4 kB]
+2026-11-27T06:36:24.8661746Z Get:139 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 libvorbis-dev amd64 1.3.7-3build2 [347 kB]
+2026-11-27T06:36:24.9147159Z Get:140 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libxmp-dev amd64 4.6.3-1 [75.7 kB]
+2026-11-27T06:36:24.9164997Z Get:141 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-mixer-dev amd64 2.8.1+dfsg-5 [39.9 kB]
+2026-11-27T06:36:24.9178767Z Get:142 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-ttf-2.0-0 amd64 2.24.0+dfsg-3 [39.4 kB]
+2026-11-27T06:36:24.9190572Z Get:143 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libsdl2-ttf-dev amd64 2.24.0+dfsg-3 [26.7 kB]
+2026-11-27T06:36:24.9203062Z Get:144 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libutf8proc3 amd64 2.10.0-2 [71.7 kB]
+2026-11-27T06:36:24.9216913Z Get:145 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 libutf8proc-dev amd64 2.10.0-2 [74.6 kB]
+2026-11-27T06:36:25.3533198Z Fetched 40.5 MB in 1s (39.7 MB/s)
+2026-11-27T06:36:26.1940432Z (Reading database ... 214389 files and directories currently installed.)
+2026-11-27T06:36:26.1982771Z Preparing to unpack .../000-libsqlite3-dev_3.46.1-9ubuntu0.4_amd64v3.deb ...
+2026-11-27T06:36:26.2023474Z Unpacking libsqlite3-dev:amd64 (3.46.1-9ubuntu0.4) over (3.46.1-9ubuntu0.3) ...
+2026-11-27T06:36:26.2594299Z Preparing to unpack .../001-sqlite3_3.46.1-9ubuntu0.4_amd64v3.deb ...
+2026-11-27T06:36:26.2616500Z Unpacking sqlite3 (3.46.1-9ubuntu0.4) over (3.46.1-9ubuntu0.3) ...
+2026-11-27T06:36:26.3076406Z Preparing to unpack .../002-libsqlite3-0_3.46.1-9ubuntu0.4_amd64v3.deb ...
+2026-11-27T06:36:26.3259807Z Unpacking libsqlite3-0:amd64 (3.46.1-9ubuntu0.4) over (3.46.1-9ubuntu0.3) ...
+2026-11-27T06:36:26.3576464Z Selecting previously unselected package build-essential.
+2026-11-27T06:36:26.3718269Z Preparing to unpack .../003-build-essential_12.12ubuntu2.26.04.2_amd64v3.deb ...
+2026-11-27T06:36:26.3753784Z Unpacking build-essential (12.12ubuntu2.26.04.2) ...
+2026-11-27T06:36:26.3991376Z Selecting previously unselected package bzip2-doc.
+2026-11-27T06:36:26.4129402Z Preparing to unpack .../004-bzip2-doc_1.0.8-6ubuntu0.1_all.deb ...
+2026-11-27T06:36:26.4137601Z Unpacking bzip2-doc (1.0.8-6ubuntu0.1) ...
+2026-11-27T06:36:26.4414586Z Selecting previously unselected package libflac14:amd64.
+2026-11-27T06:36:26.4553365Z Preparing to unpack .../005-libflac14_1.5.0+ds-5_amd64v3.deb ...
+2026-11-27T06:36:26.4561600Z Unpacking libflac14:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:26.4802744Z Selecting previously unselected package flac.
+2026-11-27T06:36:26.4941671Z Preparing to unpack .../006-flac_1.5.0+ds-5_amd64v3.deb ...
+2026-11-27T06:36:26.4949140Z Unpacking flac (1.5.0+ds-5) ...
+2026-11-27T06:36:26.5209945Z Selecting previously unselected package gir1.2-freedesktop:amd64.
+2026-11-27T06:36:26.5349407Z Preparing to unpack .../007-gir1.2-freedesktop_1.86.0-6build1_amd64v3.deb ...
+2026-11-27T06:36:26.5357791Z Unpacking gir1.2-freedesktop:amd64 (1.86.0-6build1) ...
+2026-11-27T06:36:26.5590770Z Selecting previously unselected package gir1.2-glib-2.0-dev:amd64.
+2026-11-27T06:36:26.5729709Z Preparing to unpack .../008-gir1.2-glib-2.0-dev_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:26.5737361Z Unpacking gir1.2-glib-2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:26.6306704Z Selecting previously unselected package gir1.2-freedesktop-dev:amd64.
+2026-11-27T06:36:26.6444354Z Preparing to unpack .../009-gir1.2-freedesktop-dev_1.86.0-6build1_amd64v3.deb ...
+2026-11-27T06:36:26.6451832Z Unpacking gir1.2-freedesktop-dev:amd64 (1.86.0-6build1) ...
+2026-11-27T06:36:26.6696760Z Selecting previously unselected package libharfbuzz-gobject0:amd64.
+2026-11-27T06:36:26.6836919Z Preparing to unpack .../010-libharfbuzz-gobject0_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:26.6845651Z Unpacking libharfbuzz-gobject0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:26.7069300Z Selecting previously unselected package gir1.2-harfbuzz-0.0:amd64.
+2026-11-27T06:36:26.7210011Z Preparing to unpack .../011-gir1.2-harfbuzz-0.0_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:26.7217815Z Unpacking gir1.2-harfbuzz-0.0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:26.7440924Z Selecting previously unselected package libibus-1.0-5:amd64.
+2026-11-27T06:36:26.7578187Z Preparing to unpack .../012-libibus-1.0-5_1.5.34~rc2-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:26.7586720Z Unpacking libibus-1.0-5:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:26.7817283Z Selecting previously unselected package gir1.2-ibus-1.0:amd64.
+2026-11-27T06:36:26.7954424Z Preparing to unpack .../013-gir1.2-ibus-1.0_1.5.34~rc2-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:26.7961953Z Unpacking gir1.2-ibus-1.0:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:26.8180752Z Selecting previously unselected package native-architecture.
+2026-11-27T06:36:26.8317455Z Preparing to unpack .../014-native-architecture_0.2.6build1_all.deb ...
+2026-11-27T06:36:26.8324895Z Unpacking native-architecture (0.2.6build1) ...
+2026-11-27T06:36:26.8528322Z Selecting previously unselected package girepository-tools:amd64.
+2026-11-27T06:36:26.8666600Z Preparing to unpack .../015-girepository-tools_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:26.8677512Z Unpacking girepository-tools:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:26.9093502Z Preparing to unpack .../016-libasound2t64_1.2.15.3-1ubuntu1.2_amd64v3.deb ...
+2026-11-27T06:36:26.9119539Z Unpacking libasound2t64:amd64 (1.2.15.3-1ubuntu1.2) over (1.2.15.3-1ubuntu1.1) ...
+2026-11-27T06:36:26.9579440Z Preparing to unpack .../017-libasound2-data_1.2.15.3-1ubuntu1.2_all.deb ...
+2026-11-27T06:36:26.9599245Z Unpacking libasound2-data (1.2.15.3-1ubuntu1.2) over (1.2.15.3-1ubuntu1.1) ...
+2026-11-27T06:36:26.9995107Z Selecting previously unselected package libasound2-dev:amd64.
+2026-11-27T06:36:27.0133770Z Preparing to unpack .../018-libasound2-dev_1.2.15.3-1ubuntu1.2_amd64v3.deb ...
+2026-11-27T06:36:27.0172002Z Unpacking libasound2-dev:amd64 (1.2.15.3-1ubuntu1.2) ...
+2026-11-27T06:36:27.0497639Z Selecting previously unselected package libasyncns0:amd64.
+2026-11-27T06:36:27.0637331Z Preparing to unpack .../019-libasyncns0_0.8-7_amd64v3.deb ...
+2026-11-27T06:36:27.0644588Z Unpacking libasyncns0:amd64 (0.8-7) ...
+2026-11-27T06:36:27.0871379Z Selecting previously unselected package libbrotli-dev:amd64.
+2026-11-27T06:36:27.1008797Z Preparing to unpack .../020-libbrotli-dev_1.2.0-3ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:27.1015883Z Unpacking libbrotli-dev:amd64 (1.2.0-3ubuntu0.1) ...
+2026-11-27T06:36:27.1289888Z Selecting previously unselected package libbz2-dev:amd64.
+2026-11-27T06:36:27.1427168Z Preparing to unpack .../021-libbz2-dev_1.0.8-6ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:27.1435228Z Unpacking libbz2-dev:amd64 (1.0.8-6ubuntu0.1) ...
+2026-11-27T06:36:27.1649573Z Selecting previously unselected package libsystemd-dev:amd64.
+2026-11-27T06:36:27.1784986Z Preparing to unpack .../022-libsystemd-dev_259.9-0ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:27.1792169Z Unpacking libsystemd-dev:amd64 (259.9-0ubuntu0.1) ...
+2026-11-27T06:36:27.2860261Z Selecting previously unselected package libdbus-1-dev:amd64.
+2026-11-27T06:36:27.3001723Z Preparing to unpack .../023-libdbus-1-dev_1.16.2-2ubuntu4_amd64v3.deb ...
+2026-11-27T06:36:27.3009597Z Unpacking libdbus-1-dev:amd64 (1.16.2-2ubuntu4) ...
+2026-11-27T06:36:27.3331723Z Selecting previously unselected package libdecor-0-0:amd64.
+2026-11-27T06:36:27.3468792Z Preparing to unpack .../024-libdecor-0-0_0.2.5-1_amd64v3.deb ...
+2026-11-27T06:36:27.3476051Z Unpacking libdecor-0-0:amd64 (0.2.5-1) ...
+2026-11-27T06:36:27.3837450Z Selecting previously unselected package libwayland-server0:amd64.
+2026-11-27T06:36:27.3973313Z Preparing to unpack .../025-libwayland-server0_1.24.0-2_amd64v3.deb ...
+2026-11-27T06:36:27.3981290Z Unpacking libwayland-server0:amd64 (1.24.0-2) ...
+2026-11-27T06:36:27.4197391Z Selecting previously unselected package libwayland-bin.
+2026-11-27T06:36:27.4333408Z Preparing to unpack .../026-libwayland-bin_1.24.0-2_amd64v3.deb ...
+2026-11-27T06:36:27.4340711Z Unpacking libwayland-bin (1.24.0-2) ...
+2026-11-27T06:36:27.4552333Z Selecting previously unselected package libwayland-dev:amd64.
+2026-11-27T06:36:27.4689287Z Preparing to unpack .../027-libwayland-dev_1.24.0-2_amd64v3.deb ...
+2026-11-27T06:36:27.4696494Z Unpacking libwayland-dev:amd64 (1.24.0-2) ...
+2026-11-27T06:36:27.4976486Z Selecting previously unselected package libdecor-0-dev:amd64.
+2026-11-27T06:36:27.5112969Z Preparing to unpack .../028-libdecor-0-dev_0.2.5-1_amd64v3.deb ...
+2026-11-27T06:36:27.5120377Z Unpacking libdecor-0-dev:amd64 (0.2.5-1) ...
+2026-11-27T06:36:27.5326142Z Selecting previously unselected package libdecor-0-plugin-1-gtk:amd64.
+2026-11-27T06:36:27.5461974Z Preparing to unpack .../029-libdecor-0-plugin-1-gtk_0.2.5-1_amd64v3.deb ...
+2026-11-27T06:36:27.5470248Z Unpacking libdecor-0-plugin-1-gtk:amd64 (0.2.5-1) ...
+2026-11-27T06:36:27.5679537Z Selecting previously unselected package libdeflate-dev:amd64.
+2026-11-27T06:36:27.5816344Z Preparing to unpack .../030-libdeflate-dev_1.23-2ubuntu1_amd64v3.deb ...
+2026-11-27T06:36:27.5824150Z Unpacking libdeflate-dev:amd64 (1.23-2ubuntu1) ...
+2026-11-27T06:36:27.6225815Z Selecting previously unselected package libdrm-radeon1:amd64.
+2026-11-27T06:36:27.6377605Z Preparing to unpack .../031-libdrm-radeon1_2.4.131-1_amd64v3.deb ...
+2026-11-27T06:36:27.6386316Z Unpacking libdrm-radeon1:amd64 (2.4.131-1) ...
+2026-11-27T06:36:27.6610051Z Selecting previously unselected package libdrm-nouveau2:amd64.
+2026-11-27T06:36:27.6748537Z Preparing to unpack .../032-libdrm-nouveau2_2.4.131-1_amd64v3.deb ...
+2026-11-27T06:36:27.6756734Z Unpacking libdrm-nouveau2:amd64 (2.4.131-1) ...
+2026-11-27T06:36:27.6971627Z Selecting previously unselected package libpciaccess-dev:amd64.
+2026-11-27T06:36:27.7110693Z Preparing to unpack .../033-libpciaccess-dev_0.18.1-1ubuntu4.1_amd64v3.deb ...
+2026-11-27T06:36:27.7119605Z Unpacking libpciaccess-dev:amd64 (0.18.1-1ubuntu4.1) ...
+2026-11-27T06:36:27.7345699Z Selecting previously unselected package libdrm-dev:amd64.
+2026-11-27T06:36:27.7485200Z Preparing to unpack .../034-libdrm-dev_2.4.131-1_amd64v3.deb ...
+2026-11-27T06:36:27.7494042Z Unpacking libdrm-dev:amd64 (2.4.131-1) ...
+2026-11-27T06:36:27.7866791Z Selecting previously unselected package libegl-mesa0:amd64.
+2026-11-27T06:36:27.8006273Z Preparing to unpack .../035-libegl-mesa0_26.0.8-1ubuntu0.3_amd64v3.deb ...
+2026-11-27T06:36:27.8013164Z Unpacking libegl-mesa0:amd64 (26.0.8-1ubuntu0.3) ...
+2026-11-27T06:36:27.8279766Z Selecting previously unselected package libegl1:amd64.
+2026-11-27T06:36:27.8420391Z Preparing to unpack .../036-libegl1_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:27.8428233Z Unpacking libegl1:amd64 (1.7.0-3) ...
+2026-11-27T06:36:27.8645940Z Selecting previously unselected package xorg-sgml-doctools.
+2026-11-27T06:36:27.8783568Z Preparing to unpack .../037-xorg-sgml-doctools_1%3a1.11-1.1build1_all.deb ...
+2026-11-27T06:36:27.8790659Z Unpacking xorg-sgml-doctools (1:1.11-1.1build1) ...
+2026-11-27T06:36:27.9030268Z Selecting previously unselected package x11proto-dev.
+2026-11-27T06:36:27.9167500Z Preparing to unpack .../038-x11proto-dev_2025.1-1_all.deb ...
+2026-11-27T06:36:27.9174491Z Unpacking x11proto-dev (2025.1-1) ...
+2026-11-27T06:36:27.9678934Z Selecting previously unselected package libxau-dev:amd64.
+2026-11-27T06:36:27.9815736Z Preparing to unpack .../039-libxau-dev_1%3a1.0.11-1build2_amd64v3.deb ...
+2026-11-27T06:36:27.9823426Z Unpacking libxau-dev:amd64 (1:1.0.11-1build2) ...
+2026-11-27T06:36:28.0041316Z Selecting previously unselected package libxdmcp-dev:amd64.
+2026-11-27T06:36:28.0180212Z Preparing to unpack .../040-libxdmcp-dev_1%3a1.1.5-2_amd64v3.deb ...
+2026-11-27T06:36:28.0189602Z Unpacking libxdmcp-dev:amd64 (1:1.1.5-2) ...
+2026-11-27T06:36:28.0405766Z Selecting previously unselected package xtrans-dev.
+2026-11-27T06:36:28.0543163Z Preparing to unpack .../041-xtrans-dev_1.6.0-1build1_all.deb ...
+2026-11-27T06:36:28.0550260Z Unpacking xtrans-dev (1.6.0-1build1) ...
+2026-11-27T06:36:28.0820420Z Selecting previously unselected package libxcb1-dev:amd64.
+2026-11-27T06:36:28.0957077Z Preparing to unpack .../042-libxcb1-dev_1.17.0-2ubuntu1_amd64v3.deb ...
+2026-11-27T06:36:28.0964403Z Unpacking libxcb1-dev:amd64 (1.17.0-2ubuntu1) ...
+2026-11-27T06:36:28.1238060Z Selecting previously unselected package libx11-dev:amd64.
+2026-11-27T06:36:28.1380608Z Preparing to unpack .../043-libx11-dev_2%3a1.8.13-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:28.1393313Z Unpacking libx11-dev:amd64 (2:1.8.13-1ubuntu0.1) ...
+2026-11-27T06:36:28.1735535Z Selecting previously unselected package libglx-dev:amd64.
+2026-11-27T06:36:28.1876708Z Preparing to unpack .../044-libglx-dev_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:28.1885183Z Unpacking libglx-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:28.2119063Z Selecting previously unselected package libgl-dev:amd64.
+2026-11-27T06:36:28.2258116Z Preparing to unpack .../045-libgl-dev_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:28.2265892Z Unpacking libgl-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:28.2543880Z Selecting previously unselected package libegl-dev:amd64.
+2026-11-27T06:36:28.2686094Z Preparing to unpack .../046-libegl-dev_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:28.2693133Z Unpacking libegl-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:28.2933519Z Selecting previously unselected package libfftw3-single3:amd64.
+2026-11-27T06:36:28.3070968Z Preparing to unpack .../047-libfftw3-single3_3.3.10-2fakesync1build3_amd64v3.deb ...
+2026-11-27T06:36:28.3078870Z Unpacking libfftw3-single3:amd64 (3.3.10-2fakesync1build3) ...
+2026-11-27T06:36:28.3400004Z Selecting previously unselected package libflac++11:amd64.
+2026-11-27T06:36:28.3538262Z Preparing to unpack .../048-libflac++11_1.5.0+ds-5_amd64v3.deb ...
+2026-11-27T06:36:28.3546479Z Unpacking libflac++11:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:28.3890354Z Selecting previously unselected package libogg-dev:amd64.
+2026-11-27T06:36:28.4028725Z Preparing to unpack .../049-libogg-dev_1.3.6-2_amd64v3.deb ...
+2026-11-27T06:36:28.4035930Z Unpacking libogg-dev:amd64 (1.3.6-2) ...
+2026-11-27T06:36:28.4377098Z Selecting previously unselected package libflac-dev:amd64.
+2026-11-27T06:36:28.4515071Z Preparing to unpack .../050-libflac-dev_1.5.0+ds-5_amd64v3.deb ...
+2026-11-27T06:36:28.4522091Z Unpacking libflac-dev:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:28.4819437Z Selecting previously unselected package libmpg123-0t64:amd64.
+2026-11-27T06:36:28.4958728Z Preparing to unpack .../051-libmpg123-0t64_1.33.3-2_amd64v3.deb ...
+2026-11-27T06:36:28.4967952Z Unpacking libmpg123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:28.5211026Z Selecting previously unselected package libmp3lame0:amd64.
+2026-11-27T06:36:28.5349572Z Preparing to unpack .../052-libmp3lame0_3.101~svn6525+dfsg-2ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:28.5356925Z Unpacking libmp3lame0:amd64 (3.101~svn6525+dfsg-2ubuntu0.1) ...
+2026-11-27T06:36:28.5596195Z Selecting previously unselected package libopus0:amd64.
+2026-11-27T06:36:28.5731592Z Preparing to unpack .../053-libopus0_1.6.1-1_amd64v3.deb ...
+2026-11-27T06:36:28.5739234Z Unpacking libopus0:amd64 (1.6.1-1) ...
+2026-11-27T06:36:28.6226702Z Selecting previously unselected package libvorbisenc2:amd64.
+2026-11-27T06:36:28.6363429Z Preparing to unpack .../054-libvorbisenc2_1.3.7-3build2_amd64v3.deb ...
+2026-11-27T06:36:28.6371026Z Unpacking libvorbisenc2:amd64 (1.3.7-3build2) ...
+2026-11-27T06:36:28.6614382Z Selecting previously unselected package libsndfile1:amd64.
+2026-11-27T06:36:28.6753897Z Preparing to unpack .../055-libsndfile1_1.2.2-4_amd64v3.deb ...
+2026-11-27T06:36:28.6762148Z Unpacking libsndfile1:amd64 (1.2.2-4) ...
+2026-11-27T06:36:28.7009196Z Selecting previously unselected package libinstpatch-1.0-2:amd64.
+2026-11-27T06:36:28.7151796Z Preparing to unpack .../056-libinstpatch-1.0-2_1.1.7-1.1_amd64v3.deb ...
+2026-11-27T06:36:28.7160492Z Unpacking libinstpatch-1.0-2:amd64 (1.1.7-1.1) ...
+2026-11-27T06:36:28.7417536Z Selecting previously unselected package libsamplerate0:amd64.
+2026-11-27T06:36:28.7555588Z Preparing to unpack .../057-libsamplerate0_0.2.2-4build2_amd64v3.deb ...
+2026-11-27T06:36:28.7563125Z Unpacking libsamplerate0:amd64 (0.2.2-4build2) ...
+2026-11-27T06:36:28.7835325Z Selecting previously unselected package libjack-jackd2-0:amd64.
+2026-11-27T06:36:28.7971897Z Preparing to unpack .../058-libjack-jackd2-0_1.9.22~dfsg-5build1_amd64v3.deb ...
+2026-11-27T06:36:28.7979474Z Unpacking libjack-jackd2-0:amd64 (1.9.22~dfsg-5build1) ...
+2026-11-27T06:36:28.8245508Z Selecting previously unselected package libwebrtc-audio-processing-1-3:amd64.
+2026-11-27T06:36:28.8382428Z Preparing to unpack .../059-libwebrtc-audio-processing-1-3_1.3-3build2_amd64v3.deb ...
+2026-11-27T06:36:28.8390384Z Unpacking libwebrtc-audio-processing-1-3:amd64 (1.3-3build2) ...
+2026-11-27T06:36:28.8685284Z Selecting previously unselected package libspa-0.2-modules:amd64.
+2026-11-27T06:36:28.8823315Z Preparing to unpack .../060-libspa-0.2-modules_1.6.2-1ubuntu1.3_amd64v3.deb ...
+2026-11-27T06:36:28.8831226Z Unpacking libspa-0.2-modules:amd64 (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:28.9233553Z Selecting previously unselected package libpipewire-0.3-0t64:amd64.
+2026-11-27T06:36:28.9372183Z Preparing to unpack .../061-libpipewire-0.3-0t64_1.6.2-1ubuntu1.3_amd64v3.deb ...
+2026-11-27T06:36:28.9380590Z Unpacking libpipewire-0.3-0t64:amd64 (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:28.9644607Z Selecting previously unselected package libpulse0:amd64.
+2026-11-27T06:36:28.9781659Z Preparing to unpack .../062-libpulse0_1%3a17.0+dfsg1-2ubuntu4_amd64v3.deb ...
+2026-11-27T06:36:28.9789063Z Unpacking libpulse0:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:29.0265630Z Preparing to unpack .../063-libxi6_2%3a1.8.2-2ubuntu0.26.04.1_amd64v3.deb ...
+2026-11-27T06:36:29.0384507Z Unpacking libxi6:amd64 (2:1.8.2-2ubuntu0.26.04.1) over (2:1.8.2-2) ...
+2026-11-27T06:36:29.0642254Z Selecting previously unselected package libsdl3-0:amd64.
+2026-11-27T06:36:29.0792885Z Preparing to unpack .../064-libsdl3-0_3.4.2+ds-1ubuntu1_amd64v3.deb ...
+2026-11-27T06:36:29.0802188Z Unpacking libsdl3-0:amd64 (3.4.2+ds-1ubuntu1) ...
+2026-11-27T06:36:29.1209982Z Selecting previously unselected package timgm6mb-soundfont.
+2026-11-27T06:36:29.1347841Z Preparing to unpack .../065-timgm6mb-soundfont_1.3-5build1_all.deb ...
+2026-11-27T06:36:29.1356168Z Unpacking timgm6mb-soundfont (1.3-5build1) ...
+2026-11-27T06:36:29.1883269Z Selecting previously unselected package libfluidsynth3:amd64.
+2026-11-27T06:36:29.2021894Z Preparing to unpack .../066-libfluidsynth3_2.4.8+dfsg-1_amd64v3.deb ...
+2026-11-27T06:36:29.2029665Z Unpacking libfluidsynth3:amd64 (2.4.8+dfsg-1) ...
+2026-11-27T06:36:29.2274933Z Selecting previously unselected package libpng-dev:amd64.
+2026-11-27T06:36:29.2412807Z Preparing to unpack .../067-libpng-dev_1.6.57-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:29.2537813Z Unpacking libpng-dev:amd64 (1.6.57-1ubuntu0.1) ...
+2026-11-27T06:36:29.2829852Z Selecting previously unselected package libfreetype-dev:amd64.
+2026-11-27T06:36:29.2967215Z Preparing to unpack .../068-libfreetype-dev_2.14.2+dfsg-1ubuntu0.2_amd64v3.deb ...
+2026-11-27T06:36:29.2973952Z Unpacking libfreetype-dev:amd64 (2.14.2+dfsg-1ubuntu0.2) ...
+2026-11-27T06:36:29.3341267Z Selecting previously unselected package libgbm-dev:amd64.
+2026-11-27T06:36:29.3478301Z Preparing to unpack .../069-libgbm-dev_26.0.8-1ubuntu0.3_amd64v3.deb ...
+2026-11-27T06:36:29.3485477Z Unpacking libgbm-dev:amd64 (26.0.8-1ubuntu0.3) ...
+2026-11-27T06:36:29.3698807Z Selecting previously unselected package uuid-dev:amd64.
+2026-11-27T06:36:29.3836562Z Preparing to unpack .../070-uuid-dev_2.41.3-3ubuntu2.2_amd64v3.deb ...
+2026-11-27T06:36:29.3844274Z Unpacking uuid-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:29.4071797Z Selecting previously unselected package libblkid-dev:amd64.
+2026-11-27T06:36:29.4210917Z Preparing to unpack .../071-libblkid-dev_2.41.3-3ubuntu2.2_amd64v3.deb ...
+2026-11-27T06:36:29.4219159Z Unpacking libblkid-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:29.4478721Z Selecting previously unselected package libsepol-dev:amd64.
+2026-11-27T06:36:29.4616334Z Preparing to unpack .../072-libsepol-dev_3.9-2_amd64v3.deb ...
+2026-11-27T06:36:29.4624388Z Unpacking libsepol-dev:amd64 (3.9-2) ...
+2026-11-27T06:36:29.4967328Z Selecting previously unselected package libselinux-dev:amd64.
+2026-11-27T06:36:29.5104350Z Preparing to unpack .../073-libselinux-dev_3.9-4build1_amd64v3.deb ...
+2026-11-27T06:36:29.5111970Z Unpacking libselinux-dev:amd64 (3.9-4build1) ...
+2026-11-27T06:36:29.5525245Z Selecting previously unselected package libmount-dev:amd64.
+2026-11-27T06:36:29.5663976Z Preparing to unpack .../074-libmount-dev_2.41.3-3ubuntu2.2_amd64v3.deb ...
+2026-11-27T06:36:29.5669845Z Unpacking libmount-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:29.5879777Z Selecting previously unselected package libsysprof-capture-4-dev:amd64.
+2026-11-27T06:36:29.6017936Z Preparing to unpack .../075-libsysprof-capture-4-dev_50.0-1_amd64v3.deb ...
+2026-11-27T06:36:29.6269858Z Unpacking libsysprof-capture-4-dev:amd64 (50.0-1) ...
+2026-11-27T06:36:29.6499912Z Selecting previously unselected package libgio-2.0-dev:amd64.
+2026-11-27T06:36:29.6635824Z Preparing to unpack .../076-libgio-2.0-dev_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:29.6642314Z Unpacking libgio-2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:29.7566015Z Selecting previously unselected package libgio-2.0-dev-bin.
+2026-11-27T06:36:29.7703716Z Preparing to unpack .../077-libgio-2.0-dev-bin_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:29.7710471Z Unpacking libgio-2.0-dev-bin (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:29.8017756Z Selecting previously unselected package libgles1:amd64.
+2026-11-27T06:36:29.8155582Z Preparing to unpack .../078-libgles1_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:29.8164562Z Unpacking libgles1:amd64 (1.7.0-3) ...
+2026-11-27T06:36:29.8396974Z Selecting previously unselected package libgles2:amd64.
+2026-11-27T06:36:29.8533002Z Preparing to unpack .../079-libgles2_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:29.8541777Z Unpacking libgles2:amd64 (1.7.0-3) ...
+2026-11-27T06:36:29.8772324Z Selecting previously unselected package libgles-dev:amd64.
+2026-11-27T06:36:29.8909959Z Preparing to unpack .../080-libgles-dev_1.7.0-3_amd64v3.deb ...
+2026-11-27T06:36:29.8917833Z Unpacking libgles-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:29.9163122Z Selecting previously unselected package libglib2.0-dev-bin.
+2026-11-27T06:36:29.9302275Z Preparing to unpack .../081-libglib2.0-dev-bin_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:29.9309090Z Unpacking libglib2.0-dev-bin (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:29.9520394Z Selecting previously unselected package libglib2.0-dev:amd64.
+2026-11-27T06:36:29.9656691Z Preparing to unpack .../082-libglib2.0-dev_2.88.0-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:29.9664293Z Unpacking libglib2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:29.9929393Z Selecting previously unselected package libgraphite2-dev:amd64.
+2026-11-27T06:36:30.0067511Z Preparing to unpack .../083-libgraphite2-dev_1.3.14-11ubuntu1.1_amd64v3.deb ...
+2026-11-27T06:36:30.0080439Z Unpacking libgraphite2-dev:amd64 (1.3.14-11ubuntu1.1) ...
+2026-11-27T06:36:30.0320383Z Selecting previously unselected package libharfbuzz-cairo0:amd64.
+2026-11-27T06:36:30.0460245Z Preparing to unpack .../084-libharfbuzz-cairo0_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:30.0468289Z Unpacking libharfbuzz-cairo0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:30.0714259Z Selecting previously unselected package libharfbuzz-icu0:amd64.
+2026-11-27T06:36:30.0854780Z Preparing to unpack .../085-libharfbuzz-icu0_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:30.0864162Z Unpacking libharfbuzz-icu0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:30.1098382Z Selecting previously unselected package libharfbuzz-subset0:amd64.
+2026-11-27T06:36:30.1236411Z Preparing to unpack .../086-libharfbuzz-subset0_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:30.1243363Z Unpacking libharfbuzz-subset0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:30.1509553Z Selecting previously unselected package libharfbuzz-dev:amd64.
+2026-11-27T06:36:30.1647943Z Preparing to unpack .../087-libharfbuzz-dev_12.3.2-2_amd64v3.deb ...
+2026-11-27T06:36:30.1654524Z Unpacking libharfbuzz-dev:amd64 (12.3.2-2) ...
+2026-11-27T06:36:30.1969605Z Selecting previously unselected package libibus-1.0-dev:amd64.
+2026-11-27T06:36:30.2109188Z Preparing to unpack .../088-libibus-1.0-dev_1.5.34~rc2-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:30.2116822Z Unpacking libibus-1.0-dev:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:30.2480770Z Selecting previously unselected package libice-dev:amd64.
+2026-11-27T06:36:30.2620527Z Preparing to unpack .../089-libice-dev_2%3a1.1.1-1build1_amd64v3.deb ...
+2026-11-27T06:36:30.2628057Z Unpacking libice-dev:amd64 (2:1.1.1-1build1) ...
+2026-11-27T06:36:30.2861020Z Selecting previously unselected package libjpeg-turbo8-dev:amd64.
+2026-11-27T06:36:30.2999097Z Preparing to unpack .../090-libjpeg-turbo8-dev_2.1.5-4ubuntu4_amd64v3.deb ...
+2026-11-27T06:36:30.3006432Z Unpacking libjpeg-turbo8-dev:amd64 (2.1.5-4ubuntu4) ...
+2026-11-27T06:36:30.3285829Z Selecting previously unselected package libjpeg8-dev:amd64.
+2026-11-27T06:36:30.3425461Z Preparing to unpack .../091-libjpeg8-dev_8c-2ubuntu12_amd64v3.deb ...
+2026-11-27T06:36:30.3434071Z Unpacking libjpeg8-dev:amd64 (8c-2ubuntu12) ...
+2026-11-27T06:36:30.3646399Z Selecting previously unselected package libjpeg-dev:amd64.
+2026-11-27T06:36:30.3784323Z Preparing to unpack .../092-libjpeg-dev_8c-2ubuntu12_amd64v3.deb ...
+2026-11-27T06:36:30.3889952Z Unpacking libjpeg-dev:amd64 (8c-2ubuntu12) ...
+2026-11-27T06:36:30.4108345Z Selecting previously unselected package liblerc-dev:amd64.
+2026-11-27T06:36:30.4248085Z Preparing to unpack .../093-liblerc-dev_4.0.0+ds-5ubuntu2_amd64v3.deb ...
+2026-11-27T06:36:30.4258662Z Unpacking liblerc-dev:amd64 (4.0.0+ds-5ubuntu2) ...
+2026-11-27T06:36:30.4524043Z Selecting previously unselected package libout123-0t64:amd64.
+2026-11-27T06:36:30.4676765Z Preparing to unpack .../094-libout123-0t64_1.33.3-2_amd64v3.deb ...
+2026-11-27T06:36:30.4677804Z Unpacking libout123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:30.4908228Z Selecting previously unselected package libsyn123-0t64:amd64.
+2026-11-27T06:36:30.5045476Z Preparing to unpack .../095-libsyn123-0t64_1.33.3-2_amd64v3.deb ...
+2026-11-27T06:36:30.5078795Z Unpacking libsyn123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:30.5307640Z Selecting previously unselected package libmpg123-dev:amd64.
+2026-11-27T06:36:30.5444675Z Preparing to unpack .../096-libmpg123-dev_1.33.3-2_amd64v3.deb ...
+2026-11-27T06:36:30.5452295Z Unpacking libmpg123-dev:amd64 (1.33.3-2) ...
+2026-11-27T06:36:30.5696281Z Selecting previously unselected package libopus-dev:amd64.
+2026-11-27T06:36:30.5833901Z Preparing to unpack .../097-libopus-dev_1.6.1-1_amd64v3.deb ...
+2026-11-27T06:36:30.5843703Z Unpacking libopus-dev:amd64 (1.6.1-1) ...
+2026-11-27T06:36:30.6278545Z Selecting previously unselected package libopusfile0:amd64.
+2026-11-27T06:36:30.6418224Z Preparing to unpack .../098-libopusfile0_0.12-4build4_amd64v3.deb ...
+2026-11-27T06:36:30.6426481Z Unpacking libopusfile0:amd64 (0.12-4build4) ...
+2026-11-27T06:36:30.6651685Z Selecting previously unselected package libopusfile-dev:amd64.
+2026-11-27T06:36:30.6791253Z Preparing to unpack .../099-libopusfile-dev_0.12-4build4_amd64v3.deb ...
+2026-11-27T06:36:30.6800057Z Unpacking libopusfile-dev:amd64 (0.12-4build4) ...
+2026-11-27T06:36:30.7035756Z Selecting previously unselected package libpipewire-0.3-common.
+2026-11-27T06:36:30.7177105Z Preparing to unpack .../100-libpipewire-0.3-common_1.6.2-1ubuntu1.3_all.deb ...
+2026-11-27T06:36:30.7184175Z Unpacking libpipewire-0.3-common (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:30.7392122Z Selecting previously unselected package libpng-tools.
+2026-11-27T06:36:30.7529578Z Preparing to unpack .../101-libpng-tools_1.6.57-1ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:30.7536896Z Unpacking libpng-tools (1.6.57-1ubuntu0.1) ...
+2026-11-27T06:36:30.7794116Z Selecting previously unselected package libpulse-mainloop-glib0:amd64.
+2026-11-27T06:36:30.7931665Z Preparing to unpack .../102-libpulse-mainloop-glib0_1%3a17.0+dfsg1-2ubuntu4_amd64v3.deb ...
+2026-11-27T06:36:30.7939176Z Unpacking libpulse-mainloop-glib0:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:30.8151749Z Selecting previously unselected package libpulse-dev:amd64.
+2026-11-27T06:36:30.8288659Z Preparing to unpack .../103-libpulse-dev_1%3a17.0+dfsg1-2ubuntu4_amd64v3.deb ...
+2026-11-27T06:36:30.8295467Z Unpacking libpulse-dev:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:30.8588448Z Selecting previously unselected package libsamplerate0-dev:amd64.
+2026-11-27T06:36:30.8727945Z Preparing to unpack .../104-libsamplerate0-dev_0.2.2-4build2_amd64v3.deb ...
+2026-11-27T06:36:30.8735747Z Unpacking libsamplerate0-dev:amd64 (0.2.2-4build2) ...
+2026-11-27T06:36:30.9111590Z Selecting previously unselected package libsdl2-classic:amd64.
+2026-11-27T06:36:30.9249893Z Preparing to unpack .../105-libsdl2-classic_2.32.10+dfsg-6_amd64v3.deb ...
+2026-11-27T06:36:30.9256710Z Unpacking libsdl2-classic:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:30.9570960Z Selecting previously unselected package libsdl2-2.0-0:amd64.
+2026-11-27T06:36:30.9709784Z Preparing to unpack .../106-libsdl2-2.0-0_2.32.10+dfsg-6_amd64v3.deb ...
+2026-11-27T06:36:30.9718256Z Unpacking libsdl2-2.0-0:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:30.9958377Z Selecting previously unselected package libsndio7.0:amd64.
+2026-11-27T06:36:31.0096430Z Preparing to unpack .../107-libsndio7.0_1.10.0-0.2_amd64.deb ...
+2026-11-27T06:36:31.0103616Z Unpacking libsndio7.0:amd64 (1.10.0-0.2) ...
+2026-11-27T06:36:31.0327668Z Selecting previously unselected package libsndio-dev:amd64.
+2026-11-27T06:36:31.0466180Z Preparing to unpack .../108-libsndio-dev_1.10.0-0.2_amd64.deb ...
+2026-11-27T06:36:31.0476783Z Unpacking libsndio-dev:amd64 (1.10.0-0.2) ...
+2026-11-27T06:36:31.0749474Z Selecting previously unselected package libudev-dev:amd64.
+2026-11-27T06:36:31.0890868Z Preparing to unpack .../109-libudev-dev_259.9-0ubuntu0.1_amd64v3.deb ...
+2026-11-27T06:36:31.0898896Z Unpacking libudev-dev:amd64 (259.9-0ubuntu0.1) ...
+2026-11-27T06:36:31.1322156Z Preparing to unpack .../110-libxrender1_1%3a0.9.12-1ubuntu0.26.04.1_amd64v3.deb ...
+2026-11-27T06:36:31.1346332Z Unpacking libxrender1:amd64 (1:0.9.12-1ubuntu0.26.04.1) over (1:0.9.12-1build1) ...
+2026-11-27T06:36:31.1603917Z Selecting previously unselected package libxrender-dev:amd64.
+2026-11-27T06:36:31.1744851Z Preparing to unpack .../111-libxrender-dev_1%3a0.9.12-1ubuntu0.26.04.1_amd64v3.deb ...
+2026-11-27T06:36:31.1751903Z Unpacking libxrender-dev:amd64 (1:0.9.12-1ubuntu0.26.04.1) ...
+2026-11-27T06:36:31.1967766Z Selecting previously unselected package libxfixes-dev:amd64.
+2026-11-27T06:36:31.2107430Z Preparing to unpack .../112-libxfixes-dev_1%3a6.0.0-2build2_amd64v3.deb ...
+2026-11-27T06:36:31.2115414Z Unpacking libxfixes-dev:amd64 (1:6.0.0-2build2) ...
+2026-11-27T06:36:31.2343494Z Selecting previously unselected package libxcursor-dev:amd64.
+2026-11-27T06:36:31.2483034Z Preparing to unpack .../113-libxcursor-dev_1%3a1.2.3-1build1_amd64v3.deb ...
+2026-11-27T06:36:31.2495831Z Unpacking libxcursor-dev:amd64 (1:1.2.3-1build1) ...
+2026-11-27T06:36:31.2798968Z Selecting previously unselected package libxext-dev:amd64.
+2026-11-27T06:36:31.2938846Z Preparing to unpack .../114-libxext-dev_2%3a1.3.4-1build3_amd64v3.deb ...
+2026-11-27T06:36:31.2945934Z Unpacking libxext-dev:amd64 (2:1.3.4-1build3) ...
+2026-11-27T06:36:31.3266689Z Selecting previously unselected package libxi-dev:amd64.
+2026-11-27T06:36:31.3407124Z Preparing to unpack .../115-libxi-dev_2%3a1.8.2-2ubuntu0.26.04.1_amd64v3.deb ...
+2026-11-27T06:36:31.3413664Z Unpacking libxi-dev:amd64 (2:1.8.2-2ubuntu0.26.04.1) ...
+2026-11-27T06:36:31.3760164Z Selecting previously unselected package libxinerama-dev:amd64.
+2026-11-27T06:36:31.3902224Z Preparing to unpack .../116-libxinerama-dev_2%3a1.1.4-3build2_amd64v3.deb ...
+2026-11-27T06:36:31.3956617Z Unpacking libxinerama-dev:amd64 (2:1.1.4-3build2) ...
+2026-11-27T06:36:31.4205765Z Selecting previously unselected package libxkbcommon-dev:amd64.
+2026-11-27T06:36:31.4347557Z Preparing to unpack .../117-libxkbcommon-dev_1.13.1-1_amd64v3.deb ...
+2026-11-27T06:36:31.4357111Z Unpacking libxkbcommon-dev:amd64 (1.13.1-1) ...
+2026-11-27T06:36:31.4606977Z Selecting previously unselected package libxrandr-dev:amd64.
+2026-11-27T06:36:31.4749077Z Preparing to unpack .../118-libxrandr-dev_2%3a1.5.4-1build1_amd64v3.deb ...
+2026-11-27T06:36:31.4757256Z Unpacking libxrandr-dev:amd64 (2:1.5.4-1build1) ...
+2026-11-27T06:36:31.5002762Z Selecting previously unselected package libxss-dev:amd64.
+2026-11-27T06:36:31.5140777Z Preparing to unpack .../119-libxss-dev_1%3a1.2.3-1build4_amd64v3.deb ...
+2026-11-27T06:36:31.5150105Z Unpacking libxss-dev:amd64 (1:1.2.3-1build4) ...
+2026-11-27T06:36:31.5379386Z Selecting previously unselected package libsm-dev:amd64.
+2026-11-27T06:36:31.5518517Z Preparing to unpack .../120-libsm-dev_2%3a1.2.6-1build1_amd64v3.deb ...
+2026-11-27T06:36:31.5525806Z Unpacking libsm-dev:amd64 (2:1.2.6-1build1) ...
+2026-11-27T06:36:31.5751127Z Selecting previously unselected package libxt-dev:amd64.
+2026-11-27T06:36:31.5890561Z Preparing to unpack .../121-libxt-dev_1%3a1.2.1-1.3build1_amd64v3.deb ...
+2026-11-27T06:36:31.5898049Z Unpacking libxt-dev:amd64 (1:1.2.1-1.3build1) ...
+2026-11-27T06:36:31.6482708Z Selecting previously unselected package libxv1:amd64.
+2026-11-27T06:36:31.6622715Z Preparing to unpack .../122-libxv1_2%3a1.0.13-1_amd64v3.deb ...
+2026-11-27T06:36:31.6629817Z Unpacking libxv1:amd64 (2:1.0.13-1) ...
+2026-11-27T06:36:31.6840641Z Selecting previously unselected package libxv-dev:amd64.
+2026-11-27T06:36:31.6979557Z Preparing to unpack .../123-libxv-dev_2%3a1.0.13-1_amd64v3.deb ...
+2026-11-27T06:36:31.6986959Z Unpacking libxv-dev:amd64 (2:1.0.13-1) ...
+2026-11-27T06:36:31.7240976Z Selecting previously unselected package libxxf86vm-dev:amd64.
+2026-11-27T06:36:31.7378322Z Preparing to unpack .../124-libxxf86vm-dev_1%3a1.1.4-2_amd64v3.deb ...
+2026-11-27T06:36:31.7385303Z Unpacking libxxf86vm-dev:amd64 (1:1.1.4-2) ...
+2026-11-27T06:36:31.7622319Z Selecting previously unselected package libsdl2-dev:amd64.
+2026-11-27T06:36:31.7761949Z Preparing to unpack .../125-libsdl2-dev_2.32.10+dfsg-6_amd64v3.deb ...
+2026-11-27T06:36:31.7769173Z Unpacking libsdl2-dev:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:31.8455850Z Preparing to unpack .../126-libtiff6_4.7.0-3ubuntu5.1_amd64v3.deb ...
+2026-11-27T06:36:31.8484650Z Unpacking libtiff6:amd64 (4.7.0-3ubuntu5.1) over (4.7.0-3ubuntu5) ...
+2026-11-27T06:36:31.8769181Z Selecting previously unselected package libsdl2-image-2.0-0:amd64.
+2026-11-27T06:36:31.8907489Z Preparing to unpack .../127-libsdl2-image-2.0-0_2.8.8+dfsg-2_amd64v3.deb ...
+2026-11-27T06:36:31.8914849Z Unpacking libsdl2-image-2.0-0:amd64 (2.8.8+dfsg-2) ...
+2026-11-27T06:36:31.9179805Z Selecting previously unselected package libjbig-dev:amd64.
+2026-11-27T06:36:31.9320061Z Preparing to unpack .../128-libjbig-dev_2.1-6.1ubuntu3_amd64v3.deb ...
+2026-11-27T06:36:31.9327592Z Unpacking libjbig-dev:amd64 (2.1-6.1ubuntu3) ...
+2026-11-27T06:36:31.9557606Z Selecting previously unselected package libwebpdecoder3:amd64.
+2026-11-27T06:36:31.9696032Z Preparing to unpack .../129-libwebpdecoder3_1.5.0-0.1build1_amd64v3.deb ...
+2026-11-27T06:36:31.9703200Z Unpacking libwebpdecoder3:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:31.9932245Z Selecting previously unselected package libsharpyuv-dev:amd64.
+2026-11-27T06:36:32.0071647Z Preparing to unpack .../130-libsharpyuv-dev_1.5.0-0.1build1_amd64v3.deb ...
+2026-11-27T06:36:32.0079397Z Unpacking libsharpyuv-dev:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:32.0356160Z Selecting previously unselected package libwebp-dev:amd64.
+2026-11-27T06:36:32.0498161Z Preparing to unpack .../131-libwebp-dev_1.5.0-0.1build1_amd64v3.deb ...
+2026-11-27T06:36:32.0504950Z Unpacking libwebp-dev:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:32.0868435Z Selecting previously unselected package libtiffxx6:amd64.
+2026-11-27T06:36:32.1009806Z Preparing to unpack .../132-libtiffxx6_4.7.0-3ubuntu5.1_amd64v3.deb ...
+2026-11-27T06:36:32.1017690Z Unpacking libtiffxx6:amd64 (4.7.0-3ubuntu5.1) ...
+2026-11-27T06:36:32.1239929Z Selecting previously unselected package libtiff-dev:amd64.
+2026-11-27T06:36:32.1381955Z Preparing to unpack .../133-libtiff-dev_4.7.0-3ubuntu5.1_amd64v3.deb ...
+2026-11-27T06:36:32.1391941Z Unpacking libtiff-dev:amd64 (4.7.0-3ubuntu5.1) ...
+2026-11-27T06:36:32.1752028Z Selecting previously unselected package libsdl2-image-dev:amd64.
+2026-11-27T06:36:32.1891174Z Preparing to unpack .../134-libsdl2-image-dev_2.8.8+dfsg-2_amd64v3.deb ...
+2026-11-27T06:36:32.1898604Z Unpacking libsdl2-image-dev:amd64 (2.8.8+dfsg-2) ...
+2026-11-27T06:36:32.2151274Z Selecting previously unselected package libxmp4:amd64.
+2026-11-27T06:36:32.2293963Z Preparing to unpack .../135-libxmp4_4.6.3-1_amd64v3.deb ...
+2026-11-27T06:36:32.2305726Z Unpacking libxmp4:amd64 (4.6.3-1) ...
+2026-11-27T06:36:32.2586154Z Selecting previously unselected package libsdl2-mixer-2.0-0:amd64.
+2026-11-27T06:36:32.2729630Z Preparing to unpack .../136-libsdl2-mixer-2.0-0_2.8.1+dfsg-5_amd64v3.deb ...
+2026-11-27T06:36:32.2761958Z Unpacking libsdl2-mixer-2.0-0:amd64 (2.8.1+dfsg-5) ...
+2026-11-27T06:36:32.3001181Z Selecting previously unselected package libvorbis-dev:amd64.
+2026-11-27T06:36:32.3140306Z Preparing to unpack .../137-libvorbis-dev_1.3.7-3build2_amd64v3.deb ...
+2026-11-27T06:36:32.3150168Z Unpacking libvorbis-dev:amd64 (1.3.7-3build2) ...
+2026-11-27T06:36:32.3651128Z Selecting previously unselected package libxmp-dev:amd64.
+2026-11-27T06:36:32.3791056Z Preparing to unpack .../138-libxmp-dev_4.6.3-1_amd64v3.deb ...
+2026-11-27T06:36:32.3798195Z Unpacking libxmp-dev:amd64 (4.6.3-1) ...
+2026-11-27T06:36:32.4033208Z Selecting previously unselected package libsdl2-mixer-dev:amd64.
+2026-11-27T06:36:32.4174378Z Preparing to unpack .../139-libsdl2-mixer-dev_2.8.1+dfsg-5_amd64v3.deb ...
+2026-11-27T06:36:32.4182431Z Unpacking libsdl2-mixer-dev:amd64 (2.8.1+dfsg-5) ...
+2026-11-27T06:36:32.4454142Z Selecting previously unselected package libsdl2-ttf-2.0-0:amd64.
+2026-11-27T06:36:32.4596230Z Preparing to unpack .../140-libsdl2-ttf-2.0-0_2.24.0+dfsg-3_amd64v3.deb ...
+2026-11-27T06:36:32.4605771Z Unpacking libsdl2-ttf-2.0-0:amd64 (2.24.0+dfsg-3) ...
+2026-11-27T06:36:32.4821234Z Selecting previously unselected package libsdl2-ttf-dev:amd64.
+2026-11-27T06:36:32.4961359Z Preparing to unpack .../141-libsdl2-ttf-dev_2.24.0+dfsg-3_amd64v3.deb ...
+2026-11-27T06:36:32.4967635Z Unpacking libsdl2-ttf-dev:amd64 (2.24.0+dfsg-3) ...
+2026-11-27T06:36:32.5209335Z Selecting previously unselected package libutf8proc3:amd64.
+2026-11-27T06:36:32.5347658Z Preparing to unpack .../142-libutf8proc3_2.10.0-2_amd64v3.deb ...
+2026-11-27T06:36:32.5358112Z Unpacking libutf8proc3:amd64 (2.10.0-2) ...
+2026-11-27T06:36:32.5587300Z Selecting previously unselected package libutf8proc-dev:amd64.
+2026-11-27T06:36:32.5725870Z Preparing to unpack .../143-libutf8proc-dev_2.10.0-2_amd64v3.deb ...
+2026-11-27T06:36:32.5733292Z Unpacking libutf8proc-dev:amd64 (2.10.0-2) ...
+2026-11-27T06:36:32.6373082Z Setting up libpipewire-0.3-common (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:32.6396645Z Setting up bzip2-doc (1.0.8-6ubuntu0.1) ...
+2026-11-27T06:36:32.6416259Z Setting up libwayland-server0:amd64 (1.24.0-2) ...
+2026-11-27T06:36:32.6434023Z Setting up libjpeg-turbo8-dev:amd64 (2.1.5-4ubuntu4) ...
+2026-11-27T06:36:32.6453868Z Setting up libgio-2.0-dev-bin (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:32.9869843Z Setting up libdrm-nouveau2:amd64 (2.4.131-1) ...
+2026-11-27T06:36:32.9889548Z Setting up gir1.2-freedesktop:amd64 (1.86.0-6build1) ...
+2026-11-27T06:36:32.9906520Z Setting up libharfbuzz-icu0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:32.9927857Z Setting up libxmp4:amd64 (4.6.3-1) ...
+2026-11-27T06:36:32.9948362Z Setting up libfftw3-single3:amd64 (3.3.10-2fakesync1build3) ...
+2026-11-27T06:36:32.9965908Z Setting up native-architecture (0.2.6build1) ...
+2026-11-27T06:36:32.9989171Z Setting up libpciaccess-dev:amd64 (0.18.1-1ubuntu4.1) ...
+2026-11-27T06:36:33.0008239Z Setting up libxi6:amd64 (2:1.8.2-2ubuntu0.26.04.1) ...
+2026-11-27T06:36:33.0025921Z Setting up libxrender1:amd64 (1:0.9.12-1ubuntu0.26.04.1) ...
+2026-11-27T06:36:33.0048372Z Setting up libpng-tools (1.6.57-1ubuntu0.1) ...
+2026-11-27T06:36:33.0066282Z Setting up libutf8proc3:amd64 (2.10.0-2) ...
+2026-11-27T06:36:33.0083625Z Setting up libdrm-radeon1:amd64 (2.4.131-1) ...
+2026-11-27T06:36:33.0103980Z Setting up libxkbcommon-dev:amd64 (1.13.1-1) ...
+2026-11-27T06:36:33.0120581Z Setting up libsqlite3-0:amd64 (3.46.1-9ubuntu0.4) ...
+2026-11-27T06:36:33.0145145Z Setting up libpng-dev:amd64 (1.6.57-1ubuntu0.1) ...
+2026-11-27T06:36:33.0161745Z Setting up libibus-1.0-5:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:33.0180383Z Setting up libjbig-dev:amd64 (2.1-6.1ubuntu3) ...
+2026-11-27T06:36:33.0197856Z Setting up libwebpdecoder3:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:33.0219448Z Setting up libharfbuzz-gobject0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:33.0239946Z Setting up libogg-dev:amd64 (1.3.6-2) ...
+2026-11-27T06:36:33.0257863Z Setting up libmpg123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:33.0278668Z Setting up libutf8proc-dev:amd64 (2.10.0-2) ...
+2026-11-27T06:36:33.0294995Z Setting up libwebrtc-audio-processing-1-3:amd64 (1.3-3build2) ...
+2026-11-27T06:36:33.0343625Z Setting up gir1.2-harfbuzz-0.0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:33.0360829Z Setting up libgbm-dev:amd64 (26.0.8-1ubuntu0.3) ...
+2026-11-27T06:36:33.0384917Z Setting up libsysprof-capture-4-dev:amd64 (50.0-1) ...
+2026-11-27T06:36:33.0406238Z Setting up libasound2-data (1.2.15.3-1ubuntu1.2) ...
+2026-11-27T06:36:33.0425879Z Setting up xtrans-dev (1.6.0-1build1) ...
+2026-11-27T06:36:33.0444540Z Setting up libwayland-bin (1.24.0-2) ...
+2026-11-27T06:36:33.0465284Z Setting up libgraphite2-dev:amd64 (1.3.14-11ubuntu1.1) ...
+2026-11-27T06:36:33.0483565Z Setting up libegl-mesa0:amd64 (26.0.8-1ubuntu0.3) ...
+2026-11-27T06:36:33.0504563Z Setting up libgles2:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.0524796Z Setting up libasound2t64:amd64 (1.2.15.3-1ubuntu1.2) ...
+2026-11-27T06:36:33.0543143Z Setting up libharfbuzz-cairo0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:33.0564688Z Setting up libsqlite3-dev:amd64 (3.46.1-9ubuntu0.4) ...
+2026-11-27T06:36:33.0582772Z Setting up libsyn123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:33.0607036Z Setting up uuid-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:33.0683728Z Setting up libgles1:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.0705534Z Setting up libopus0:amd64 (1.6.1-1) ...
+2026-11-27T06:36:33.0728868Z Setting up libxv1:amd64 (2:1.0.13-1) ...
+2026-11-27T06:36:33.0748879Z Setting up libflac14:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:33.0776634Z Setting up libudev-dev:amd64 (259.9-0ubuntu0.1) ...
+2026-11-27T06:36:33.0804432Z Setting up libsepol-dev:amd64 (3.9-2) ...
+2026-11-27T06:36:33.0824064Z Setting up liblerc-dev:amd64 (4.0.0+ds-5ubuntu2) ...
+2026-11-27T06:36:33.0841714Z Setting up libsndio7.0:amd64 (1.10.0-0.2) ...
+2026-11-27T06:36:33.0869105Z Setting up libout123-0t64:amd64 (1.33.3-2) ...
+2026-11-27T06:36:33.0887872Z Setting up gir1.2-glib-2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.0909159Z Setting up libasyncns0:amd64 (0.8-7) ...
+2026-11-27T06:36:33.0933039Z Setting up libtiff6:amd64 (4.7.0-3ubuntu5.1) ...
+2026-11-27T06:36:33.0955629Z Setting up libegl1:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.0974756Z Setting up libdecor-0-0:amd64 (0.2.5-1) ...
+2026-11-27T06:36:33.1001086Z Setting up libharfbuzz-subset0:amd64 (12.3.2-2) ...
+2026-11-27T06:36:33.1019996Z Setting up build-essential (12.12ubuntu2.26.04.2) ...
+2026-11-27T06:36:33.1040052Z Setting up xorg-sgml-doctools (1:1.11-1.1build1) ...
+2026-11-27T06:36:33.1057808Z Setting up libjpeg8-dev:amd64 (8c-2ubuntu12) ...
+2026-11-27T06:36:33.1084035Z Setting up libasound2-dev:amd64 (1.2.15.3-1ubuntu1.2) ...
+2026-11-27T06:36:33.1105693Z Setting up libsharpyuv-dev:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:33.1125230Z Setting up libselinux-dev:amd64 (3.9-4build1) ...
+2026-11-27T06:36:33.1148924Z Setting up libsamplerate0:amd64 (0.2.2-4build2) ...
+2026-11-27T06:36:33.1166362Z Setting up timgm6mb-soundfont (1.3-5build1) ...
+2026-11-27T06:36:33.1621637Z update-alternatives: using /usr/share/sounds/sf2/TimGM6mb.sf2 to provide /usr/share/sounds/sf2/default-GM.sf2 (default-GM.sf2) in auto mode
+2026-11-27T06:36:33.1664523Z update-alternatives: using /usr/share/sounds/sf2/TimGM6mb.sf2 to provide /usr/share/sounds/sf3/default-GM.sf3 (default-GM.sf3) in auto mode
+2026-11-27T06:36:33.1684551Z Setting up libtiffxx6:amd64 (4.7.0-3ubuntu5.1) ...
+2026-11-27T06:36:33.1703667Z Setting up libdeflate-dev:amd64 (1.23-2ubuntu1) ...
+2026-11-27T06:36:33.1728148Z Setting up gir1.2-ibus-1.0:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:33.1747356Z Setting up libopusfile0:amd64 (0.12-4build4) ...
+2026-11-27T06:36:33.1766390Z Setting up libdecor-0-plugin-1-gtk:amd64 (0.2.5-1) ...
+2026-11-27T06:36:33.1788287Z Setting up libsystemd-dev:amd64 (259.9-0ubuntu0.1) ...
+2026-11-27T06:36:33.1805645Z Setting up sqlite3 (3.46.1-9ubuntu0.4) ...
+2026-11-27T06:36:33.1829012Z Setting up libbrotli-dev:amd64 (1.2.0-3ubuntu0.1) ...
+2026-11-27T06:36:33.1847921Z Setting up libmp3lame0:amd64 (3.101~svn6525+dfsg-2ubuntu0.1) ...
+2026-11-27T06:36:33.1870068Z Setting up libvorbisenc2:amd64 (1.3.7-3build2) ...
+2026-11-27T06:36:33.1890682Z Setting up libbz2-dev:amd64 (1.0.8-6ubuntu0.1) ...
+2026-11-27T06:36:33.1913481Z Setting up libvorbis-dev:amd64 (1.3.7-3build2) ...
+2026-11-27T06:36:33.1938308Z Setting up libblkid-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:33.1957758Z Setting up libdrm-dev:amd64 (2.4.131-1) ...
+2026-11-27T06:36:33.1978194Z Setting up libxmp-dev:amd64 (4.6.3-1) ...
+2026-11-27T06:36:33.1997434Z Setting up libsndio-dev:amd64 (1.10.0-0.2) ...
+2026-11-27T06:36:33.2016499Z Setting up girepository-tools:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.2041004Z Setting up libsamplerate0-dev:amd64 (0.2.2-4build2) ...
+2026-11-27T06:36:33.2060208Z Setting up libjpeg-dev:amd64 (8c-2ubuntu12) ...
+2026-11-27T06:36:33.2321905Z Setting up libflac++11:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:33.2343855Z Setting up libwayland-dev:amd64 (1.24.0-2) ...
+2026-11-27T06:36:33.2371747Z Setting up libopus-dev:amd64 (1.6.1-1) ...
+2026-11-27T06:36:33.2395705Z Setting up libmpg123-dev:amd64 (1.33.3-2) ...
+2026-11-27T06:36:33.2414447Z Setting up libfreetype-dev:amd64 (2.14.2+dfsg-1ubuntu0.2) ...
+2026-11-27T06:36:33.2434972Z Setting up libdecor-0-dev:amd64 (0.2.5-1) ...
+2026-11-27T06:36:33.2452022Z Setting up libwebp-dev:amd64 (1.5.0-0.1build1) ...
+2026-11-27T06:36:33.2470185Z Setting up flac (1.5.0+ds-5) ...
+2026-11-27T06:36:33.2491800Z Setting up libtiff-dev:amd64 (4.7.0-3ubuntu5.1) ...
+2026-11-27T06:36:33.2509656Z Setting up libdbus-1-dev:amd64 (1.16.2-2ubuntu4) ...
+2026-11-27T06:36:33.4853054Z Setting up gir1.2-freedesktop-dev:amd64 (1.86.0-6build1) ...
+2026-11-27T06:36:33.4875650Z Setting up libjack-jackd2-0:amd64 (1.9.22~dfsg-5build1) ...
+2026-11-27T06:36:33.4899499Z Setting up libsndfile1:amd64 (1.2.2-4) ...
+2026-11-27T06:36:33.4919047Z Setting up libinstpatch-1.0-2:amd64 (1.1.7-1.1) ...
+2026-11-27T06:36:33.4941486Z Setting up libmount-dev:amd64 (2.41.3-3ubuntu2.2) ...
+2026-11-27T06:36:33.4962255Z Setting up libglib2.0-dev-bin (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.4985656Z Setting up libflac-dev:amd64 (1.5.0+ds-5) ...
+2026-11-27T06:36:33.5004174Z Setting up libgio-2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.5022220Z Setting up libpulse0:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:33.5051731Z Setting up libsdl3-0:amd64 (3.4.2+ds-1ubuntu1) ...
+2026-11-27T06:36:33.5070402Z Setting up libopusfile-dev:amd64 (0.12-4build4) ...
+2026-11-27T06:36:33.5093681Z Setting up libspa-0.2-modules:amd64 (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:33.5111756Z Setting up libpulse-mainloop-glib0:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:33.5130136Z Setting up libpipewire-0.3-0t64:amd64 (1.6.2-1ubuntu1.3) ...
+2026-11-27T06:36:33.5147051Z Setting up libfluidsynth3:amd64 (2.4.8+dfsg-1) ...
+2026-11-27T06:36:33.5167864Z Setting up libsdl2-classic:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:33.5188128Z Setting up libsdl2-2.0-0:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:33.5212429Z Setting up libsdl2-image-2.0-0:amd64 (2.8.8+dfsg-2) ...
+2026-11-27T06:36:33.5234775Z Setting up libsdl2-mixer-2.0-0:amd64 (2.8.1+dfsg-5) ...
+2026-11-27T06:36:33.5258894Z Setting up libsdl2-ttf-2.0-0:amd64 (2.24.0+dfsg-3) ...
+2026-11-27T06:36:33.5508623Z Processing triggers for libc-bin (2.43-2ubuntu2.7) ...
+2026-11-27T06:36:33.5879593Z Processing triggers for man-db (2.13.1-1build1) ...
+2026-11-27T06:36:33.5904013Z Not building database; man-db/auto-update is not 'true'.
+2026-11-27T06:36:33.5926487Z Processing triggers for libglib2.0-0t64:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.6315521Z Setting up libglib2.0-dev:amd64 (2.88.0-1ubuntu0.1) ...
+2026-11-27T06:36:33.6356245Z Setting up libpulse-dev:amd64 (1:17.0+dfsg1-2ubuntu4) ...
+2026-11-27T06:36:33.6382027Z Processing triggers for sgml-base (1.31+nmu1build1) ...
+2026-11-27T06:36:33.6878669Z Processing triggers for install-info (7.2-5ubuntu2) ...
+2026-11-27T06:36:33.8073360Z Setting up x11proto-dev (2025.1-1) ...
+2026-11-27T06:36:33.8099176Z Setting up libharfbuzz-dev:amd64 (12.3.2-2) ...
+2026-11-27T06:36:33.8118763Z Setting up libxau-dev:amd64 (1:1.0.11-1build2) ...
+2026-11-27T06:36:33.8145887Z Setting up libice-dev:amd64 (2:1.1.1-1build1) ...
+2026-11-27T06:36:33.8173010Z Setting up libsm-dev:amd64 (2:1.2.6-1build1) ...
+2026-11-27T06:36:33.8201304Z Setting up libibus-1.0-dev:amd64 (1.5.34~rc2-1ubuntu0.1) ...
+2026-11-27T06:36:33.8235764Z Setting up libxdmcp-dev:amd64 (1:1.1.5-2) ...
+2026-11-27T06:36:33.8303633Z Setting up libxcb1-dev:amd64 (1.17.0-2ubuntu1) ...
+2026-11-27T06:36:33.8340739Z Setting up libx11-dev:amd64 (2:1.8.13-1ubuntu0.1) ...
+2026-11-27T06:36:33.8367028Z Setting up libxfixes-dev:amd64 (1:6.0.0-2build2) ...
+2026-11-27T06:36:33.8399772Z Setting up libxt-dev:amd64 (1:1.2.1-1.3build1) ...
+2026-11-27T06:36:33.8435767Z Setting up libxext-dev:amd64 (2:1.3.4-1build3) ...
+2026-11-27T06:36:33.8462655Z Setting up libglx-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.8498868Z Setting up libxi-dev:amd64 (2:1.8.2-2ubuntu0.26.04.1) ...
+2026-11-27T06:36:33.8520302Z Setting up libxrender-dev:amd64 (1:0.9.12-1ubuntu0.26.04.1) ...
+2026-11-27T06:36:33.8543483Z Setting up libgl-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.8577859Z Setting up libegl-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.8598183Z Setting up libxcursor-dev:amd64 (1:1.2.3-1build1) ...
+2026-11-27T06:36:33.8621607Z Setting up libxxf86vm-dev:amd64 (1:1.1.4-2) ...
+2026-11-27T06:36:33.8641637Z Setting up libxss-dev:amd64 (1:1.2.3-1build4) ...
+2026-11-27T06:36:33.8662753Z Setting up libxv-dev:amd64 (2:1.0.13-1) ...
+2026-11-27T06:36:33.8691595Z Setting up libxrandr-dev:amd64 (2:1.5.4-1build1) ...
+2026-11-27T06:36:33.8730152Z Setting up libxinerama-dev:amd64 (2:1.1.4-3build2) ...
+2026-11-27T06:36:33.8764427Z Setting up libgles-dev:amd64 (1.7.0-3) ...
+2026-11-27T06:36:33.8797763Z Setting up libsdl2-dev:amd64 (2.32.10+dfsg-6) ...
+2026-11-27T06:36:33.8827139Z Setting up libsdl2-ttf-dev:amd64 (2.24.0+dfsg-3) ...
+2026-11-27T06:36:33.8854972Z Setting up libsdl2-mixer-dev:amd64 (2.8.1+dfsg-5) ...
+2026-11-27T06:36:33.8886923Z Setting up libsdl2-image-dev:amd64 (2.8.8+dfsg-2) ...
+2026-11-27T06:36:34.5819892Z 
+2026-11-27T06:36:34.5820517Z Running kernel seems to be up-to-date.
+2026-11-27T06:36:34.5820954Z 
+2026-11-27T06:36:34.5821127Z Restarting services...
+2026-11-27T06:36:34.6113805Z  systemctl restart packagekit.service php8.5-fpm.service
+2026-11-27T06:36:34.8145288Z 
+2026-11-27T06:36:34.8145839Z Service restarts being deferred:
+2026-11-27T06:36:34.8146490Z  systemctl restart hosted-compute-agent.service
+2026-11-27T06:36:34.8146981Z 
+2026-11-27T06:36:34.8147596Z No containers need to be restarted.
+2026-11-27T06:36:34.8147913Z 
+2026-11-27T06:36:34.8148191Z No user sessions are running outdated binaries.
+2026-11-27T06:36:34.8148605Z 
+2026-11-27T06:36:34.8149035Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-27T06:36:35.7279641Z apt install succeeded on attempt 1
+2026-11-27T06:36:35.7331681Z ##[group]Run python3 -c 'import yaml' 2>/dev/null && exit 0
+2026-11-27T06:36:35.7332167Z [36;1mpython3 -c 'import yaml' 2>/dev/null && exit 0[0m
+2026-11-27T06:36:35.7332812Z [36;1mpython3 -m pip install --user pyyaml \[0m
+2026-11-27T06:36:35.7333295Z [36;1m  || python3 -m pip install --user --break-system-packages pyyaml[0m
+2026-11-27T06:36:35.7333691Z [36;1mpython3 -c 'import yaml'[0m
+2026-11-27T06:36:35.7367211Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:35.7367567Z ##[endgroup]
+2026-11-27T06:36:35.7969998Z Prepare all required actions
+2026-11-27T06:36:35.7970571Z Getting action download info
+2026-11-27T06:36:36.1109879Z ##[group]Run ./.github/actions/setup-capture-assembler
+2026-11-27T06:36:36.1110209Z with:
+2026-11-27T06:36:36.1110396Z ##[endgroup]
+2026-11-27T06:36:36.1172951Z ##[start-action display=Name this native selection evidence;id=__self.identity]
+2026-11-27T06:36:36.1198436Z ##[group]Run python3 - <<'PYNAME'
+2026-11-27T06:36:36.1198752Z [36;1mpython3 - <<'PYNAME'[0m
+2026-11-27T06:36:36.1199007Z [36;1mimport json, os, uuid[0m
+2026-11-27T06:36:36.1199264Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:36:36.1199878Z [36;1mname = 'capture-assembler-' + os.environ['GITHUB_JOB'] + '-' + os.environ['RUNNER_OS'] + '-' + os.environ['RUNNER_ARCH'] + '-' + uuid.uuid4().hex[:12][0m
+2026-11-27T06:36:36.1200582Z [36;1moutput = Path('.test_output/capture-assembler-checks')[0m
+2026-11-27T06:36:36.1200975Z [36;1moutput.mkdir(parents=True, exist_ok=True)[0m
+2026-11-27T06:36:36.1201642Z [36;1m(output / 'identity.json').write_text(json.dumps({'artifact_name': name, 'event_sha': os.environ.get('GITHUB_SHA')}, indent=2) + '\n')[0m
+2026-11-27T06:36:36.1202635Z [36;1mwith open(os.environ['GITHUB_OUTPUT'], 'a') as stream:[0m
+2026-11-27T06:36:36.1203024Z [36;1m    stream.write('artifact_name=' + name + '\n')[0m
+2026-11-27T06:36:36.1203332Z [36;1mPYNAME[0m
+2026-11-27T06:36:36.1235325Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:36.1235675Z ##[endgroup]
+2026-11-27T06:36:36.1617115Z ##[end-action id=__self.identity;outcome=success;conclusion=success;duration_ms=44]
+2026-11-27T06:36:36.1619790Z ##[start-action display=Check native profile metadata and selection refusals;id=__self.__run]
+2026-11-27T06:36:36.1638225Z ##[group]Run set -o pipefail
+2026-11-27T06:36:36.1638507Z [36;1mset -o pipefail[0m
+2026-11-27T06:36:36.1639214Z [36;1mpython3 -m unittest -v tests.test_capture_assembler_profile tests.test_ci_select_capture_assembler 2>&1 | tee .test_output/capture-assembler-checks/controls.log[0m
+2026-11-27T06:36:36.1671707Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:36.1672069Z ##[endgroup]
+2026-11-27T06:36:36.7658441Z test_actual_native_archive_and_independent_drift_refusals (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_actual_native_archive_and_independent_drift_refusals) ... ok
+2026-11-27T06:36:36.7663159Z test_existing_native_inputs_are_never_overwritten (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_existing_native_inputs_are_never_overwritten) ... ok
+2026-11-27T06:36:36.7667583Z test_manifest_drift_refuses_before_returning_a_native_input (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_manifest_drift_refuses_before_returning_a_native_input) ... ok
+2026-11-27T06:36:36.7669971Z test_other_native_architecture_refuses_before_materialization (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_other_native_architecture_refuses_before_materialization) ... ok
+2026-11-27T06:36:36.7679475Z test_ambiguous_compiler_command_is_preserved_and_refused (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_ambiguous_compiler_command_is_preserved_and_refused) ... ok
+2026-11-27T06:36:36.7860014Z test_changed_producer_binding_never_materializes_or_exports (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_changed_producer_binding_never_materializes_or_exports) ... ok
+2026-11-27T06:36:36.8008698Z test_missing_supplied_profile_never_repeats_its_producer (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_missing_supplied_profile_never_repeats_its_producer) ... ok
+2026-11-27T06:36:36.8080035Z test_unknown_family_never_builds_or_exports_a_profile (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_unknown_family_never_builds_or_exports_a_profile) ... ok
+2026-11-27T06:36:36.8081110Z 
+2026-11-27T06:36:36.8081308Z ----------------------------------------------------------------------
+2026-11-27T06:36:36.8082091Z Ran 8 tests in 0.495s
+2026-11-27T06:36:36.8082291Z 
+2026-11-27T06:36:36.8093281Z OK
+2026-11-27T06:36:36.8299128Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=667]
+2026-11-27T06:36:36.8303051Z ##[start-action display=Build the actual production admission probe and capture provider;id=__self.__run_2]
+2026-11-27T06:36:36.8322802Z ##[group]Run set -o pipefail
+2026-11-27T06:36:36.8323101Z [36;1mset -o pipefail[0m
+2026-11-27T06:36:36.8323745Z [36;1mmake -f Makefile.gnu -j2 "CC=${CC:-cc}" obj/test_module_generation_probe bin/nano_as_capture.so 2>&1 | tee .test_output/capture-assembler-checks/build.log[0m
+2026-11-27T06:36:36.8356142Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:36.8356502Z ##[endgroup]
+2026-11-27T06:36:36.9812209Z mkdir -p obj/build_bootstrap
+2026-11-27T06:36:36.9868677Z mkdir -p obj
+2026-11-27T06:36:36.9952461Z mkdir -p bin
+2026-11-27T06:36:37.0055304Z mkdir -p obj/runtime
+2026-11-27T06:36:37.0080771Z [schema] Generating compiler schema artifacts...
+2026-11-27T06:36:37.0138492Z [schema] Using Python version (bootstrap)...
+2026-11-27T06:36:37.0165335Z mkdir -p obj/eval
+2026-11-27T06:36:37.0434638Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl
+2026-11-27T06:36:37.0670621Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+2026-11-27T06:36:37.5785293Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/utf8.c -o obj/utf8.o
+2026-11-27T06:36:37.7040770Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+2026-11-27T06:36:37.8666973Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+2026-11-27T06:36:37.8724777Z make: 'bin/nano_as_capture.so' is up to date.
+2026-11-27T06:36:38.0972637Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o obj/test_module_generation_probe tests/test_module_generation_probe.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o obj/runtime/ffi_loader.o -lm -lcrypto -lffi -rdynamic -pthread -ldl
+2026-11-27T06:36:43.9887878Z ##[end-action id=__self.__run_2;outcome=success;conclusion=success;duration_ms=7158]
+2026-11-27T06:36:43.9897747Z ##[start-action display=Provision and verify the actual selected assembler;id=__self.select]
+2026-11-27T06:36:43.9915824Z ##[group]Run python3 scripts/ci_select_capture_assembler.py
+2026-11-27T06:36:43.9916254Z [36;1mpython3 scripts/ci_select_capture_assembler.py[0m
+2026-11-27T06:36:43.9947445Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:43.9947784Z env:
+2026-11-27T06:36:43.9947992Z   NANO_CI_FIXED_ASSEMBLER_DIRECTORY: 
+2026-11-27T06:36:43.9948271Z ##[endgroup]
+2026-11-27T06:36:44.4082953Z ##[end-action id=__self.select;outcome=success;conclusion=success;duration_ms=418]
+2026-11-27T06:36:44.4085831Z ##[start-action display=Retain native assembler source, outcomes and selection evidence;id=__self.__actions_upload-artifact]
+2026-11-27T06:36:44.4135603Z ##[group]Run actions/upload-artifact@v4
+2026-11-27T06:36:44.4135881Z with:
+2026-11-27T06:36:44.4136172Z   name: capture-assembler-original-gates-Linux-X64-eb0e294b473b
+2026-11-27T06:36:44.4137081Z   path: .test_output/capture-assembler-ci/
+.test_output/capture-assembler-checks/
+.test_output/source-capture-diagnostic/fixed-as246/
+obj/test_module_generation_probe
+bin/nano_as_capture.so
+
+2026-11-27T06:36:44.4137876Z   include-hidden-files: true
+2026-11-27T06:36:44.4138115Z   if-no-files-found: error
+2026-11-27T06:36:44.4138341Z   retention-days: 14
+2026-11-27T06:36:44.4138549Z   compression-level: 6
+2026-11-27T06:36:44.4138761Z   overwrite: false
+2026-11-27T06:36:44.4138951Z env:
+2026-11-27T06:36:44.4139415Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:36:44.4139786Z ##[endgroup]
+2026-11-27T06:36:44.5873940Z (node:4811) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-27T06:36:44.5874783Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-27T06:36:44.5978105Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-27T06:36:44.5981518Z The least common ancestor is /home/runner/work/nanolang/nanolang. This will be the root directory of the artifact
+2026-11-27T06:36:44.5982129Z With the provided path, there will be 20 files uploaded
+2026-11-27T06:36:44.5987440Z Artifact name is valid!
+2026-11-27T06:36:44.5988156Z Root directory input is valid!
+2026-11-27T06:36:45.0033662Z Beginning upload of artifact content to blob storage
+2026-11-27T06:36:45.4530705Z (node:4811) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-27T06:36:46.3393109Z Uploaded bytes 5675202
+2026-11-27T06:36:46.4200884Z Finished uploading artifact content to blob storage!
+2026-11-27T06:36:46.4202093Z SHA256 digest of uploaded artifact zip is 4125b40cbd9735531118dbd326735f4f4ffbe19811439f4c94802ad14d5909be
+2026-11-27T06:36:46.4203860Z Finalizing artifact upload
+2026-11-27T06:36:46.8063255Z Artifact capture-assembler-original-gates-Linux-X64-eb0e294b473b.zip successfully finalized. Artifact ID 15177816113
+2026-11-27T06:36:46.8064977Z Artifact capture-assembler-original-gates-Linux-X64-eb0e294b473b has been successfully uploaded! Final size is 5675202 bytes. Artifact ID is 15177816113
+2026-11-27T06:36:46.8071365Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/45952317501/artifacts/15177816113
+2026-11-27T06:36:46.8214416Z ##[end-action id=__self.__actions_upload-artifact;outcome=success;conclusion=success;duration_ms=2412]
+2026-11-27T06:36:46.8261513Z ##[group]Run mkdir -p .test_output/c-repair-original-gates
+2026-11-27T06:36:46.8262001Z [36;1mmkdir -p .test_output/c-repair-original-gates[0m
+2026-11-27T06:36:46.8262467Z [36;1mgit rev-parse HEAD > .test_output/c-repair-original-gates/revision.txt[0m
+2026-11-27T06:36:46.8263302Z [36;1mgit ls-tree -r HEAD > .test_output/c-repair-original-gates/source-tree.txt[0m
+2026-11-27T06:36:46.8263719Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:36:46.8264026Z [36;1mimport hashlib, json, os, shlex, shutil, subprocess[0m
+2026-11-27T06:36:46.8264377Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:36:46.8264701Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T06:36:46.8265096Z [36;1mcompiler=shlex.split(os.environ.get('CC','cc'))[0m
+2026-11-27T06:36:46.8265504Z [36;1mversion=subprocess.check_output(compiler+['--version'])[0m
+2026-11-27T06:36:46.8265915Z [36;1m(root/'compiler-version.txt').write_bytes(version)[0m
+2026-11-27T06:36:46.8266330Z [36;1mselected=[compiler[0],'as','ld','make','python3'][0m
+2026-11-27T06:36:46.8266656Z [36;1mfor tool in ('as','ld'):[0m
+2026-11-27T06:36:46.8267126Z [36;1m    selected.append(subprocess.check_output(compiler+['-print-prog-name='+tool]).decode().strip())[0m
+2026-11-27T06:36:46.8267716Z [36;1mtools={str(Path(shutil.which(n)).resolve()) for n in selected}[0m
+2026-11-27T06:36:46.8268209Z [36;1mhashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}[0m
+2026-11-27T06:36:46.8268734Z [36;1m(root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')[0m
+2026-11-27T06:36:46.8269167Z [36;1mcopies=root/'selected-tools';copies.mkdir()[0m
+2026-11-27T06:36:46.8269656Z [36;1mfor i,n in enumerate(sorted(tools)):shutil.copy2(n,copies/(str(i)+'-'+Path(n).name))[0m
+2026-11-27T06:36:46.8270082Z [36;1mPY[0m
+2026-11-27T06:36:46.8300863Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:46.8301195Z env:
+2026-11-27T06:36:46.8301528Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:36:46.8301902Z ##[endgroup]
+2026-11-27T06:36:47.3833921Z ##[group]Run set -o pipefail
+2026-11-27T06:36:47.3834275Z [36;1mset -o pipefail[0m
+2026-11-27T06:36:47.3834654Z [36;1mmake -f Makefile.gnu -j2 CC="${CC:-cc}" bin/nanoc_c nano_virt nano_vm \[0m
+2026-11-27T06:36:47.3835087Z [36;1m  nvm2c nanoisa_dump nvm2c-runtime \[0m
+2026-11-27T06:36:47.3835490Z [36;1m  2>&1 | tee .test_output/c-repair-original-gates/cold-tools.log[0m
+2026-11-27T06:36:47.3835865Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:36:47.3836115Z [36;1mimport hashlib,json[0m
+2026-11-27T06:36:47.3836375Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:36:47.3836782Z [36;1mnames=['nanoc_c','nano_virt','nano_vm','nvm2c','nanoisa','nano_aot_runtime.o'][0m
+2026-11-27T06:36:47.3837351Z [36;1mif Path('bin/nano_as_capture.so').is_file():names.append('nano_as_capture.so')[0m
+2026-11-27T06:36:47.3837939Z [36;1mhashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}[0m
+2026-11-27T06:36:47.3838858Z [36;1mPath('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')[0m
+2026-11-27T06:36:47.3839404Z [36;1mPY[0m
+2026-11-27T06:36:47.3870589Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:36:47.3870935Z env:
+2026-11-27T06:36:47.3871245Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:36:47.3871621Z ##[endgroup]
+2026-11-27T06:36:47.4913429Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+2026-11-27T06:36:47.5060666Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench.c -o obj/bench.o
+2026-11-27T06:36:47.6134767Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+2026-11-27T06:36:47.6732161Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+2026-11-27T06:36:47.6888351Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+2026-11-27T06:36:47.7271465Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/catalog.c -o obj/catalog.o
+2026-11-27T06:36:47.9850458Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/channel.c -o obj/channel.o
+2026-11-27T06:36:48.0766151Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/checked_borrow_facts.c -o obj/checked_borrow_facts.o
+2026-11-27T06:36:48.4451123Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+2026-11-27T06:36:48.6949125Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+2026-11-27T06:36:48.7909717Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+2026-11-27T06:36:48.9644990Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+2026-11-27T06:36:49.0010774Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen.c -o obj/docgen.o
+2026-11-27T06:36:49.4336944Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+2026-11-27T06:36:49.7568234Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+2026-11-27T06:36:49.8529218Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/effects.c -o obj/effects.o
+2026-11-27T06:36:49.8687203Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+2026-11-27T06:36:50.1716572Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/env.c -o obj/env.o
+2026-11-27T06:36:50.1910225Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+2026-11-27T06:36:52.0684595Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/carrier_heap.c -o obj/eval/carrier_heap.o
+2026-11-27T06:36:52.2641729Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/carrier_runtime.c -o obj/eval/carrier_runtime.o
+2026-11-27T06:36:52.6446500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/carrier_values.c -o obj/eval/carrier_values.o
+2026-11-27T06:36:53.1419178Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+2026-11-27T06:36:53.2661561Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+2026-11-27T06:36:53.6520187Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+2026-11-27T06:36:53.7843712Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+2026-11-27T06:36:53.9867494Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fmt.c -o obj/fmt.o
+2026-11-27T06:36:54.1858388Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+2026-11-27T06:36:54.3611258Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+2026-11-27T06:36:54.5644532Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+2026-11-27T06:36:54.5825612Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/lexer.c -o obj/lexer.o
+2026-11-27T06:36:54.6784064Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/locale.c -o obj/locale.o
+2026-11-27T06:36:54.8231279Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/main.c -o obj/main.o
+2026-11-27T06:36:54.9978653Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module.c -o obj/module.o
+2026-11-27T06:36:55.7964030Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+2026-11-27T06:36:56.2189592Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+2026-11-27T06:36:57.8281122Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+2026-11-27T06:36:58.1533923Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+2026-11-27T06:36:58.3736584Z mkdir -p obj/nanoisa
+2026-11-27T06:36:58.3929541Z python3 scripts/embed_managed_native.py
+2026-11-27T06:36:58.4647836Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_callables.c -o obj/nanoisa/nvm2c_callables.o
+2026-11-27T06:36:59.1482892Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+2026-11-27T06:36:59.6396194Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+2026-11-27T06:37:00.6877097Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+2026-11-27T06:37:00.7958620Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+2026-11-27T06:37:00.8771948Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+2026-11-27T06:37:01.0518964Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+2026-11-27T06:37:01.1066497Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+2026-11-27T06:37:01.2112875Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+2026-11-27T06:37:01.3809690Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+2026-11-27T06:37:01.4065026Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+2026-11-27T06:37:01.5716664Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+2026-11-27T06:37:01.6898963Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+2026-11-27T06:37:01.7828128Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+2026-11-27T06:37:02.4171178Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+2026-11-27T06:37:02.5298682Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+2026-11-27T06:37:03.0068651Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+2026-11-27T06:37:03.0708310Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+2026-11-27T06:37:03.3786583Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+2026-11-27T06:37:03.4734883Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+2026-11-27T06:37:03.7371160Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+2026-11-27T06:37:04.1111498Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+2026-11-27T06:37:04.3227122Z mkdir -p obj/nanovirt
+2026-11-27T06:37:04.3378473Z mkdir -p obj/nanovm
+2026-11-27T06:37:04.3601982Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+2026-11-27T06:37:04.9381060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+2026-11-27T06:37:05.2195488Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+2026-11-27T06:37:05.2792795Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/parser.c -o obj/parser.o
+2026-11-27T06:37:05.3286407Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+2026-11-27T06:37:05.5591904Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+2026-11-27T06:37:05.8396805Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/reflection.c -o obj/reflection.o
+2026-11-27T06:37:06.0081745Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+2026-11-27T06:37:07.3660572Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+2026-11-27T06:37:07.7546787Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+2026-11-27T06:37:07.9444649Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+2026-11-27T06:37:08.1183671Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+2026-11-27T06:37:08.1616772Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+2026-11-27T06:37:08.4415679Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+2026-11-27T06:37:08.4793724Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+2026-11-27T06:37:08.6124942Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+2026-11-27T06:37:08.7153308Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+2026-11-27T06:37:08.8138040Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+2026-11-27T06:37:08.9135671Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+2026-11-27T06:37:09.0140165Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+2026-11-27T06:37:09.1120102Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+2026-11-27T06:37:09.2108857Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+2026-11-27T06:37:09.2994174Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+2026-11-27T06:37:09.3168262Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+2026-11-27T06:37:09.4055500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+2026-11-27T06:37:09.4222856Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+2026-11-27T06:37:09.5063519Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+2026-11-27T06:37:09.5257428Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+2026-11-27T06:37:09.6063652Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+2026-11-27T06:37:09.6267014Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+2026-11-27T06:37:09.7066657Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+2026-11-27T06:37:09.7293742Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+2026-11-27T06:37:09.8098829Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+2026-11-27T06:37:09.8294945Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+2026-11-27T06:37:09.9151025Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+2026-11-27T06:37:09.9335635Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+2026-11-27T06:37:10.0168958Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+2026-11-27T06:37:10.0360534Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTServiceDecl.c -o obj/runtime/list_ASTServiceDecl.o
+2026-11-27T06:37:10.1192049Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+2026-11-27T06:37:10.1390180Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+2026-11-27T06:37:10.2236167Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+2026-11-27T06:37:10.2428923Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+2026-11-27T06:37:10.3210509Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+2026-11-27T06:37:10.3440380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+2026-11-27T06:37:10.4241796Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+2026-11-27T06:37:10.4495795Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+2026-11-27T06:37:10.5280510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+2026-11-27T06:37:10.5547392Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+2026-11-27T06:37:10.6293164Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+2026-11-27T06:37:10.6605137Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+2026-11-27T06:37:10.7337216Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+2026-11-27T06:37:10.7649408Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+2026-11-27T06:37:10.8383671Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+2026-11-27T06:37:10.8673759Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_bool.c -o obj/runtime/list_bool.o
+2026-11-27T06:37:10.9417690Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+2026-11-27T06:37:10.9619801Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+2026-11-27T06:37:11.0415617Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+2026-11-27T06:37:11.0650587Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+2026-11-27T06:37:11.1467928Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+2026-11-27T06:37:11.2413151Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+2026-11-27T06:37:11.2602225Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/service_bodies.c -o obj/service_bodies.o
+2026-11-27T06:37:11.3058728Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/service_namespace.c -o obj/service_namespace.o
+2026-11-27T06:37:11.6584269Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/service_ownership.c -o obj/service_ownership.o
+2026-11-27T06:37:11.7834345Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+2026-11-27T06:37:12.0499809Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+2026-11-27T06:37:12.1206079Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+2026-11-27T06:37:12.2048250Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/tracing.c -o obj/tracing.o
+2026-11-27T06:37:12.2548963Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+2026-11-27T06:37:12.4048416Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+2026-11-27T06:37:13.1540935Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+2026-11-27T06:37:18.1805012Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_flow.c -o obj/nanoisa/websocket_flow.o
+2026-11-27T06:37:19.7444494Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_codec.c -o obj/nanoisa/websocket_codec.o
+2026-11-27T06:37:19.7843860Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal.c -o obj/nanoisa/service_websocket_nominal.o
+2026-11-27T06:37:19.8671537Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal_plan.c -o obj/nanoisa/service_websocket_nominal_plan.o
+2026-11-27T06:37:20.1013599Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_websocket_binding.c -o obj/nsi_websocket_binding.o
+2026-11-27T06:37:20.4951121Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_websocket_plan.c -o obj/nsi_websocket_plan.o
+2026-11-27T06:37:20.6206501Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal.c -o obj/nanoisa/service_multi_nominal.o
+2026-11-27T06:37:20.7756608Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal_plan.c -o obj/nanoisa/service_multi_nominal_plan.o
+2026-11-27T06:37:21.0288093Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal.c -o obj/nanoisa/service_socket_nominal.o
+2026-11-27T06:37:21.1205351Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal_plan.c -o obj/nanoisa/service_socket_nominal_plan.o
+2026-11-27T06:37:21.2488445Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_socket_binding.c -o obj/nsi_socket_binding.o
+2026-11-27T06:37:21.3825794Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_socket_plan.c -o obj/nsi_socket_plan.o
+2026-11-27T06:37:21.4938172Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_snapshot.c -o obj/nanoisa/file_source_snapshot.o
+2026-11-27T06:37:21.6206556Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_plan.c -o obj/nanoisa/file_source_plan.o
+2026-11-27T06:37:21.6512688Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_catalog.c -o obj/nanoisa/file_source_catalog.o
+2026-11-27T06:37:21.8331835Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file_binding.c -o obj/nsi_file_binding.o
+2026-11-27T06:37:21.8484876Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi.c -o obj/nsi.o
+2026-11-27T06:37:22.2664559Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+2026-11-27T06:37:22.3748582Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/service_driver.c -o obj/service_driver.o
+2026-11-27T06:37:22.3930222Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/service_lowering.c -o obj/service_lowering.o
+2026-11-27T06:37:22.5006879Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/service_product.c -o obj/runtime/service_product.o
+2026-11-27T06:37:22.7873090Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/service_shadows.c -o obj/runtime/service_shadows.o
+2026-11-27T06:37:22.9949605Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_flow.c -o obj/nanoisa/socket_flow.o
+2026-11-27T06:37:24.0561793Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_flow.c -o obj/nanoisa/services_flow.o
+2026-11-27T06:37:26.0482216Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_nominal.c -o obj/nanoisa/services_nominal.o
+2026-11-27T06:37:26.1278358Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -std=c11 -c src/nanoisa/file_host_grant.c -o obj/nanoisa/file_host_grant.o
+2026-11-27T06:37:26.1939041Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -DNVM_FILE_PUBLIC_ENGINE -c src/nanoisa/file_runtime.c -o obj/nanoisa/file_runtime_public.o
+2026-11-27T06:37:27.1569357Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_public_native.c -o obj/nanoisa/file_public_native.o
+2026-11-27T06:37:27.4797960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/file_public_vm.c -o obj/nanovm/file_public_vm.o
+2026-11-27T06:37:27.7175437Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_native.c -o obj/nanoisa/file_cyclic_public_native.o
+2026-11-27T06:37:27.9151910Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/file_cyclic_public_vm.c -o obj/nanovm/file_cyclic_public_vm.o
+2026-11-27T06:37:28.1452468Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_abi.c -o obj/nanoisa/file_cyclic_public_abi.o
+2026-11-27T06:37:28.1854050Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_native.c -o obj/nanoisa/file_indirect_public_native.o
+2026-11-27T06:37:28.2015554Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/file_indirect_public_vm.c -o obj/nanovm/file_indirect_public_vm.o
+2026-11-27T06:37:28.4998828Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_abi.c -o obj/nanoisa/file_indirect_public_abi.o
+2026-11-27T06:37:28.5402122Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_cap.c -o obj/nsi_cap.o
+2026-11-27T06:37:28.6691536Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file.c -o obj/nsi_file.o
+2026-11-27T06:37:28.8418278Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_file_values.c -o obj/nsi_file_values.o
+2026-11-27T06:37:28.9929920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_runtime.c -o obj/nanoisa/socket_runtime.o
+2026-11-27T06:37:29.0919838Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_host_grant.c -o obj/nanoisa/socket_host_grant.o
+2026-11-27T06:37:29.1547170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_native.c -o obj/nanoisa/socket_indirect_public_native.o
+2026-11-27T06:37:29.6220548Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_abi.c -o obj/nanoisa/socket_indirect_public_abi.o
+2026-11-27T06:37:29.6668533Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/socket_indirect_public_vm.c -o obj/nanovm/socket_indirect_public_vm.o
+2026-11-27T06:37:29.9595224Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_socket.c -o obj/nsi_socket.o
+2026-11-27T06:37:30.4136024Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_socket_values.c -o obj/nsi_socket_values.o
+2026-11-27T06:37:30.6913530Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/service_policy.c -o obj/runtime/service_policy.o
+2026-11-27T06:37:30.7445921Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_runtime.c -o obj/nanoisa/services_runtime.o
+2026-11-27T06:37:30.7711416Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_host_grant.c -o obj/nanoisa/services_host_grant.o
+2026-11-27T06:37:30.9032323Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_native.c -o obj/nanoisa/services_indirect_public_native.o
+2026-11-27T06:37:31.3946709Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_abi.c -o obj/nanoisa/services_indirect_public_abi.o
+2026-11-27T06:37:31.4356424Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/services_indirect_public_vm.c -o obj/nanovm/services_indirect_public_vm.o
+2026-11-27T06:37:31.7647977Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_services_values.c -o obj/nsi_services_values.o
+2026-11-27T06:37:32.0636350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_websocket_values.c -o obj/nsi_websocket_values.o
+2026-11-27T06:37:32.3329837Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_websocket_transport.c -o obj/nsi_websocket_transport.o
+2026-11-27T06:37:32.8338501Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_websocket_protocol.c -o obj/nsi_websocket_protocol.o
+2026-11-27T06:37:33.0058205Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nsi_socket_resolver.c -o obj/nsi_socket_resolver.o
+2026-11-27T06:37:33.1894319Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_runtime.c -o obj/nanoisa/websocket_runtime.o
+2026-11-27T06:37:33.2345501Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_host_grant.c -o obj/nanoisa/websocket_host_grant.o
+2026-11-27T06:37:33.3152181Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_native.c -o obj/nanoisa/websocket_indirect_public_native.o
+2026-11-27T06:37:33.7926625Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_abi.c -o obj/nanoisa/websocket_indirect_public_abi.o
+2026-11-27T06:37:33.8331940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/websocket_indirect_public_vm.c -o obj/nanovm/websocket_indirect_public_vm.o
+2026-11-27T06:37:34.1351739Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+2026-11-27T06:37:34.3313976Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+2026-11-27T06:37:34.4196929Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+2026-11-27T06:37:34.5338292Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+2026-11-27T06:37:34.8352249Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cli.c -o obj/nanoisa/file_cli.o
+2026-11-27T06:37:34.9341788Z python3 scripts/embed_binary64_parser.py --check
+2026-11-27T06:37:34.9961759Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+2026-11-27T06:37:35.0119688Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+2026-11-27T06:37:35.0816728Z cc -r -nostdlib -o bin/nano_aot_runtime.o obj/runtime/dyn_array.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/regex.o obj/utf8.o
+2026-11-27T06:37:35.1037560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+2026-11-27T06:37:35.1181328Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+2026-11-27T06:37:36.3375271Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+2026-11-27T06:37:37.4346507Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+2026-11-27T06:37:37.6038654Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+2026-11-27T06:37:37.7130306Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+2026-11-27T06:37:37.8348354Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+2026-11-27T06:37:37.9498523Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+2026-11-27T06:37:38.1024080Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+2026-11-27T06:37:40.6538023Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+2026-11-27T06:37:41.2534022Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+2026-11-27T06:37:41.5020409Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+2026-11-27T06:37:41.5192934Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+2026-11-27T06:37:50.1735702Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+2026-11-27T06:37:50.3539478Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+2026-11-27T06:37:50.5149567Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+2026-11-27T06:37:50.6925632Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+2026-11-27T06:37:50.9663961Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+2026-11-27T06:37:51.3101189Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+2026-11-27T06:37:51.3610796Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+2026-11-27T06:37:51.4415230Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+2026-11-27T06:37:51.7294101Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+2026-11-27T06:37:51.8359623Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+2026-11-27T06:37:51.9510947Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+2026-11-27T06:37:52.0748124Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+2026-11-27T06:37:53.1889215Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+2026-11-27T06:37:53.3735747Z ar rcs lib/libnano_compiler_inputs.a obj/nanoisa/websocket_flow.o obj/nanoisa/websocket_codec.o obj/nanoisa/service_websocket_nominal.o obj/nanoisa/service_websocket_nominal_plan.o obj/nsi_websocket_binding.o obj/nsi_websocket_plan.o obj/nanoisa/service_multi_nominal.o obj/nanoisa/service_multi_nominal_plan.o obj/nanoisa/service_socket_nominal.o obj/nanoisa/service_socket_nominal_plan.o obj/nsi_socket_binding.o obj/nsi_socket_plan.o obj/nanoisa/file_source_snapshot.o obj/nanoisa/file_source_plan.o obj/nanoisa/file_source_catalog.o obj/nsi_file_binding.o obj/nsi.o obj/nsi_file_plan.o
+2026-11-27T06:37:59.5403979Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -rdynamic
+2026-11-27T06:37:59.6172331Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -rdynamic
+2026-11-27T06:37:59.6777513Z Stage 1: Building C reference compiler...
+2026-11-27T06:37:59.7239461Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a \
+2026-11-27T06:37:59.7266741Z 	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/tracing.o obj/eval/carrier_heap.o obj/eval/carrier_values.o obj/eval/carrier_runtime.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o obj/service_driver.o obj/service_lowering.o obj/runtime/service_product.o obj/runtime/service_shadows.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -rdynamic
+2026-11-27T06:38:00.0247854Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/tracing.o obj/eval/carrier_heap.o obj/eval/carrier_values.o obj/eval/carrier_runtime.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+2026-11-27T06:38:00.0272154Z 	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+2026-11-27T06:38:00.0273884Z 	obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -rdynamic -rdynamic
+2026-11-27T06:38:00.0334301Z ✓ C Compiler: bin/nanoc_c
+2026-11-27T06:38:00.4261177Z ##[group]Run set -o pipefail
+2026-11-27T06:38:00.4261518Z [36;1mset -o pipefail[0m
+2026-11-27T06:38:00.4261962Z [36;1mpython3 scripts/ci_qualification_storage.py run --label original-cache-workers -- \[0m
+2026-11-27T06:38:00.4262935Z [36;1m  make -f Makefile.gnu -j1 CC="${CC:-cc}" test-bytecode-shadows test-module-assembly-workers \[0m
+2026-11-27T06:38:00.4263533Z [36;1m  2>&1 | tee .test_output/c-repair-original-gates/cache-workers.log[0m
+2026-11-27T06:38:00.4295864Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:38:00.4296216Z env:
+2026-11-27T06:38:00.4296525Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:38:00.4296918Z ##[endgroup]
+2026-11-27T06:38:04.5785369Z I retain original-cache-workers temporary evidence at /home/runner/work/_temp/nano-qualification-y37ekczh
+2026-11-27T06:38:45.6160110Z ..........................................
+2026-11-27T06:38:45.6161100Z ----------------------------------------------------------------------
+2026-11-27T06:38:45.6161688Z Ran 42 tests in 40.725s
+2026-11-27T06:38:45.6161930Z 
+2026-11-27T06:38:45.6162056Z OK
+2026-11-27T06:39:20.4006328Z .........s..s........sss.ss.................s.....F....s.
+2026-11-27T06:39:20.4006901Z ======================================================================
+2026-11-27T06:39:20.4007898Z FAIL: test_shadow_and_production_share_retained_generation (tests.test_module_cache_publication.ModuleCachePublication.test_shadow_and_production_share_retained_generation)
+2026-11-27T06:39:20.4008915Z ----------------------------------------------------------------------
+2026-11-27T06:39:20.4009354Z Traceback (most recent call last):
+2026-11-27T06:39:20.4010127Z   File "/home/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 519, in test_shadow_and_production_share_retained_generation
+2026-11-27T06:39:20.4010917Z     self.wait_ready(ready, process)
+2026-11-27T06:39:20.4011245Z     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+2026-11-27T06:39:20.4011830Z   File "/home/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 397, in wait_ready
+2026-11-27T06:39:20.4012827Z     self.assertTrue(ready.exists(), "I did not reach the controlled compiler boundary")
+2026-11-27T06:39:20.4013473Z     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-27T06:39:20.4014075Z AssertionError: False is not true : I did not reach the controlled compiler boundary
+2026-11-27T06:39:20.4014791Z 
+2026-11-27T06:39:20.4015174Z ----------------------------------------------------------------------
+2026-11-27T06:39:20.4015755Z Ran 57 tests in 34.650s
+2026-11-27T06:39:20.4016007Z 
+2026-11-27T06:39:20.4016188Z FAILED (failures=1, skipped=9)
+2026-11-27T06:39:20.4208630Z make: *** [Makefile.gnu:3649: test-bytecode-shadows] Error 1
+2026-11-27T06:39:22.0766702Z ##[error]Process completed with exit code 2.
+2026-11-27T06:39:22.0845932Z ##[group]Run git diff --exit-code HEAD
+2026-11-27T06:39:22.0846314Z [36;1mgit diff --exit-code HEAD[0m
+2026-11-27T06:39:22.0846601Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:39:22.0846850Z [36;1mimport hashlib,json[0m
+2026-11-27T06:39:22.0847107Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:39:22.0847450Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T06:39:22.0847885Z [36;1mfor name,base in [('tools',Path('/')),('images',Path('bin'))]:[0m
+2026-11-27T06:39:22.0848281Z [36;1m    before=root/(name+'-before.json')[0m
+2026-11-27T06:39:22.0848611Z [36;1m    if not before.exists():continue[0m
+2026-11-27T06:39:22.0848942Z [36;1m    expected=json.loads(before.read_text())[0m
+2026-11-27T06:39:22.0849398Z [36;1m    actual={n:hashlib.sha256((base/n).read_bytes()).hexdigest() for n in expected}[0m
+2026-11-27T06:39:22.0850007Z [36;1m    (root/(name+'-after.json')).write_text(json.dumps(actual,indent=2)+'\n')[0m
+2026-11-27T06:39:22.0850523Z [36;1m    assert actual==expected,(name,expected,actual)[0m
+2026-11-27T06:39:22.0850843Z [36;1mPY[0m
+2026-11-27T06:39:22.0883123Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:39:22.0883477Z env:
+2026-11-27T06:39:22.0883798Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:39:22.0884185Z ##[endgroup]
+2026-11-27T06:39:23.6726311Z ##[group]Run python3 - <<'PY'
+2026-11-27T06:39:23.6726653Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:39:23.6726920Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:39:23.6727320Z [36;1mfor path in sorted(Path('obj/bootstrap-nanoisa').glob('run-*/*.log')):[0m
+2026-11-27T06:39:23.6727766Z [36;1m    print(str(path),flush=True)[0m
+2026-11-27T06:39:23.6728234Z [36;1m    print(path.read_text(errors='replace')[-32000:],flush=True)[0m
+2026-11-27T06:39:23.6728780Z [36;1mPY[0m
+2026-11-27T06:39:23.6760690Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:39:23.6761188Z env:
+2026-11-27T06:39:23.6761619Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:39:23.6762157Z ##[endgroup]
+2026-11-27T06:39:23.7112305Z ##[group]Run actions/upload-artifact@v4
+2026-11-27T06:39:23.7112870Z with:
+2026-11-27T06:39:23.7113274Z   name: c-repair-original-ubuntu-latest-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1
+2026-11-27T06:39:23.7114344Z   path: .test_output/
+bin/nanoc*
+bin/nano_vm
+bin/nano_virt
+bin/nvm2c
+bin/nanoisa
+bin/nano_aot_runtime.o
+bin/nano_as_capture.so
+obj/bootstrap-nanoisa/
+obj/module_cache/
+modules/**/.build/**
+/home/runner/work/_temp/nano-*/
+
+2026-11-27T06:39:23.7115228Z   include-hidden-files: true
+2026-11-27T06:39:23.7115479Z   if-no-files-found: error
+2026-11-27T06:39:23.7115712Z   retention-days: 30
+2026-11-27T06:39:23.7115928Z   compression-level: 6
+2026-11-27T06:39:23.7116151Z   overwrite: false
+2026-11-27T06:39:23.7116350Z env:
+2026-11-27T06:39:23.7116642Z   COMPILER_PATH: /home/runner/work/_temp/nanolang-capture-selected-r1
+2026-11-27T06:39:23.7117008Z ##[endgroup]
+2026-11-27T06:39:23.8931613Z (node:18018) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-27T06:39:23.8933255Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-27T06:39:23.9886868Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-27T06:39:23.9890628Z The least common ancestor is /home/runner/work. This will be the root directory of the artifact
+2026-11-27T06:39:23.9891728Z With the provided path, there will be 44 files uploaded
+2026-11-27T06:39:23.9897101Z Artifact name is valid!
+2026-11-27T06:39:23.9898635Z Root directory input is valid!
+2026-11-27T06:39:24.3526934Z Beginning upload of artifact content to blob storage
+2026-11-27T06:39:24.9811871Z (node:18018) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-27T06:39:25.9373902Z Uploaded bytes 8388608
+2026-11-27T06:39:26.4863050Z Uploaded bytes 16777216
+2026-11-27T06:39:26.5819949Z Uploaded bytes 25165824
+2026-11-27T06:39:27.1322898Z Uploaded bytes 33554432
+2026-11-27T06:39:27.8935572Z Uploaded bytes 41943040
+2026-11-27T06:39:28.6540838Z Uploaded bytes 50331648
+2026-11-27T06:39:29.3515510Z Uploaded bytes 58720256
+2026-11-27T06:39:30.1161195Z Uploaded bytes 67108864
+2026-11-27T06:39:30.2341622Z Uploaded bytes 69456391
+2026-11-27T06:39:30.3160379Z Finished uploading artifact content to blob storage!
+2026-11-27T06:39:30.3164100Z SHA256 digest of uploaded artifact zip is fdbc836ff5b7bd09ce90b6d35ebca8b4c57f07bb2f2111f153194c6dce6cb5de
+2026-11-27T06:39:30.3167281Z Finalizing artifact upload
+2026-11-27T06:39:30.8291747Z Artifact c-repair-original-ubuntu-latest-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1.zip successfully finalized. Artifact ID 15176893664
+2026-11-27T06:39:30.8294237Z Artifact c-repair-original-ubuntu-latest-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 has been successfully uploaded! Final size is 69456391 bytes. Artifact ID is 15176893664
+2026-11-27T06:39:30.8300931Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/45952317501/artifacts/15176893664
+2026-11-27T06:39:30.8554594Z Post job cleanup.
+2026-11-27T06:39:30.9407955Z [command]/usr/bin/git version
+2026-11-27T06:39:30.9447667Z git version 2.56.1
+2026-11-27T06:39:30.9486558Z Temporarily overriding HOME='/home/runner/work/_temp/62e9f2b7-e62b-4129-a276-66382c383d66' before making global git config changes
+2026-11-27T06:39:30.9488066Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T06:39:30.9493150Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-11-27T06:39:30.9530278Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T06:39:30.9564607Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T06:39:31.0938460Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T06:39:31.0970793Z http.https://github.com/.extraheader
+2026-11-27T06:39:31.0983616Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-27T06:39:31.1025875Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T06:39:31.2303376Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T06:39:31.2348452Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T06:39:31.3743264Z Cleaning up orphan processes
+2026-11-27T06:39:31.4338857Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

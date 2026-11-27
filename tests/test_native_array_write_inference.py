@@ -78,6 +78,42 @@ RET
     return assembly, bad_path
 
 
+def nonempty_program(tag, operation, reverse=False, via_global=False, mismatch=False):
+    """I observe element tags and contents after writing a complete child array."""
+    payload, check = {
+        1: ('PUSH_I64 -7', 'PUSH_I64 -7\nI64_EQ\nASSERT'),
+        2: ('PUSH_U8 255', 'PUSH_U8 255\nEQ\nASSERT'),
+        3: ('PUSH_F64 -3.5', 'PUSH_F64 -3.5\nF64_EQ\nASSERT'),
+        4: ('PUSH_BOOL 1', 'PUSH_BOOL 1\nEQ\nASSERT'),
+        5: ('PUSH_STR marker', 'PUSH_STR marker\nSTR_EQ\nASSERT'),
+        7: ('PUSH_I64 -7\nARR_LITERAL 1 1',
+            'PUSH_I64 0\nARR_GET\nPUSH_I64 -7\nI64_EQ\nASSERT'),
+    }[tag]
+    initial_tag = (3 if tag == 1 else 1) if mismatch else tag
+    initial_array = (('PUSH_F64 1.25\n' if initial_tag == 3 else 'PUSH_I64 19\n')
+                     + f'ARR_LITERAL {initial_tag} 1\n') if mismatch else f'ARR_NEW {initial_tag}\n'
+    initial = (initial_array + 'ARR_LITERAL 7 1\n'
+               if operation == 'SET' or mismatch else 'ARR_NEW 7\n')
+    count = 2 if mismatch and operation == 'PUSH' else 1
+    worker = ('.function write 1 1 0 array 1\n.parameters write array\n'
+              'LOAD_LOCAL 0\n' + ('PUSH_I64 0\n' if operation == 'SET' else '')
+              + payload + f'\nARR_LITERAL {tag} 1\nARR_{operation}\nRET\n.end\n')
+    retained = ''
+    if mismatch and operation == 'PUSH':
+        retained = ('LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_I64 0\nARR_GET\n'
+                    + ('PUSH_F64 1.25\nF64_EQ\nASSERT\n' if initial_tag == 3
+                       else 'PUSH_I64 19\nI64_EQ\nASSERT\n'))
+    main = ('.function main 0 1 0 int 1\n' + initial
+            + ('AGG_PACK 0 0 0 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nAGG_GET 0\n'
+               if via_global else '')
+            + f'CALL write\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nARR_LEN\nPUSH_I64 {count}\nI64_EQ\nASSERT\n'
+            + f'LOAD_LOCAL 0\nPUSH_I64 {count - 1}\nARR_GET\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n'
+            + retained
+            + f'LOAD_LOCAL 0\nPUSH_I64 {count - 1}\nARR_GET\nPUSH_I64 0\nARR_GET\n'
+            + check + '\nPUSH_I64 0\nRET\n.end\n')
+    return '.entry main\n.string marker "kept"\n' + (main + worker if reverse else worker + main)
+
+
 class ArrayWriteInference(unittest.TestCase):
     def command(self, args, *, build=False):
         result = run_captured(args, cwd=ROOT, timeout=60, build=build)
@@ -112,6 +148,39 @@ class ArrayWriteInference(unittest.TestCase):
                                                 if sys.platform.startswith('linux') else []),
                                               *native_link_flags(), '-o', native], build=True)
                                 self.command([native])
+
+    def test_nonempty_nested_values_and_payload_refusals(self):
+        with tempfile.TemporaryDirectory(prefix='nano-array-write-values-') as directory:
+            for tag in (1, 2, 3, 4, 5, 7):
+                for operation in ('SET', 'PUSH'):
+                    for reverse in (False, True):
+                        for via_global in (False, True):
+                            for mismatch in (False, True):
+                                with self.subTest(tag=tag, operation=operation, reverse=reverse,
+                                                  via_global=via_global, mismatch=mismatch):
+                                    work = Path(directory) / f'{tag}-{operation}-{int(reverse)}-{int(via_global)}-{int(mismatch)}'
+                                    work.mkdir()
+                                    module = self.assemble(work, nonempty_program(tag, operation, reverse, via_global, mismatch))
+                                    self.command([ROOT / 'bin/nano_vm', module])
+                                    source = work / 'out.c'
+                                    prior = b'I preserve my prior output.\n'
+                                    source.write_bytes(prior)
+                                    translated = run_captured([TRANSLATOR, module, '-o', source],
+                                                              cwd=ROOT, timeout=60, build=True)
+                                    # I retain exact and mixed-read refusals; a checked
+                                    # tagged SET can replace the only observable child type.
+                                    if mismatch and (not via_global or operation == 'PUSH'):
+                                        self.assertNotEqual(translated.returncode, 0, translated.stderr)
+                                        self.assertEqual(source.read_bytes(), prior)
+                                        continue
+                                    self.assertEqual(translated.returncode, 0, translated.stderr)
+                                    native = work / 'out'
+                                    self.command([*shlex.split(os.environ.get('CC', 'cc')), '-std=c11', '-O1', '-g',
+                                                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
+                                                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                                                  *(['-ldl'] if sys.platform.startswith('linux') else []),
+                                                  *native_link_flags(), '-o', native], build=True)
+                                    self.command([native])
 
     def test_numeric_join_checks_only_executed_tagged_values(self):
         cases = [(floating, reverse, selector, wrong, False)

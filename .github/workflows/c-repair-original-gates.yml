@@ -8,6 +8,8 @@ on:
       - 'src/module_builder.c'
       - 'src/nanoisa/nvm2c.c'
       - 'src/nanoisa/nvm2c_shape.c'
+      - 'tests/test_native_array_write_inference.py'
+      - 'tests/test_module_cache_publication.py'
   workflow_dispatch:
 
 permissions:
@@ -96,7 +98,10 @@ jobs:
           hashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}
           (root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
           copies=root/'selected-tools';copies.mkdir()
-          for i,n in enumerate(sorted(tools)):shutil.copy2(n,copies/(str(i)+'-'+Path(n).name))
+          for i,n in enumerate(sorted(tools)):
+              copy=copies/(str(i)+'-'+Path(n).name)
+              shutil.copyfile(n,copy)
+              assert hashlib.sha256(copy.read_bytes()).hexdigest()==hashes[n]
           PY
       - name: Build fresh production tools
         timeout-minutes: 10
@@ -113,6 +118,13 @@ jobs:
           hashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}
           Path('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
           PY
+      - name: Execute my array repair regression
+        if: matrix.gate == 'cache'
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_native_array_write_inference \
+            2>&1 | tee .test_output/c-repair-original-gates/array-regression.log
       - name: Execute the complete original cache and worker gates
         if: matrix.gate == 'cache'
         timeout-minutes: 150

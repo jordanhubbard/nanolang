@@ -1,0 +1,6 @@
+test_shadow_and_production_share_retained_generation (tests.test_module_cache_publication.ModuleCachePublication.test_shadow_and_production_share_retained_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.161s
+
+OK

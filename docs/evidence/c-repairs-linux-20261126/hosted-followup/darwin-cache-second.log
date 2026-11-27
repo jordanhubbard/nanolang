@@ -1,0 +1,619 @@
+﻿2026-11-27T06:31:58.0110930Z Current runner version: '2.338.2'
+2026-11-27T06:31:58.0126230Z ##[group]Runner Image Provisioner
+2026-11-27T06:31:58.0126730Z Hosted Compute Agent
+2026-11-27T06:31:58.0127100Z Version: 20261103.629
+2026-11-27T06:31:58.0127510Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-27T06:31:58.0127970Z Build Date: 2026-11-03T17:26:59Z
+2026-11-27T06:31:58.0128400Z Worker ID: {6aa117ec-5482-403e-8c40-8f7e4239737b}
+2026-11-27T06:31:58.0128850Z Region: westus
+2026-11-27T06:31:58.0129200Z Cloud: MacCloud
+2026-11-27T06:31:58.0129550Z ##[endgroup]
+2026-11-27T06:31:58.0130440Z ##[group]Operating System
+2026-11-27T06:31:58.0130820Z macOS
+2026-11-27T06:31:58.0131130Z 27.0.1
+2026-11-27T06:31:58.0131450Z 26A434
+2026-11-27T06:31:58.0131770Z ##[endgroup]
+2026-11-27T06:31:58.0132110Z ##[group]Runner Image
+2026-11-27T06:31:58.0132480Z Image: xcode-27-arm64
+2026-11-27T06:31:58.0132860Z Version: 20261104.0337.1
+2026-11-27T06:31:58.0133690Z Included Software: https://github.com/actions/runner-images/blob/xcode-27-arm64/20261104.0337/images/macos/xcode-27-arm64-Readme.md
+2026-11-27T06:31:58.0134730Z Image Release: https://github.com/actions/runner-images/releases/tag/xcode-27-arm64%2F20261104.0337
+2026-11-27T06:31:58.0135390Z ##[endgroup]
+2026-11-27T06:31:58.0136100Z ##[group]GITHUB_TOKEN Permissions
+2026-11-27T06:31:58.0137060Z Contents: read
+2026-11-27T06:31:58.0137420Z Metadata: read
+2026-11-27T06:31:58.0137770Z ##[endgroup]
+2026-11-27T06:31:58.0139030Z Secret source: Actions
+2026-11-27T06:31:58.0139570Z Cache mode: write
+2026-11-27T06:31:58.0140010Z Prepare workflow directory
+2026-11-27T06:31:58.0398940Z Prepare all required actions
+2026-11-27T06:31:58.0433780Z Getting action download info
+2026-11-27T06:31:58.4719450Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-27T06:31:58.8065050Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-27T06:31:59.1811860Z Complete job name: C repair original gates (xcode-27, cache)
+2026-11-27T06:31:59.2426260Z ##[group]Run test 'github-hosted' = github-hosted
+2026-11-27T06:31:59.2426960Z [36;1mtest 'github-hosted' = github-hosted[0m
+2026-11-27T06:31:59.2427460Z [36;1muname -a[0m
+2026-11-27T06:31:59.2427920Z [36;1mecho "I qualify $GITHUB_SHA on $RUNNER_NAME."[0m
+2026-11-27T06:31:59.2473730Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:31:59.2474450Z ##[endgroup]
+2026-11-27T06:31:59.3133660Z Darwin sjc22-bt143-605211c7-5e14-4792-adb9-c3a8ca271169-FA39C034BAE6.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:00:07 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_VMAPPLE arm64
+2026-11-27T06:31:59.3135300Z I qualify ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 on GitHub Actions 1000225540.
+2026-11-27T06:31:59.3348350Z ##[group]Run actions/checkout@v4
+2026-11-27T06:31:59.3348920Z with:
+2026-11-27T06:31:59.3349330Z   sparse-checkout-cone-mode: false
+2026-11-27T06:31:59.3349840Z   sparse-checkout: /*
+!/docs/evidence/
+
+2026-11-27T06:31:59.3350380Z   repository: jordanhubbard/nanolang
+2026-11-27T06:31:59.3353780Z   token: ***
+2026-11-27T06:31:59.3354190Z   ssh-strict: true
+2026-11-27T06:31:59.3354600Z   ssh-user: git
+2026-11-27T06:31:59.3355010Z   persist-credentials: true
+2026-11-27T06:31:59.3355430Z   clean: true
+2026-11-27T06:31:59.3355860Z   fetch-depth: 1
+2026-11-27T06:31:59.3356250Z   fetch-tags: false
+2026-11-27T06:31:59.3356680Z   show-progress: true
+2026-11-27T06:31:59.3357100Z   lfs: false
+2026-11-27T06:31:59.3357520Z   submodules: false
+2026-11-27T06:31:59.3357940Z   set-safe-directory: true
+2026-11-27T06:31:59.3358410Z   allow-unsafe-pr-checkout: false
+2026-11-27T06:31:59.3358880Z ##[endgroup]
+2026-11-27T06:31:59.7617120Z Syncing repository: jordanhubbard/nanolang
+2026-11-27T06:31:59.7618910Z ##[group]Getting Git version info
+2026-11-27T06:31:59.7619490Z Working directory is '/Users/runner/work/nanolang/nanolang'
+2026-11-27T06:31:59.7620370Z [command]/opt/homebrew/bin/git version
+2026-11-27T06:31:59.8100280Z git version 2.56.0
+2026-11-27T06:31:59.8116930Z ##[endgroup]
+2026-11-27T06:31:59.8124610Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/1978640f-c80d-48a7-85e5-35d41168f772/.gitconfig'
+2026-11-27T06:31:59.8130300Z Temporarily overriding HOME='/Users/runner/work/_temp/1978640f-c80d-48a7-85e5-35d41168f772' before making global git config changes
+2026-11-27T06:31:59.8131670Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T06:31:59.8134710Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-11-27T06:31:59.8252760Z Deleting the contents of '/Users/runner/work/nanolang/nanolang'
+2026-11-27T06:31:59.8255650Z ##[group]Initializing the repository
+2026-11-27T06:31:59.8259640Z [command]/opt/homebrew/bin/git init /Users/runner/work/nanolang/nanolang
+2026-11-27T06:31:59.8485080Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-27T06:31:59.8487180Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-27T06:31:59.8488050Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-27T06:31:59.8488970Z hint: call:
+2026-11-27T06:31:59.8489330Z hint:
+2026-11-27T06:31:59.8489780Z hint: 	git config --global init.defaultBranch <name>
+2026-11-27T06:31:59.8490330Z hint:
+2026-11-27T06:31:59.8490890Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-27T06:31:59.8491680Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-27T06:31:59.8492340Z hint:
+2026-11-27T06:31:59.8492770Z hint: 	git branch -m <name>
+2026-11-27T06:31:59.8493410Z hint:
+2026-11-27T06:31:59.8494000Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-27T06:31:59.8495010Z Initialized empty Git repository in /Users/runner/work/nanolang/nanolang/.git/
+2026-11-27T06:31:59.8502460Z [command]/opt/homebrew/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-11-27T06:31:59.8578950Z ##[endgroup]
+2026-11-27T06:31:59.8579930Z ##[group]Disabling automatic garbage collection
+2026-11-27T06:31:59.8582540Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-11-27T06:31:59.8650860Z ##[endgroup]
+2026-11-27T06:31:59.8651640Z ##[group]Setting up auth
+2026-11-27T06:31:59.8654730Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T06:31:59.8722710Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T06:31:59.9620510Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T06:31:59.9711860Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T06:32:00.1393300Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T06:32:00.1598350Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T06:32:00.3224080Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-27T06:32:00.3315810Z ##[endgroup]
+2026-11-27T06:32:00.3320560Z ##[group]Fetching the repository
+2026-11-27T06:32:00.3322290Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1:refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T06:32:02.3038290Z From https://github.com/jordanhubbard/nanolang
+2026-11-27T06:32:02.3041130Z  * [new ref]         ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 -> origin/feat/5.1-service-module-integration
+2026-11-27T06:32:02.3043240Z ##[endgroup]
+2026-11-27T06:32:02.3044840Z ##[group]Determining the checkout info
+2026-11-27T06:32:02.3045520Z ##[endgroup]
+2026-11-27T06:32:02.3046090Z ##[group]Setting up sparse checkout
+2026-11-27T06:32:02.3047780Z [command]/opt/homebrew/bin/git config core.sparseCheckout true
+2026-11-27T06:32:02.3121000Z [command]/opt/homebrew/bin/git rev-parse --git-path info/sparse-checkout
+2026-11-27T06:32:02.3180150Z .git/info/sparse-checkout
+2026-11-27T06:32:02.3186480Z ##[endgroup]
+2026-11-27T06:32:02.3187090Z ##[group]Checking out the ref
+2026-11-27T06:32:02.3194330Z [command]/opt/homebrew/bin/git checkout --progress --force -B feat/5.1-service-module-integration refs/remotes/origin/feat/5.1-service-module-integration
+2026-11-27T06:32:06.9610190Z Updating files:   0% (1/5263)
+2026-11-27T06:32:06.9688740Z Updating files:   1% (53/5263)
+2026-11-27T06:32:06.9901990Z Updating files:   2% (106/5263)
+2026-11-27T06:32:07.0003670Z Updating files:   3% (158/5263)
+2026-11-27T06:32:07.0093000Z Updating files:   4% (211/5263)
+2026-11-27T06:32:07.0195060Z Updating files:   5% (264/5263)
+2026-11-27T06:32:07.0196510Z Updating files:   6% (316/5263)
+2026-11-27T06:32:07.0293030Z Updating files:   7% (369/5263)
+2026-11-27T06:32:07.0327500Z Updating files:   8% (422/5263)
+2026-11-27T06:32:07.0395590Z Updating files:   9% (474/5263)
+2026-11-27T06:32:07.0463170Z Updating files:  10% (527/5263)
+2026-11-27T06:32:07.0673080Z Updating files:  11% (579/5263)
+2026-11-27T06:32:07.0878150Z Updating files:  12% (632/5263)
+2026-11-27T06:32:07.0935850Z Updating files:  13% (685/5263)
+2026-11-27T06:32:07.1006810Z Updating files:  14% (737/5263)
+2026-11-27T06:32:07.1065550Z Updating files:  15% (790/5263)
+2026-11-27T06:32:07.1146200Z Updating files:  16% (843/5263)
+2026-11-27T06:32:07.1198000Z Updating files:  17% (895/5263)
+2026-11-27T06:32:07.1256090Z Updating files:  18% (948/5263)
+2026-11-27T06:32:07.1337080Z Updating files:  19% (1000/5263)
+2026-11-27T06:32:07.1409390Z Updating files:  20% (1053/5263)
+2026-11-27T06:32:07.1473090Z Updating files:  21% (1106/5263)
+2026-11-27T06:32:07.1525280Z Updating files:  22% (1158/5263)
+2026-11-27T06:32:07.1594740Z Updating files:  23% (1211/5263)
+2026-11-27T06:32:07.1647130Z Updating files:  24% (1264/5263)
+2026-11-27T06:32:07.1700970Z Updating files:  25% (1316/5263)
+2026-11-27T06:32:07.1751640Z Updating files:  26% (1369/5263)
+2026-11-27T06:32:07.1816280Z Updating files:  27% (1422/5263)
+2026-11-27T06:32:07.1877240Z Updating files:  28% (1474/5263)
+2026-11-27T06:32:07.1950220Z Updating files:  29% (1527/5263)
+2026-11-27T06:32:07.2004790Z Updating files:  30% (1579/5263)
+2026-11-27T06:32:07.2084090Z Updating files:  31% (1632/5263)
+2026-11-27T06:32:07.2138800Z Updating files:  32% (1685/5263)
+2026-11-27T06:32:07.2202190Z Updating files:  33% (1737/5263)
+2026-11-27T06:32:07.2262850Z Updating files:  34% (1790/5263)
+2026-11-27T06:32:07.2350430Z Updating files:  35% (1843/5263)
+2026-11-27T06:32:07.2435870Z Updating files:  36% (1895/5263)
+2026-11-27T06:32:07.2480670Z Updating files:  37% (1948/5263)
+2026-11-27T06:32:07.2539190Z Updating files:  38% (2000/5263)
+2026-11-27T06:32:07.2617740Z Updating files:  39% (2053/5263)
+2026-11-27T06:32:07.2671190Z Updating files:  40% (2106/5263)
+2026-11-27T06:32:07.2733650Z Updating files:  41% (2158/5263)
+2026-11-27T06:32:07.2786530Z Updating files:  42% (2211/5263)
+2026-11-27T06:32:07.2864880Z Updating files:  43% (2264/5263)
+2026-11-27T06:32:07.2923370Z Updating files:  44% (2316/5263)
+2026-11-27T06:32:07.2985410Z Updating files:  45% (2369/5263)
+2026-11-27T06:32:07.3067170Z Updating files:  46% (2421/5263)
+2026-11-27T06:32:07.3142950Z Updating files:  47% (2474/5263)
+2026-11-27T06:32:07.3218660Z Updating files:  48% (2527/5263)
+2026-11-27T06:32:07.3273780Z Updating files:  49% (2579/5263)
+2026-11-27T06:32:07.3348610Z Updating files:  50% (2632/5263)
+2026-11-27T06:32:07.3418790Z Updating files:  51% (2685/5263)
+2026-11-27T06:32:07.3492520Z Updating files:  52% (2737/5263)
+2026-11-27T06:32:07.3569360Z Updating files:  53% (2790/5263)
+2026-11-27T06:32:07.3615210Z Updating files:  54% (2843/5263)
+2026-11-27T06:32:07.3651690Z Updating files:  55% (2895/5263)
+2026-11-27T06:32:07.3666160Z Updating files:  55% (2931/5263)
+2026-11-27T06:32:07.3741430Z Updating files:  56% (2948/5263)
+2026-11-27T06:32:07.3795890Z Updating files:  57% (3000/5263)
+2026-11-27T06:32:07.3853040Z Updating files:  58% (3053/5263)
+2026-11-27T06:32:07.3901750Z Updating files:  59% (3106/5263)
+2026-11-27T06:32:07.3964820Z Updating files:  60% (3158/5263)
+2026-11-27T06:32:07.4025710Z Updating files:  61% (3211/5263)
+2026-11-27T06:32:07.4078550Z Updating files:  62% (3264/5263)
+2026-11-27T06:32:07.4139190Z Updating files:  63% (3316/5263)
+2026-11-27T06:32:07.4214250Z Updating files:  64% (3369/5263)
+2026-11-27T06:32:07.4271440Z Updating files:  65% (3421/5263)
+2026-11-27T06:32:07.4340300Z Updating files:  66% (3474/5263)
+2026-11-27T06:32:07.4390750Z Updating files:  67% (3527/5263)
+2026-11-27T06:32:07.4482100Z Updating files:  68% (3579/5263)
+2026-11-27T06:32:07.4529590Z Updating files:  69% (3632/5263)
+2026-11-27T06:32:07.4579760Z Updating files:  70% (3685/5263)
+2026-11-27T06:32:07.4627050Z Updating files:  71% (3737/5263)
+2026-11-27T06:32:07.4679350Z Updating files:  72% (3790/5263)
+2026-11-27T06:32:07.4751320Z Updating files:  73% (3842/5263)
+2026-11-27T06:32:07.4807230Z Updating files:  74% (3895/5263)
+2026-11-27T06:32:07.4865820Z Updating files:  75% (3948/5263)
+2026-11-27T06:32:07.4920920Z Updating files:  76% (4000/5263)
+2026-11-27T06:32:07.4989430Z Updating files:  77% (4053/5263)
+2026-11-27T06:32:07.5042750Z Updating files:  78% (4106/5263)
+2026-11-27T06:32:07.5097350Z Updating files:  79% (4158/5263)
+2026-11-27T06:32:07.5151500Z Updating files:  80% (4211/5263)
+2026-11-27T06:32:07.5231280Z Updating files:  81% (4264/5263)
+2026-11-27T06:32:07.5285790Z Updating files:  82% (4316/5263)
+2026-11-27T06:32:07.5338710Z Updating files:  83% (4369/5263)
+2026-11-27T06:32:07.5396910Z Updating files:  84% (4421/5263)
+2026-11-27T06:32:07.5463940Z Updating files:  85% (4474/5263)
+2026-11-27T06:32:07.5539850Z Updating files:  86% (4527/5263)
+2026-11-27T06:32:07.5593310Z Updating files:  87% (4579/5263)
+2026-11-27T06:32:07.5648480Z Updating files:  88% (4632/5263)
+2026-11-27T06:32:07.5704490Z Updating files:  89% (4685/5263)
+2026-11-27T06:32:07.5773410Z Updating files:  90% (4737/5263)
+2026-11-27T06:32:07.5830640Z Updating files:  91% (4790/5263)
+2026-11-27T06:32:07.5899400Z Updating files:  92% (4842/5263)
+2026-11-27T06:32:07.5957200Z Updating files:  93% (4895/5263)
+2026-11-27T06:32:07.6007580Z Updating files:  94% (4948/5263)
+2026-11-27T06:32:07.6070240Z Updating files:  95% (5000/5263)
+2026-11-27T06:32:07.6120040Z Updating files:  96% (5053/5263)
+2026-11-27T06:32:07.6195040Z Updating files:  97% (5106/5263)
+2026-11-27T06:32:07.6265700Z Updating files:  98% (5158/5263)
+2026-11-27T06:32:07.6323710Z Updating files:  99% (5211/5263)
+2026-11-27T06:32:07.6324160Z Updating files: 100% (5263/5263)
+2026-11-27T06:32:07.6324430Z Updating files: 100% (5263/5263), done.
+2026-11-27T06:32:08.2984250Z Switched to a new branch 'feat/5.1-service-module-integration'
+2026-11-27T06:32:08.2995620Z branch 'feat/5.1-service-module-integration' set up to track 'origin/feat/5.1-service-module-integration'.
+2026-11-27T06:32:08.3038770Z ##[endgroup]
+2026-11-27T06:32:08.3241830Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-11-27T06:32:08.3418270Z ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1
+2026-11-27T06:32:08.3612860Z ##[group]Run python3 - <<'PY'
+2026-11-27T06:32:08.3613250Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:32:08.3613580Z [36;1mimport os, shutil, tempfile[0m
+2026-11-27T06:32:08.3613920Z [36;1mfor path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:[0m
+2026-11-27T06:32:08.3614330Z [36;1m    disk = shutil.disk_usage(path)[0m
+2026-11-27T06:32:08.3614740Z [36;1m    assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10, (path, disk)[0m
+2026-11-27T06:32:08.3615210Z [36;1mPY[0m
+2026-11-27T06:32:08.3668160Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:32:08.3668440Z ##[endgroup]
+2026-11-27T06:32:08.6293390Z ##[group]Run ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \
+2026-11-27T06:32:08.6293860Z [36;1m./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \[0m
+2026-11-27T06:32:08.6294220Z [36;1m  sdl2_image sdl2_mixer sdl2_ttf utf8proc[0m
+2026-11-27T06:32:08.6330710Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:32:08.6331060Z ##[endgroup]
+2026-11-27T06:32:08.6741790Z note: no timeout binary found; relying on the job timeout
+2026-11-27T06:32:11.2749310Z brew: pkg-config already installed; skipping
+2026-11-27T06:32:11.6911170Z brew: openssl already installed; skipping
+2026-11-27T06:32:11.7196700Z brew: sqlite already installed; skipping
+2026-11-27T06:32:12.1120360Z brew install attempt 1/3 (timeout 600s): sdl2
+2026-11-27T06:32:13.2207440Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T06:32:13.2498740Z ✔︎ Bottle Manifest sdl2-compat (2.32.74)
+2026-11-27T06:32:13.3000840Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T06:32:13.3102420Z [32m==>[0m [1mFetching downloads for: [32msdl2-compat[39m[0m
+2026-11-27T06:32:13.3102820Z sdl2 2.32.74
+2026-11-27T06:32:13.3180490Z [34m==>[0m [1mWould install 1 dependency for sdl2-compat:[0m
+2026-11-27T06:32:13.3227920Z sdl3 3.4.20
+2026-11-27T06:32:13.5692480Z ✔︎ Bottle Manifest sdl3 (3.4.20)
+2026-11-27T06:32:15.0219290Z ✔︎ Bottle sdl2-compat (2.32.74)
+2026-11-27T06:32:15.0319320Z ✔︎ Bottle sdl3 (3.4.20)
+2026-11-27T06:32:15.0419830Z [32m==>[0m [1mInstalling sdl2-compat dependency: [32msdl3[39m (3.4.20)[0m
+2026-11-27T06:32:15.0521450Z [34m==>[0m [1mPouring sdl3--3.4.20.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:16.5059640Z 🍺  /opt/homebrew/Cellar/sdl3/3.4.20: 103 files, 6.3MB
+2026-11-27T06:32:16.5160450Z [32m==>[0m [1mInstalling [32msdl2-compat[39m[0m
+2026-11-27T06:32:16.5260220Z [34m==>[0m [1mPouring sdl2-compat--2.32.74.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:17.8041400Z 🍺  /opt/homebrew/Cellar/sdl2-compat/2.32.74: 117 files, 3.3MB
+2026-11-27T06:32:17.8126980Z brew install succeeded on attempt 1: sdl2
+2026-11-27T06:32:18.2138250Z brew install attempt 1/3 (timeout 600s): sdl2_image
+2026-11-27T06:32:19.0258830Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T06:32:19.0311670Z ✔︎ Bottle Manifest sdl2_image (2.8.12_1)
+2026-11-27T06:32:19.1429090Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T06:32:19.1437130Z sdl2_image 2.8.12_1
+2026-11-27T06:32:19.1471320Z [34m==>[0m [1mWould install 10 dependencies for sdl2_image:[0m
+2026-11-27T06:32:19.1476540Z highway     1.4.0
+2026-11-27T06:32:19.1577330Z imath       3.2.3
+2026-11-27T06:32:19.1593070Z libdeflate  1.26
+2026-11-27T06:32:19.1598050Z openjph     0.32.0
+2026-11-27T06:32:19.1600300Z openexr     3.5.3
+2026-11-27T06:32:19.1602320Z jpeg-xl     0.12.0_1
+2026-11-27T06:32:19.1630450Z libvmaf     3.2.1
+2026-11-27T06:32:19.1638030Z aom         3.15.3
+2026-11-27T06:32:19.1646030Z dav1d       1.5.4
+2026-11-27T06:32:19.1648670Z libavif     1.4.2
+2026-11-27T06:32:19.4770550Z [32m==>[0m [1mFetching downloads for: [32msdl2_image[39m[0m
+2026-11-27T06:32:19.6919140Z ✔︎ Bottle Manifest highway (1.4.0)
+2026-11-27T06:32:19.6920090Z ✔︎ Bottle Manifest imath (3.2.3)
+2026-11-27T06:32:19.8501650Z ✔︎ Bottle Manifest libdeflate (1.26)
+2026-11-27T06:32:20.2369320Z ✔︎ Bottle Manifest openjph (0.32.0)
+2026-11-27T06:32:20.2470620Z ✔︎ Bottle Manifest openexr (3.5.3)
+2026-11-27T06:32:22.2062510Z ✔︎ Bottle sdl2_image (2.8.12_1)
+2026-11-27T06:32:22.2163040Z ✔︎ Bottle Manifest jpeg-xl (0.12.0_1)
+2026-11-27T06:32:22.2264150Z ✔︎ Bottle Manifest libvmaf (3.2.1)
+2026-11-27T06:32:22.2364200Z ✔︎ Bottle Manifest aom (3.15.3)
+2026-11-27T06:32:22.2965830Z ✔︎ Bottle highway (1.4.0)
+2026-11-27T06:32:22.3066360Z ✔︎ Bottle Manifest dav1d (1.5.4)
+2026-11-27T06:32:22.4978410Z ✔︎ Bottle libdeflate (1.26)
+2026-11-27T06:32:22.5191050Z ✔︎ Bottle openjph (0.32.0)
+2026-11-27T06:32:22.5303370Z ✔︎ Bottle imath (3.2.3)
+2026-11-27T06:32:22.5404810Z ✔︎ Bottle Manifest libavif (1.4.2)
+2026-11-27T06:32:22.8062990Z ✔︎ Bottle openexr (3.5.3)
+2026-11-27T06:32:24.6195040Z ✔︎ Bottle libvmaf (3.2.1)
+2026-11-27T06:32:24.6295120Z ✔︎ Bottle aom (3.15.3)
+2026-11-27T06:32:24.7003770Z ✔︎ Bottle libavif (1.4.2)
+2026-11-27T06:32:24.7105080Z ✔︎ Bottle dav1d (1.5.4)
+2026-11-27T06:32:24.7407670Z ✔︎ Bottle jpeg-xl (0.12.0_1)
+2026-11-27T06:32:24.7988420Z [32m==>[0m [1mInstalling dependencies for sdl2_image:[0m [32mhighway[39m, [32mimath[39m, [32mlibdeflate[39m, [32mopenjph[39m, [32mopenexr[39m, [32mjpeg-xl[39m, [32mlibvmaf[39m, [32maom[39m, [32mdav1d[39m and [32mlibavif[39m[0m
+2026-11-27T06:32:24.7989670Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mhighway[39m (1.4.0)[0m
+2026-11-27T06:32:24.8015770Z [34m==>[0m [1mPouring highway--1.4.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:26.0664820Z 🍺  /opt/homebrew/Cellar/highway/1.4.0: 87 files, 5.7MB
+2026-11-27T06:32:26.0768390Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mimath[39m (3.2.3)[0m
+2026-11-27T06:32:26.0880950Z [34m==>[0m [1mPouring imath--3.2.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:27.2654490Z 🍺  /opt/homebrew/Cellar/imath/3.2.3: 50 files, 977.3KB
+2026-11-27T06:32:27.2691950Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibdeflate[39m (1.26)[0m
+2026-11-27T06:32:27.2761350Z [34m==>[0m [1mPouring libdeflate--1.26.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:28.5190340Z 🍺  /opt/homebrew/Cellar/libdeflate/1.26: 17 files, 303.3KB
+2026-11-27T06:32:28.5290740Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenjph[39m (0.32.0)[0m
+2026-11-27T06:32:28.5600440Z [34m==>[0m [1mPouring openjph--0.32.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:29.6254960Z 🍺  /opt/homebrew/Cellar/openjph/0.32.0: 25 files, 629.8KB
+2026-11-27T06:32:29.6257570Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenexr[39m (3.5.3)[0m
+2026-11-27T06:32:29.6794750Z [34m==>[0m [1mPouring openexr--3.5.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:30.8525900Z 🍺  /opt/homebrew/Cellar/openexr/3.5.3: 214 files, 4.6MB
+2026-11-27T06:32:30.8528110Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mjpeg-xl[39m (0.12.0_1)[0m
+2026-11-27T06:32:30.9313110Z [34m==>[0m [1mPouring jpeg-xl--0.12.0_1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:32.4309860Z 🍺  /opt/homebrew/Cellar/jpeg-xl/0.12.0_1: 65 files, 36.9MB
+2026-11-27T06:32:32.4313340Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibvmaf[39m (3.2.1)[0m
+2026-11-27T06:32:32.4406490Z [34m==>[0m [1mPouring libvmaf--3.2.1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:33.5254380Z 🍺  /opt/homebrew/Cellar/libvmaf/3.2.1: 243 files, 8.2MB
+2026-11-27T06:32:33.5278310Z [32m==>[0m [1mInstalling sdl2_image dependency: [32maom[39m (3.15.3)[0m
+2026-11-27T06:32:33.5396960Z [34m==>[0m [1mPouring aom--3.15.3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:34.6350670Z 🍺  /opt/homebrew/Cellar/aom/3.15.3: 30 files, 11.3MB
+2026-11-27T06:32:34.6353440Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mdav1d[39m (1.5.4)[0m
+2026-11-27T06:32:34.6443670Z [34m==>[0m [1mPouring dav1d--1.5.4.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:35.8217600Z 🍺  /opt/homebrew/Cellar/dav1d/1.5.4: 16 files, 976.4KB
+2026-11-27T06:32:35.8220030Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibavif[39m (1.4.2)[0m
+2026-11-27T06:32:35.8504470Z [34m==>[0m [1mPouring libavif--1.4.2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:36.9192680Z 🍺  /opt/homebrew/Cellar/libavif/1.4.2: 22 files, 1.1MB
+2026-11-27T06:32:36.9195690Z [32m==>[0m [1mInstalling [32msdl2_image[39m[0m
+2026-11-27T06:32:36.9197720Z [34m==>[0m [1mPouring sdl2_image--2.8.12_1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:37.9794730Z 🍺  /opt/homebrew/Cellar/sdl2_image/2.8.12_1: 15 files, 407.6KB
+2026-11-27T06:32:37.9894450Z brew install succeeded on attempt 1: sdl2_image
+2026-11-27T06:32:38.5428310Z brew install attempt 1/3 (timeout 600s): sdl2_mixer
+2026-11-27T06:32:39.4528290Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T06:32:39.4585750Z ✔︎ Bottle Manifest sdl2_mixer (2.8.2)
+2026-11-27T06:32:39.5573770Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-11-27T06:32:39.5574260Z sdl2_mixer 2.8.2
+2026-11-27T06:32:39.5589760Z [34m==>[0m [1mWould install 13 dependencies for sdl2_mixer:[0m
+2026-11-27T06:32:39.5590150Z libogg          1.3.6
+2026-11-27T06:32:39.5590450Z flac            1.5.0
+2026-11-27T06:32:39.5590760Z mpg123          1.33.7
+2026-11-27T06:32:39.5591070Z lame            4.0
+2026-11-27T06:32:39.5591370Z libvorbis       1.3.7
+2026-11-27T06:32:39.5591620Z opus            1.6.1
+2026-11-27T06:32:39.5591910Z libsndfile      1.2.2_1
+2026-11-27T06:32:39.5592150Z portaudio       19.7.0
+2026-11-27T06:32:39.5592420Z fluid-synth     2.6.2
+2026-11-27T06:32:39.5592770Z game-music-emu  0.6.5
+2026-11-27T06:32:39.5592940Z libxmp          4.7.4
+2026-11-27T06:32:39.5593200Z opusfile        0.12_3
+2026-11-27T06:32:39.5593470Z wavpack         5.9.0
+2026-11-27T06:32:39.6803310Z [32m==>[0m [1mFetching downloads for: [32msdl2_mixer[39m[0m
+2026-11-27T06:32:40.6731930Z ✔︎ Bottle Manifest libogg (1.3.6)
+2026-11-27T06:32:40.7506050Z ✔︎ Bottle Manifest flac (1.5.0)
+2026-11-27T06:32:40.7509700Z ✔︎ Bottle Manifest mpg123 (1.33.7)
+2026-11-27T06:32:40.7981550Z ✔︎ Bottle Manifest lame (4.0)
+2026-11-27T06:32:40.8117450Z ✔︎ Bottle Manifest libvorbis (1.3.7)
+2026-11-27T06:32:42.6080380Z ✔︎ Bottle sdl2_mixer (2.8.2)
+2026-11-27T06:32:42.6182290Z ✔︎ Bottle Manifest opus (1.6.1)
+2026-11-27T06:32:42.6282800Z ✔︎ Bottle Manifest libsndfile (1.2.2_1)
+2026-11-27T06:32:42.6383780Z ✔︎ Bottle Manifest portaudio (19.7.0)
+2026-11-27T06:32:42.8076460Z ✔︎ Bottle libogg (1.3.6)
+2026-11-27T06:32:42.8863130Z ✔︎ Bottle mpg123 (1.33.7)
+2026-11-27T06:32:42.9066930Z ✔︎ Bottle flac (1.5.0)
+2026-11-27T06:32:42.9168800Z ✔︎ Bottle Manifest fluid-synth (2.6.2)
+2026-11-27T06:32:42.9269200Z ✔︎ Bottle Manifest game-music-emu (0.6.5)
+2026-11-27T06:32:42.9370300Z ✔︎ Bottle Manifest libxmp (4.7.4)
+2026-11-27T06:32:43.1300510Z ✔︎ Bottle lame (4.0)
+2026-11-27T06:32:43.1401410Z ✔︎ Bottle Manifest opusfile (0.12_3)
+2026-11-27T06:32:43.1502520Z ✔︎ Bottle libvorbis (1.3.7)
+2026-11-27T06:32:43.1603670Z ✔︎ Bottle Manifest wavpack (5.9.0)
+2026-11-27T06:32:44.6643130Z ✔︎ Bottle opus (1.6.1)
+2026-11-27T06:32:44.7912590Z ✔︎ Bottle libsndfile (1.2.2_1)
+2026-11-27T06:32:44.8511840Z ✔︎ Bottle portaudio (19.7.0)
+2026-11-27T06:32:44.8613360Z ✔︎ Bottle fluid-synth (2.6.2)
+2026-11-27T06:32:44.9752460Z ✔︎ Bottle opusfile (0.12_3)
+2026-11-27T06:32:44.9806060Z ✔︎ Bottle libxmp (4.7.4)
+2026-11-27T06:32:45.7111170Z ✔︎ Bottle game-music-emu (0.6.5)
+2026-11-27T06:32:45.8169630Z ✔︎ Bottle wavpack (5.9.0)
+2026-11-27T06:32:45.8631390Z [32m==>[0m [1mInstalling dependencies for sdl2_mixer:[0m [32mlibogg[39m, [32mflac[39m, [32mmpg123[39m, [32mlame[39m, [32mlibvorbis[39m, [32mopus[39m, [32mlibsndfile[39m, [32mportaudio[39m, [32mfluid-synth[39m, [32mgame-music-emu[39m, [32mlibxmp[39m, [32mopusfile[39m and [32mwavpack[39m[0m
+2026-11-27T06:32:45.8643030Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibogg[39m (1.3.6)[0m
+2026-11-27T06:32:45.8661950Z [34m==>[0m [1mPouring libogg--1.3.6.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:47.0499050Z 🍺  /opt/homebrew/Cellar/libogg/1.3.6: 103 files, 533.8KB
+2026-11-27T06:32:47.0501280Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mflac[39m (1.5.0)[0m
+2026-11-27T06:32:47.0569870Z [34m==>[0m [1mPouring flac--1.5.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:48.0529880Z 🍺  /opt/homebrew/Cellar/flac/1.5.0: 40 files, 1.9MB
+2026-11-27T06:32:48.0532320Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mmpg123[39m (1.33.7)[0m
+2026-11-27T06:32:48.0547620Z [34m==>[0m [1mPouring mpg123--1.33.7.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T06:32:49.1097380Z 🍺  /opt/homebrew/Cellar/mpg123/1.33.7: 34 files, 1.9MB
+2026-11-27T06:32:49.1099880Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlame[39m (4.0)[0m
+2026-11-27T06:32:49.1164690Z [34m==>[0m [1mPouring lame--4.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:50.2853450Z 🍺  /opt/homebrew/Cellar/lame/4.0: 29 files, 1.9MB
+2026-11-27T06:32:50.2855630Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibvorbis[39m (1.3.7)[0m
+2026-11-27T06:32:50.2927470Z [34m==>[0m [1mPouring libvorbis--1.3.7.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T06:32:51.3811880Z 🍺  /opt/homebrew/Cellar/libvorbis/1.3.7: 158 files, 2.4MB
+2026-11-27T06:32:51.3815210Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopus[39m (1.6.1)[0m
+2026-11-27T06:32:51.3837850Z [34m==>[0m [1mPouring opus--1.6.1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:52.6109900Z 🍺  /opt/homebrew/Cellar/opus/1.6.1: 16 files, 1.1MB
+2026-11-27T06:32:52.6113000Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibsndfile[39m (1.2.2_1)[0m
+2026-11-27T06:32:52.6416800Z [34m==>[0m [1mPouring libsndfile--1.2.2_1.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:53.7197520Z 🍺  /opt/homebrew/Cellar/libsndfile/1.2.2_1: 55 files, 1.8MB
+2026-11-27T06:32:53.7200180Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mportaudio[39m (19.7.0)[0m
+2026-11-27T06:32:53.7226490Z [34m==>[0m [1mPouring portaudio--19.7.0.arm64_golden_gate.bottle.1.tar.gz[0m
+2026-11-27T06:32:54.8740530Z 🍺  /opt/homebrew/Cellar/portaudio/19.7.0: 34 files, 527.7KB
+2026-11-27T06:32:54.8743760Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mfluid-synth[39m (2.6.2)[0m
+2026-11-27T06:32:54.9355960Z [34m==>[0m [1mPouring fluid-synth--2.6.2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:56.0364280Z 🍺  /opt/homebrew/Cellar/fluid-synth/2.6.2: 43 files, 3.2MB
+2026-11-27T06:32:56.0367070Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mgame-music-emu[39m (0.6.5)[0m
+2026-11-27T06:32:56.0388840Z [34m==>[0m [1mPouring game-music-emu--0.6.5.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:57.2241630Z 🍺  /opt/homebrew/Cellar/game-music-emu/0.6.5: 13 files, 761.4KB
+2026-11-27T06:32:57.2244710Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibxmp[39m (4.7.4)[0m
+2026-11-27T06:32:57.2266570Z [34m==>[0m [1mPouring libxmp--4.7.4.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:58.4442970Z 🍺  /opt/homebrew/Cellar/libxmp/4.7.4: 15 files, 1.1MB
+2026-11-27T06:32:58.4446220Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopusfile[39m (0.12_3)[0m
+2026-11-27T06:32:58.4671330Z [34m==>[0m [1mPouring opusfile--0.12_3.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:32:59.7446280Z 🍺  /opt/homebrew/Cellar/opusfile/0.12_3: 18 files, 327.1KB
+2026-11-27T06:32:59.7449090Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mwavpack[39m (5.9.0)[0m
+2026-11-27T06:32:59.7468440Z [34m==>[0m [1mPouring wavpack--5.9.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:33:01.2585000Z 🍺  /opt/homebrew/Cellar/wavpack/5.9.0: 26 files, 1.1MB
+2026-11-27T06:33:01.2587530Z [32m==>[0m [1mInstalling [32msdl2_mixer[39m[0m
+2026-11-27T06:33:01.2592560Z [34m==>[0m [1mPouring sdl2_mixer--2.8.2.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:33:02.4069480Z 🍺  /opt/homebrew/Cellar/sdl2_mixer/2.8.2: 25 files, 552.3KB
+2026-11-27T06:33:02.4232210Z brew install succeeded on attempt 1: sdl2_mixer
+2026-11-27T06:33:02.9658220Z brew install attempt 1/3 (timeout 600s): sdl2_ttf
+2026-11-27T06:33:03.8501990Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T06:33:03.8571240Z ✔︎ Bottle Manifest sdl2_ttf (2.24.0)
+2026-11-27T06:33:04.0258400Z [32m==>[0m [1mFetching downloads for: [32msdl2_ttf[39m[0m
+2026-11-27T06:33:05.4013010Z ✔︎ Bottle sdl2_ttf (2.24.0)
+2026-11-27T06:33:05.4841650Z [34m==>[0m [1mPouring sdl2_ttf--2.24.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:33:06.5718800Z 🍺  /opt/homebrew/Cellar/sdl2_ttf/2.24.0: 13 files, 273.4KB
+2026-11-27T06:33:06.5790310Z brew install succeeded on attempt 1: sdl2_ttf
+2026-11-27T06:33:06.8861470Z brew install attempt 1/3 (timeout 600s): utf8proc
+2026-11-27T06:33:07.6282860Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-11-27T06:33:07.6345000Z ✔︎ Bottle Manifest utf8proc (2.12.0)
+2026-11-27T06:33:07.6543400Z [32m==>[0m [1mFetching downloads for: [32mutf8proc[39m[0m
+2026-11-27T06:33:08.9621960Z ✔︎ Bottle utf8proc (2.12.0)
+2026-11-27T06:33:08.9640240Z [34m==>[0m [1mPouring utf8proc--2.12.0.arm64_golden_gate.bottle.tar.gz[0m
+2026-11-27T06:33:09.9387110Z 🍺  /opt/homebrew/Cellar/utf8proc/2.12.0: 15 files, 461.5KB
+2026-11-27T06:33:09.9451570Z brew install succeeded on attempt 1: utf8proc
+2026-11-27T06:33:09.9612050Z ##[group]Run python3 scripts/ci_select_capture_clang.py
+2026-11-27T06:33:09.9613770Z [36;1mpython3 scripts/ci_select_capture_clang.py[0m
+2026-11-27T06:33:09.9773990Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:33:09.9774350Z ##[endgroup]
+2026-11-27T06:33:12.6402270Z ##[group]Run python3 -c 'import yaml' 2>/dev/null && exit 0
+2026-11-27T06:33:12.6402780Z [36;1mpython3 -c 'import yaml' 2>/dev/null && exit 0[0m
+2026-11-27T06:33:12.6403180Z [36;1mpython3 -m pip install --user pyyaml \[0m
+2026-11-27T06:33:12.6403580Z [36;1m  || python3 -m pip install --user --break-system-packages pyyaml[0m
+2026-11-27T06:33:12.6404020Z [36;1mpython3 -c 'import yaml'[0m
+2026-11-27T06:33:12.6451200Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:33:12.6451560Z env:
+2026-11-27T06:33:12.6451840Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T06:33:12.6452460Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T06:33:12.6452940Z ##[endgroup]
+2026-11-27T06:33:14.2239260Z error: externally-managed-environment
+2026-11-27T06:33:14.2239660Z 
+2026-11-27T06:33:14.2240520Z × This environment is externally managed
+2026-11-27T06:33:14.2241330Z ╰─> To install Python packages system-wide, try brew install
+2026-11-27T06:33:14.2241890Z     xyz, where xyz is the package you are trying to
+2026-11-27T06:33:14.2242200Z     install.
+2026-11-27T06:33:14.2242480Z     
+2026-11-27T06:33:14.2242840Z     If you wish to install a Python library that isn't in Homebrew,
+2026-11-27T06:33:14.2243320Z     use a virtual environment:
+2026-11-27T06:33:14.2243600Z     
+2026-11-27T06:33:14.2243980Z     python3 -m venv path/to/venv
+2026-11-27T06:33:14.2244340Z     source path/to/venv/bin/activate
+2026-11-27T06:33:14.2244670Z     python3 -m pip install xyz
+2026-11-27T06:33:14.2244970Z     
+2026-11-27T06:33:14.2245260Z     If you wish to install a Python application that isn't in Homebrew,
+2026-11-27T06:33:14.2245760Z     it may be easiest to use 'pipx install xyz', which will manage a
+2026-11-27T06:33:14.2246180Z     virtual environment for you. You can install pipx with
+2026-11-27T06:33:14.2246660Z     
+2026-11-27T06:33:14.2246880Z     brew install pipx
+2026-11-27T06:33:14.2247180Z     
+2026-11-27T06:33:14.2247420Z     You may restore the old behavior of pip by passing
+2026-11-27T06:33:14.2247930Z     the '--break-system-packages' flag to pip, or by adding
+2026-11-27T06:33:14.2248490Z     'break-system-packages = true' to your pip.conf file. The latter
+2026-11-27T06:33:14.2248890Z     will permanently disable this error.
+2026-11-27T06:33:14.2249290Z     
+2026-11-27T06:33:14.2249630Z     If you disable this error, we STRONGLY recommend that you additionally
+2026-11-27T06:33:14.2250160Z     pass the '--user' flag to pip, or set 'user = true' in your pip.conf
+2026-11-27T06:33:14.2250640Z     file. Failure to do this can result in a broken Homebrew installation.
+2026-11-27T06:33:14.2251030Z     
+2026-11-27T06:33:14.2251410Z     Read more about this behavior here: <https://peps.python.org/pep-0668/>
+2026-11-27T06:33:14.2251760Z 
+2026-11-27T06:33:14.2252400Z note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+2026-11-27T06:33:14.2253380Z hint: See PEP 668 for the detailed specification.
+2026-11-27T06:33:14.6892170Z Collecting pyyaml
+2026-11-27T06:33:14.7686340Z   Downloading pyyaml-6.0.4-cp315-cp315-macosx_11_0_arm64.whl.metadata (2.3 kB)
+2026-11-27T06:33:14.8155950Z Downloading pyyaml-6.0.4-cp315-cp315-macosx_11_0_arm64.whl (181 kB)
+2026-11-27T06:33:14.9808570Z Installing collected packages: pyyaml
+2026-11-27T06:33:15.0192600Z Successfully installed pyyaml-6.0.4
+2026-11-27T06:33:15.1047710Z ##[group]Run mkdir -p .test_output/c-repair-original-gates
+2026-11-27T06:33:15.1048210Z [36;1mmkdir -p .test_output/c-repair-original-gates[0m
+2026-11-27T06:33:15.1048730Z [36;1mgit rev-parse HEAD > .test_output/c-repair-original-gates/revision.txt[0m
+2026-11-27T06:33:15.1049180Z [36;1mgit ls-tree -r HEAD > .test_output/c-repair-original-gates/source-tree.txt[0m
+2026-11-27T06:33:15.1049600Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:33:15.1049950Z [36;1mimport hashlib, json, os, shlex, shutil, subprocess[0m
+2026-11-27T06:33:15.1050290Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:33:15.1050600Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T06:33:15.1050960Z [36;1mcompiler=shlex.split(os.environ.get('CC','cc'))[0m
+2026-11-27T06:33:15.1051800Z [36;1mversion=subprocess.check_output(compiler+['--version'])[0m
+2026-11-27T06:33:15.1052160Z [36;1m(root/'compiler-version.txt').write_bytes(version)[0m
+2026-11-27T06:33:15.1052590Z [36;1mselected=[compiler[0],'as','ld','make','python3'][0m
+2026-11-27T06:33:15.1052940Z [36;1mfor tool in ('as','ld'):[0m
+2026-11-27T06:33:15.1053380Z [36;1m    selected.append(subprocess.check_output(compiler+['-print-prog-name='+tool]).decode().strip())[0m
+2026-11-27T06:33:15.1053920Z [36;1mtools={str(Path(shutil.which(n)).resolve()) for n in selected}[0m
+2026-11-27T06:33:15.1054410Z [36;1mhashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}[0m
+2026-11-27T06:33:15.1054950Z [36;1m(root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')[0m
+2026-11-27T06:33:15.1055420Z [36;1mcopies=root/'selected-tools';copies.mkdir()[0m
+2026-11-27T06:33:15.1055870Z [36;1mfor i,n in enumerate(sorted(tools)):shutil.copy2(n,copies/(str(i)+'-'+Path(n).name))[0m
+2026-11-27T06:33:15.1056340Z [36;1mPY[0m
+2026-11-27T06:33:15.1111410Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:33:15.1111810Z env:
+2026-11-27T06:33:15.1112530Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T06:33:15.1113140Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T06:33:15.1113680Z ##[endgroup]
+2026-11-27T06:33:15.9448430Z Traceback (most recent call last):
+2026-11-27T06:33:15.9450000Z   File "<stdin>", line 14, in <module>
+2026-11-27T06:33:15.9451130Z   File "/opt/homebrew/Cellar/python@3.15/3.15.2/Frameworks/Python.framework/Versions/3.15/lib/python3.15/shutil.py", line 530, in copy2
+2026-11-27T06:33:15.9451790Z     copystat(src, dst, follow_symlinks=follow_symlinks)
+2026-11-27T06:33:15.9452100Z     ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-27T06:33:15.9452630Z   File "/opt/homebrew/Cellar/python@3.15/3.15.2/Frameworks/Python.framework/Versions/3.15/lib/python3.15/shutil.py", line 467, in copystat
+2026-11-27T06:33:15.9453260Z     lookup("chflags")(dst, st.st_flags, follow_symlinks=follow)
+2026-11-27T06:33:15.9453700Z     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-27T06:33:15.9454170Z PermissionError: [Errno 1] Operation not permitted: '.test_output/c-repair-original-gates/selected-tools/4-as'
+2026-11-27T06:33:15.9528350Z ##[error]Process completed with exit code 1.
+2026-11-27T06:33:15.9608080Z ##[group]Run git diff --exit-code HEAD
+2026-11-27T06:33:15.9608390Z [36;1mgit diff --exit-code HEAD[0m
+2026-11-27T06:33:15.9608630Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:33:15.9608830Z [36;1mimport hashlib,json[0m
+2026-11-27T06:33:15.9609060Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:33:15.9609330Z [36;1mroot=Path('.test_output/c-repair-original-gates')[0m
+2026-11-27T06:33:15.9609710Z [36;1mfor name,base in [('tools',Path('/')),('images',Path('bin'))]:[0m
+2026-11-27T06:33:15.9610050Z [36;1m    before=root/(name+'-before.json')[0m
+2026-11-27T06:33:15.9610620Z [36;1m    if not before.exists():continue[0m
+2026-11-27T06:33:15.9610920Z [36;1m    expected=json.loads(before.read_text())[0m
+2026-11-27T06:33:15.9611310Z [36;1m    actual={n:hashlib.sha256((base/n).read_bytes()).hexdigest() for n in expected}[0m
+2026-11-27T06:33:15.9611780Z [36;1m    (root/(name+'-after.json')).write_text(json.dumps(actual,indent=2)+'\n')[0m
+2026-11-27T06:33:15.9612270Z [36;1m    assert actual==expected,(name,expected,actual)[0m
+2026-11-27T06:33:15.9612560Z [36;1mPY[0m
+2026-11-27T06:33:15.9654120Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:33:15.9654470Z env:
+2026-11-27T06:33:15.9654740Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T06:33:15.9655250Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T06:33:15.9655700Z ##[endgroup]
+2026-11-27T06:33:16.5063180Z ##[group]Run python3 - <<'PY'
+2026-11-27T06:33:16.5063530Z [36;1mpython3 - <<'PY'[0m
+2026-11-27T06:33:16.5063770Z [36;1mfrom pathlib import Path[0m
+2026-11-27T06:33:16.5064120Z [36;1mfor path in sorted(Path('obj/bootstrap-nanoisa').glob('run-*/*.log')):[0m
+2026-11-27T06:33:16.5064520Z [36;1m    print(str(path),flush=True)[0m
+2026-11-27T06:33:16.5064920Z [36;1m    print(path.read_text(errors='replace')[-32000:],flush=True)[0m
+2026-11-27T06:33:16.5065270Z [36;1mPY[0m
+2026-11-27T06:33:16.5101300Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-27T06:33:16.5101650Z env:
+2026-11-27T06:33:16.5101940Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T06:33:16.5102490Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T06:33:16.5102900Z ##[endgroup]
+2026-11-27T06:33:16.5798350Z ##[group]Run actions/upload-artifact@v4
+2026-11-27T06:33:16.5798770Z with:
+2026-11-27T06:33:16.5799140Z   name: c-repair-original-xcode-27-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1
+2026-11-27T06:33:16.5800360Z   path: .test_output/
+bin/nanoc*
+bin/nano_vm
+bin/nano_virt
+bin/nvm2c
+bin/nanoisa
+bin/nano_aot_runtime.o
+bin/nano_as_capture.so
+obj/bootstrap-nanoisa/
+obj/module_cache/
+modules/**/.build/**
+/Users/runner/work/_temp/nano-*/
+
+2026-11-27T06:33:16.5801130Z   include-hidden-files: true
+2026-11-27T06:33:16.5801400Z   if-no-files-found: error
+2026-11-27T06:33:16.5801660Z   retention-days: 30
+2026-11-27T06:33:16.5801980Z   compression-level: 6
+2026-11-27T06:33:16.5802230Z   overwrite: false
+2026-11-27T06:33:16.5802440Z env:
+2026-11-27T06:33:16.5802750Z   DEVELOPER_DIR: /Applications/Xcode_27.2.0.app/Contents/Developer
+2026-11-27T06:33:16.5803520Z   SDKROOT: /Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+2026-11-27T06:33:16.5804030Z ##[endgroup]
+2026-11-27T06:33:16.8903060Z (node:15953) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-27T06:33:16.8903700Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-27T06:33:16.9550310Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-27T06:33:16.9551580Z The least common ancestor is /Users/runner/work. This will be the root directory of the artifact
+2026-11-27T06:33:16.9552010Z With the provided path, there will be 16 files uploaded
+2026-11-27T06:33:16.9552410Z Artifact name is valid!
+2026-11-27T06:33:16.9552600Z Root directory input is valid!
+2026-11-27T06:33:17.3507080Z Beginning upload of artifact content to blob storage
+2026-11-27T06:33:17.9135340Z (node:15953) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-27T06:33:18.8217350Z Uploaded bytes 8388608
+2026-11-27T06:33:19.4230090Z Uploaded bytes 16777216
+2026-11-27T06:33:19.4773990Z Uploaded bytes 25165824
+2026-11-27T06:33:19.5586620Z Uploaded bytes 25582150
+2026-11-27T06:33:19.6309070Z Finished uploading artifact content to blob storage!
+2026-11-27T06:33:19.6311800Z SHA256 digest of uploaded artifact zip is ce304a920570545b5eecf86769085db7f4f98f21e75f3f80203a96bd46eb34e4
+2026-11-27T06:33:19.6312510Z Finalizing artifact upload
+2026-11-27T06:33:20.0318710Z Artifact c-repair-original-xcode-27-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1.zip successfully finalized. Artifact ID 15177391945
+2026-11-27T06:33:20.0320250Z Artifact c-repair-original-xcode-27-cache-ee5d38a4b401249ecb7dcfaa0b7b04001fdc8dc1 has been successfully uploaded! Final size is 25582150 bytes. Artifact ID is 15177391945
+2026-11-27T06:33:20.0330090Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/45952317501/artifacts/15177391945
+2026-11-27T06:33:20.0547440Z Post job cleanup.
+2026-11-27T06:33:20.1647150Z [command]/opt/homebrew/bin/git version
+2026-11-27T06:33:20.1720390Z git version 2.56.0
+2026-11-27T06:33:20.1739890Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/0fc76b5c-9bbe-4a61-88ad-1a7ad8b9ae5e/.gitconfig'
+2026-11-27T06:33:20.1748090Z Temporarily overriding HOME='/Users/runner/work/_temp/0fc76b5c-9bbe-4a61-88ad-1a7ad8b9ae5e' before making global git config changes
+2026-11-27T06:33:20.1749320Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-27T06:33:20.1751320Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-11-27T06:33:20.1845400Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-27T06:33:20.1911800Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-27T06:33:20.3555430Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-27T06:33:20.3665270Z http.https://github.com/.extraheader
+2026-11-27T06:33:20.3728240Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-27T06:33:20.3860490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-27T06:33:20.5522400Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-27T06:33:20.5591790Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-27T06:33:20.6889880Z Cleaning up orphan processes
+2026-11-27T06:33:21.2925260Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

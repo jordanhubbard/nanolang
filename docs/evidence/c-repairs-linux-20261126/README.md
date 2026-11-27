@@ -10,9 +10,11 @@ I repair deferred array-valued writes, independent numeric join storage,
 checked shared-record array views and the present result of checked slicing.
 My focused regressions pass 80 array-write cases, 28 numeric join paths,
 16 static refusals, 250 expected runtime traps and 40 record-return cases.
-An earlier candidate passes the complete five-route callable and solver suites.
-My final combined candidate's guarded private/public/cache/solver/callable
-cohort is still running; those earlier passes do not replace it.
+My final guarded candidate passes all eleven original private/public/cache,
+solver and five-route callable methods. I preserve the enclosing fourteen-method
+observer failure: 31 supplementary subcases hit a text-stream logging error.
+The three companion methods pass separately after that observer-only correction,
+with identical source, tool and image guards across both runs.
 
 I retain every backend compiler invocation and run independent captured
 C-to-assembly inputs with at most eight workers. My real-process regressions
@@ -40,11 +42,25 @@ newer tests require VM-compatible empty text. I preserve the failure and
 I have requested an explicit decision before replacing those assertions.
 I do not report this target as passing.
 
-I retain terminal logs, failed candidates, exact overlays, products, compiler
-observations and the running cohort under the mounted volume at
-`/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/tmp/c-repairs-20261126`.
-I will seal the terminal component archive and its independent reader after
-the cohort finishes. The raw root is retained; an archive is not yet claimed.
+I seal 58,823 records in [my archive](archive/manifest.json), manifest SHA-256
+`bed29fb26bfcd0ca4a8894d683fd7398a05634c080f219ed12d9a03c6bc3a872`.
+My [independent reader](read_repairs.py) verifies all 9,818 compressed chunks,
+3,933 guarded source files, retained source overlays, images, commands and reports.
+I retain the raw root on the mounted fleet volume as well.
+
+```sh
+python3 docs/evidence/c-repairs-linux-20261126/read_repairs.py \
+  --archive docs/evidence/c-repairs-linux-20261126/archive --repo .
+```
+
+My private/public/cache protocols preserve the original 1,001-frame report hash
+and exercise 308/845/3,317 additional cases across six producer/execution routes.
+My expanded five-method regression passes in 60.162 seconds: all original
+80 array positives, 16 refusals, 28 numeric paths and 250 runtime traps remain;
+60 new nonempty VM/native content cases and 36 new refusal controls pass.
+I retain all three failed new-oracle proposals and the text-logger failure.
+The original combined observer and the broad structured-C gate remain failed;
+component acceptance does not qualify my release or check current liveness.
 
 My branch-scoped `C repair original qualification` workflow requires hosted
 workers before provisioning and runs separate Linux/Darwin bootstrap and cache
@@ -91,4 +107,22 @@ command succeeds without changing those hosts. This reconstructs a prerequisite,
 not a new bootstrap acceptance. I also recover all seven original failing NVM
 inputs from their pinned archives and verify their original hashes; the final
 C tool translates all seven. My new complete cohort includes the six host
-libraries in its tool guards and is still running.
+libraries in its tool guards and completes with all guards matching.
+
+## My second hosted refusal
+
+[My second run](https://github.com/jordanhubbard/nanolang/actions/runs/45952317501)
+clears Darwin storage admission. Its tool-evidence copier then fails when
+`shutil.copy2` attempts to copy protected assembler file flags. I copy exact
+bytes and verify their hashes without requiring those system flags. Linux's
+cache gate retains one controlled-boundary failure, awaiting diagnosis.
+The Linux bootstrap job remains separately observed; neither platform is
+qualified by these local component results.
+
+I reproduce that Linux boundary failure on madmax and capture its child stderr:
+GCC15 rejects the fixture's undeclared `usleep` under captured compilation.
+Defining `_DEFAULT_SOURCE` before its headers exposes the existing declaration.
+The original method then passes in0.161s with the pinned source-fixed assembler,
+all ready/release assertions and the original ten-second boundary unchanged.
+My hosted cache jobs also run all five expanded array regression methods.
+The full hosted suites still have to pass.

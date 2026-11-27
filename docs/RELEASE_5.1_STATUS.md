@@ -125,8 +125,12 @@ checked shared-record array views and present slice results. My permanent
 controls cover80 positive array writes,28 numeric join paths,16 static refusals,
 250 expected runtime traps and40 raw/sliced record return cases. I retain the
 fresh consumer failures that exposed slice representation and the callback
-countercase that requires checked tagged storage. Focused controls do not
-qualify the complete private/public/cache consumers or the release.
+countercase that requires checked tagged storage. My guarded final candidate passes the eleven original private/public/cache,
+solver and callable methods. Three companion methods pass separately after a
+text-stream observer correction; the original enclosing observer remains failed.
+My expanded array controls add60 nonempty content cases and36 prior-output
+refusals. I publish the exact component archive and independent reader in
+[my repair evidence](evidence/c-repairs-linux-20261126/README.md).
 
 I keep every compiler invocation in cache validation and run independent
 retained C-to-assembly jobs with at most eight workers. My real-process controls
@@ -143,7 +147,7 @@ CAST_STRING refusal assertions. Those conflict with the integrated #1193
 VM-compatible empty-text contract and its newer regression suite. I retain the
 failed gate and a test-only reconciliation proposal; I do not call it green.
 
-I still require final guarded component gates, fresh original bootstrap/raw
+I still require broad native acceptance, fresh original bootstrap/raw
 equality/installed/no-C-seed/native36/emitter12 acceptance, paired Darwin
 qualification, the installed pure translator and exact-candidate CI. I publish
 no tag or release from these repairs alone.
