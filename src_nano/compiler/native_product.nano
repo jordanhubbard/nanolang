@@ -100,6 +100,18 @@ shadow aot_host_flags {
     assert (== (aot_host_flags "") "unsupported")
 }
 
+# I use Darwin's default system math symbols and retain explicit math linkage elsewhere.
+fn aot_math_flags(platform: string) -> string {
+    if (or (== platform "Linux\n") (== platform "FreeBSD\n")) { return " -lm" }
+    return ""
+}
+shadow aot_math_flags {
+    assert (== (aot_math_flags "Linux\n") " -lm")
+    assert (== (aot_math_flags "FreeBSD\n") " -lm")
+    assert (== (aot_math_flags "Darwin\n") "")
+    assert (== (aot_math_flags "") "")
+}
+
 # I build a transient provider in the caller's cwd with its complete flag context.
 fn native_shadow_command(directory: string, compiler: string, cflags: string, ldflags: string, platform: string) -> string {
     let mut mode: string = ""
@@ -108,7 +120,7 @@ fn native_shadow_command(directory: string, compiler: string, cflags: string, ld
     if (or (== mode "") (or (== directory "") (== compiler ""))) { return "" }
     let mut command: string = (+ compiler (+ " -std=c11 " (+ mode (+ " " (+ cflags " ")))))
     set command (+ command (aot_shell_quote (+ directory "/helpers.c")))
-    set command (+ command " -lm")
+    set command (+ command (aot_math_flags platform))
     if (== platform "Linux\n") { set command (+ command " -ldl") }
     return (+ command (+ " " (+ ldflags (+ " -o " (aot_shell_quote (+ directory "/helpers.so"))))))
 }
@@ -118,6 +130,8 @@ shadow native_shadow_command {
     assert (str_contains command "'/tmp/a b/helpers.c'")
     assert (str_contains command "-lprovider -o '/tmp/a b/helpers.so'")
     assert (str_contains (native_shadow_command "/tmp/x" "cc" "" "" "Darwin\n") "-dynamiclib")
+    assert (not (str_contains (native_shadow_command "/tmp/x" "cc" "" "" "Darwin\n") " -lm"))
+    assert (str_contains (native_shadow_command "/tmp/x" "cc" "" "-lm -lchosen" "Darwin\n") " -lm -lchosen -o")
     assert (== (native_shadow_command "/tmp/x" "cc" "" "" "unknown") "")
 }
 
@@ -174,7 +188,8 @@ fn publish_native_module(module_path: string, output: string, repo_root: string,
     let mut product: string = c_file
     if (not emit_c) {
         set product (+ directory "/program")
-        let host_flags: string = (aot_host_flags (nl_exec_capture "uname -s"))
+        let platform: string = (nl_exec_capture "uname -s")
+        let host_flags: string = (aot_host_flags platform)
         if (== host_flags "unsupported") {
             (println "I do not support this native host")
             (aot_cleanup directory keep_c)
@@ -183,7 +198,7 @@ fn publish_native_module(module_path: string, output: string, repo_root: string,
         let mut command: string = (+ compiler (+ " -std=c11 " (+ cflags " ")))
         set command (+ command (aot_shell_quote c_file))
         set command (+ command (+ " " (aot_shell_quote (+ repo_root "/bin/nano_aot_runtime.o"))))
-        set command (+ command (+ " -lm" (+ host_flags (+ " " ldflags))))
+        set command (+ command (+ (aot_math_flags platform) (+ host_flags (+ " " ldflags))))
         set command (+ command (+ " -o " (aot_shell_quote product)))
         if verbose { (println command) }
         if (!= (nl_exec_shell command) 0) {

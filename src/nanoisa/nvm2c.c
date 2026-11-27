@@ -9665,11 +9665,18 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             nvm2c_puts(&b,
                 "struct nrec_s { int64_t *f; const char **s; narr_t *a; nsarr_t *sa; nrarr_t *ra; const nrec_t **rec; uint8_t *k, *vk; nmap_t *m; uint16_t n, tag; uint8_t kind; uint32_t callable_target; const nrec_t *identity; };\n");
         } else {
+        /* I share mutually exclusive pointer arms, while boxed scalar bits stay independent. */
         nvm2c_printf(&b,
-            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; uint32_t callable_target;",
-            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
+            "struct nrec_s { int64_t f[%zu]; union { const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu];",
+            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
-        nvm2c_puts(&b, " };\n");
+        nvm2c_printf(&b, " }; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; uint32_t callable_target; };\n",
+                     b.record_width, b.record_width);
+        nvm2c_puts(&b,
+            "_Static_assert(sizeof(const char *) == sizeof(narr_t) && sizeof(const char *) == sizeof(nsarr_t) &&\n"
+            "    sizeof(const char *) == sizeof(nrarr_t) && sizeof(const char *) == sizeof(const nrec_t *)");
+        if (b.has_maps) nvm2c_puts(&b, " && sizeof(const char *) == sizeof(nmap_t)");
+        nvm2c_puts(&b, ", \"I require equally sized record pointer carriers\");\n");
         }
         nvm2c_puts(&b,
             "static inline int nrec_array_storage(unsigned kind) {\n"

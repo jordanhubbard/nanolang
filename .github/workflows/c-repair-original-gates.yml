@@ -10,6 +10,10 @@ on:
       - 'src/nanoisa/nvm2c_shape.c'
       - 'tests/test_native_array_write_inference.py'
       - 'tests/test_module_cache_publication.py'
+      - 'tests/test_native_record_pointer_storage.py'
+      - 'tests/test_module_assembly_workers.*'
+      - 'src_nano/compiler/native_product.nano'
+      - 'Makefile.gnu'
   workflow_dispatch:
 
 permissions:
@@ -123,7 +127,7 @@ jobs:
         timeout-minutes: 10
         run: |
           set -o pipefail
-          python3 -m unittest -v tests.test_native_array_write_inference \
+          python3 -m unittest -v tests.test_native_array_write_inference tests.test_native_record_pointer_storage \
             2>&1 | tee .test_output/c-repair-original-gates/array-regression.log
       - name: Execute the complete original cache and worker gates
         if: matrix.gate == 'cache'

@@ -658,6 +658,12 @@ test-native-array-write-inference: nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtim
 
 test-nvm2c: test-native-array-write-inference
 
+.PHONY: test-native-record-pointer-storage
+test-native-record-pointer-storage: nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtime
+	@python3 -m unittest -v tests.test_native_record_pointer_storage
+
+test-nvm2c: test-native-record-pointer-storage
+
 .PHONY: test-nvm2c371pass0fail
 test-nvm2c371pass0fail: test-nvm2c
 
