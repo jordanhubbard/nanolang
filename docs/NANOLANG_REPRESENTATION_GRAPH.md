@@ -27,3 +27,16 @@ My lazy solver arena retains four ordered fact lists and a fixed-point change fl
 `tests/nvm2c_shape_solver_original_trace.c` includes the unchanged original C tests after wrapping their public API calls. It preserves every original CHECK and records actual evaluated argument/call order. Its binary packet retains each return expectation and callable result. Snapshots after solves and before/after reset compare complete graph facts, inferred-kind flags, ordered conversions/aliases/writes/reads, counts and diagnostics. My NanoLang driver executes these operations itself; it does not invoke the C graph. Original physical-pointer checks remain C baseline checks rather than a NanoLang pointer-identity claim.
 
 `make test-nanolang-translator-shape-solver` adds the recorded original suite, independent directional/final-pass countercases, malformed packets and imported shadows. The existing exact-core and scalar suites remain required. Full module/callable/body/profile/ownership/platform and installed-cutover acceptance remains separate.
+
+## My private storage and carrier facts
+
+My [storage-kind helper](NANOLANG_STORAGE_KINDS.md) passes its exhaustive
+131584-input actual-C/five-route Linux component gate. My adjacent
+[scalar-carrier helper](NANOLANG_CARRIER_MASKS.md) now passes its65792-input
+gate, including exact unknown/mask/optional boundaries, malformed inputs and
+imported shadows. Their independent readers retain exact bytes and all
+selected guards, with product execution forbidden during replay. Neither
+helper grants payload or executable admission. I still compose complete
+module representation and body/runtime/profile/ownership/host emission,
+qualify paired platforms and installed cutover, reconcile frozen assertions
+and pass exact-candidate CI and all69 release requirements.

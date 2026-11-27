@@ -22,9 +22,12 @@ An observer compiles the actual unchanged three C helpers and their two
 variant-mask dependencies, with the real ISA constants, from source bytes.
 No C helper or FFI implements my NanoLang library.
 
-My permanent gate must compare all65792 physical inputs through ordinary and
+My permanent gate compares all65792 physical inputs through ordinary and
 sanitized actual C and five NanoLang routes, retain independent exact sets,
 unknown/malformed/prior-output boundaries and imported shadows, and preserve
-600/60/default10. Implementation and qualification remain pending. Complete
-module representation/emission, paired platforms, installed cutover and all69
-release requirements remain separate.
+600/60/default10. My three permanent methods pass12.280s on Linux ARM64 with all38 commands
+and the current qualified Stage2 producer. I retain [my checked receipt](evidence/c-repairs-linux-20261126/carrier-masks-20261127/README.md),
+source/tool/producer/receipt/index/six-host guards, exact packet/report bytes
+and independent replay of460810 report lines without product execution.
+Complete module representation/emission, paired platforms, installed cutover
+and all69 release requirements remain separate.

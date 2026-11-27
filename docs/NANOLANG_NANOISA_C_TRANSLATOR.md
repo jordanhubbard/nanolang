@@ -1760,3 +1760,16 @@ installed pure-translator cutover. Current Darwin emitter12 fails at C-seed
 setup's ordinary10 deadline; my separate lifecycle diagnostic grants no release
 acceptance. Frozen structured-C CAST_STRING reconciliation, required exact
 candidate CI and all69 release requirements remain open.
+
+## My private storage and carrier facts
+
+My [storage-kind helper](NANOLANG_STORAGE_KINDS.md) passes its exhaustive
+131584-input actual-C/five-route Linux component gate. My adjacent
+[scalar-carrier helper](NANOLANG_CARRIER_MASKS.md) now passes its65792-input
+gate, including exact unknown/mask/optional boundaries, malformed inputs and
+imported shadows. Their independent readers retain exact bytes and all
+selected guards, with product execution forbidden during replay. Neither
+helper grants payload or executable admission. I still compose complete
+module representation and body/runtime/profile/ownership/host emission,
+qualify paired platforms and installed cutover, reconcile frozen assertions
+and pass exact-candidate CI and all69 release requirements.
