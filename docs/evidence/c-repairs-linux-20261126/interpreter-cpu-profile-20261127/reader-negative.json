@@ -1,0 +1,6 @@
+{
+  "changed_manifest_refused": true,
+  "exit": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/interpreter-cpu-profile-20261127/read_interpreter_profile.py\", line 5, in <module>\n    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='b4c28416c3d93b24b19e689183a8b45fe36568d802273ee0337ea8b9b6433165';m=json.loads(raw);assert m['version']==1 and not m['qualification'] and not m['whole_release'] and m['product_source']=='6e09c07a9f1651294e4669282cdc17ee14126775'\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "product_execution": false
+}
