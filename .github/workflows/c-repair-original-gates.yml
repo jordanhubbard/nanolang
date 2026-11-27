@@ -5,6 +5,12 @@ on:
     branches: [feat/5.1-service-module-integration]
     paths:
       - '.github/workflows/c-repair-original-gates.yml'
+      - 'src/env.c'
+      - 'src/eval.c'
+      - 'src/module.c'
+      - 'src/nanolang.h'
+      - 'src/runtime/gc.h'
+      - 'tests/test_env_string_binding_hint.c'
       - 'src/module_builder.c'
       - 'src/nanoisa/nvm2c.c'
       - 'src/nanoisa/nvm2c_shape.c'
@@ -122,6 +128,12 @@ jobs:
           hashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}
           Path('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
           PY
+      - name: Check managed STRING publication and exact alias retention
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index \
+            2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'
         timeout-minutes: 10
