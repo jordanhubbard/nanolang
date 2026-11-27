@@ -230,6 +230,7 @@ jobs:
             bin/nano_as_capture.so
             obj/bootstrap-nanoisa/
             obj/module_cache/
+            modules/index.json
             modules/**/.build/**
             ${{ runner.temp }}/nano-*/
           include-hidden-files: true

@@ -140,3 +140,5 @@ completing under the ordinary ten-second supervisor. This does not establish
 the hosted timeout cause or pass the twelve-method suite. I retain a bounded,
 failure-only hosted trace for that original setup input, with process-group
 cleanup and no changed deadlines.
+
+I publish [my independently checked hosted Linux bootstrap component](hosted-bootstrap-45952317501/README.md), retaining all3,161 actual artifact records, the emitter setup refusal and the missing generated-index evidence gap.
