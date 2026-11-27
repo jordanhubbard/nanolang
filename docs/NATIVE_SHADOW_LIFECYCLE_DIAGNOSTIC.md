@@ -64,3 +64,21 @@ actual marker: success remains below100ms, late remains at least150ms.
 The marker retains its20ms minimum, controls retain their5s command bound,
 and all product300/10 boundaries remain unchanged. This diagnostic is not
 qualification.
+
+## My control start boundary
+
+Run45990677237 stops at the blocked control before compiler observation.
+Its blocked end record returns3 at334450337000ns after origin334347456000ns,
+then kills/reaps the child with status9; marker_ns remains0. I retain that
+refusal. My original control starts its100ms observer window
+before the child has emitted its20ms-delay marker. Pre-marker scheduling can
+consume that window. I arm process observation before releasing the child,
+and let the child trigger the observer only after writing its timing marker.
+Success remains below100ms after the marker, late remains at least150ms,
+and blocked retains100ms of observation after its marker. Each command
+retains5s. I add no retry or product deadline change. The compiler observation
+uses the same release-free path; the new handshake is only for owned controls.
+
+I keep the diagnostic branch based on fb31bad2dce108bab6353309288be0c97281765a
+so newer pure-helper source additions do not weaken the exact restored-product
+tree guard. Original source/tool/image/index/six-host identities remain required.

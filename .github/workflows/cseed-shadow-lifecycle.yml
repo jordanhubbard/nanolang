@@ -2,7 +2,7 @@ name: C seed shadow lifecycle diagnostic
 
 on:
   push:
-    branches: [feat/5.1-service-module-integration]
+    branches: [feat/5.1-service-module-integration, work/5.1-cseed-lifecycle-controls-20261127]
     paths:
       - '.github/workflows/cseed-shadow-lifecycle.yml'
       - 'scripts/ci_darwin_shadow_lifecycle.c'

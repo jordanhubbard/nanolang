@@ -149,6 +149,13 @@ def controls(binary, out):
         events = [r for r in records if r['event'] == 'process-event']
         marker = report['marker_ns'] - report['origin_ns']
         assert marker >= 20_000_000
+        armed = [r for r in records if r['event'] == 'armed']
+        triggers = [r for r in records if r['event'] == 'trigger']
+        assert len(armed) == len(triggers) == 1
+        assert armed[0]['monotonic_ns'] <= report['marker_ns'] <= triggers[0]['monotonic_ns']
+        if kind == 'blocked':
+            end = [r for r in records if r['event'] == 'end']
+            assert len(end) == 1 and end[0]['monotonic_ns'] - triggers[0]['monotonic_ns'] >= 100_000_000
         if kind == 'blocked':
             assert not events and not any(r['exit_absolute'] for r in samples)
         else:

@@ -90,7 +90,7 @@ static int snapshot(FILE *output, pid_t pid, pid_t parent, Identity *identity) {
 
 /* I register before waiting for a flush trigger and leave shadow bodies idle. */
 static int observe(pid_t pid, pid_t parent, unsigned milliseconds, FILE *output,
-                   int trigger) {
+                   int trigger, int release) {
     struct mach_timebase_info timebase;
     if (mach_timebase_info(&timebase) != KERN_SUCCESS || !timebase.denom) return 2;
     uint64_t clock_before = now_ns();
@@ -111,6 +111,10 @@ static int observe(pid_t pid, pid_t parent, unsigned milliseconds, FILE *output,
     fprintf(output, "{\"event\":\"armed\",\"pid\":%d,\"monotonic_ns\":%" PRIu64 "}\n",
             pid, now_ns());
     fflush(output);
+    if (release >= 0) {
+        char go = 'g';
+        if (!transfer(release, &go, 1, true)) { close(queue); return 2; }
+    }
     char command;
     if (!transfer(trigger, &command, 1, false) || command != 'g') {
         fprintf(output, "{\"event\":\"cancelled-before-trigger\"}\n");
@@ -151,33 +155,33 @@ static int observe(pid_t pid, pid_t parent, unsigned milliseconds, FILE *output,
 static int control(const char *kind, FILE *output) {
     bool blocked = !strcmp(kind, "blocked"), late = !strcmp(kind, "late");
     if (!blocked && !late && strcmp(kind, "success")) return 2;
-    int marker[2], trigger[2];
-    if (pipe(marker) || pipe(trigger)) return 2;
+    int marker[2], trigger[2], release[2];
+    if (pipe(marker) || pipe(trigger) || pipe(release)) return 2;
     uint64_t origin = now_ns();
     pid_t child = fork();
     if (child < 0) return 2;
     if (!child) {
-        close(marker[0]); close(trigger[0]); close(trigger[1]);
+        close(marker[0]); close(trigger[0]); close(release[1]);
+        char go;
+        if (!transfer(release[0], &go, 1, false) || go != 'g') _exit(2);
+        close(release[0]);
         delay_ms(20);
         uint64_t clocks[2];
         clocks[0] = now_ns();
         clocks[1] = mach_absolute_time();
         if (!transfer(marker[1], clocks, sizeof clocks, true)) _exit(2);
         close(marker[1]);
+        go = 'g';
+        if (!transfer(trigger[1], &go, 1, true)) _exit(2);
+        close(trigger[1]);
         if (blocked) { for (;;) pause(); }
         if (late) delay_ms(150);
         _exit(0);
     }
-    close(marker[1]);
-    char go = 'g';
-    if (!transfer(trigger[1], &go, 1, true)) {
-        kill(child, SIGKILL);
-        while (waitpid(child, NULL, 0) < 0 && errno == EINTR) {}
-        return 2;
-    }
-    close(trigger[1]);
-    int observed = observe(child, getpid(), blocked ? 100 : 1000, output, trigger[0]);
-    close(trigger[0]);
+    close(marker[1]); close(trigger[1]); close(release[0]);
+    int observed = observe(child, getpid(), blocked ? 100 : 1000, output,
+                           trigger[0], release[1]);
+    close(trigger[0]); close(release[1]);
     if (blocked || observed) kill(child, SIGKILL);
     int status = 0;
     pid_t waited;
@@ -214,7 +218,7 @@ int main(int argc, char **argv) {
     if (*end || limit < 1 || limit > 30000) return 2;
     FILE *output = fopen(argv[4], "w");
     if (!output) return 2;
-    int result = observe((pid_t)pid, (pid_t)parent, (unsigned)limit, output, STDIN_FILENO);
+    int result = observe((pid_t)pid, (pid_t)parent, (unsigned)limit, output, STDIN_FILENO, -1);
     if (fclose(output)) return 2;
     return result;
 }
