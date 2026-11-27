@@ -181,3 +181,5 @@ logs under the mounted volume's `nanolang/tmp/c-repairs-followups-20261126`.
 Those raw followups are not yet a published component archive. The existing
 sealed archives remain unchanged. I require fresh current-source original
 bootstrap/native36/emitter12, paired platforms and all69 release requirements.
+
+I seal [my native failures, diagnostics, layout experiments and preflight](native-followups-20261127/README.md) in2,278 records, with independent byte/source verification. The reader retains original failures and accepts no complete current native candidate or release.
