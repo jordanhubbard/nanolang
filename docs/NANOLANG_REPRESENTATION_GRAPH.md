@@ -49,3 +49,8 @@ and all selected guards. Its reader replays every original method without
 products. These facts grant no module/payload/admission authority; checked
 table indexing and full module/declaration/body/runtime/profile/ownership/
 host composition and all later qualification/release gates remain.
+
+My [complete classifier fact joins](NANOLANG_REPRESENTATION_FACTS.md) now pass
+a six-method, seven-route component gate with actual unchanged C. This value
+and owned-vector API grants no module/table/payload admission; full composition
+and release qualification remain required.

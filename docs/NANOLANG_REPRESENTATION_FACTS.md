@@ -32,11 +32,14 @@ slot, record width at most65535 and local width at most66559 (1024 locals plus
 65535 captures). Source function/offset are uint32 values. Logical ordinals
 are nonnegative addressable integers; callers own their table bounds.
 
-My permanent gate must compare actual unchanged C with ordinary/sanitized
+My permanent gate compares actual unchanged C with ordinary/sanitized
 references and all five NanoLang routes. Every kind pair per policy, full
 map-pair predicate branch domains, every location category, initial/sticky
 state, sequential/vector/partial-failure boundaries, detached copies and
 malformed/prior-output neighbors supplement independent expectations. I keep
 600/60/default10 and immutable source/tool/qualified-Stage2/index/six-host
-guards. Implementation and qualification remain pending. Whole module
+guards. My six-method component gate passes across seven routes; my
+[evidence and independent reader](evidence/c-repairs-linux-20261126/representation-facts-20261127/README.md)
+retain all source inputs, reports, products and the separate early prototype.
+This qualifies the component only. Whole module
 representation/emission and all later qualification/release gates remain.

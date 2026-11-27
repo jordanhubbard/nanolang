@@ -1,0 +1,6 @@
+{
+  "changed_manifest_refused": true,
+  "exit": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/var/tmp/nanolang-darwin-publication-qkk55gi3/docs/evidence/c-repairs-linux-20261126/representation-facts-20261127/read_representation_facts.py\", line 7, in <module>\n    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='5430fa414b4b6132bd4cb367929b21f0f136592e247a5e943bcd2c50c9c8f2c0'\n                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "product_execution": false
+}
