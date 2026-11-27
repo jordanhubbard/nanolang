@@ -264,11 +264,14 @@ static NvmV2Result nvm_from_module_core(const NvmModule *mod, NvmV2Module *out,c
          * depth, so it keeps 0 -- "not declared" -- and the confirming side
          * treats 0 as nothing to check. The module still has to pass
          * nvm_verify before it runs either way. */
-        uint16_t depth = 0;
         if(checked_profile)fns[i].max_stack=checked_depths[i];
-        else if (!nvm_service_bindings_present(mod) && nvm_verify_function_max_stack(mod, i, &depth).ok)
-            fns[i].max_stack = depth;
     }
+    /* I infer ordinary hints with one scoped structural check. Signature
+     * assignment above performs no allocation; verifier allocations retain
+     * their order before the import table is allocated. */
+    if (n_fn && !checked_profile && !nvm_service_bindings_present(mod))
+        (void)nvm_infer_function_max_stacks(mod, fns, n_fn, sizeof *fns,
+                                            offsetof(NvmV2Function, max_stack));
 
     NvmV2Import *ims = n_im ? calloc(n_im, sizeof *ims) : NULL;
     if (n_im && !ims) goto oom;

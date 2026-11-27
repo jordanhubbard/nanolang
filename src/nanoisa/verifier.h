@@ -105,6 +105,17 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack);
 
+/* I infer best-effort producer hints into independent caller-owned records.
+ * Each record has record_size bytes and a uint16_t field at depth_offset.
+ * Invalid arguments leave output untouched. After admission I clear only those
+ * fields, retain zero for refused functions, and continue checking other bodies.
+ * I return the first refusal; a caller may still transport the zero hints.
+ * Source and output must not overlap. Source stays immutable during this call;
+ * I retain no admission between calls. This query grants no execution authority. */
+NvmVerifyResult nvm_infer_function_max_stacks(const NvmModule *mod,
+                                             void *records, uint32_t count,
+                                             size_t record_size, size_t depth_offset);
+
 /* I verify every nonzero declared maximum, sharing ordinary module structure
  * within this invocation. Private profiles keep their complete admission paths.
  * Zero retains the loader's unspecified-depth behavior; this query is not a

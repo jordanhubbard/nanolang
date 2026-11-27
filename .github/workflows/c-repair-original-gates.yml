@@ -16,6 +16,10 @@ on:
       - 'tests/test_checker_rejected_declarations.*'
       - 'src/module_builder.c'
       - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/verifier.c'
+      - 'src/nanoisa/verifier.h'
+      - 'src/nanoisa/nvm_v2_convert.c'
+      - 'tests/nanoisa/test_function_depth_*.c'
       - 'src/nanoisa/nvm2c_shape.c'
       - 'tests/test_native_array_write_inference.py'
       - 'tests/test_module_cache_publication.py'
@@ -136,7 +140,7 @@ jobs:
         run: |
           set -o pipefail
           make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
-            test-checker-rejected-declarations test-checker-rejected-declaration-cli \
+            test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'
