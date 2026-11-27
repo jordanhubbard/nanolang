@@ -26,6 +26,10 @@ on:
       - 'tests/test_native_record_pointer_storage.py'
       - 'tests/test_module_assembly_workers.*'
       - 'src_nano/compiler/native_product.nano'
+      - 'src_nano/nanoc_v06.nano'
+      - 'tests/test_compiler_line_splitting.py'
+      - 'tests/test_eval_string_split.c'
+      - 'tests/fixtures/compiler_line_splitting_prior.nano'
       - 'Makefile.gnu'
   workflow_dispatch:
 
@@ -140,7 +144,7 @@ jobs:
         run: |
           set -o pipefail
           make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
-            test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch \
+            test-checker-rejected-declarations test-checker-rejected-declaration-cli test-function-depth-batch test-eval-string-split \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'
@@ -190,6 +194,16 @@ jobs:
           assert len(re.findall(r'^Ran 36 tests? in ',log,re.M))==1
           assert len(re.findall(r'^Ran 12 tests? in ',log,re.M))==1
           PY
+      - name: Check compiler line boundaries and native length work
+        if: matrix.gate == 'bootstrap'
+        timeout-minutes: 10
+        env:
+          NANOLANG_TRANSLATOR_SOURCE_COMPILER: ${{ github.workspace }}/bin/nanoc_stage2
+        run: |
+          set -o pipefail
+          python3 scripts/ci_qualification_storage.py run --label compiler-line-splitting -- \
+            make -f Makefile.gnu -j1 CC="${CC:-cc}" test-compiler-line-splitting \
+            2>&1 | tee .test_output/c-repair-original-gates/compiler-line-splitting.log
       - name: Localize a refused emitter setup at unchanged limits
         if: failure() && steps.native_suites.outcome == 'failure'
         timeout-minutes: 6
