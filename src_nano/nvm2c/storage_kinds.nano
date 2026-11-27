@@ -1,0 +1,157 @@
+module nvm2c_storage_kinds
+
+# I classify private C carriers, not shape kinds or canonical runtime tags.
+pub struct KindFacts { valid: bool, finite: bool, bits: int, scalar: bool, word_array: bool, sortable: bool }
+pub struct MaskFacts { valid: bool, scalar: bool, payload: bool }
+pub struct FieldFacts { valid: bool, unboxes: bool, converts: bool, accepted: bool, merged: int }
+pub struct Decision { valid: bool, answer: bool }
+struct Join { accepted: bool, kind: int }
+
+fn bounded(value: int, maximum: int) -> bool {
+    return (and (>= value 0) (<= value maximum))
+}
+shadow bounded { assert (bounded 255 255) assert (not (bounded -1 255)) assert (not (bounded 256 255)) }
+
+fn has_bit(mask: int, bit: int) -> bool { return (== (% (/ mask bit) 2) 1) }
+shadow has_bit { assert (has_bit 16386 16384) assert (has_bit 16386 2) assert (not (has_bit 16384 2)) }
+
+fn finite_field(kind: int) -> bool { return (and (> kind 64) (< kind 128)) }
+shadow finite_field { assert (finite_field 65) assert (finite_field 127) assert (not (finite_field 64)) assert (not (finite_field 128)) }
+
+fn finite_for(kind: int) -> int {
+    if (== kind 0) { return 65 }
+    if (== kind 9) { return 66 }
+    if (== kind 11) { return 68 }
+    if (== kind 3) { return 96 }
+    return 72
+}
+shadow finite_for { assert (== (finite_for 3) 96) assert (== (finite_for 2) 72) assert (== (finite_for 15) 72) }
+
+fn scalar_kind(kind: int) -> bool {
+    return (or (or (== kind 0) (== kind 1)) (or (== kind 9) (== kind 11)))
+}
+shadow scalar_kind { assert (scalar_kind 9) assert (not (scalar_kind 4)) assert (not (scalar_kind 13)) }
+
+fn word_array(kind: int) -> bool {
+    return (or (== kind 3) (or (== kind 10) (or (== kind 12) (and (>= kind 14) (<= kind 17)))))
+}
+shadow word_array { assert (word_array 17) assert (not (word_array 5)) assert (not (word_array 6)) }
+
+fn sortable_array(kind: int) -> bool {
+    return (or (or (== kind 3) (== kind 5)) (or (== kind 10) (or (== kind 12) (== kind 15))))
+}
+shadow sortable_array { assert (sortable_array 5) assert (not (sortable_array 14)) assert (not (sortable_array 16)) }
+
+fn or_byte(left: int, right: int) -> int {
+    let mut result: int = 0
+    let mut bit: int = 1
+    while (<= bit 128) {
+        if (or (has_bit left bit) (has_bit right bit)) { set result (+ result bit) }
+        set bit (* bit 2)
+    }
+    return result
+}
+shadow or_byte { assert (== (or_byte 65 96) 97) assert (== (or_byte 85 170) 255) }
+
+fn payload_tags(mask: int, arrays: bool) -> bool {
+    if (not (has_bit mask 16384)) { return false }
+    let remaining: int = (- mask 16384)
+    let mut found: bool = false
+    let mut bit: int = 1
+    for tag in (range 0 16) {
+        if (and (!= tag 0) (has_bit remaining bit)) {
+            if (or (and (>= tag 1) (<= tag 5)) (or (== tag 9) (and arrays (== tag 7)))) {
+                set found true
+            } else { return false }
+        }
+        set bit (* bit 2)
+    }
+    return found
+}
+shadow payload_tags {
+    assert (payload_tags 16387 false)
+    assert (not (payload_tags 16385 false))
+    assert (not (payload_tags 16512 false))
+    assert (payload_tags 16512 true)
+    assert (not (payload_tags 65535 true))
+}
+
+fn join_field(current: int, incoming: int) -> Join {
+    if (== current 2) { return Join { accepted: true, kind: incoming } }
+    if (or (== incoming 2) (== incoming current)) { return Join { accepted: true, kind: current } }
+    if (and (finite_field current) (finite_field incoming)) {
+        return Join { accepted: true, kind: (or_byte current incoming) }
+    }
+    if (or (and (== current 8) (scalar_kind incoming)) (and (== incoming 8) (scalar_kind current))) {
+        return Join { accepted: true, kind: 8 }
+    }
+    return Join { accepted: false, kind: current }
+}
+shadow join_field {
+    assert (== (join_field 2 255).kind 255)
+    assert (== (join_field 65 96).kind 97)
+    assert (== (join_field 0 8).kind 8)
+    assert (not (join_field 0 11).accepted)
+    assert (== (join_field 4 1).kind 4)
+}
+
+fn boolean_result(opcode: int) -> bool {
+    if (== opcode 3) { return true }
+    if (and (>= opcode 40) (<= opcode 45)) { return true }
+    if (and (>= opcode 48) (<= opcode 50)) { return true }
+    if (or (or (== opcode 67) (== opcode 68)) (or (== opcode 75) (== opcode 76))) { return true }
+    if (or (== opcode 123) (or (== opcode 138) (== opcode 140))) { return true }
+    if (and (>= opcode 208) (<= opcode 213)) { return true }
+    if (and (>= opcode 216) (<= opcode 221)) { return true }
+    return (and (>= opcode 224) (<= opcode 226))
+}
+shadow boolean_result { assert (boolean_result 3) assert (boolean_result 226) assert (not (boolean_result 227)) assert (not (boolean_result 46)) }
+
+pub fn classify(kind: int) -> KindFacts {
+    if (not (bounded kind 255)) {
+        return KindFacts { valid: false, finite: false, bits: 0, scalar: false, word_array: false, sortable: false }
+    }
+    return KindFacts { valid: true, finite: (finite_field kind), bits: (finite_for kind),
+        scalar: (scalar_kind kind), word_array: (word_array kind), sortable: (sortable_array kind) }
+}
+shadow classify {
+    assert (not (classify -1).valid) assert (not (classify 256).valid)
+    assert (classify 255).valid assert (not (classify 255).finite)
+    assert (classify 5).sortable assert (not (classify 5).word_array)
+}
+
+pub fn tag_mask(mask: int) -> MaskFacts {
+    if (not (bounded mask 65535)) { return MaskFacts { valid: false, scalar: false, payload: false } }
+    return MaskFacts { valid: true, scalar: (payload_tags mask false), payload: (payload_tags mask true) }
+}
+shadow tag_mask {
+    assert (not (tag_mask -1).valid) assert (not (tag_mask 65536).valid)
+    assert (tag_mask 16386).scalar assert (tag_mask 16512).payload
+    assert (not (tag_mask 16512).scalar)
+}
+
+pub fn field_pair(current: int, incoming: int) -> FieldFacts {
+    if (not (and (bounded current 255) (bounded incoming 255))) {
+        return FieldFacts { valid: false, unboxes: false, converts: false, accepted: false, merged: 0 }
+    }
+    let unboxes: bool = (and (== incoming 8) (or (word_array current) (== current 5)))
+    let finite: bool = (and (!= current incoming) (and (finite_field current) (finite_field incoming)))
+    let scalar: bool = (or (and (== current 8) (scalar_kind incoming)) (and (== incoming 8) (scalar_kind current)))
+    let joined: Join = (join_field current incoming)
+    return FieldFacts { valid: true, unboxes: unboxes, converts: (or finite (or unboxes scalar)),
+        accepted: joined.accepted, merged: joined.kind }
+}
+shadow field_pair {
+    let prior: FieldFacts = (field_pair 65 96)
+    let refused: FieldFacts = (field_pair 4 1)
+    assert prior.accepted assert (== prior.merged 97)
+    assert (not refused.accepted) assert (== refused.merged 4)
+    assert (field_pair 5 8).unboxes assert (not (field_pair 6 8).unboxes)
+    assert (not (field_pair 0 256).valid) assert (== prior.merged 97)
+}
+
+pub fn boolean_opcode(opcode: int) -> Decision {
+    if (not (bounded opcode 255)) { return Decision { valid: false, answer: false } }
+    return Decision { valid: true, answer: (boolean_result opcode) }
+}
+shadow boolean_opcode { assert (boolean_opcode 3).answer assert (not (boolean_opcode 255).answer) assert (not (boolean_opcode 256).valid) }

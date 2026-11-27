@@ -1,0 +1,89 @@
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn bit_text(value: bool) -> string { if value { return "1" } return "0" }
+shadow bit_text { assert (== (bit_text true) "1") assert (== (bit_text false) "0") }
+
+fn packet_valid(bytes: array<u8>) -> bool {
+    let length: int = (array_length bytes)
+    if (or (< length 4) (> length 1048576)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (> count 262144) (> count (/ (- length 4) 2))) { return false }
+    let mut position: int = 4
+    for i in (range 0 count) {
+        if (>= position length) { return false }
+        let op: int = (cast_int (at bytes position))
+        if (> op 3) { return false }
+        let width: int = (cond ((or (== op 1) (== op 2)) 3) (else 2))
+        if (> width (- length position)) { return false }
+        set position (+ position width)
+    }
+    return (== position length)
+}
+shadow packet_valid {
+    assert (packet_valid [0,0,0,0]) assert (not (packet_valid []))
+    assert (packet_valid [1,0,0,0,0,255])
+    assert (not (packet_valid [1,0,0,0,1,255]))
+    assert (not (packet_valid [1,0,0,0,4,0]))
+}
+
+fn row_text(op: int, left: int, right: int) -> string {
+    if (== op 0) {
+        let facts: kinds.KindFacts = (kinds.classify left)
+        return (+ "K|" (+ (int_to_string left) (+ "|" (+ (bit_text facts.finite) (+ "|" (+ (int_to_string facts.bits)
+            (+ "|" (+ (bit_text facts.scalar) (+ "|" (+ (bit_text facts.word_array) (+ "|" (bit_text facts.sortable))))))))))))
+    }
+    if (== op 1) {
+        let facts: kinds.FieldFacts = (kinds.field_pair left right)
+        return (+ "F|" (+ (int_to_string left) (+ "|" (+ (int_to_string right) (+ "|" (+ (bit_text facts.unboxes)
+            (+ "|" (+ (bit_text facts.converts) (+ "|" (+ (bit_text facts.accepted) (+ "|" (int_to_string facts.merged))))))))))))
+    }
+    if (== op 2) {
+        let facts: kinds.MaskFacts = (kinds.tag_mask left)
+        return (+ "T|" (+ (int_to_string left) (+ "|" (+ (bit_text facts.scalar) (+ "|" (bit_text facts.payload))))))
+    }
+    return (+ "B|" (+ (int_to_string left) (+ "|" (bit_text (kinds.boolean_opcode left).answer))))
+}
+shadow row_text {
+    assert (== (row_text 0 0 0) "K|0|0|65|1|0|0")
+    assert (== (row_text 1 65 96) "F|65|96|0|1|1|97")
+    assert (== (row_text 2 16512 0) "T|16512|0|1")
+    assert (== (row_text 3 3 0) "B|3|1")
+}
+
+fn packet_rows(bytes: array<u8>) -> array<string> {
+    if (not (packet_valid bytes)) { return ["P"] }
+    let count: int = (wire.read_u32 bytes 0)
+    let mut result: array<string> = [(+ "Z|" (int_to_string count))]
+    let mut position: int = 4
+    for i in (range 0 count) {
+        let op: int = (cast_int (at bytes position))
+        let mut left: int = (cast_int (at bytes (+ position 1)))
+        let mut right: int = 0
+        if (== op 1) { set right (cast_int (at bytes (+ position 2))) }
+        if (== op 2) { set left (wire.read_u16 bytes (+ position 1)) }
+        set result (array_push result (row_text op left right))
+        set position (+ position (cond ((or (== op 1) (== op 2)) 3) (else 2)))
+    }
+    return result
+}
+shadow packet_rows {
+    let prior: array<string> = (packet_rows [1,0,0,0,0,0])
+    let refused: array<string> = (packet_rows [2,0,0,0,0,0,4,0])
+    assert (== (at prior 1) "K|0|0|65|1|0|0")
+    assert (== (array_length refused) 1) assert (== (at refused 0) "P")
+    assert (== (at prior 1) "K|0|0|65|1|0|0")
+}
+
+fn main() -> int {
+    unsafe {
+        for i in (range 1 (get_argc)) {
+            let lines: array<string> = (packet_rows (file_read_bytes (get_argv i)))
+            for j in (range 0 (array_length lines)) { (println (at lines j)) }
+        }
+    }
+    return 0
+}
+shadow main { assert (== (at (packet_rows [0,0,0,0]) 0) "Z|0") }

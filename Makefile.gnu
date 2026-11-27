@@ -8489,3 +8489,9 @@ test-nanolang-translator-affine-public: $(COMPILER_C) nano_virt nano_vm nvm2c nv
 	NANOLANG_AFFINE_PUBLIC_REFERENCE="$(OBJ_DIR)/nvm2c_affine_public_reference" python3 -m unittest -v tests.test_nanolang_translator_affine_public.AffinePublic
 
 test-units: test-nanolang-translator-affine-public
+
+.PHONY: test-nanolang-translator-storage-kinds
+test-nanolang-translator-storage-kinds: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_storage_kinds
+
+test-units: test-nanolang-translator-storage-kinds
