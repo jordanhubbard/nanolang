@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/jkh/.local/share/fleet-migration/puck-volume/nanolang/tmp/c-repairs-followups-20261126/hosted-current-linux-45970514720/read_hosted_current.py", line 6, in <module>
+    raw=(a.archive/'manifest.json').read_bytes();assert sha(raw)=='0c1334f9a021e0988856a57affbd89fd12ca59fa63eb730fe6c07de6edf86653'
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

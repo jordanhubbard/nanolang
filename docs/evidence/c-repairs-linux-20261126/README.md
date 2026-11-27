@@ -185,3 +185,6 @@ bootstrap/native36/emitter12, paired platforms and all69 release requirements.
 I seal [my native failures, diagnostics, layout experiments and preflight](native-followups-20261127/README.md) in2,278 records, with independent byte/source verification. The reader retains original failures and accepts no complete current native candidate or release.
 
 I publish [my guarded current-source Linux bootstrap17/native36/emitter12 pass](native-current-linux-20261127/README.md) at6e09c07a9f, independently verified in1,889 records. Current Darwin, the broad CAST_STRING decision and the full release remain open.
+
+
+I independently verify and publish [both current hosted Linux original-gate artifacts](hosted-current-linux-45970514720/README.md): bootstrap17/native36/emitter12, complete cache284/34 existing skips, worker3 and array/pointer6. Exact GitHub ZIP digests,1377 Git sources, actual generated index, five compiler products,17 logs, six hosts and tool/image guards match. Manifest0c1334f9a021e0988856a57affbd89fd12ca59fa63eb730fe6c07de6edf86653 binds11 records/99 chunks. Current Darwin, the active current-producer component rerun, frozen CAST_STRING decision and all69 release requirements remain open.
