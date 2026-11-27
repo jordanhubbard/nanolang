@@ -55,7 +55,7 @@ jobs:
         timeout-minutes: 25
         run: |
           ./scripts/ci-apt-install.sh linux-tools-common linux-tools-generic
-          sudo -n sysctl -w kernel.perf_event_paranoid=2
+          sudo -n sysctl -w kernel.perf_event_paranoid=-1
           python3 - <<'PYTOOLS'
           import hashlib, json, os, subprocess
           from pathlib import Path
@@ -72,7 +72,9 @@ jobs:
                   version=subprocess.check_output([str(selected),'version'],text=True,timeout=5)
                   binaries.append({'path':str(selected),'version':version,
                                    'sha256':hashlib.sha256(selected.read_bytes()).hexdigest()})
-          report={'qualification':False,'packages':packages,'binaries':binaries}
+          report={'qualification':False,'packages':packages,'binaries':binaries,
+                  'perf_event_paranoid':Path('/proc/sys/kernel/perf_event_paranoid').read_text().strip(),
+                  'diagnostic_worker_only':True}
           Path('.test_output/stage2-emitter-controls/perf-provision.json').write_text(json.dumps(report,indent=2)+'\n')
           assert binaries
           selected=Path(binaries[-1]['path'])
