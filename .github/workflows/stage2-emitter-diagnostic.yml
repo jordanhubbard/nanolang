@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/stage2-emitter-diagnostic.yml'
       - 'scripts/ci_stage2_emitter_diagnostic.py'
+      - 'scripts/stage2_cpu_sampler.py'
       - 'tests/test_stage2_emitter_diagnostic.py'
   workflow_dispatch:
 
@@ -50,6 +51,21 @@ jobs:
           ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
             libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
             libsdl2-ttf-dev libutf8proc-dev
+      - name: Provision diagnostic CPU sampling
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh linux-tools-common linux-tools-generic
+          sudo -n sysctl -w kernel.perf_event_paranoid=2
+          python3 - <<'PYTOOLS'
+          import os, subprocess
+          from pathlib import Path
+          candidates=sorted(Path('/usr/lib/linux-tools').glob('*/perf'))
+          binaries=[p.resolve() for p in candidates if p.is_file() and p.read_bytes()[:4]==b'\x7fELF']
+          assert binaries
+          selected=binaries[-1]
+          subprocess.run([str(selected),'version'],check=True,timeout=5)
+          with open(os.environ['GITHUB_PATH'],'a') as stream:stream.write(str(selected.parent)+'\n')
+          PYTOOLS
       - name: Preserve the original Python prerequisite
         run: |
           python3 -c 'import yaml' 2>/dev/null && exit 0
@@ -104,6 +120,7 @@ jobs:
           mkdir -p "$code/scripts" "$code/tests"
           touch "$code/scripts/__init__.py"
           git show "$OBSERVER_REVISION:scripts/ci_stage2_emitter_diagnostic.py" > "$code/scripts/ci_stage2_emitter_diagnostic.py"
+          git show "$OBSERVER_REVISION:scripts/stage2_cpu_sampler.py" > "$code/scripts/stage2_cpu_sampler.py"
           git show "$OBSERVER_REVISION:tests/test_stage2_emitter_diagnostic.py" > "$code/tests/test_stage2_emitter_diagnostic.py"
           git show 51c82debb858145371cd9f28005d683e0e79184f:scripts/ci_darwin_shadow_lifecycle.py > "$code/scripts/ci_darwin_shadow_lifecycle.py"
           git show 51c82debb858145371cd9f28005d683e0e79184f:tests/test_cseed_shadow_lifecycle_restore.py > "$code/tests/test_cseed_shadow_lifecycle_restore.py"
@@ -121,7 +138,8 @@ jobs:
         run: |
           python3 "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_stage2_emitter_diagnostic.py" \
             --root "$GITHUB_WORKSPACE" \
-            --restore-helper "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_darwin_shadow_lifecycle.py"
+            --restore-helper "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_darwin_shadow_lifecycle.py" \
+            --sample-cpu
       - name: Retain original inputs, calibration and terminal observation
         if: always()
         uses: actions/upload-artifact@v4
