@@ -53,3 +53,14 @@ flush/event observations fail the diagnostic boundary. No source compiler,
 supervisor decision, original test assertion, qualification workflow or release
 selection changes. My original emitter12 and all69 release requirements remain
 open until their actual gates pass.
+
+## My first calibration refusal
+
+I retain run45982190971: the native successful control exits cleanly and its
+NOTE_EXIT receipt follows its marker0.192ms later. Its marker occurs178.168ms
+after the pre-fork origin, outside my mistaken pre-marker100ms assertion.
+No compiler observation runs. I measure success/late exit tails from the
+actual marker: success remains below100ms, late remains at least150ms.
+The marker retains its20ms minimum, controls retain their5s command bound,
+and all product300/10 boundaries remain unchanged. This diagnostic is not
+qualification.

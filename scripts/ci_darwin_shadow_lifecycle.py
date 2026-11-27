@@ -148,16 +148,17 @@ def controls(binary, out):
         assert all(r['start_absolute'] == samples[0]['start_absolute'] for r in samples)
         events = [r for r in records if r['event'] == 'process-event']
         marker = report['marker_ns'] - report['origin_ns']
-        assert 0 < marker < 100_000_000
+        assert marker >= 20_000_000
         if kind == 'blocked':
             assert not events and not any(r['exit_absolute'] for r in samples)
         else:
             assert len(events) == 1 and any(r['exit_absolute'] for r in samples)
-            elapsed = events[0]['after_ns'] - report['origin_ns']
-            assert elapsed > marker
+            elapsed = events[0]['after_ns'] - report['marker_ns']
+            assert elapsed > 0
             assert (elapsed >= 150_000_000) if kind == 'late' else (elapsed < 100_000_000)
         summaries.append({'kind': kind, 'passed': True, 'marker_after_origin_ns': marker,
-                          'samples': len(samples), 'process_events': len(events)})
+                          'samples': len(samples), 'process_events': len(events),
+                          'event_after_marker_ns': None if kind == 'blocked' else elapsed})
     save(out / 'controls.json', summaries)
 
 
