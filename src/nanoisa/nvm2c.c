@@ -1339,7 +1339,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                     continue;
                 }
                 if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
-                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE &&
+                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT && kind != NVM2C_VK_VALUE &&
                     kind != NVM2C_VK_UNK) continue;
                 /* Destination storage never rewrites the exact producer. An
                  * unresolved array read may later become OPTIONAL; it must
@@ -1415,13 +1415,20 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             ((join->slots[i].kind == NVM2C_VK_STR || join->slots[i].kind == NVM2C_VK_VALUE) &&
              (stack[i].kind == NVM2C_VK_STR || stack[i].kind == NVM2C_VK_VALUE)) ||
             ((join->slots[i].kind == NVM2C_VK_BOOL || join->slots[i].kind == NVM2C_VK_VALUE) &&
-             (stack[i].kind == NVM2C_VK_BOOL || stack[i].kind == NVM2C_VK_VALUE));
+             (stack[i].kind == NVM2C_VK_BOOL || stack[i].kind == NVM2C_VK_VALUE)) ||
+            ((join->slots[i].kind == NVM2C_VK_INT || join->slots[i].kind == NVM2C_VK_VALUE) &&
+             (stack[i].kind == NVM2C_VK_INT || stack[i].kind == NVM2C_VK_VALUE)) ||
+            ((join->slots[i].kind == NVM2C_VK_FLOAT || join->slots[i].kind == NVM2C_VK_VALUE) &&
+             (stack[i].kind == NVM2C_VK_FLOAT || stack[i].kind == NVM2C_VK_VALUE));
         if (!scalar_join && optional_join && join->slots[i].kind != stack[i].kind) {
             if (target <= b->classify_offset) {
                 nvm2c_fail(b, "I cannot yet widen tagged scalar storage on a backward stack edge in function %u", idx);
                 return 0;
             }
             join->slots[i].kind = NVM2C_VK_VALUE;
+            /* I establish the wrapper before a consumer projects its payload.
+             * Earlier scalar conversions must not claim that wrapper as INT. */
+            if (!shape_type(b, join->slots[i].shape, NVM_SHAPE_OPTIONAL)) return 0;
             b->has_maps = 1;
         }
         int record_join = join->slots[i].kind == NVM2C_VK_REC && stack[i].kind == NVM2C_VK_REC;
@@ -2627,14 +2634,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId original = payload;
             array.shape = shape_variable(b, b->shape_current);
             array.origin = -1;
-            /* I return a new array after checked extraction, not the input's
-             * finite scalar/array alternative set. */
+            /* I return a present array after checked extraction. The input's
+             * tagged carrier and absence do not describe the new slice. */
             array.scalar_tags = 0;
+            if (array.kind == NVM2C_VK_VALUE) array.kind = resolved_shape_kind(b, original);
             payload = array.shape;
-            if (array.kind == NVM2C_VK_VALUE) {
-                if (!shape_type(b, array.shape, NVM_SHAPE_OPTIONAL)) return 0;
-                payload = shape_child(b, array.shape, 0);
-            }
             if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
                 !shape_equal(b, shape_child(b, payload, 0), shape_child(b, original, 0)) ||
                 !sim_push_slot(b, idx, stk, &sp, array)) return 0;
@@ -2804,14 +2808,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                 }
             }
-            if (b->canonical_records && arr.kind == NVM2C_VK_UNK &&
-                (val.kind == NVM2C_VK_ARR || val.kind == NVM2C_VK_SARR ||
-                 val.kind == NVM2C_VK_U8ARR || val.kind == NVM2C_VK_FARR ||
-                 val.kind == NVM2C_VK_BARR || val.kind == NVM2C_VK_NARR)) {
-                /* A closed nested primitive proof permits this array-valued write,
-                 * but a forward callee may not yet have a result carrier.
-                 * Preserve unknown storage until facts converge; never seed
-                 * an integer-array carrier from the child's carrier. */
+            if (arr.kind == NVM2C_VK_UNK &&
+                (word_array_storage(val.kind) || val.kind == NVM2C_VK_SARR ||
+                 val.kind == NVM2C_VK_RARR)) {
+                /* I retain unknown flat storage while the complete graph
+                 * constrains the receiver and its array-valued element.
+                 * This also applies during final construction: a late field
+                 * projection can acquire its carrier only after solving. */
                 Nvm2cSimSlot pushed = arr;
                 pushed.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed) ||
@@ -5917,7 +5920,30 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 memcpy(st.rarr_k[result], st.rarr_k[array], b->record_width);
             } else if (kind == NVM2C_VK_VALUE) {
                 snprintf(expression, sizeof expression, "nvalue_array_slice(v[%d], t[%d], t[%d])", array, begin, end);
-                stack_push_value(b, &st, expression);
+                int value = stack_push_value(b, &st, expression);
+                if (value < 0) goto done;
+                uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
+                /* A callable-set payload can retain its tagged array carrier.
+                 * The slice helper still checks its actual array storage. */
+                if (!word_array_storage(resolved) && resolved != NVM2C_VK_SARR && resolved != NVM2C_VK_RARR) break;
+                stack_pop(b, &st);
+                nvm2c_printf(b, "    if (v[%d].kind != 7 || v[%d].integer != %u || !v[%d].text) NVM2C_ABORT();\n",
+                             value, value, (unsigned)resolved, value);
+                snprintf(expression, sizeof expression, "(%s)v[%d].text",
+                         resolved == NVM2C_VK_SARR ? "nsarr_t" :
+                         resolved == NVM2C_VK_RARR ? "nrarr_t" : "narr_t", value);
+                if (resolved == NVM2C_VK_SARR) stack_push_sarr(b, &st, expression);
+                else if (resolved != NVM2C_VK_RARR) stack_push_iarray(b, &st, expression, resolved);
+                else {
+                    int result = stack_push_rarr(b, &st, expression);
+                    if (result < 0) goto done;
+                    NvmShapeId element = nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], 0);
+                    for (size_t f = 0; f < b->record_width; ++f) {
+                        NvmShapeId child = element ? nvm_shape_lookup(&b->shapes, element, (uint32_t)f) : 0;
+                        st.rarr_k[result][f] = resolved_shape_kind(b, child);
+                    }
+                    if (!shape_ok(b)) goto done;
+                }
             } else {
                 nvm2c_fail(b, "I require an array representation for ARR_SLICE"); goto done;
             }
@@ -6339,6 +6365,50 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
             if (!shape_ok(b)) goto done;
+            uint8_t optional_array = NVM2C_VK_UNK;
+            if (resolved == NVM2C_VK_VALUE) {
+                NvmShapeId payload = nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], 0);
+                if (payload) optional_array = resolved_shape_kind(b, payload);
+                if (!shape_ok(b)) goto done;
+            }
+            if (word_array_storage(optional_array) || optional_array == NVM2C_VK_SARR ||
+                optional_array == NVM2C_VK_RARR) {
+                /* I box only the graph-proved array storage in this checked
+                 * record view. An existing tagged slot may also be absent. */
+                char expression[128];
+                snprintf(expression, sizeof expression, "nrec_array_value(&r[%d], %u, %u)",
+                         rec, (unsigned)fi, (unsigned)optional_array);
+                if (stack_push_value(b, &st, expression) < 0) goto done;
+                break;
+            }
+            if (b->has_maps && (word_array_storage(resolved) || resolved == NVM2C_VK_SARR ||
+                                resolved == NVM2C_VK_RARR)) {
+                /* I check a shared field's tagged representation before
+                 * recovering an exact array view. Absence is not an array. */
+                char expression[128];
+                snprintf(expression, sizeof expression, "nrec_array_value(&r[%d], %u, %u)",
+                         rec, (unsigned)fi, (unsigned)resolved);
+                int value = stack_push_value(b, &st, expression);
+                if (value < 0) goto done;
+                stack_pop(b, &st);
+                nvm2c_printf(b, "    if (v[%d].kind != 7 || !v[%d].text) NVM2C_ABORT();\n", value, value);
+                snprintf(expression, sizeof expression, "(%s)v[%d].text",
+                         resolved == NVM2C_VK_SARR ? "nsarr_t" :
+                         resolved == NVM2C_VK_RARR ? "nrarr_t" : "narr_t", value);
+                if (resolved == NVM2C_VK_SARR) stack_push_sarr(b, &st, expression);
+                else if (resolved != NVM2C_VK_RARR) stack_push_iarray(b, &st, expression, resolved);
+                else {
+                    int array = stack_push_rarr(b, &st, expression);
+                    if (array < 0) goto done;
+                    NvmShapeId element = nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], 0);
+                    for (size_t f = 0; f < b->record_width; ++f) {
+                        NvmShapeId child = element ? nvm_shape_lookup(&b->shapes, element, (uint32_t)f) : 0;
+                        st.rarr_k[array][f] = resolved_shape_kind(b, child);
+                    }
+                    if (!shape_ok(b)) goto done;
+                }
+                break;
+            }
             if (resolved == NVM2C_VK_UNK &&
                 nvm_shape_kind(&b->shapes, b->shape_outputs[idx][start]) == NVM_SHAPE_ARRAY) {
                 /* I retain the record's runtime array storage tag instead of
@@ -9601,10 +9671,19 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
         }
+        nvm2c_puts(&b,
+            "static inline int nrec_array_storage(unsigned kind) {\n"
+            "    return kind == 3 || kind == 5 || kind == 6 || kind == 10 || kind == 12 ||\n"
+            "        kind == 14 || kind == 15 || kind == 16 || kind == 17;\n}\n");
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b,
             "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
             "    unsigned ak = a->k[field], bk = b->k[field];\n"
             "    if (ak == bk) return 1;\n"
+            "    unsigned storage = ak == 8 ? bk : ak;\n"
+            "    if ((ak == 8 || bk == 8) && nrec_array_storage(storage)) {\n"
+            "        const nrec_t *boxed = ak == 8 ? a : b;\n"
+            "        return boxed->vk[field] == 7 && boxed->f[field] == storage && boxed->s[field];\n"
+            "    }\n"
             "    unsigned at = ak == 0 ? 1 : ak == 9 ? 4 : ak == 1 ? 5 : ak == 11 ? 3 : ak == 8 ? a->vk[field] : 255;\n"
             "    unsigned bt = bk == 0 ? 1 : bk == 9 ? 4 : bk == 1 ? 5 : bk == 11 ? 3 : bk == 8 ? b->vk[field] : 255;\n"
             "    return at == bt && (at == 1 || at == 3 || at == 4 || at == 5) &&\n"
@@ -9630,7 +9709,19 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             "static inline nrec_t nvalue_require_record(nmap_value value) {\n"
             "    if ((value.kind != 8 && value.kind != 10 && value.kind != 12) || !value.text) NVM2C_ABORT();\n"
             "    return *(const nrec_t *)value.text;\n"
-            "}\n");
+            "}\n"
+            "static inline nmap_value nrec_array_value(const nrec_t *record, size_t field, unsigned storage) {\n"
+            "    if (!record || field >= record->n) NVM2C_ABORT();\n"
+            "    if (!nrec_array_storage(storage)) NVM2C_ABORT();\n"
+            "    if (record->k[field] == 8) {\n"
+            "        if (record->vk[field] != 0 && (record->vk[field] != 7 || record->f[field] != storage || !record->s[field])) NVM2C_ABORT();\n"
+            "        return (nmap_value){record->vk[field], record->f[field], (char *)record->s[field]};\n"
+            "    }\n"
+            "    if (record->k[field] != storage) NVM2C_ABORT();\n"
+            "    void *pointer = storage == 5 ? (void *)record->sa[field] :\n"
+            "        storage == 6 ? (void *)record->ra[field] : (void *)record->a[field];\n"
+            "    if (!pointer) NVM2C_ABORT();\n"
+            "    return (nmap_value){7, storage, (char *)pointer};\n}\n");
         if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b,
             "static inline nmap_value nrecord_array_pop(nrarr_t array) {\n"
             "    if (!array) NVM2C_ABORT();\n"
@@ -9779,7 +9870,8 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
         if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop; (void)nrecord_array_pop; (void)nvalue_require_record;\n");
-        if (b.has_maps) nvm2c_puts(&b, "    (void)nvalue_require_record;\n");
+        nvm2c_puts(&b, "    (void)nrec_array_storage;\n");
+        if (b.has_maps) nvm2c_puts(&b, "    (void)nvalue_require_record; (void)nrec_array_value;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||

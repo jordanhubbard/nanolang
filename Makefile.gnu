@@ -652,6 +652,12 @@ test-nvm2c: test-native-effects test-native-array-pop test-native-local-clear te
 	@CC="$(CC)" $(TIMEOUT_CMD) $(NVM2C_TEST_BINARY) $(BIN_DIR)/nvm2c
 	@rm -f $(NVM2C_TEST_BINARY)
 
+.PHONY: test-native-array-write-inference
+test-native-array-write-inference: nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtime
+	@python3 -m unittest -v tests.test_native_array_write_inference
+
+test-nvm2c: test-native-array-write-inference
+
 .PHONY: test-nvm2c371pass0fail
 test-nvm2c371pass0fail: test-nvm2c
 
@@ -3269,6 +3275,15 @@ test-units: test-empty-record-array-fields
 test-module-builder-cache: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_builder_cache tests/test_module_builder_cache.c $^ $(LDFLAGS)
 	@$(OBJ_DIR)/test_module_builder_cache
+
+$(OBJ_DIR)/test_module_assembly_workers: tests/test_module_assembly_workers.c src/module_builder.c $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
+	$(CC) $(CFLAGS) -o $@ tests/test_module_assembly_workers.c $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS)
+
+.PHONY: test-module-assembly-workers
+test-module-assembly-workers: $(OBJ_DIR)/test_module_assembly_workers
+	@python3 -m unittest -v tests.test_module_assembly_workers
+
+test-units: test-module-assembly-workers
 
 test-failed-import-publication: nano_virt
 	@bash tests/test_failed_import_publication.sh

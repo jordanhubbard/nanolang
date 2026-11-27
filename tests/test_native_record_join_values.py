@@ -31,6 +31,25 @@ class RecordJoinValues(unittest.TestCase):
                             payload='PUSH_VOID' if expected==0 else value
                             text+=f'PUSH_BOOL {branch}\nCALL choose\nAGG_GET 0\nDUP\nTYPE_CHECK {expected}\nASSERT\n{payload}\nEQ\nASSERT\n'
                         self.pair(text+'PUSH_I64 0\nRET\n.end\n')
+    def test_returned_raw_and_checked_sliced_arrays(self):
+        for tag in (1, 2, 3, 4, 5, 6, 7, 8, 11, 15):
+            for reverse in (False, True):
+                for mismatch in (False, True):
+                    with self.subTest(tag=tag, reverse=reverse, mismatch=mismatch):
+                        raw = f'ARR_NEW {tag}\nAGG_PACK 0 0 0 1\nRET\n'
+                        other = (3 if tag != 3 else 1) if mismatch else tag
+                        checked = (f'ARR_NEW {other}\nARR_LITERAL 7 1\nPUSH_I64 0\nARR_GET\n'
+                                   'PUSH_I64 0\nPUSH_I64 0\nARR_SLICE\nAGG_PACK 0 0 0 1\nRET\n')
+                        first, second = (raw, checked) if reverse else (checked, raw)
+                        text = ('.types 1 0 0\n.entry main\n'
+                                '.function choose 1 1 0 struct 1\nLOAD_LOCAL 0\nJMP_FALSE other\n'
+                                + first + 'other:\n' + second + '.end\n'
+                                '.function main 0 0 0 int 1\n')
+                        for branch in (0, 1):
+                            text += (f'PUSH_BOOL {branch}\nCALL choose\nAGG_GET 0\nARR_LEN\n'
+                                     'PUSH_I64 0\nI64_EQ\nASSERT\n')
+                        self.pair(text + 'PUSH_I64 0\nRET\n.end\n', mismatch)
+
     def test_incompatible_exact_and_aggregate_fields_preserve_output(self):
         for value in ['PUSH_STR text','PUSH_I64 7\nAGG_PACK 0 1 0 1','PUSH_I64 7\nARR_LITERAL 1 1']:
             with self.subTest(value=value):

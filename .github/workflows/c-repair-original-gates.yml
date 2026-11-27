@@ -1,0 +1,160 @@
+name: C repair original qualification
+
+on:
+  push:
+    branches: [feat/5.1-service-module-integration]
+    paths:
+      - '.github/workflows/c-repair-original-gates.yml'
+      - 'src/module_builder.c'
+      - 'src/nanoisa/nvm2c.c'
+      - 'src/nanoisa/nvm2c_shape.c'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-gates:
+    name: C repair original gates (${{ matrix.os }}, ${{ matrix.gate }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, xcode-27]
+        gate: [bootstrap, cache]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a hosted worker before provisioning
+        id: hosted
+        run: |
+          test '${{ runner.environment }}' = github-hosted
+          uname -a
+          echo "I qualify $GITHUB_SHA on $RUNNER_NAME."
+      - uses: actions/checkout@v4
+      - name: Require storage headroom
+        run: |
+          python3 - <<'PY'
+          import os, shutil, tempfile
+          for path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              disk = shutil.disk_usage(path)
+              assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10, (path, disk)
+          PY
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev
+      - name: Install Darwin dependencies
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: |
+          ./scripts/ci-brew-install.sh llvm pkg-config openssl sqlite sdl2 \
+            sdl2_image sdl2_mixer sdl2_ttf utf8proc
+      - name: Select the pinned Darwin compiler and SDK
+        if: runner.os == 'macOS'
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
+      - name: Record source and tool identities
+        run: |
+          mkdir -p .test_output/c-repair-original-gates
+          git rev-parse HEAD > .test_output/c-repair-original-gates/revision.txt
+          git ls-tree -r HEAD > .test_output/c-repair-original-gates/source-tree.txt
+          python3 - <<'PY'
+          import hashlib, json, os, shlex, shutil
+          from pathlib import Path
+          root=Path('.test_output/c-repair-original-gates')
+          selected=[shlex.split(os.environ.get('CC','cc'))[0],'as','ld','make','python3']
+          tools={str(Path(shutil.which(n)).resolve()) for n in selected}
+          hashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}
+          (root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
+          copies=root/'selected-tools';copies.mkdir()
+          for i,n in enumerate(sorted(tools)):shutil.copy2(n,copies/(str(i)+'-'+Path(n).name))
+          PY
+      - name: Build fresh production tools
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC="${CC:-cc}" bin/nanoc_c nano_virt nano_vm \
+            nvm2c nanoisa_dump nvm2c-runtime \
+            2>&1 | tee .test_output/c-repair-original-gates/cold-tools.log
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          names=['nanoc_c','nano_virt','nano_vm','nvm2c','nanoisa','nano_aot_runtime.o']
+          hashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}
+          Path('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
+          PY
+      - name: Execute the complete original cache and worker gates
+        if: matrix.gate == 'cache'
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-bytecode-shadows test-module-assembly-workers \
+            2>&1 | tee .test_output/c-repair-original-gates/cache-workers.log
+      - name: Execute the original bootstrap with its default limits
+        if: matrix.gate == 'bootstrap'
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j1 CC="${CC:-cc}" bootstrap3 \
+            2>&1 | tee .test_output/c-repair-original-gates/bootstrap.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path('bin/nanoc_bootstrap.json').read_text())
+          assert q['phase']=='stage2' and q['raw_stage1_stage2_equal']
+          assert q['stage_timeout_seconds']==1800 and q['shadow_timeout_seconds']==30
+          assert len(q['steps'])==17 and all(r['exit_code']==0 for r in q['steps'])
+          assert Path('bin/nanoc_stage1.nvm').read_bytes()==Path('bin/nanoc_stage2.nvm').read_bytes()
+          PY
+      - name: Execute the original native compiler and emitter suites
+        if: matrix.gate == 'bootstrap'
+        timeout-minutes: 30
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-native-shadows test-native-shadow-emitter \
+            2>&1 | tee .test_output/c-repair-original-gates/native-suites.log
+      - name: Verify source and selected tool guards
+        if: always() && steps.hosted.outcome == 'success'
+        run: |
+          git diff --exit-code HEAD
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('.test_output/c-repair-original-gates')
+          for name,base in [('tools',Path('/')),('images',Path('bin'))]:
+              before=root/(name+'-before.json')
+              if not before.exists():continue
+              expected=json.loads(before.read_text())
+              actual={n:hashlib.sha256((base/n).read_bytes()).hexdigest() for n in expected}
+              (root/(name+'-after.json')).write_text(json.dumps(actual,indent=2)+'\n')
+              assert actual==expected,(name,expected,actual)
+          PY
+      - name: Retain terminal logs, products and actual host closures
+        if: always() && steps.hosted.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-repair-original-${{ matrix.os }}-${{ matrix.gate }}-${{ github.sha }}
+          path: |
+            .test_output/
+            bin/nanoc*
+            bin/nano_vm
+            bin/nano_virt
+            bin/nvm2c
+            bin/nanoisa
+            bin/nano_aot_runtime.o
+            modules/**/.build/**
+            ${{ runner.temp }}/nano-*/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

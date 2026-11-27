@@ -100,6 +100,39 @@ class ShapeSolver(unittest.TestCase):
         self.assertIn('I cannot widen an exactly constrained',baseline)
         self.assertIn('I cannot convert aggregate storage',baseline)
 
+    def test_boxed_fields_below_exact_shared_record_views(self):
+        cases=[]
+        for kind,alias,wrong,late in itertools.product((1,2,3,5,7,8,12,13,14),
+                                                       (False,True),(False,True),(False,True)):
+            p=Program(f'boxed-field-{kind}-{alias}-{wrong}-{late}')
+            source=p.new(6);target=p.new(6)
+            left=p.child(source,0);right=p.child(target,0)
+            if alias:
+                p.join(left,p.new(3));p.join(right,p.new(3))
+                left=p.child(left,0);right=p.child(right,0)
+            p.join(left,p.new(4));p.join(right,p.new(4))
+            present=p.child(left,0);boxed=p.child(right,0)
+            if late:p.op(14,source,target,want=1)
+            p.join(present,p.new(kind));p.join(boxed,p.new(6))
+            payload=p.child(boxed,0)
+            p.join(payload,p.new((2 if kind==1 else 1) if wrong else kind))
+            if kind in (3,5):
+                p.join(p.child(present,0),p.new(1))
+                if not wrong:p.join(p.child(payload,0),p.new(1))
+            if kind==12:p.op(8,present,17,want=1)
+            if not late:p.op(14,source,target,want=1)
+            accepted=int(alias and not wrong)
+            p.op(20,want=accepted)
+            if accepted:
+                p.op(2,present,want=kind).op(2,boxed,want=6).op(2,payload,want=kind)
+                if kind==12:p.op(9,payload,want=1).op(27,payload,0,want=17)
+                p.op(20,want=1)
+            else:p.op(13,want=0)
+            cases.append(p)
+        self.assertEqual(len(cases),72)
+        path=self.directory/'boxed-shared-record-views.bin';path.write_bytes(packet(cases))
+        self.compare(path,len(cases))
+
     def test_malformed_solver_packets(self):
         good=packet([Program('one').op(0,4,want=1)])
         cases=[b'',b'\0',good[:-1],good+b'\0',struct.pack('<III',1,2,0),struct.pack('<I',0xffffffff)]

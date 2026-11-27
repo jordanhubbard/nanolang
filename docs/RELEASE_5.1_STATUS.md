@@ -29,11 +29,13 @@ My private pure translator now includes the graph/directed solver, bounded
 constant reachability and shared effect-arm collector, each with its published
 Linux dependency receipt. My [whole callable collector/linker draft](NANOLANG_CALLABLE_CONSTRAINTS.md)
 has989 matching diagnostic packets on C-seed native and both producer VM routes,
-plus505 original C assertions and26 captured original module inputs. Its full
-five-route native gate remains failed under
-[#1262](https://github.com/jordanhubbard/nanolang/issues/1262). Both producer
-modules reach the unknown-receiver/array-valued-write fallback. I preserve the
-C owner's repair/handoff boundary; the diagnostic records accepted=false.
+plus505 original C assertions and26 captured original module inputs. That
+initial full native gate failed under
+[#1262](https://github.com/jordanhubbard/nanolang/issues/1262). I retain that
+failure. The owner has since handed me both C repairs and their regressions.
+My subsequent product6 callable and solver component gates pass through all
+five producer/execution routes; the final combined candidate still requires
+its fresh complete consumer gates and all release acceptance below.
 
 I still require complete callable/native acceptance, representation and body/
 runtime emission, module/profile/ownership composition, the original private/
@@ -52,8 +54,8 @@ installed/no-C-seed or native36/emitter12 acceptance follows. Full guards and
 cleanup pass. I track bounded localization and repair under
 [#1265](https://github.com/jordanhubbard/nanolang/issues/1265), preserve the failed
 root and all original budgets, and make no unchanged full retry or historical
-#1247/infrastructure-cause claim. Existing C ownership, frozen inputs and
-NAS/TCC/migration pauses remain in force.
+#1247/infrastructure-cause claim. The subsequent explicit handoff authorizes
+my C repairs; frozen inputs, fleet restrictions and all acceptance remain in force.
 
 My subsequent [bounded phase diagnostic](evidence/darwin-current-source-20261124/diagnostics/darwin-stage1-phase-diagnostic-20261126/README.md)
 records imports37.433/lex47.444/parse61.992/typecheck69.447→294.712/program-lowering
@@ -110,6 +112,41 @@ changes compiler identity and adds overhead; I do not equate its full lookup
 timings with production timings. All guards and cleanup pass. A reviewed C-owner
 repair or handoff, the original Darwin failure, #1262 and full69 acceptance remain
 open; no production source or qualification deadline changes.
+
+
+## My C repair ownership — 2026-11-26
+
+I own #1262 and #1265 under the explicit handoff, including their regressions.
+This supersedes the earlier C-owner waiting boundaries in my retained history.
+I keep all69 requirements and every original qualification deadline.
+
+I repair unknown array-valued writes, numeric/tagged join destination storage,
+checked shared-record array views and present slice results. My permanent
+controls cover80 positive array writes,28 numeric join paths,16 static refusals,
+250 expected runtime traps and40 raw/sliced record return cases. I retain the
+fresh consumer failures that exposed slice representation and the callback
+countercase that requires checked tagged storage. Focused controls do not
+qualify the complete private/public/cache consumers or the release.
+
+I keep every compiler invocation in cache validation and run independent
+retained C-to-assembly jobs with at most eight workers. My real-process controls
+cover overlap, limits, tail batches, shared/non-C inputs, failure draining,
+spawn failures, signals, EINTR and an unrelated child. The complete original
+bytecode-shadow/cache/source-snapshot/link target passes284 reported tests
+with34 existing platform skips. My same-input assembly comparison preserves
+all output bytes:81 file-product units take17.367427s serial/7.606510s parallel;
+42 NanoISA units take2.618612s/0.816396s. Wrapper/direct-module measurements do
+not establish an original Darwin VM-bootstrap improvement.
+
+My broad native target reports2456 structured-C passes and two failing old
+CAST_STRING refusal assertions. Those conflict with the integrated #1193
+VM-compatible empty-text contract and its newer regression suite. I retain the
+failed gate and a test-only reconciliation proposal; I do not call it green.
+
+I still require final guarded component gates, fresh original bootstrap/raw
+equality/installed/no-C-seed/native36/emitter12 acceptance, paired Darwin
+qualification, the installed pure translator and exact-candidate CI. I publish
+no tag or release from these repairs alone.
 
 
 ## Current scope reconciliation — 2026-11-24

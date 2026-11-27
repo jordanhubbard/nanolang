@@ -4191,6 +4191,15 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
 /* I let the selected driver interpret retained .i input as C or C++; forcing
  * cpp-output would override a C++ driver. I copy preprocessed assembler without changing
  * its grammar. The destination is always private to this capture. */
+static bool module_assembly_command(char *command, size_t capacity, const char *prefix,
+                                    const char *input, const char *output, bool hidden) {
+    command[0] = 0;
+    return module_build_append(command, capacity, "%s%s", prefix,
+                               hidden ? " -fvisibility=hidden" : "") &&
+        module_append_path_flag(command, capacity, "", input) &&
+        module_append_path_flag(command, capacity, "-o ", output);
+}
+
 static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefix,
                                     const char *input, const char *output, size_t group, size_t index) {
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
@@ -4199,10 +4208,64 @@ static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefi
         return module_capture_assembly_file(&copy, input, output, false, 0);
     }
     char command[8192] = {0};
-    return module_build_append(command, sizeof(command), "%s%s", prefix,
-                               group ? " -fvisibility=hidden" : "") &&
-        module_append_path_flag(command, sizeof(command), "", input) &&
-        module_append_path_flag(command, sizeof(command), "-o ", output) && !system(command);
+    return module_assembly_command(command, sizeof(command), prefix, input, output, group != 0) &&
+        !system(command);
+}
+
+/* I retain every compiler job. Only independent, already captured inputs run
+ * together; later assembler observations and hashing remain ordered. */
+#define MODULE_ASSEMBLY_WORKERS 8
+static bool module_wait_assemblies(pid_t *children, size_t count) {
+    bool ok = true;
+    for (size_t i = 0; i < count; ++i) {
+        int status = 0;
+        pid_t observed;
+        do { observed = waitpid(children[i], &status, 0); } while (observed < 0 && errno == EINTR);
+        if (observed != children[i] || !WIFEXITED(status) || WEXITSTATUS(status)) ok = false;
+    }
+    return ok;
+}
+
+static unsigned module_assembly_workers(void) {
+    long available = sysconf(_SC_NPROCESSORS_ONLN);
+    return available > MODULE_ASSEMBLY_WORKERS ? MODULE_ASSEMBLY_WORKERS :
+           available > 1 ? (unsigned)available : 1;
+}
+
+static bool module_prepare_assemblies(ModuleBuildMetadata *meta, const char *prefix,
+                                      const char *directory, const char *stem, unsigned limit) {
+    if (!directory || !limit || limit > MODULE_ASSEMBLY_WORKERS) return false;
+    pid_t children[MODULE_ASSEMBLY_WORKERS];
+    size_t active = 0;
+    bool ok = true;
+    extern char **environ;
+    for (size_t group = 0; ok && group < 2; ++group) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; ok && i < count; ++i) {
+            char input[2048] = {0}, output[2048] = {0}, command[8192];
+            const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
+            ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(output, sizeof(output), "%s/%s_%zu_%zu.s", directory, stem, group, i);
+            if (!ok) break;
+            if (limit == 1 || module_source_kind(source) != 1) {
+                ok = module_prepare_assembly(meta, prefix, input, output, group, i);
+                continue;
+            }
+            ok = module_assembly_command(command, sizeof(command), prefix, input, output, group != 0);
+            if (!ok) break;
+            char *args[] = {"sh", "-c", command, NULL};
+            /* I inherit the caller's process group and descriptors, so its
+             * existing deadline/interrupt cleanup still owns every worker. */
+            ok = posix_spawn(&children[active], "/bin/sh", NULL, NULL, args, environ) == 0;
+            if (!ok) break;
+            if (++active == limit) {
+                ok = module_wait_assemblies(children, active);
+                active = 0;
+            }
+        }
+    }
+    bool drained = module_wait_assemblies(children, active);
+    return ok && drained;
 }
 
 static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
@@ -4599,6 +4662,7 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
     ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
     hash_context_field(&capture.hash, integrated ? "clang-integrated-expanded-native-v1" :
                                                  "apple-selected-assembler-expanded-native-v2");
+    if (!module_prepare_assemblies(meta, retained, directory, "__assembly", module_assembly_workers())) goto failed;
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
@@ -4608,8 +4672,7 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
                 module_build_append(raw, sizeof(raw), "%s/__assembly_%zu_%zu.s", directory, group, i) &&
                 module_build_append(expanded, sizeof(expanded), "%s/__expanded_%zu_%zu.s", directory, group, i) &&
                 module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
-                module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i) &&
-                module_prepare_assembly(meta, retained, input, raw, group, i);
+                module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i);
             command[0] = 0;
             if (ok) ok = module_build_append(command, sizeof(command), "%s -x assembler", assemble) &&
                 module_append_path_flag(command, sizeof(command), "", raw) &&
@@ -4802,6 +4865,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
     char retained[4096], assemble[4096];
     if (ok) ok = module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) &&
         module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags);
+    if (ok) ok = module_prepare_assemblies(meta, retained, directory, "__snapshot", module_assembly_workers());
     NacRead *reads = ok ? calloc(NAC_READS, sizeof(*reads)) : NULL;
     if (!reads) ok = false;
     for (size_t group = 0; ok && group < 2; group++) {
@@ -4816,8 +4880,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
                 module_build_append(parent, sizeof(parent), "%s", directory) &&
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
-                module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
-                module_prepare_assembly(meta, retained, input, assembly, group, i);
+                module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i);
             const char *selected_input = assembly;
             if (ok && module_source_kind(source) > 1) {
                 ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent));

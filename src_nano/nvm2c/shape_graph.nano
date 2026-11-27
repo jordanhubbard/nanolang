@@ -876,7 +876,7 @@ fn flow_one(input: Graph, conversion_at: int, final: bool) -> Step {
             if (== (flow_kind g payload.number to) 0) { break }
             set to 6
         }
-        if (and (== exact 0) (and (boxed_member producer_kind) (== to 6))) {
+        if (and (or (== exact 0) (!= view 0)) (and (boxed_member producer_kind) (== to 6))) {
             let payload: Step = (child g target 0)
             set g payload.state
             if (== payload.number 0) { break }
@@ -960,6 +960,14 @@ shadow flow_one {
     assert (== d.number 1)
     assert (== (kind d.state 2) 1)
     assert (!= (root d.state 1) (root d.state 2))
+    let present: Step = (new_node (create) 3)
+    let boxed: Step = (new_node present.state 6)
+    let alias: Step = (alias_view boxed.state 1 2)
+    let boxed_flow: Step = (flow_one alias.state (fact_head alias.state 0) false)
+    assert (== boxed_flow.number 1)
+    assert (== (kind boxed_flow.state 1) 3)
+    assert (== (kind boxed_flow.state 2) 6)
+    assert (== (kind boxed_flow.state (lookup boxed_flow.state 2 0)) 3)
 }
 
 pub fn solve(input: Graph) -> Step {
