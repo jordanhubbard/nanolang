@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "input": "Existing Git-published original Darwin evidence archive6b984b9bf5236a4c3c87cfee8ae6240d3c1aeb30249e87546e177cfb9407ab58",
+  "actual_replay_matches_recorded_journal": true,
+  "live_artifact_download_required": false,
+  "product_execution": false
+}

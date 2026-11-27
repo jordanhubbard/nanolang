@@ -1,0 +1,9 @@
+{"event":"clock","numer":125,"denom":3,"before_ns":304686117000,"absolute":7328632857,"after_ns":304686117000}
+{"event":"sample","pid":7501,"before_ns":304686130000,"after_ns":304686136000,"before_absolute":7328633170,"after_absolute":7328633326,"usage_result":0,"usage_errno":0,"bsd_result":136,"bsd_errno":0,"parent":7500,"status":2,"zombie":false,"birth_seconds":1795781394,"birth_microseconds":684742,"start_absolute":7328599866,"exit_absolute":0,"user_time":693,"system_time":2761}
+{"event":"armed","pid":7501,"monotonic_ns":304686142000}
+{"event":"trigger","monotonic_ns":304759502000}
+{"event":"sample","pid":7501,"before_ns":304759503000,"after_ns":304759512000,"before_absolute":7330394131,"after_absolute":7330394348,"usage_result":0,"usage_errno":0,"bsd_result":0,"bsd_errno":3,"parent":0,"status":0,"zombie":false,"birth_seconds":0,"birth_microseconds":0,"start_absolute":7328599866,"exit_absolute":7330392915,"user_time":1454,"system_time":5636}
+{"event":"process-event","before_ns":304759514000,"after_ns":304759735000,"ident":7501,"filter":-5,"flags":32821,"fflags":2147483648,"data":0}
+{"event":"sample","pid":7501,"before_ns":304759737000,"after_ns":304759741000,"before_absolute":7330399738,"after_absolute":7330399832,"usage_result":0,"usage_errno":0,"bsd_result":0,"bsd_errno":3,"parent":0,"status":0,"zombie":false,"birth_seconds":0,"birth_microseconds":0,"start_absolute":7328599866,"exit_absolute":7330392915,"user_time":1454,"system_time":5636}
+{"event":"end","result":0,"monotonic_ns":304759743000}
+{"event":"control","kind":"success","origin_ns":304684707000,"marker_ns":304759434000,"marker_absolute":7330392465,"pid":7501,"wait_status":0,"passed":true}

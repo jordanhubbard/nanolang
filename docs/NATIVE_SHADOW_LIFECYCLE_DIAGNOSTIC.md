@@ -89,3 +89,22 @@ This accepts native-control compatibility in that observed Puck SDK context.
 Hosted45991837855 remains required for real shadow-PID observation and the
 restored original source/tool/host closure; original emitter12 and all later
 qualification/release gates remain open where unverified.
+
+## My restored cache pointers
+
+Hosted45991837855 passes synchronized native controls but C seed exits1
+after1.017428s with std C-library publication refusal, before shadows.
+I retain [the exact selected evidence and correction](evidence/c-repairs-linux-20261126/hosted-lifecycle-restore-refusal-45991837855/README.md).
+The ZIP flattens9 current symlinks into directories. Unique complete
+byte-equal generation matches reconstruct those pointers while preserving
+flattened evidence. My12 refusal/rollback/idempotence tests and actual-archive
+replay pass:1846 original lookup hashes and six host hashes stay unchanged,
+with kernel symlink publication errno21 before and success afterward.
+Original failed syscall/link inode metadata are not recovered.
+
+Source51c82debb858145371cd9f28005d683e0e79184f in the isolated diagnostic
+branch preserves all original control/observation/identity/extraction/
+subprocess functions and product Git entries. Its exact new restore test
+is the fourth diagnostic-only source allowed by the guard. Hosted
+run45998897143/job140505211888 is the single next observation; original
+300/10/120/5, emitter12 and all later qualification/release gates remain.

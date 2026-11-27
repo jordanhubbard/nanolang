@@ -1,0 +1,17 @@
+test_all_plans_validate_before_first_cache_change (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_all_plans_validate_before_first_cache_change) ... ok
+test_ambiguous_generations_refuse_without_cache_mutation (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_ambiguous_generations_refuse_without_cache_mutation) ... ok
+test_atomic_publisher_and_unique_restoration (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_atomic_publisher_and_unique_restoration) ... ok
+test_both_cache_layouts_and_unrelated_directory (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_both_cache_layouts_and_unrelated_directory) ... ok
+test_current_regular_file_refuses (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_current_regular_file_refuses) ... ok
+test_empty_and_nested_current_trees_refuse (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_empty_and_nested_current_trees_refuse) ... ok
+test_escaped_and_dangling_current_links_refuse (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_escaped_and_dangling_current_links_refuse) ... ok
+test_evidence_and_cache_roots_cannot_escape (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_evidence_and_cache_roots_cannot_escape) ... ok
+test_failed_link_creation_restores_flattened_directory (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_failed_link_creation_restores_flattened_directory) ... ok
+test_missing_changed_and_extra_generation_contents_refuse (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_missing_changed_and_extra_generation_contents_refuse) ... ok
+test_nonregular_generation_entry_refuses (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_nonregular_generation_entry_refuses) ... ok
+test_second_pass_keeps_pointers_generations_and_flattened_evidence (tests.test_cseed_shadow_lifecycle_restore.CacheNamespaceRestore.test_second_pass_keeps_pointers_generations_and_flattened_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.018s
+
+OK

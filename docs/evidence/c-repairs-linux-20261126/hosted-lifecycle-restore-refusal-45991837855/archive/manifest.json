@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "run": 45991837855,
+  "source_revision": "5ca56494a9dc8eb84c66da61402343a2a34994f2",
+  "artifact": 15195792561,
+  "wrapper_zip_sha256": "523bf5391553a705aed8d3935693af6bbb4124cef892fbc896d81400b228e3fe",
+  "original_zip_sha256": "77326ff42549c8f0d2ed7c757a3a58611668f592348ca756e715268cb7480de9",
+  "fix_revision": "51c82debb858145371cd9f28005d683e0e79184f",
+  "whole_wrapper_zip_reconstructed": false,
+  "qualification": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "api-artifact.json",
+      "bytes": 775,
+      "sha256": "54781a6f34d56a4ef91f0e258757e08b7904c133bc7a71f0cd2ee83884ef7410"
+    },
+    {
+      "path": "api-jobs.json",
+      "bytes": 2762,
+      "sha256": "7c31d809e17e86455e37dec7c6bcf3048df0174ad43171d3e29443efd9a6a5a2"
+    },
+    {
+      "path": "api-run.json",
+      "bytes": 12752,
+      "sha256": "c3261edfc7da20b97fd0cdfc82d2734c08be25a8e09c0dd539dc1eb66a93b4ce"
+    },
+    {
+      "path": "failure/build-observer.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/build-observer.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/compiler.stderr",
+      "bytes": 1483,
+      "sha256": "2f54b46728081414a1e05ead855c76ae1096f1c94a13235c6142e9e99627c7ce"
+    },
+    {
+      "path": "failure/compiler.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-blocked.jsonl",
+      "bytes": 27123,
+      "sha256": "593eccc4081a3e5db73093018af7cc5369d47545a88f6f9dd98eea6dd71c1b63"
+    },
+    {
+      "path": "failure/control-blocked.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-blocked.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-late.jsonl",
+      "bytes": 73690,
+      "sha256": "2991fe70543c305129da548b88004b3f402ae46cb4ebe64fccf09b523e855e7c"
+    },
+    {
+      "path": "failure/control-late.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-late.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-success.jsonl",
+      "bytes": 1681,
+      "sha256": "755de183e552965a6b3a8da860ba8420de4d7b22ed726e347ce2b47bd35f6fdb"
+    },
+    {
+      "path": "failure/control-success.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/control-success.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/controls.json",
+      "bytes": 517,
+      "sha256": "90e4939fb8334b4f423d0a0ce073ced98ec6d83d41cf520bd494a3d1a7ae508c"
+    },
+    {
+      "path": "failure/current-toolchain-before-restore.json",
+      "bytes": 1532,
+      "sha256": "04cee879fc23e8799e56ba5e5b1f587b724cedc28fd5990755cd04c510523129"
+    },
+    {
+      "path": "failure/download.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "failure/host-libraries-after.json",
+      "bytes": 4450,
+      "sha256": "923f02a3c675d35b458cf69ee3b21d4701980d139fdb0d4ecc94c0daecf0a659"
+    },
+    {
+      "path": "failure/host-libraries-before.json",
+      "bytes": 4450,
+      "sha256": "923f02a3c675d35b458cf69ee3b21d4701980d139fdb0d4ecc94c0daecf0a659"
+    },
+    {
+      "path": "failure/identities-after.json",
+      "bytes": 197300,
+      "sha256": "a542e44168f75726adcd0c1da53a4971ce44087d63da97f67e2e9d417a377c0b"
+    },
+    {
+      "path": "failure/identities-before.json",
+      "bytes": 197300,
+      "sha256": "a542e44168f75726adcd0c1da53a4971ce44087d63da97f67e2e9d417a377c0b"
+    },
+    {
+      "path": "failure/lifecycle-observer",
+      "bytes": 34944,
+      "sha256": "b54f2cf1b3f65763c13f3b19b6a9956de99851ff8b688d78c491cf0092f67129"
+    },
+    {
+      "path": "failure/observer-build.json",
+      "bytes": 464,
+      "sha256": "57a8f0f687735915008b8fcc1acb6f151a72fe6096ef2e5615c935d30d2cc46e"
+    },
+    {
+      "path": "failure/observer-sources/ci_darwin_shadow_lifecycle.c",
+      "bytes": 9583,
+      "sha256": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12"
+    },
+    {
+      "path": "failure/observer-sources/ci_darwin_shadow_lifecycle.py",
+      "bytes": 14383,
+      "sha256": "10211a25dbacb409dd06061d55ef4a2b2fdd64d5a3fa5d898f466d1a0a36f9fc"
+    },
+    {
+      "path": "failure/observer-sources/cseed-shadow-lifecycle.yml",
+      "bytes": 2078,
+      "sha256": "901ee217acc676281d44a2abb5e5fbb932905fde99b1d3890e1cd0b96fe0531a"
+    },
+    {
+      "path": "failure/observer-sources.json",
+      "bytes": 342,
+      "sha256": "70a564d805ec975fa45e3d18487b004a80e5c71234fc3108b2371624cec07507"
+    },
+    {
+      "path": "failure/product-tree-guard.json",
+      "bytes": 227,
+      "sha256": "67eee92a716300d2ded0fc2b62f9275300f9ec3e62e97e647208851f5057c7da"
+    },
+    {
+      "path": "failure/result.json",
+      "bytes": 505,
+      "sha256": "7f6bbad8ba4b1efa10416cc9b65f48a0a12694970fb2e2a13bdd38f3f9868c46"
+    },
+    {
+      "path": "fix/actual-archive-replay.json",
+      "bytes": 135705,
+      "sha256": "7289b22dcfa22b2f1c09856a9de68e377be4b9b28d39b8729a4a00635d877b64"
+    },
+    {
+      "path": "fix/replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fix/replay.stdout",
+      "bytes": 530,
+      "sha256": "0c0b7860d69a4281ac51f446a2adc1784a5b84cab85f1197e476a49743ebea40"
+    },
+    {
+      "path": "fix/replay_archive.py",
+      "bytes": 3454,
+      "sha256": "6fb17de8450ac52e94c7fb3fdd878f4761dc4242ecf51f88bf12b917a7dc32e7"
+    },
+    {
+      "path": "fix/source-checks.json",
+      "bytes": 154,
+      "sha256": "46c5330c6965e1f7e9e5a53fa217d9a3ca4e601857483daba2266401dce4fbf8"
+    },
+    {
+      "path": "fix/sources/.github/workflows/cseed-shadow-lifecycle.yml",
+      "bytes": 2316,
+      "sha256": "c60e0f5a971697e31d5926702885a10b35021b10eeae9718c4c82958fa409ccc"
+    },
+    {
+      "path": "fix/sources/scripts/ci_darwin_shadow_lifecycle.c",
+      "bytes": 9583,
+      "sha256": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12"
+    },
+    {
+      "path": "fix/sources/scripts/ci_darwin_shadow_lifecycle.py",
+      "bytes": 19279,
+      "sha256": "5693f86ea998efff0abde49284d362c79c21556cabc6739647438878ce81771f"
+    },
+    {
+      "path": "fix/sources/tests/test_cseed_shadow_lifecycle_restore.py",
+      "bytes": 9100,
+      "sha256": "c3a51be0532e305e500ff9f8f3260410cb33b1af247acade6737b0223f1b520b"
+    },
+    {
+      "path": "fix/unittest.stderr",
+      "bytes": 2153,
+      "sha256": "c503cabcb528aa0bb8dda3ccc1ce770c17fd66cbaa58cd8d492eda6c09616c29"
+    },
+    {
+      "path": "fix/unittest.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "flattened-current-analysis.json",
+      "bytes": 2745,
+      "sha256": "c4293cd85fa260257fc5357d8997cff7b91b9730235b6f323a356ec41e7e2936"
+    }
+  ]
+}
