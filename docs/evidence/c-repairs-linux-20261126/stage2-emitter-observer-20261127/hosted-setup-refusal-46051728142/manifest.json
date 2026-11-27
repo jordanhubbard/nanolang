@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "whole_release": false,
+  "product_executed": false,
+  "files": {
+    "capture-controls.stderr": {
+      "bytes": 1578,
+      "sha256": "f70158e38959f233829d277bc71519e0e311b5287c3c17dfcc856621d91cd006"
+    },
+    "capture-controls.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "corrected-workflow.yml": {
+      "bytes": 6637,
+      "sha256": "cfdeb006f8522bbe64e7f39e5b885bbebd1c0a776bc294a3fd22f8152d8bf210"
+    },
+    "first-hosted-capture-artifact.zip": {
+      "bytes": 1528,
+      "sha256": "8de8d13d627c6480b9fdf7056f5b9e068e612eb2708e3e0023dc91a10bb5d8ed"
+    },
+    "first-hosted-job.json": {
+      "bytes": 3091,
+      "sha256": "572464aa20b373347dfb3d3374c3e8b6b97be5e7787035be4fda99968a7e414d"
+    },
+    "first-hosted-job.log": {
+      "bytes": 114142,
+      "sha256": "e567991d342333f5c6e1d77c8dbf3665178aa505ce23da26989bdc3a6c40c976"
+    },
+    "fixture-check-result.json": {
+      "bytes": 199,
+      "sha256": "0916f449d76f1cf0b12cd73944b1d8203988b150f029623bc7f3beab423f6afa"
+    },
+    "fixture-materializer.py": {
+      "bytes": 1723,
+      "sha256": "0ae40e19e2b1acd2a44cce8b38b386048a79f23024208ad69d9409232f8e4013"
+    },
+    "fixture-materializer.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-materializer.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retained-fixtures.json": {
+      "bytes": 5031,
+      "sha256": "35452dee048c7af25574dd1b43df812ad7ed52d22b38542d93d7b38494120754"
+    }
+  }
+}

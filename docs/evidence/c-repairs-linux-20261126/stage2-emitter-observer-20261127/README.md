@@ -56,3 +56,5 @@ original d18 revision and load observer code independently from the workflow
 revision. The full 17/36/12 platform gates, C repairs, paired translator,
 current-candidate/cutover, frozen CAST_STRING assertions and all 69 release
 requirements remain open.
+
+My [first hosted setup refusal and correction](hosted-setup-refusal-46051728142/README.md) retain the missing sparse-checkout fixtures, all original failure bytes, and the passing eight-method fixture admission check. My source snapshot above records the first observer; the child receipt binds the corrected workflow. Neither receipt claims hosted product qualification.

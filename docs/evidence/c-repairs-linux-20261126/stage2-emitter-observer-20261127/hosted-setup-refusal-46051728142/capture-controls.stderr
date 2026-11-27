@@ -1,0 +1,13 @@
+test_actual_native_archive_and_independent_drift_refusals (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_actual_native_archive_and_independent_drift_refusals) ... ok
+test_existing_native_inputs_are_never_overwritten (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_existing_native_inputs_are_never_overwritten) ... ok
+test_manifest_drift_refuses_before_returning_a_native_input (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_manifest_drift_refuses_before_returning_a_native_input) ... ok
+test_other_native_architecture_refuses_before_materialization (tests.test_capture_assembler_profile.CaptureAssemblerProfile.test_other_native_architecture_refuses_before_materialization) ... ok
+test_ambiguous_compiler_command_is_preserved_and_refused (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_ambiguous_compiler_command_is_preserved_and_refused) ... ok
+test_changed_producer_binding_never_materializes_or_exports (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_changed_producer_binding_never_materializes_or_exports) ... ok
+test_missing_supplied_profile_never_repeats_its_producer (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_missing_supplied_profile_never_repeats_its_producer) ... ok
+test_unknown_family_never_builds_or_exports_a_profile (tests.test_ci_select_capture_assembler.SelectCaptureAssembler.test_unknown_family_never_builds_or_exports_a_profile) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.292s
+
+OK
