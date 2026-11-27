@@ -58,3 +58,5 @@ current-candidate/cutover, frozen CAST_STRING assertions and all 69 release
 requirements remain open.
 
 My [first hosted setup refusal and correction](hosted-setup-refusal-46051728142/README.md) retain the missing sparse-checkout fixtures, all original failure bytes, and the passing eight-method fixture admission check. My source snapshot above records the first observer; the child receipt binds the corrected workflow. Neither receipt claims hosted product qualification.
+
+My [namespace-admission correction](namespace-admission-46052578737/README.md) preserves the next observation’s early library-publication refusal and the omitted recovery call. My current observer requires restored-link postconditions and a genuine native Stage2 readiness compile/run before the large fixture. Its 18 local protocol/restoration methods pass; hosted readiness and original qualification remain open.

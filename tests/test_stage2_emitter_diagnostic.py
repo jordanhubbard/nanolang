@@ -1,6 +1,9 @@
 """I exercise timeout observation with real child processes and retained pipes."""
 import json
+import os
 from pathlib import Path
+import shlex
+import shutil
 import sys
 import tempfile
 import unittest
@@ -71,6 +74,63 @@ class Stage2EmitterDiagnostic(unittest.TestCase):
             self.assertEqual(next(row['link'] for row in rows if row['path'] == 'link'), str(outside))
             with self.assertRaises(AssertionError):
                 diagnostic.retain_temporaries(work, work / 'recursive')
+
+    def test_restored_bytes_also_admit_the_next_atomic_publication(self):
+        class RetainedArtifact:
+            def restore(self, root, out):
+                self.cache = root / 'modules/nanoisa/.build'
+                for name in ['current', '.nano-gen-AbC123']:
+                    path = self.cache / name
+                    path.mkdir(parents=True)
+                    (path / 'library').write_bytes(b'original')
+
+            def restore_cache_currents(self, root, out):
+                (self.cache / 'current').rename(out / 'flattened')
+                (self.cache / 'current').symlink_to('.nano-gen-AbC123')
+                report = {'complete': True, 'entries': [
+                    {'current': 'modules/nanoisa/.build/current', 'target': '.nano-gen-AbC123'}]}
+                diagnostic.save(out / 'cache-current-restoration.json', report)
+                return report
+
+            def product_tree(self, root, out):
+                self.asserted_tree = True
+
+            def identities(self, root):
+                return {'library': diagnostic.digest(self.cache / 'current/library')}
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            out = root / 'evidence'
+            out.mkdir()
+            helper = RetainedArtifact()
+            before = diagnostic.restore_admitted_inputs(helper, root, out)
+            self.assertEqual(before['library'], diagnostic.digest(out / 'flattened/library'))
+            next_generation = helper.cache / '.nano-gen-NeXt12'
+            next_generation.mkdir()
+            (next_generation / 'library').write_bytes(b'next')
+            pointer = helper.cache / 'next'
+            pointer.symlink_to(next_generation.name)
+            os.replace(pointer, helper.cache / 'current')
+            self.assertEqual((helper.cache / 'current/library').read_bytes(), b'next')
+            self.assertEqual((out / 'flattened/library').read_bytes(), b'original')
+
+    def test_native_readiness_runs_the_elf_and_rejects_its_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for tool in ['true', 'false']:
+                root = Path(temporary) / tool
+                (root / 'bin').mkdir(parents=True)
+                out = root / 'evidence'
+                out.mkdir()
+                compiler = root / 'bin/nanoc_stage2'
+                compiler.write_text('#!/bin/sh\ncp ' + shlex.quote(shutil.which(tool)) + ' "$3"\n')
+                compiler.chmod(0o700)
+                if tool == 'true':
+                    compiled, executed = diagnostic.native_control(root, out)
+                    self.assertEqual((compiled['exit_code'], executed['exit_code']), (0, 0))
+                else:
+                    with self.assertRaises(AssertionError):
+                        diagnostic.native_control(root, out)
+                    self.assertEqual(json.loads((out / 'native-control/execute/result.json').read_text())['exit_code'], 1)
 
 
 if __name__ == '__main__':

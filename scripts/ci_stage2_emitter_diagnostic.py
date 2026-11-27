@@ -170,6 +170,45 @@ def retain_temporaries(directory, destination):
     return records
 
 
+def restore_admitted_inputs(helper, root, out):
+    helper.restore(root, out)
+    report = helper.restore_cache_currents(root, out)
+    assert report['complete'] and report['entries']
+    assert (out / 'cache-current-restoration.json').is_file()
+    for entry in report['entries']:
+        current = root / entry['current']
+        assert current.is_symlink() and os.readlink(current) == entry['target']
+        assert current.resolve().is_dir()
+    helper.product_tree(root, out)
+    return helper.identities(root)
+
+
+def native_control(root, out):
+    directory = out / 'native-control'
+    directory.mkdir(parents=True, exist_ok=False)
+    source, binary = directory / 'source.nano', directory / 'program'
+    source.write_text('fn diagnostic_answer() -> int { return 7 }\n'
+                      'shadow diagnostic_answer { assert (== (diagnostic_answer) 7) }\n'
+                      'fn main() -> int { return (- (diagnostic_answer) 7) }\n'
+                      'shadow main { assert (== (main) 0) }\n')
+    temporary = directory / 'tmp'
+    temporary.mkdir()
+    env = dict(os.environ, TMPDIR=str(temporary), NANO_TRACE_BUILD='1')
+    compiled = observe([root / 'bin/nanoc_stage2', source, '-o', binary],
+                       directory / 'compile', cwd=root, env=env, deadline=60)
+    assert compiled['exit_code'] == 0 and not compiled['command_timeout']
+    assert compiled['output_complete'] and not compiled['observer_errors']
+    assert compiled['sampler_stopped'] and binary.read_bytes()[:4] == b'\x7fELF'
+    executed = observe([binary], directory / 'execute', cwd=root, env=env, deadline=5)
+    assert executed['exit_code'] == 0 and not executed['command_timeout']
+    assert executed['output_complete'] and not executed['observer_errors']
+    assert executed['sampler_stopped']
+    save(directory / 'control.json', {'qualification': False, 'compile': compiled,
+                                     'execute': executed, 'binary_sha256': digest(binary),
+                                     'control_build_trace': True})
+    return compiled, executed
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, required=True)
@@ -197,10 +236,12 @@ def main():
     spec.loader.exec_module(helper)
     helper.REVISION, helper.ARTIFACT, helper.ZIP_SHA256 = REVISION, ARTIFACT, ZIP_SHA256
     controls(out / 'controls')
-    helper.restore(root, out)
-    helper.product_tree(root, out)
-    before = helper.identities(root)
+    before = restore_admitted_inputs(helper, root, out)
     save(out / 'identities-before.json', before)
+    native_control(root, out)
+    after_control = helper.identities(root)
+    save(out / 'identities-after-control.json', after_control)
+    assert after_control == before
     log = (root / '.test_output/c-repair-original-gates/native-suites.log').read_text()
     temporary = Path(os.environ['RUNNER_TEMP']).resolve()
     command = original_command(root, log, temporary)
@@ -235,6 +276,8 @@ def main():
     assert result['output_complete'] and result['sampler_stopped'] and not result['observer_errors']
     save(out / 'diagnostic.json', {'qualification': False, 'whole_release': False,
                                   'observation_valid': True, 'guards_match': True,
+                                  'namespace_recovery_complete': True,
+                                  'native_compile_and_run_control_passed': True,
                                   'controls_passed': 3, 'product': result})
 
 
