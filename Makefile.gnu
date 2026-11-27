@@ -2046,6 +2046,16 @@ test-env-string-binding-hint: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-env-string-binding-hint
 
+.PHONY: test-eval-builtin-resolution
+$(OBJ_DIR)/eval_builtin_resolution_test.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Denv_get_function=nano_test_env_get_function -c $< -o $@
+
+test-eval-builtin-resolution: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_builtin_resolution_test.o
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_eval_builtin_resolution tests/test_eval_builtin_resolution.c $(filter-out $(OBJ_DIR)/eval.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_builtin_resolution_test.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_builtin_resolution
+
+test-units: test-eval-builtin-resolution
+
 .PHONY: test-env-symbol-index
 test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_symbol_index tests/test_env_symbol_index.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
