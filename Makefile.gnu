@@ -8507,3 +8507,9 @@ test-nanolang-translator-c-abi-types: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2
 	python3 -m unittest -v tests.test_nanolang_translator_c_abi_types
 
 test-units: test-nanolang-translator-c-abi-types
+
+.PHONY: test-nanolang-translator-representation-facts
+test-nanolang-translator-representation-facts: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_representation_facts
+
+test-units: test-nanolang-translator-representation-facts

@@ -1,0 +1,231 @@
+module nvm2c_representation_facts
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+module "src_nano/nvm2c/c_abi_types.nano" as abi
+
+# I merge value facts. My caller owns table bounds and rejects failed analysis.
+pub struct Context { function_index: int, offset: int, local_width: int, record_width: int }
+pub struct Location { role: int, ordinal: int }
+pub struct State { changed: bool, failed: bool, error: string }
+pub struct Cell { valid: bool, accepted: bool, kind: int, state: State }
+pub struct Vector { valid: bool, accepted: bool, values: array<int>, state: State }
+pub struct Pair { valid: bool, exact: bool }
+
+fn byte_valid(value: int) -> bool { return (and (>= value 0) (<= value 255)) }
+shadow byte_valid { assert (byte_valid 255) assert (not (byte_valid -1)) assert (not (byte_valid 256)) }
+fn context_valid(c: Context) -> bool {
+    return (and (and (>= c.function_index 0) (<= c.function_index 4294967295))
+        (and (and (>= c.offset 0) (<= c.offset 4294967295))
+            (and (and (>= c.local_width 1) (<= c.local_width 66559))
+                (and (>= c.record_width 1) (<= c.record_width 65535)))))
+}
+shadow context_valid {
+    assert (context_valid Context { function_index: 4294967295, offset: 4294967295, local_width: 66559, record_width: 65535 })
+    assert (not (context_valid Context { function_index: 0, offset: 0, local_width: 0, record_width: 1 }))
+}
+fn location_valid(location: Location) -> bool {
+    return (and (and (>= location.role 0) (<= location.role 4)) (>= location.ordinal 0))
+}
+shadow location_valid {
+    assert (location_valid Location { role: 4, ordinal: 4294967295 })
+    assert (not (location_valid Location { role: 5, ordinal: 0 }))
+}
+fn kind_text(kind: int) -> string { if (== kind 9) { return "bool" } return (abi.local kind).c_type }
+shadow kind_text { assert (== (kind_text 9) "bool") assert (== (kind_text 0) "int64_t") assert (== (kind_text 255) "int64_t") }
+fn site(c: Context) -> string {
+    return (+ "function " (+ (int_to_string c.function_index) (+ ", offset " (int_to_string c.offset))))
+}
+shadow site { assert (== (site Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 }) "function 17, offset 29") }
+fn target(c: Context, location: Location) -> string {
+    let index: int = location.ordinal
+    if (== location.role 1) {
+        return (+ "parameter " (+ (int_to_string (% index c.local_width)) (+ " of function " (int_to_string (/ index c.local_width)))))
+    }
+    if (== location.role 2) {
+        let parameter: int = (/ index c.record_width)
+        return (+ "field " (+ (int_to_string (% index c.record_width)) (+ " of parameter "
+            (+ (int_to_string (% parameter c.local_width)) (+ " of function " (int_to_string (/ parameter c.local_width)))))))
+    }
+    if (== location.role 3) {
+        return (+ "result field " (+ (int_to_string (% index c.record_width)) (+ " of function " (int_to_string (/ index c.record_width)))))
+    }
+    if (== location.role 4) { return (+ "array result of function " (int_to_string index)) }
+    return "effect representation"
+}
+shadow target {
+    let c: Context = Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 }
+    assert (== (target c Location { role: 1, ordinal: 5 }) "parameter 2 of function 1")
+    assert (== (target c Location { role: 2, ordinal: 23 }) "field 3 of parameter 2 of function 1")
+    assert (== (target c Location { role: 3, ordinal: 4 }) "result field 0 of function 1")
+    assert (== (target c Location { role: 4, ordinal: 1 }) "array result of function 1")
+    assert (== (target c Location { role: 0, ordinal: 0 }) "effect representation")
+}
+fn accepted(current: int, joined: int, state: State) -> Cell {
+    let next: State = State { changed: (or state.changed (!= current joined)), failed: state.failed, error: state.error }
+    return Cell { valid: true, accepted: true, kind: joined, state: next }
+}
+shadow accepted {
+    let s: State = State { changed: false, failed: true, error: "first" }
+    let r: Cell = (accepted 2 7 s)
+    assert r.state.changed assert r.state.failed assert (== r.state.error "first")
+}
+fn refused(kind: int, state: State, message: string) -> Cell {
+    let text: string = (cond (state.failed state.error) (else message))
+    let next: State = State { changed: state.changed, failed: true, error: text }
+    return Cell { valid: true, accepted: false, kind: kind, state: next }
+}
+shadow refused {
+    let s: State = State { changed: true, failed: true, error: "first" }
+    let r: Cell = (refused 6 s "second")
+    assert (not r.accepted) assert r.state.changed assert (== r.state.error "first")
+}
+fn scalar(kind: int) -> bool { return (kinds.classify kind).scalar }
+shadow scalar { assert (scalar 11) assert (not (scalar 13)) }
+fn container(kind: int) -> bool { return (or (kinds.classify kind).word_array (or (== kind 5) (== kind 7))) }
+shadow container { assert (container 17) assert (container 7) assert (not (container 6)) }
+
+# Policies: exact0, parameter1, call2, record-result3, global4, global-field5, map-hint6.
+fn merge_valid(c: Context, location: Location, current: int, incoming: int, policy: int, state: State, field: int) -> Cell {
+    if (== policy 6) {
+        if (or (== incoming 2) (or (== current incoming) (== current 8))) { return (accepted current current state) }
+        return (accepted current (cond ((== current 2) incoming) (else 8)) state)
+    }
+    if (== policy 4) {
+        if (or (or (== incoming 2) (== incoming 8)) (== current incoming)) { return (accepted current current state) }
+        if (== current 2) { return (accepted current incoming state) }
+        if (or (== current 6) (== incoming 6)) {
+            return (refused current state (+ "I require record-array global " (+ (int_to_string location.ordinal)
+                (+ " to retain one exact representation (" (+ (site c) ")")))))
+        }
+        return (accepted current 8 state)
+    }
+    if (== policy 3) {
+        let left: bool = (kinds.classify current).finite
+        let right: bool = (kinds.classify incoming).finite
+        if (and left right) { return (accepted current (kinds.field_pair current incoming).merged state) }
+        if (or (and left (== incoming 8)) (and (== current 8) right)) {
+            let finite: int = (cond (left current) (else incoming))
+            return (accepted current (kinds.field_pair finite 80).merged state)
+        }
+    }
+    if (== policy 2) {
+        if (and (or (== current 13) (== current 4)) (== incoming 8)) { return (accepted current current state) }
+        if (and (== current 8) (or (== incoming 13) (== incoming 4))) { return (accepted current incoming state) }
+        if (and (== current 8) (container incoming)) { return (accepted current current state) }
+        if (and (container current) (== incoming 8)) { return (accepted current 8 state) }
+    }
+    if (or (== policy 1) (or (== policy 2) (== policy 3))) {
+        if (and (== current 8) (scalar incoming)) { return (accepted current current state) }
+        if (and (scalar current) (== incoming 8)) { return (accepted current 8 state) }
+    }
+    if (or (== incoming 2) (== current incoming)) { return (accepted current current state) }
+    if (== current 2) { return (accepted current incoming state) }
+    if (== policy 5) {
+        return (refused current state (+ "I found conflicting field " (+ (int_to_string field)
+            (+ " representations in record-array global " (+ (int_to_string location.ordinal) (+ " (" (+ (site c) ")")))))))
+    }
+    return (refused current state (+ "I cannot assign conflicting kinds to a function parameter or aggregate field ("
+        (+ (site c) (+ ": " (+ (kind_text current) (+ " versus " (+ (kind_text incoming) (+ " at " (+ (target c location) ")")))))))))
+}
+shadow merge_valid {
+    let c: Context = Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 }
+    let l: Location = Location { role: 1, ordinal: 5 }
+    let s: State = State { changed: false, failed: false, error: "" }
+    assert (== (merge_valid c l 1 8 1 s 0).kind 8)
+    assert (== (merge_valid c l 8 13 2 s 0).kind 13)
+    assert (== (merge_valid c l 65 8 3 s 0).kind 81)
+    assert (not (merge_valid c l 8 6 4 s 0).accepted)
+    assert (== (merge_valid c l 2 8 4 s 0).kind 2)
+    assert (== (merge_valid c l 0 1 6 s 0).kind 8)
+}
+
+pub fn cell(c: Context, location: Location, current: int, incoming: int, policy: int, state: State) -> Cell {
+    if (or (not (and (context_valid c) (location_valid location)))
+        (or (not (and (byte_valid current) (byte_valid incoming))) (or (< policy 0) (> policy 6)))) {
+        return Cell { valid: false, accepted: false, kind: current, state: state }
+    }
+    if (and (>= policy 4) (> location.ordinal 4294967295)) { return Cell { valid: false, accepted: false, kind: current, state: state } }
+    return (merge_valid c location current incoming policy state 0)
+}
+shadow cell {
+    let c: Context = Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 }
+    let l: Location = Location { role: 1, ordinal: 5 }
+    let s: State = State { changed: false, failed: false, error: "" }
+    let r: Cell = (cell c l 0 9 0 s)
+    assert (not r.accepted) assert (== r.kind 0)
+    assert (== r.state.error "I cannot assign conflicting kinds to a function parameter or aggregate field (function 17, offset 29: int64_t versus bool at parameter 2 of function 1)")
+    assert (not (cell c l 256 0 0 s).valid)
+    assert (not (cell c l 0 0 7 s).valid)
+    let later: Cell = (cell c l 2 7 0 r.state)
+    assert later.accepted assert later.state.failed assert later.state.changed assert (== later.state.error r.state.error)
+}
+
+pub fn copy_fields(source: array<int>, width: int, fill: int, use_source: bool, state: State) -> Vector {
+    if (or (or (< width 0) (> width 65535)) (not (byte_valid fill))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    if (and use_source (!= (array_length source) width)) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    if use_source {
+        for i in (range 0 width) {
+            if (not (byte_valid (at source i))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+        }
+    }
+    let mut values: array<int> = []
+    for i in (range 0 width) { set values (array_push values (cond (use_source (at source i)) (else fill))) }
+    return Vector { valid: true, accepted: true, values: values, state: state }
+}
+shadow copy_fields {
+    let s: State = State { changed: false, failed: false, error: "" }
+    let input: array<int> = [0,9]
+    let copy: Vector = (copy_fields input 2 2 true s)
+    (array_set copy.values 0 11)
+    assert (== (at input 0) 0) assert (== (at copy.values 0) 11)
+    assert (== (at (copy_fields [] 2 255 false s).values 1) 255)
+    assert (not (copy_fields input 3 2 true s).valid)
+}
+
+pub fn fields(c: Context, location: Location, current: array<int>, incoming: array<int>, policy: int, state: State) -> Vector {
+    let width: int = (array_length current)
+    if (or (not (and (context_valid c) (location_valid location)))
+        (or (!= width c.record_width) (!= (array_length incoming) width))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    if (not (or (or (== policy 0) (== policy 3)) (or (== policy 5) (== policy 6)))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    if (or (and (>= policy 5) (> location.ordinal 4294967295))
+        (or (and (== policy 6) (< width 2)) (> location.ordinal (- 9223372036854775807 width)))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    for i in (range 0 width) {
+        if (not (and (byte_valid (at current i)) (byte_valid (at incoming i)))) { return Vector { valid: false, accepted: false, values: [], state: state } }
+    }
+    let copy: Vector = (copy_fields current width 2 true state)
+    let mut next: State = state
+    let limit: int = (cond ((== policy 6) 2) (else width))
+    for i in (range 0 limit) {
+        let position: int = (cond ((>= policy 5) location.ordinal) (else (+ location.ordinal i)))
+        let l: Location = Location { role: location.role, ordinal: position }
+        let r: Cell = (merge_valid c l (at copy.values i) (at incoming i) policy next i)
+        (array_set copy.values i r.kind)
+        set next r.state
+        if (not r.accepted) { return Vector { valid: true, accepted: false, values: copy.values, state: next } }
+    }
+    return Vector { valid: true, accepted: true, values: copy.values, state: next }
+}
+shadow fields {
+    let c: Context = Context { function_index: 17, offset: 29, local_width: 3, record_width: 4 }
+    let l: Location = Location { role: 2, ordinal: 0 }
+    let s: State = State { changed: false, failed: false, error: "" }
+    let prior: array<int> = [2,0,2,2]
+    let r: Vector = (fields c l prior [7,9,11,1] 0 s)
+    assert (not r.accepted) assert r.state.changed assert r.state.failed
+    assert (== (at r.values 0) 7) assert (== (at r.values 1) 0) assert (== (at r.values 2) 2)
+    assert (== (at prior 0) 2)
+    let hints: Vector = (fields c l [0,2,255,9] [1,1,0,0] 6 s)
+    assert (== (at hints.values 0) 8) assert (== (at hints.values 1) 1)
+    assert (== (at hints.values 2) 255) assert (== (at hints.values 3) 9)
+}
+
+pub fn exact_map_pair(stored: int, kind: int, key: int, value: int) -> Pair {
+    if (not (and (and (byte_valid stored) (byte_valid kind)) (and (byte_valid key) (byte_valid value)))) { return Pair { valid: false, exact: false } }
+    let exact: bool = (and (and (== stored 1) (== kind 7))
+        (and (or (== key 0) (== key 1)) (or (== value 0) (== value 1))))
+    return Pair { valid: true, exact: exact }
+}
+shadow exact_map_pair {
+    assert (exact_map_pair 1 7 0 1).exact
+    assert (not (exact_map_pair 2 7 0 1).exact) assert (not (exact_map_pair 1 7 2 1).exact)
+    assert (not (exact_map_pair 1 7 0 256).valid)
+}
