@@ -11,6 +11,7 @@ on:
       - 'src/nanolang.h'
       - 'src/runtime/gc.h'
       - 'tests/test_env_string_binding_hint.c'
+      - 'tests/test_eval_builtin_resolution.c'
       - 'src/module_builder.c'
       - 'src/nanoisa/nvm2c.c'
       - 'src/nanoisa/nvm2c_shape.c'
@@ -132,7 +133,7 @@ jobs:
         timeout-minutes: 10
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index \
+          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-env-string-binding-hint test-env-symbol-index test-eval-builtin-resolution \
             2>&1 | tee .test_output/c-repair-original-gates/string-binding-regression.log
       - name: Execute my array repair regression
         if: matrix.gate == 'cache'

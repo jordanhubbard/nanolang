@@ -3513,7 +3513,24 @@ static Value eval_call(ASTNode *node, Environment *env) {
 /* I dispatch already evaluated arguments without owning their carrier. */
 static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *name,
                                  EvalCallName call_name, Value *args) {
-    Function *named_func = env_get_function(env, name);
+    /* I retain contextual lookup before arguments. Here I resolve only a
+     * declaration that can change the already selected dispatch. */
+    Function *named_func = NULL;
+    switch (call_name) {
+    case EVAL_CALL_unknown:
+    case EVAL_CALL_nl_sb_new: case EVAL_CALL_nl_sb_with_capacity:
+    case EVAL_CALL_nl_sb_append: case EVAL_CALL_nl_sb_append_char:
+    case EVAL_CALL_nl_sb_clear: case EVAL_CALL_nl_sb_length:
+    case EVAL_CALL_nl_sb_capacity: case EVAL_CALL_nl_sb_to_string:
+    case EVAL_CALL_nl_sb_free:
+    case EVAL_CALL_map: case EVAL_CALL_array_map:
+    case EVAL_CALL_filter: case EVAL_CALL_array_filter:
+    case EVAL_CALL_reduce: case EVAL_CALL_array_fold:
+    case EVAL_CALL_array_push:
+        named_func = env_get_function(env, name);
+        break;
+    default: break;
+    }
     /* I honor declared Builder callables before legacy unbound intrinsics.
      * Standard wrappers must use their selected checked foreign provider. */
     if (named_func) {
