@@ -8495,3 +8495,9 @@ test-nanolang-translator-storage-kinds: $(COMPILER_C) nano_virt nano_vm nvm2c nv
 	python3 -m unittest -v tests.test_nanolang_translator_storage_kinds
 
 test-units: test-nanolang-translator-storage-kinds
+
+.PHONY: test-nanolang-translator-carrier-masks
+test-nanolang-translator-carrier-masks: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_carrier_masks
+
+test-units: test-nanolang-translator-carrier-masks

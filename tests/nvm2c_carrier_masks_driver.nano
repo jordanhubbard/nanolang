@@ -1,0 +1,77 @@
+module "src_nano/nvm2c/carrier_masks.nano" as masks
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn bit_text(value: bool) -> string { if value { return "1" } return "0" }
+shadow bit_text { assert (== (bit_text true) "1") assert (== (bit_text false) "0") }
+
+fn packet_valid(bytes: array<u8>) -> bool {
+    let length: int = (array_length bytes)
+    if (or (< length 4) (> length 1048576)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (> count 262144) (> count (/ (- length 4) 2))) { return false }
+    let mut position: int = 4
+    for i in (range 0 count) {
+        if (>= position length) { return false }
+        let op: int = (cast_int (at bytes position))
+        if (> op 1) { return false }
+        let width: int = (cond ((== op 1) 3) (else 2))
+        if (> width (- length position)) { return false }
+        set position (+ position width)
+    }
+    return (== position length)
+}
+shadow packet_valid {
+    assert (packet_valid [0,0,0,0]) assert (not (packet_valid []))
+    assert (packet_valid [1,0,0,0,1,255,255])
+    assert (not (packet_valid [1,0,0,0,1,255]))
+    assert (not (packet_valid [1,0,0,0,2,0]))
+}
+
+fn row_text(op: int, value: int) -> string {
+    if (== op 0) {
+        return (+ "K|" (+ (int_to_string value) (+ "|" (int_to_string (masks.scalar_tags value).tags))))
+    }
+    let facts: masks.MaskFacts = (masks.classify value)
+    return (+ "T|" (+ (int_to_string value) (+ "|" (+ (bit_text facts.boxed) (+ "|" (bit_text facts.optional))))))
+}
+shadow row_text {
+    assert (== (row_text 0 13) "K|13|2048")
+    assert (== (row_text 0 255) "K|255|32768")
+    assert (== (row_text 1 7) "T|7|1|0")
+    assert (== (row_text 1 17) "T|17|0|1")
+}
+
+fn packet_rows(bytes: array<u8>) -> array<string> {
+    if (not (packet_valid bytes)) { return ["P"] }
+    let count: int = (wire.read_u32 bytes 0)
+    let mut rows: array<string> = [(+ "Z|" (int_to_string count))]
+    let mut position: int = 4
+    for i in (range 0 count) {
+        let op: int = (cast_int (at bytes position))
+        let mut value: int = (cast_int (at bytes (+ position 1)))
+        if (== op 1) { set value (wire.read_u16 bytes (+ position 1)) }
+        set rows (array_push rows (row_text op value))
+        set position (+ position (cond ((== op 1) 3) (else 2)))
+    }
+    return rows
+}
+shadow packet_rows {
+    let prior: array<string> = (packet_rows [1,0,0,0,0,13])
+    let refused: array<string> = (packet_rows [2,0,0,0,0,13,2,0])
+    assert (== (at prior 1) "K|13|2048")
+    assert (== (array_length refused) 1) assert (== (at refused 0) "P")
+    assert (== (at prior 1) "K|13|2048")
+}
+
+fn main() -> int {
+    unsafe {
+        for i in (range 1 (get_argc)) {
+            let lines: array<string> = (packet_rows (file_read_bytes (get_argv i)))
+            for j in (range 0 (array_length lines)) { (println (at lines j)) }
+        }
+    }
+    return 0
+}
+shadow main { assert (== (at (packet_rows [0,0,0,0]) 0) "Z|0") }
