@@ -183,3 +183,5 @@ sealed archives remain unchanged. I require fresh current-source original
 bootstrap/native36/emitter12, paired platforms and all69 release requirements.
 
 I seal [my native failures, diagnostics, layout experiments and preflight](native-followups-20261127/README.md) in2,278 records, with independent byte/source verification. The reader retains original failures and accepts no complete current native candidate or release.
+
+I publish [my guarded current-source Linux bootstrap17/native36/emitter12 pass](native-current-linux-20261127/README.md) at6e09c07a9f, independently verified in1,889 records. Current Darwin, the broad CAST_STRING decision and the full release remain open.

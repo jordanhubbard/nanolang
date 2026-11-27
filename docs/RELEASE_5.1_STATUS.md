@@ -514,3 +514,16 @@ By owner decision, rows 10663 and 10664 (portable read-text) are optional for 5.
 
 - **Regex host symbols.** By owner decision I added the nine `nl_regex_*` C-backed externs to the declared host ABI in `src_nano/compiler/nanoisa_codegen.nano` (opaque `Regex` handle, `array<int>`/`array<string>`/`string`/`int`/`void` results, module-path import `./std/regex/regex.nano`, as the seed emits). `tests/test_split2.nano` and `tests/test_std_regex_groups_uaf.nano` now compile on the self-hosted compiler and run on NanoVM. `tests/test_selfhost_regex_host_abi.py` gates both and runs in `test-quick`. Not verified on hosted Linux yet, and the C AOT (`nvm2c`) path for these imports is not tested.
 - **Bootstrap scope.** By owner decision, 5.1 does not require an instrumented full bootstrap; the sanitizer Stage 1 job stays non-required.
+
+## My current Linux native component — 2026-11-27
+
+At6e09c07a9f I pass the original bootstrap17/native36/emitter12 sequence with
+matching source/tool/head/index/six-host guards. The raw modules are identical
+1064904 bytes, SHA8920ee0546671f9fa13ea98f7aaf5030b235d6d7349b277cdb875b4a5aa46833.
+The installed image and original no-C-seed probe pass. All12 emitter methods
+complete256.998s with the original300s setup commands. I retain and independently
+verify [my current Linux component receipt](evidence/c-repairs-linux-20261126/native-current-linux-20261127/README.md).
+The hosted Linux cache284/34 existing skips, workers3 and combined array/pointer6
+also pass on that code revision. Current Darwin, broad CAST_STRING reconciliation,
+required exact-candidate CI, pure-translator cutover and all69 release requirements
+remain open. This component result accepts no complete release.
