@@ -126,3 +126,17 @@ The original method then passes in0.161s with the pinned source-fixed assembler,
 all ready/release assertions and the original ten-second boundary unchanged.
 My hosted cache jobs also run all five expanded array regression methods.
 The full hosted suites still have to pass.
+
+The second Linux bootstrap job completes all17 original steps, raw Stage1/Stage2
+equality, installation and no-C-seed acceptance. All36 native methods then pass.
+The emitter companion discovers zero methods: `nanoc_c` stops during setup's
+source shadows at the original ten-second limit. I retain that failure and
+localize it with existing opt-in tracing before any repair. Twelve emitter
+methods and the full hosted qualification remain unaccepted.
+
+The exact hosted C-seed image completes all1,138 selected emitter-source shadows
+on madmax under an opt-in trace, totaling5.038530s in per-shadow intervals and
+completing under the ordinary ten-second supervisor. This does not establish
+the hosted timeout cause or pass the twelve-method suite. I retain a bounded,
+failure-only hosted trace for that original setup input, with process-group
+cleanup and no changed deadlines.

@@ -151,6 +151,7 @@ jobs:
           assert Path('bin/nanoc_stage1.nvm').read_bytes()==Path('bin/nanoc_stage2.nvm').read_bytes()
           PY
       - name: Execute the original native compiler and emitter suites
+        id: native_suites
         if: matrix.gate == 'bootstrap'
         timeout-minutes: 30
         run: |
@@ -164,6 +165,29 @@ jobs:
           log=Path('.test_output/c-repair-original-gates/native-suites.log').read_text()
           assert len(re.findall(r'^Ran 36 tests? in ',log,re.M))==1
           assert len(re.findall(r'^Ran 12 tests? in ',log,re.M))==1
+          PY
+      - name: Localize a refused emitter setup at unchanged limits
+        if: failure() && steps.native_suites.outcome == 'failure'
+        timeout-minutes: 6
+        run: |
+          python3 - <<'PY'
+          import json, os, signal, subprocess, time
+          from pathlib import Path
+          root=Path('.test_output/c-repair-original-gates')
+          assert os.environ.get('NANO_SHADOW_TIMEOUT_SECONDS','10')=='10'
+          env=dict(os.environ,NANO_SHADOW_TRACE='1',NANO_SHADOW_PHASE_TRACE='1')
+          start=time.monotonic()
+          with (root/'emitter-setup-diagnostic.stdout').open('wb') as out, (root/'emitter-setup-diagnostic.stderr').open('wb') as err:
+              process=subprocess.Popen(['bin/nanoc_c','tests/selfhost_shadow_emitter.nano','-o',str(root/'emitter-setup-diagnostic')],env=env,stdout=out,stderr=err,start_new_session=True)
+              try:
+                  status=process.wait(timeout=300)
+                  record={'exit_code':status,'command_timeout':False}
+              except subprocess.TimeoutExpired:
+                  os.killpg(process.pid,signal.SIGKILL)
+                  process.wait()
+                  record={'exit_code':process.returncode,'command_timeout':True}
+          record.update(elapsed_seconds=time.monotonic()-start,qualification=False,shadow_seconds=10)
+          (root/'emitter-setup-diagnostic.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
       - name: Verify source and selected tool guards
         if: always() && steps.hosted.outcome == 'success'
