@@ -3,6 +3,7 @@
 /* I retire expression arrays without taking my C caller's array ownership. */
 #include "../src/nanolang.h"
 #include "../src/runtime/gc.h"
+#include "../src/runtime/list_int.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,9 +76,64 @@ static void caller_boundaries(void) {
     puts("I preserve caller-supplied and C-caller-returned array storage.");
 }
 
+static void release_caller_nested(Value outer) {
+    assert(outer.type == VAL_ARRAY && outer.as.array_val->element_type == VAL_ARRAY);
+    assert(outer.as.array_val->length == 1);
+    Value child = ((Value *)outer.as.array_val->data)[0];
+    assert(child.type == VAL_ARRAY && child.as.array_val->element_type == VAL_INT);
+    assert(child.as.array_val->length == 1 && ((long long *)child.as.array_val->data)[0] == 7);
+    free(child.as.array_val->data); free(child.as.array_val);
+    free(outer.as.array_val->data); free(outer.as.array_val);
+}
+
+static void caller_argument_escapes(void) {
+    Fixture f = load(
+        "fn install(xs: array<array<int>>) -> int { (array_push xs [7]) return 7 }\n"
+        "shadow install { let xs: array<array<int>> = [] assert (== (install xs) 7) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n");
+    assert(run_program(f.program, f.env));
+    Value outer = create_array(VAL_ARRAY, 0, 0);
+    Value result = call_function("install", &outer, 1, f.env);
+    assert(result.type == VAL_INT && result.as.int_val == 7);
+    size_t before = env_static_array_reclaim_count();
+    release(f);
+    assert(env_static_array_reclaim_count() == before);
+    release_caller_nested(outer);
+    puts("I preserve a fresh nested array stored in my C caller's argument after a scalar return.");
+
+    f = load(
+        "struct Row { cells: array<array<int>> }\n"
+        "fn install(xs: List<Row>) -> int { (array_push (list_Row_get xs 0).cells [7]) return 7 }\n"
+        "shadow install { let xs: List<Row> = (list_Row_new) let cells: array<array<int>> = [] "
+        "(list_Row_push xs Row { cells: cells }) assert (== (install xs) 7) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n");
+    assert(run_program(f.program, f.env));
+    outer = create_array(VAL_ARRAY, 0, 0);
+    char *fields[] = {"cells"};
+    Value row = create_struct("Row", fields, &outer, 1);
+    List_int *rows = list_int_new(); assert(rows);
+    list_int_push(rows, (int64_t)(intptr_t)row.as.struct_val);
+    Value argument = create_int((long long)(intptr_t)rows);
+    result = call_function("install", &argument, 1, f.env);
+    assert(result.type == VAL_INT && result.as.int_val == 7);
+    before = env_static_array_reclaim_count();
+    release(f);
+    assert(env_static_array_reclaim_count() == before);
+    assert(list_int_get(rows, 0) == (int64_t)(intptr_t)row.as.struct_val);
+    assert(row.as.struct_val->field_count == 1);
+    release_caller_nested(row.as.struct_val->field_values[0]);
+    release_struct_carrier_names(row.as.struct_val);
+    free(row.as.struct_val->field_values); free(row.as.struct_val);
+    list_int_free(rows);
+    puts("I preserve fresh array escape through my C caller's typed List<Row> record field.");
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     caller_boundaries();
+    caller_argument_escapes();
     unsigned failed = 0;
     failed += check("scalar-argument",
         "let stable: array<int> = [0]\n"
