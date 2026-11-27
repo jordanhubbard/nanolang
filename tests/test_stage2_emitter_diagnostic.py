@@ -13,6 +13,44 @@ from scripts import ci_stage2_emitter_diagnostic as diagnostic
 
 @unittest.skipUnless(sys.platform == 'linux', 'I sample Linux process groups here.')
 class Stage2EmitterDiagnostic(unittest.TestCase):
+    def test_cpu_sampler_finishes_after_the_observed_group_is_reaped(self):
+        owner = self
+        class LifecycleProbe:
+            def start(self, pid, directory):
+                owner.assertEqual(os.getpgid(pid), pid)
+                self.pid = pid
+                self.directory = directory
+                return pid
+            def finish(self, pid):
+                owner.assertEqual(pid, self.pid)
+                with owner.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
+                return {'protocol_probe_only': True}
+        with tempfile.TemporaryDirectory() as temporary:
+            probe = LifecycleProbe()
+            row = diagnostic.observe([sys.executable, '-c', 'import signal; signal.pause()'],
+                                     Path(temporary)/'command', cwd=temporary,
+                                     deadline=0.1, interval=0.01, cpu_sampler=probe)
+            self.assertTrue(row['command_timeout'])
+            self.assertTrue(row['cpu_profile']['protocol_probe_only'])
+            self.assertEqual(probe.directory, Path(temporary)/'command/cpu-profile')
+
+    def test_failed_sampler_admission_reaps_the_product(self):
+        class RefusedSampler:
+            def start(self, pid, directory):
+                self.pid = pid
+                raise RuntimeError('I refuse this diagnostic sampler.')
+        with tempfile.TemporaryDirectory() as temporary:
+            probe = RefusedSampler()
+            with self.assertRaisesRegex(RuntimeError, 'refuse this diagnostic sampler'):
+                diagnostic.observe([sys.executable, '-c', 'import signal; signal.pause()'],
+                                   Path(temporary)/'command', cwd=temporary,
+                                   deadline=1, cpu_sampler=probe)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(probe.pid, 0)
+            row = json.loads((Path(temporary)/'command/result.json').read_text())
+            self.assertTrue(row['terminal'] and row['sampler_stopped'])
+
     def test_native_process_controls(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

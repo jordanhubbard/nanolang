@@ -34,7 +34,7 @@ def save(path, value):
     Path(path).write_text(json.dumps(value, indent=2) + '\n')
 
 
-def observe(command, directory, *, cwd, env=None, deadline=300, interval=1):
+def observe(command, directory, *, cwd, env=None, deadline=300, interval=1, cpu_sampler=None):
     """I retain both original pipes and sample only my new process group."""
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
@@ -73,7 +73,10 @@ def observe(command, directory, *, cwd, env=None, deadline=300, interval=1):
 
     thread = threading.Thread(target=sample, daemon=True)
     thread.start()
+    cpu_session = None
     try:
+        if cpu_sampler is not None:
+            cpu_session = cpu_sampler.start(process.pid, directory / 'cpu-profile')
         try:
             stdout, stderr = process.communicate(
                 timeout=max(0, deadline - (time.monotonic() - start)))
@@ -104,6 +107,9 @@ def observe(command, directory, *, cwd, env=None, deadline=300, interval=1):
         result.update(terminal=True, observer_errors=errors,
                       sampler_stopped=not thread.is_alive())
         save(directory / 'result.json', result)
+        if cpu_session is not None:
+            result['cpu_profile'] = cpu_sampler.finish(cpu_session)
+            save(directory / 'result.json', result)
     return result
 
 
@@ -213,6 +219,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--restore-helper', type=Path, required=True)
+    parser.add_argument('--sample-cpu', action='store_true')
     args = parser.parse_args()
     root = args.root.resolve()
     assert sys.platform == 'linux'
@@ -236,6 +243,16 @@ def main():
     spec.loader.exec_module(helper)
     helper.REVISION, helper.ARTIFACT, helper.ZIP_SHA256 = REVISION, ARTIFACT, ZIP_SHA256
     controls(out / 'controls')
+    cpu_sampler = None
+    if args.sample_cpu:
+        from stage2_cpu_sampler import Sampler, calibrate
+        observer_sources.append(Path(__file__).with_name('stage2_cpu_sampler.py'))
+        path = observer_sources[-1]
+        source_hashes[str(path)] = digest(path)
+        (saved_sources / path.name).write_bytes(path.read_bytes())
+        save(out / 'observer-sources-before.json', source_hashes)
+        calibrate(out / 'cpu-sampler-control')
+        cpu_sampler = Sampler()
     before = restore_admitted_inputs(helper, root, out)
     save(out / 'identities-before.json', before)
     native_control(root, out)
@@ -263,7 +280,8 @@ def main():
                                   'original_argv_preserved': True,
                                   'terminal_artifact_state_not_original_precommand_state': True})
     try:
-        result = observe(command, out / 'command', cwd=root, env=env, deadline=300)
+        result = observe(command, out / 'command', cwd=root, env=env, deadline=300,
+                         cpu_sampler=cpu_sampler)
     finally:
         after = helper.identities(root)
         save(out / 'identities-after.json', after)
