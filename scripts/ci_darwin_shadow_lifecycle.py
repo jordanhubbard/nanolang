@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import shutil
@@ -47,6 +48,99 @@ def captured(argv, out, label, *, timeout=300, **kwargs):
             raise
         if status:
             raise subprocess.CalledProcessError(status, argv)
+
+
+def cache_generation_files(path):
+    """I accept only complete, flat, regular-file generation contents."""
+    if path.is_symlink() or not path.is_dir():
+        raise ValueError(f'I require a real cache generation directory: {path}')
+    files = {}
+    for entry in sorted(path.iterdir()):
+        if entry.is_symlink() or not entry.is_file():
+            raise ValueError(f'I require regular generation entries: {entry}')
+        files[entry.name] = {'size': entry.stat().st_size, 'sha256': digest(entry)}
+    if not files:
+        raise ValueError(f'I refuse an empty cache generation: {path}')
+    return files
+
+
+def restore_cache_currents(root, out):
+    """I infer lost pointers only from one complete byte-equal retained tree."""
+    root = root.resolve()
+    out = out.resolve()
+    if not out.is_relative_to(root):
+        raise ValueError('I retain flattened namespace evidence inside my private root.')
+    out.mkdir(parents=True, exist_ok=True)
+    plans = []
+    for base, local in ((root / 'modules', True), (root / 'obj/module_cache', False)):
+        if not base.exists():
+            continue
+        if base.is_symlink() or not base.resolve().is_relative_to(root):
+            raise ValueError(f'I refuse an escaped cache root: {base}')
+        for current in sorted(base.rglob('current')):
+            cache = current.parent
+            selected = cache.name == '.build' if local else (
+                cache.parent == base and re.fullmatch(r'v2-[0-9a-f]{64}', cache.name))
+            if not selected:
+                continue
+            if not cache.resolve().is_relative_to(root):
+                raise ValueError(f'I refuse an escaped cache directory: {cache}')
+            relative = str(current.relative_to(root))
+            if current.is_symlink():
+                target = os.readlink(current)
+                if not re.fullmatch(r'\.nano-gen-[A-Za-z0-9]{6}', target):
+                    raise ValueError(f'I require a safe relative cache pointer: {current}')
+                files = cache_generation_files(cache / target)
+                plans.append({'current': relative, 'target': target, 'files': files,
+                              'basis': 'existing-safe-relative-link', 'restored': False,
+                              'backup': None})
+                continue
+            files = cache_generation_files(current)
+            matches = []
+            for candidate in sorted(cache.iterdir()):
+                if re.fullmatch(r'\.nano-gen-[A-Za-z0-9]{6}', candidate.name):
+                    if cache_generation_files(candidate) == files:
+                        matches.append(candidate.name)
+            if len(matches) != 1:
+                raise ValueError(f'I require one complete byte-equal generation for {current}; I found {len(matches)}')
+            backup = out / 'flattened-cache-currents' / current.relative_to(root)
+            if os.path.lexists(backup):
+                raise ValueError(f'I will not replace retained namespace evidence: {backup}')
+            plans.append({'current': relative, 'target': matches[0], 'files': files,
+                          'basis': 'unique-complete-byte-equal-generation', 'restored': False,
+                          'backup': str(backup.relative_to(root))})
+    report = {'version': 1, 'complete': False, 'qualification': False,
+              'original_link_metadata_available': False, 'entries': plans}
+    journal = out / 'cache-current-restoration.json'
+    save(journal, report)
+    try:
+        for row in plans:
+            if row['backup'] is None:
+                continue
+            current = root / row['current']
+            target = current.parent / row['target']
+            if cache_generation_files(current) != row['files'] or cache_generation_files(target) != row['files']:
+                raise ValueError(f'I refuse changed cache contents before restoration: {current}')
+            backup = root / row['backup']
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            current.rename(backup)
+            try:
+                current.symlink_to(row['target'], target_is_directory=True)
+            except BaseException:
+                if not os.path.lexists(current):
+                    backup.rename(current)
+                raise
+            if os.readlink(current) != row['target'] or cache_generation_files(current.resolve()) != row['files']:
+                raise ValueError(f'I cannot verify my reconstructed pointer: {current}')
+            row['restored'] = True
+            save(journal, report)
+        report['complete'] = True
+    except BaseException as error:
+        report['exception'] = repr(error)
+        raise
+    finally:
+        save(journal, report)
+    return report
 
 
 def restore(root, out):
@@ -113,7 +207,8 @@ def product_tree(root, out):
     original = (root / '.test_output/c-repair-original-gates/source-tree.txt').read_text()
     current = subprocess.check_output(['git', 'ls-tree', '-r', 'HEAD'], cwd=root, text=True)
     allowed = {'.github/workflows/cseed-shadow-lifecycle.yml',
-               'scripts/ci_darwin_shadow_lifecycle.c', 'scripts/ci_darwin_shadow_lifecycle.py'}
+               'scripts/ci_darwin_shadow_lifecycle.c', 'scripts/ci_darwin_shadow_lifecycle.py',
+               'tests/test_cseed_shadow_lifecycle_restore.py'}
 
     def selected(text):
         result = {}
@@ -254,7 +349,8 @@ def main():
     out = root / '.test_output/shadow-lifecycle'
     out.mkdir(parents=True, exist_ok=True)
     sources = ['scripts/ci_darwin_shadow_lifecycle.c', 'scripts/ci_darwin_shadow_lifecycle.py',
-               '.github/workflows/cseed-shadow-lifecycle.yml']
+               '.github/workflows/cseed-shadow-lifecycle.yml',
+               'tests/test_cseed_shadow_lifecycle_restore.py']
     saved = out / 'observer-sources'
     saved.mkdir()
     source_hashes = {name: digest(root / name) for name in sources}
@@ -264,6 +360,7 @@ def main():
     current = root / '.test_output/retirement/capture-toolchain.json'
     shutil.copyfile(current, out / 'current-toolchain-before-restore.json')
     restore(root, out)
+    restore_cache_currents(root, out)
     product_tree(root, out)
     before = identities(root)
     save(out / 'identities-before.json', before)

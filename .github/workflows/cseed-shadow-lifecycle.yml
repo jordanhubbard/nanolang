@@ -7,6 +7,7 @@ on:
       - '.github/workflows/cseed-shadow-lifecycle.yml'
       - 'scripts/ci_darwin_shadow_lifecycle.c'
       - 'scripts/ci_darwin_shadow_lifecycle.py'
+      - 'tests/test_cseed_shadow_lifecycle_restore.py'
   workflow_dispatch:
 
 permissions:
@@ -45,6 +46,9 @@ jobs:
             sdl2_image sdl2_mixer sdl2_ttf utf8proc
       - name: Select the unchanged pinned compiler and SDK
         run: python3 scripts/ci_select_capture_clang.py
+      - name: Check my isolated cache namespace restore
+        timeout-minutes: 1
+        run: TMPDIR="$RUNNER_TEMP" python3 -m unittest -v tests.test_cseed_shadow_lifecycle_restore
       - name: Observe original C seed with calibrated tail observer
         timeout-minutes: 15
         env:

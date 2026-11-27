@@ -82,3 +82,34 @@ uses the same release-free path; the new handshake is only for owned controls.
 I keep the diagnostic branch based on fb31bad2dce108bab6353309288be0c97281765a
 so newer pure-helper source additions do not weaken the exact restored-product
 tree guard. Original source/tool/image/index/six-host identities remain required.
+
+## My restored cache namespace
+
+Run45991837855 passes all three native controls, then C seed refuses std
+C-library publication after1.017428s before shadows. Source/tool/host guards
+match. The uploaded ZIP has flattened current symlinks into directories.
+The unchanged publisher later renames a symlink over current; a real
+directory is incompatible with that operation. The original failing syscall
+and errno were not captured, so I do not claim its exclusive failing stage.
+
+All9 current trees/812 entries in the exact original ZIP have one complete
+byte-equal retained generation. I validate all mappings before any cache
+mutation, preserve flattened directories under diagnostic evidence, and
+reconstruct only a safe relative pointer to that unique tree. Missing,
+changed, extra, ambiguous, empty, nested, nonregular and escaped inputs refuse.
+I retain a journal and restore a moved directory if link creation fails.
+I infer namespace semantics from complete file bytes; erased original link
+inode metadata remains unavailable. No product C publication rule changes.
+
+My12 permanent restore methods pass0.018s on Linux. Actual-archive replay
+retains all1846 original lookup hashes and six receipt-bound host hashes; a
+real kernel symlink publication fails errno21 before reconstruction and
+succeeds afterward. No product executes during that replay. Original
+controls/observe/identities/captured/extraction function ASTs are unchanged.
+The hosted workflow also runs these12 methods before its original observation.
+Its source guard permits exactly the three observer files and this one
+diagnostic-only test; all original product entries stay fixed.
+
+This prepares another single bounded diagnostic. It does not explain the
+original ten-second shadow timeout, pass emitter12 or qualify a release.
+Original300/10/120/5 boundaries and every product assertion remain.
