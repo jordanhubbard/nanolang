@@ -25,4 +25,9 @@ My gate must check fresh and already-bound values, all alias positions,
 multiple aliases, old/global values, assignment, borrowed/control-flow values,
 scopes, rollback and allocator address reuse. My existing ownership, imported
 literal, string-loop, source-only/shadow and native bootstrap gates remain
-required. Implementation, performance and qualification remain pending.
+required. My implementation and local semantic/sanitizer regressions now pass.
+My hardware diagnostic completes all1139 shadows at the original10-second
+limit; a preceding original-limit observation still fails and remains retained.
+Fresh hosted original bootstrap/native/emitter/cache and full release
+qualification remain pending. I track the reproduced prior temporary-array
+argument leak separately in #1266.
