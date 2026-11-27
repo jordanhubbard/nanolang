@@ -8558,3 +8558,9 @@ test-nanolang-translator-representation-shapes: $(COMPILER_C) nano_virt nano_vm 
 	python3 -m unittest -v tests.test_nanolang_translator_representation_shapes
 
 test-units: test-nanolang-translator-representation-shapes
+
+# I keep this ownership boundary separate while I retain its red baseline.
+.PHONY: test-eval-ephemeral-arrays
+test-eval-ephemeral-arrays: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_eval_ephemeral_arrays tests/test_eval_ephemeral_arrays.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_eval_ephemeral_arrays
