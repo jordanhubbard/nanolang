@@ -1,0 +1,68 @@
+{
+  "qualification": false,
+  "whole_release": false,
+  "files": [
+    {
+      "path": "job.json",
+      "size": 3852,
+      "sha256": "cf8764e85b8fb0db19115bd978983cf7976fefa601e9581da1210bae9f53df78",
+      "chunks": [
+        "cf8764e85b8fb0db19115bd978983cf7976fefa601e9581da1210bae9f53df78"
+      ]
+    },
+    {
+      "path": "job.log",
+      "size": 129446,
+      "sha256": "021a7b58961499ddb594a30e9a3f4f5ee5f1048b6fed17f1a5687a1308bf51f3",
+      "chunks": [
+        "021a7b58961499ddb594a30e9a3f4f5ee5f1048b6fed17f1a5687a1308bf51f3"
+      ]
+    },
+    {
+      "path": "artifact.zip",
+      "size": 43727,
+      "sha256": "c76d5079689255528fa531a55500f948ffe98d9218e7425ebc0312fc7a56acfd",
+      "chunks": [
+        "c76d5079689255528fa531a55500f948ffe98d9218e7425ebc0312fc7a56acfd"
+      ]
+    },
+    {
+      "path": "original-workflow.yml",
+      "size": 8411,
+      "sha256": "f73951fd3dbf01ff9d1ff242ee4c9d74e3b6dcb077703abf1ff1084616c80392",
+      "chunks": [
+        "f73951fd3dbf01ff9d1ff242ee4c9d74e3b6dcb077703abf1ff1084616c80392"
+      ]
+    },
+    {
+      "path": "corrected-workflow.yml",
+      "size": 8567,
+      "sha256": "32a207150ff19d7ed85807882b5261e5e68a65e04a7a05b91b66dd715e068a73",
+      "chunks": [
+        "32a207150ff19d7ed85807882b5261e5e68a65e04a7a05b91b66dd715e068a73"
+      ]
+    }
+  ],
+  "chunks": {
+    "cf8764e85b8fb0db19115bd978983cf7976fefa601e9581da1210bae9f53df78": {
+      "bytes": 3852,
+      "gzip_sha256": "906e5f06c1e3c83136a78b372ed7a83625ffe04d469cc3924de22127d6885a0b"
+    },
+    "021a7b58961499ddb594a30e9a3f4f5ee5f1048b6fed17f1a5687a1308bf51f3": {
+      "bytes": 129446,
+      "gzip_sha256": "1a633c87ca39153f2ebb40190833106006ace0e3a0303aa514175d47b6092329"
+    },
+    "c76d5079689255528fa531a55500f948ffe98d9218e7425ebc0312fc7a56acfd": {
+      "bytes": 43727,
+      "gzip_sha256": "c8d48a9e69d4fe50fc21311d627967bfc6025e521a0b36b4fb7482fe98d7bad6"
+    },
+    "f73951fd3dbf01ff9d1ff242ee4c9d74e3b6dcb077703abf1ff1084616c80392": {
+      "bytes": 8411,
+      "gzip_sha256": "46413efa30a2036d138bc4101820ab7220a2a37ec7c80231e107f6e8769fb766"
+    },
+    "32a207150ff19d7ed85807882b5261e5e68a65e04a7a05b91b66dd715e068a73": {
+      "bytes": 8567,
+      "gzip_sha256": "2da56783cc7498b0226ae9a4f576319a964e795551d03b8783fb2eac6fe3cf2f"
+    }
+  }
+}
