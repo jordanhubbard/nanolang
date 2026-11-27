@@ -30,6 +30,11 @@ Operand-stack push/pop/origin updates likewise remain classifier work.
 I require actual unchanged C graph/helper execution against ordinary/sanitized
 references and all five NanoLang routes, complete branch-domain matrices,
 recursive/shared graph and poison/disabled/generic/failure controls, meaningful
-shadows and original limits/identity guards. Implementation and component
-qualification remain pending; full module/body/runtime/platform/release gates
-remain required.
+shadows and original limits/identity guards. My implementation and component
+qualification pass eight methods and 472 commands in 964.242 seconds across
+seven routes. I retain 967 packet inputs and 25,741,198 report lines, both wire
+decoder setup refusals and the earlier smoke prototypes in my
+[evidence](evidence/c-repairs-linux-20261126/representation-shapes-20261127/README.md).
+My actual C observer uses a minimal owner declaration; I do not claim its binary
+layout matches the complete translator owner. Full module, body, runtime,
+platform, paired, current-candidate, cutover and release gates remain required.

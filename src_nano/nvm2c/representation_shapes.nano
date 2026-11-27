@@ -1,0 +1,338 @@
+module nvm2c_representation_shapes
+module "src_nano/nvm2c/shape_graph.nano" as graph
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+module "src_nano/nvm2c/isa_metadata.nano" as isa
+
+# I constrain one current graph; these facts grant no module or payload authority.
+pub struct Context { tracked: bool, generic_array: bool, private_map: bool, function_index: int, offset: int, opcode: int }
+pub struct State { context: Context, graph: graph.Graph, failed: bool, error: string }
+pub struct Result { valid: bool, state: State, value: int }
+
+fn unsigned(value: int, limit: int) -> bool { return (and (>= value 0) (<= value limit)) }
+shadow unsigned { assert (unsigned 4294967295 4294967295) assert (not (unsigned -1 255)) assert (not (unsigned 256 255)) }
+fn context_valid(s: State) -> bool {
+    return (and (unsigned s.context.function_index 4294967295)
+        (and (unsigned s.context.offset 4294967295) (unsigned s.context.opcode 255)))
+}
+shadow context_valid {
+    let c: Context = Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 255 }
+    assert (context_valid State { context: c, graph: (graph.create), failed: false, error: "" })
+}
+pub fn create(context: Context, failed: bool, error: string) -> State {
+    return State { context: context, graph: (graph.create), failed: failed, error: error }
+}
+shadow create {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 17, offset: 29, opcode: 32 }
+    let s: State = (create c true "first")
+    assert s.failed assert (== s.error "first") assert (graph.healthy s.graph)
+}
+fn answer(s: State, value: int) -> Result { return Result { valid: true, state: s, value: value } }
+shadow answer {
+    let c: Context = Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    assert (== (answer (create c false "") 7).value 7)
+}
+fn invalid(s: State) -> Result { return Result { valid: false, state: s, value: 0 } }
+shadow invalid {
+    let c: Context = Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    assert (not (invalid (create c true "old")).valid)
+    assert (== (invalid (create c true "old")).state.error "old")
+}
+fn replace_graph(s: State, g: graph.Graph) -> State { return State { context: s.context, graph: g, failed: s.failed, error: s.error } }
+shadow replace_graph {
+    let c: Context = Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let s: State = (create c true "old")
+    let n: graph.Step = (graph.new_node s.graph 1)
+    assert (== (array_length (replace_graph s n.state).graph.nodes) 1)
+    assert (replace_graph s n.state).failed
+}
+
+pub fn check(s: State) -> Result {
+    if (not (context_valid s)) { return (invalid s) }
+    let error: string = (graph.error s.graph)
+    if (and (!= error "") (not s.failed)) {
+        let named: string = (isa.primary_name s.context.opcode)
+        let opcode: string = (cond ((== named "UNKNOWN") "classification") (else named))
+        let parts: array<string> = ["I found invalid aggregate shape constraints during ", opcode,
+            " in function ", (int_to_string s.context.function_index), " at offset ", (int_to_string s.context.offset), ": ", error]
+        let failed: State = State { context: s.context, graph: s.graph, failed: true, error: (str_join parts "") }
+        return (answer failed 0)
+    }
+    return (answer s (cond (s.failed 0) (else 1)))
+}
+shadow check {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 17, offset: 29, opcode: 255 }
+    let s: State = (create c false "unused")
+    assert (== (check s).value 1) assert (== (check s).state.error "unused")
+    let bad: graph.Step = (graph.child s.graph 0 0)
+    let result: Result = (check (replace_graph s bad.state))
+    assert (== result.value 0) assert result.state.failed
+    assert (== result.state.error "I found invalid aggregate shape constraints during classification in function 17 at offset 29: I cannot resolve an invalid shape ID")
+}
+
+pub fn variable(s: State, previous: int) -> Result {
+    if (not (and (context_valid s) (unsigned previous 4294967295))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 0) }
+    let mut current: State = s
+    let mut id: int = previous
+    if (== id 0) {
+        let node: graph.Step = (graph.new_node current.graph 0)
+        set current (replace_graph current node.state)
+        set id node.number
+    }
+    let checked: Result = (check current)
+    return (answer checked.state id)
+}
+shadow variable {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let first: Result = (variable (create c true "prior") 0)
+    assert (== first.value 1) assert first.state.failed
+    assert (== (variable first.state 123).value 123)
+    assert (not (variable first.state -1).valid)
+    assert (== (array_length first.state.graph.nodes) 1)
+}
+
+pub fn constrain_type(s: State, id: int, kind: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned id 4294967295) (unsigned kind 14)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 1) }
+    if (== kind 0) { return (check s) }
+    let mut current: State = s
+    if (!= (graph.kind current.graph id) kind) {
+        let typed: graph.Step = (graph.new_node current.graph kind)
+        let joined: graph.Step = (graph.unify typed.state id typed.number)
+        set current (replace_graph current joined.state)
+    }
+    return (check current)
+}
+shadow constrain_type {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    let result: Result = (constrain_type id.state id.value 7)
+    assert (== result.value 1) assert (== (graph.kind result.state.graph id.value) 7)
+    assert (not (constrain_type result.state id.value 15).valid)
+    assert (== (constrain_type result.state id.value 1).value 0)
+}
+
+pub fn child(s: State, parent: int, index: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned parent 4294967295) (unsigned index 4294967295)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 0) }
+    let projected: graph.Step = (graph.child s.graph parent index)
+    let checked: Result = (check (replace_graph s projected.state))
+    return (answer checked.state projected.number)
+}
+shadow child {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    assert (== (child id.state id.value 3).value 2)
+}
+
+pub fn constrain_kind(s: State, id: int, kind: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned id 4294967295) (unsigned kind 255)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 1) }
+    if (== kind 2) { return (check s) }
+    if (== kind 0) { return (constrain_type s id 1) }
+    if (== kind 9) { return (constrain_type s id 7) }
+    if (== kind 13) { return (constrain_type s id 12) }
+    if (== kind 11) { return (constrain_type s id 8) }
+    if (== kind 1) { return (constrain_type s id 2) }
+    if (== kind 4) { return (constrain_type s id 4) }
+    if (== kind 7) { return (constrain_type s id 5) }
+    if (kinds.classify kind).finite {
+        let optional: Result = (constrain_type s id 6)
+        if (== optional.value 0) { return optional }
+        let projected: graph.Step = (graph.child optional.state.graph id 0)
+        let payload: int = (cond ((== (% (/ kind 32) 2) 1) 11) (else 10))
+        return (constrain_type (replace_graph optional.state projected.state) projected.number payload)
+    }
+    if (== kind 8) { return (constrain_type s id 6) }
+    let array_result: Result = (constrain_type s id 3)
+    if (== array_result.value 0) { return array_result }
+    if array_result.state.context.generic_array { return (answer array_result.state 1) }
+    let element: graph.Step = (graph.child array_result.state.graph id 0)
+    let selected: int = (cond ((== kind 6) 4) ((== kind 5) 2) ((== kind 16) 3)
+        ((== kind 17) 14) ((== kind 15) 13) ((== kind 14) 12) ((== kind 12) 8) ((== kind 10) 7) (else 1))
+    return (constrain_type (replace_graph array_result.state element.state) element.number selected)
+}
+shadow constrain_kind {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    let array_result: Result = (constrain_kind id.state id.value 255)
+    assert (== array_result.value 1) assert (== (graph.kind array_result.state.graph id.value) 3)
+    assert (== (graph.kind array_result.state.graph (graph.lookup array_result.state.graph id.value 0)) 1)
+    assert (not (constrain_kind array_result.state id.value 256).valid)
+}
+
+pub fn equal(s: State, left: int, right: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned left 4294967295) (unsigned right 4294967295)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 1) }
+    let joined: graph.Step = (graph.unify s.graph left right)
+    return (check (replace_graph s joined.state))
+}
+shadow equal {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let a: Result = (variable (create c false "") 0)
+    let b: Result = (variable a.state 0)
+    let r: Result = (equal b.state a.value b.value)
+    assert (== r.value 1) assert (== (graph.root r.state.graph a.value) (graph.root r.state.graph b.value))
+}
+
+pub fn checked_array_payload(s: State, kind: int, tags: int, shape: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned kind 255) (and (unsigned tags 65535) (unsigned shape 4294967295))))) { return (invalid s) }
+    if (and (== kind 8) (and (kinds.tag_mask tags).payload (== (% (/ tags 128) 2) 1))) {
+        let extracted: Result = (variable s 0)
+        let constrained: Result = (constrain_kind extracted.state extracted.value 3)
+        return (answer constrained.state extracted.value)
+    }
+    if (== kind 8) { return (child s shape 0) }
+    return (answer s shape)
+}
+shadow checked_array_payload {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let r: Result = (checked_array_payload (create c false "") 8 16512 0)
+    assert (== r.value 1) assert (== (graph.kind r.state.graph r.value) 3)
+    assert (== (checked_array_payload r.state 3 0 123).value 123)
+}
+
+pub fn carrier_box(s: State, id: int, tags: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned id 4294967295) (unsigned tags 65535)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 1) }
+    let optional: Result = (constrain_type s id 6)
+    if (== optional.value 0) { return optional }
+    let projected: Result = (child optional.state id 0)
+    let finite: bool = (kinds.tag_mask tags).payload
+    let kind: int = (cond ((and finite (== (% (/ tags 128) 2) 1)) 11) (finite 10) (else 9))
+    return (constrain_type projected.state projected.value kind)
+}
+shadow carrier_box {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    let r: Result = (carrier_box id.state id.value 6)
+    assert (== r.value 1)
+    assert (== (graph.kind r.state.graph (graph.lookup r.state.graph id.value 0)) 9)
+}
+
+pub fn field_kind(s: State, id: int, kind: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned id 4294967295) (unsigned kind 255)))) { return (invalid s) }
+    if (not s.context.tracked) { return (answer s 1) }
+    if (not (or (or (== kind 1) (== kind 0)) (or (== kind 9) (== kind 11)))) { return (constrain_kind s id kind) }
+    let selected: int = (cond ((== kind 1) 2) ((== kind 9) 7) ((== kind 11) 8) (else 1))
+    let source: graph.Step = (graph.new_node s.graph selected)
+    let mut state: State = (replace_graph s source.state)
+    if (== source.number 0) { return (answer state 0) }
+    let converted: graph.Step = (graph.convert state.graph source.number id)
+    set state (replace_graph state converted.state)
+    if (== converted.number 0) { return (answer state 0) }
+    return (check state)
+}
+shadow field_kind {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    let r: Result = (field_kind id.state id.value 1)
+    assert (== r.value 1) assert (== (graph.kind r.state.graph id.value) 0)
+    assert (== (graph.fact_count r.state.graph 0) 1)
+}
+
+pub fn map_shape(s: State, id: int, value_tag: int) -> Result {
+    if (not (and (context_valid s) (and (unsigned id 4294967295) (unsigned value_tag 255)))) { return (invalid s) }
+    if (not s.context.private_map) { return (answer s 1) }
+    let map: Result = (constrain_type s id 5)
+    if (== map.value 0) { return map }
+    let key: Result = (child map.state id 0)
+    let typed: Result = (constrain_type key.state key.value 2)
+    if (== typed.value 0) { return typed }
+    if (and (!= value_tag 1) (!= value_tag 5)) { return (answer typed.state 0) }
+    let payload: Result = (child typed.state id 1)
+    return (constrain_type payload.state payload.value (cond ((== value_tag 5) 2) (else 1)))
+}
+shadow map_shape {
+    let c: Context = Context { tracked: false, generic_array: false, private_map: true, function_index: 0, offset: 0, opcode: 0 }
+    let r: Result = (map_shape (create c false "") 0 255)
+    assert (== r.value 0) assert (not r.state.failed)
+}
+
+pub fn record_return(s: State, source: int, result: int, source_fields: array<int>, result_fields: array<int>) -> Result {
+    let width: int = (array_length source_fields)
+    if (not (and (context_valid s) (and (unsigned source 4294967295) (and (unsigned result 4294967295) (and (<= width 65535) (== width (array_length result_fields))))))) { return (invalid s) }
+    let mut i: int = 0
+    while (< i width) {
+        if (not (and (unsigned (at source_fields i) 255) (unsigned (at result_fields i) 255))) { return (invalid s) }
+        set i (+ i 1)
+    }
+    if (not s.context.tracked) { return (answer s 1) }
+    let from_record: Result = (constrain_type s source 4)
+    if (== from_record.value 0) { return from_record }
+    let to_record: Result = (constrain_type from_record.state result 4)
+    if (== to_record.value 0) { return to_record }
+    let mut current: State = to_record.state
+    set i 0
+    while (< i width) {
+        let a: int = (at source_fields i)
+        let b: int = (at result_fields i)
+        if (not (and (== a 2) (== b 2))) {
+            let source_child: Result = (child current source i)
+            let to: Result = (child source_child.state result i)
+            let left: Result = (field_kind to.state source_child.value a)
+            if (== left.value 0) { return left }
+            let right: Result = (field_kind left.state to.value b)
+            if (== right.value 0) { return right }
+            set current right.state
+            if (and (== a 8) (kinds.classify b).finite) {
+                let obligation: Result = (child current source_child.value 0)
+                set current obligation.state
+                if (== obligation.value 0) { return (answer current 0) }
+            }
+        }
+        set i (+ i 1)
+    }
+    let converted: graph.Step = (graph.convert current.graph source result)
+    set current (replace_graph current converted.state)
+    if (== converted.number 0) { return (answer current 0) }
+    return (check current)
+}
+shadow record_return {
+    let c: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let a: Result = (variable (create c false "") 0)
+    let b: Result = (variable a.state 0)
+    let r: Result = (record_return b.state a.value b.value [8] [65])
+    assert (== r.value 1) assert (!= (graph.lookup r.state.graph (graph.lookup r.state.graph a.value 0) 0) 0)
+    assert (not (record_return r.state a.value b.value [0] []).valid)
+}
+
+pub fn resolved_kind(s: State, id: int) -> Result {
+    if (not (and (context_valid s) (unsigned id 4294967295))) { return (invalid s) }
+    if (== id 0) { return (answer s 2) }
+    let kind: int = (graph.kind s.graph id)
+    if (== kind 1) { return (answer s 0) }
+    if (== kind 7) { return (answer s 9) }
+    if (== kind 8) { return (answer s 11) }
+    if (== kind 12) { return (answer s 13) }
+    if (== kind 2) { return (answer s 1) }
+    if (== kind 4) { return (answer s 4) }
+    if (== kind 5) { return (answer s 7) }
+    if (== kind 6) { return (answer s 8) }
+    if (== kind 3) {
+        let element: int = (graph.lookup s.graph id 0)
+        if (== element 0) { return (answer s 2) }
+        let child_kind: int = (graph.kind s.graph element)
+        let selected: int = (cond ((== child_kind 3) 16) ((== child_kind 13) 15) ((== child_kind 14) 17)
+            ((== child_kind 1) 3) ((== child_kind 7) 10) ((== child_kind 8) 12) ((== child_kind 12) 14)
+            ((== child_kind 2) 5) ((== child_kind 4) 6) (else 2))
+        return (answer s selected)
+    }
+    return (answer s 2)
+}
+shadow resolved_kind {
+    let c: Context = Context { tracked: true, generic_array: true, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let id: Result = (variable (create c false "") 0)
+    let r: Result = (constrain_kind id.state id.value 3)
+    assert (== (resolved_kind r.state id.value).value 2)
+    assert (== (resolved_kind r.state 0).value 2)
+    let concrete: Context = Context { tracked: true, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    let representations: array<int> = [3,5,6,10,12,14,15,16,17]
+    let elements: array<int> = [1,2,4,7,8,12,13,3,14]
+    for i in (range 0 9) {
+        let id: Result = (variable (create concrete false "") 0)
+        let r: Result = (constrain_kind id.state id.value (at representations i))
+        assert (== (graph.kind r.state.graph (graph.lookup r.state.graph id.value 0)) (at elements i))
+        assert (== (resolved_kind r.state id.value).value (at representations i))
+    }
+}

@@ -1,0 +1,200 @@
+module "src_nano/nvm2c/representation_shapes.nano" as adapter
+module "src_nano/nvm2c/shape_graph.nano" as shape
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+fn decimal(value: int) -> string { return (int_to_string value) }
+shadow decimal { assert (== (decimal 4294967295) "4294967295") }
+fn has(mask: int, bit: int) -> bool { return (== (% (/ mask bit) 2) 1) }
+shadow has { assert (has 31 16) assert (not (has 15 16)) }
+fn framed(bytes: array<u8>) -> bool {
+    let size: int = (array_length bytes)
+    if (or (< size 4) (> size 1048576)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (> count (/ (- size 4) 16)) { return false }
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        if (not (wire.contains bytes cursor 16)) { return false }
+        if (or (> (cast_int (at bytes cursor)) 1) (or (> (cast_int (at bytes (+ cursor 1))) 31) (!= (cast_int (at bytes (+ cursor 3))) 0))) { return false }
+        let steps: int = (wire.read_u32 bytes (+ cursor 12))
+        set cursor (+ cursor 16)
+        if (or (> steps 65535) (> steps (/ (- size cursor) 13))) { return false }
+        for index in (range 0 steps) {
+            if (not (wire.contains bytes cursor 13)) { return false }
+            let op: int = (cast_int (at bytes cursor))
+            let a: int = (wire.read_u32 bytes (+ cursor 1))
+            let b: int = (wire.read_u32 bytes (+ cursor 5))
+            if (> op 20) { return false }
+            if (and (== op 5) (> b 65535)) { return false }
+            if (and (== op 10) (> b 14)) { return false }
+            if (and (or (== op 11) (or (== op 16) (== op 17))) (> b 255)) { return false }
+            if (and (== op 14) (or (> a 255) (> b 65535))) { return false }
+            if (and (== op 15) (> b 65535)) { return false }
+            if (and (== op 20) (> a 31)) { return false }
+            set cursor (+ cursor 13)
+            if (== op 18) {
+                if (not (wire.contains bytes cursor 2)) { return false }
+                let width: int = (wire.read_u16 bytes cursor)
+                set cursor (+ cursor 2)
+                if (not (wire.contains bytes cursor (* width 2))) { return false }
+                set cursor (+ cursor (* width 2))
+            }
+        }
+    }
+    return (== cursor size)
+}
+shadow framed { assert (framed [0,0,0,0]) assert (not (framed [])) assert (not (framed [0,0,0,0,0])) }
+fn state_with_graph(s: adapter.State, g: shape.Graph) -> adapter.State {
+    return adapter.State { context: s.context, graph: g, failed: s.failed, error: s.error }
+}
+shadow state_with_graph {
+    let context: adapter.Context = adapter.Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    assert (state_with_graph (adapter.create context true "prior") (shape.create)).failed
+}
+fn event(label: string, item: int, index: int, value: int, s: adapter.State) -> string {
+    let failed: int = (cond (s.failed 1) (else 0))
+    let parts: array<string> = [label,(decimal item),(decimal index),(decimal value),(decimal failed),s.error,(decimal (array_length s.graph.nodes)),(shape.error s.graph)]
+    return (+ (str_join parts "|") "\n")
+}
+shadow event {
+    let context: adapter.Context = adapter.Context { tracked: false, generic_array: false, private_map: false, function_index: 0, offset: 0, opcode: 0 }
+    assert (== (event "Z" 0 0 0 (adapter.create context false "")) "Z|0|0|0|0||0|\n")
+}
+fn snapshot(g: shape.Graph) -> string {
+    let mut lines: array<string> = []
+    if (shape.healthy g) {
+        for id in (range 1 (+ (array_length g.nodes) 1)) {
+            let resolved: int = (shape.root g id)
+            let position: int = (at g.nodes (- resolved 1))
+            let mut cursor: int = (at g.arena (+ position 5))
+            let mut edges: array<string> = []
+            while (!= cursor 0) {
+                set edges (array_push edges (+ (decimal (at g.arena (- cursor 1)))
+                    (+ ":" (decimal (shape.root g (at g.arena cursor))))))
+                set cursor (at g.arena (+ cursor 1))
+            }
+            set cursor (at g.arena (+ position 7))
+            let mut functions: array<string> = []
+            while (!= cursor 0) {
+                set functions (array_push functions (decimal (at g.arena (- cursor 1))))
+                set cursor (at g.arena cursor)
+            }
+            let fields: array<string> = ["N",(decimal id),(decimal resolved),(decimal (shape.kind g id)),
+                (decimal (shape.tags g id)),(decimal (array_length edges)),(str_join edges ","),
+                (decimal (array_length functions)),(str_join functions ",")]
+            let line: string = (+ (str_join fields "|") "\n")
+            set lines (array_push lines line)
+        }
+    }
+    return (str_join lines "")
+}
+shadow snapshot {
+    let created: shape.Step = (shape.new_node (shape.create) 7)
+    assert (== (snapshot created.state) "N|1|1|7|0|0||0|\n")
+}
+
+fn solver_snapshot(g: shape.Graph) -> string {
+    let mut lines: array<string> = [(snapshot g)]
+    let counts: array<string> = ["D",(decimal (shape.fact_count g 0)),(decimal (shape.fact_count g 1)),
+        (decimal (shape.fact_count g 2)),(decimal (shape.fact_count g 3))]
+    set lines (array_push lines (+ (str_join counts "|") "\n"))
+    let header: int = (at g.arena 6)
+    if (!= header 0) {
+        let labels: array<string> = ["C","A","W","R"]
+        for group in (range 0 4) {
+            let mut cursor: int = (at g.arena (+ (- header 1) (* group 3)))
+            while (!= cursor 0) {
+                let fields: array<string> = [(at labels group),(decimal (at g.arena (- cursor 1))),
+                    (decimal (at g.arena cursor)),(decimal (at g.arena (+ cursor 1))),
+                    (decimal (at g.arena (+ cursor 2)))]
+                set lines (array_push lines (+ (str_join fields "|") "\n"))
+                set cursor (at g.arena (+ cursor 3))
+            }
+        }
+    }
+    if (shape.healthy g) {
+        for id in (range 1 (+ (array_length g.nodes) 1)) {
+            let resolved: int = (shape.root g id)
+            let position: int = (at g.nodes (- resolved 1))
+            let fields: array<string> = ["I",(decimal id),(decimal (at g.arena (+ position 3)))]
+            set lines (array_push lines (+ (str_join fields "|") "\n"))
+        }
+    }
+    return (str_join lines "")
+}
+shadow solver_snapshot { assert (== (solver_snapshot (shape.create)) "D|0|0|0|0\n") }
+
+fn describe(bytes: array<u8>) -> string {
+    if (not (framed bytes)) { return "INVALID\n" }
+    let mut lines: array<string> = []
+    let count: int = (wire.read_u32 bytes 0)
+    let mut cursor: int = 4
+    for item in (range 0 count) {
+        let mode: int = (cast_int (at bytes cursor))
+        let flags: int = (cast_int (at bytes (+ cursor 1)))
+        let context: adapter.Context = adapter.Context { tracked: (has flags 1), generic_array: (has flags 2), private_map: (has flags 4),
+            function_index: (wire.read_u32 bytes (+ cursor 4)), offset: (wire.read_u32 bytes (+ cursor 8)), opcode: (cast_int (at bytes (+ cursor 2))) }
+        let steps: int = (wire.read_u32 bytes (+ cursor 12))
+        let mut s: adapter.State = (adapter.create context (has flags 8) (cond ((has flags 16) "prior") (else "")))
+        set cursor (+ cursor 16)
+        for index in (range 0 steps) {
+            let op: int = (cast_int (at bytes cursor))
+            let a: int = (wire.read_u32 bytes (+ cursor 1))
+            let b: int = (wire.read_u32 bytes (+ cursor 5))
+            let c: int = (wire.read_u32 bytes (+ cursor 9))
+            set cursor (+ cursor 13)
+            let mut applied: adapter.Result = adapter.Result { valid: true, state: s, value: 0 }
+            if (or (<= op 4) (== op 6)) {
+                let mut changed: shape.Step = shape.Step { state: s.graph, number: 0 }
+                if (== op 0) { set changed (shape.new_node s.graph a) }
+                else if (== op 1) { set changed (shape.child s.graph a b) }
+                else if (== op 2) { set changed (shape.unify s.graph a b) }
+                else if (== op 3) { set changed (shape.convert s.graph a b) }
+                else if (== op 4) { set changed (shape.solve s.graph) }
+                else { set changed (shape.function_add s.graph a b) }
+                set applied adapter.Result { valid: true, state: (state_with_graph s changed.state), value: changed.number }
+            } else if (== op 5) { set applied adapter.Result { valid: true, state: s, value: (shape.tags_add s.graph a b) }
+            } else if (== op 7) { set applied adapter.Result { valid: true, state: (state_with_graph s (shape.destroy s.graph)), value: 0 }
+            } else if (== op 8) { set applied (adapter.check s)
+            } else if (== op 9) { set applied (adapter.variable s a)
+            } else if (== op 10) { set applied (adapter.constrain_type s a b)
+            } else if (== op 11) { set applied (adapter.constrain_kind s a b)
+            } else if (== op 12) { set applied (adapter.equal s a b)
+            } else if (== op 13) { set applied (adapter.child s a b)
+            } else if (== op 14) { set applied (adapter.checked_array_payload s a b c)
+            } else if (== op 15) { set applied (adapter.carrier_box s a b)
+            } else if (== op 16) { set applied (adapter.field_kind s a b)
+            } else if (== op 17) { set applied (adapter.map_shape s a b)
+            } else if (== op 18) {
+                let width: int = (wire.read_u16 bytes cursor)
+                set cursor (+ cursor 2)
+                let mut left: array<int> = []
+                let mut right: array<int> = []
+                for field in (range 0 width) {
+                    set left (array_push left (cast_int (at bytes (+ cursor field))))
+                    set right (array_push right (cast_int (at bytes (+ (+ cursor width) field))))
+                }
+                set cursor (+ cursor (* width 2))
+                set applied (adapter.record_return s a b left right)
+            } else if (== op 19) { set applied (adapter.resolved_kind s a)
+            } else {
+                let current: adapter.Context = adapter.Context { tracked: (has a 1), generic_array: (has a 2), private_map: (has a 4),
+                    function_index: s.context.function_index, offset: s.context.offset, opcode: s.context.opcode }
+                let selected: adapter.State = adapter.State { context: current, graph: s.graph, failed: (has a 8), error: (cond ((has a 16) "prior") (else "")) }
+                set applied adapter.Result { valid: true, state: selected, value: 0 }
+            }
+            if (not applied.valid) { return "ADAPTER_INPUT\n" }
+            set s applied.state
+            if (== mode 0) { set lines (array_push lines (event "E" item index applied.value s)) }
+        }
+        set lines (array_push lines (event "Z" item steps 0 s))
+        set lines (array_push lines (solver_snapshot s.graph))
+    }
+    return (str_join lines "")
+}
+shadow describe { assert (== (describe []) "INVALID\n") assert (== (describe [0,0,0,0]) "") }
+fn main() -> int {
+    unsafe { for index in (range 1 (get_argc)) { (print (describe (file_read_bytes (get_argv index)))) } }
+    return 0
+}
+shadow main { assert (== (describe [0,0,0,0,0]) "INVALID\n") }
