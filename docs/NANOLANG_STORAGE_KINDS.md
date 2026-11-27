@@ -26,11 +26,15 @@ not C pointer mutation or allocator state. The reference observer compiles the
 unchanged helper block verbatim from the pinned C source with its real ISA
 header; no copied C algorithm implements the NanoLang product.
 
-My permanent qualification must compare ordinary/sanitized actual C with all
+My permanent qualification compares ordinary/sanitized actual C with all
 five NanoLang producer/execution routes. Its exhaustive domain is256 byte
 classifications,65536 field pairs,65536 tag masks and256 opcode bytes:131584
 inputs. Independent named decisions, successful-join symmetry, failed-join
 preservation, exact mask populations and malformed packet boundaries supplement
 differential streams. Original600/60/default10 and every existing assertion
-remain. Implementation and execution are pending; this contract accepts no
-component or release.
+remain. My three permanent methods pass21.757s on Linux ARM64 with the qualified
+current Stage2 producer. I retain all38 commands and matching source/tool/
+producer/receipt/index/six-host guards in [my component receipt](evidence/c-repairs-linux-20261126/storage-kinds-20261127/README.md).
+The reader replays921508 report lines without executing products. This
+qualifies these storage facts; full representation/emission and release
+acceptance remain separate.

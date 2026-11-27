@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "run": 45970514720,
+  "revision": "6e09c07a9f1651294e4669282cdc17ee14126775",
+  "artifact_ids": {
+    "cache": 15191184169
+  },
+  "artifact_roots": {
+    "cache": "nanolang/nanolang"
+  },
+  "files": [
+    {
+      "path": "cache.zip",
+      "sha256": "e7a2efe52260447c89d1b8eb515cc81ad31f5d8c03b756d02e4d648e78c43ca4",
+      "size": 33190196,
+      "chunks": [
+        "67f00ed2a31be9345120d585dac6908dd7db4c467439b7828250d6be62023771",
+        "f650fea39e43ba61f792593d4010685916decfde823f55d5ad85567d10146872",
+        "cb99cc09b0e74a40c85e2beaed7b0469f0db63a6e9599a70a83faa820a2d13f2",
+        "2c421a2dc0fb7af6e599a64e38f1cb6c66ce9f0c6f6e68cae8e8f8437f7f5628",
+        "7e1349e96188ff5a760d920db9dfdd06096ba0d24595e89574f10c0d4d563709",
+        "1761f150e587377d70153212c41c73841aa0b4a22ffc983be24bf87f1742c147",
+        "d101e56219141d3aed710568db0b824396cf2ccebc22916484bc7917936548f9",
+        "bd2840d84f00f3fb5111ba129dd07148cf923ca0b4f1d9b93d0a5a2b5b95f75c",
+        "ea4c7095b5d3f3cbbfcca696bd2c83a64df872aea22f74b2c5f4a0417a6bee92",
+        "9abdc07cdaf2fdc68dd82bd7d3dfc6c0af5cdc7212b56c7eb0c8d9c63bd661ea",
+        "e280f11f133dc6646e730f0066c0a790c1485cf6e06948df84b05f59f3b0103f",
+        "e3eabb07b176cc03722460de14165331b1868e59fbb00306cd3d9592350b234a",
+        "02618667f7fc86c689be6f772ae216618ee8a7c83735d1c2c4b31f1d276ddbe7",
+        "6796bc440731c5abcb57b54eba796a7fe9fcb493fad8f4c073fb01ba92cdde95",
+        "4c8e490889574363da51c1c135332aa94eb0d12277621828ad5daed25829d61a",
+        "743c360d4284d8cbcd10beb756545fc2347bf875863bd24f7cb46710e2c35385"
+      ]
+    },
+    {
+      "path": "api-artifacts.json",
+      "sha256": "d3f78d2decb85a7b830eaa4f9fe5b23003ffe808554307137510efa5a13c4b6d",
+      "size": 4686,
+      "chunks": [
+        "d3f78d2decb85a7b830eaa4f9fe5b23003ffe808554307137510efa5a13c4b6d"
+      ]
+    },
+    {
+      "path": "api-run.json",
+      "sha256": "718d1f18b7e3f3d839dcb3614c9d00cb76032371f2d485613cd9c3e795df0028",
+      "size": 13248,
+      "chunks": [
+        "718d1f18b7e3f3d839dcb3614c9d00cb76032371f2d485613cd9c3e795df0028"
+      ]
+    },
+    {
+      "path": "api-jobs.json",
+      "sha256": "ee117988daf1e9b66a39d5ac5758c30d788286425f5bd794f41092072e383ab4",
+      "size": 19670,
+      "chunks": [
+        "ee117988daf1e9b66a39d5ac5758c30d788286425f5bd794f41092072e383ab4"
+      ]
+    },
+    {
+      "path": "check_cache.py",
+      "sha256": "757d77046e4d20427f4e41739cbf6b27e748e7a6430d3406b5a82d5ea35d696a",
+      "size": 2081,
+      "chunks": [
+        "757d77046e4d20427f4e41739cbf6b27e748e7a6430d3406b5a82d5ea35d696a"
+      ]
+    },
+    {
+      "path": "cache-check.stdout",
+      "sha256": "019717cae9e94ec0173d4b789733911a5993ff7539bbe51d2a4c15b6d466d49f",
+      "size": 296,
+      "chunks": [
+        "019717cae9e94ec0173d4b789733911a5993ff7539bbe51d2a4c15b6d466d49f"
+      ]
+    },
+    {
+      "path": "cache-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "chunks": []
+    },
+    {
+      "path": "job-terminal.json",
+      "sha256": "792e6f1a8b1cfc380f7d1f7e6dd4f642a8f220ebb3185fac97f10b0f565da1f4",
+      "size": 4916,
+      "chunks": [
+        "792e6f1a8b1cfc380f7d1f7e6dd4f642a8f220ebb3185fac97f10b0f565da1f4"
+      ]
+    },
+    {
+      "path": "job-terminal.log",
+      "sha256": "354d532662458e058a62dbfb4860b8eccfd48be9ce9a0997cde3845173882f00",
+      "size": 150077,
+      "chunks": [
+        "354d532662458e058a62dbfb4860b8eccfd48be9ce9a0997cde3845173882f00"
+      ]
+    }
+  ],
+  "chunks": {
+    "67f00ed2a31be9345120d585dac6908dd7db4c467439b7828250d6be62023771": {
+      "bytes": 2097152,
+      "gzip_sha256": "c1d7c0035e0f77cfa78ac32f1507ded6e0b8f33d91715d0004a3be74ae81227c"
+    },
+    "f650fea39e43ba61f792593d4010685916decfde823f55d5ad85567d10146872": {
+      "bytes": 2097152,
+      "gzip_sha256": "427bd080c946d62ca3148683cf6a06d72e96d25212b2ac666d5b0273667b9393"
+    },
+    "cb99cc09b0e74a40c85e2beaed7b0469f0db63a6e9599a70a83faa820a2d13f2": {
+      "bytes": 2097152,
+      "gzip_sha256": "978f07ef89b0a408344d6f452d767f0186952a9605b7dbac4555e11e95b7a6c4"
+    },
+    "2c421a2dc0fb7af6e599a64e38f1cb6c66ce9f0c6f6e68cae8e8f8437f7f5628": {
+      "bytes": 2097152,
+      "gzip_sha256": "7c40a2991d0822b7d37aad1717d5fdd1d14d2187302e5742250ad5a30923cfc9"
+    },
+    "7e1349e96188ff5a760d920db9dfdd06096ba0d24595e89574f10c0d4d563709": {
+      "bytes": 2097152,
+      "gzip_sha256": "005a74129fe29352be58873f4eafacb4a28a09b0c226cf0a738e14c3ea2837da"
+    },
+    "1761f150e587377d70153212c41c73841aa0b4a22ffc983be24bf87f1742c147": {
+      "bytes": 2097152,
+      "gzip_sha256": "903159b1ca98e8d7b5d324388e66e0a365cc336a266bf1a21bca78a33bbac3e9"
+    },
+    "d101e56219141d3aed710568db0b824396cf2ccebc22916484bc7917936548f9": {
+      "bytes": 2097152,
+      "gzip_sha256": "6fccab813a3e3945f140f7a78324f6922297bb1070ac3891bc2169557caac3b9"
+    },
+    "bd2840d84f00f3fb5111ba129dd07148cf923ca0b4f1d9b93d0a5a2b5b95f75c": {
+      "bytes": 2097152,
+      "gzip_sha256": "6ad9b4374789e8c7499cf9f2f41de0a9b51d65b75a369ebca96ca4be50516094"
+    },
+    "ea4c7095b5d3f3cbbfcca696bd2c83a64df872aea22f74b2c5f4a0417a6bee92": {
+      "bytes": 2097152,
+      "gzip_sha256": "659f1303ab36e11e81fb2a0b59971b2e7aa2ed6989c2e380bdd317ed282c7356"
+    },
+    "9abdc07cdaf2fdc68dd82bd7d3dfc6c0af5cdc7212b56c7eb0c8d9c63bd661ea": {
+      "bytes": 2097152,
+      "gzip_sha256": "154780247c485de5bb6cbc84a6206a6d67b2ae987c6fa8a687f156c359d092f7"
+    },
+    "e280f11f133dc6646e730f0066c0a790c1485cf6e06948df84b05f59f3b0103f": {
+      "bytes": 2097152,
+      "gzip_sha256": "bdab4b15e0eaa7378189fee4bc03b7f636d443feac4f47d145e490ce651008f4"
+    },
+    "e3eabb07b176cc03722460de14165331b1868e59fbb00306cd3d9592350b234a": {
+      "bytes": 2097152,
+      "gzip_sha256": "1365fc8ca51b49d78ecc62727c0a20f9bc59b3eca2629a4f91bc8b3458bf8b03"
+    },
+    "02618667f7fc86c689be6f772ae216618ee8a7c83735d1c2c4b31f1d276ddbe7": {
+      "bytes": 2097152,
+      "gzip_sha256": "94f800e6e9a28e98c55968bc5119974346d1cc8a525d6a1dfd65d7e83dc7b03b"
+    },
+    "6796bc440731c5abcb57b54eba796a7fe9fcb493fad8f4c073fb01ba92cdde95": {
+      "bytes": 2097152,
+      "gzip_sha256": "cf333316ff1242d6f47061fadfffbe9ab6152b501094765dca766c63efe02e7b"
+    },
+    "4c8e490889574363da51c1c135332aa94eb0d12277621828ad5daed25829d61a": {
+      "bytes": 2097152,
+      "gzip_sha256": "4af5cf697346ec28773c97de60bb9603597aa1952e981be5a03217077253dc4e"
+    },
+    "743c360d4284d8cbcd10beb756545fc2347bf875863bd24f7cb46710e2c35385": {
+      "bytes": 1732916,
+      "gzip_sha256": "e599291110516aa826bbbae7553a3c0e927319124535ecf26874548b4664dac4"
+    },
+    "d3f78d2decb85a7b830eaa4f9fe5b23003ffe808554307137510efa5a13c4b6d": {
+      "bytes": 4686,
+      "gzip_sha256": "538ff52a3d08b3ffdcf44e041376acbeb3f662c7746ec8bc2b3944133fc91a18"
+    },
+    "718d1f18b7e3f3d839dcb3614c9d00cb76032371f2d485613cd9c3e795df0028": {
+      "bytes": 13248,
+      "gzip_sha256": "51a38642221ee3ecc809f68d298c53a1790972c8bc35dd04bee2f4c74e3cdbd6"
+    },
+    "ee117988daf1e9b66a39d5ac5758c30d788286425f5bd794f41092072e383ab4": {
+      "bytes": 19670,
+      "gzip_sha256": "bf0bac03385c9237addd74e07a080b308939cadda4d6e9dc9f5c38672d6cd5e6"
+    },
+    "757d77046e4d20427f4e41739cbf6b27e748e7a6430d3406b5a82d5ea35d696a": {
+      "bytes": 2081,
+      "gzip_sha256": "efc71ef3b1ec68421c52965ce2c25b1c4ba826c3a4215279d650df0eb62434b4"
+    },
+    "019717cae9e94ec0173d4b789733911a5993ff7539bbe51d2a4c15b6d466d49f": {
+      "bytes": 296,
+      "gzip_sha256": "cfc096d51df0ed8e970966892ff4358e28ae259bb42b8bec4665c092de140798"
+    },
+    "792e6f1a8b1cfc380f7d1f7e6dd4f642a8f220ebb3185fac97f10b0f565da1f4": {
+      "bytes": 4916,
+      "gzip_sha256": "1481eb02cc47ab2be9105960c1107f10b630019015dfe2f5b93b4e069b6ea7a6"
+    },
+    "354d532662458e058a62dbfb4860b8eccfd48be9ce9a0997cde3845173882f00": {
+      "bytes": 150077,
+      "gzip_sha256": "1f5130f36fe398529c347d8c9aed86157ca857fa6b7c3797109db673047a0921"
+    }
+  },
+  "scope": "I retain the exact current Darwin cache success:284 methods/26 existing skips,3 worker methods and6 array/pointer methods, matching source/tool/image guards. The original Darwin emitter fails separately; all69 release requirements remain.",
+  "whole_release": false
+}
