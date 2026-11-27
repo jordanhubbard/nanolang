@@ -90,3 +90,8 @@ observation. No C product, original assertion or120/5 control bound changes.
 Native emitter12, the original timeout diagnosis, frozen CAST_STRING decision,
 full pure translator/paired/cutover/exact-candidate and all69 release gates
 remain required.
+
+My successor [body-timeout receipt](../hosted-shadow-body-timeout-45998897143/README.md)
+records that the corrected restore and native controls pass, but the compiler
+reaches only842 shadow completions before the unchanged ten-second supervisor
+kills it. The successor is terminal; it establishes no post-flush exit result.
