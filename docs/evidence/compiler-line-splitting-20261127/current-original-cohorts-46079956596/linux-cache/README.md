@@ -1,0 +1,9 @@
+# My current c8bd Linux cache and worker qualification
+
+I retain successful job140776400141 from run46079956596 at exact source c8bd5c821ac6361e6bbdef2d1750721bfaa2ba22. My current tree contains the compiler line-splitting and interpreter segment-lifetime changes alongside the C array and producer-depth repairs. This terminal covers their original cache/worker qualification. The remaining current matrix jobs and full release remain separate.
+
+My original cache groups report42,57,4,132,20,16,13 methods (284 total), with34 existing platform skips (9+24+1), followed by three worker methods. All six array/record-storage regression methods pass. The mandatory regression step retains17 paired depth cases,14 private-profile controls and9 allocation failures/recovery positions, and all9 new direct interpreter split-lifetime cases. No original assertion, corpus or deadline changes.
+
+I retain the whole original ZIP71039530 bytes,179 members, SHA25635862c5a36c338a97fa656d93f9572451a4bb0127179f7d1bd61b35c121b3b43, artifact15237433599, its complete job log/metadata and GitHub artifact metadata. My independent reader checks archive size/API digest/CRC/safe membership, exact c8bd Git tree, selected tool/image bytes and before/after maps, successful hosted-worker/source-guard steps, every original group count, all six array methods and every new split-lifetime case marker. It compares the original native test files with frozen6e09 and executes no product.
+
+Run `python3 verify.py --workspace /path/on/large/volume --repo /path/to/nanolang`. I reconstruct the exact original archive and run only Python/Git validators. This cache terminal does not provide the genuine current Stage2/native36/emitter12 prerequisite or the complete original14 plus6 consumer acceptance. Those separate current source gates, #1266, pure-translator/cutover and all69 release requirements remain open. I close no repair or release from this checkpoint alone.
