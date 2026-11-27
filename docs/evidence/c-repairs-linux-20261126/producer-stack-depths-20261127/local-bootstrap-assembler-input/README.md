@@ -1,0 +1,9 @@
+# My local bootstrap assembler-input failure
+
+I run the original `make -f Makefile.gnu -j1 CC=/usr/bin/cc bootstrap3` from my producer-depth component018f2e350074bd19cc9aab39bc26a69029706aa1. Make exits2 after816.173 seconds, without an outer timeout; all recorded source guards match. Seed generation/verification, Stage1 generation/verification and C translation pass. Stage1 generation takes491.025 seconds and C translation60.593 seconds. Native linking fails after188.316 seconds: the assembler cannot open `/tmp/ccA4aFXT.s` for reading. I later observe that file absent. This evidence does not establish who removed it or a product/infrastructure cause.
+
+I retain the original6-step failed manifest, every complete stage/outer log, host-input/probe records, generated19,631,247-byte C file and seed/Stage1 modules. All retained bootstrap tool and module hashes still match after failure. I record current selected cc/as identities after the failure; these post-failure observations do not manufacture a pre-command host-tool guard. No Stage1 native executable is accepted, no Stage2/fixed-point receipt is published and no36/12 native/emitter suite starts.
+
+The original failed root remains intact. Under #1253 I next exercise exactly this retained native input/compiler and original1800-second command bound in a separate diagnostic output directory, with a private TMPDIR on my mounted workspace volume and before/after tool/input/witness guards. The private namespace is a changed setup, following workspace storage policy, not a source fix or an unchanged green retry. Its result is separate and is not asserted here. The original Linux/Darwin8864 matrix remains authoritative for that candidate and all full69/release gates remain open.
+
+Run `python3 verify.py --workspace /path/on/large/volume` to check retained bytes and the failed terminal without executing my compiler. This capsule supplies failure evidence, not complete bootstrap or release qualification.
