@@ -6587,6 +6587,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        env_note_string_binding(elem);
                         if (elem.type == VAL_FUNCTION)
                             env->symbols[loop_var_index].type = TYPE_FUNCTION;
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
@@ -6625,6 +6626,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        env_note_string_binding(elem);
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }
@@ -6670,6 +6672,7 @@ static Value eval_statement_impl(ASTNode *stmt, Environment *env) {
                     for (int idx = 0; idx < lst->length; idx++) {
                         if (env_carrier_scopes_enabled(env)) env_carrier_root_reset(env, root_mark);
                         env->symbols[loop_var_index].value = eval_create_string(lst->data[idx]);
+                        env_note_string_binding(env->symbols[loop_var_index].value);
                         if (result.type == VAL_FUNCTION) discard_array_callable(result);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { eval_pop_binding_metadata(env, loop_var_index); return result; }

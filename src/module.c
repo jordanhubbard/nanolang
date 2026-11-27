@@ -1327,7 +1327,10 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         if (value->type == AST_NUMBER) constant->value = create_int(value->as.number);
                         else if (value->type == AST_FLOAT) constant->value = create_float(value->as.float_val);
                         else if (value->type == AST_BOOL) constant->value = create_bool(value->as.bool_val);
-                        else if (value->type == AST_STRING) constant->value = create_string(value->as.string_val);
+                        else if (value->type == AST_STRING) {
+                            constant->value = create_string(value->as.string_val);
+                            env_note_string_binding(constant->value);
+                        }
                     }
                     free(qualified);
                     if (!bound) { fprintf(stderr, "I cannot bind a conflicting public global import.\n"); free(module_path); return false; }

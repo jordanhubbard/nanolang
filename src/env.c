@@ -1064,6 +1064,20 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
     env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
 }
 
+/* I skip only an allocation that no environment binding has ever held.
+ * All publication paths mark before another evaluated binding can observe it.
+ * A set bit is conservative across scopes and environments; I still scan. */
+static bool env_string_binding_seen(Value value) {
+    return value.type == VAL_STRING && value.as.string_val &&
+        gc_is_managed(value.as.string_val) &&
+        (gc_get_header(value.as.string_val)->flags & GC_FLAG_ENV_STRING_BOUND) != 0;
+}
+
+void env_note_string_binding(Value value) {
+    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val))
+        gc_get_header(value.as.string_val)->flags |= GC_FLAG_ENV_STRING_BOUND;
+}
+
 /* The most recent symbol with this name defined in the file currently being
  * processed. Used where "the same variable, seen again" is the question --
  * which is only ever true within one file. Matching by name alone lets a
@@ -1134,6 +1148,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
             existing->type_info = sym.type_info;
             existing->is_mut = sym.is_mut;
             existing->value = sym.value;
+            env_note_string_binding(sym.value);
             /* Don't add a new symbol - we updated the existing one */
             return;
         }
@@ -1143,7 +1158,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
      * variable in the environment, increment refcount to prevent use-after-free
      * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
     if (retain_string_aliases && !env_type_borrows_value(type) &&
-        value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        env_string_binding_seen(value)) {
         for (int i = 0; i < env->symbol_count; i++) {
             if (env->symbols[i].value.type == VAL_STRING &&
                 env->symbols[i].value.as.string_val == value.as.string_val) {
@@ -1154,6 +1169,7 @@ static void env_define_var_impl(Environment *env, const char *name, Type type, T
     }
 
     env->symbols[env->symbol_count++] = sym;
+    env_note_string_binding(value);
 }
 
 /* I elide alias scans only for completed STRING constructors in my evaluator. */
@@ -1378,12 +1394,14 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
          * Mutability/type permission remains the checker's existing contract. */
         if (env_type_borrows_value(sym->type)) {
             sym->value = value;
+            env_note_string_binding(value);
             return;
         }
         /* I keep the binding's ownership when its STRING pointer is unchanged. */
         if (value.type == VAL_STRING && sym->value.type == VAL_STRING &&
             value.as.string_val == sym->value.as.string_val) {
             sym->value = value;
+            env_note_string_binding(value);
             return;
         }
         /* I copy before releasing the old binding, including self-assignment
@@ -1400,7 +1418,7 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
         /* GC refcount fix: If the new string value is already referenced by
          * another variable, increment refcount to prevent use-after-free.
          * Handles: set x y where y is a string variable */
-        if (retain_string_aliases && value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        if (retain_string_aliases && env_string_binding_seen(value)) {
             for (int i = 0; i < env->symbol_count; i++) {
                 if (&env->symbols[i] != sym &&
                     env->symbols[i].value.type == VAL_STRING &&
@@ -1410,6 +1428,7 @@ static void env_set_binding_impl(Environment *env, Symbol *sym, Value value, boo
                 }
             }
         }
+        env_note_string_binding(value);
     }
 }
 

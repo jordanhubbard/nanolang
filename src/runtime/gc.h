@@ -29,6 +29,9 @@ typedef enum {
 /* Finalizer function type - called when object is freed */
 typedef void (*GCFinalizer)(void* object);
 
+/* I retain this monotonic binding hint until the allocation is reclaimed. */
+#define GC_FLAG_ENV_STRING_BOUND UINT16_C(1)
+
 /* GC Header (prepended to all GC-managed objects) */
 typedef struct GCHeader {
     uint32_t ref_count;      /* Reference count */

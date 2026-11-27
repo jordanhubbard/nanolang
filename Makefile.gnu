@@ -2039,6 +2039,13 @@ test-env-fresh-record-bindings: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-units: test-env-fresh-record-bindings
 
+.PHONY: test-env-string-binding-hint
+test-env-string-binding-hint: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_string_binding_hint tests/test_env_string_binding_hint.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_string_binding_hint
+
+test-units: test-env-string-binding-hint
+
 .PHONY: test-env-symbol-index
 test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_symbol_index tests/test_env_symbol_index.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)

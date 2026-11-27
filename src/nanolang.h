@@ -1056,6 +1056,8 @@ void env_reclaim_static_arrays(Environment *env);
 
 /* Diagnostic: number of static-array containers reclaimed at teardown. */
 size_t env_static_array_reclaim_count(void);
+/* I record direct STRING publications without changing their reference count. */
+void env_note_string_binding(Value value);
 Symbol *env_get_var(Environment *env, const char *name);
 Symbol *env_get_declared_global(Environment *env, const ASTNode *declaration);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
