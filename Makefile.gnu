@@ -8343,6 +8343,16 @@ test-source-c-graph-api: tests/test_source_c_graph_api.c tests/support/public_c_
 
 test-units: test-source-c-imports
 
+.PHONY: test-checker-rejected-declarations test-checker-rejected-declaration-cli
+test-checker-rejected-declarations: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_checker_rejected_declarations tests/test_checker_rejected_declarations.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_checker_rejected_declarations
+
+test-checker-rejected-declaration-cli: $(BIN_DIR)/nanoc_c
+	python3 -m unittest -v tests.test_checker_rejected_declarations
+
+test-units: test-checker-rejected-declarations test-checker-rejected-declaration-cli
+
 .PHONY: test-checker-owned-contexts
 test-checker-owned-contexts: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_owned_contexts tests/test_checker_owned_contexts.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)

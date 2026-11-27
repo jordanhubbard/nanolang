@@ -9724,7 +9724,8 @@ register_function_pass1:;
 
             /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!env->suppress_shadow_warnings && !env->gpu_target &&
+            /* I do not warn through a declaration that registration rejected. */
+            if (func && !env->suppress_shadow_warnings && !env->gpu_target &&
                 !func->is_extern && !func->shadow_test &&
                 strcmp(item->as.function.name, "main") != 0 &&
                 strncmp(item->as.function.name, "__lambda_", 9) != 0) {
