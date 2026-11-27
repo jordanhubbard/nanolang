@@ -34,6 +34,15 @@ jobs:
           uname -a
           echo "I qualify $GITHUB_SHA on $RUNNER_NAME."
       - uses: actions/checkout@v4
+        if: runner.os == 'Linux'
+      - name: Check out Darwin product and original test inputs
+        if: runner.os == 'macOS'
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
       - name: Require storage headroom
         run: |
           python3 - <<'PY'
@@ -53,7 +62,7 @@ jobs:
         if: runner.os == 'macOS'
         timeout-minutes: 20
         run: |
-          ./scripts/ci-brew-install.sh llvm pkg-config openssl sqlite sdl2 \
+          ./scripts/ci-brew-install.sh pkg-config openssl sqlite sdl2 \
             sdl2_image sdl2_mixer sdl2_ttf utf8proc
       - name: Select the pinned Darwin compiler and SDK
         if: runner.os == 'macOS'
@@ -64,16 +73,25 @@ jobs:
           python3 -m pip install --user pyyaml \
             || python3 -m pip install --user --break-system-packages pyyaml
           python3 -c 'import yaml'
+      - name: Select the existing verified Linux capture assembler
+        if: runner.os == 'Linux'
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
       - name: Record source and tool identities
         run: |
           mkdir -p .test_output/c-repair-original-gates
           git rev-parse HEAD > .test_output/c-repair-original-gates/revision.txt
           git ls-tree -r HEAD > .test_output/c-repair-original-gates/source-tree.txt
           python3 - <<'PY'
-          import hashlib, json, os, shlex, shutil
+          import hashlib, json, os, shlex, shutil, subprocess
           from pathlib import Path
           root=Path('.test_output/c-repair-original-gates')
-          selected=[shlex.split(os.environ.get('CC','cc'))[0],'as','ld','make','python3']
+          compiler=shlex.split(os.environ.get('CC','cc'))
+          version=subprocess.check_output(compiler+['--version'])
+          (root/'compiler-version.txt').write_bytes(version)
+          selected=[compiler[0],'as','ld','make','python3']
+          for tool in ('as','ld'):
+              selected.append(subprocess.check_output(compiler+['-print-prog-name='+tool]).decode().strip())
           tools={str(Path(shutil.which(n)).resolve()) for n in selected}
           hashes={n:hashlib.sha256(Path(n).read_bytes()).hexdigest() for n in tools}
           (root/'tools-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
@@ -91,6 +109,7 @@ jobs:
           import hashlib,json
           from pathlib import Path
           names=['nanoc_c','nano_virt','nano_vm','nvm2c','nanoisa','nano_aot_runtime.o']
+          if Path('bin/nano_as_capture.so').is_file():names.append('nano_as_capture.so')
           hashes={n:hashlib.sha256((Path('bin')/n).read_bytes()).hexdigest() for n in names}
           Path('.test_output/c-repair-original-gates/images-before.json').write_text(json.dumps(hashes,indent=2)+'\n')
           PY
@@ -99,14 +118,16 @@ jobs:
         timeout-minutes: 150
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-bytecode-shadows test-module-assembly-workers \
+          python3 scripts/ci_qualification_storage.py run --label original-cache-workers -- \
+            make -f Makefile.gnu -j1 CC="${CC:-cc}" test-bytecode-shadows test-module-assembly-workers \
             2>&1 | tee .test_output/c-repair-original-gates/cache-workers.log
       - name: Execute the original bootstrap with its default limits
         if: matrix.gate == 'bootstrap'
         timeout-minutes: 150
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j1 CC="${CC:-cc}" bootstrap3 \
+          python3 scripts/ci_qualification_storage.py run --label original-bootstrap -- \
+            make -f Makefile.gnu -j1 CC="${CC:-cc}" bootstrap3 \
             2>&1 | tee .test_output/c-repair-original-gates/bootstrap.log
           python3 - <<'PY'
           import json
@@ -122,8 +143,16 @@ jobs:
         timeout-minutes: 30
         run: |
           set -o pipefail
-          make -f Makefile.gnu -j1 CC="${CC:-cc}" test-native-shadows test-native-shadow-emitter \
+          python3 scripts/ci_qualification_storage.py run --label original-native-suites -- \
+            make -f Makefile.gnu -j1 CC="${CC:-cc}" test-native-shadows test-native-shadow-emitter \
             2>&1 | tee .test_output/c-repair-original-gates/native-suites.log
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          log=Path('.test_output/c-repair-original-gates/native-suites.log').read_text()
+          assert len(re.findall(r'^Ran 36 tests? in ',log,re.M))==1
+          assert len(re.findall(r'^Ran 12 tests? in ',log,re.M))==1
+          PY
       - name: Verify source and selected tool guards
         if: always() && steps.hosted.outcome == 'success'
         run: |
@@ -140,6 +169,15 @@ jobs:
               (root/(name+'-after.json')).write_text(json.dumps(actual,indent=2)+'\n')
               assert actual==expected,(name,expected,actual)
           PY
+      - name: Print retained bootstrap failure logs
+        if: failure() && steps.hosted.outcome == 'success'
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for path in sorted(Path('obj/bootstrap-nanoisa').glob('run-*/*.log')):
+              print(str(path),flush=True)
+              print(path.read_text(errors='replace')[-32000:],flush=True)
+          PY
       - name: Retain terminal logs, products and actual host closures
         if: always() && steps.hosted.outcome == 'success'
         uses: actions/upload-artifact@v4
@@ -153,6 +191,9 @@ jobs:
             bin/nvm2c
             bin/nanoisa
             bin/nano_aot_runtime.o
+            bin/nano_as_capture.so
+            obj/bootstrap-nanoisa/
+            obj/module_cache/
             modules/**/.build/**
             ${{ runner.temp }}/nano-*/
           include-hidden-files: true

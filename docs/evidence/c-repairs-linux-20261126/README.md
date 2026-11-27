@@ -55,3 +55,40 @@ A workflow definition is not a passing run. Full original bootstrap/raw equality
 installation/no-C-seed/native compiler/emitter acceptance, paired platforms,
 installed pure-translator cutover, required exact-candidate CI and every other
 5.1 requirement remain open.
+
+## My first hosted and live-cohort refusals
+
+I pushed the repair code as `d90b3feb9aab481387e9317b0a620ee071a1314b`.
+[My first hosted run](https://github.com/jordanhubbard/nanolang/actions/runs/45948712006)
+is terminal with four failed jobs. Linux records three cache-control failures
+and a seed refusal after 1.268 seconds. Both real baseline and bounded probes
+reject the stock GNU assembler 2.46 on madmax; my new workflow omitted the
+canonical release workflow's existing verified capture-assembler selection.
+I restore that action without changing product admission or any deadline.
+The first seed log was not uploaded; I do not infer its exact cause from the
+cache control. I correct retention of `obj/bootstrap-nanoisa` and
+`obj/module_cache` before further hosted qualification.
+
+Both Darwin jobs refuse admission before native builds. One records
+3,582,410,752 free bytes of 192,749,240,320 after the full checkout. I preserve
+the 20 GiB and ten-percent headroom requirements and use a Darwin product/test
+checkout excluding historical `docs/evidence`. The original bootstrap/cache
+and native-shadow gate inputs do not reference that archive tree. I preserve
+all original tests, require all 36 native and 12 emitter methods, and keep
+Linux's full checkout for its verified assembler profile. I provision the
+pinned Apple toolchain and required libraries without an unused Homebrew LLVM.
+
+My first sealed local cohort completes the private method, then loses the
+external F28 producer root during the public method. My publication logical
+symlink also disappears. I stop my exact observer, retain its incomplete
+terminal and reports without claiming final guards, and restore my verified
+publication alias. I do not assign a remover or a product cause.
+
+I reconstruct 7,045 exact prerequisite files from published manifest
+`3c2f440e292cb2c0c54f8b3d344b239c927223bed505c874e90831b842f1c5d7`
+onto the mounted volume. The F28 image and all six host hashes match; its help
+command succeeds without changing those hosts. This reconstructs a prerequisite,
+not a new bootstrap acceptance. I also recover all seven original failing NVM
+inputs from their pinned archives and verify their original hashes; the final
+C tool translates all seven. My new complete cohort includes the six host
+libraries in its tool guards and is still running.
