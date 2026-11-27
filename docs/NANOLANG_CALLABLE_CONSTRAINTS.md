@@ -7,7 +7,7 @@ refusal under #1262. My later [guarded Linux repair receipt](evidence/c-repairs-
 accepts all three original callable methods through the full five NanoLang
 routes, with ordinary/sanitized actual C controls and unchanged original C
 assertions. This is repaired-candidate component acceptance, not cutover.
-My separate current-qualified-Stage2 rerun remains in progress.
+My [current-qualified-Stage2 Linux receipt](evidence/c-repairs-linux-20261126/current-components-20261127/README.md) now verifies all three callable methods on the current product chain, while preserving the separate enclosing observer setup failure.
 
 ```nano
 module "src_nano/nvm2c/callables.nano" as callable
@@ -79,8 +79,7 @@ NANOLANG_TRANSLATOR_SOURCE_COMPILER=/absolute/path/to/nanoc_stage2 \
 
 That gate still requires native generation. I do not select the external
 three-route diagnostic as its replacement. The explicit C handoff and repaired
-Linux component gate are complete. My current-qualified-producer rerun,
-representation/module/body/runtime/profile/ownership composition, paired
+Linux component gate are complete. Complete representation/module/body/runtime/profile/ownership composition, paired
 platforms, installed pure-translator cutover and all69 release requirements
 remain required. The two frozen structured-C CAST_STRING assertions await
 the separate reconciliation decision; I do not claim their broad target passes.

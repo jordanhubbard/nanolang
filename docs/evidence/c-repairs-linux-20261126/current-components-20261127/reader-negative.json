@@ -1,0 +1,7 @@
+{
+  "expected_refusal": true,
+  "exit_code": 1,
+  "mutation": "I alter only the sealed product revision in a private manifest copy.",
+  "before_reconstruction_or_product_execution": true,
+  "whole_release": false
+}

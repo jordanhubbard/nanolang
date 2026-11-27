@@ -1734,3 +1734,29 @@ platform qualification and installed pure-translator cutover. The old C-owner
 barrier no longer describes that work. My two frozen structured-C CAST_STRING
 assertions remain a separate explicit reconciliation decision; I do not count
 that broad target as passing. All69 release requirements remain in force.
+
+
+## My current-qualified-Stage2 Linux components
+
+My [current component receipt](evidence/c-repairs-linux-20261126/current-components-20261127/README.md)
+now accepts all eleven original private/public/cache, solver and callable core
+methods on source6e09c07a9f with the actual qualified current Stage2 producer.
+I preserve the enclosing1911.659s fourteen-method failure:29 cast subcases lack
+my omitted assembler prerequisite. Original nanoisa_dump builds without changing
+any prior guarded byte, then all three unchanged cast companions pass5.835s.
+Source/tool/existing-image guards match across both runs; the whole original
+observer remains failed.
+
+The independent reader verifies30680 records/7722 chunks,3925 Git source files,
+selected products and the qualified producer's immutable native receipt/host
+closure. It replays44838 full affine reports from the original packet builders
+and report oracles with process execution forbidden. This supersedes my earlier
+uncompleted current-producer checkpoint and C-owner barrier. Historical failure
+receipts above retain their original boundaries.
+
+I still implement complete module representation, profile/admission, body/runtime,
+aggregate/ownership and host emission, then qualify paired platforms and the
+installed pure-translator cutover. Current Darwin emitter12 fails at C-seed
+setup's ordinary10 deadline; my separate lifecycle diagnostic grants no release
+acceptance. Frozen structured-C CAST_STRING reconciliation, required exact
+candidate CI and all69 release requirements remain open.
