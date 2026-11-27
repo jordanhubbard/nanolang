@@ -1,0 +1,84 @@
+module nvm2c_c_abi_types
+module "src_nano/nvm2c/storage_kinds.nano" as kinds
+
+# I select C spellings only; my caller owns module and representation admission.
+pub struct LocalType { valid: bool, c_type: string }
+pub struct Aggregate { valid: bool, aggregate: bool, kind: int }
+pub struct ResultType { valid: bool, supported: bool, integer: bool, c_type: string }
+
+fn byte_valid(value: int) -> bool { return (and (>= value 0) (<= value 255)) }
+shadow byte_valid { assert (byte_valid 255) assert (not (byte_valid -1)) assert (not (byte_valid 256)) }
+
+pub fn aggregate(tag: int) -> Aggregate {
+    if (not (byte_valid tag)) { return Aggregate { valid: false, aggregate: false, kind: -1 } }
+    let record: bool = (== tag 8)
+    let variant: bool = (== tag 10)
+    let tuple: bool = (== tag 12)
+    let kind: int = (cond (record 0) (variant 1) (else 2))
+    return Aggregate { valid: true, aggregate: (or record (or variant tuple)), kind: kind }
+}
+shadow aggregate {
+    assert (aggregate 8).aggregate assert (== (aggregate 10).kind 1)
+    assert (aggregate 12).aggregate assert (not (aggregate 255).aggregate)
+    assert (== (aggregate 255).kind 2) assert (not (aggregate -1).valid)
+    assert (not (aggregate 256).valid)
+}
+
+pub fn local(kind: int) -> LocalType {
+    if (not (byte_valid kind)) { return LocalType { valid: false, c_type: "" } }
+    if (== kind 11) { return LocalType { valid: true, c_type: "double" } }
+    if (== kind 1) { return LocalType { valid: true, c_type: "const char *" } }
+    if (kinds.classify kind).word_array { return LocalType { valid: true, c_type: "narr_t" } }
+    if (== kind 5) { return LocalType { valid: true, c_type: "nsarr_t" } }
+    if (== kind 4) { return LocalType { valid: true, c_type: "nrec_t" } }
+    if (== kind 6) { return LocalType { valid: true, c_type: "nrarr_t" } }
+    if (== kind 7) { return LocalType { valid: true, c_type: "nmap_t" } }
+    if (or (== kind 8) (== kind 13)) { return LocalType { valid: true, c_type: "nmap_value" } }
+    return LocalType { valid: true, c_type: "int64_t" }
+}
+shadow local {
+    assert (== (local 255).c_type "int64_t") assert (== (local 16).c_type "narr_t")
+    assert (== (local 13).c_type "nmap_value") assert (== (local 6).c_type "nrarr_t")
+    assert (not (local 256).valid) assert (== (local -1).c_type "")
+}
+
+fn result_text(count: int, tag: int, array_kind: int) -> string {
+    if (or (== count 0) (== tag 0)) { return "void" }
+    if (!= count 1) { return "" }
+    if (or (== tag 1) (== tag 4)) { return "int64_t" }
+    if (or (or (== tag 2) (== tag 9)) (or (or (== tag 14) (== tag 6)) (or (== tag 11) (== tag 15)))) { return "nmap_value" }
+    if (== tag 3) { return "double" }
+    if (== tag 5) { return "const char *" }
+    if (== tag 7) {
+        if (kinds.classify array_kind).word_array { return "narr_t" }
+        if (== array_kind 5) { return "nsarr_t" }
+        if (== array_kind 6) { return "nrarr_t" }
+        return ""
+    }
+    if (== tag 13) { return "nmap_t" }
+    if (aggregate tag).aggregate { return "nrec_t" }
+    return ""
+}
+shadow result_text {
+    assert (== (result_text 255 0 255) "void") assert (== (result_text 0 255 255) "void")
+    assert (== (result_text 2 1 3) "") assert (== (result_text 1 7 3) "narr_t")
+    assert (== (result_text 1 7 255) "") assert (== (result_text 1 10 2) "nrec_t")
+}
+
+pub fn result(count: int, tag: int, array_kind: int) -> ResultType {
+    if (not (and (byte_valid count) (and (byte_valid tag) (byte_valid array_kind)))) {
+        return ResultType { valid: false, supported: false, integer: false, c_type: "" }
+    }
+    let text: string = (result_text count tag array_kind)
+    let integer: bool = (and (== count 1) (or (== tag 1) (== tag 4)))
+    return ResultType { valid: true, supported: (!= text ""), integer: integer, c_type: text }
+}
+shadow result {
+    let prior: ResultType = (result 1 1 2)
+    let refused: ResultType = (result 2 1 2)
+    assert prior.supported assert prior.integer assert (== prior.c_type "int64_t")
+    assert (not refused.supported) assert (not refused.integer) assert (== refused.c_type "")
+    assert (result 255 0 255).supported assert (not (result 255 0 255).integer)
+    assert (not (result -1 1 2).valid) assert (not (result 1 256 2).valid)
+    assert (not (result 1 1 256).valid) assert (== prior.c_type "int64_t")
+}

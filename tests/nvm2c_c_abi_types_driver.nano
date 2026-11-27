@@ -1,0 +1,85 @@
+module "src_nano/nvm2c/c_abi_types.nano" as abi
+module "src_nano/nvm2c/container.nano" as wire
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn bit_text(value: bool) -> string { if value { return "1" } return "0" }
+shadow bit_text { assert (== (bit_text true) "1") assert (== (bit_text false) "0") }
+
+fn packet_valid(bytes: array<u8>) -> bool {
+    let length: int = (array_length bytes)
+    if (or (< length 4) (> length 1048576)) { return false }
+    let count: int = (wire.read_u32 bytes 0)
+    if (or (> count 262144) (> count (/ (- length 4) 2))) { return false }
+    let mut position: int = 4
+    for i in (range 0 count) {
+        if (>= position length) { return false }
+        let op: int = (cast_int (at bytes position))
+        if (> op 2) { return false }
+        let width: int = (cond ((== op 0) 4) (else 2))
+        if (> width (- length position)) { return false }
+        set position (+ position width)
+    }
+    return (== position length)
+}
+shadow packet_valid {
+    assert (packet_valid [0,0,0,0]) assert (not (packet_valid []))
+    assert (packet_valid [1,0,0,0,0,1,7,3])
+    assert (not (packet_valid [1,0,0,0,0,1,7]))
+    assert (not (packet_valid [1,0,0,0,3,0]))
+}
+
+fn row_text(op: int, first: int, tag: int, kind: int) -> string {
+    if (== op 0) {
+        let facts: abi.ResultType = (abi.result first tag kind)
+        return (+ "R|" (+ (int_to_string first) (+ "|" (+ (int_to_string tag) (+ "|" (+ (int_to_string kind)
+            (+ "|" (+ (bit_text facts.supported) (+ "|" (+ (bit_text facts.integer) (+ "|" facts.c_type)))))))))))
+    }
+    if (== op 1) { return (+ "L|" (+ (int_to_string first) (+ "|" (abi.local first).c_type))) }
+    let facts: abi.Aggregate = (abi.aggregate first)
+    return (+ "A|" (+ (int_to_string first) (+ "|" (+ (bit_text facts.aggregate) (+ "|" (int_to_string facts.kind))))))
+}
+shadow row_text {
+    assert (== (row_text 0 1 7 3) "R|1|7|3|1|0|narr_t")
+    assert (== (row_text 0 2 1 2) "R|2|1|2|0|0|")
+    assert (== (row_text 1 255 0 0) "L|255|int64_t")
+    assert (== (row_text 2 10 0 0) "A|10|1|1")
+}
+
+fn packet_rows(bytes: array<u8>) -> array<string> {
+    if (not (packet_valid bytes)) { return ["P"] }
+    let count: int = (wire.read_u32 bytes 0)
+    let mut rows: array<string> = [(+ "Z|" (int_to_string count))]
+    let mut position: int = 4
+    for i in (range 0 count) {
+        let op: int = (cast_int (at bytes position))
+        let first: int = (cast_int (at bytes (+ position 1)))
+        let mut tag: int = 0
+        let mut kind: int = 0
+        if (== op 0) {
+            set tag (cast_int (at bytes (+ position 2)))
+            set kind (cast_int (at bytes (+ position 3)))
+        }
+        set rows (array_push rows (row_text op first tag kind))
+        set position (+ position (cond ((== op 0) 4) (else 2)))
+    }
+    return rows
+}
+shadow packet_rows {
+    let prior: array<string> = (packet_rows [1,0,0,0,0,1,1,2])
+    let refused: array<string> = (packet_rows [2,0,0,0,1,255,3,0])
+    assert (== (at prior 1) "R|1|1|2|1|1|int64_t")
+    assert (== (array_length refused) 1) assert (== (at refused 0) "P")
+    assert (== (at prior 1) "R|1|1|2|1|1|int64_t")
+}
+
+fn main() -> int {
+    unsafe {
+        for i in (range 1 (get_argc)) {
+            let lines: array<string> = (packet_rows (file_read_bytes (get_argv i)))
+            for j in (range 0 (array_length lines)) { (println (at lines j)) }
+        }
+    }
+    return 0
+}
+shadow main { assert (== (at (packet_rows [0,0,0,0]) 0) "Z|0") }

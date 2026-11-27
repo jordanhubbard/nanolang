@@ -8501,3 +8501,9 @@ test-nanolang-translator-carrier-masks: $(COMPILER_C) nano_virt nano_vm nvm2c nv
 	python3 -m unittest -v tests.test_nanolang_translator_carrier_masks
 
 test-units: test-nanolang-translator-carrier-masks
+
+.PHONY: test-nanolang-translator-c-abi-types
+test-nanolang-translator-c-abi-types: $(COMPILER_C) nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanolang_translator_c_abi_types
+
+test-units: test-nanolang-translator-c-abi-types
