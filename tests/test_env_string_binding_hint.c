@@ -130,10 +130,11 @@ bool nano_test_string_binding_probe(const char *text) {
 static void direct_loop_publications(void) {
     const char *source =
         "extern fn nano_test_string_binding_probe(value: string) -> bool\n"
+        "let probe_values: array<string> = [\"shadow\"]\n"
         "fn loop_probe(values: array<string>) -> void {\n"
         " for item in values { unsafe { assert (nano_test_string_binding_probe item) } }\n"
         "}\n"
-        "shadow loop_probe { (loop_probe [\"shadow\"]) }\n"
+        "shadow loop_probe { (loop_probe probe_values) }\n"
         "fn main() -> int { return 0 }\n"
         "shadow main { assert (== (main) 0) }\n";
     int count = 0; Token *tokens = tokenize(source, &count); assert(tokens);
@@ -161,6 +162,7 @@ static void direct_loop_publications(void) {
     assert(loop_probe_calls == 4 && loop_probe_misses == 0);
     free(((char **)array.as.array_val->data)[0]);
     free(array.as.array_val->data); free(array.as.array_val);
+    free((void *)dyn_array_get_string(dynamic, 0));
     gc_release(dynamic); list_string_free(list);
     free_environment(env); free_ast(program); free_tokens(tokens, count);
     clear_module_cache(); ffi_loader_shutdown();
