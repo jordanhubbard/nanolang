@@ -35,6 +35,7 @@ with tempfile.TemporaryDirectory(prefix='c-abi-type-reader-',dir=a.workspace) as
  assert passed['terminal'] and passed['guards_match'] and passed['functional_gate_passed']
  assert (passed['tests_run'],passed['failures'],passed['errors'])==(4,0,0)
  assert len(passed['commands'])==45
+ assert first['tools_after']==passed['tools_before']
  native=json.loads((root/'passed/qualified-native-result.json').read_text());receipt=json.loads((root/'passed/qualified-bootstrap-receipt.json').read_text())
  assert native['terminal'] and native['component_native_gate_passed'] and native['guards_match']
  assert native['head_after']==m['product_c_source'] and len(receipt['hosts'])==6

@@ -72,3 +72,7 @@ declarations/body/runtime/profile/ownership/host emission, current paired
 native/emitter qualification, frozen CAST_STRING reconciliation, installed
 pure-translator cutover, exact-candidate CI and all69 release requirements
 remain mandatory. I merge, tag and publish no release from this receipt.
+
+My follow-up reader also requires first-run selected tools after the refused
+build to match every selected tool before the corrected run. This inter-run
+check passes without any product rerun or archive mutation.

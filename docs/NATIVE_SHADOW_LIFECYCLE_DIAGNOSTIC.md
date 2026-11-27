@@ -75,3 +75,17 @@ all control and product bounds and strengthening ordering/duration checks.
 Native control qualification is pending in run45991837855. The diagnostic
 branch retains the exact restored original C product tree; I do not relax its
 guard for newer pure-helper source additions on my release branch.
+
+## My bounded native control check
+
+My [Puck control receipt](evidence/c-repairs-linux-20261126/puck-lifecycle-controls-20261127/README.md)
+checks the exact5ca observer with one1.522s C compile and three controls,
+3.098s total. Success1.662ms/late153.051ms and blocked100.971ms satisfy the
+original predicates and stronger ordering. No NanoLang compiler is invoked;
+no repository checkout or unattended loop runs on Puck, and its private
+temporary directory is removed after verified transfer. The independent
+reader checks24 files and replays original control assertions without products.
+This accepts native-control compatibility in that observed Puck SDK context.
+Hosted45991837855 remains required for real shadow-PID observation and the
+restored original source/tool/host closure; original emitter12 and all later
+qualification/release gates remain open where unverified.

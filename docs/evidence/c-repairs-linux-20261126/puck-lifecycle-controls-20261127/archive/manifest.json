@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "source_revision": "5ca56494a9dc8eb84c66da61402343a2a34994f2",
+  "qualification": false,
+  "whole_release": false,
+  "scope": "I retain a single bounded Puck native observer compile and exact success/late/blocked controls. Original compiler/emitter and hosted closure qualification remain separate.",
+  "files": [
+    {
+      "path": "cleanup.json",
+      "bytes": 151,
+      "sha256": "fcc20678aec699cc8dee31ef2bbf1e8a108fa981743a7e60e5ed8a0fc1f2c9c8"
+    },
+    {
+      "path": "files/build-observer.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/build-observer.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/ci_darwin_shadow_lifecycle.c",
+      "bytes": 9583,
+      "sha256": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12"
+    },
+    {
+      "path": "files/ci_darwin_shadow_lifecycle.py",
+      "bytes": 14383,
+      "sha256": "10211a25dbacb409dd06061d55ef4a2b2fdd64d5a3fa5d898f466d1a0a36f9fc"
+    },
+    {
+      "path": "files/control-blocked.jsonl",
+      "bytes": 31104,
+      "sha256": "a0c3cc8f45ca785092d0b1ac29e5b9d07bcd84d2b3b0b3e81371e6728f0ecf25"
+    },
+    {
+      "path": "files/control-blocked.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/control-blocked.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/control-late.jsonl",
+      "bytes": 47739,
+      "sha256": "2882ea1c0b970272648058ddafda2b383a88101c377e5372b3f4a5d2ae903b5b"
+    },
+    {
+      "path": "files/control-late.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/control-late.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/control-success.jsonl",
+      "bytes": 2146,
+      "sha256": "8f44aa42ac560a3c4f96e1e81fc9475a29ba7414b0bceec85e533f5134975ecf"
+    },
+    {
+      "path": "files/control-success.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/control-success.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "files/controls.json",
+      "bytes": 518,
+      "sha256": "49e37651c17d04096a772d1f73b182d89405a5fc5fb36ccabb48338a7bdd04a7"
+    },
+    {
+      "path": "files/cseed-shadow-lifecycle.yml",
+      "bytes": 2078,
+      "sha256": "901ee217acc676281d44a2abb5e5fbb932905fde99b1d3890e1cd0b96fe0531a"
+    },
+    {
+      "path": "files/identity.json",
+      "bytes": 572,
+      "sha256": "fe0a0d090dc47be836c8136e8cd3edaf1751f674ce32d01d5c5b284d8e4fc0c8"
+    },
+    {
+      "path": "files/lifecycle-observer",
+      "bytes": 34944,
+      "sha256": "b6e550be03005aeb202ff9fb70e9ef94d5b788085fc7b72b42941839a7e58477"
+    },
+    {
+      "path": "files/result.json",
+      "bytes": 1950,
+      "sha256": "c415e3926f98e05663c0408108941741481df87a5a84a029d1233ecd2f4c54f5"
+    },
+    {
+      "path": "input-identities.json",
+      "bytes": 425,
+      "sha256": "937a38a6ede5634f443b56ca4c5d37cb05d51e43ca753a897b57c5fec4301799"
+    },
+    {
+      "path": "remote.py",
+      "bytes": 3133,
+      "sha256": "46cc563d2fb43439778f6828f58edf47ba5cde738dbc38c7412ac7ad793f339a"
+    },
+    {
+      "path": "run_puck_lifecycle_controls.py",
+      "bytes": 5056,
+      "sha256": "4794474ae47486edb84bb8c4036d873c704e1fa2eaf47a77dbfbb9a7cacd8114"
+    },
+    {
+      "path": "ssh.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "transfer.json",
+      "bytes": 2759,
+      "sha256": "fb16ecd9badda7dcc3f8e64f3ccacb427e2fc069e88783b909d7d428bb75cd55"
+    }
+  ]
+}

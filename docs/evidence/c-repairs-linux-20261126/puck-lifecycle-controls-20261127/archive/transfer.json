@@ -1,0 +1,80 @@
+{
+  "exit": 0,
+  "seconds": 3.7234805139887612,
+  "files": {
+    "build-observer.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build-observer.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "ci_darwin_shadow_lifecycle.c": {
+      "sha256": "f91ed11f33e7cd886d31c6c89d7b47b8ed62f167d3f2fe6d40e42cfa7c21cd12",
+      "bytes": 9583
+    },
+    "ci_darwin_shadow_lifecycle.py": {
+      "sha256": "10211a25dbacb409dd06061d55ef4a2b2fdd64d5a3fa5d898f466d1a0a36f9fc",
+      "bytes": 14383
+    },
+    "control-blocked.jsonl": {
+      "sha256": "a0c3cc8f45ca785092d0b1ac29e5b9d07bcd84d2b3b0b3e81371e6728f0ecf25",
+      "bytes": 31104
+    },
+    "control-blocked.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "control-blocked.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "control-late.jsonl": {
+      "sha256": "2882ea1c0b970272648058ddafda2b383a88101c377e5372b3f4a5d2ae903b5b",
+      "bytes": 47739
+    },
+    "control-late.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "control-late.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "control-success.jsonl": {
+      "sha256": "8f44aa42ac560a3c4f96e1e81fc9475a29ba7414b0bceec85e533f5134975ecf",
+      "bytes": 2146
+    },
+    "control-success.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "control-success.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "controls.json": {
+      "sha256": "49e37651c17d04096a772d1f73b182d89405a5fc5fb36ccabb48338a7bdd04a7",
+      "bytes": 518
+    },
+    "cseed-shadow-lifecycle.yml": {
+      "sha256": "901ee217acc676281d44a2abb5e5fbb932905fde99b1d3890e1cd0b96fe0531a",
+      "bytes": 2078
+    },
+    "identity.json": {
+      "sha256": "fe0a0d090dc47be836c8136e8cd3edaf1751f674ce32d01d5c5b284d8e4fc0c8",
+      "bytes": 572
+    },
+    "lifecycle-observer": {
+      "sha256": "b6e550be03005aeb202ff9fb70e9ef94d5b788085fc7b72b42941839a7e58477",
+      "bytes": 34944
+    },
+    "result.json": {
+      "sha256": "c415e3926f98e05663c0408108941741481df87a5a84a029d1233ecd2f4c54f5",
+      "bytes": 1950
+    }
+  },
+  "source_revision": "5ca56494a9dc8eb84c66da61402343a2a34994f2",
+  "remote_root": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nanolang-lifecycle-controls-1y4ayb67"
+}

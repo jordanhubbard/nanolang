@@ -1,0 +1,12 @@
+{
+  "uname": [
+    "Darwin",
+    "puck",
+    "27.2.0",
+    "Darwin Kernel Version 27.2.0: Wed Oct 14 23:44:56 PDT 2026; root:xnu-13432.41.4~25/RELEASE_ARM64_T6041",
+    "arm64"
+  ],
+  "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2.1\nBuildVersion:\t\t26B131\n",
+  "clang_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "sdk_path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+}

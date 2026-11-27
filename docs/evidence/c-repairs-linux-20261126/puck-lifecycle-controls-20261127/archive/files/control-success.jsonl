@@ -1,0 +1,10 @@
+{"event":"clock","numer":125,"denom":3,"before_ns":89523999663000,"absolute":1751362458899,"after_ns":89523999663000}
+{"event":"sample","pid":61363,"before_ns":89523999717000,"after_ns":89523999734000,"before_absolute":1751362460189,"after_absolute":1751362460612,"usage_result":0,"usage_errno":0,"bsd_result":136,"bsd_errno":0,"parent":61350,"status":2,"zombie":false,"birth_seconds":1795781003,"birth_microseconds":559724,"start_absolute":1751362400205,"exit_absolute":0,"user_time":3911,"system_time":17967}
+{"event":"armed","pid":61363,"monotonic_ns":89523999753000}
+{"event":"trigger","monotonic_ns":89524022173000}
+{"event":"sample","pid":61363,"before_ns":89524022177000,"after_ns":89524022185000,"before_absolute":1751362999249,"after_absolute":1751362999436,"usage_result":0,"usage_errno":0,"bsd_result":0,"bsd_errno":3,"parent":0,"status":0,"zombie":false,"birth_seconds":0,"birth_microseconds":0,"start_absolute":1751362400205,"exit_absolute":1751362999104,"user_time":5749,"system_time":26046}
+{"event":"sample","pid":61363,"before_ns":89524023472000,"after_ns":89524023480000,"before_absolute":1751363030322,"after_absolute":1751363030512,"usage_result":0,"usage_errno":0,"bsd_result":0,"bsd_errno":3,"parent":0,"status":0,"zombie":false,"birth_seconds":0,"birth_microseconds":0,"start_absolute":1751362400205,"exit_absolute":1751362999104,"user_time":5749,"system_time":26046}
+{"event":"process-event","before_ns":89524023491000,"after_ns":89524023789000,"ident":61363,"filter":-5,"flags":32821,"fflags":2147483648,"data":0}
+{"event":"sample","pid":61363,"before_ns":89524023794000,"after_ns":89524023799000,"before_absolute":1751363038039,"after_absolute":1751363038152,"usage_result":0,"usage_errno":0,"bsd_result":0,"bsd_errno":3,"parent":0,"status":0,"zombie":false,"birth_seconds":0,"birth_microseconds":0,"start_absolute":1751362400205,"exit_absolute":1751362999104,"user_time":5749,"system_time":26046}
+{"event":"end","result":0,"monotonic_ns":89524023805000}
+{"event":"control","kind":"success","origin_ns":89523997001000,"marker_ns":89524022127000,"marker_absolute":1751362998048,"pid":61363,"wait_status":0,"passed":true}
