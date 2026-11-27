@@ -1,0 +1,28 @@
+{
+  "deletion_commit": "c9eda8f8da2024c8606a5d85dd7d280e95338247",
+  "parent_commit": "ab92d028baa1319d6d106cdb628519f5ebd8d240",
+  "before_commit": "220279764fbf6a0a39e80dd838be61ee5a3ea23b",
+  "parent": {
+    "bytes": 2902927,
+    "lines": 18719,
+    "sha256": "06e4120c0c675536d606473c14eda3634c9c3a284c7a4759d0902b293bf58f1e"
+  },
+  "before": {
+    "bytes": 32044,
+    "lines": 74,
+    "sha256": "7c9f6b93907ea41d813f2c561ac72759dee29963988f127052aac4a356d46b7f"
+  },
+  "missing": {
+    "bytes": 2884873,
+    "lines": 18670,
+    "sha256": "7207dd36701161d1108f7aae4808355bab06d3de93df7df5d220c33d6a9231e8"
+  },
+  "after": {
+    "bytes": 2917238,
+    "lines": 18745,
+    "sha256": "5489f96ce44cbe4e39538048add59d1145c2d51e06850a87d214395be7af53ba"
+  },
+  "entry": "- [x] Under #1268 I restore the exact18,670-line product-contract suffix accidentally deleted in c9eda8f8, preserve every current row and status, verify both historical and current byte preservation with my retained independent reader; my restoration is committed and pushed. I change no release scope or product source.\n",
+  "anchor": "- [ ] Under #1265 I retain my first builtin-resolution measurement refusal:",
+  "first_surviving_lines": 49
+}
