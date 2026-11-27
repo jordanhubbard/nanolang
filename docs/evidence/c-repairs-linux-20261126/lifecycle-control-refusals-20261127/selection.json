@@ -1,0 +1,218 @@
+{
+  "runs": [
+    {
+      "run": 45982190971,
+      "head": "d6e71c5b5f40e73d0f652b0137338cd762114f00",
+      "artifact": 15192731168,
+      "downloaded_zip_sha256": "17cc6b00390eff8e4abcab4558577424e93505b9a292b83281367dd353ea8fcf",
+      "selected_entries": [
+        {
+          "path": "build-observer.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "build-observer.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-success.jsonl",
+          "bytes": 43537,
+          "sha256": "93f4a7dcd7273a87d5798715bf06d82768d3662a66d6649e36fbc3db0f848681"
+        },
+        {
+          "path": "control-success.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-success.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "current-toolchain-before-restore.json",
+          "bytes": 1532,
+          "sha256": "04cee879fc23e8799e56ba5e5b1f587b724cedc28fd5990755cd04c510523129"
+        },
+        {
+          "path": "download.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "host-libraries-before.json",
+          "bytes": 4450,
+          "sha256": "923f02a3c675d35b458cf69ee3b21d4701980d139fdb0d4ecc94c0daecf0a659"
+        },
+        {
+          "path": "identities-before.json",
+          "bytes": 197300,
+          "sha256": "a542e44168f75726adcd0c1da53a4971ce44087d63da97f67e2e9d417a377c0b"
+        },
+        {
+          "path": "lifecycle-observer",
+          "bytes": 34928,
+          "sha256": "74cd644f50e626116174111a596ba52c881106d22ffec55eedfbbdbc22e597f5"
+        },
+        {
+          "path": "observer-build.json",
+          "bytes": 464,
+          "sha256": "10b231d84f78c7a3b136a6e8f8a99938d04b788edbfb3f82ed593a258ad0f9a6"
+        },
+        {
+          "path": "observer-sources/ci_darwin_shadow_lifecycle.c",
+          "bytes": 9301,
+          "sha256": "c75d7381a0cd835c381356a386d49f40a05a080e35f2a5c5244ab66887eb4278"
+        },
+        {
+          "path": "observer-sources/ci_darwin_shadow_lifecycle.py",
+          "bytes": 13833,
+          "sha256": "af4d346c39e965dfc453575b16222da0970a9070345fcd89500d7245d9238a97"
+        },
+        {
+          "path": "observer-sources/cseed-shadow-lifecycle.yml",
+          "bytes": 2034,
+          "sha256": "5b1efa6f746ead300f494ef9d31442d3252d431bd565d2feef796b1112cebd56"
+        },
+        {
+          "path": "observer-sources.json",
+          "bytes": 342,
+          "sha256": "5ecf41c79bb263be7e631757f00b7b62257caa4b2149ae209dd795f1d2104f38"
+        },
+        {
+          "path": "product-tree-guard.json",
+          "bytes": 227,
+          "sha256": "41ab968bd306dd6d42cec045a1700563539d50c99f5855cb7f11cc277949c40f"
+        }
+      ],
+      "nested_original_zip_omitted": true,
+      "compiler_observation_ran": false,
+      "original_zip_members": 17
+    },
+    {
+      "run": 45990677237,
+      "head": "fb31bad2dce108bab6353309288be0c97281765a",
+      "artifact": 15193677739,
+      "downloaded_zip_sha256": "73ec72a1b737aa33ae2bf4cc3722c6f62cf08910ad4bca0148402031e2c6c021",
+      "selected_entries": [
+        {
+          "path": "build-observer.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "build-observer.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-blocked.jsonl",
+          "bytes": 28307,
+          "sha256": "4567d0fef434e76dc2d85c9e475d4132366ca7ba777136a5471ed1f87a86ea71"
+        },
+        {
+          "path": "control-blocked.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-blocked.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-late.jsonl",
+          "bytes": 54844,
+          "sha256": "4c96ca5bff9a87f7298146d214dc3aefd56fee23b95d4a7c502d8cc6d1f5e419"
+        },
+        {
+          "path": "control-late.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-late.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-success.jsonl",
+          "bytes": 23556,
+          "sha256": "134230de477ae19098640ebdb430f8205e031421319123744c382bb9ec5f0e05"
+        },
+        {
+          "path": "control-success.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "control-success.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "current-toolchain-before-restore.json",
+          "bytes": 1532,
+          "sha256": "04cee879fc23e8799e56ba5e5b1f587b724cedc28fd5990755cd04c510523129"
+        },
+        {
+          "path": "download.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "host-libraries-before.json",
+          "bytes": 4450,
+          "sha256": "923f02a3c675d35b458cf69ee3b21d4701980d139fdb0d4ecc94c0daecf0a659"
+        },
+        {
+          "path": "identities-before.json",
+          "bytes": 197300,
+          "sha256": "a542e44168f75726adcd0c1da53a4971ce44087d63da97f67e2e9d417a377c0b"
+        },
+        {
+          "path": "lifecycle-observer",
+          "bytes": 34928,
+          "sha256": "74cd644f50e626116174111a596ba52c881106d22ffec55eedfbbdbc22e597f5"
+        },
+        {
+          "path": "observer-build.json",
+          "bytes": 464,
+          "sha256": "10b231d84f78c7a3b136a6e8f8a99938d04b788edbfb3f82ed593a258ad0f9a6"
+        },
+        {
+          "path": "observer-sources/ci_darwin_shadow_lifecycle.c",
+          "bytes": 9301,
+          "sha256": "c75d7381a0cd835c381356a386d49f40a05a080e35f2a5c5244ab66887eb4278"
+        },
+        {
+          "path": "observer-sources/ci_darwin_shadow_lifecycle.py",
+          "bytes": 13915,
+          "sha256": "00fb64a4ec0c95d80a63fbbe2393f837f4766c09944a85399b618fcdccbb3119"
+        },
+        {
+          "path": "observer-sources/cseed-shadow-lifecycle.yml",
+          "bytes": 2034,
+          "sha256": "5b1efa6f746ead300f494ef9d31442d3252d431bd565d2feef796b1112cebd56"
+        },
+        {
+          "path": "observer-sources.json",
+          "bytes": 342,
+          "sha256": "99e26083d6b45643ad4f8f3979fc13511a52a48ff460877594ea65a5c85f965e"
+        },
+        {
+          "path": "product-tree-guard.json",
+          "bytes": 227,
+          "sha256": "818a95a9f076879d7e6621730a69d0cffa4442680e8e36cdf4ab855e035729e6"
+        }
+      ],
+      "nested_original_zip_omitted": true,
+      "compiler_observation_ran": false,
+      "original_zip_members": 23
+    }
+  ],
+  "whole_release": false,
+  "scope": "I retain selected exact entries after ZIP digest verification. I do not retain/reconstruct the whole wrapper ZIP here; the raw downloads remain on the mounted volume."
+}

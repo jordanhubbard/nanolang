@@ -64,3 +64,14 @@ actual marker: success remains below100ms, late remains at least150ms.
 The marker retains its20ms minimum, controls retain their5s command bound,
 and all product300/10 boundaries remain unchanged. This diagnostic is not
 qualification.
+
+I retain [both native control refusals](evidence/c-repairs-linux-20261126/lifecycle-control-refusals-20261127/README.md).
+The second control starts its blocked window before the child marker and kills
+the child without a marker after102.881ms. No compiler observation runs.
+I correct this in isolated diagnostic branch
+`work/5.1-cseed-lifecycle-controls-20261127`, source5ca56494a9dc8eb84c66da61402343a2a34994f2.
+I arm before releasing the owned child and trigger after its marker, preserving
+all control and product bounds and strengthening ordering/duration checks.
+Native control qualification is pending in run45991837855. The diagnostic
+branch retains the exact restored original C product tree; I do not relax its
+guard for newer pure-helper source additions on my release branch.

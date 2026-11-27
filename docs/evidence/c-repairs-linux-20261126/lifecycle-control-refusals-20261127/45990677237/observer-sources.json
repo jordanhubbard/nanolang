@@ -1,0 +1,5 @@
+{
+  "scripts/ci_darwin_shadow_lifecycle.c": "c75d7381a0cd835c381356a386d49f40a05a080e35f2a5c5244ab66887eb4278",
+  "scripts/ci_darwin_shadow_lifecycle.py": "00fb64a4ec0c95d80a63fbbe2393f837f4766c09944a85399b618fcdccbb3119",
+  ".github/workflows/cseed-shadow-lifecycle.yml": "5b1efa6f746ead300f494ef9d31442d3252d431bd565d2feef796b1112cebd56"
+}
