@@ -24,6 +24,8 @@ class Sampler:
     def __init__(self, perf=None, event="cpu-clock:u"):
         self.event = event
         self.perf = Path(perf or shutil.which('perf')).resolve(strict=True)
+        with self.perf.open('rb') as stream:
+            assert stream.read(4) == b'\x7fELF'
 
     def start(self, pid, directory):
         directory = Path(directory)
@@ -88,7 +90,7 @@ class Sampler:
         return record
 
 
-def calibrate(directory, event="cpu-clock:u"):
+def calibrate(directory, event="cpu-clock:u", perf=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     source, binary = directory/'busy.c', directory/'busy'
@@ -113,7 +115,7 @@ int main(void) { nano_stage2_sample_control(); return 0; }
     with (directory/'build.stdout').open('wb') as out, (directory/'build.stderr').open('wb') as err:
         subprocess.run(argv, stdout=out, stderr=err, timeout=30, check=True)
     before['binary'] = digest(binary)
-    sampler = Sampler(event=event)
+    sampler = Sampler(perf=perf, event=event)
     process = subprocess.Popen([str(binary)], start_new_session=True)
     session = None
     try:
@@ -139,5 +141,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--calibrate', type=Path, required=True)
     parser.add_argument('--event', default='cpu-clock:u')
+    parser.add_argument('--perf', type=Path)
     args = parser.parse_args()
-    calibrate(args.calibrate, args.event)
+    calibrate(args.calibrate, args.event, args.perf)

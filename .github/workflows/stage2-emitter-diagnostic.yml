@@ -57,13 +57,25 @@ jobs:
           ./scripts/ci-apt-install.sh linux-tools-common linux-tools-generic
           sudo -n sysctl -w kernel.perf_event_paranoid=2
           python3 - <<'PYTOOLS'
-          import os, subprocess
+          import hashlib, json, os, subprocess
           from pathlib import Path
-          candidates=sorted(Path('/usr/lib/linux-tools').glob('*/perf'))
-          binaries=[p.resolve() for p in candidates if p.is_file() and p.read_bytes()[:4]==b'\x7fELF']
+          inventory=subprocess.check_output(['dpkg-query','-S','*/perf'],text=True)
+          ownership=[line.partition(': ') for line in inventory.splitlines()]
+          assert all(separator for package,separator,path in ownership)
+          packages=sorted({package for package,separator,path in ownership})
+          paths={path for package,separator,path in ownership}
+          binaries=[]
+          for name in sorted(paths):
+              path=Path(name)
+              if path.name=='perf' and path.is_file() and path.read_bytes()[:4]==b'\x7fELF':
+                  selected=path.resolve()
+                  version=subprocess.check_output([str(selected),'version'],text=True,timeout=5)
+                  binaries.append({'path':str(selected),'version':version,
+                                   'sha256':hashlib.sha256(selected.read_bytes()).hexdigest()})
+          report={'qualification':False,'packages':packages,'binaries':binaries}
+          Path('.test_output/stage2-emitter-controls/perf-provision.json').write_text(json.dumps(report,indent=2)+'\n')
           assert binaries
-          selected=binaries[-1]
-          subprocess.run([str(selected),'version'],check=True,timeout=5)
+          selected=Path(binaries[-1]['path'])
           with open(os.environ['GITHUB_PATH'],'a') as stream:stream.write(str(selected.parent)+'\n')
           PYTOOLS
       - name: Preserve the original Python prerequisite

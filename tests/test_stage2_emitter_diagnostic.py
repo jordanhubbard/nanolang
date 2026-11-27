@@ -13,6 +13,14 @@ from scripts import ci_stage2_emitter_diagnostic as diagnostic
 
 @unittest.skipUnless(sys.platform == 'linux', 'I sample Linux process groups here.')
 class Stage2EmitterDiagnostic(unittest.TestCase):
+    def test_sampler_identity_requires_the_real_elf_tool(self):
+        from scripts.stage2_cpu_sampler import Sampler
+        with tempfile.TemporaryDirectory() as temporary:
+            wrapper = Path(temporary)/'perf'
+            wrapper.write_text('#!/bin/sh\nexit 0\n')
+            with self.assertRaises(AssertionError):
+                Sampler(perf=wrapper)
+
     def test_cpu_sampler_finishes_after_the_observed_group_is_reaped(self):
         owner = self
         class LifecycleProbe:
