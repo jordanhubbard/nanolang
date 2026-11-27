@@ -152,6 +152,25 @@ equality/installed/no-C-seed/native36/emitter12 acceptance, paired Darwin
 qualification, the installed pure translator and exact-candidate CI. I publish
 no tag or release from these repairs alone.
 
+At `5d0d1dcaa4` my hosted Linux and Darwin workers both pass all17 original
+bootstrap steps, raw equality, installation and no-C-seed execution. Linux
+also passes native36 and the complete original284-test cache target with34
+existing skips, worker3 and array5. The native gates remain failed: Linux
+Stage2 exceeds the original300s emitter-setup command, while Darwin native36
+has one extra duplicate-math-library warning in its exact stderr check.
+
+My followup candidate reduces legacy record copying by sharing mutually
+exclusive pointer arms while retaining separate scalar bits. A reversible
+compiler-image experiment passes all12 original emitter methods in234.859s;
+its emitted628200-byte module is exactly equal to the retained original once
+Make's original cache directory is restored. I preserve the first comparison's
+three differing host paths. The proposed generator passes all broad prerequisites,
+2456 structured-C assertions and a new sanitized mixed-pointer/scalar-bit control;
+the same two frozen CAST_STRING assertions still fail. I also omit only my
+generated Darwin math flag, preserving caller flags and all original shadows.
+Current-source native/bootstrap/paired qualification and the full release remain
+open; these experimental and preflight results do not replace them.
+
 
 ## Current scope reconciliation — 2026-11-24
 

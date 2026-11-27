@@ -142,3 +142,42 @@ failure-only hosted trace for that original setup input, with process-group
 cleanup and no changed deadlines.
 
 I publish [my independently checked hosted Linux bootstrap component](hosted-bootstrap-45952317501/README.md), retaining all3,161 actual artifact records, the emitter setup refusal and the missing generated-index evidence gap.
+
+## My native followups — 2026-11-27
+
+My original hosted Linux and Darwin bootstrap steps pass in run45958449179.
+Linux's complete cache target reports284 tests/34 existing skips; all worker3
+and expanded array5 methods pass. Native acceptance remains open. Linux runs
+native36 successfully, then Stage2 exceeds300s in emitter setup. Darwin's native36
+has one exact-stderr failure from the duplicate `-lm` warning; its emitter suite
+is not reached. My original assertions and deadlines remain.
+
+I retain a separate original madmax terminal: bootstrap1021.362555s, native36
+34.370s, then the same native Stage2 setup timeout300s. Selected source/tool
+guards match. A bounded CPU profile retains14002 samples/no lost samples;
+23% sampled user CPU is memset, with allocation and root-table costs as well.
+I do not call those samples exclusive wall durations or a paired timing result.
+The actual compiler uses legacy inline records with80 slots per storage arm.
+
+My reversible generated-C experiment shares only mutually exclusive pointer
+arms and retains independent scalar bits. All12 unchanged emitter methods pass
+234.859s through132 commands. Both628200-byte emitted modules verify and share
+SHA-256 `4db7d935ac0dd8f4a248f80e2c1515ac4701d12af602ad4ca0facc5ef321605a`.
+I preserve the first comparison: it omits Make's exported `NANO_BUILD_CACHE` and
+differs only in three host-library paths. The corrected comparison restores the
+original cache directory and requires exact bytes.
+
+My isolated generator candidate retains canonical storage and checks legacy
+pointer-carrier sizes at compile time. All broad prerequisites pass; structured
+C remains2456 passes/two unchanged CAST_STRING failures. A new sanitized control
+retains six mixed pointer fields, boxed scalar bits and a NaN payload. My Darwin
+followup omits the redundant generated math flag while retaining every caller
+flag; actual bounded Darwin math linkage and the new selected VM shadows pass.
+The control compiler is Apple clang21.0.0 build2100.3.34.2; the pinned hosted
+build2100.4.1.1 still requires native qualification.
+
+I retain the new raw originals, profiles, prototypes, comparisons and preflight
+logs under the mounted volume's `nanolang/tmp/c-repairs-followups-20261126`.
+Those raw followups are not yet a published component archive. The existing
+sealed archives remain unchanged. I require fresh current-source original
+bootstrap/native36/emitter12, paired platforms and all69 release requirements.
