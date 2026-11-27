@@ -1702,3 +1702,35 @@ I still qualify the complete callable collector/linker through all five routes a
 
 
 My [callable observer-bound follow-up](evidence/darwin-current-source-20261124/diagnostics/callables-three-route-bounds-linux-20261126/README.md) moves the test observer's operation-name count check before pointer-table allocation and preserves all978 old packets as an exact prefix. Eleven malformed count/length/width neighbors extend the diagnostic to989 packets/435 explicit expectations; all3 methods/100 commands pass76.300037s with the same505 original C assertions and26 captured original inputs. Its reader verifies5258 new records plus the preceding22538 records and six journals without products. No pure NanoLang/C product/driver/bootstrap source changes; the full five-route native gate remains open under #1262.
+
+
+## My C-repair handoff and current qualification boundary
+
+The explicit handoff supersedes my earlier C-owner barrier under #1262 and
+#1265. I repair the contextual array writes and checked storage views in my C
+reference translator, and retain independent assembly-validation work with every
+compiler invocation. These changes repair the reference and bootstrap path;
+they do not implement my missing pure NanoLang translator.
+
+My [guarded Linux repair receipt](evidence/c-repairs-linux-20261126/README.md)
+accepts eleven original private/public/cache, solver and five-route callable
+methods on the repaired candidate. I retain the enclosing fourteen-method
+observer failure:31 supplemental text-stream observations fail in the logger,
+with no product assertion failure. The three uncompleted companion methods pass
+separately after that observer correction, with identical source/tool/image
+guards. I retain1001 original frames per affine consumer,308 private,845 public
+and3317 cache additions. I do not erase the original whole-run failure.
+
+My later [current Linux native receipt](evidence/c-repairs-linux-20261126/native-current-linux-20261127/README.md)
+qualifies product source6e09c07a9f through bootstrap17, native36 and emitter12.
+It retains my compact legacy pointer carriers and platform-specific generated
+math flags, all original assertions and1800/30/default10/300 limits. This is a
+separate current native component receipt, not a re-execution of the earlier
+private/public/callable matrix with that Stage2 image.
+
+I require that current-producer component check next, then full representation,
+profile/admission, body/runtime/ownership and host-emission composition, paired
+platform qualification and installed pure-translator cutover. The old C-owner
+barrier no longer describes that work. My two frozen structured-C CAST_STRING
+assertions remain a separate explicit reconciliation decision; I do not count
+that broad target as passing. All69 release requirements remain in force.
