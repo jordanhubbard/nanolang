@@ -40,3 +40,12 @@ helper grants payload or executable admission. I still compose complete
 module representation and body/runtime/profile/ownership/host emission,
 qualify paired platforms and installed cutover, reconcile frozen assertions
 and pass exact-candidate CI and all69 release requirements.
+
+My [C ABI type selectors](NANOLANG_C_ABI_TYPES.md) now pass their131328-input
+branch-domain matrix plus6144 context controls through actual C and five
+NanoLang routes. The four-method receipt retains exact spellings/fallbacks,
+imported shadows, the missing-header setup failure, unchanged product bytes
+and all selected guards. Its reader replays every original method without
+products. These facts grant no module/payload/admission authority; checked
+table indexing and full module/declaration/body/runtime/profile/ownership/
+host composition and all later qualification/release gates remain.

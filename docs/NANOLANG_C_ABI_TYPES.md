@@ -33,6 +33,13 @@ domains; I do not call it an exhaustive256-cubed Cartesian result matrix.
 Independent expected strings and ignored-array-context controls supplement
 ordinary/sanitized actual C and all five NanoLang routes. Original600/60/
 default10, malformed/prior-output boundaries and immutable guards remain.
-Implementation and qualification are pending. I still compose complete module
-representation/declarations/body/runtime/profile/ownership/host emission and
-qualify paired platforms, installed cutover and all69 release requirements.
+My four permanent methods pass23.349s/all45 commands on Linux ARM64,
+including6144 ignored-array-context controls and imported shadows with the
+current qualified Stage2 producer. I retain [my checked receipt](evidence/c-repairs-linux-20261126/c-abi-types-20261127/README.md),
+all selected source/tool/producer/receipt/index/six-host guards, the initial
+missing-header observer refusal and the exact unchanged-header correction.
+The reader checks4686 unchanged Git sources and replays962724 report lines
+and all four method assertions without products. I still compose complete
+module representation/declarations/body/runtime/profile/ownership/host
+emission and qualify paired platforms, installed cutover and all69 release
+requirements.
