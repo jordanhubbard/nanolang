@@ -31,3 +31,9 @@ limit; a preceding original-limit observation still fails and remains retained.
 Fresh hosted original bootstrap/native/emitter/cache and full release
 qualification remain pending. I track the reproduced prior temporary-array
 argument leak separately in #1266.
+
+My [local receipt and independent readers](evidence/c-repairs-linux-20261126/string-binding-hint-20261127/README.md)
+retain all counter, regression, sanitizer, failure and sampled-run boundaries.
+The first hosted Darwin job refuses a missing mkdtemp declaration in my new
+test before original bootstrap; its test-only feature declaration correction
+requires new hosted qualification.
