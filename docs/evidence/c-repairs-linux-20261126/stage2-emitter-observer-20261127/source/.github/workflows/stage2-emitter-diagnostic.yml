@@ -1,0 +1,89 @@
+name: Retained Stage2 emitter setup diagnostic
+
+on:
+  push:
+    branches: [feat/5.1-service-module-integration]
+    paths:
+      - '.github/workflows/stage2-emitter-diagnostic.yml'
+      - 'scripts/ci_stage2_emitter_diagnostic.py'
+      - 'tests/test_stage2_emitter_diagnostic.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a hosted diagnostic worker
+        run: test '${{ runner.environment }}' = github-hosted
+      - uses: actions/checkout@v4
+        with:
+          ref: d18fed86140b6a4cf983898ac32a079002f6b784
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/evidence/
+      - name: Require original storage headroom
+        run: |
+          python3 - <<'PY'
+          import os, shutil, tempfile
+          for path in ['.', tempfile.gettempdir(), os.environ['RUNNER_TEMP']]:
+              disk=shutil.disk_usage(path)
+              assert disk.free >= 20*1024**3 and disk.free/disk.total >= .10
+          PY
+      - name: Install the original Linux dependencies
+        timeout-minutes: 25
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev
+      - name: Select the original verified capture assembler
+        timeout-minutes: 90
+        uses: ./.github/actions/setup-capture-assembler
+      - name: Load only pinned observer code outside the product tree
+        env:
+          OBSERVER_REVISION: ${{ github.sha }}
+        run: |
+          git fetch --filter=blob:none --depth=1 origin "$OBSERVER_REVISION"
+          git fetch --filter=blob:none --depth=1 origin 51c82debb858145371cd9f28005d683e0e79184f
+          code="$RUNNER_TEMP/stage2-emitter-observer"
+          mkdir -p "$code/scripts" "$code/tests"
+          touch "$code/scripts/__init__.py"
+          git show "$OBSERVER_REVISION:scripts/ci_stage2_emitter_diagnostic.py" > "$code/scripts/ci_stage2_emitter_diagnostic.py"
+          git show "$OBSERVER_REVISION:tests/test_stage2_emitter_diagnostic.py" > "$code/tests/test_stage2_emitter_diagnostic.py"
+          git show 51c82debb858145371cd9f28005d683e0e79184f:scripts/ci_darwin_shadow_lifecycle.py > "$code/scripts/ci_darwin_shadow_lifecycle.py"
+          git show 51c82debb858145371cd9f28005d683e0e79184f:tests/test_cseed_shadow_lifecycle_restore.py > "$code/tests/test_cseed_shadow_lifecycle_restore.py"
+      - name: Calibrate process observation and cache restoration
+        timeout-minutes: 3
+        run: |
+          mkdir -p .test_output/stage2-emitter-controls
+          controls="$GITHUB_WORKSPACE/.test_output/stage2-emitter-controls"
+          cd "$RUNNER_TEMP/stage2-emitter-observer"
+          python3 -m unittest discover -s tests -v > "$controls/stdout" 2> "$controls/stderr"
+      - name: Observe the retained command at its original limit
+        timeout-minutes: 15
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_stage2_emitter_diagnostic.py" \
+            --root "$GITHUB_WORKSPACE" \
+            --restore-helper "$RUNNER_TEMP/stage2-emitter-observer/scripts/ci_darwin_shadow_lifecycle.py"
+      - name: Retain original inputs, calibration and terminal observation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage2-emitter-diagnostic-${{ github.sha }}
+          path: |
+            .test_output/stage2-emitter-diagnostic/
+            .test_output/stage2-emitter-controls/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

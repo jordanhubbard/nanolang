@@ -1,0 +1,10 @@
+{
+  "qualification": false,
+  "actual_retained_log_accepted": true,
+  "argv": [
+    "/home/runner/work/nanolang/nanolang/bin/nanoc_stage2",
+    "/home/runner/work/nanolang/nanolang/tests/selfhost_shadow_emitter.nano",
+    "-o",
+    "/home/runner/work/_temp/nano-qualification-lqh023v1/nano-native-shadows-hzd8rqtr/nanoc_stage2"
+  ]
+}

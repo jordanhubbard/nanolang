@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "whole_release": false,
+  "whole_C_qualification": false,
+  "hosted_observer_pending": true,
+  "files": {
+    "controls-result.json": {
+      "size": 541,
+      "sha256": "658ae25a3a2d7dce2d17c0404a0b5d7b0a7cad12c9bc069020440418ee6692d8"
+    },
+    "darwin-bootstrap-job.json": {
+      "size": 5120,
+      "sha256": "248a9e183026c3fce5e7e8f994ca1ce6f789c92c1b0717b1781621e40a193da6"
+    },
+    "darwin-bootstrap-job.log": {
+      "size": 220009,
+      "sha256": "f873b8138d9a119cec35c0c837d40c9683a9dcef1fa81a8188d1e1dd33ebb97e"
+    },
+    "final-workflow-controls.stderr": {
+      "size": 2761,
+      "sha256": "d40fe66c594d234f0697db54131eacac0cfd70d1c7e6478c0b26c1a445be0ffe"
+    },
+    "final-workflow-controls.stdout": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "linux-bootstrap-job.json": {
+      "size": 5104,
+      "sha256": "38e143c4160a3a60eb83f94bc17127e9f4501bfac6ccc3389baa30f7b1c8672c"
+    },
+    "linux-bootstrap-job.log": {
+      "size": 308121,
+      "sha256": "f592867aa8697e6010f897c0a2e3b8d3afd410f02f2433322b2e3ba1dabec419"
+    },
+    "linux-cache-job.json": {
+      "size": 5100,
+      "sha256": "8b0b163520e5544f86843ea9953c7283d0d2cf17a5c0d1adbdfd53c06e704f9b"
+    },
+    "linux-cache-job.log": {
+      "size": 198867,
+      "sha256": "513d9a634f9ae88acad6a0213fea87d40f5b403a83914bfa6e2061504f964f51"
+    },
+    "older-linux-bootstrap-job.json": {
+      "size": 5104,
+      "sha256": "3ffd130fd4f012e8e62a8cd96195e6e12dc6fa8d2a6fe1bfc694ee2a8c8e950b"
+    },
+    "older-linux-bootstrap-job.log": {
+      "size": 303709,
+      "sha256": "cfcc751906374e852ad2e24cfb29acd29819583163f9a853b4973f9010f5d5ad"
+    },
+    "original-command-check.json": {
+      "size": 334,
+      "sha256": "6e593d6bd31650aa957c3604e5df19fa0129b8492e81f1c15964c05f4bedd65c"
+    },
+    "restore-source/scripts/ci_darwin_shadow_lifecycle.py": {
+      "size": 19279,
+      "sha256": "5693f86ea998efff0abde49284d362c79c21556cabc6739647438878ce81771f"
+    },
+    "restore-source/tests/test_cseed_shadow_lifecycle_restore.py": {
+      "size": 9100,
+      "sha256": "c3a51be0532e305e500ff9f8f3260410cb33b1af247acade6737b0223f1b520b"
+    },
+    "source/.github/workflows/stage2-emitter-diagnostic.yml": {
+      "size": 3883,
+      "sha256": "d30a87b535a6ccf96a275535cbf072a2051bb31a5cb0a22c5e3ccaa1896cfb0b"
+    },
+    "source/scripts/ci_stage2_emitter_diagnostic.py": {
+      "size": 11646,
+      "sha256": "cbc07bd99f615c428b9533a77ad7344197993330bdca4339e59d03ee1929a140"
+    },
+    "source/tests/test_stage2_emitter_diagnostic.py": {
+      "size": 4305,
+      "sha256": "c3b464bdb92d8ba7b09b0f8313be267df3ac0113098cd7d51535a58ef1ead4b7"
+    }
+  }
+}
