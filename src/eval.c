@@ -3847,7 +3847,10 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
         if (delim_len == 0) {
             size_t str_len = strlen(str);
             for (size_t i = 0; i < str_len; i++) {
-                char ch[2] = { str[i], '\0' };
+                char *ch = gc_alloc_string(1);
+                if (!ch) { gc_release(result); return create_void(); }
+                ch[0] = str[i];
+                ch[1] = '\0';
                 dyn_array_push_string(result, ch);
             }
         } else {
@@ -3855,15 +3858,18 @@ static Value eval_evaluated_call(ASTNode *node, Environment *env, const char *na
             const char *found;
             while ((found = strstr(start, delim)) != NULL) {
                 size_t seg_len = (size_t)(found - start);
-                char *seg = malloc(seg_len + 1);
-                if (!seg) break;
+                char *seg = gc_alloc_string(seg_len);
+                if (!seg) { gc_release(result); return create_void(); }
                 memcpy(seg, start, seg_len);
                 seg[seg_len] = '\0';
                 dyn_array_push_string(result, seg);
-                free(seg);
                 start = found + delim_len;
             }
-            dyn_array_push_string(result, start);
+            size_t tail_len = strlen(start);
+            char *tail = gc_alloc_string(tail_len);
+            if (!tail) { gc_release(result); return create_void(); }
+            memcpy(tail, start, tail_len + 1);
+            dyn_array_push_string(result, tail);
         }
         return create_dyn_array(result);
     }

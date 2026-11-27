@@ -1,0 +1,26 @@
+# I retain my exact prior line splitter from8bdbaaa464.
+fn split_lines(s: string) -> array<string> {
+    let len: int = (str_length s)
+    let mut out: array<string> = []
+    let mut start: int = 0
+    let mut i: int = 0
+
+    while (< i len) {
+        if (== (str_substring s i 1) "\n") {
+            set out (array_push out (str_substring s start (- i start)))
+            set start (+ i 1)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    if (<= start len) {
+        set out (array_push out (str_substring s start (- len start)))
+    } else { (print "") }
+    return out
+}
+
+shadow split_lines {
+    let lines: array<string> = (split_lines "hello")
+    assert (== (array_length lines) 1)
+    assert (== (at lines 0) "hello")
+}

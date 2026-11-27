@@ -601,29 +601,33 @@ shadow compiler_tool_root {
 }
 
 fn split_lines(s: string) -> array<string> {
-    let len: int = (str_length s)
-    let mut out: array<string> = []
-    let mut start: int = 0
-    let mut i: int = 0
-
-    while (< i len) {
-        if (== (str_substring s i 1) "\n") {
-            set out (array_push out (str_substring s start (- i start)))
-            set start (+ i 1)
-        } else { (print "") }
-        set i (+ i 1)
-    }
-
-    if (<= start len) {
-        set out (array_push out (str_substring s start (- len start)))
-    } else { (print "") }
-    return out
+    return (str_split s "\n")
 }
 
 shadow split_lines {
     let lines: array<string> = (split_lines "hello")
     assert (== (array_length lines) 1)
     assert (== (at lines 0) "hello")
+    let empty: array<string> = (split_lines "")
+    assert (== (array_length empty) 1)
+    assert (== (at empty 0) "")
+    let boundaries: array<string> = (split_lines "\na\n\nb\n")
+    assert (== (array_length boundaries) 5)
+    assert (== (at boundaries 0) "")
+    assert (== (at boundaries 1) "a")
+    assert (== (at boundaries 2) "")
+    assert (== (at boundaries 3) "b")
+    assert (== (at boundaries 4) "")
+    let crlf: array<string> = (split_lines "a\r\nb\r\n")
+    assert (== (array_length crlf) 3)
+    assert (== (at crlf 0) "a\r")
+    assert (== (at crlf 1) "b\r")
+    assert (== (at crlf 2) "")
+    let utf8: array<string> = (split_lines "café\n茶\n")
+    assert (== (array_length utf8) 3)
+    assert (== (at utf8 0) "café")
+    assert (== (at utf8 1) "茶")
+    assert (== (at utf8 2) "")
 }
 
 fn parse_import_path_from_line(line: string) -> string {
