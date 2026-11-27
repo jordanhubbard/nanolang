@@ -1,3 +1,6 @@
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
 /* I preserve exact STRING retain behavior while skipping never-bound scans. */
 #include "nanolang.h"
 #include "runtime/gc.h"
