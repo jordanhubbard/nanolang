@@ -7,6 +7,8 @@ on:
       - '.github/workflows/shape-flow-hosted-arm.yml'
       - 'scripts/ci_original_native_qualification.py'
       - 'scripts/ci_original_consumer20.py'
+      - 'scripts/ci_original_qualification_policy.py'
+      - 'tests/test_ci_original_qualification_policy.py'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,6 @@ permissions:
 env:
   PRODUCT_REVISION: ddd3b5a4ff35678d1906c07c08fc6bbc39b041de
   C_REPAIR_OBSERVER_REVISION: ${{ github.sha }}
-  NANO_SHADOW_TIMEOUT_SECONDS: '10'
   CC: /usr/bin/cc
 
 jobs:
@@ -42,6 +43,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /scripts/
+            /tests/test_ci_original_qualification_policy.py
             /.github/workflows/shape-flow-hosted-arm.yml
       - name: Check out my exact product
         uses: actions/checkout@v4
@@ -74,6 +76,8 @@ jobs:
           import hashlib,json,os,platform,shutil
           files=['observer/scripts/ci_original_native_qualification.py',
                  'observer/scripts/ci_original_consumer20.py',
+                 'observer/scripts/ci_original_qualification_policy.py',
+                 'observer/tests/test_ci_original_qualification_policy.py',
                  'observer/.github/workflows/shape-flow-hosted-arm.yml']
           for tool in ['cc','as','ld','make','python3']:
               assert Path(shutil.which(tool)).resolve()==Path('/usr/bin',tool).resolve()
@@ -100,6 +104,11 @@ jobs:
           python3 -m pip install --user pyyaml \
             || python3 -m pip install --user --break-system-packages pyyaml
           python3 -c 'import yaml'
+      - name: Check my original timeout-policy admission before any build
+        run: |
+          python3 -m unittest discover -s observer/tests \
+            -p test_ci_original_qualification_policy.py -v \
+            > evidence/observer-controls.stdout 2> evidence/observer-controls.stderr
       - name: Run my focused controls and unchanged original ARM native gates
         timeout-minutes: 150
         run: |
@@ -178,6 +187,8 @@ jobs:
             evidence/
             observer/scripts/ci_original_native_qualification.py
             observer/scripts/ci_original_consumer20.py
+            observer/scripts/ci_original_qualification_policy.py
+            observer/tests/test_ci_original_qualification_policy.py
             observer/.github/workflows/shape-flow-hosted-arm.yml
             product/bin/
             product/obj/bootstrap-nanoisa/

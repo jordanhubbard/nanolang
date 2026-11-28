@@ -2,9 +2,11 @@
 from pathlib import Path
 import tempfile, hashlib, json, os, sys, time, unittest, subprocess, traceback
 import argparse,platform,re
+from ci_original_qualification_policy import require_original_timeout_defaults
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--product',type=Path,required=True);p.add_argument('--consumer',type=Path,required=True)
 p.add_argument('--native-observations',type=Path,required=True);p.add_argument('--observations',type=Path,required=True);args=p.parse_args()
+require_original_timeout_defaults(os.environ)
 assert os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('RUNNER_ARCH')=='ARM64'
 assert sys.platform=='linux' and platform.machine()=='aarch64'
 assert re.fullmatch('[0-9a-f]{40}',os.environ['C_REPAIR_OBSERVER_REVISION'])
@@ -38,7 +40,7 @@ for name,h in prerequisite['tools_after'].items():assert sha(name)==h
 assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=tree,text=True).strip()=='ddd3b5a4ff35678d1906c07c08fc6bbc39b041de'
 (root/'qualified-bootstrap-receipt.json').write_bytes(receipt.read_bytes())
 (root/'qualified-native-result.json').write_bytes(accepted.read_bytes())
-tools=[str(Path(__file__).resolve()),'/usr/bin/make','/usr/bin/cc','/usr/bin/as','/usr/bin/ld','/usr/bin/python3',os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER']]
+tools=[str(Path(__file__).resolve()),str(Path(__file__).with_name('ci_original_qualification_policy.py').resolve()),'/usr/bin/make','/usr/bin/cc','/usr/bin/as','/usr/bin/ld','/usr/bin/python3',os.environ['NANOLANG_TRANSLATOR_SOURCE_COMPILER']]
 tools += list(bootstrap['hosts'])
 tools += [str(receipt),str(accepted),str(qualified/'modules/index.json')]
 images=[tree/'bin'/n for n in ('nanoc_c','nano_virt','nano_vm','nvm2c','nano_aot_runtime.o')]
