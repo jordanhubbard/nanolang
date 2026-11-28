@@ -105,7 +105,7 @@ int main(int argc,char **argv) {
             uint32_t function=word(data+at+12),ops=word(data+at+32);
             b.sim_stack_capacity=(size_t)((uint64_t)word(data+at+16)+((uint64_t)word(data+at+20)<<32));b.record_width=short_word(data+at+28);
             uint16_t locals_count=(uint16_t)short_word(data+at+30);b.shape_current=&current;
-            snprintf(error,sizeof error,"%s",(flags&16)?"prior":"");nvm_shape_init(&b.shapes);
+            snprintf(error,sizeof error,"%s",(flags&16)?"prior":"");
             at+=36;b.default_fields=data+at;at+=b.record_width;uint8_t *locals=data+at;at+=locals_count;
             Nvm2cSimSlot *cells=calloc((size_t)ops+1,sizeof *cells),*saved=calloc((size_t)ops+1,sizeof *saved);
             if(!cells||!saved){free(cells);free(saved);nvm_shape_destroy(&b.shapes);free(data);return 2;}
