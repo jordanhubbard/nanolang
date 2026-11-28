@@ -34,12 +34,15 @@
     "default custody, pure translator/cutover and all69 release requirements"
   ],
   "hosted_arm": {
-    "run": 46121202196,
-    "job": 140905887981,
-    "observer": "2f748c7df01b4521ba4b579a14f4863c5cef4cc4",
+    "run": 46124422281,
+    "job": 140915736761,
+    "observer": "2770a63b377d4505cc195cbb2130a90780a37f4c",
     "product_source": "ddd3b5a4ff35678d1906c07c08fc6bbc39b041de",
     "terminal_qualification_passed": false,
-    "local_worker_lease": false
+    "local_worker_lease": false,
+    "timeout_policy_controls_passed": 5,
+    "required_bootstrap_stage_seconds": 1800,
+    "required_bootstrap_shadow_seconds": 30
   },
   "historical_failed_candidate": {
     "source": "f8e7b78334281485c3b48765c835b8bda218c975",
@@ -47,5 +50,19 @@
     "cleared_by_diagnostic": false
   },
   "candidate_accepted": false,
-  "current_linux_original_emitter_gate_passed": true
+  "current_linux_original_emitter_gate_passed": true,
+  "hosted_arm_observer_refusals": [
+    {
+      "run": 46121202196,
+      "job": 140905887981,
+      "observer": "2f748c7df01b4521ba4b579a14f4863c5cef4cc4",
+      "capsule": "hosted-arm-observer-refusal-46121202196",
+      "manifest_sha256": "74b65e57ce0dc72ce1f7b1957c08ea684e2be27a8ca7f25da55e688b4abb3577",
+      "cause": "I exported ordinary shadow10 globally, so bootstrap inherited10 instead of original30; the unchanged receipt guard refused.",
+      "bootstrap_observed_phases_passed": 17,
+      "bootstrap_observed_shadow_seconds": 10,
+      "native_and_consumer_suites_started": false,
+      "original_arm_qualification_passed": false
+    }
+  ]
 }
