@@ -26,14 +26,22 @@
       "actual_native_format": "ELF64 little-endian",
       "actual_native_architecture": "x86-64",
       "legacy_report_field_corrigendum": "native-format-corrigendum-20261128"
+    },
+    {
+      "capsule": "darwin-cache-retained-46130062452",
+      "manifest_sha256": "53dfeeacfd33ed3b058c00238646f92b9c4b157c2a25013a99b88f4363ffeb01",
+      "run": 46130062452,
+      "artifact": 15260785802,
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
     }
   ],
   "focused_manifest_sha256": "70260ec2dda340164287d33b52a977f2ff2aa8f8c3dc8c8cbfb8af81d7565c44",
   "baseline_manifest_sha256": "24448cf46cb94171b0ee13648bb894d9b74a8c5f16a7eb6c97e37f49147c7d62",
   "scope_sha256": "efdccb6acb7cb2b15a7a96f34c7b11d81be4f93ff468af699ce33c2334b8d823",
   "pending": [
-    "Darwin cache-only run46130062452 complete original execution, actual artifact retention and independent acceptance",
-    "default custody, pure translator/cutover and all69 release requirements"
+    "default custody, Puck loader sanitizer, pure translator/cutover and all69 release requirements"
   ],
   "hosted_arm": {
     "run": 46124422281,
@@ -96,5 +104,6 @@
     "replacement_cache_only_run": 46130062452,
     "collector_attempt_limit": 3,
     "product_source_unchanged": true
-  }
+  },
+  "all_current_platform_cohorts_retained": true
 }
