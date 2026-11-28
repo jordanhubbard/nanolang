@@ -433,6 +433,13 @@ bool nl_carrier_values_collect(NlCarrierValues *heap, const NlCarrierRef *roots,
     heap->roots = NULL; heap->root_count = 0;
     heap->busy = false; return result;
 }
+bool nl_carrier_values_validate_borrowed(NlCarrierValues *heap, const NlCarrierRef *roots, size_t count) {
+    if (!heap || heap->busy) return false;
+    bool result = begin_walk(heap, roots, count, true);
+    if (result) result = heap->key_count == 0;
+    heap->roots = NULL; heap->root_count = 0;
+    heap->busy = false; return result;
+}
 bool nl_carrier_values_transfer(NlCarrierValues *heap, const NlCarrierRef *roots, size_t count) {
     if (!heap || heap->busy) return false;
     bool result = begin_walk(heap, roots, count, true);

@@ -16,6 +16,15 @@ void env_carrier_leave_value(Environment *env, Value result, bool record_list);
 /* My private collector requires complete valid external roots supplied by its
  * qualification caller. I do not enable collection through ordinary creation. */
 bool env_carrier_enable_collection(Environment *env, const NlCarrierRef *host_roots, size_t count);
+/* My caller explicitly owns these valid physical roots. I keep their reachable
+ * children live during collection and hand off new owned descendants at the
+ * external C-call return. Replacement failure preserves the old declaration.
+ * Every payload in the declared graph must be caller-owned at declaration;
+ * checked interpreter writes may add owned descendants during the call.
+ * I reject declaration during calls or graph walks. I require the caller to
+ * withdraw roots before freeing or replacing their physical storage.
+ * Borrow-only collection roots grant no such transfer. */
+bool env_carrier_set_call_roots(Environment *env, const NlCarrierRef *roots, size_t count);
 bool env_carrier_collect(Environment *env);
 /* My nested automatic headroom is the last retained live heap, clamped16..64.
  * Explicit walks, first/shallow/host roots and failed-walk recovery stay full. */
@@ -44,6 +53,7 @@ size_t env_carrier_consumed_count(const Environment *env);
 size_t env_carrier_consumed_capacity(const Environment *env);
 bool env_carrier_owns(Environment *env, Value value);
 void env_carrier_export(Environment *env, Value value, bool record_list);
+void env_carrier_export_call(Environment *env, Value value, bool record_list, bool result_owned);
 void env_carrier_close(Environment *env);
 NlCarrierHeapStats env_carrier_stats(const Environment *env);
 NlCarrierHeapStats env_carrier_last_retired_stats(void);

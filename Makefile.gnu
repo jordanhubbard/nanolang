@@ -8586,3 +8586,13 @@ test-gc-registry-working-set-sanitizers: | $(OBJ_DIR)
 	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_gc_registry_growth_failure_sanitized
 
 test-units: test-gc-registry-working-set test-gc-registry-working-set-sanitizers
+
+.PHONY: test-eval-caller-root-handoff
+test-eval-caller-root-handoff: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/eval_carrier_runtime_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(OBJ_DIR)/eval_carrier_heap_allocations.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_eval_caller_root_handoff tests/test_eval_caller_root_handoff.c $(filter-out $(OBJ_DIR)/eval/carrier_runtime.o $(OBJ_DIR)/eval/carrier_values.o $(OBJ_DIR)/eval/carrier_heap.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_carrier_runtime_allocations.o $(OBJ_DIR)/eval_carrier_values_allocations.o $(OBJ_DIR)/eval_carrier_heap_allocations.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_eval_caller_root_handoff
+
+test-units: test-eval-caller-root-handoff
+
+$(OBJ_DIR)/eval_carrier_runtime_allocations.o: src/eval/carrier_runtime.c src/eval/carrier_runtime.h tests/support/carrier_value_allocations.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/carrier_value_allocations.h -c $< -o $@
