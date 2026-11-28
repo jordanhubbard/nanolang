@@ -1,0 +1,57 @@
+{
+  "release_gate_passed": false,
+  "all_69_requirements_complete": false,
+  "product_acceptance_granted": false,
+  "items": [
+    {
+      "pr": 1070,
+      "head": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+      "comment_url": "https://github.com/jordanhubbard/nanolang/pull/1070#issuecomment-7237935575",
+      "terminal": {
+        "closedAt": "2026-11-28T10:30:02Z",
+        "headRefOid": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+        "mergedAt": null,
+        "number": 1070,
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1070"
+      },
+      "reason": "consolidated into PR1168; no product acceptance"
+    },
+    {
+      "pr": 1071,
+      "head": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+      "comment_url": "https://github.com/jordanhubbard/nanolang/pull/1071#issuecomment-7237936379",
+      "terminal": {
+        "closedAt": "2026-11-28T10:30:06Z",
+        "headRefOid": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+        "mergedAt": null,
+        "number": 1071,
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1071"
+      },
+      "reason": "consolidated into PR1168; no product acceptance"
+    },
+    {
+      "pr": 1074,
+      "head": "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+      "comment_url": "https://github.com/jordanhubbard/nanolang/pull/1074#issuecomment-7237937058",
+      "terminal": {
+        "closedAt": "2026-11-28T10:30:10Z",
+        "headRefOid": "35dca0dc02f6fd27320cd610295d924b7c7c2133",
+        "mergedAt": null,
+        "number": 1074,
+        "state": "CLOSED",
+        "url": "https://github.com/jordanhubbard/nanolang/pull/1074"
+      },
+      "reason": "consolidated into PR1168; no product acceptance"
+    }
+  ],
+  "preserved_branch_refs": {
+    "refs/heads/fix/5.1-capture-requalification": "fcc114ea7fde14eed22ff8a1031033fc6df90d92",
+    "refs/heads/fix/5.1-declare-wasmtime": "e9499fcfc1a21143820f0b68d8d676543cee21e2",
+    "refs/heads/fix/5.1-reproducible-version": "35dca0dc02f6fd27320cd610295d924b7c7c2133"
+  },
+  "snapshot_utc": "2026-11-28T10:31:16.848861+00:00",
+  "main_merge_granted": false,
+  "stale_label_available": false
+}
