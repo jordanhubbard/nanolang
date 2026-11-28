@@ -159,12 +159,18 @@ fn complete(s: stack.Frame, output: stack.Slot) -> string {
 shadow complete { assert (== (complete (blank) (stack.slot 2 -1)) "L|\nV|-1|2|-1|0|0|0|0|\nD|0|0|0|0\n") }
 fn read_slot(bytes: array<u8>, cursor: int, width: int) -> stack.Slot {
     let present: bool = (!= (cast_int (at bytes (+ cursor 2))) 0)
-    let fields: array<u8> = (cond (present (array_slice bytes (+ cursor 20) (+ (+ cursor 20) width))) (else []))
+    let fields: array<u8> = (cond (present (array_slice bytes (+ cursor 20) width)) (else []))
     return stack.Slot { kind: (cast_int (at bytes (+ cursor 1))), origin: (signed_word bytes (+ cursor 4)),
         fields_present: present, fields: fields, shape: (wire.read_u32 bytes (+ cursor 8)),
         scalar_tags: (wire.read_u16 bytes (+ cursor 12)), array_payload: (cast_int (at bytes (+ cursor 3))) }
 }
-shadow read_slot { let v: stack.Slot = (read_slot [0,2,0,7,255,255,255,255,0,0,0,0,2,0,0,0,0,0,0,0] 0 0) assert (== v.kind 2) assert (== v.origin -1) assert (== v.array_payload 7) assert (== v.scalar_tags 2) }
+shadow read_slot {
+    let v: stack.Slot = (read_slot [0,2,0,7,255,255,255,255,0,0,0,0,2,0,0,0,0,0,0,0] 0 0)
+    assert (== v.kind 2) assert (== v.origin -1) assert (== v.array_payload 7) assert (== v.scalar_tags 2)
+    let bounded: stack.Slot = (read_slot [0,2,1,7,255,255,255,255,0,0,0,0,2,0,0,0,0,0,0,0,17,255,99,88] 0 2)
+    assert bounded.fields_present assert (== (array_length bounded.fields) 2)
+    assert (== (cast_int (at bounded.fields 0)) 17) assert (== (cast_int (at bounded.fields 1)) 255)
+}
 fn describe(bytes: array<u8>) -> string {
     if (not (framed bytes)) { return "INVALID\n" }
     let mut lines: array<string> = []
@@ -183,9 +189,9 @@ fn describe(bytes: array<u8>) -> string {
         let locals: int = (wire.read_u16 bytes (+ cursor 30))
         let steps: int = (wire.read_u32 bytes (+ cursor 32))
         set cursor (+ cursor 36)
-        let defaults: array<u8> = (array_slice bytes cursor (+ cursor width))
+        let defaults: array<u8> = (array_slice bytes cursor width)
         set cursor (+ cursor width)
-        let local_kinds: array<u8> = (array_slice bytes cursor (+ cursor locals))
+        let local_kinds: array<u8> = (array_slice bytes cursor locals)
         set cursor (+ cursor locals)
         let context: adapter.State = (adapter.create c (has flags 8) (cond ((has flags 16) "prior") (else "")))
         let mut s: stack.Frame = (stack.create context capacity current defaults local_kinds)
@@ -229,7 +235,12 @@ fn describe(bytes: array<u8>) -> string {
     }
     return (str_join lines "")
 }
-shadow describe { assert (== (describe []) "INVALID\n") assert (== (describe [0,0,0,0]) "") }
+shadow describe {
+    assert (== (describe []) "INVALID\n") assert (== (describe [0,0,0,0]) "")
+    let packet: array<u8> = [1,0,0,0,0,3,0,0,17,0,0,0,29,0,0,0,7,0,0,0,2,0,0,0,0,0,0,0,99,0,0,0,2,0,3,0,1,0,0,0,2,2,2,8,9,1,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    let expected: string = "E|0|0|1|0||1|99|0|\nL|2,8,9\nV|-1|2|-1|0|0|0|0|\nS|0|9|7|1|0|16|0|2,2\nD|0|0|0|0\nZ|0|1|0|0||1|99|0|\n"
+    assert (== (describe packet) expected)
+}
 fn main() -> int {
     unsafe { for index in (range 1 (get_argc)) { (print (describe (file_read_bytes (get_argv index)))) } }
     return 0
