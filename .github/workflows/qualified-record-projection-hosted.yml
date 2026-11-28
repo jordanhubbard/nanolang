@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/qualified-record-projection-hosted.yml'
       - 'scripts/ci_qualified_record_projection.py'
+      - 'tests/test_ci_qualified_record_projection_observer.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-15]
+        os: [xcode-27]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     defaults:
@@ -35,6 +36,7 @@ jobs:
           sparse-checkout: |
             /scripts/ci_qualified_record_projection.py
             /scripts/ci_original_qualification_policy.py
+            /tests/test_ci_qualified_record_projection_observer.py
             /.github/workflows/qualified-record-projection-hosted.yml
       - name: Check out my unchanged old reference
         uses: actions/checkout@v4
@@ -69,9 +71,13 @@ jobs:
         if: runner.os == 'macOS'
         working-directory: product
         run: python3 scripts/ci_select_capture_clang.py
-      - name: Execute my exact old and current controls
+      - name: Check my observer admission before any product build
         run: |
           mkdir evidence
+          python3 -m unittest discover -s observer/tests -p test_ci_qualified_record_projection_observer.py -v \
+            > evidence/observer-controls.stdout 2> evidence/observer-controls.stderr
+      - name: Execute my exact old and current controls
+        run: |
           python3 observer/scripts/ci_qualified_record_projection.py --old old --product product \
             --output evidence/projection > evidence/controller.stdout 2> evidence/controller.stderr
       - name: Check my final source identities
@@ -90,6 +96,7 @@ jobs:
             product/.test_output/retirement/capture-toolchain.json
             observer/scripts/ci_qualified_record_projection.py
             observer/scripts/ci_original_qualification_policy.py
+            observer/tests/test_ci_qualified_record_projection_observer.py
             observer/.github/workflows/qualified-record-projection-hosted.yml
           include-hidden-files: true
           if-no-files-found: error
