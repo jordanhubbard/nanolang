@@ -13,7 +13,7 @@ from tests import native_process
 from tests import nanolang_translator_routes as routes
 from tests import test_nanovirt_qualified_record_projection as regression
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
-q=dict(whole_release=False,qualification=False,terminal=False,old='e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8',product='a52e44117f2623acc401d0fe0c10024a29b130dd',observer=os.environ['OBSERVER_REVISION'],host=dict(system=platform.system(),machine=platform.machine()),commands=[])
+q=dict(whole_release=False,qualification=False,terminal=False,old='e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8',product='7ffdb2069f192f1e2d3a3dcf378f256cbcaa62d8',observer=os.environ['OBSERVER_REVISION'],host=dict(system=platform.system(),machine=platform.machine()),commands=[])
 def save():(out/'result.json').write_text(json.dumps(q,indent=2)+'\n')
 def source_map(root):
  return {str(root/n):sha(root/n) for n in subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split('\0') if n and not n.startswith('docs/') and (root/n).is_file()}
@@ -59,7 +59,12 @@ try:
  images={str(root/'bin'/n):sha(root/'bin'/n) for root,names in [(old,['nano_virt','nano_vm']),(product,['nanoc_c','nano_virt','nano_vm','nvm2c','nano_aot_runtime.o'])] for n in names}
  q['images_before']=images;record_files(images,'image');save()
  negative=out/'old-negative';negative.mkdir();(negative/'projection_provider.nano').write_text(regression.PROVIDER)
- source=negative/'main.nano';source.write_text(regression.fixture('left: int, right: int, tags: int'));target=negative/'prior.nvm';sentinel=b'I retain my previous output.\n';target.write_bytes(sentinel)
+ (negative/'projection_decoy.nano').write_text(regression.decoy('left: int, right: int, tags: int'))
+ positive=negative/'root-positive.nano';positive.write_text(regression.fixture('left: int, right: int, tags: int'))
+ result=observed([old/'bin/nano_virt',positive,'-o',negative/'root-positive.nvm'],cwd=old,timeout=60,build=True)
+ assert result.returncode==0
+ q['old_root_reduction_positive_preserved']=True;save()
+ source=negative/'main.nano';source.write_text(regression.fixture('left: int, right: int, tags: int',imported=True));target=negative/'prior.nvm';sentinel=b'I retain my previous output.\n';target.write_bytes(sentinel)
  result=observed([old/'bin/nano_virt',source,'-o',target],cwd=old,timeout=60,build=True)
  assert result.returncode!=0 and b'AGG_GET field 2 is unavailable' in result.stderr and target.read_bytes()==sentinel
  q['minimal_old_code_refused']=True;save()
@@ -67,7 +72,7 @@ try:
  result=observed([old/'bin/nano_virt',old/'tests/nvm2c_representation_joins_driver.nano','-o',target],cwd=old,timeout=60,build=True)
  assert result.returncode!=0 and b'AGG_GET field 2 is unavailable' in result.stderr and b'push_slot' in result.stderr and target.read_bytes()==sentinel
  q['original_old_shadow_refused']=True;save()
- suite=unittest.defaultTestLoader.loadTestsFromModule(regression);assert suite.countTestCases()==2
+ suite=unittest.defaultTestLoader.loadTestsFromModule(regression);assert suite.countTestCases()==3
  result=unittest.TextTestRunner(verbosity=2).run(suite);q.update(tests_run=result.testsRun,failures=len(result.failures),errors=len(result.errors),skips=len(result.skipped));assert result.wasSuccessful() and not result.skipped
  result=observed([product/'bin/nano_virt',product/'tests/nvm2c_representation_joins_driver.nano','-o',out/'current-driver.nvm'],cwd=product,timeout=60,build=True)
  assert result.returncode==0

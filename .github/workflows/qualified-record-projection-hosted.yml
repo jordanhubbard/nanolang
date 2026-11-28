@@ -11,7 +11,7 @@ permissions:
   contents: read
 env:
   OLD_REVISION: e2ad13e3ee129b926a5cab9b15f22bf61c0ac5d8
-  PRODUCT_REVISION: a52e44117f2623acc401d0fe0c10024a29b130dd
+  PRODUCT_REVISION: 7ffdb2069f192f1e2d3a3dcf378f256cbcaa62d8
   OBSERVER_REVISION: ${{ github.sha }}
   CC: cc
 jobs:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [xcode-27]
+        os: [ubuntu-latest, xcode-27]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     defaults:
@@ -71,6 +71,12 @@ jobs:
         if: runner.os == 'macOS'
         working-directory: product
         run: python3 scripts/ci_select_capture_clang.py
+      - name: Install my observer Python dependency
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
       - name: Check my observer admission before any product build
         run: |
           mkdir evidence

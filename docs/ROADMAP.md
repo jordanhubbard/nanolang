@@ -1,5 +1,9 @@
 # My 5.1 compiler architecture and release order
 
+- [ ] Under #1275 I qualify source7ffdb2069f192f1e2d3a3dcf378f256cbcaa62d8 with the retained root-Decoy old-code positive, the added prior-import old-code refusal and original complete driver shadow countercase. The checker-signature fallback and all three permanent regression methods must pass on Linux and the original xcode-27 worker, with the existing Python dependency, strict source/tool/image guards and original600/60/default10 limits. Both prior focused legs supplied no product acceptance; the full32/seven-route gate and allocation controls remain separate.
+
+- [ ] Under #1275 I retain my cancelled Darwin setup run46132709061/job140941185643: installation is cancelled and both toolchain selection and all product execution are skipped. Review of the established xcode-27 receipt shows its Python requires the original PyYAML installation step. I add that dependency before the new observer tests and require the next complete Darwin invocation; no product is retried by this cancellation.
+
 - [x] Under #1275 I preserve and correct my observer-test setup refusal: two initial variable names were not the existing timeout API. I test the actual CMD_TIMEOUT, NANO_SHADOW_TIMEOUT_SECONDS, BOOTSTRAP_NANOISA_TIMEOUT and BOOTSTRAP_NANOISA_SHADOW_TIMEOUT overrides; all four refuse before any execution namespace. The runner-admission control also passes. This corrects observer coverage and establishes no product result.
 
 - [ ] Under #1275 I retain my focused observer5d6dbeed/run46132476599 Darwin refusal before any product execution: I selected macos-15, which lacks pinned /Applications/Xcode_27.2.0.app. I restore the established xcode-27 worker with an admission regression, repeat only the unexecuted Darwin leg, preserve sourcea52 and original test limits, and keep the independent Linux leg unchanged. No product or cross-platform acceptance follows from this setup failure.

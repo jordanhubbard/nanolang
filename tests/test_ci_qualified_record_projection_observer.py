@@ -5,10 +5,10 @@ ROOT=Path(__file__).resolve().parents[1]
 class ProjectionObserver(unittest.TestCase):
     def test_darwin_uses_the_established_pinned_worker(self):
         workflow=yaml.safe_load((ROOT/'.github/workflows/qualified-record-projection-hosted.yml').read_text())
-        self.assertEqual(workflow['jobs']['projection']['strategy']['matrix']['os'],['xcode-27'])
+        self.assertEqual(workflow['jobs']['projection']['strategy']['matrix']['os'],['ubuntu-latest','xcode-27'])
         selects=[s for s in workflow['jobs']['projection']['steps'] if s.get('run')=='python3 scripts/ci_select_capture_clang.py']
         self.assertEqual(len(selects),1)
-        self.assertEqual(workflow['env']['PRODUCT_REVISION'],'a52e44117f2623acc401d0fe0c10024a29b130dd')
+        self.assertEqual(workflow['env']['PRODUCT_REVISION'],'7ffdb2069f192f1e2d3a3dcf378f256cbcaa62d8')
 
     def test_inherited_deadline_changes_refuse_before_namespace(self):
         for variable in ['CMD_TIMEOUT','BOOTSTRAP_NANOISA_TIMEOUT','NANO_SHADOW_TIMEOUT_SECONDS','BOOTSTRAP_NANOISA_SHADOW_TIMEOUT']:
