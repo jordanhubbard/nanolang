@@ -16,13 +16,19 @@
       "independent_reader_passed": true,
       "changed_manifest_refused": true,
       "product_gate_passed": true
+    },
+    {
+      "capsule": "original-cohorts-46119624230/linux-bootstrap",
+      "manifest_sha256": "712a95ad550e72c0988aad66025bb47f9ee420dce1c68f3219331298ef272ddc",
+      "independent_reader_passed": true,
+      "changed_manifest_refused": true,
+      "product_gate_passed": true
     }
   ],
   "focused_manifest_sha256": "70260ec2dda340164287d33b52a977f2ff2aa8f8c3dc8c8cbfb8af81d7565c44",
   "baseline_manifest_sha256": "24448cf46cb94171b0ee13648bb894d9b74a8c5f16a7eb6c97e37f49147c7d62",
   "scope_sha256": "efdccb6acb7cb2b15a7a96f34c7b11d81be4f93ff468af699ce33c2334b8d823",
   "pending": [
-    "Linux original native/emitter terminal acceptance",
     "Darwin original cache/worker terminal acceptance",
     "hosted ARM17/36/12/final/20 independent terminal acceptance",
     "default custody, pure translator/cutover and all69 release requirements"
@@ -40,5 +46,6 @@
     "linux_emitter_setup_timeout_seconds": 300,
     "cleared_by_diagnostic": false
   },
-  "candidate_accepted": false
+  "candidate_accepted": false,
+  "current_linux_original_emitter_gate_passed": true
 }
